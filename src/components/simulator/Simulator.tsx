@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { validate } from "@/lib/parser/validate";
 import SetupPanel from "./SetupPanel";
-import { defaultSetup, type Setup } from "./setup";
+import { defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
 import {
   parseProgram,
   pointAt,
@@ -50,6 +50,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
+
+  // narzędzia użyte w programie -> uzupełnij tabelę
+  const usedTools = useMemo(() => {
+    const set = new Set<number>();
+    for (const l of program.lines) for (const w of l.words) if (w.letter === "T") set.add(Math.floor(w.value));
+    return [...set].filter((n) => n > 0).sort((a, b) => a - b);
+  }, [program]);
+  const toolsKey = usedTools.join(",");
+  const [prevToolsKey, setPrevToolsKey] = useState(toolsKey);
+  if (prevToolsKey !== toolsKey) { setPrevToolsKey(toolsKey); setSetup((s) => withProgramTools(s, usedTools, mode)); }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
@@ -94,6 +104,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && program.segments.length) { pos = program.segments[0].from; active = program.segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [program, progress, lengths, total]);
+
+  const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
+  const activeTool = toolOf(setup, activeToolNo, mode);
 
   // rysowanie
   useEffect(() => {
@@ -158,9 +171,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // półfabrykat
     const cut = program.segments.filter((s) => s.kind !== "rapid");
     if (!setup.stock.auto && mode === "mill") {
-      const st = setup.stock;
-      const x0 = st.originXY === "center" ? -st.x / 2 : 0, x1s = st.originXY === "center" ? st.x / 2 : st.x;
-      const y0 = st.originXY === "center" ? -st.y / 2 : 0, y1s = st.originXY === "center" ? st.y / 2 : st.y;
+      const stk = setup.stock;
+      const st = stk;
+      const x0 = -st.ox, x1s = st.x - st.ox;
+      const y0 = -st.oy, y1s = st.y - st.oy;
       const [ax, ay] = P({ x: x0, y: y0, z: 0 }); const [bx2, by2] = P({ x: x1s, y: y1s, z: 0 });
       ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
       ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
@@ -193,11 +207,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // narzędzie
     const [tx, ty] = P(currentPos);
     ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
-    const rPx = mode === "mill" ? Math.max(4, (setup.tool.d / 2) * scale) : 6;
+    const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, (activeTool.d / 2) * scale) : 6;
     ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
-  }, [program, progress, lengths, total, mode, compact, currentPos, setup]);
+  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -242,6 +256,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>
             <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
             <span>{st.coolant ? "M08" : "M09"}</span>
+            <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {activeTool.kind === "endmill" || activeTool.kind === "ballnose" || activeTool.kind === "drill" ? `⌀${activeTool.d}` : ""}</span>
           </div>
         )}
         {!compact && allow3d && (
@@ -250,7 +265,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             {show3d && <Sim3D source={source} mode={mode} progress={progress} setup={setup} />}
           </>
         )}
-        {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} />}
+        {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}
       </div>
     </div>
   );

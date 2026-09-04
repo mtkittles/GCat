@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
 import type { SimMode } from "./Simulator";
-import type { Setup } from "./setup";
+import { isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; }
 
@@ -15,7 +15,14 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const lengths = useMemo(() => program.segments.map(segmentLength), [program]);
-  const toolD = setup.tool.kind === "turning" || setup.tool.kind === "grooving" || setup.tool.kind === "boring" ? 6 : setup.tool.d;
+  // narzędzie aktywne w bieżącym miejscu programu
+  const activeToolNo = useMemo(() => {
+    let acc = 0; let no: number | null = null;
+    program.segments.forEach((sg, i) => { if (progress >= acc) no = program.lines[sg.line]?.state.tool ?? no; acc += lengths[i]; });
+    return no;
+  }, [program, lengths, progress]);
+  const tool: Tool = toolOf(setup, activeToolNo, mode);
+  const toolD = isLatheTool(tool.kind) ? 6 : tool.d;
 
   // scena
   const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
@@ -49,18 +56,18 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
     // narzędzie
     const toolLen = 30;
-    const k = setup.tool.kind; const r = toolD / 2;
+    const k = tool.kind; const r = toolD / 2;
     let toolGeo: THREE.BufferGeometry;
     if (k === "drill") { toolGeo = new THREE.ConeGeometry(r, r * 2, 20); toolGeo.translate(0, r, 0); const shank = new THREE.CylinderGeometry(r, r, toolLen, 20); shank.translate(0, r * 2 + toolLen / 2, 0); toolGeo = mergeGeo(toolGeo, shank); }
     else if (k === "tap") { toolGeo = new THREE.CylinderGeometry(r, r, toolLen, 6); toolGeo.translate(0, toolLen / 2, 0); }
     else if (k === "ballnose") { toolGeo = new THREE.SphereGeometry(r, 20, 12, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2); toolGeo.translate(0, r, 0); const sh = new THREE.CylinderGeometry(r, r, toolLen, 20); sh.translate(0, r + toolLen / 2, 0); toolGeo = mergeGeo(toolGeo, sh); }
-    else if (mode === "lathe") { toolGeo = latheToolGeo(setup.tool.angle, setup.tool.d); }
+    else if (mode === "lathe") { toolGeo = latheToolGeo(tool.angle, tool.d); }
     else { toolGeo = new THREE.CylinderGeometry(r, r, toolLen, 24); toolGeo.translate(0, toolLen / 2, 0); }
-    const tool = new THREE.Mesh(toolGeo, new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.6, roughness: 0.3 }));
-    scene.add(tool);
+    const toolMesh = new THREE.Mesh(toolGeo, new THREE.MeshStandardMaterial({ color: 0xdddddd, metalness: 0.6, roughness: 0.3 }));
+    scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
-    const st = { scene, stock: null as THREE.Mesh | null, tool, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
+    const st = { scene, stock: null as THREE.Mesh | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar
@@ -72,7 +79,7 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
     const onResize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); };
     window.addEventListener("resize", onResize);
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); renderer.dispose(); el.innerHTML = ""; sceneRef.current = null; };
-  }, [program, mode, toolD, setup.tool.kind, setup.tool.angle, setup.tool.d]);
+  }, [program, mode, toolD, tool.kind, tool.angle, tool.d]);
 
   // ubytek materiału + pozycja narzędzia
   useEffect(() => {
@@ -85,9 +92,9 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
     // geometria półfabrykatu
     if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); }
-    const geo = mode === "mill" ? millGeometry(program, cut, lengths, progress, toolD, setup) : latheGeometry(program, cut, lengths, progress, setup);
+    const geo = mode === "mill" ? millGeometry(program, cut, lengths, progress, setup, mode) : latheGeometry(program, cut, lengths, progress, setup);
     if (geo) { st.stock = new THREE.Mesh(geo, st.stockMat); st.scene.add(st.stock); }
-  }, [program, lengths, progress, mode, toolD, setup]);
+  }, [program, lengths, progress, mode, toolD, setup, tool]);
 
   return (
     <div className="grid gap-1">
@@ -137,25 +144,27 @@ function cutUpTo(cut: Segment[], allSegs: Segment[], lengths: number[], progress
   return out;
 }
 
-function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], lengths: number[], progress: number, toolD: number, setup: Setup) {
+function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], lengths: number[], progress: number, setup: Setup, mode: SimMode) {
   if (!cut.length) return null;
   let minX: number, maxX: number, minY: number, maxY: number, top: number, bottom: number;
   const st = setup.stock;
+  const maxD = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d), 6);
   if (st.auto) {
-    const m = 4 + toolD;
+    const m = 4 + maxD;
     let aX = Infinity, bX = -Infinity, aY = Infinity, bY = -Infinity, mz = 0;
     for (const s of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(s, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
     minX = aX - m; maxX = bX + m; minY = aY - m; maxY = bY + m; top = 0; bottom = Math.min(mz - 5, -5);
   } else {
-    if (st.originXY === "center") { minX = -st.x / 2; maxX = st.x / 2; minY = -st.y / 2; maxY = st.y / 2; }
-    else { minX = 0; maxX = st.x; minY = 0; maxY = st.y; }
-    top = st.originZTop ? 0 : st.z;
-    bottom = st.originZTop ? -st.z : 0;
+    minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;
+    top = st.z - st.oz; bottom = -st.oz;
   }
   const nx = GRID, ny = Math.max(20, Math.round(GRID * (maxY - minY) / (maxX - minX)));
   const h = new Float32Array((nx + 1) * (ny + 1)).fill(top);
-  const cx = (maxX - minX) / nx, cy = (maxY - minY) / ny; const r = toolD / 2;
+  const cx = (maxX - minX) / nx, cy = (maxY - minY) / ny;
   for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
+    const tno = program.lines[seg.line]?.state.tool ?? null;
+    const tl = toolOf(setup, tno, mode);
+    const r = (isLatheTool(tl.kind) ? 6 : tl.d) / 2;
     const len = segmentLength(seg) * t; const steps = Math.max(1, Math.ceil(len / (Math.min(cx, cy) * 0.7)));
     for (let i = 0; i <= steps; i++) {
       const p = pointAt(seg, (i / steps) * t); if (p.z >= top) continue;
@@ -186,7 +195,7 @@ function latheGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[],
   for (const s of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(s, t); minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z); maxR = Math.max(maxR, p.x); }
   const st = setup.stock;
   const R0 = st.auto ? maxR + 2 : st.d / 2;
-  const z0 = st.auto ? minZ - 8 : -st.len, z1 = Math.max(maxZ, 0);
+  const z0 = st.auto ? minZ - 8 : -st.len; const z1 = Math.max(maxZ, 0);
   const n = GRID; const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
   for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
     const steps = Math.max(2, Math.ceil((segmentLength(seg) * t) / (dz * 0.5)));
