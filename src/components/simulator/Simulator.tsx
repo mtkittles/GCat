@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import SetupPanel from "./SetupPanel";
-import { defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
+import { TOOL_LABEL, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
 import {
   parseProgram,
   pointAt,
@@ -45,6 +45,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
   const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
@@ -204,6 +205,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       acc += len;
     });
 
+    // zakres obróbki (bounding box ruchów roboczych)
+    if (cut.length && !compact) {
+      const bb = boundsOf(cut, ha, va);
+      const [bx1, by1] = P({ x: 0, y: 0, z: 0, [ha]: bb.minH, [va]: bb.minV } as Vec3);
+      const [bx2, by2] = P({ x: 0, y: 0, z: 0, [ha]: bb.maxH, [va]: bb.maxV } as Vec3);
+      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
+      ctx.strokeRect(bx1, by2, bx2 - bx1, by1 - by2); ctx.restore();
+    }
+
     // znacznik zera detalu
     ctx.fillStyle = COLORS.rapid;
     const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
@@ -217,12 +227,44 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
-  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool]);
+    // HUD: współrzędne, aktywna linia, narzędzie
+    if (!compact) {
+      const L = activeLine !== null ? program.lines[activeLine] : null;
+      const rows = [
+        mode === "mill"
+          ? `X ${fmt(currentPos.x)}  Y ${fmt(currentPos.y)}  Z ${fmt(currentPos.z)}`
+          : `X ${fmt(currentPos.x * 2)}⌀  Z ${fmt(currentPos.z)}`,
+        `T${String(activeToolNo ?? 0).padStart(2, "0")}  ${TOOL_LABEL[activeTool.kind]}${activeTool.kind === "endmill" || activeTool.kind === "ballnose" || activeTool.kind === "drill" ? ` ⌀${activeTool.d}` : ""}`,
+        L ? `linia ${L.index + 1}: ${(L.raw.trim() || "—").slice(0, 34)}` : "koniec programu",
+      ];
+      ctx.save();
+      ctx.font = "11px ui-monospace, monospace";
+      const wMax = Math.max(...rows.map((r) => ctx.measureText(r).width));
+      ctx.fillStyle = "rgba(5,7,10,0.72)";
+      ctx.fillRect(8, 8, wMax + 16, rows.length * 15 + 10);
+      rows.forEach((r, i) => {
+        ctx.fillStyle = i === 0 ? "#FFFFFF" : i === 1 ? "#E8A317" : "#9AA6B5";
+        ctx.fillText(r, 16, 24 + i * 15);
+      });
+      ctx.restore();
+    }
+
+  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
+  const onDrop = async (e: React.DragEvent) => {
+    e.preventDefault(); setDragOver(false);
+    const f = e.dataTransfer.files?.[0]; if (!f || !editable) return;
+    const text = await f.text();
+    onSourceChange?.(text.replace(/\r\n/g, "\n")); setFileName(f.name);
+  };
+
   return (
-    <div className={`grid gap-3 ${compact ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"}`}>
+    <div className={`grid gap-3 ${compact ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"} ${dragOver ? "is-dragover" : ""}`}
+      onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}>
       {!compact && (
         <div className="flex flex-col gap-2 min-h-0">
           {editable ? <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines} /> : null}
@@ -247,6 +289,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               }}>Zapisz jako .nc</button>
               <button onClick={() => { navigator.clipboard?.writeText(source); }}>Kopiuj</button>
               {fileName && <span className="file-name">{fileName}</span>}
+              <span className="file-hint">albo przeciągnij plik tutaj</span>
               <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
             </div>
           )}
@@ -257,7 +300,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           )}
           <ol className="sim-lines">
             {program.lines.map((l) => (
-              <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""}`}>
+              <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
+                onClick={() => {
+                  if (!l.segments.length) return;
+                  let acc = 0;
+                  for (let i = 0; i < program.segments.length; i++) {
+                    if (program.segments[i].line === l.index) { setPlaying(false); setProgress(acc + 1e-3); return; }
+                    acc += lengths[i];
+                  }
+                }}>
                 <code>{l.raw || " "}</code>
                 <span>{l.errors.length ? l.errors.join(" ") : l.description}</span>
               </li>

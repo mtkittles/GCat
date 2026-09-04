@@ -19,9 +19,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head><script dangerouslySetInnerHTML={{ __html: themeInit }} /></head>
       <body className="min-h-screen flex flex-col">
         <header className="site-header">
-          <div className="wrap flex items-center gap-4">
+          <div className="wrap flex items-center gap-3">
             <Link href="/" className="brand py-3 flex items-center gap-2"><Logo />G<b>Cat</b></Link>
-            <nav className="flex gap-4 text-[15px] overflow-x-auto">
+            <nav className="flex gap-4 text-[15px] overflow-x-auto min-w-0">
               <Link href="/nauka">Nauka</Link>
               <Link href="/zadania">Zadania</Link>
               <Link href="/kody">Kody</Link>

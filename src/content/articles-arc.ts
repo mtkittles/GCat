@@ -47,6 +47,7 @@ const arcBlocks = (cw: boolean): Block[] => [
   ] },
   { t: "p", x: "Środek leży na prostopadłej do cięciwy, w odległości h od jej środka — po jednej albo po drugiej stronie, zależnie od kierunku i znaku R. Na końcu przelicza się go na wektor przyrostowy: **I = Xśrodka − X₁**, **J = Yśrodka − Y₁**. W drugą stronę jest prościej: **R = √(I² + J²)**." },
   { t: "h", x: "Interpolacja śrubowa (helisa)" },
+  { t: "diagram", id: "helix" },
   { t: "p", x: "Jeżeli oprócz łuku w płaszczyźnie roboczej podasz również przesunięcie w osi prostopadłej, sterownik wykona **ruch po helisie** — łuk z jednoczesnym zagłębianiem. To technika stosowana przy:" },
   { t: "ul", items: [
     "**łagodnym wejściu w materiał** zamiast zagłębiania pionowego — narzędzie stopniowo nabiera głębokości po okręgu,",

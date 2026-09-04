@@ -1,123 +1,260 @@
 import type { ReactNode } from "react";
 
-const S = { stroke: "var(--ink)", fill: "none", strokeWidth: 2 } as const;
-const T = { fontSize: 12, fill: "var(--muted)", fontFamily: "var(--font-mono)" } as const;
-const Frame = ({ children, w = 520, h = 220, caption }: { children: ReactNode; w?: number; h?: number; caption: string }) => (
-  <figure className="grid gap-1">
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-2xl bg-card border border-line rounded-md" role="img" aria-label={caption}>{children}</svg>
-    <figcaption className="text-sm text-muted">{caption}</figcaption>
-  </figure>
+/*
+  Wspólny układ dla wszystkich schematów w serwisie:
+  – siatka co 10 jednostek, osie X/Y zaznaczone i opisane,
+  – jedna paleta: pomarańczowy = ruch szybki i wymiary pomocnicze,
+    zielony = ruch roboczy, niebieski = łuk i konstrukcja,
+    czerwony = błąd lub wariant odrzucony, ciemny = materiał i kontur detalu.
+*/
+
+const C = {
+  grid: "var(--line)",
+  axis: "var(--muted)",
+  ink: "var(--ink)",
+  rapid: "var(--amber)",
+  cut: "var(--green)",
+  arc: "var(--blue)",
+  bad: "var(--red)",
+  stock: "color-mix(in srgb, var(--muted) 12%, transparent)",
+} as const;
+
+export interface Mapper {
+  X: (v: number) => number;
+  Y: (v: number) => number;
+  u: number;
+}
+
+interface PlotProps {
+  children: (m: Mapper) => ReactNode;
+  range: [number, number, number, number];
+  caption: string;
+  title?: string;
+  height?: number;
+  xLabel?: string;
+  yLabel?: string;
+  step?: number;
+}
+
+export function Plot({ children, range, caption, title, height = 250, xLabel = "X", yLabel = "Y", step = 10 }: PlotProps) {
+  const [x0, x1, y0, y1] = range;
+  const pad = 36;
+  const W = 560, H = height;
+  const s = Math.min((W - pad * 2) / (x1 - x0), (H - pad * 2) / (y1 - y0));
+  const ox = pad + ((W - pad * 2) - (x1 - x0) * s) / 2;
+  const oy = H - pad - ((H - pad * 2) - (y1 - y0) * s) / 2;
+  const X = (v: number) => ox + (v - x0) * s;
+  const Y = (v: number) => oy - (v - y0) * s;
+
+  const gridX: number[] = [], gridY: number[] = [];
+  for (let v = Math.ceil(x0 / step) * step; v <= x1; v += step) gridX.push(v);
+  for (let v = Math.ceil(y0 / step) * step; v <= y1; v += step) gridY.push(v);
+
+  return (
+    <figure className="grid gap-1 diagram">
+      <svg viewBox={`0 0 ${W} ${H}`} className="w-full bg-card border border-line rounded-md" role="img" aria-label={caption}>
+        <defs>
+          <marker id="arw" markerWidth={9} markerHeight={9} refX={7} refY={4.5} orient="auto"><path d="M0 1 L8 4.5 L0 8 z" fill="currentColor" /></marker>
+          <marker id="dot" markerWidth={6} markerHeight={6} refX={3} refY={3}><circle cx={3} cy={3} r={2} fill="currentColor" /></marker>
+        </defs>
+
+        {title && <text x={12} y={18} fill={C.ink} fontSize={13} fontWeight={700}>{title}</text>}
+
+        <g stroke={C.grid} strokeWidth={1} opacity={0.7}>
+          {gridX.map((v) => <line key={`gx${v}`} x1={X(v)} y1={Y(y0)} x2={X(v)} y2={Y(y1)} />)}
+          {gridY.map((v) => <line key={`gy${v}`} x1={X(x0)} y1={Y(v)} x2={X(x1)} y2={Y(v)} />)}
+        </g>
+
+        <g stroke={C.axis} strokeWidth={1.5} color={C.axis}>
+          <line x1={X(x0)} y1={Y(0)} x2={X(x1)} y2={Y(0)} markerEnd="url(#arw)" />
+          <line x1={X(0)} y1={Y(y0)} x2={X(0)} y2={Y(y1)} markerEnd="url(#arw)" />
+        </g>
+        <text x={X(x1) - 4} y={Y(0) + 17} fill={C.axis} fontSize={12} fontWeight={700} textAnchor="end">{xLabel}</text>
+        <text x={X(0) + 7} y={Y(y1) + 12} fill={C.axis} fontSize={12} fontWeight={700}>{yLabel}</text>
+
+        <g fill={C.axis} fontSize={9} fontFamily="var(--font-mono)">
+          {gridX.filter((v) => v !== 0).map((v) => <text key={`lx${v}`} x={X(v)} y={Y(0) + 13} textAnchor="middle">{v}</text>)}
+          {gridY.filter((v) => v !== 0).map((v) => <text key={`ly${v}`} x={X(0) - 5} y={Y(v) + 3.5} textAnchor="end">{v}</text>)}
+          <text x={X(0) - 5} y={Y(0) + 13} textAnchor="end">0</text>
+        </g>
+
+        {children({ X, Y, u: s })}
+      </svg>
+      <figcaption className="cap">{caption}</figcaption>
+      <div className="diagram-legend">
+        <span><i style={{ background: C.rapid }} />wymiar / szybki przejazd</span>
+        <span><i style={{ background: C.cut }} />ruch roboczy</span>
+        <span><i style={{ background: C.arc }} />łuk i konstrukcja</span>
+        <span><i style={{ background: C.ink }} />kontur detalu</span>
+      </div>
+    </figure>
+  );
+}
+
+const ArcIJ = () => (
+  <Plot range={[-5, 75, -5, 55]} title="Łuk: I/J kontra R"
+    caption="Z punktu A(20,20) do B(50,50) promieniem 30. Wektor I/J prowadzi od punktu startu do środka S(50,20): I = 50 − 20 = 30, J = 20 − 20 = 0. Zapis promieniowy R30 wybiera łuk krótszy (niebieski), R−30 — dłuższy (czerwony przerywany).">
+    {({ X, Y, u }) => (
+      <g>
+        <circle cx={X(50)} cy={Y(20)} r={30 * u} fill="none" stroke={C.arc} strokeWidth={1} strokeDasharray="3 4" opacity={0.45} />
+        <path d={`M ${X(20)} ${Y(20)} A ${30 * u} ${30 * u} 0 0 0 ${X(50)} ${Y(50)}`} fill="none" stroke={C.arc} strokeWidth={3.5} color={C.arc} markerEnd="url(#arw)" />
+        <path d={`M ${X(20)} ${Y(20)} A ${30 * u} ${30 * u} 0 1 1 ${X(50)} ${Y(50)}`} fill="none" stroke={C.bad} strokeWidth={1.8} strokeDasharray="6 4" />
+        <line x1={X(20)} y1={Y(20)} x2={X(50)} y2={Y(20)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(35)} y={Y(20) - 7} fill={C.rapid} fontSize={12} textAnchor="middle" fontFamily="var(--font-mono)" fontWeight={700}>I = +30</text>
+        <text x={X(52)} y={Y(16)} fill={C.rapid} fontSize={11} fontFamily="var(--font-mono)">J = 0</text>
+        <circle cx={X(20)} cy={Y(20)} r={4.5} fill={C.ink} />
+        <text x={X(19)} y={Y(20) - 9} fill={C.ink} fontSize={12} fontWeight={700} textAnchor="end">A (20,20)</text>
+        <circle cx={X(50)} cy={Y(50)} r={4.5} fill={C.ink} />
+        <text x={X(51)} y={Y(50) - 5} fill={C.ink} fontSize={12} fontWeight={700}>B (50,50)</text>
+        <circle cx={X(50)} cy={Y(20)} r={3.5} fill={C.arc} />
+        <text x={X(52)} y={Y(20) + 14} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">S (50,20)</text>
+        <text x={X(-3)} y={Y(52)} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 I30 J0</text>
+        <text x={X(-3)} y={Y(47)} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 R30</text>
+        <text x={X(-3)} y={Y(42)} fill={C.bad} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 R−30</text>
+      </g>
+    )}
+  </Plot>
 );
 
-/** G41 / G42: strona narzędzia względem konturu, patrząc w kierunku ruchu. */
 const Comp = () => (
-  <Frame caption="Stań za narzędziem i patrz w kierunku ruchu (strzałka). G41: narzędzie po lewej stronie konturu. G42: po prawej. Kolor: rzeczywisty tor środka freza po włączeniu kompensacji.">
-    {[["G41", 40, "left"], ["G42", 290, "right"]].map(([label, x0, side]) => {
-      const x = Number(x0); const off = side === "left" ? -22 : 22;
-      return (
-        <g key={label as string}>
-          <text x={x} y={28} fontSize={16} fontWeight={700} fill="var(--ink)">{label}</text>
-          <rect x={x + 30} y={60} width={150} height={110} {...S} />
-          <text x={x + 75} y={120} {...T}>kontur</text>
-          {/* tor środka narzędzia: równolegle do górnej krawędzi, przesunięty */}
-          <line x1={x + 30} y1={60 + off} x2={x + 180} y2={60 + off} stroke="var(--green)" strokeWidth={2.5} />
-          <polygon points={`${x + 172},${52 + off} ${x + 188},${60 + off} ${x + 172},${68 + off}`} fill="var(--green)" />
-          <circle cx={x + 100} cy={60 + off} r={12} fill="none" stroke="var(--amber)" strokeWidth={2} />
-          <text x={x + 30} y={200} {...T}>ruch w prawo, narzędzie {side === "left" ? "nad" : "pod"} krawędzią</text>
-        </g>
-      );
-    })}
-  </Frame>
+  <Plot range={[-15, 78, -14, 56]} title="G41 / G42 — po której stronie konturu"
+    caption="Kontur detalu na ciemno, tor środka narzędzia na zielono, okrąg pokazuje frez. Patrząc w kierunku ruchu (strzałka w prawo): przy G41 narzędzie jest po lewej stronie konturu, przy G42 po prawej. Odsunięcie równa się promieniowi r z rejestru korekcji.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(40)} width={60 * u} height={40 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
+        <text x={X(30)} y={Y(20)} fill={C.ink} fontSize={12} textAnchor="middle">kontur detalu</text>
+        <line x1={X(0)} y1={Y(48)} x2={X(58)} y2={Y(48)} stroke={C.cut} strokeWidth={2.8} color={C.cut} markerEnd="url(#arw)" />
+        <circle cx={X(28)} cy={Y(48)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.5} strokeDasharray="3 3" />
+        <text x={X(0)} y={Y(51)} fill={C.cut} fontSize={12} fontWeight={700}>G41 — narzędzie z lewej</text>
+        <line x1={X(0)} y1={Y(32)} x2={X(58)} y2={Y(32)} stroke={C.cut} strokeWidth={2.8} color={C.cut} markerEnd="url(#arw)" opacity={0.7} />
+        <circle cx={X(28)} cy={Y(32)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
+        <text x={X(0)} y={Y(27)} fill={C.cut} fontSize={12} fontWeight={700} opacity={0.85}>G42 — narzędzie z prawej</text>
+        <line x1={X(52)} y1={Y(40)} x2={X(52)} y2={Y(48)} stroke={C.rapid} strokeWidth={1.5} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(53)} y={Y(43)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>r</text>
+        <text x={X(-14)} y={Y(-9)} fill={C.axis} fontSize={11}>Stań za narzędziem i patrz w kierunku ruchu.</text>
+      </g>
+    )}
+  </Plot>
 );
 
-/** I/J kontra R: dwa łuki przez te same punkty. */
-const Arc = () => (
-  <Frame caption="Przez punkty A i B o promieniu R przechodzą dwa łuki. R dodatnie wybiera krótszy (≤180°), R ujemne dłuższy. I/J wskazują środek jednoznacznie — wektor od punktu startu A.">
-    <circle cx={200} cy={110} r={70} fill="none" stroke="var(--line)" strokeDasharray="4 4" />
-    <circle cx={200} cy={110} r={3} fill="var(--ink)" />
-    <text x={206} y={106} {...T}>środek (I,J)</text>
-    {/* A = (130,110) na lewo, B = (200,40) na górze */}
-    <path d="M130 110 A70 70 0 0 1 200 40" stroke="var(--blue)" strokeWidth={3} fill="none" />
-    <path d="M130 110 A70 70 0 1 0 200 40" stroke="var(--red)" strokeWidth={2} fill="none" strokeDasharray="6 4" />
-    <circle cx={130} cy={110} r={4} fill="var(--ink)" /><text x={100} y={114} fontSize={14} fontWeight={700} fill="var(--ink)">A</text>
-    <circle cx={200} cy={40} r={4} fill="var(--ink)" /><text x={206} y={36} fontSize={14} fontWeight={700} fill="var(--ink)">B</text>
-    <line x1={130} y1={110} x2={200} y2={110} stroke="var(--amber)" strokeWidth={2} markerEnd="url(#ah)" />
-    <text x={150} y={128} {...T} fill="var(--amber)">I = +70, J = 0</text>
-    <text x={320} y={70} {...T}><tspan fill="var(--blue)">━━</tspan> R+70 → krótszy łuk (90°)</text>
-    <text x={320} y={95} {...T}><tspan fill="var(--red)">╌╌</tspan> R−70 → dłuższy łuk (270°)</text>
-    <text x={320} y={135} {...T}>G02 X200 Y40 R70</text>
-    <text x={320} y={155} {...T}>G02 X200 Y40 I70 J0</text>
-    <text x={320} y={175} {...T}>(Y w górę → CW = G02)</text>
-    <text x={320} y={205} {...T}>pełne koło: tylko I/J</text>
-    <defs><marker id="ah" markerWidth={8} markerHeight={8} refX={6} refY={4} orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="var(--amber)" /></marker></defs>
-  </Frame>
-);
-
-/** G98 / G99: powrót w cyklach. */
-const Cycle = () => (
-  <Frame caption="Cykl wiercenia: szybki dojazd do R, posuw do Z, powrót. G99 wraca tylko do płaszczyzny R (szybciej), G98 do punktu początkowego — potrzebne, gdy między otworami jest zacisk.">
-    {[["G99 — powrót do R", 30], ["G98 — powrót do punktu początkowego", 280]].map(([label, x0], i) => {
-      const x = Number(x0);
-      return (
-        <g key={i}>
-          <text x={x} y={24} fontSize={13} fontWeight={700} fill="var(--ink)">{label}</text>
-          <rect x={x} y={110} width={220} height={80} fill="#EEF0EC" stroke="var(--line)" />
-          {i === 1 && <rect x={x + 95} y={70} width={30} height={40} fill="var(--line)" />}
-          {i === 1 && <text x={x + 90} y={64} {...T}>zacisk</text>}
-          <line x1={x} y1={50} x2={x + 220} y2={50} stroke="var(--line)" strokeDasharray="3 3" /><text x={x + 170} y={46} {...T}>start</text>
-          <line x1={x} y1={98} x2={x + 220} y2={98} stroke="var(--line)" strokeDasharray="3 3" /><text x={x + 190} y={94} {...T}>R</text>
-          {/* otwór 1 */}
-          <line x1={x + 40} y1={50} x2={x + 40} y2={98} stroke="var(--amber)" strokeDasharray="5 3" strokeWidth={1.5} />
-          <line x1={x + 40} y1={98} x2={x + 40} y2={170} stroke="var(--green)" strokeWidth={3} />
-          <line x1={x + 44} y1={170} x2={x + 44} y2={i === 0 ? 98 : 50} stroke="var(--amber)" strokeDasharray="5 3" strokeWidth={1.5} />
-          {/* przejazd */}
-          <line x1={x + 44} y1={i === 0 ? 98 : 50} x2={x + 176} y2={i === 0 ? 98 : 50} stroke="var(--amber)" strokeDasharray="5 3" strokeWidth={1.5} />
-          {/* otwór 2 */}
-          <line x1={x + 176} y1={i === 0 ? 98 : 50} x2={x + 176} y2={98} stroke="var(--amber)" strokeDasharray="5 3" strokeWidth={1.5} />
-          <line x1={x + 176} y1={98} x2={x + 176} y2={170} stroke="var(--green)" strokeWidth={3} />
-          {i === 0 && <text x={x + 60} y={150} fontSize={12} fill="var(--red)">↑ w G99 tu byłaby kolizja z zaciskiem</text>}
-        </g>
-      );
-    })}
-  </Frame>
-);
-
-/** G90 / G91: te same słowa, inne miejsce. */
 const AbsInc = () => (
-  <Frame caption="Ten sam blok „X30 Y20” po dojeździe do X20 Y10: w G90 to punkt (30,20); w G91 to przesunięcie o 30 i 20, czyli punkt (50,30).">
-    {[["G90 — absolutnie", 30, 30, 20], ["G91 — przyrostowo", 280, 50, 30]].map(([label, x0, tx, ty]) => {
-      const x = Number(x0); const sx = 4; const oy = 190;
-      const P = (px: number, py: number) => [x + 10 + px * sx, oy - py * sx] as const;
-      const [ax, ay] = P(20, 10); const [bx, by] = P(Number(tx), Number(ty));
-      return (
-        <g key={label as string}>
-          <text x={x} y={24} fontSize={13} fontWeight={700} fill="var(--ink)">{label}</text>
-          <line x1={x + 10} y1={oy} x2={x + 230} y2={oy} stroke="var(--line)" /><line x1={x + 10} y1={oy} x2={x + 10} y2={40} stroke="var(--line)" />
-          {[10, 20, 30, 40, 50].map((v) => <text key={v} x={x + 10 + v * sx - 6} y={oy + 14} {...T} fontSize={10}>{v}</text>)}
-          <circle cx={ax} cy={ay} r={4} fill="var(--ink)" /><text x={ax + 6} y={ay + 14} {...T}>start (20,10)</text>
-          <line x1={ax} y1={ay} x2={bx} y2={by} stroke="var(--green)" strokeWidth={3} />
-          <circle cx={bx} cy={by} r={4} fill="var(--green)" /><text x={bx - 30} y={by - 10} {...T} fill="var(--ink)">({tx},{ty})</text>
-        </g>
-      );
-    })}
-  </Frame>
+  <Plot range={[-5, 65, -5, 45]} title="G90 kontra G91 — ten sam blok, dwa miejsca"
+    caption="Narzędzie stoi w punkcie (20,10). Blok G01 X30 Y20 w trybie absolutnym prowadzi do punktu (30,20). W trybie przyrostowym oznacza przesunięcie o 30 w X i 20 w Y, czyli dojazd do punktu (50,30).">
+    {({ X, Y }) => (
+      <g>
+        <circle cx={X(20)} cy={Y(10)} r={4.5} fill={C.ink} />
+        <text x={X(19)} y={Y(10) + 16} fill={C.ink} fontSize={12} textAnchor="end">start (20,10)</text>
+        <line x1={X(20)} y1={Y(10)} x2={X(30)} y2={Y(20)} stroke={C.cut} strokeWidth={3.2} color={C.cut} markerEnd="url(#arw)" />
+        <circle cx={X(30)} cy={Y(20)} r={4} fill={C.cut} />
+        <text x={X(31)} y={Y(21)} fill={C.cut} fontSize={12} fontWeight={700}>G90 → (30,20)</text>
+        <line x1={X(20)} y1={Y(10)} x2={X(50)} y2={Y(30)} stroke={C.arc} strokeWidth={3.2} strokeDasharray="8 4" color={C.arc} markerEnd="url(#arw)" />
+        <circle cx={X(50)} cy={Y(30)} r={4} fill={C.arc} />
+        <text x={X(51)} y={Y(31)} fill={C.arc} fontSize={12} fontWeight={700}>G91 → (50,30)</text>
+        <text x={X(1)} y={Y(41)} fill={C.axis} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>G01 X30 Y20</text>
+      </g>
+    )}
+  </Plot>
 );
 
-/** Toczenie: X jako średnica. */
+const Cycle = () => (
+  <Plot range={[-5, 108, -30, 22]} yLabel="Z" title="G98 kontra G99 — powrót w cyklu"
+    caption="Dwa otwory, między nimi zacisk. W trybie G99 narzędzie wraca tylko do płaszczyzny R i uderza w przeszkodę (czerwony). W trybie G98 wraca na wysokość początkową i przechodzi ponad nią bezpiecznie (zielony).">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(0)} width={100 * u} height={25 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <rect x={X(42)} y={Y(15)} width={16 * u} height={15 * u} fill={C.ink} opacity={0.7} />
+        <text x={X(50)} y={Y(17.5)} fill={C.ink} fontSize={11} textAnchor="middle">zacisk</text>
+        <line x1={X(0)} y1={Y(15)} x2={X(100)} y2={Y(15)} stroke={C.axis} strokeDasharray="4 4" />
+        <text x={X(101)} y={Y(15) + 4} fill={C.axis} fontSize={11}>start</text>
+        <line x1={X(0)} y1={Y(3)} x2={X(100)} y2={Y(3)} stroke={C.axis} strokeDasharray="4 4" />
+        <text x={X(101)} y={Y(3) + 4} fill={C.axis} fontSize={11}>R</text>
+        <polyline points={`${X(18)},${Y(15)} ${X(18)},${Y(3)}`} fill="none" stroke={C.rapid} strokeWidth={1.6} strokeDasharray="5 3" />
+        <polyline points={`${X(18)},${Y(3)} ${X(18)},${Y(-20)}`} fill="none" stroke={C.cut} strokeWidth={3.2} />
+        <polyline points={`${X(21)},${Y(-20)} ${X(21)},${Y(3)} ${X(77)},${Y(3)}`} fill="none" stroke={C.bad} strokeWidth={2} strokeDasharray="5 3" />
+        <text x={X(50)} y={Y(5.5)} fill={C.bad} fontSize={11} textAnchor="middle" fontWeight={700}>G99 — kolizja</text>
+        <polyline points={`${X(24)},${Y(-20)} ${X(24)},${Y(15)} ${X(80)},${Y(15)} ${X(80)},${Y(3)}`} fill="none" stroke={C.cut} strokeWidth={2} strokeDasharray="5 3" />
+        <text x={X(58)} y={Y(17)} fill={C.cut} fontSize={11} fontWeight={700}>G98 — nad zaciskiem</text>
+        <polyline points={`${X(80)},${Y(3)} ${X(80)},${Y(-20)}`} fill="none" stroke={C.cut} strokeWidth={3.2} />
+      </g>
+    )}
+  </Plot>
+);
+
 const Dia = () => (
-  <Frame caption="Na tokarce narzędzie stoi 20 mm od osi, ale w programie piszesz X40 — sterownik liczy średnicowo. Promień w I podajesz jednak jako promień." h={200}>
-    <line x1={40} y1={100} x2={480} y2={100} stroke="var(--ink)" strokeDasharray="10 4 2 4" />
-    <rect x={120} y={60} width={300} height={80} fill="#EEF0EC" stroke="var(--ink)" strokeWidth={2} />
-    <line x1={90} y1={60} x2={90} y2={140} stroke="var(--blue)" strokeWidth={2} markerStart="url(#d)" markerEnd="url(#d)" />
-    <text x={44} y={104} {...T} fill="var(--blue)">⌀40</text>
-    <line x1={450} y1={100} x2={450} y2={60} stroke="var(--amber)" strokeWidth={2} />
-    <text x={456} y={84} {...T} fill="var(--amber)">r = 20</text>
-    <rect x={425} y={44} width={14} height={16} fill="var(--ink)" /><text x={400} y={38} {...T}>nóż: X40</text>
-    <text x={200} y={168} {...T}>oś obrotu (Z)</text>
-    <defs><marker id="d" markerWidth={6} markerHeight={6} refX={3} refY={3} orient="auto"><circle cx={3} cy={3} r={2} fill="var(--blue)" /></marker></defs>
-  </Frame>
+  <Plot range={[-12, 92, -34, 34]} yLabel="X" xLabel="Z" title="Tokarka: X jest średnicą"
+    caption="Nóż stoi 20 mm od osi obrotu, ale w programie piszesz X40 — sterownik liczy średnicowo. Adresy I oraz R pozostają promieniowe. Linia X0 to oś obrotu detalu.">
+    {({ X, Y, u }) => (
+      <g>
+        <line x1={X(-12)} y1={Y(0)} x2={X(92)} y2={Y(0)} stroke={C.axis} strokeWidth={1.5} strokeDasharray="12 4 3 4" />
+        <text x={X(66)} y={Y(0) - 7} fill={C.axis} fontSize={11}>oś obrotu (X0)</text>
+        <rect x={X(10)} y={Y(20)} width={60 * u} height={40 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
+        <line x1={X(4)} y1={Y(-20)} x2={X(4)} y2={Y(20)} stroke={C.arc} strokeWidth={1.6} color={C.arc} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(1)} y={Y(2)} fill={C.arc} fontSize={12} fontWeight={700} textAnchor="end" fontFamily="var(--font-mono)">⌀40</text>
+        <line x1={X(62)} y1={Y(0)} x2={X(62)} y2={Y(20)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(63)} y={Y(11)} fill={C.rapid} fontSize={11} fontFamily="var(--font-mono)">r = 20</text>
+        <path d={`M ${X(66)} ${Y(20)} L ${X(76)} ${Y(29)} L ${X(76)} ${Y(23)} L ${X(69)} ${Y(18)} Z`} fill={C.ink} />
+        <text x={X(78)} y={Y(27)} fill={C.ink} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>X40</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Rapid = () => (
+  <Plot range={[-5, 85, -5, 55]} title="G00 — tor nie jest linią prostą"
+    caption="Przy szybkim przejeździe każda oś rusza z własną prędkością maksymalną. Oś o krótszej drodze kończy ruch wcześniej, więc rzeczywisty tor (pomarańczowy) biegnie po skosie, a potem prosto — a nie po przekątnej (szara linia), jak podpowiada intuicja.">
+    {({ X, Y, u }) => (
+      <g>
+        <line x1={X(10)} y1={Y(10)} x2={X(70)} y2={Y(40)} stroke={C.axis} strokeWidth={1.5} strokeDasharray="5 5" opacity={0.55} />
+        <text x={X(42)} y={Y(29)} fill={C.axis} fontSize={11}>zakładany tor</text>
+        <polyline points={`${X(10)},${Y(10)} ${X(40)},${Y(40)} ${X(68)},${Y(40)}`} fill="none" stroke={C.rapid} strokeWidth={3.2} color={C.rapid} markerEnd="url(#arw)" />
+        <text x={X(44)} y={Y(43)} fill={C.rapid} fontSize={12} fontWeight={700}>tor rzeczywisty</text>
+        <circle cx={X(10)} cy={Y(10)} r={4.5} fill={C.ink} />
+        <text x={X(10)} y={Y(10) + 17} fill={C.ink} fontSize={11} textAnchor="middle">start (10,10)</text>
+        <circle cx={X(70)} cy={Y(40)} r={4.5} fill={C.ink} />
+        <text x={X(71)} y={Y(40) - 7} fill={C.ink} fontSize={11} fontFamily="var(--font-mono)">G00 X70 Y40</text>
+        <rect x={X(46)} y={Y(32)} width={10 * u} height={24 * u} fill={C.bad} opacity={0.25} stroke={C.bad} strokeDasharray="3 3" />
+        <text x={X(51)} y={Y(19)} fill={C.bad} fontSize={11} textAnchor="middle">przeszkoda</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Helix = () => (
+  <Plot range={[-5, 85, -5, 55]} title="Interpolacja śrubowa"
+    caption="Łuk z jednoczesnym przesunięciem w osi prostopadłej daje helisę. W rzucie z góry widać okrąg, a narzędzie schodzi o zadaną wartość Z na każdy pełny obrót — stąd łagodne wejście w materiał zamiast zagłębiania pionowego.">
+    {({ X, Y, u }) => (
+      <g>
+        {[0, 1, 2].map((i) => (
+          <circle key={i} cx={X(45)} cy={Y(25)} r={(20 - i * 0.7) * u} fill="none" stroke={C.arc} strokeWidth={2.4} opacity={1 - i * 0.25} />
+        ))}
+        <circle cx={X(45)} cy={Y(25)} r={3} fill={C.arc} />
+        <text x={X(47)} y={Y(25) + 15} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">środek</text>
+        <circle cx={X(25)} cy={Y(25)} r={4.5} fill={C.ink} />
+        <text x={X(24)} y={Y(25) - 9} fill={C.ink} fontSize={11} textAnchor="end">start</text>
+        <text x={X(-3)} y={Y(52)} fill={C.axis} fontSize={11} fontFamily="var(--font-mono)">G03 X25 Y25 Z−2 I20 J0</text>
+        <text x={X(-3)} y={Y(47)} fill={C.axis} fontSize={11} fontFamily="var(--font-mono)">G03 X25 Y25 Z−4 I20 J0</text>
+        <text x={X(-3)} y={Y(42)} fill={C.axis} fontSize={11} fontFamily="var(--font-mono)">G03 X25 Y25 Z−6 I20 J0</text>
+      </g>
+    )}
+  </Plot>
 );
 
 export const diagrams: Record<string, () => ReactNode> = {
-  "g40-g42": Comp, g02: Arc, g03: Arc, "g81-g83": Cycle, "g90-g91": AbsInc, "g96-g97": Dia, "g94-g95": Dia, "g71-g70": Dia, g76: Dia,
+  g00: Rapid,
+  g01: Rapid,
+  g02: ArcIJ,
+  g03: ArcIJ,
+  "g40-g42": Comp,
+  "g43-g49": Comp,
+  "g81-g83": Cycle,
+  g84: Cycle,
+  "g85-g86": Cycle,
+  "g90-g91": AbsInc,
+  "g94-g95": Dia,
+  "g96-g97": Dia,
+  "g71-g70": Dia,
+  g76: Dia,
+  g33: Dia,
+  "g17-g19": Dia,
+  helix: Helix,
 };
