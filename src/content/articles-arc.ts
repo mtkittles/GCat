@@ -1,0 +1,86 @@
+import type { Block } from "@/lib/article";
+
+const arcBlocks = (cw: boolean): Block[] => [
+  { t: "p", x: cw
+    ? "**G02** prowadzi narzędzie po **łuku okręgu** z aktualnej pozycji do punktu docelowego, **zgodnie z ruchem wskazówek zegara**, z prędkością zadaną adresem F. Wraz z G03 (kierunek przeciwny) tworzy parę funkcji nazywaną interpolacją kołową."
+    : "**G03** prowadzi narzędzie po **łuku okręgu** z aktualnej pozycji do punktu docelowego, **przeciwnie do ruchu wskazówek zegara**, z prędkością zadaną adresem F. Jest lustrzanym odpowiednikiem G02; wszystko poniżej dotyczy obu funkcji." },
+  { t: "h", x: "Jak sterownik określa kierunek" },
+  { t: "p", x: "Kierunek CW/CCW ustala się **patrząc na płaszczyznę roboczą od strony dodatniej osi do niej prostopadłej**. Dla płaszczyzny XY (G17) patrzysz z góry, wzdłuż osi Z w kierunku ujemnym — tak, jak stoisz przy frezarce i patrzysz na stół. Dla płaszczyzny ZX (G18, typowa dla tokarki) patrzysz od strony dodatniej osi Y, czyli od operatora." },
+  { t: "note", kind: "info", x: "Na tokarce oznacza to, że przy standardowym układzie z osią X w górę i Z w prawo, **zaokrąglenie wklęsłe w narożu stopnia** (jadąc w stronę uchwytu) programuje się jako **G02**, a **wypukłe zaokrąglenie na krawędzi** jako **G03**. Warto to raz sprawdzić na próbnym detalu, bo tokarki z narzędziem pod osią mają obraz odwrócony." },
+  { t: "h", x: "Dwie składnie: I/J/K oraz R" },
+  { t: "p", x: "Łuk jest jednoznacznie określony przez trzy rzeczy: kierunek, punkt końcowy i środek. Punkt początkowy sterownik już zna — to miejsce, w którym narzędzie stoi. Środek można podać na dwa sposoby." },
+  { t: "code", x: `${cw ? "G02" : "G03"} X_ Y_ I_ J_ F_      (składnia I/J/K — wektor do środka)\n${cw ? "G02" : "G03"} X_ Y_ R_ F_          (składnia R — promień)`, caption: "Obie postacie są równoważne dla łuków do 180°; powyżej różnią się jednoznacznością." },
+  { t: "table", head: ["Adres", "Znaczenie"], rows: [
+    ["X, Y, Z", "Punkt końcowy łuku (G90 — bezwzględnie, G91 — przyrostowo)"],
+    ["I, J, K", "Składowe **wektora od punktu początkowego łuku do jego środka**, odpowiednio wzdłuż X, Y i Z. Prawie zawsze przyrostowe, nawet w trybie G90"],
+    ["R", "Promień łuku. Wartość dodatnia wybiera łuk krótszy (≤180°), ujemna — dłuższy (>180°)"],
+    ["F", "Posuw wzdłuż łuku"],
+  ] },
+  { t: "note", kind: "warn", x: "Adresy I, J, K odnoszą się do **punktu startu łuku**, a nie do zera detalu. To najczęstsze źródło pomyłek u osób przechodzących z rysunku technicznego, gdzie środek okręgu jest podany bezwzględnie. Niektóre sterowniki (Sinumerik przez `AC()`, część Fanuc przez parametr) dopuszczają zapis bezwzględny — jeśli tor w symulacji wygląda absurdalnie, sprawdź właśnie to ustawienie." },
+  { t: "h", x: "Które litery w której płaszczyźnie" },
+  { t: "table", head: ["Płaszczyzna", "Osie ruchu", "Adresy środka"], rows: [
+    ["**G17** — XY (frezowanie)", "X, Y", "I, J"],
+    ["**G18** — ZX (toczenie)", "X, Z", "I, K"],
+    ["**G19** — YZ", "Y, Z", "J, K"],
+  ], caption: "Użycie litery spoza aktywnej płaszczyzny — na przykład J przy G18 — kończy się alarmem lub torem zupełnie innym niż zamierzony." },
+  { t: "diagram", id: "g02" },
+  { t: "h", x: "Przykład 1: łuk w składni I/J" },
+  { t: "sim", src: "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F120\nG01 X40 F400\n" + (cw ? "G02 X60 Y20 I0 J20" : "G03 X60 Y20 I20 J0") + "\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30", caption: "Narzędzie jedzie prosto do X40, po czym wchodzi w łuk o promieniu 20 mm. Wektor I/J prowadzi od punktu startu łuku do jego środka." },
+  { t: "h", x: "Przykład 2: ten sam łuk w składni R" },
+  { t: "sim", src: "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F120\nG01 X40 F400\n" + (cw ? "G02 X60 Y20 R20" : "G03 X60 Y20 R20") + "\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30", caption: "Zapis krótszy i czytelniejszy, ale działa jednoznacznie tylko dla łuków nieprzekraczających półokręgu." },
+  { t: "h", x: "Przykład 3: łuk większy niż 180°" },
+  { t: "p", x: "Przez dwa punkty i zadany promień przechodzą **dwa różne łuki**: krótszy i dłuższy. Znak przy R decyduje, który wybierze sterownik." },
+  { t: "sim", src: "G21 G90 G17 G54\nS2000 M03\nG00 X20 Y20 Z5\nG01 Z-2 F120\nG01 X40 F400\n" + (cw ? "G02 X60 Y20 R-10" : "G03 X60 Y20 R-10") + "\nG01 X80\nG00 Z5\nM30", caption: "Zamień R-10 na R10 i porównaj tory — to najprostszy sposób, żeby zapamiętać działanie znaku promienia." },
+  { t: "h", x: "Przykład 4: pełny okrąg" },
+  { t: "p", x: "Gdy punkt początkowy i końcowy są tym samym punktem, promień nie wystarcza do opisania łuku — takich okręgów jest nieskończenie wiele. Dlatego **pełne koło da się zaprogramować wyłącznie w składni I/J/K**, pomijając współrzędne końcowe." },
+  { t: "code", x: `G00 X30 Y10\nG01 Z-2 F120\n${cw ? "G02" : "G03"} I0 J20 F350     (pełny okrąg o promieniu 20 wokół punktu X30 Y30)\nG00 Z5`, caption: "Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś." },
+  { t: "sim", src: "G21 G90 G17 G54\nS2200 M03\nG00 X30 Y10 Z5\nG01 Z-2 F120\n" + (cw ? "G02 I0 J20 F350" : "G03 I0 J20 F350") + "\nG00 Z5\nM30", caption: "Pełny okrąg wykonany jednym blokiem." },
+  { t: "h", x: "Kalkulator zamiany R ↔ I, J" },
+  { t: "p", x: "Poniższe pola przeliczają obie postacie w dwie strony. Przydaje się przy poprawianiu programów z CAM-u i przy przepisywaniu wymiarów z rysunku." },
+  { t: "widget", id: "rij" },
+  { t: "h", x: "Wzory" },
+  { t: "p", x: "Mając punkt startu (X₁, Y₁), punkt końcowy (X₂, Y₂) i promień R, środek łuku wyznacza się w trzech krokach:" },
+  { t: "ol", items: [
+    "Środek cięciwy: Mx = (X₁ + X₂) / 2, My = (Y₁ + Y₂) / 2.",
+    "Długość cięciwy: d = √((X₂ − X₁)² + (Y₂ − Y₁)²). Warunek istnienia łuku: |R| ≥ d / 2.",
+    "Odległość środka okręgu od środka cięciwy: h = √(R² − (d/2)²).",
+  ] },
+  { t: "p", x: "Środek leży na prostopadłej do cięciwy, w odległości h od jej środka — po jednej albo po drugiej stronie, zależnie od kierunku i znaku R. Na końcu przelicza się go na wektor przyrostowy: **I = Xśrodka − X₁**, **J = Yśrodka − Y₁**. W drugą stronę jest prościej: **R = √(I² + J²)**." },
+  { t: "h", x: "Interpolacja śrubowa (helisa)" },
+  { t: "p", x: "Jeżeli oprócz łuku w płaszczyźnie roboczej podasz również przesunięcie w osi prostopadłej, sterownik wykona **ruch po helisie** — łuk z jednoczesnym zagłębianiem. To technika stosowana przy:" },
+  { t: "ul", items: [
+    "**łagodnym wejściu w materiał** zamiast zagłębiania pionowego — narzędzie stopniowo nabiera głębokości po okręgu,",
+    "**frezowaniu gwintów** frezem do gwintów: jeden pełny obrót z przesunięciem w Z równym skokowi gwintu,",
+    "**wytaczaniu otworów** frezem o średnicy mniejszej niż otwór, z narastającą głębokością.",
+  ] },
+  { t: "sim", src: "G21 G90 G17 G54\nS3000 M03\nG00 X30 Y10 Z2\nG01 Z0 F150\n" + (cw ? "G02" : "G03") + " X30 Y10 Z-2 I0 J20 F300\n" + (cw ? "G02" : "G03") + " X30 Y10 Z-4 I0 J20\n" + (cw ? "G02" : "G03") + " X30 Y10 Z-6 I0 J20\nG00 Z5\nM30", caption: "Trzy pełne obroty, każdy o 2 mm głębiej. W widoku 2D zobaczysz okrąg; włącz widok 3D, żeby zobaczyć powstający kołowy rowek." },
+  { t: "h", x: "Wskazówki technologiczne" },
+  { t: "ul", items: [
+    "**Zaokrąglaj naroża konturu.** Ostry zwrot o 90° oznacza chwilowe zatrzymanie osi i skok obciążenia narzędzia. Łuk o promieniu choćby 2 mm daje płynny ruch, lepszą powierzchnię i dłuższą żywotność ostrza.",
+    "**Wchodź w materiał po łuku.** Wejście styczne do konturu (łuk zamiast prostopadłego dojazdu) eliminuje ślad wejścia na powierzchni obrobionej.",
+    "**Uważaj na luzy przy ćwiartkach.** Pełny okrąg wymaga czterech zmian kierunku osi. Każdy luz w śrubie pociągowej odwzorowuje się wtedy jako widoczny uskok — to klasyczny test dokładności maszyny.",
+    "**Sprawdź promień narzędzia przy łukach wewnętrznych.** Łuk wklęsły o promieniu mniejszym niż promień freza jest fizycznie niewykonalny; z aktywną kompensacją G41/G42 skończy się alarmem, bez niej — podcięciem konturu.",
+  ] },
+  { t: "h", x: "Różnice między sterownikami" },
+  { t: "table", head: ["Zagadnienie", "Fanuc", "Sinumerik"], rows: [
+    ["Kod", "G02 / G03", "G2 / G3"],
+    ["Promień", "`R`", "`CR=`"],
+    ["Środek", "I, J, K (przyrostowo)", "I, J, K (przyrostowo; `AC()` wymusza bezwzględnie)"],
+    ["Pełny okrąg", "tylko I/J/K", "tylko I/J/K"],
+    ["Łuk przez punkt pośredni", "brak", "`CIP` z punktem pośrednim `I1= J1=`"],
+    ["Łuk przez kąt rozwarcia", "brak", "`AR=` (kąt łuku)"],
+  ] },
+  { t: "note", kind: "warn", x: "Jeśli w jednym bloku podasz **jednocześnie R oraz I/J**, większość sterowników przyjmuje R i ignoruje I/J — bez ostrzeżenia. To bywa powodem zagadkowych rozbieżności między symulacją a maszyną." },
+  { t: "h", x: "Typowe błędy" },
+  { t: "ul", items: [
+    "**I/J liczone od zera detalu zamiast od startu łuku** — tor odjeżdża w zupełnie inne miejsce.",
+    "**Próba pełnego okręgu przez R** — alarm albo brak ruchu.",
+    "**Zły znak przy R** — zamiast małego zaokrąglenia powstaje prawie pełne koło.",
+    "**Litera środka niezgodna z płaszczyzną** — J przy G18 albo K przy G17.",
+    "**Włączenie kompensacji G41/G42 w bloku z łukiem** — sterownik potrafi ją włączyć tylko w ruchu prostoliniowym.",
+    "**Promień mniejszy niż połowa cięciwy** — geometrycznie niemożliwe, sterownik zgłasza błąd łuku.",
+  ] },
+];
+
+export const g02 = arcBlocks(true);
+export const g03 = arcBlocks(false);

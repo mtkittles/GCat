@@ -118,3 +118,24 @@ a { text-underline-offset: 3px; }
 .theme-toggle { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 16px; }
 .sim-state span, .syntax-label { color: var(--muted); }
 .sim-state span { color: var(--ink); }
+
+/* artykuł */
+.article h2 { font-size: 1.4rem; font-weight: 700; margin-top: 1.4rem; scroll-margin-top: 1rem; letter-spacing: -.01em; }
+.article p { max-width: 68ch; line-height: 1.7; }
+.article ul, .article ol { max-width: 68ch; line-height: 1.7; padding-left: 1.3rem; display: grid; gap: .35rem; }
+.article ul { list-style: disc; } .article ol { list-style: decimal; }
+.article strong { font-weight: 700; }
+.inline-code { font-family: var(--font-mono); font-size: .9em; background: var(--card); border: 1px solid var(--line); border-radius: 3px; padding: .05rem .3rem; }
+.note { max-width: 68ch; border-left: 4px solid var(--line); padding: .7rem .9rem; border-radius: 0 6px 6px 0; background: var(--card); line-height: 1.6; }
+.note-tip { border-left-color: var(--green); }
+.note-warn { border-left-color: var(--red); }
+.note-info { border-left-color: var(--blue); }
+.note::before { display: block; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: .2rem; }
+.note-tip::before { content: "Wskazówka"; }
+.note-warn::before { content: "Uwaga"; }
+.note-info::before { content: "Warto wiedzieć"; }
+.cap { font-size: 13px; color: var(--muted); max-width: 68ch; }
+.toc { border: 1px solid var(--line); border-radius: 6px; padding: .8rem 1rem; background: var(--card); max-width: 68ch; }
+.toc-title { font-size: 12px; font-weight: 700; color: var(--muted); }
+.toc ol { list-style: decimal; padding-left: 1.2rem; margin-top: .4rem; display: grid; gap: .2rem; font-size: 14px; }
+.toc a { text-decoration: underline; }

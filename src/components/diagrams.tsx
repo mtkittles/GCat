@@ -119,5 +119,5 @@ const Dia = () => (
 );
 
 export const diagrams: Record<string, () => ReactNode> = {
-  "g40-g42": Comp, g02: Arc, g03: Arc, "g81-g83": Cycle, "g90-g91": AbsInc, "g96-g97": Dia, "g94-g95": Dia,
+  "g40-g42": Comp, g02: Arc, g03: Arc, "g81-g83": Cycle, "g90-g91": AbsInc, "g96-g97": Dia, "g94-g95": Dia, "g71-g70": Dia, g76: Dia,
 };

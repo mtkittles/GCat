@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
 import { bySlug, gcodes, levelName } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
+import Article, { Toc } from "@/components/Article";
+import { articles } from "@/content/articles";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
@@ -17,6 +19,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const i = gcodes.findIndex((x) => x.slug === g.slug);
   const prev = gcodes[i - 1], next = gcodes[i + 1];
   const mode = g.turning && !g.milling ? "lathe" : "mill";
+  const art = articles[g.slug];
   return (
     <article className="grid gap-6">
       <header className="grid gap-1">
@@ -25,6 +28,22 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
         <p className="text-lg">{g.short}</p>
       </header>
 
+      {art ? (
+        <>
+          <Toc blocks={art} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div><div className="syntax-label">Fanuc</div><pre className="syntax">{g.syntax.fanuc}</pre></div>
+            <div><div className="syntax-label">Sinumerik</div><pre className="syntax">{g.syntax.sinumerik}</pre></div>
+          </div>
+          <Article blocks={art} />
+          <nav className="flex justify-between text-sm pt-4 border-t border-line">
+            <span>{prev && <Link href={`/kody/${prev.slug}`}>‹ {prev.code}</Link>}</span>
+            <Link href="/kody">Wszystkie kody</Link>
+            <span>{next && <Link href={`/kody/${next.slug}`}>{next.code} ›</Link>}</span>
+          </nav>
+        </>
+      ) : (
+      <>
       <p className="max-w-prose leading-relaxed">{g.desc}</p>
       {diagrams[g.slug]?.()}
 
@@ -57,6 +76,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
         <Link href="/kody">Wszystkie kody</Link>
         <span>{next && <Link href={`/kody/${next.slug}`}>{next.code} ›</Link>}</span>
       </nav>
+      </>
+      )}
     </article>
   );
 }
