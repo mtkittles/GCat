@@ -1,4 +1,5 @@
 import type {
+  CannedCycle,
   MachineState,
   ParsedLine,
   Plane,
@@ -11,7 +12,7 @@ import type {
 export * from "./types";
 
 export const initialState = (): MachineState => ({
-  motion: null,
+  motion: 0, // sterowniki startują w trybie szybkiego przejazdu
   plane: 17,
   absolute: true,
   units: "mm",
@@ -23,6 +24,7 @@ export const initialState = (): MachineState => ({
   tool: null,
   wcs: 54,
   comp: 40,
+  cycle: null,
   pos: { x: 0, y: 0, z: 0 },
 });
 
@@ -104,11 +106,16 @@ const planeName = (p: Plane) => (p === 17 ? "XY" : p === 18 ? "ZX" : "YZ");
 export interface ParseOptions {
   /** Tokarka: X i I programowane średnicowo (Fanuc domyślnie). Geometria wewnętrzna liczona na promieniu. */
   diameterX?: boolean;
+  /** Prędkość szybkiego przejazdu [mm/min] do szacowania czasu cyklu. */
+  rapidRate?: number;
 }
 
 export function parseProgram(source: string, opts: ParseOptions = {}, start: MachineState = initialState()): Program {
   let state = start;
   const dia = !!opts.diameterX;
+  const rapidRate = opts.rapidRate ?? 20000;
+  let seconds = 0;
+  let dwellMs = 0;
   const lines: ParsedLine[] = [];
   const allSegments: Segment[] = [];
 
@@ -121,6 +128,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
     const segments: Segment[] = [];
 
     const gs = words.filter((w) => w.letter === "G").map((w) => w.value);
+    let cycleCode: number | null = null;
+    let cycleRetract: 98 | 99 = state.cycle?.retract ?? 99;
     const ms = words.filter((w) => w.letter === "M").map((w) => w.value);
     const get = (l: string) => words.find((w) => w.letter === l)?.value;
 
@@ -130,7 +139,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
       switch (g) {
         case 0: case 1: case 2: case 3:
           s.motion = g as 0 | 1 | 2 | 3; break;
-        case 4: desc.push(`Postój ${fmt(get("P") ?? get("X") ?? 0)} s (G04)`); break;
+        case 4: { const pv = get("P"); const xv = get("X"); const secs = pv !== undefined ? pv / 1000 : (xv ?? 0); dwellMs += secs * 1000; desc.push(`Postój ${fmt(secs)} s (G04)`); break; }
         case 17: case 18: case 19:
           s.plane = g as Plane; desc.push(`Płaszczyzna ${planeName(s.plane)} (G${g})`); break;
         case 20: s.units = "inch"; desc.push("Jednostki: cale (G20)"); break;
@@ -143,7 +152,10 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
         case 49: desc.push("Wyłącz korekcję długości (G49)"); break;
         case 54: case 55: case 56: case 57: case 58: case 59:
           s.wcs = g; desc.push(`Układ współrzędnych G${g}`); break;
-        case 80: desc.push("Anuluj cykl stały (G80)"); break;
+        case 80: s.cycle = null; desc.push("Anuluj cykl stały (G80)"); break;
+        case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
+        case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
+        case 73: case 81: case 82: case 83: case 84: case 85: case 86: case 89: cycleCode = g; break;
         case 90: s.absolute = true; desc.push("Wymiarowanie absolutne (G90)"); break;
         case 91: s.absolute = false; desc.push("Wymiarowanie przyrostowe (G91)"); break;
         case 94: s.feedMode = 94; desc.push("Posuw w mm/min (G94)"); break;
@@ -172,6 +184,45 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
         case 30: desc.push("Koniec programu i przewinięcie (M30)"); break;
         default: desc.push(`M${fmt(m)}`);
       }
+    }
+
+    // Cykl stały: definicja albo powtórzenie w nowym punkcie
+    if (cycleCode !== null) {
+      const zv = get("Z"), rv = get("R");
+      if (zv === undefined || rv === undefined) {
+        errors.push(`Cykl G${cycleCode} wymaga Z (dno otworu) i R (płaszczyzna startu).`);
+      } else {
+        s.cycle = {
+          code: cycleCode,
+          z: s.absolute ? zv : state.pos.z + zv,
+          r: s.absolute ? rv : state.pos.z + rv,
+          q: get("Q") ?? null,
+          p: get("P") ?? null,
+          f: get("F") ?? s.feed,
+          retract: cycleRetract,
+          initialZ: state.pos.z,
+        };
+        if (s.cycle.f) s.feed = s.cycle.f;
+      }
+    }
+
+    const cyc = s.cycle;
+    const hasXY = get("X") !== undefined || get("Y") !== undefined;
+    if (cyc && (cycleCode !== null || hasXY)) {
+      const target: Vec3 = { ...state.pos };
+      (["x", "y"] as const).forEach((ax) => {
+        const v = get(ax.toUpperCase());
+        if (v !== undefined) target[ax] = s.absolute ? v : state.pos[ax] + v;
+      });
+      const segs = cycleSegments(state.pos, target, cyc, index);
+      segments.push(...segs);
+      s.pos = segs.length ? segs[segs.length - 1].to : state.pos;
+      desc.push(cycleDescription(cyc, target, dia));
+      if (cyc.p) dwellMs += cyc.p;
+      lines.push({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
+      allSegments.push(...segments);
+      state = s;
+      return;
     }
 
     // Ruch
@@ -216,8 +267,74 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
     state = s;
   });
 
+  for (const sg of allSegments) {
+    const len = segmentLength(sg);
+    if (sg.kind === "rapid") seconds += (len / rapidRate) * 60;
+    else {
+      const ln = lines[sg.line];
+      let f = ln?.state.feed ?? 200;
+      if (ln?.state.feedMode === 95) f = f * (ln.state.spindle ?? 1000);
+      seconds += (len / Math.max(1, f)) * 60;
+    }
+  }
+  seconds += dwellMs / 1000;
+
   const bounds = computeBounds(allSegments);
-  return { lines, segments: allSegments, bounds };
+  return { lines, segments: allSegments, bounds, seconds };
+}
+
+const CYCLE_NAME: Record<number, string> = {
+  73: "wiercenie głębokie z krótkim wycofaniem (G73)",
+  81: "wiercenie (G81)",
+  82: "wiercenie z postojem na dnie (G82)",
+  83: "wiercenie głębokie z pełnym wycofaniem (G83)",
+  84: "gwintowanie (G84)",
+  85: "wytaczanie z wyjściem na posuwie (G85)",
+  86: "wytaczanie ze stopem wrzeciona (G86)",
+  89: "wytaczanie z postojem (G89)",
+};
+
+function cycleDescription(c: CannedCycle, target: Vec3, dia: boolean) {
+  const parts = [`Cykl: ${CYCLE_NAME[c.code] ?? `G${c.code}`} w X${fmt(dia ? target.x * 2 : target.x)} Y${fmt(target.y)}`];
+  parts.push(`do Z${fmt(c.z)}, start od R${fmt(c.r)}`);
+  if (c.q && (c.code === 83 || c.code === 73)) parts.push(`co Q${fmt(c.q)}`);
+  if (c.p) parts.push(`postój ${fmt(c.p / 1000)} s`);
+  parts.push(c.retract === 98 ? "powrót do punktu początkowego (G98)" : "powrót do R (G99)");
+  return parts.join(", ");
+}
+
+/** Rozwija cykl stały na elementarne ruchy — tak jak robi to sterownik. */
+function cycleSegments(from: Vec3, xy: Vec3, c: CannedCycle, line: number): Segment[] {
+  const out: Segment[] = [];
+  let cur: Vec3 = { ...from };
+  const move = (to: Vec3, kind: "rapid" | "linear") => { out.push({ kind, from: { ...cur }, to: { ...to }, line }); cur = { ...to }; };
+
+  // przejazd nad otwór na bieżącej wysokości
+  if (xy.x !== cur.x || xy.y !== cur.y) move({ ...cur, x: xy.x, y: xy.y }, "rapid");
+  // zjazd do płaszczyzny R
+  if (cur.z !== c.r) move({ ...cur, z: c.r }, "rapid");
+
+  const peck = c.q && c.q > 0 ? Math.abs(c.q) : null;
+  if ((c.code === 83 || c.code === 73) && peck) {
+    let z = c.r;
+    while (z > c.z + 1e-6) {
+      const next = Math.max(c.z, z - peck);
+      move({ ...cur, z: next }, "linear");
+      if (next <= c.z + 1e-6) break;
+      // G83 wycofuje do R, G73 tylko o niewielką wartość
+      move({ ...cur, z: c.code === 83 ? c.r : next + 1 }, "rapid");
+      if (c.code === 83) move({ ...cur, z: next + 1 }, "rapid");
+      z = next;
+    }
+  } else {
+    move({ ...cur, z: c.z }, "linear");
+  }
+
+  // wyjście
+  const backZ = c.retract === 98 ? c.initialZ : c.r;
+  if (c.code === 84 || c.code === 85 || c.code === 89) move({ ...cur, z: backZ }, "linear");
+  else move({ ...cur, z: backZ }, "rapid");
+  return out;
 }
 
 function pt(p: Vec3, plane: Plane, dia = false) {

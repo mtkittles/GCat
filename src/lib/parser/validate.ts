@@ -1,4 +1,7 @@
-import type { Program } from "./types";
+import type { Program, Vec3 } from "./types";
+import { pointAt, segmentLength } from "./index";
+
+export interface StockBox { minX: number; maxX: number; minY: number; maxY: number; top: number; bottom: number }
 
 export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 
@@ -6,7 +9,7 @@ export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 /** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
 const ONCE = /wrzecion|G43|posuw F/i;
 
-export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc"): Issue[] {
+export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stock?: StockBox, toolLen?: number): Issue[] {
   const out: Issue[] = [];
   const L = program.lines;
   let sawToolChange = false, sawG43 = false, sawM30 = false, sawSpindle = false, sawMotion = false;
@@ -55,6 +58,30 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
 
   if (L.some((l) => l.words.length) && !sawM30) out.push({ line: L.length - 1, level: "warn", msg: "Brak M30/M02 na końcu programu." });
   if (L.some((l) => l.words.length) && !sawMotion) out.push({ line: 0, level: "warn", msg: "Program nie zawiera żadnego ruchu (G00–G03)." });
+  // kontrola kolizji z półfabrykatem
+  if (stock) {
+    for (const l of program.lines) {
+      for (const sg of l.segments) {
+        if (sg.kind !== "rapid") continue;
+        const n = 12;
+        for (let i = 0; i <= n; i++) {
+          const p: Vec3 = pointAt(sg, i / n);
+          if (p.z < stock.top - 1e-6 && inside(p, stock)) {
+            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd na Z${fmt(p.z)} przechodzi przez materiał (górna powierzchnia Z${fmt(stock.top)}). Zagłębiaj i przejeżdżaj w materiale na G01.` });
+            break;
+          }
+        }
+      }
+      if (toolLen) {
+        for (const sg of l.segments) {
+          const dz = Math.min(sg.from.z, sg.to.z);
+          if (sg.kind !== "rapid" && stock.top - dz > toolLen)
+            out.push({ line: l.index, level: "warn", msg: `Głębokość ${fmt(stock.top - dz)} mm przekracza długość ostrza narzędzia (${fmt(toolLen)} mm).` });
+        }
+      }
+    }
+  }
+
   const seen = new Set<string>();
   const res: Issue[] = [];
   for (const i of out) {
@@ -65,3 +92,12 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
   return res.sort((a, b) => a.line - b.line);
 }
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+const inside = (p: Vec3, s: StockBox) => p.x > s.minX - 1e-6 && p.x < s.maxX + 1e-6 && p.y > s.minY - 1e-6 && p.y < s.maxY + 1e-6 && p.z > s.bottom - 1e-6;
+
+/** Czas cyklu w formacie mm:ss. */
+export function formatTime(sec: number) {
+  const m = Math.floor(sec / 60), r = Math.round(sec % 60);
+  return `${m}:${String(r).padStart(2, "0")}`;
+}
+
+export { segmentLength };

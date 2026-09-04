@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import { validate } from "@/lib/parser/validate";
+import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import SetupPanel from "./SetupPanel";
 import { defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
 import {
@@ -43,13 +43,18 @@ const COLORS = {
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true }: Props) {
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
-  const issues = useMemo(() => validate(program, dialect), [program, dialect]);
-  const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
-  const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
   const [show3d, setShow3d] = useState(false);
   const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
+  const stockBox = useMemo<StockBox | undefined>(() => {
+    if (mode !== "mill" || setup.stock.auto) return undefined;
+    const st = setup.stock;
+    return { minX: -st.ox, maxX: st.x - st.ox, minY: -st.oy, maxY: st.y - st.oy, top: st.z - st.oz, bottom: -st.oz };
+  }, [mode, setup.stock]);
+  const issues = useMemo(() => validate(program, dialect, stockBox), [program, dialect, stockBox]);
+  const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
+  const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
 
   // narzędzia użyte w programie -> uzupełnij tabelę
   const usedTools = useMemo(() => {
@@ -256,6 +261,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>
             <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
             <span>{st.coolant ? "M08" : "M09"}</span>
+            <span>czas {formatTime(program.seconds)}</span>
             <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {activeTool.kind === "endmill" || activeTool.kind === "ballnose" || activeTool.kind === "drill" ? `⌀${activeTool.d}` : ""}</span>
           </div>
         )}
