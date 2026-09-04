@@ -3,6 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { validate } from "@/lib/parser/validate";
+import SetupPanel from "./SetupPanel";
+import { defaultSetup, type Setup } from "./setup";
 import {
   parseProgram,
   pointAt,
@@ -45,6 +47,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
   const [show3d, setShow3d] = useState(false);
+  const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
+  const [prevMode, setPrevMode] = useState(mode);
+  if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
@@ -150,9 +155,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-    // przedmiot (obrys z zakresu posuwu roboczego)
+    // półfabrykat
     const cut = program.segments.filter((s) => s.kind !== "rapid");
-    if (cut.length) {
+    if (!setup.stock.auto && mode === "mill") {
+      const st = setup.stock;
+      const x0 = st.originXY === "center" ? -st.x / 2 : 0, x1s = st.originXY === "center" ? st.x / 2 : st.x;
+      const y0 = st.originXY === "center" ? -st.y / 2 : 0, y1s = st.originXY === "center" ? st.y / 2 : st.y;
+      const [ax, ay] = P({ x: x0, y: y0, z: 0 }); const [bx2, by2] = P({ x: x1s, y: y1s, z: 0 });
+      ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
+      ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
+      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+      ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
+    } else if (cut.length) {
       const b = boundsOf(cut, ha, va);
       const [x1, y1] = P({ x: 0, y: 0, z: 0, [ha]: b.minH, [va]: b.minV } as Vec3);
       const [x2, y2] = P({ x: 0, y: 0, z: 0, [ha]: b.maxH, [va]: b.maxV } as Vec3);
@@ -170,13 +184,20 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       acc += len;
     });
 
+    // znacznik zera detalu
+    ctx.fillStyle = COLORS.rapid;
+    const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
+    ctx.beginPath(); ctx.arc(oxp, oyp, 3.5, 0, Math.PI * 2); ctx.fill();
+    ctx.font = "10px ui-monospace, monospace"; ctx.fillText("0", oxp + 6, oyp + 12);
+
     // narzędzie
     const [tx, ty] = P(currentPos);
     ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(tx, ty, 6, 0, Math.PI * 2); ctx.stroke();
+    const rPx = mode === "mill" ? Math.max(4, (setup.tool.d / 2) * scale) : 6;
+    ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
-  }, [program, progress, lengths, total, mode, compact, currentPos]);
+  }, [program, progress, lengths, total, mode, compact, currentPos, setup]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -187,7 +208,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           {editable ? <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines} /> : null}
           {issues.length > 0 && (
             <ul className="sim-issues">
-              {issues.map((i, k) => <li key={k} className={i.level}><b>N{i.line + 1}</b> {i.msg}</li>)}
+              {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
             </ul>
           )}
           <ol className="sim-lines">
@@ -226,9 +247,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {!compact && allow3d && (
           <>
             <div className="filters"><button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button></div>
-            {show3d && <Sim3D source={source} mode={mode} />}
+            {show3d && <Sim3D source={source} mode={mode} progress={progress} setup={setup} />}
           </>
         )}
+        {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} />}
       </div>
     </div>
   );

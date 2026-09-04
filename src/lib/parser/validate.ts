@@ -3,6 +3,9 @@ import type { Program } from "./types";
 export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 
 /** Sprawdzenia programowe wykraczające poza pojedynczy blok. Dialekt: fanuc | sinumerik. */
+/** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
+const ONCE = /wrzecion|G43|posuw F/i;
+
 export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc"): Issue[] {
   const out: Issue[] = [];
   const L = program.lines;
@@ -52,8 +55,13 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
 
   if (L.some((l) => l.words.length) && !sawM30) out.push({ line: L.length - 1, level: "warn", msg: "Brak M30/M02 na końcu programu." });
   if (L.some((l) => l.words.length) && !sawMotion) out.push({ line: 0, level: "warn", msg: "Program nie zawiera żadnego ruchu (G00–G03)." });
-  const dedup = new Map<string, Issue>();
-  for (const i of out) dedup.set(`${i.line}:${i.msg}`, i);
-  return [...dedup.values()].sort((a, b) => a.line - b.line);
+  const seen = new Set<string>();
+  const res: Issue[] = [];
+  for (const i of out) {
+    const key = ONCE.test(i.msg) ? i.msg : `${i.line}:${i.msg}`;
+    if (seen.has(key)) continue;
+    seen.add(key); res.push(i);
+  }
+  return res.sort((a, b) => a.line - b.line);
 }
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
