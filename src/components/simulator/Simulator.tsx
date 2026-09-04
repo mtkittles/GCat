@@ -44,6 +44,7 @@ const COLORS = {
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true }: Props) {
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const [show3d, setShow3d] = useState(false);
+  const [fileName, setFileName] = useState<string | null>(null);
   const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
@@ -225,6 +226,30 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       {!compact && (
         <div className="flex flex-col gap-2 min-h-0">
           {editable ? <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines} /> : null}
+          {editable && (
+            <div className="file-bar">
+              <label className="file-btn">
+                Wczytaj plik
+                <input type="file" accept=".nc,.gcode,.tap,.txt,.cnc,.mpf,.min,.eia,.ngc" onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  const text = await f.text();
+                  onSourceChange?.(text.replace(/\r\n/g, "\n"));
+                  setFileName(f.name);
+                  e.target.value = "";
+                }} />
+              </label>
+              <button onClick={() => {
+                const blob = new Blob([source], { type: "text/plain;charset=utf-8" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName || "program.nc";
+                a.click(); URL.revokeObjectURL(a.href);
+              }}>Zapisz jako .nc</button>
+              <button onClick={() => { navigator.clipboard?.writeText(source); }}>Kopiuj</button>
+              {fileName && <span className="file-name">{fileName}</span>}
+              <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
+            </div>
+          )}
           {issues.length > 0 && (
             <ul className="sim-issues">
               {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
