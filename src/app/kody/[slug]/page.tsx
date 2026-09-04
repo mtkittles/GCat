@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
 import { bySlug, gcodes, levelName } from "@/lib/gcodes";
+import { diagrams } from "@/components/diagrams";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
@@ -25,6 +26,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
       </header>
 
       <p className="max-w-prose leading-relaxed">{g.desc}</p>
+      {diagrams[g.slug]?.()}
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div><div className="syntax-label">Fanuc</div><pre className="syntax">{g.syntax.fanuc}</pre></div>
