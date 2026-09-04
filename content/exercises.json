@@ -154,5 +154,163 @@
       "G01"
     ],
     "maxCutLength": 15
+  },
+  {
+    "slug": "kompensacja",
+    "title": "Kontur z kompensacją promienia",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Wyfrezuj kontur prostokąta 70 × 45 mm od X0 Y0 na głębokości 4 mm, używając kompensacji promienia G41. Dojedź z punktu X-20 Y-20, włącz kompensację w bloku dojazdowym do X0 Y0, obejdź kontur i wyłącz ją G40 w odjeździe do punktu startu.",
+    "hints": [
+      "Kompensację włącza się w ruchu prostoliniowym, nigdy w łuku.",
+      "Blok dojazdowy musi być dłuższy niż promień narzędzia — stąd start z X-20 Y-20.",
+      "Nie zapomnij G40 na końcu, inaczej kolejne narzędzie odziedziczy korekcję."
+    ],
+    "starter": "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\n(dopisz kontur z G41 i G40)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\nG41 D1 X0 Y0 F350\nG01 Y45\nG01 X70\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G41",
+      "G40"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "gwintowanie",
+    "title": "Cztery gwinty M8 z otworami",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Wywierć cztery otwory pod gwint M8 (średnica 6,8 mm) na głębokość 20 mm w punktach X20 Y20, X70 Y20, X70 Y45, X20 Y45, a następnie nagwintuj je na głębokość 15 mm. Wiercenie cyklem G81, gwintowanie cyklem G84 przy 500 obr/min. Skok M8 wynosi 1,25 mm.",
+    "hints": [
+      "Posuw gwintowania w G94 to obroty razy skok: 500 × 1,25 = 625 mm/min.",
+      "Płaszczyzna R przy gwintowaniu powinna być wyżej — zostaw zapas na rozbieg, np. R5.",
+      "Po każdym cyklu daj G80."
+    ],
+    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nS500 M03\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
+    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nS500 M03\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G81",
+      "G84",
+      "G80"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "helisa",
+    "title": "Wejście po helisie",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Zamiast zagłębiać frez pionowo, wejdź w materiał po helisie: trzy pełne okręgi o promieniu 15 mm wokół punktu X40 Y40, każdy schodzący o 2 mm, od Z0 do Z-6. Zacznij w punkcie X25 Y40 przy Z0. Użyj G03.",
+    "hints": [
+      "Pełny okrąg zapisuje się przez I i J, bez współrzędnych X Y.",
+      "Środek leży 15 mm w prawo od punktu startu, czyli I15 J0.",
+      "Dodanie Z w bloku łuku zamienia go w helisę."
+    ],
+    "starter": "G21 G90 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\n(dopisz trzy zwoje helisy)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\nG03 X25 Y40 Z-2 I15 J0 F300\nG03 X25 Y40 Z-4 I15 J0\nG03 X25 Y40 Z-6 I15 J0\nG00 Z5\nM30",
+    "tolerance": 0.1,
+    "requireCodes": [
+      "G03"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "podprogram",
+    "title": "Trzy rowki podprogramem",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Wykonaj trzy rowki o długości 25 mm, rozstawione co 20 mm w osi Y, zaczynając od X15 Y15, na głębokości 3 mm. Nie chodzi o konkretny zapis — możesz użyć podprogramu, trybu przyrostowego albo wypisać wszystko wprost. Sprawdzana jest geometria toru.",
+    "hints": [
+      "Po każdym rowku podnieś narzędzie, przejedź do początku następnego i zejdź ponownie.",
+      "W trybie G91 jeden fragment wystarczy powtórzyć trzy razy.",
+      "Rowki mają być równoległe, wszystkie w kierunku dodatnim X."
+    ],
+    "starter": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz trzy rowki)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y35\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y55\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "planowanie",
+    "title": "Planowanie powierzchni",
+    "level": 2,
+    "mode": "mill",
+    "brief": "Splanuj powierzchnię 100 × 60 mm głowicą ⌀50, zdejmując 1 mm. Wykonaj trzy przejścia wzdłuż osi X w liniach Y15, Y30 i Y45, wychodząc poza materiał po obu stronach: od X-30 do X130.",
+    "hints": [
+      "Przekrycie między przejściami wynosi tu 50%, stąd rozstaw 15 mm przy głowicy ⌀50.",
+      "Wyjście poza materiał zapobiega śladowi na krawędzi.",
+      "Nie podnoś narzędzia między przejściami, jeśli nie musisz."
+    ],
+    "starter": "G21 G90 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\n(dopisz trzy przejscia)\nG00 Z50\nM30",
+    "reference": "G21 G90 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\nG01 Z-1 F150\nG01 X130 F800\nG01 Y30\nG01 X-30\nG01 Y45\nG01 X130\nG00 Z50\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "toczenie-czolo",
+    "title": "Planowanie czoła i faza",
+    "level": 2,
+    "mode": "lathe",
+    "brief": "Z półfabrykatu ⌀40 splanuj czoło do osi (X0) na Z0, następnie wykonaj fazę 2×45° i wytocz ⌀36 na długości 30 mm. Posuw 0,15 mm/obr przy planowaniu, 0,25 przy toczeniu wzdłużnym.",
+    "hints": [
+      "Planowanie czoła to ruch w osi X przy stałym Z0, od średnicy zewnętrznej do X0.",
+      "Faza 2×45° to ruch skośny z ⌀32 przy Z2 do ⌀36 przy Z0.",
+      "Pamiętaj o odjeździe przed powrotem na początek."
+    ],
+    "starter": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
+    "reference": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X42 Z0\nG01 X0 F0.15\nG00 X32 Z2\nG01 X36 Z0 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
+    "tolerance": 0.1,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "toczenie-zgrubne",
+    "title": "Zgrubne przejścia wałka",
+    "level": 3,
+    "mode": "lathe",
+    "brief": "Z półfabrykatu ⌀60 zdejmij naddatek do ⌀44 na długości 40 mm, w czterech przejściach po 2 mm promieniowo (czyli po 4 mm na średnicy): ⌀56, ⌀52, ⌀48, ⌀44. Po każdym przejściu wycofaj nóż na ⌀62 i wróć do Z2. Posuw 0,3 mm/obr.",
+    "hints": [
+      "Każde przejście to: dojazd na średnicę, przejazd roboczy do Z-40, wycofanie w X, powrót do Z2.",
+      "Wycofanie i powrót wykonuj szybkim przejazdem G00.",
+      "Cztery przejścia oznaczają cztery takie sekwencje."
+    ],
+    "starter": "G21 G90 G18 G95\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
+    "reference": "G21 G90 G18 G95\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
+    "tolerance": 0.1,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "program-pelny",
+    "title": "Kompletny program wielonarzędziowy",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Napisz kompletny program: T01 frezuje kontur prostokąta 90 × 55 mm od X0 Y0 na głębokość 5 mm (dojazd i odjazd przez X-10 Y-10), T02 wierci dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27 cyklem G81. Każde narzędzie ma mieć wymianę, korekcję długości G43, obroty, chłodziwo i odjazd na Z50.",
+    "hints": [
+      "Szkielet zabiegu: T_ M06, G43 H_ Z50, S_ M03, M08, obróbka, G00 Z50, M09, M05.",
+      "Blok bezpiecznego startu: G00 G90 G17 G54 G40 G49 G80.",
+      "Zakończ przez G91 G28 Z0, G90, M30."
+    ],
+    "starter": "O0500\nG21 G90 G17 G54 G40 G49 G80\n(T01 — kontur)\n(T02 — otwory)\nM30",
+    "reference": "O0500\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-10 Y-10\nG00 Z2\nG01 Z-5 F120\nG01 X0 Y0 F400\nG01 X90\nG01 Y55\nG01 X0\nG01 Y0\nG01 X-10 Y-10\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1400 M03\nM08\nG99 G81 X25 Y27 Z-22 R2 F130\nX65\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G43",
+      "G81",
+      "G80",
+      "M06"
+    ],
+    "maxCutLength": 20
   }
 ]

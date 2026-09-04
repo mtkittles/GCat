@@ -208,3 +208,27 @@ a { text-underline-offset: 3px; }
 .file-btn input { display: none; }
 .file-name { font-family: var(--font-mono); font-size: 12px; color: var(--ink); background: var(--warn-bg); border-radius: 3px; padding: .1rem .4rem; }
 .file-stat { color: var(--muted); font-size: 12px; margin-left: auto; }
+
+/* słownik */
+.glossary { display: grid; gap: .8rem; max-width: 72ch; }
+.glossary > div { border-left: 3px solid var(--line); padding-left: .9rem; }
+.glossary dt { font-weight: 700; font-size: 1.05rem; }
+.glossary dd { margin: .2rem 0 0; display: grid; gap: .2rem; }
+.glossary dd p { line-height: 1.65; }
+
+/* wyszukiwarka */
+.searchbox { position: relative; }
+.searchbox input { width: 9rem; padding: .35rem .6rem; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 13px; transition: width .15s; }
+.searchbox input:focus { width: 14rem; }
+@media (min-width: 900px) { .searchbox input { width: 13rem; } .searchbox input:focus { width: 18rem; } }
+.search-results { position: absolute; right: 0; top: calc(100% + .4rem); width: min(92vw, 26rem); background: var(--card); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,.18); z-index: 50; overflow: hidden; }
+.search-results a, .search-row { display: grid; gap: .1rem; padding: .5rem .7rem; }
+.search-results a + a { border-top: 1px solid var(--line); }
+.search-row { border: 1px solid var(--line); border-radius: 6px; background: var(--card); }
+.search-row:hover, .search-results a:hover { background: var(--warn-bg); }
+.search-kind { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.k-kod { color: var(--amber); } .k-lekcja { color: var(--blue); } .k-zadanie { color: var(--green); }
+.search-title { font-weight: 600; font-size: 14px; }
+.search-snip { font-size: 12px; color: var(--muted); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.search-all { font-size: 13px; font-weight: 600; border-top: 1px solid var(--line) !important; }
+.filters input.grow { flex: 1; min-width: 12rem; }

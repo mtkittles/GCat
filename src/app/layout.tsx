@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Logo from "@/components/Logo";
 import ThemeToggle from "@/components/ThemeToggle";
+import SearchBox from "@/components/SearchBox";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -26,8 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Link href="/kody">Kody</Link>
               <Link href="/symulator">Symulator</Link>
               <Link href="/kalkulator">Kalkulator</Link>
+              <Link href="/slownik">Słownik</Link>
             </nav>
-            <div className="ml-auto"><ThemeToggle /></div>
+            <div className="ml-auto flex items-center gap-2"><SearchBox /><ThemeToggle /></div>
           </div>
         </header>
         <main className="wrap flex-1 py-6 w-full">{children}</main>
