@@ -1,7 +1,7 @@
 import Link from "next/link";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
-import { lessons } from "@/lib/content";
+import { exercises, lessons } from "@/lib/content";
 
 const DEMO = `G21 G90 G17 G54
 S1500 M03
@@ -26,6 +26,7 @@ export default function Home() {
           <p className="text-lg text-muted max-w-prose">Kursy krok po kroku, karty każdej funkcji G i M ze składnią Fanuc i Sinumerik, symulator toru narzędzia i kalkulator parametrów skrawania.</p>
           <div className="flex gap-3 flex-wrap">
             <Link className="btn" href="/nauka">Zacznij naukę</Link>
+            <Link className="btn ghost" href="/zadania">Zadania</Link>
             <Link className="btn ghost" href="/symulator">Symulator</Link>
             <Link className="btn ghost" href="/kalkulator">Kalkulator</Link>
           </div>
@@ -44,6 +45,19 @@ export default function Home() {
             </Link></li>
           ))}
         </ol>
+      </section>
+
+      <section className="grid gap-3">
+        <h2 className="text-2xl font-bold">Sprawdź się</h2>
+        <p className="text-muted max-w-prose">Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym i wskaże, co się nie zgadza.</p>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {exercises.slice(0, 4).map((e) => (
+            <Link key={e.slug} href={`/zadania/${e.slug}`} className="block bg-card border border-line rounded-md p-4 hover:border-ink">
+              <div className="font-semibold">{e.title}</div>
+              <div className="text-sm text-muted mt-1">{e.mode === "mill" ? "frezowanie" : "toczenie"}</div>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <RefTables />

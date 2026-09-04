@@ -1,0 +1,158 @@
+[
+  {
+    "slug": "prostokat",
+    "title": "Prostokąt 80×50",
+    "level": 1,
+    "mode": "mill",
+    "brief": "Wyfrezuj kontur prostokąta o wymiarach 80 × 50 mm, z narożnikiem w punkcie X0 Y0, na głębokości 3 mm. Zacznij i skończ w punkcie X0 Y0.",
+    "hints": [
+      "Zejdź na głębokość ruchem G01, nie G00.",
+      "Kontur musi się domknąć — wróć do punktu startu.",
+      "Pamiętaj o M03 i posuwie F."
+    ],
+    "starter": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\n(dopisz dalszą część)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-3 F100\nG01 X80 F400\nG01 Y50\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "prostokat-zaokraglony",
+    "title": "Prostokąt z zaokrąglonymi narożnikami",
+    "level": 2,
+    "mode": "mill",
+    "brief": "Ten sam prostokąt 80 × 50 mm od X0 Y0, ale wszystkie cztery narożniki zaokrąglone promieniem R10. Głębokość 3 mm. Zacznij w punkcie X10 Y0.",
+    "hints": [
+      "Narożnik zewnętrzny obrabiany w kierunku przeciwnym do wskazówek zegara to G03.",
+      "Punkt styczności leży 10 mm od narożnika.",
+      "Możesz użyć R albo I/J — sprawdzane jest tylko położenie toru."
+    ],
+    "starter": "G21 G90 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\n(dopisz kontur z czterema lukami R10)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\nG01 X70 F400\nG03 X80 Y10 R10\nG01 Y40\nG03 X70 Y50 R10\nG01 X10\nG03 X0 Y40 R10\nG01 Y10\nG03 X10 Y0 R10\nG00 Z5\nM30",
+    "tolerance": 0.15,
+    "requireCodes": [
+      "G03"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "otwory-cykl",
+    "title": "Cztery otwory cyklem stałym",
+    "level": 2,
+    "mode": "mill",
+    "brief": "Wywierć cztery otwory na głębokość 18 mm w punktach X20 Y20, X80 Y20, X80 Y50, X20 Y50. Użyj cyklu stałego G81 z płaszczyzną R na wysokości 2 mm. Na końcu anuluj cykl.",
+    "hints": [
+      "Pierwszy blok cyklu zawiera komplet parametrów, kolejne — same współrzędne.",
+      "Płaszczyzna R musi leżeć nad materiałem.",
+      "Bez G80 kolejny ruch też wywierci otwór."
+    ],
+    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS1200 M03\nG00 X20 Y20 Z10\n(dopisz cykl)\nG00 Z50\nM30",
+    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS1200 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G81",
+      "G80"
+    ],
+    "maxCutLength": 10
+  },
+  {
+    "slug": "wiercenie-glebokie",
+    "title": "Otwór głęboki z odprowadzeniem wióra",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Wywierć jeden otwór w punkcie X30 Y30 na głębokość 45 mm wiertłem ⌀8. Otwór ma ponad pięć średnic, więc użyj cyklu z pełnym wycofaniem, zagłębiając po 6 mm. Płaszczyzna R na wysokości 2 mm.",
+    "hints": [
+      "Pełne wycofanie do R po każdym zagłębieniu to G83, nie G73.",
+      "Głębokość zagłębienia podaje adres Q."
+    ],
+    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30 Z10\n(dopisz cykl)\nG80\nG00 Z50\nM30",
+    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30 Z10\nG99 G83 X30 Y30 Z-45 R2 Q6 F100\nG80\nG00 Z50\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G83"
+    ],
+    "forbidCodes": [
+      "G73"
+    ],
+    "maxCutLength": 10
+  },
+  {
+    "slug": "przyrostowo",
+    "title": "Rząd rowków przyrostowo",
+    "level": 2,
+    "mode": "mill",
+    "brief": "Wykonaj pięć rowków o długości 20 mm, rozstawionych co 15 mm w osi Y, zaczynając od X10 Y10. Głębokość 2 mm. Wykorzystaj tryb przyrostowy G91, żeby nie liczyć każdej pozycji osobno. Na końcu wróć do G90.",
+    "hints": [
+      "Po rowku wycofaj narzędzie, przesuń o 15 w Y i wróć o 20 w X.",
+      "G91 obowiązuje aż do G90.",
+      "Wszystkie ruchy w materiale muszą być na G01."
+    ],
+    "starter": "G21 G90 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\n(dopisz piec rowkow)\nG90\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG90\nG00 Z5\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G91",
+      "G90"
+    ],
+    "maxCutLength": 15
+  },
+  {
+    "slug": "walek-stopniowy",
+    "title": "Wałek stopniowy",
+    "level": 2,
+    "mode": "lathe",
+    "brief": "Z półfabrykatu ⌀50 wytocz wałek: ⌀30 na długości 25 mm, następnie ⌀40 na długości do 55 mm, na końcu wyjazd na średnicę 50. Jedno przejście wykańczające, posuw 0,2 mm/obr. Pamiętaj, że X programujesz średnicowo.",
+    "hints": [
+      "Zacznij od dojazdu na średnicę 30 przy Z2.",
+      "Stopień to ruch w osi X przy stałym Z.",
+      "Na tokarce posuw w mm/obr — tryb G95."
+    ],
+    "starter": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X52 Z2\n(dopisz kontur)\nG00 Z2\nM30",
+    "reference": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X52 Z2\nG01 X30 F0.2\nG01 Z-25\nG01 X40\nG01 Z-55\nG01 X52\nG00 Z2\nM30",
+    "tolerance": 0.1,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "walek-zaokraglenie",
+    "title": "Wałek z fazą i zaokrągleniem",
+    "level": 3,
+    "mode": "lathe",
+    "brief": "Wytocz wałek ⌀30 na długości 20 mm, przejście łukiem R5 na ⌀40, dalej ⌀40 do 45 mm, na końcu faza 2×45° i wyjazd na ⌀50. Zacznij fazą wejściową 2×45° na czole.",
+    "hints": [
+      "Faza 2×45° na wejściu: z ⌀26 przy Z2 do ⌀30 przy Z0.",
+      "Zaokrąglenie wklęsłe w narożu stopnia to G02.",
+      "Faza końcowa to zwykły ruch skośny G01 w dwóch osiach."
+    ],
+    "starter": "G21 G90 G18 G95\nG97 S1400 M03\nG00 X26 Z2\n(dopisz kontur)\nG00 X52 Z2\nM30",
+    "reference": "G21 G90 G18 G95\nG97 S1400 M03\nG00 X26 Z2\nG01 X30 Z0 F0.15\nG01 Z-20\nG02 X40 Z-25 R5\nG01 Z-45\nG01 X46\nG01 X50 Z-47\nG00 X52 Z2\nM30",
+    "tolerance": 0.15,
+    "requireCodes": [
+      "G02"
+    ],
+    "maxCutLength": 20
+  },
+  {
+    "slug": "kieszen",
+    "title": "Kieszeń prostokątna dwoma przejściami",
+    "level": 3,
+    "mode": "mill",
+    "brief": "Wybierz kieszeń prostokątną 60 × 40 mm z narożnikiem w X10 Y10, na głębokość 6 mm w dwóch przejściach po 3 mm. Frez ⌀10 — obrabiaj po obrysie kieszeni pomniejszonym o promień narzędzia, czyli po prostokącie od X15 Y15 do X65 Y45.",
+    "hints": [
+      "Dwa przejścia: zejdź na −3, obejdź kontur, zejdź na −6, obejdź ponownie.",
+      "Kontur wewnętrzny musi się domykać.",
+      "Nie podnoś narzędzia między przejściami — zejdź kolejnym G01 w Z."
+    ],
+    "starter": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz dwa przejscia)\nG00 Z5\nM30",
+    "reference": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG01 Z-6 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG00 Z5\nM30",
+    "tolerance": 0.05,
+    "requireCodes": [
+      "G01"
+    ],
+    "maxCutLength": 15
+  }
+]

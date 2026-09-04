@@ -11,3 +11,13 @@ export interface Lesson {
 }
 export const lessons = lessonsData as Lesson[];
 export const lessonBySlug = (s: string) => lessons.find((l) => l.slug === s);
+
+import exData from "../../content/exercises.json";
+
+export interface Exercise {
+  slug: string; title: string; level: 1 | 2 | 3; mode: "mill" | "lathe";
+  brief: string; hints: string[]; starter: string; reference: string;
+  tolerance?: number; requireCodes?: string[]; forbidCodes?: string[]; maxCutLength?: number;
+}
+export const exercises = exData as Exercise[];
+export const exerciseBySlug = (s: string) => exercises.find((e) => e.slug === s);

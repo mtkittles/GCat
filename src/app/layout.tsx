@@ -22,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="brand py-3 flex items-center gap-2"><Logo />G<b>Cat</b></Link>
             <nav className="flex gap-4 text-[15px] overflow-x-auto">
               <Link href="/nauka">Nauka</Link>
+              <Link href="/zadania">Zadania</Link>
               <Link href="/kody">Kody</Link>
               <Link href="/symulator">Symulator</Link>
               <Link href="/kalkulator">Kalkulator</Link>

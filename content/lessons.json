@@ -155,5 +155,120 @@
     ],
     "example": "G21 G90 G18 G95\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nG97 S1200\nM30",
     "task": "Zamień G02 na G03 w linii 8 i porównaj zarys stopnia. Potem zmień R5 na R3."
+  },
+  {
+    "slug": "8-kompensacja",
+    "title": "Kompensacja promienia narzędzia",
+    "minutes": 14,
+    "mode": "mill",
+    "intro": "Zamiast liczyć tor środka freza, programujesz kontur detalu i pozwalasz sterownikowi odsunąć narzędzie o promień. Ten sam program działa potem z frezem ⌀10 i ⌀12.",
+    "sections": [
+      {
+        "h": "Reguła strony",
+        "p": "Stań za narzędziem i patrz w kierunku ruchu. Narzędzie po lewej stronie konturu to G41, po prawej G42, G40 wyłącza kompensację. Przy obrotach w prawo i konturze zewnętrznym G41 daje frezowanie współbieżne — gładszą powierzchnię i mniejsze zużycie ostrza."
+      },
+      {
+        "h": "Blok dojazdowy",
+        "p": "Kompensacji nie da się włączyć w miejscu. Sterownik potrzebuje ruchu prostoliniowego dłuższego niż promień narzędzia, w trakcie którego przesunie tor. Ten ruch musi być G00 albo G01 — nigdy łuk."
+      },
+      {
+        "h": "Korekta wymiaru bez zmiany programu",
+        "p": "Rejestr korekcji ma osobną kolumnę zużycia. Jeżeli zmierzona ścianka jest o 0,04 mm za gruba, wpisujesz −0,02 w zużycie promienia i uruchamiasz ten sam program ponownie. To codzienna praktyka przy obróbce na wymiar tolerowany."
+      }
+    ],
+    "example": "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F350\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
+    "task": "Zmień blok dojazdowy tak, żeby zaczynał się bliżej konturu — na przykład z X-3 Y-3. Na maszynie taki dojazd byłby krótszy niż promień freza i skończyłby się alarmem."
+  },
+  {
+    "slug": "9-cykle-wiertarskie",
+    "title": "Cykle wiertarskie",
+    "minutes": 15,
+    "mode": "mill",
+    "intro": "Cykl stały zastępuje kilkanaście bloków jednym. Definiujesz go raz, a potem podajesz same współrzędne kolejnych otworów.",
+    "sections": [
+      {
+        "h": "Anatomia cyklu",
+        "p": "Przejazd nad otwór, szybki zjazd do płaszczyzny R, wiercenie na posuwie do Z, powrót do R (G99) albo do punktu początkowego (G98). Kolejne bloki ze współrzędnymi X Y powtarzają całą sekwencję."
+      },
+      {
+        "h": "Kiedy G83, kiedy G73",
+        "p": "Powyżej trzech średnic wiór przestaje wychodzić z otworu. G83 wycofuje wiertło całkowicie do R po każdym zagłębieniu o Q — wiór jest łamany i usuwany, chłodziwo dociera do dna. G73 wycofuje tylko o niewielką wartość: szybciej, ale wiór zostaje w otworze."
+      },
+      {
+        "h": "G98 i przeszkody",
+        "p": "G99 wraca tylko do płaszczyzny R, więc jest szybsze. Jeżeli jednak między otworami stoi zacisk, narzędzie w niego uderzy. Wtedy dla tego jednego otworu przełącz się na G98."
+      }
+    ],
+    "example": "G21 G90 G17 G54 G80\nT01 M06\nS1200 M03\nG00 X20 Y20 Z10\nM08\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM09\nM30",
+    "task": "Zamień G81 na G83 z parametrem Q5 i głębokością Z-40. Policz w symulacji, ile razy wiertło wycofa się do płaszczyzny R."
+  },
+  {
+    "slug": "10-program-wielonarzedziowy",
+    "title": "Program na wiele narzędzi",
+    "minutes": 14,
+    "mode": "mill",
+    "intro": "Prawdziwy program to kilka zabiegów, każdy innym narzędziem. Powtarzalny szkielet sprawia, że błędy widać od razu.",
+    "sections": [
+      {
+        "h": "Szkielet zabiegu",
+        "p": "Wymiana narzędzia, korekcja długości z dojazdem na wysokość bezpieczną, obroty, chłodziwo, obróbka, odjazd, wyłączenie chłodziwa i wrzeciona. Każde narzędzie wygląda tak samo, więc odstępstwo rzuca się w oczy."
+      },
+      {
+        "h": "Blok bezpiecznego startu",
+        "p": "G00 G90 G17 G54 G40 G49 G80 kasuje wszystko, co mogło zostać po poprzedniej pracy: tryb ruchu, płaszczyznę, układ, kompensacje i cykl. Powtarzaj go po każdej wymianie narzędzia."
+      },
+      {
+        "h": "Kolejność zabiegów",
+        "p": "Najpierw operacje zdejmujące najwięcej materiału, na końcu wykańczające i te wymagające dokładności. Nawiercanie przed wierceniem, wiercenie przed gwintowaniem, kontur zgrubny przed wykańczającym."
+      }
+    ],
+    "example": "O0200 (PLYTKA)\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-8 Y-8\nG00 Z2\nG01 Z-4 F120\nG01 X0 Y0 F450\nG01 X80\nG01 Y50\nG01 X0\nG01 Y-8\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1200 M03\nM08\nG99 G83 X15 Y15 Z-24 R2 Q6 F110\nX65\nY35\nX15\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "task": "Otwórz panel narzędzi pod symulatorem i przypisz T01 frez ⌀12, a T02 wiertło ⌀8,5. Włącz widok 3D i prześledź całą operację od początku do końca."
+  },
+  {
+    "slug": "11-toczenie-cykle",
+    "title": "Toczenie: cykle i gwintowanie",
+    "minutes": 16,
+    "mode": "lathe",
+    "intro": "Na tokarce naddatek zdejmuje się warstwami. Cykle G71 i G76 robią to za Ciebie — wystarczy opisać kontur gotowy.",
+    "sections": [
+      {
+        "h": "G71 — zgrubne toczenie",
+        "p": "Podajesz kontur gotowego detalu i głębokość przejścia, a sterownik generuje wszystkie przejścia zgrubne z naddatkiem na wykańczanie. Blok wskazany przez P musi zawierać wyłącznie ruch w osi X, a kontur musi być monotoniczny."
+      },
+      {
+        "h": "G70 — wykańczanie",
+        "p": "Po zgrubnym przejeździe G70 P_ Q_ przechodzi po tym samym konturze na gotowo, z osobnym posuwem. To dlatego kontur opisuje się raz."
+      },
+      {
+        "h": "G76 — gwint",
+        "p": "Cykl dzieli głębokość gwintu na przejścia o malejącym przyroście, tak by pole przekroju wióra pozostawało stałe. Zawsze przy G97, z rozbiegiem co najmniej dwóch skoków przed gwintem."
+      }
+    ],
+    "example": "G21 G90 G18 G95\nG50 S2500\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X54 F0.3\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X46\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X40\nG01 Z-30\nG00 X64\nG00 Z2\nG97 S1200\nM30",
+    "task": "To ręcznie rozpisane przejścia, które wygenerowałby cykl G71 U4. Policz, ile przejść potrzeba, żeby z ⌀62 zejść do ⌀40 przy głębokości 4 mm na przejście."
+  },
+  {
+    "slug": "12-uruchomienie",
+    "title": "Pierwsze uruchomienie programu",
+    "minutes": 12,
+    "mode": "mill",
+    "intro": "Napisany program to połowa roboty. Druga połowa to uruchomienie go tak, żeby ewentualny błąd nie kosztował narzędzia, detalu ani maszyny.",
+    "sections": [
+      {
+        "h": "Kolejność sprawdzania",
+        "p": "Symulacja na komputerze, potem przejazd bez detalu z podniesionym zerem Z o kilkadziesiąt milimetrów, potem pierwsza sztuka z obniżoną korektą posuwu i szybkiego przejazdu. Dopiero potem pełna prędkość."
+      },
+      {
+        "h": "Pokrętła korekty",
+        "p": "Rapid Override na 25%, Feed Override na 50%, ręka nad przyciskiem zatrzymania posuwu. To nie jest przesada — pierwszy przejazd nowego programu jest jedynym momentem, w którym błąd w zerze detalu ujawnia się fizycznie."
+      },
+      {
+        "h": "M01 jako punkty kontrolne",
+        "p": "Wstaw M01 po każdym narzędziu. Z włączonym Optional Stop maszyna zatrzyma się po każdym zabiegu i pozwoli zmierzyć detal. Po zatwierdzeniu programu wyłączasz Optional Stop i te same bloki są pomijane."
+      }
+    ],
+    "example": "O0300 (URUCHOMIENIE)\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2000 M03\nM08\nG00 X0 Y0\nG00 Z2\nG01 Z-2 F100\nG01 X60 F350\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z50\nM09\nM05\nM01\nG91 G28 Z0\nG90\nM30",
+    "task": "Zwróć uwagę na M01 przed zakończeniem. Przy uruchamianiu wieloetapowego programu taki blok po każdym narzędziu daje szansę na pomiar bez przerywania cyklu."
   }
 ]
