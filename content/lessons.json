@@ -1,0 +1,78 @@
+[
+  {
+    "slug": "1-czym-jest-gkod", "title": "Czym jest G-kod i jak czytać blok", "minutes": 8, "mode": "mill",
+    "intro": "G-kod to język, w którym mówisz maszynie CNC, dokąd ma jechać, jak szybko i co ma po drodze włączyć. Zanim napiszesz pierwszy program, musisz umieć przeczytać jedną linię.",
+    "sections": [
+      { "h": "Blok, słowo, adres", "p": "Jedna linia programu to blok. Blok składa się ze słów, a słowo to litera (adres) i liczba: G01, X40, F200. Litera mówi „co”, liczba „ile”. Blok N30 G01 X40 Y0 F200 czytasz: linia 30, ruch liniowy, do X=40 i Y=0, z posuwem 200." },
+      { "h": "G kontra M", "p": "G (geometria) steruje ruchem i trybami: jak jechać, w jakich jednostkach, w jakim układzie. M (maszyna) włącza i wyłącza rzeczy: wrzeciono, chłodziwo, wymianę narzędzia. W bloku może być kilka G, ale tylko jedno M." },
+      { "h": "Funkcje modalne", "p": "Większość G „zostaje” aż do odwołania. Po G01 kolejne bloki z samymi współrzędnymi też są ruchami liniowymi. To skraca program, ale bywa pułapką: zapomniany G00 przed dojazdem oznacza dojazd na posuwie roboczym." }
+    ],
+    "example": "O0001 (PIERWSZY PROGRAM)\nN10 G21 G90 G17 G54\nN20 S1500 M03\nN30 G00 X0 Y0 Z5\nN40 G01 Z-1 F100\nN50 G01 X40 F250\nN60 Y30\nN70 X0\nN80 Y0\nN90 G00 Z5\nN100 M30",
+    "task": "Krokuj program przyciskiem „Krok ›” i przy każdej linii przeczytaj tłumaczenie. Zwróć uwagę, że N60–N80 nie mają G01, a mimo to jadą na posuwie."
+  },
+  {
+    "slug": "2-uklad-wspolrzednych", "title": "Układ współrzędnych i zero detalu", "minutes": 10, "mode": "mill",
+    "intro": "Maszyna ma swoje zero (punkt referencyjny), a Ty programujesz względem zera detalu. G54 to rejestr, w którym sterownik trzyma odległość między nimi.",
+    "sections": [
+      { "h": "Reguła prawej dłoni", "p": "Frezarka: X w prawo, Y od siebie, Z w górę (narzędzie odjeżdża od detalu na +Z). Tokarka: Z wzdłuż osi obrotu, X promieniowo — i uwaga, X programujesz jako średnicę." },
+      { "h": "Gdzie postawić zero", "p": "Najczęściej: róg detalu (lewy dolny) albo środek, Z=0 na górnej powierzchni. Wybór zera wpływa na czytelność programu i łatwość ustawienia na maszynie." },
+      { "h": "G54–G59", "p": "Sześć niezależnych rejestrów przesunięć. Dwa zamocowania na stole = G54 i G55, ten sam program wywołany dwa razy." }
+    ],
+    "example": "G21 G90 G17\nG54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nM30",
+    "task": "Ten sam kwadratowy ruch wykonany w G54 i G55. Symulator nie zna przesunięć rejestrów, więc rysuje w tym samym miejscu — na maszynie wyjdą dwa różne miejsca na stole."
+  },
+  {
+    "slug": "3-g00-g01", "title": "Pierwszy kontur: G00 i G01", "minutes": 12, "mode": "mill",
+    "intro": "Dwa ruchy załatwiają 80% programów: szybki dojazd bez skrawania i ruch liniowy z posuwem.",
+    "sections": [
+      { "h": "Schemat każdego przejścia", "p": "1) G00 nad punkt startu na bezpiecznym Z. 2) G00 do Z bezpiecznego (np. 2 mm nad materiałem). 3) G01 na głębokość z mniejszym posuwem. 4) G01 po konturze. 5) G00 do góry." },
+      { "h": "Posuw F", "p": "Na frezarce w mm/min. Zagłębianie w Z zwykle 30–50% posuwu konturowego. Brak F w pierwszym G01 = alarm." },
+      { "h": "Dlaczego nie G00 w materiał", "p": "G00 rusza osiami niezależnie z maksymalną prędkością — tor nie jest prostą, a siły przekraczają wszystko, na co narzędzie jest policzone." }
+    ],
+    "example": "G21 G90 G17 G54\nS2000 M03\nG00 X-5 Y-5 Z10\nG00 Z2\nG01 Z-3 F80\nG01 X0 Y0 F300\nG01 X60\nG01 Y40\nG01 X0\nG01 Y-5\nG00 Z10\nM30",
+    "task": "Zadanie: zmień program tak, żeby wyfrezować prostokąt 80×30 zaczynając od X0 Y0. Sprawdź w podglądzie, czy kontur się zamyka."
+  },
+  {
+    "slug": "4-luki", "title": "Łuki: G02, G03, I/J kontra R", "minutes": 15, "mode": "mill",
+    "intro": "Łuk wymaga trzech rzeczy: kierunku (G02/G03), punktu końcowego i środka. Środek podajesz przez I/J (wektor od startu) albo promień R.",
+    "sections": [
+      { "h": "Kierunek", "p": "Patrz z góry (od +Z) na płaszczyznę XY. Zgodnie z ruchem wskazówek zegara = G02. Na tokarce patrzysz od +Y — z X w górę i Z w prawo działa tak samo." },
+      { "h": "I/J", "p": "I = odległość od punktu STARTU łuku do środka w X, J — w Y. Zawsze przyrostowo (Fanuc domyślnie), nawet w G90. Pełne koło da się zrobić tylko przez I/J." },
+      { "h": "R", "p": "Prostsze, ale niejednoznaczne: przez dwa punkty i promień przechodzą dwa łuki. Sterownik wybiera krótszy (≤180°); R ujemne wymusza dłuższy." }
+    ],
+    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F250\nG03 X60 Y20 I0 J20\nG01 Y40\nG03 X40 Y60 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "task": "Zamień w linii 5 G03 na G02 i zobacz, co się stanie z torem. Potem w linii 7 wpisz R-20 zamiast R20."
+  },
+  {
+    "slug": "5-g90-g91", "title": "Absolutnie czy przyrostowo: G90 i G91", "minutes": 8, "mode": "mill",
+    "intro": "G90: każda współrzędna to adres na mapie. G91: każda współrzędna to krok od miejsca, gdzie stoisz.",
+    "sections": [
+      { "h": "Kiedy G91", "p": "Powtarzalne wzory (rząd otworów co 15 mm), podprogramy, które mają działać w dowolnym miejscu, dojazd do bazy G91 G28 Z0." },
+      { "h": "Pułapka", "p": "Po bloku w G91 pamiętaj wrócić do G90. Program uruchomiony od środka w G91 pojedzie z aktualnego, niezaplanowanego miejsca." }
+    ],
+    "example": "G21 G90 G17 G54\nG00 X10 Y10 Z5\nG01 Z-1 F100\nG91\nG01 X30 F250\nG01 Y20\nG01 X-30\nG01 Y-20\nG90\nG00 Z5\nM30",
+    "task": "Zmień punkt startu w linii 2 na X30 Y30. Prostokąt przesunie się w całości — to siła G91."
+  },
+  {
+    "slug": "6-struktura-programu", "title": "Bezpieczny blok startowy i struktura programu", "minutes": 10, "mode": "mill",
+    "intro": "Dobry program zaczyna się od resetu wszystkiego, co mogło zostać po poprzednim, i ma powtarzalny szkielet dla każdego narzędzia.",
+    "sections": [
+      { "h": "Blok startowy", "p": "G00 G90 G17 G54 G40 G49 G80 — szybki, absolutnie, płaszczyzna XY, układ 1, bez kompensacji promienia i długości, bez cyklu. Powtórz po każdej wymianie narzędzia." },
+      { "h": "Szkielet narzędzia", "p": "T2 M06 → S M03 → G43 H2 Z50 → M08 → obróbka → M09 → G00 Z50 → następne narzędzie. Kiedy każde narzędzie wygląda tak samo, błędy widać od razu." },
+      { "h": "Koniec", "p": "M05, M09, G91 G28 Z0 (odjazd do góry), G90, M30." }
+    ],
+    "example": "O0100 (PLYTKA)\nG00 G90 G17 G54 G40 G49 G80\nT1 M06\nS1800 M03\nG43 H1 Z50\nG00 X-5 Y-5\nG00 Z2\nM08\nG01 Z-2 F80\nG01 X0 Y0 F300\nG01 X50\nG01 Y30\nG01 X0\nG01 Y-5\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "task": "Skopiuj ten szkielet jako szablon do własnych programów. Zwróć uwagę na kolejność: G43 przed pierwszym ruchem Z w dół."
+  },
+  {
+    "slug": "7-toczenie", "title": "Toczenie: średnice, G95 i G96", "minutes": 12, "mode": "lathe",
+    "intro": "Na tokarce trzy rzeczy są inne niż na frezarce: X to średnica, posuw jest w mm/obr, a obroty często liczy sterownik z prędkości skrawania.",
+    "sections": [
+      { "h": "X jako średnica", "p": "G01 X40 znaczy „toczyć na ⌀40”, choć narzędzie fizycznie stoi 20 mm od osi. Symulator w trybie toczenia też tak liczy. Łuki: R i K podajesz normalnie, I — jako promień (nie średnicę)." },
+      { "h": "G95 i G96", "p": "F0.25 to 0,25 mm na obrót — bezpośrednio przekłada się na chropowatość. G96 S200 utrzymuje 200 m/min: im mniejsza średnica, tym wyższe obroty. Zawsze z limitem (G50 S3000 w Fanuc)." },
+      { "h": "Kierunek łuków", "p": "Patrz na zarys z X w górę i Z w prawo. Zaokrąglenie wklęsłe w narożu stopnia (jadąc do uchwytu) to G02, wypukłe — G03." }
+    ],
+    "example": "G21 G90 G18 G95\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nG97 S1200\nM30",
+    "task": "Zamień G02 na G03 w linii 8 i porównaj zarys stopnia. Potem zmień R5 na R3."
+  }
+]

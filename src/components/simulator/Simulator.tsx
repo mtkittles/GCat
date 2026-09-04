@@ -32,7 +32,7 @@ const COLORS = {
 };
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false }: Props) {
-  const program = useMemo(() => parseProgram(source), [source]);
+  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
@@ -87,7 +87,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
-    const { min, max } = program.bounds;
+    const { min: bmin, max: bmax } = program.bounds;
+    const min = mode === "lathe" ? { ...bmin, x: Math.min(bmin.x, -bmax.x) } : bmin;
+    const max = bmax;
     const spanH = Math.max(max[ha] - min[ha], 10);
     const spanV = Math.max(max[va] - min[va], 10);
     const pad = 28;
@@ -118,6 +120,23 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
     ctx.fillText(ha.toUpperCase(), W - 14, zy - 6);
     ctx.fillText(va.toUpperCase(), zx + 6, 14);
+
+    // tokarka: oś obrotu + lustrzany zarys wałka
+    if (mode === "lathe") {
+      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
+      const [, ay] = P({ x: 0, y: 0, z: 0 });
+      ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(W, ay); ctx.stroke(); ctx.restore();
+      const cut = program.segments.filter((s) => s.kind !== "rapid");
+      ctx.save(); ctx.globalAlpha = 0.25;
+      for (const sg of cut) {
+        ctx.strokeStyle = COLORS[sg.kind]; ctx.lineWidth = 2; ctx.beginPath();
+        const n = sg.kind === "arc" ? 48 : 1;
+        const [x0, y0] = P({ ...sg.from, x: -sg.from.x }); ctx.moveTo(x0, y0);
+        for (let i = 1; i <= n; i++) { const q = pointAt(sg, i / n); const [x, y] = P({ ...q, x: -q.x }); ctx.lineTo(x, y); }
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
 
     // przedmiot (obrys z zakresu posuwu roboczego)
     const cut = program.segments.filter((s) => s.kind !== "rapid");
@@ -187,7 +206,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </div>
         {!compact && st && (
           <div className="sim-state">
-            <span>X {fmt(currentPos.x)}</span><span>Y {fmt(currentPos.y)}</span><span>Z {fmt(currentPos.z)}</span>
+            <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
             <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
             <span>G{st.wcs}</span><span>G{st.comp}</span>
             <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>

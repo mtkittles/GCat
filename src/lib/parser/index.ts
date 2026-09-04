@@ -101,13 +101,20 @@ function arcCenter(
 const planeName = (p: Plane) => (p === 17 ? "XY" : p === 18 ? "ZX" : "YZ");
 
 /** Interpretuje program (dialekt Fanuc/ISO) i zwraca segmenty ruchu + opis PL. */
-export function parseProgram(source: string, start: MachineState = initialState()): Program {
+export interface ParseOptions {
+  /** Tokarka: X i I programowane średnicowo (Fanuc domyślnie). Geometria wewnętrzna liczona na promieniu. */
+  diameterX?: boolean;
+}
+
+export function parseProgram(source: string, opts: ParseOptions = {}, start: MachineState = initialState()): Program {
   let state = start;
+  const dia = !!opts.diameterX;
   const lines: ParsedLine[] = [];
   const allSegments: Segment[] = [];
 
   source.split(/\r?\n/).forEach((raw, index) => {
-    const { words, comment } = tokenize(raw);
+    const { words: rawWords, comment } = tokenize(raw);
+    const words = dia ? rawWords.map((w) => (w.letter === "X" || w.letter === "I" || w.letter === "U" ? { ...w, value: w.value / 2 } : w)) : rawWords;
     const errors: string[] = [];
     const desc: string[] = [];
     const s: MachineState = { ...state, pos: { ...state.pos } };
@@ -180,11 +187,11 @@ export function parseProgram(source: string, start: MachineState = initialState(
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
       } else if (s.motion === 0) {
         segments.push({ kind: "rapid", from, to: target, line: index });
-        desc.push(`Szybki dojazd do ${pt(target, s.plane)}`);
+        desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
       } else if (s.motion === 1) {
         if (s.feed === null) errors.push("G01 bez posuwu F.");
         segments.push({ kind: "linear", from, to: target, line: index });
-        desc.push(`Ruch liniowy do ${pt(target, s.plane)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
+        desc.push(`Ruch liniowy do ${pt(target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
       } else {
         const cw = s.motion === 2;
         const center = arcCenter(from, target, words, s.plane, cw, errors);
@@ -192,7 +199,7 @@ export function parseProgram(source: string, start: MachineState = initialState(
           segments.push({ kind: "arc", from, to: target, center, cw, plane: s.plane, line: index });
           const [a, b] = planeAxes(s.plane);
           const r = Math.hypot(from[a] - center[a], from[b] - center[b]);
-          desc.push(`Łuk ${cw ? "zgodnie" : "przeciwnie"} z ruchem wskazówek do ${pt(target, s.plane)}, R=${fmt(r)}`);
+          desc.push(`Łuk ${cw ? "zgodnie" : "przeciwnie"} z ruchem wskazówek do ${pt(target, s.plane, dia)}, R=${fmt(r)}`);
         }
       }
       s.pos = target;
@@ -213,10 +220,11 @@ export function parseProgram(source: string, start: MachineState = initialState(
   return { lines, segments: allSegments, bounds };
 }
 
-function pt(p: Vec3, plane: Plane) {
+function pt(p: Vec3, plane: Plane, dia = false) {
   const [a, b, c] = planeAxes(plane);
-  const A = a.toUpperCase(), B = b.toUpperCase(), C = c.toUpperCase();
-  return `${A}${fmt(p[a])} ${B}${fmt(p[b])} ${C}${fmt(p[c])}`;
+  const v = (k: keyof Vec3) => fmt(dia && k === "x" ? p[k] * 2 : p[k]);
+  if (plane === 18) return `X${v("x")} Z${v("z")}`;
+  return `${a.toUpperCase()}${v(a)} ${b.toUpperCase()}${v(b)} ${c.toUpperCase()}${v(c)}`;
 }
 
 function computeBounds(segments: Segment[]) {

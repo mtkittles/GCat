@@ -15,8 +15,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="wrap flex items-center gap-6">
             <Link href="/" className="brand py-3">Kod<b>G</b>.pl</Link>
             <nav className="flex gap-5 text-[15px]">
+              <Link href="/nauka">Nauka</Link>
               <Link href="/kody">Kody</Link>
               <Link href="/symulator">Symulator</Link>
+              <Link href="/kalkulator">Kalkulator</Link>
             </nav>
           </div>
         </header>
