@@ -7,7 +7,7 @@ const r3 = (v: number) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0)
 function Field({ label, unit, value, onChange }: { label: string; unit: string; value: number; onChange: (v: number) => void }) {
   return (
     <label className="grid gap-1 text-sm"><span>{label} <span className="text-muted">[{unit}]</span></span>
-      <input type="number" inputMode="decimal" className="border border-line rounded px-2 py-1.5 bg-white font-mono" value={value} onChange={(e) => onChange(Number(e.target.value))} /></label>
+      <input type="number" inputMode="decimal" className="border border-line rounded px-2 py-1.5 bg-card font-mono" value={value} onChange={(e) => onChange(Number(e.target.value))} /></label>
   );
 }
 function Out({ label, value, unit }: { label: string; value: number | string; unit: string }) {

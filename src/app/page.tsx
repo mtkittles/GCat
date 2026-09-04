@@ -38,7 +38,7 @@ export default function Home() {
         <h2 className="text-2xl font-bold">Ścieżka nauki</h2>
         <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {lessons.map((l, i) => (
-            <li key={l.slug}><Link href={`/nauka/${l.slug}`} className="block bg-white border border-line rounded-md p-4 hover:border-ink h-full">
+            <li key={l.slug}><Link href={`/nauka/${l.slug}`} className="block bg-card border border-line rounded-md p-4 hover:border-ink h-full">
               <div className="text-sm text-muted">Lekcja {i + 1} · {l.minutes} min</div>
               <div className="font-semibold">{l.title}</div>
             </Link></li>

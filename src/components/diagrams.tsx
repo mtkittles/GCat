@@ -4,7 +4,7 @@ const S = { stroke: "var(--ink)", fill: "none", strokeWidth: 2 } as const;
 const T = { fontSize: 12, fill: "var(--muted)", fontFamily: "var(--font-mono)" } as const;
 const Frame = ({ children, w = 520, h = 220, caption }: { children: ReactNode; w?: number; h?: number; caption: string }) => (
   <figure className="grid gap-1">
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-2xl bg-white border border-line rounded-md" role="img" aria-label={caption}>{children}</svg>
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full max-w-2xl bg-card border border-line rounded-md" role="img" aria-label={caption}>{children}</svg>
     <figcaption className="text-sm text-muted">{caption}</figcaption>
   </figure>
 );

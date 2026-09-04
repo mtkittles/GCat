@@ -5,7 +5,7 @@ import { lessonBySlug, lessons } from "@/lib/content";
 
 export function generateStaticParams() { return lessons.map((l) => ({ slug: l.slug })); }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const l = lessonBySlug((await params).slug); return { title: l ? `${l.title} — KodG.pl` : "Lekcja" };
+  const l = lessonBySlug((await params).slug); return { title: l ? `${l.title} — GCat` : "Lekcja" };
 }
 export default async function LessonPage({ params }: { params: Promise<{ slug: string }> }) {
   const l = lessonBySlug((await params).slug); if (!l) notFound();

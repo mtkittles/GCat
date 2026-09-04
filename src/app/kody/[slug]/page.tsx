@@ -8,7 +8,7 @@ export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slu
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const g = bySlug((await params).slug);
-  return { title: g ? `${g.code} — ${g.name} — KodG.pl` : "Kod" };
+  return { title: g ? `${g.code} — ${g.name} — GCat` : "Kod" };
 }
 
 export default async function CodePage({ params }: { params: Promise<{ slug: string }> }) {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+import { validate } from "@/lib/parser/validate";
 import {
   parseProgram,
   pointAt,
@@ -10,6 +12,10 @@ import {
 } from "@/lib/parser";
 
 export type SimMode = "mill" | "lathe";
+export type Dialect = "fanuc" | "sinumerik";
+
+const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
+const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 380 }} /> });
 
 interface Props {
   source: string;
@@ -18,6 +24,8 @@ interface Props {
   onSourceChange?: (s: string) => void;
   compact?: boolean;
   autoplay?: boolean;
+  dialect?: Dialect;
+  allow3d?: boolean;
 }
 
 const COLORS = {
@@ -31,8 +39,12 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true }: Props) {
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
+  const issues = useMemo(() => validate(program, dialect), [program, dialect]);
+  const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
+  const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
+  const [show3d, setShow3d] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
@@ -172,15 +184,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     <div className={`grid gap-3 ${compact ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"}`}>
       {!compact && (
         <div className="flex flex-col gap-2 min-h-0">
-          {editable ? (
-            <textarea
-              value={source}
-              onChange={(e) => onSourceChange?.(e.target.value)}
-              spellCheck={false}
-              className="sim-editor"
-              rows={14}
-            />
-          ) : null}
+          {editable ? <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines} /> : null}
+          {issues.length > 0 && (
+            <ul className="sim-issues">
+              {issues.map((i, k) => <li key={k} className={i.level}><b>N{i.line + 1}</b> {i.msg}</li>)}
+            </ul>
+          )}
           <ol className="sim-lines">
             {program.lines.map((l) => (
               <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""}`}>
@@ -213,6 +222,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
             <span>{st.coolant ? "M08" : "M09"}</span>
           </div>
+        )}
+        {!compact && allow3d && (
+          <>
+            <div className="filters"><button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button></div>
+            {show3d && <Sim3D source={source} mode={mode} />}
+          </>
         )}
       </div>
     </div>

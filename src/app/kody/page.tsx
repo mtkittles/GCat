@@ -1,7 +1,7 @@
 import CodeTable from "./CodeTable";
 import { gcodes } from "@/lib/gcodes";
 
-export const metadata = { title: "Lista kodów G i M — KodG.pl" };
+export const metadata = { title: "Lista kodów G i M — GCat" };
 
 export default function KodyPage() {
   return (
