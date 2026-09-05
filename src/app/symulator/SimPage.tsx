@@ -2,10 +2,114 @@
 import { useState } from "react";
 import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Simulator";
 
-const EXAMPLES: Record<string, { mode: SimMode; src: string }> = {
+const EXAMPLES: Record<string, { mode: SimMode; src: string; stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number } }> = {
   "Kontur z łukami (frez)": { mode: "mill", src: `G21 G90 G17 G54\nS1500 M03\nG00 X-10 Y-10 Z5\nG01 Z-2 F100\nG01 X0 Y0 F250\nG01 X50\nG02 X70 Y20 I0 J20\nG01 Y40\nG03 X50 Y60 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30` },
 
-  "Płytka — 3 narzędzia, cykle": { mode: "mill", src: `O0200 (PLYTKA 90x60x20)
+  "Korpus — pełna obróbka 4 narzędziami": { mode: "mill", stock: { x: 120, y: 80, z: 25, ox: 0, oy: 0, oz: 25 }, src: `O0600 (KORPUS 120x80x25)
+(POLFABRYKAT 120 x 80 x 25, ZERO: LEWY DOLNY NAROZNIK, Z NA GORZE)
+G21 G90 G17 G54 G40 G49 G80
+
+(T01 GLOWICA 50 - PLANOWANIE CZOLA)
+T01 M06
+G43 H01 Z50
+S1600 M03
+M08
+G00 X-32 Y18
+G00 Z2
+G01 Z-1 F150
+G01 X152 F900
+G01 Y42
+G01 X-32
+G01 Y62
+G01 X152
+G00 Z50
+M09
+M05
+
+(T02 FREZ WALCOWY 16 - KIESZEN 3 PRZEJSCIA PO 3MM)
+T02 M06
+G43 H02 Z50
+S2000 M03
+M08
+G00 X28 Y28
+G00 Z2
+G01 Z-4 F150
+G01 X92 F450
+G01 Y52
+G01 X28
+G01 Y28
+G01 X38 Y38
+G01 X82
+G01 Y42
+G01 X38
+G01 Y38
+G00 Z2
+G00 X28 Y28
+G01 Z-7 F150
+G01 X92 F450
+G01 Y52
+G01 X28
+G01 Y28
+G01 X38 Y38
+G01 X82
+G01 Y42
+G01 X38
+G01 Y38
+G00 Z2
+G00 X28 Y28
+G01 Z-10 F150
+G01 X92 F450
+G01 Y52
+G01 X28
+G01 Y28
+G01 X38 Y38
+G01 X82
+G01 Y42
+G01 X38
+G01 Y38
+G00 Z50
+M09
+M05
+
+(T03 FREZ KULISTY 10 - FASOLKA ZAOKRAGLONA)
+T03 M06
+G43 H03 Z50
+S3200 M03
+M08
+G00 X26 Y66
+G00 Z2
+G01 Z-3 F200
+G01 X94 F350
+G03 X94 Y72 I0 J3
+G01 X26
+G03 X26 Y66 I0 J-3
+G01 Z-5 F200
+G01 X94
+G03 X94 Y72 I0 J3
+G01 X26
+G03 X26 Y66 I0 J-3
+G00 Z50
+M09
+M05
+
+(T04 WIERTLO 10 - 4 OTWORY PRZELOTOWE)
+T04 M06
+G43 H04 Z50
+S1100 M03
+M08
+G99 G83 X15 Y15 Z-28 R2 Q7 F120
+X105
+Y65
+X15
+G80
+G00 Z50
+M09
+M05
+
+G91 G28 Z0
+G90
+M30` },
+  "Płytka — 3 narzędzia, cykle": { mode: "mill", stock: { x: 90, y: 60, z: 25, ox: 0, oy: 0, oz: 25 }, src: `O0200 (PLYTKA 90x60x20)
 G21 G90 G17 G54 G40 G49 G80
 (T01 FREZ WALCOWY 12 — KONTUR)
 T01 M06
@@ -184,6 +288,7 @@ export default function SimPage() {
   const [name, setName] = useState(first);
   const [src, setSrc] = useState(EXAMPLES[first].src);
   const [mode, setMode] = useState<SimMode>(EXAMPLES[first].mode);
+  const [stock, setStock] = useState(EXAMPLES[first].stock);
   const [dialect, setDialect] = useState<Dialect>("fanuc");
   return (
     <div className="grid gap-4">
@@ -192,7 +297,7 @@ export default function SimPage() {
         <p className="text-muted">W trybie toczenia X jest średnicą (jak w Fanuc). Wpisz program (podpowiedzi po literze G, M, X…), uruchom, krokuj. Każda linia jest tłumaczona na polski; walidator zaznacza błędy na czerwono i ostrzeżenia na żółto.</p>
       </div>
       <div className="filters">
-        <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); }}>
+        <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); setStock(EXAMPLES[n].stock); }}>
           {Object.keys(EXAMPLES).map((k) => <option key={k}>{k}</option>)}
         </select>
         <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezowanie (XY)</button>
@@ -201,7 +306,7 @@ export default function SimPage() {
         <button aria-pressed={dialect === "fanuc"} onClick={() => setDialect("fanuc")}>Fanuc</button>
         <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
       </div>
-      <Simulator source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} />
+      <Simulator source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} stock={stock} />
       <div className="legend"><span><i style={{ background: "var(--amber)" }} />G00</span><span><i style={{ background: "var(--green)" }} />G01</span><span><i style={{ background: "var(--blue)" }} />G02/G03</span></div>
     </div>
   );

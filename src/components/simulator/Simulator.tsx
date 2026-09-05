@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import SetupPanel from "./SetupPanel";
+import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
 import {
   parseProgram,
@@ -17,7 +18,7 @@ export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
-const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 380 }} /> });
+const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 360 }} /> });
 
 interface Props {
   source: string;
@@ -28,6 +29,8 @@ interface Props {
   autoplay?: boolean;
   dialect?: Dialect;
   allow3d?: boolean;
+  /** Wymiary półfabrykatu narzucone przez przykład lub lekcję. */
+  stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
 }
 
 const COLORS = {
@@ -41,14 +44,23 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp }: Props) {
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const [setup, setSetup] = useState<Setup>(() => defaultSetup(mode));
+  const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
+  const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
+  const [setup, setSetup] = useState<Setup>(() => { const d = defaultSetup(mode); return stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d; });
   const [prevMode, setPrevMode] = useState(mode);
-  if (prevMode !== mode) { setPrevMode(mode); setSetup(defaultSetup(mode)); }
+  if (prevMode !== mode) { setPrevMode(mode); setSetup({ ...defaultSetup(mode), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
+
+  const stockKey = stockProp ? `${stockProp.x}x${stockProp.y}x${stockProp.z}:${stockProp.ox},${stockProp.oy},${stockProp.oz}` : "";
+  const [prevStockKey, setPrevStockKey] = useState(stockKey);
+  if (prevStockKey !== stockKey) {
+    setPrevStockKey(stockKey);
+    setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
+  }
   const stockBox = useMemo<StockBox | undefined>(() => {
     if (mode !== "mill" || setup.stock.auto) return undefined;
     const st = setup.stock;
@@ -134,6 +146,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const ox = pad + ((W - pad * 2) - spanH * scale) / 2 - min[ha] * scale;
     const oy = H - pad - ((H - pad * 2) - spanV * scale) / 2 + min[va] * scale;
     const P = (p: Vec3) => [ox + p[ha] * scale, oy - p[va] * scale] as const;
+    mapRef.current = { P, inv: (px, py) => [(px - ox) / scale, (oy - py) / scale] };
 
     ctx.clearRect(0, 0, W, H);
 
@@ -227,6 +240,25 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
+    // celownik sondy pod palcem
+    if (probe && !compact) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(90,169,240,0.9)"; ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(probe.px, 0); ctx.lineTo(probe.px, H); ctx.moveTo(0, probe.py); ctx.lineTo(W, probe.py); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(probe.px, probe.py, 4, 0, Math.PI * 2); ctx.strokeStyle = "#5AA9F0"; ctx.stroke();
+      const label = mode === "mill"
+        ? `X ${probe.h.toFixed(2)}  Y ${probe.v.toFixed(2)}`
+        : `Z ${probe.h.toFixed(2)}  X ${(probe.v * 2).toFixed(2)}⌀`;
+      ctx.font = "11px ui-monospace, monospace";
+      const w = ctx.measureText(label).width + 12;
+      const bx = Math.min(W - w - 4, probe.px + 10), by = Math.max(16, probe.py - 10);
+      ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by - 13, w, 18);
+      ctx.fillStyle = "#5AA9F0"; ctx.fillText(label, bx + 6, by);
+      ctx.restore();
+    }
+
     // HUD: współrzędne, aktywna linia, narzędzie
     if (!compact) {
       const L = activeLine !== null ? program.lines[activeLine] : null;
@@ -249,9 +281,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo]);
+  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
+
+  const readProbe = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const m = mapRef.current; if (!m) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const px = e.clientX - r.left, py = e.clientY - r.top;
+    const [h, v] = m.inv(px, py);
+    setProbe({ h, v, px, py });
+  };
 
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault(); setDragOver(false);
@@ -317,7 +357,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </div>
       )}
       <div className="flex flex-col gap-2">
-        <canvas ref={canvasRef} className="sim-canvas" style={{ height: compact ? 220 : 380 }} />
+        <canvas ref={canvasRef} className="sim-canvas" style={{ height: compact ? 220 : 380, touchAction: "none" }}
+          onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
+          onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
+          onPointerUp={() => setProbe(null)}
+          onPointerLeave={() => setProbe(null)} />
         <div className="sim-controls">
           <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }}>{playing ? "Pauza" : "Start"}</button>
           <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }}>Krok ›</button>
@@ -344,7 +388,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {!compact && allow3d && (
           <>
             <div className="filters"><button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button></div>
-            {show3d && <Sim3D source={source} mode={mode} progress={progress} setup={setup} />}
+            {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} /></Sim3DBoundary>}
           </>
         )}
         {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
@@ -9,7 +9,7 @@ import { isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; }
 
-const GRID = 140; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
+const GRID = 220; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
 export default function Sim3D({ source, mode, progress, setup }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -25,19 +25,32 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
   const toolD = isLatheTool(tool.kind) ? 6 : tool.d;
 
   // scena
+  const [failed, setFailed] = useState<null | "no-webgl" | "error">(null);
+  const gridRef = useRef<THREE.GridHelper | null>(null);
   const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
+    if (!webglAvailable()) { queueMicrotask(() => setFailed("no-webgl")); return; }
     const W = el.clientWidth, H = el.clientHeight;
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio)); renderer.setSize(W, H); renderer.setClearColor(0x12161c);
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "default", failIfMajorPerformanceCaveat: false });
+    } catch {
+      queueMicrotask(() => setFailed("no-webgl"));
+      return;
+    }
+    // Utrata kontekstu GPU (np. przy przełączeniu karty) nie może wywracać strony.
+    renderer.domElement.addEventListener("webglcontextlost", (ev) => { ev.preventDefault(); queueMicrotask(() => setFailed("error")); });
+    renderer.setPixelRatio(Math.min(1.75, window.devicePixelRatio)); renderer.setSize(W, H); renderer.setClearColor(0x12161c);
     el.appendChild(renderer.domElement);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 5000);
     const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
     scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 0.9));
     const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(60, 120, 80); scene.add(dl);
-    const grid = new THREE.GridHelper(400, 40, 0x334, 0x223); scene.add(grid);
+    const grid = new THREE.GridHelper(400, 40, 0x3a4454, 0x232a35);
+    scene.add(grid);
+    gridRef.current = grid;
     scene.add(new THREE.AxesHelper(30));
     for (const [label, pos, color] of axisLabels(mode)) scene.add(makeLabel(label, pos, color));
     // znacznik zera detalu
@@ -57,7 +70,15 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
     // narzędzie
     const toolLen = 30;
-    const toolGeo = buildToolGeometry(tool, toolD, toolLen, mode);
+    let toolGeo: THREE.BufferGeometry;
+    try {
+      toolGeo = buildToolGeometry(tool, toolD, toolLen, mode);
+      const arr = toolGeo.getAttribute("position")?.array as Float32Array | undefined;
+      if (!arr || !arr.length || !Number.isFinite(arr[0])) throw new Error("zła geometria narzędzia");
+    } catch {
+      toolGeo = new THREE.CylinderGeometry(toolD / 2 || 3, toolD / 2 || 3, toolLen, 20);
+      toolGeo.translate(0, toolLen / 2, 0);
+    }
     const toolMesh = new THREE.Mesh(toolGeo, new THREE.MeshStandardMaterial({ color: 0xd6dae0, metalness: 0.65, roughness: 0.28 }));
     scene.add(toolMesh);
 
@@ -70,7 +91,12 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
     const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 40);
     camera.position.set(ctr.x + span * 0.9, ctr.y + span * 0.8, ctr.z + span * 1.1); controls.target.copy(ctr);
 
-    let raf = 0; const loop = () => { st.render(); raf = requestAnimationFrame(loop); }; loop();
+    let raf = 0;
+    const loop = () => {
+      try { st.render(); } catch { queueMicrotask(() => setFailed("error")); return; }
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
     const onResize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); };
     window.addEventListener("resize", onResize);
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); renderer.dispose(); el.innerHTML = ""; sceneRef.current = null; };
@@ -78,7 +104,9 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
   // ubytek materiału + pozycja narzędzia
   useEffect(() => {
-    const st = sceneRef.current; if (!st) return;
+    const st = sceneRef.current; if (!st || failed) return;
+    let broke = false;
+    try {
     const cut = program.segments.filter((s) => s.kind !== "rapid");
     // pozycja
     let acc = 0; let pos: Vec3 = program.segments[0]?.from ?? { x: 0, y: 0, z: 0 };
@@ -88,8 +116,32 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
     // geometria półfabrykatu
     if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); }
     const geo = mode === "mill" ? millGeometry(program, cut, lengths, progress, setup, mode) : latheGeometry(program, cut, lengths, progress, setup);
-    if (geo) { st.stock = new THREE.Mesh(geo, st.stockMat); st.scene.add(st.stock); }
-  }, [program, lengths, progress, mode, toolD, setup, tool]);
+    if (geo) {
+      st.stock = new THREE.Mesh(geo, st.stockMat);
+      st.scene.add(st.stock);
+      // siatka zawsze pod detalem — czytelne odniesienie do podłoża
+      if (gridRef.current) {
+        geo.computeBoundingBox();
+        const bb = geo.boundingBox;
+        if (bb) gridRef.current.position.y = bb.min.y - 0.5;
+      }
+    }
+    } catch { broke = true; }
+    if (broke) queueMicrotask(() => setFailed("error"));
+  }, [program, lengths, progress, mode, toolD, setup, tool, failed]);
+
+  if (failed) {
+    return (
+      <div className="sim-3d-fallback">
+        <strong>Widok 3D jest niedostępny w tej przeglądarce.</strong>
+        {failed === "no-webgl" ? (
+          <p>Przeglądarka nie udostępnia WebGL. W Brave sprawdź <code className="inline-code">brave://settings/system</code> i włącz akcelerację sprzętową, albo obniż poziom Shields dla tej strony. Symulacja 2D działa niezależnie i pokazuje ten sam tor.</p>
+        ) : (
+          <p>Renderowanie zostało przerwane. Spróbuj odświeżyć stronę albo zmniejszyć złożoność programu. Symulacja 2D działa niezależnie.</p>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-1">
@@ -97,6 +149,13 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
       <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>
     </div>
   );
+}
+
+function webglAvailable() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(window.WebGLRenderingContext && (c.getContext("webgl2") || c.getContext("webgl")));
+  } catch { return false; }
 }
 
 /** Etykiety osi w układzie G-kodu (three: Y jest pionem). */
@@ -116,14 +175,21 @@ function makeLabel(text: string, pos: THREE.Vector3, color: string) {
   return sp;
 }
 
+/** Zabezpiecza wartość liczbową przed NaN i wartościami spoza sensownego zakresu —
+    wadliwa geometria potrafi wywrócić sterownik GPU. */
+function safe(v: number, fallback: number, min = 0.01, max = 1e4) {
+  return Number.isFinite(v) && v >= min && v <= max ? v : fallback;
+}
+
 /** Bryły narzędzi zbliżone do rzeczywistych kształtów. */
 function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: SimMode): THREE.BufferGeometry {
-  const r = toolD / 2;
+  const r = safe(toolD / 2, 3, 0.05, 100);
   const k = tool.kind;
+  toolLen = safe(toolLen, 30, 1, 500);
 
   if (k === "drill") {
-    const ang = ((tool.angle || 118) * Math.PI) / 180;
-    const tip = r / Math.tan(ang / 2);
+    const ang = (safe(tool.angle, 118, 30, 179) * Math.PI) / 180;
+    const tip = safe(r / Math.tan(ang / 2), r);
     const cone = new THREE.ConeGeometry(r, tip, 24); cone.translate(0, tip / 2, 0);
     let g: THREE.BufferGeometry = cone;
     // trzon z rowkami wiórowymi zaznaczonymi wielobokiem
@@ -136,16 +202,16 @@ function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: Sim
 
   if (k === "tap") {
     // gwintownik: rdzeń + spirala zwojów, żeby było widać że to gwint
-    const pitch = Math.max(0.4, tool.flutes || 1.25);
+    const pitch = safe(tool.flutes, 1.25, 0.2, 10);
     const core = new THREE.CylinderGeometry(r * 0.78, r * 0.78, toolLen, 18); core.translate(0, toolLen / 2, 0);
     let g: THREE.BufferGeometry = core;
-    const turns = Math.min(26, Math.floor((toolLen * 0.55) / pitch));
+    const turns = Math.max(2, Math.min(14, Math.floor((toolLen * 0.55) / pitch)));
     const path: THREE.Vector3[] = [];
     for (let i = 0; i <= turns * 16; i++) {
       const t = i / 16;
       path.push(new THREE.Vector3(Math.cos(t * Math.PI * 2) * r * 0.92, t * pitch, Math.sin(t * Math.PI * 2) * r * 0.92));
     }
-    const thread = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), turns * 12, r * 0.16, 6, false);
+    const thread = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), Math.min(220, turns * 10), r * 0.16, 5, false);
     g = mergeGeo(g, thread);
     // stożek wejściowy
     const lead = new THREE.ConeGeometry(r * 0.78, r * 1.2, 18); lead.translate(0, r * 0.6, 0); lead.rotateX(Math.PI);
@@ -162,7 +228,7 @@ function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: Sim
 
   if (k === "endmill") {
     // frez walcowy z zaznaczonymi rowkami wiórowymi
-    const z = Math.max(2, Math.min(8, tool.flutes || 4));
+    const z = Math.round(safe(tool.flutes, 4, 1, 8));
     const body = new THREE.CylinderGeometry(r, r, toolLen * 0.6, 6 * z, 1);
     body.translate(0, toolLen * 0.3, 0);
     let g: THREE.BufferGeometry = body;
@@ -173,7 +239,7 @@ function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: Sim
         const th = a + t * 1.6;
         pts.push(new THREE.Vector3(Math.cos(th) * r, t * toolLen * 0.6, Math.sin(th) * r));
       }
-      const flute = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 24, r * 0.1, 5, false);
+      const flute = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, r * 0.1, 4, false);
       g = mergeGeo(g, flute);
     }
     const shank = new THREE.CylinderGeometry(r * 0.98, r * 0.98, toolLen * 0.5, 20);
@@ -181,22 +247,28 @@ function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: Sim
     return mergeGeo(g, shank);
   }
 
-  if (mode === "lathe") return latheToolGeo(tool.angle, tool.d);
+  if (mode === "lathe") return latheToolGeo(safe(tool.angle, 93, 35, 150), safe(tool.d, 0.8, 0.1, 10));
 
   const cyl = new THREE.CylinderGeometry(r, r, toolLen, 24); cyl.translate(0, toolLen / 2, 0);
   return cyl;
 }
 
 function mergeGeo(a: THREE.BufferGeometry, b: THREE.BufferGeometry): THREE.BufferGeometry {
-  const pa = a.getAttribute("position").array as ArrayLike<number>;
-  const pb = b.getAttribute("position").array as ArrayLike<number>;
-  const na = a.index ? Array.from(a.index.array) : null;
-  const nb = b.index ? Array.from(b.index.array) : null;
-  const pos = new Float32Array(pa.length + pb.length);
-  pos.set(pa, 0); pos.set(pb, pa.length);
+  // Ujednolicamy do postaci nieindeksowanej — mieszanie indeksowanych i nie
+  // dawało uszkodzoną siatkę, co potrafi wywrócić sterownik GPU.
+  const na = a.index ? a.toNonIndexed() : a;
+  const nb = b.index ? b.toNonIndexed() : b;
+  const pa = na.getAttribute("position");
+  const pb = nb.getAttribute("position");
+  if (!pa || !pb) return na;
+  const pos = new Float32Array(pa.count * 3 + pb.count * 3);
+  pos.set(pa.array as ArrayLike<number>, 0);
+  pos.set(pb.array as ArrayLike<number>, pa.count * 3);
+  if (na !== a) na.dispose();
+  if (nb !== b) nb.dispose();
+  a.dispose(); b.dispose();
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
-  if (na && nb) g.setIndex([...na, ...nb.map((i) => i + pa.length / 3)]);
   g.computeVertexNormals();
   return g;
 }
@@ -248,6 +320,7 @@ function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], 
     const tno = program.lines[seg.line]?.state.tool ?? null;
     const tl = toolOf(setup, tno, mode);
     const r = (isLatheTool(tl.kind) ? 6 : tl.d) / 2;
+    const ball = tl.kind === "ballnose";
     const len = segmentLength(seg) * t; const steps = Math.max(1, Math.ceil(len / (Math.min(cx, cy) * 0.7)));
     for (let i = 0; i <= steps; i++) {
       const p = pointAt(seg, (i / steps) * t); if (p.z >= top) continue;
@@ -255,7 +328,12 @@ function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], 
       const j0 = Math.floor((p.y - r - minY) / cy), j1 = Math.ceil((p.y + r - minY) / cy);
       for (let j = Math.max(0, j0); j <= Math.min(ny, j1); j++) for (let ii = Math.max(0, i0); ii <= Math.min(nx, i1); ii++) {
         const gx = minX + ii * cx, gy = minY + j * cy;
-        if ((gx - p.x) ** 2 + (gy - p.y) ** 2 <= r * r) { const k = j * (nx + 1) + ii; if (p.z < h[k]) h[k] = Math.max(p.z, bottom); }
+        const d2 = (gx - p.x) ** 2 + (gy - p.y) ** 2;
+        if (d2 > r * r) continue;
+        const k = j * (nx + 1) + ii;
+        // frez kulisty: dno rowka jest łukiem, nie płaszczyzną
+        const zHere = ball ? p.z + (r - Math.sqrt(Math.max(0, r * r - d2))) : p.z;
+        if (zHere < h[k]) h[k] = Math.max(zHere, bottom);
       }
     }
   }
