@@ -1,9 +1,11 @@
 import Link from "next/link";
+import PageBanner from "@/components/ui/PageBanner";
 import { lessons } from "@/lib/content";
 export const metadata = { title: "Nauka G-kodu krok po kroku — GCat" };
 export default function Nauka() {
   return (
     <div className="grid gap-5">
+      <PageBanner src="/img/banner-mill.jpg" title="Nauka" subtitle="Od pierwszego bloku do programu wielonarzędziowego." priority />
       <div><h1 className="text-3xl font-bold">Ścieżka nauki</h1><p className="text-muted">Od czytania bloku do toczenia. Każda lekcja kończy się programem do przerobienia w symulatorze.</p></div>
       <ol className="grid gap-2 max-w-2xl">
         {lessons.map((l, i) => (

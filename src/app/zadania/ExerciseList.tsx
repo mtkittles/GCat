@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
+import PageBanner from "@/components/ui/PageBanner";
 import { exercises } from "@/lib/content";
 
 const LEVEL = { 1: "podstawy", 2: "średni", 3: "zaawansowany" } as const;
@@ -15,6 +16,8 @@ export default function ExerciseList() {
   const done = useSyncExternalStore(subscribe, getDone, () => EMPTY);
   return (
     <div className="grid gap-5">
+      <PageBanner src="/img/banner-tasks.jpg" title="Zadania"
+        subtitle="Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym." priority />
       <div>
         <h1 className="text-3xl font-bold">Zadania</h1>
         <p className="section-lead">Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym. Nie musisz trafić w identyczny zapis — liczy się geometria.</p>

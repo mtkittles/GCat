@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import PageBanner from "@/components/ui/PageBanner";
 import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Simulator";
 
 const EXAMPLES: Record<string, { mode: SimMode; src: string; stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number } }> = {
@@ -349,6 +350,7 @@ export default function SimPage() {
   const [dialect, setDialect] = useState<Dialect>("fanuc");
   return (
     <div className="grid gap-4">
+      <PageBanner src="/img/banner-simulator.jpg" title="Symulator" subtitle="Wizualizacja obróbki CNC w czasie rzeczywistym." priority />
       <div>
         <h1 className="text-3xl font-bold">Symulator</h1>
         <p className="text-muted">W trybie toczenia X jest średnicą (jak w Fanuc). Wpisz program (podpowiedzi po literze G, M, X…), uruchom, krokuj. Każda linia jest tłumaczona na polski; walidator zaznacza błędy na czerwono i ostrzeżenia na żółto.</p>

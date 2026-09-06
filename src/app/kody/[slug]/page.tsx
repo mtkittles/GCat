@@ -6,7 +6,8 @@ import Article, { Toc } from "@/components/Article";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import { articles } from "@/content/articles";
-import { bySlug, gcodes, levelName } from "@/lib/gcodes";
+import PageBanner from "@/components/ui/PageBanner";
+import { bannerFor, bySlug, gcodes, levelName } from "@/lib/gcodes";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
@@ -22,6 +23,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const prev = gcodes[i - 1], next = gcodes[i + 1];
   const mode = g.turning && !g.milling ? "lathe" : "mill";
   const art = articles[g.slug];
+
+  const banner = <PageBanner src={bannerFor(g)} title={g.code} subtitle={g.name} size="compact" priority />;
 
   const header = (
     <header className="grid gap-3">
@@ -58,6 +61,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     return (
       <div className="article-layout">
         <article className="grid gap-6 min-w-0">
+          {banner}
           {header}
           {syntax}
           <div className="toc-mobile"><Toc blocks={art} /></div>
@@ -71,6 +75,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
 
   return (
     <article className="grid gap-6 max-w-4xl">
+      {banner}
       {header}
       <p className="max-w-prose leading-relaxed" style={{ color: "var(--ink-2)" }}>{g.desc}</p>
       {diagrams[g.slug]?.()}

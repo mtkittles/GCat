@@ -1,8 +1,16 @@
 "use client";
 import { useState } from "react";
+import PageBanner from "@/components/ui/PageBanner";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
 
 type Tab = "mill" | "turn" | "drill" | "thread";
+
+const BANNERS: Record<Tab, { src: string; title: string; sub: string }> = {
+  mill:   { src: "/img/banner-mill.jpg",   title: "Frezowanie",   sub: "Dobór parametrów frezowania" },
+  turn:   { src: "/img/banner-turn.jpg",   title: "Toczenie",     sub: "Dobór parametrów toczenia i wytaczania" },
+  drill:  { src: "/img/banner-drill.jpg",  title: "Wiercenie",    sub: "Dobór parametrów wiercenia" },
+  thread: { src: "/img/banner-thread.jpg", title: "Gwintowanie",  sub: "Dobór parametrów gwintowania" },
+};
 
 const r0 = (v: number) => (Number.isFinite(v) ? Math.round(v) : 0);
 const r2 = (v: number) => (Number.isFinite(v) ? Math.round(v * 100) / 100 : 0);
@@ -93,6 +101,7 @@ export default function Calc() {
 
   return (
     <div className="grid gap-5">
+      <PageBanner src={BANNERS[tab].src} title={BANNERS[tab].title} subtitle={BANNERS[tab].sub} priority />
       <div>
         <h1 className="text-3xl font-bold">Kalkulator parametrów skrawania</h1>
         <p className="text-muted max-w-prose">Wybierz materiał i narzędzie — wartości startowe podstawią się z tabel. Możesz je nadpisać własnymi. Wyniki są punktem wyjścia, nie gotową receptą: dopasuj je do sztywności mocowania, wysięgu narzędzia i chłodzenia.</p>

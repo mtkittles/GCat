@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import PageBanner from "@/components/ui/PageBanner";
 import { glossary } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 
@@ -15,6 +16,7 @@ export default function Glossary() {
 
   return (
     <div className="grid gap-5">
+      <PageBanner src="/img/banner-turn.jpg" title="Słownik" subtitle="Terminy, które pojawiają się w artykułach i na hali." size="compact" priority />
       <div>
         <h1 className="text-3xl font-bold">Słownik pojęć</h1>
         <p className="section-lead">Terminy, które pojawiają się w artykułach i na hali. Bez skrótów myślowych.</p>
