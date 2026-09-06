@@ -60,13 +60,13 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
     scene.add(new THREE.AxesHelper(30));
     for (const [label, pos, color] of axisLabels(mode)) scene.add(makeLabel(label, pos, color));
     // znacznik zera detalu
-    const om = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xE8A317 }));
+    const om = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xF97316 }));
     scene.add(om);
 
     // ścieżka
     const seg = program.segments;
     const pts: THREE.Vector3[] = []; const cols: number[] = [];
-    const c = { rapid: new THREE.Color("#E8A317"), linear: new THREE.Color("#3FCB84"), arc: new THREE.Color("#5AA9F0") };
+    const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
     for (const s of seg) {
       const n = s.kind === "arc" ? 32 : 1;
       for (let i = 0; i < n; i++) { const a = pointAt(s, i / n), b = pointAt(s, (i + 1) / n); pts.push(toW(a, mode), toW(b, mode)); cols.push(...c[s.kind].toArray(), ...c[s.kind].toArray()); }
@@ -198,8 +198,8 @@ function webglAvailable() {
 /** Etykiety osi w układzie G-kodu (three: Y jest pionem). */
 function axisLabels(mode: SimMode): [string, THREE.Vector3, string][] {
   return mode === "mill"
-    ? [["X", new THREE.Vector3(36, 0, 0), "#E05A4E"], ["Y", new THREE.Vector3(0, 0, -36), "#3FCB84"], ["Z", new THREE.Vector3(0, 36, 0), "#5AA9F0"]]
-    : [["Z", new THREE.Vector3(36, 0, 0), "#5AA9F0"], ["X", new THREE.Vector3(0, 36, 0), "#E05A4E"]];
+    ? [["X", new THREE.Vector3(36, 0, 0), "#EF4444"], ["Y", new THREE.Vector3(0, 0, -36), "#22C55E"], ["Z", new THREE.Vector3(0, 36, 0), "#38BDF8"]]
+    : [["Z", new THREE.Vector3(36, 0, 0), "#38BDF8"], ["X", new THREE.Vector3(0, 36, 0), "#EF4444"]];
 }
 
 function makeLabel(text: string, pos: THREE.Vector3, color: string) {

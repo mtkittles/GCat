@@ -33,12 +33,14 @@ interface Props {
   allow3d?: boolean;
   /** Wymiary półfabrykatu narzucone przez przykład lub lekcję. */
   stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
+  /** Tryb pokazowy: podgląd + kod z podświetlaną linią, odtwarzany w pętli. */
+  showcase?: boolean;
 }
 
 const COLORS = {
-  rapid: "#E8A317",
-  linear: "#3FCB84",
-  arc: "#5AA9F0",
+  rapid: "#F59E0B",   // szybki przejazd
+  linear: "#22C55E",  // ruch roboczy
+  arc: "#38BDF8",     // interpolacja kołowa
   grid: "rgba(255,255,255,0.06)",
   axis: "rgba(255,255,255,0.22)",
   tool: "#FFFFFF",
@@ -46,12 +48,13 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, showcase = false }: Props) {
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [full, setFull] = useState(false);
+  const linesRef = useRef<HTMLOListElement>(null);
   const editorRef = useRef<{ insert: (t: string) => void } | null>(null);
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
@@ -107,14 +110,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const idx = segIndexAt(p, lengths);
         const mult = segments[idx]?.kind === "rapid" ? 3 : 1;
         const np = p + dt * 40 * speed * mult;
-        if (np >= total) { setPlaying(false); return total; }
+        if (np >= total) {
+          if (showcase) return 0;      // pokaz startuje od nowa
+          setPlaying(false); return total;
+        }
         return np;
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, speed, total, lengths, segments]);
+  }, [playing, speed, total, lengths, segments, showcase]);
 
   // aktualna linia i pozycja narzędzia
   const { activeLine, currentPos } = useMemo(() => {
@@ -130,6 +136,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
+
+  // W pokazie lista kodu podąża za wykonywaną linią.
+  useEffect(() => {
+    if (!showcase || activeLine === null) return;
+    const el = linesRef.current?.querySelector<HTMLLIElement>("li.is-active");
+    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [activeLine, showcase]);
 
   const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
   const activeTool = toolOf(setup, activeToolNo, mode);
@@ -220,13 +233,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     segments.forEach((sg, i) => {
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
-      drawSeg(ctx, sg, P, 1, 0.22);
-      if (done > 0) drawSeg(ctx, sg, P, done, 1);
+      drawSeg(ctx, sg, P, 1, showcase ? 0.28 : 0.22, showcase);
+      if (done > 0) drawSeg(ctx, sg, P, done, 1, showcase);
       acc += len;
     });
 
+    const bare = compact || showcase;
+
     // zakres obróbki (bounding box ruchów roboczych)
-    if (cut.length && !compact) {
+    if (cut.length && !bare) {
       const bb = boundsOf(cut, ha, va);
       const [bx1, by1] = P({ x: 0, y: 0, z: 0, [ha]: bb.minH, [va]: bb.minV } as Vec3);
       const [bx2, by2] = P({ x: 0, y: 0, z: 0, [ha]: bb.maxH, [va]: bb.maxV } as Vec3);
@@ -235,7 +250,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // znacznik zera detalu
-    ctx.fillStyle = COLORS.rapid;
+    ctx.fillStyle = "#F97316";
     const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
     ctx.beginPath(); ctx.arc(oxp, oyp, 3.5, 0, Math.PI * 2); ctx.fill();
     ctx.font = "10px ui-monospace, monospace"; ctx.fillText("0", oxp + 6, oyp + 12);
@@ -248,7 +263,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
     // celownik sondy pod palcem
-    if (probe && !compact) {
+    if (probe && !bare) {
       ctx.save();
       ctx.strokeStyle = "rgba(90,169,240,0.9)"; ctx.lineWidth = 1;
       ctx.setLineDash([3, 3]);
@@ -267,7 +282,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // HUD: współrzędne, aktywna linia, narzędzie
-    if (!compact) {
+    if (!bare) {
       const L = activeLine !== null ? program.lines[activeLine] : null;
       const rows = [
         mode === "mill"
@@ -282,13 +297,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.fillStyle = "rgba(5,7,10,0.72)";
       ctx.fillRect(8, 8, wMax + 16, rows.length * 15 + 10);
       rows.forEach((r, i) => {
-        ctx.fillStyle = i === 0 ? "#FFFFFF" : i === 1 ? "#E8A317" : "#9AA6B5";
+        ctx.fillStyle = i === 0 ? "#F8FAFC" : i === 1 ? "#F97316" : "#94A3B8";
         ctx.fillText(r, 16, 24 + i * 15);
       });
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -309,6 +324,37 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   // W trybie pełnoekranowym kolejność jest odwrócona: podgląd zajmuje dwie trzecie
   // szerokości po lewej, konsola programu jedną trzecią po prawej.
+  if (showcase) {
+    return (
+      <div className="showcase">
+        <div className="showcase-view">
+          <canvas ref={canvasRef} className="sim-canvas" style={{ height: "100%" }} />
+          <div className="showcase-legend">
+            <span><i style={{ background: "var(--amber)" }} />G00 · szybki przejazd</span>
+            <span><i style={{ background: "var(--green)" }} />G01 · ruch roboczy</span>
+            <span><i style={{ background: "var(--blue)" }} />G02 / G03 · łuk</span>
+          </div>
+        </div>
+        <div className="showcase-code">
+          <div className="codecard-head"><span className="codecard-dot" />Symulacja programu</div>
+          <ol className="showcase-lines" ref={linesRef}>
+            {program.lines.filter((l) => l.raw.trim()).map((l) => (
+              <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
+                <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
+                <code>{highlight(l.raw.trim())}</code>
+              </li>
+            ))}
+          </ol>
+          <div className="showcase-state">
+            <span>X {fmt(currentPos.x)}</span><span>Y {fmt(currentPos.y)}</span><span>Z {fmt(currentPos.z)}</span>
+            {st?.feed != null && <span>F {st.feed}</span>}
+            {st?.spindle != null && <span>S {st.spindle}</span>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`${compact ? "grid gap-3" : "workbench"} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
@@ -421,8 +467,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   );
 }
 
-function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t: number, alpha: number) {
-  ctx.globalAlpha = alpha; ctx.lineWidth = sg.kind === "rapid" ? 1 : 2.5;
+function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t: number, alpha: number, bold = false) {
+  ctx.globalAlpha = alpha; ctx.lineWidth = sg.kind === "rapid" ? (bold ? 1.6 : 1) : (bold ? 3.4 : 2.5);
   ctx.setLineDash(sg.kind === "rapid" ? [5, 4] : []);
   ctx.strokeStyle = COLORS[sg.kind];
   ctx.beginPath();
@@ -430,6 +476,21 @@ function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => rea
   const [x0, y0] = P(sg.from); ctx.moveTo(x0, y0);
   for (let i = 1; i <= n; i++) { const [x, y] = P(pointAt(sg, (i / n) * t)); ctx.lineTo(x, y); }
   ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
+}
+
+/** Kolorowanie słów G-kodu w widoku pokazowym. */
+function highlight(line: string) {
+  const parts = line.match(/\([^)]*\)|[A-Za-z][-+0-9.]*|\s+|[^\sA-Za-z]+/g) ?? [line];
+  return parts.map((tok, i) => {
+    const L = tok[0]?.toUpperCase();
+    if (tok.startsWith("(")) return <span key={i} className="t-cm">{tok}</span>;
+    if (L === "G") return <span key={i} className="t-g">{tok}</span>;
+    if (L === "M") return <span key={i} className="t-m">{tok}</span>;
+    if (L === "F" || L === "S") return <span key={i} className="t-fs">{tok}</span>;
+    if (L === "T" || L === "H" || L === "D") return <span key={i} className="t-t">{tok}</span>;
+    if (L && "XYZIJKR".includes(L)) return <span key={i} className="t-ax">{tok}</span>;
+    return <span key={i}>{tok}</span>;
+  });
 }
 
 function segIndexAt(p: number, lengths: number[]) {

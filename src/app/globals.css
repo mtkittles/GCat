@@ -707,3 +707,29 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
   .pad-keys { grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr)); }
   .brandstat b { font-size: 1.35rem; }
 }
+
+/* ---------- pokaz symulacji na stronie głównej ---------- */
+.showcase {
+  display: grid; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-lg);
+  overflow: hidden; background: var(--panel);
+}
+@media (min-width: 900px) { .showcase { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); } }
+.showcase-view { position: relative; padding: .9rem; display: grid; gap: .6rem; min-height: 340px; }
+.showcase-view .sim-canvas { border: none; border-radius: var(--radius); min-height: 300px; }
+.showcase-legend { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; font-size: 11.5px; color: #94A3B8; font-family: var(--font-mono); }
+.showcase-legend i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: .35rem; }
+
+.showcase-code { border-left: 1px solid rgba(148,163,184,.16); display: flex; flex-direction: column; background: #0B121F; }
+@media (max-width: 899px) { .showcase-code { border-left: none; border-top: 1px solid rgba(148,163,184,.16); } }
+.showcase-lines { list-style: none; margin: 0; padding: .5rem 0; flex: 1; overflow: auto; font-family: var(--font-mono); font-size: 13px; }
+.showcase-lines li { display: flex; gap: .7rem; padding: .18rem .9rem; border-left: 2px solid transparent; color: #CBD5E1; transition: background-color .15s ease; }
+.showcase-lines li.is-active { background: rgba(249,115,22,.13); border-left-color: var(--accent); }
+.showcase-lines .ln { color: #475569; user-select: none; }
+.showcase-lines .t-g { color: #FB923C; font-weight: 600; }
+.showcase-lines .t-m { color: #C4B5FD; font-weight: 600; }
+.showcase-lines .t-ax { color: #F8FAFC; }
+.showcase-lines .t-fs { color: #86EFAC; }
+.showcase-lines .t-t { color: #F9A8D4; }
+.showcase-lines .t-cm { color: #64748B; font-style: italic; }
+.showcase-state { display: flex; flex-wrap: wrap; gap: .3rem; padding: .55rem .9rem; border-top: 1px solid rgba(148,163,184,.16); font-family: var(--font-mono); font-size: 11.5px; }
+.showcase-state span { background: rgba(148,163,184,.1); border-radius: 5px; padding: .12rem .45rem; color: #CBD5E1; }

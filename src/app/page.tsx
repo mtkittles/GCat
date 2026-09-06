@@ -3,23 +3,30 @@ import Link from "next/link";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
-import TechGrid from "@/components/ui/TechGrid";
 import Chip from "@/components/ui/Chip";
 import BrandLogo from "@/components/BrandLogo";
 import { exercises, lessons } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 
-const DEMO = `G21 G90 G17 G54
-S1500 M03
-G00 X0 Y0 Z5
-G01 Z-2 F100
-G01 X50 F250
-G02 X70 Y20 I0 J20
+const DEMO = `(PLYTKA Z ZAOKRAGLENIAMI)
+G21 G90 G17 G54
+T01 M06
+S2400 M03
+G00 X10 Y0 Z5
+G01 Z-3 F120
+G01 X70 F400
+G03 X80 Y10 R10
 G01 Y40
-G03 X50 Y60 R20
-G01 X0
-G01 Y0
+G03 X70 Y50 R10
+G01 X10
+G03 X0 Y40 R10
+G01 Y10
+G03 X10 Y0 R10
 G00 Z5
+G00 X40 Y25
+G01 Z-2 F120
+G02 I12 J0 F300
+G00 Z20
 M30`;
 
 const I = {
@@ -81,18 +88,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.05fr_1fr] lg:items-center">
-        <div className="hero-visual-light reveal"><TechGrid /></div>
-        <div className="codecard">
-          <div className="codecard-head"><span className="codecard-dot" />Symulator G-code</div>
-          <pre>
-{`  `}<span className="ln">1</span><span className="g">G21 G90 G17 G54</span>{`\n`}
-{`  `}<span className="ln">2</span><span className="fs">S1500</span> <span className="m">M03</span>{`\n`}
-<span className="active">{`  `}<span className="ln">3</span><span className="g">G01</span> <span className="ax">X50 Y0</span> <span className="fs">F250</span>{`\n`}</span>
-{`  `}<span className="ln">4</span><span className="g">G02</span> <span className="ax">X70 Y20 I0 J20</span>{`\n`}
-{`  `}<span className="ln">5</span><span className="g">G03</span> <span className="ax">X50 Y60 R20</span>{`\n`}
-{`  `}<span className="ln">6</span><span className="m">M30</span><span className="caret">&nbsp;</span>
-          </pre>
+      <section className="brandblock reveal">
+        <BrandLogo height={190} variant="lockup" />
+        <span className="brandblock-motto">Zrozum. Programuj. Obrabiaj.</span>
+        <p className="brandblock-lead">
+          GCat powstał z prostego założenia: G-kodu nie da się nauczyć z samej tabeli kodów.
+          Każda funkcja ma tu wyjaśnienie, schemat i program, który uruchomisz jednym kliknięciem —
+          i zobaczysz, co narzędzie naprawdę zrobi z materiałem.
+        </p>
+        <div className="brandblock-stats">
+          <span className="brandstat"><b>27</b><span>kart kodów</span></span>
+          <span className="brandstat"><b>12</b><span>lekcji</span></span>
+          <span className="brandstat"><b>16</b><span>zadań</span></span>
+          <span className="brandstat"><b>2D+3D</b><span>symulacja</span></span>
         </div>
       </section>
 
@@ -112,27 +120,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="brandblock reveal">
-        <BrandLogo height={190} variant="lockup" />
-        <span className="brandblock-motto">Zrozum. Programuj. Obrabiaj.</span>
-        <p className="brandblock-lead">
-          GCat powstał z prostego założenia: G-kodu nie da się nauczyć z samej tabeli kodów.
-          Każda funkcja ma tu wyjaśnienie, schemat i program, który uruchomisz jednym kliknięciem —
-          i zobaczysz, co narzędzie naprawdę zrobi z materiałem.
-        </p>
-        <div className="brandblock-stats">
-          <span className="brandstat"><b>27</b><span>kart kodów</span></span>
-          <span className="brandstat"><b>12</b><span>lekcji</span></span>
-          <span className="brandstat"><b>16</b><span>zadań</span></span>
-          <span className="brandstat"><b>2D+3D</b><span>symulacja</span></span>
-        </div>
-      </section>
-
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
-          lead="Każdy blok tłumaczony na polski, tor rysowany na bieżąco, walidator wskazujący kolizje i błędy składni."
+          lead="Program po lewej, tor narzędzia po prawej — linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
           action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
-        <SimClient initial={DEMO} mode="mill" compact autoplay editable={false} />
+        <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
 
       <section className="grid gap-4">
