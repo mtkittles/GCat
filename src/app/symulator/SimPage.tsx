@@ -233,6 +233,61 @@ G00 Z50
 M09
 M30` },
 
+  "Kompensacja G41 — tor rzeczywisty": { mode: "mill", stock: { x: 90, y: 60, z: 20, ox: 0, oy: 0, oz: 20 }, src: `G21 G90 G17 G54 G40
+T01 M06
+G43 H01 Z50
+S2400 M03
+M08
+G00 X-25 Y-25
+G00 Z2
+G01 Z-4 F120
+G41 D1 X0 Y0 F400
+G01 Y50
+G01 X80
+G01 Y0
+G01 X0
+G40 X-25 Y-25
+G00 Z50
+M09
+M05
+M30` },
+
+  "Obrót układu G68": { mode: "mill", stock: { x: 120, y: 100, z: 20, ox: 60, oy: 50, oz: 20 }, src: `G21 G90 G17 G54
+T01 M06
+G43 H01 Z50
+S2600 M03
+G68 X0 Y0 R0
+G00 X20 Y-6
+G00 Z2
+G01 Z-3 F120
+G01 X40 F400
+G01 Y6
+G01 X20
+G01 Y-6
+G00 Z5
+G69
+G68 X0 Y0 R120
+G00 X20 Y-6
+G00 Z2
+G01 Z-3 F120
+G01 X40 F400
+G01 Y6
+G01 X20
+G01 Y-6
+G00 Z5
+G69
+G68 X0 Y0 R240
+G00 X20 Y-6
+G00 Z2
+G01 Z-3 F120
+G01 X40 F400
+G01 Y6
+G01 X20
+G01 Y-6
+G00 Z50
+G69
+M30` },
+
   "Kieszeń przyrostowo G91": { mode: "mill", src: `G21 G90 G17 G54\nS2000 M03\nG00 X10 Y10 Z5\nG01 Z-1 F80\nG91\nG01 X30 F200\nG01 Y20\nG01 X-30\nG01 Y-20\nG01 X5 Y5\nG01 X20\nG01 Y10\nG01 X-20\nG01 Y-10\nG90\nG00 Z5\nM30` },
 
   "Wałek ze stopniem (tokarka)": { mode: "lathe", src: `G21 G90 G18 G95\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nM30` },

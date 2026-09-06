@@ -25,7 +25,10 @@ export const initialState = (): MachineState => ({
   wcs: 54,
   comp: 40,
   cycle: null,
+  rot: null,
+  local: { x: 0, y: 0, z: 0 },
   pos: { x: 0, y: 0, z: 0 },
+  prog: { x: 0, y: 0, z: 0 },
 });
 
 /** Rozbija linię na słowa (litera + liczba) i komentarz. */
@@ -124,7 +127,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
     const words = dia ? rawWords.map((w) => (w.letter === "X" || w.letter === "I" || w.letter === "U" ? { ...w, value: w.value / 2 } : w)) : rawWords;
     const errors: string[] = [];
     const desc: string[] = [];
-    const s: MachineState = { ...state, pos: { ...state.pos } };
+    const s: MachineState = { ...state, pos: { ...state.pos }, prog: { ...state.prog } };
     const segments: Segment[] = [];
 
     const gs = words.filter((w) => w.letter === "G").map((w) => w.value);
@@ -153,6 +156,19 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
         case 54: case 55: case 56: case 57: case 58: case 59:
           s.wcs = g; desc.push(`Układ współrzędnych G${g}`); break;
         case 80: s.cycle = null; desc.push("Anuluj cykl stały (G80)"); break;
+        case 52: {
+          s.local = { x: get("X") ?? 0, y: get("Y") ?? 0, z: get("Z") ?? 0 };
+          const zero = !s.local.x && !s.local.y && !s.local.z;
+          desc.push(zero ? "Kasowanie układu lokalnego (G52)" : `Układ lokalny przesunięty o X${fmt(s.local.x)} Y${fmt(s.local.y)} Z${fmt(s.local.z)} (G52)`);
+          break;
+        }
+        case 68: {
+          const deg = get("R") ?? 0;
+          s.rot = { deg, cx: get("X") ?? 0, cy: get("Y") ?? 0 };
+          desc.push(`Obrót układu o ${fmt(deg)}° wokół X${fmt(s.rot.cx)} Y${fmt(s.rot.cy)} (G68)`);
+          break;
+        }
+        case 69: s.rot = null; desc.push("Kasowanie obrotu układu (G69)"); break;
         case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
         case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
         case 73: case 81: case 82: case 83: case 84: case 85: case 86: case 89: cycleCode = g; break;
@@ -165,6 +181,10 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
         default: desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
       }
     }
+
+    // Zmiana układu (G52/G68/G69) nie porusza maszyną — przeliczamy tylko,
+    // jak aktualne położenie wyraża się w nowym układzie programu.
+    if (gs.some((g) => g === 52 || g === 68 || g === 69)) s.prog = inverseFrames(s.pos, s);
 
     const f = get("F"); if (f !== undefined) { s.feed = f; }
     const sp = get("S"); if (sp !== undefined && !gs.includes(96)) { s.spindle = sp; }
@@ -209,14 +229,17 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
     const cyc = s.cycle;
     const hasXY = get("X") !== undefined || get("Y") !== undefined;
     if (cyc && (cycleCode !== null || hasXY)) {
-      const target: Vec3 = { ...state.pos };
+      const progTarget: Vec3 = { ...state.prog };
       (["x", "y"] as const).forEach((ax) => {
         const v = get(ax.toUpperCase());
-        if (v !== undefined) target[ax] = s.absolute ? v : state.pos[ax] + v;
+        if (v !== undefined) progTarget[ax] = s.absolute ? v : state.prog[ax] + v;
       });
+      const target: Vec3 = { ...progTarget };
+      applyFrames(target, s);
       const segs = cycleSegments(state.pos, target, cyc, index);
       segments.push(...segs);
       s.pos = segs.length ? segs[segs.length - 1].to : state.pos;
+      s.prog = { ...progTarget, z: s.pos.z };
       desc.push(cycleDescription(cyc, target, dia));
       if (cyc.p) dwellMs += cyc.p;
       lines.push({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
@@ -225,14 +248,20 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
       return;
     }
 
+    // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
+    // mimo że zawierają adresy osi.
+    const noMotion = gs.some((g) => g === 52 || g === 68 || g === 10 || g === 92);
+
     // Ruch
-    const hasAxis = ["X", "Y", "Z"].some((l) => get(l) !== undefined);
+    const hasAxis = !noMotion && ["X", "Y", "Z"].some((l) => get(l) !== undefined);
     if (hasAxis) {
-      const target: Vec3 = { ...state.pos };
+      const progTarget: Vec3 = { ...state.prog };
       (["x", "y", "z"] as const).forEach((ax) => {
         const v = get(ax.toUpperCase());
-        if (v !== undefined) target[ax] = s.absolute ? v : state.pos[ax] + v;
+        if (v !== undefined) progTarget[ax] = s.absolute ? v : state.prog[ax] + v;
       });
+      const target: Vec3 = { ...progTarget };
+      applyFrames(target, s);
       const from = { ...state.pos };
       if (s.motion === null) {
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
@@ -253,7 +282,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
           desc.push(`Łuk ${cw ? "zgodnie" : "przeciwnie"} z ruchem wskazówek do ${pt(target, s.plane, dia)}, R=${fmt(r)}`);
         }
       }
-      s.pos = target;
+      s.pos = target; s.prog = progTarget;
     } else if (s.motion !== null && gs.some((g) => g <= 3) && desc.length === 0) {
       desc.push(`Tryb ruchu G0${s.motion} (modalny)`);
     }
@@ -290,6 +319,30 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
 
   const bounds = computeBounds(allSegments);
   return { lines, segments: allSegments, bounds, seconds };
+}
+
+/** Odwrotność applyFrames — przelicza pozycję rzeczywistą na współrzędne programu. */
+function inverseFrames(p: Vec3, s: MachineState): Vec3 {
+  const q = { ...p };
+  if (s.rot && Math.abs(s.rot.deg) > 1e-9) {
+    const a = (-s.rot.deg * Math.PI) / 180;
+    const dx = q.x - s.rot.cx, dy = q.y - s.rot.cy;
+    q.x = s.rot.cx + dx * Math.cos(a) - dy * Math.sin(a);
+    q.y = s.rot.cy + dx * Math.sin(a) + dy * Math.cos(a);
+  }
+  q.x -= s.local.x; q.y -= s.local.y; q.z -= s.local.z;
+  return q;
+}
+
+/** Nakłada przesunięcie lokalne G52 i obrót układu G68 na punkt docelowy. */
+function applyFrames(p: Vec3, s: MachineState) {
+  p.x += s.local.x; p.y += s.local.y; p.z += s.local.z;
+  if (s.rot && Math.abs(s.rot.deg) > 1e-9) {
+    const a = (s.rot.deg * Math.PI) / 180;
+    const dx = p.x - s.rot.cx, dy = p.y - s.rot.cy;
+    p.x = s.rot.cx + dx * Math.cos(a) - dy * Math.sin(a);
+    p.y = s.rot.cy + dx * Math.sin(a) + dy * Math.cos(a);
+  }
 }
 
 const CYCLE_NAME: Record<number, string> = {

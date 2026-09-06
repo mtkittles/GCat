@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
+import { applyCompensation } from "./compensation";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
@@ -86,7 +87,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [prevSource, setPrevSource] = useState(source);
   if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(autoplay); }
 
-  const lengths = useMemo(() => program.segments.map(segmentLength), [program]);
+  const [showComp, setShowComp] = useState(true);
+  const comp = useMemo(() => applyCompensation(program, setup, mode), [program, setup, mode]);
+  const segments = showComp && comp.active ? comp.segments : program.segments;
+  const lengths = useMemo(() => segments.map(segmentLength), [segments]);
   const total = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
 
   // pętla animacji
@@ -98,7 +102,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       setProgress((p) => {
         // szybki dojazd 3x szybciej niż posuw
         const idx = segIndexAt(p, lengths);
-        const mult = program.segments[idx]?.kind === "rapid" ? 3 : 1;
+        const mult = segments[idx]?.kind === "rapid" ? 3 : 1;
         const np = p + dt * 40 * speed * mult;
         if (np >= total) { setPlaying(false); return total; }
         return np;
@@ -107,22 +111,22 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, speed, total, lengths, program.segments]);
+  }, [playing, speed, total, lengths, segments]);
 
   // aktualna linia i pozycja narzędzia
   const { activeLine, currentPos } = useMemo(() => {
     let acc = 0; let pos: Vec3 = { x: 0, y: 0, z: 0 }; let active: number | null = null;
-    program.segments.forEach((sg, i) => {
+    segments.forEach((sg, i) => {
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
       if (done > 0 && done < 1) { active = sg.line; pos = pointAt(sg, done); }
       else if (done >= 1) { pos = sg.to; if (progress - acc - len < 1e-9 && progress < total) active = sg.line; }
       acc += len;
     });
-    if (progress >= total && program.segments.length) { active = null; pos = program.segments[program.segments.length - 1].to; }
-    if (progress === 0 && program.segments.length) { pos = program.segments[0].from; active = program.segments[0].line; }
+    if (progress >= total && segments.length) { active = null; pos = segments[segments.length - 1].to; }
+    if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
-  }, [program, progress, lengths, total]);
+  }, [segments, progress, lengths, total]);
 
   const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
   const activeTool = toolOf(setup, activeToolNo, mode);
@@ -176,7 +180,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
       const [, ay] = P({ x: 0, y: 0, z: 0 });
       ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(W, ay); ctx.stroke(); ctx.restore();
-      const cut = program.segments.filter((s) => s.kind !== "rapid");
+      const cut = segments.filter((s) => s.kind !== "rapid");
       ctx.save(); ctx.globalAlpha = 0.25;
       for (const sg of cut) {
         ctx.strokeStyle = COLORS[sg.kind]; ctx.lineWidth = 2; ctx.beginPath();
@@ -189,7 +193,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // półfabrykat
-    const cut = program.segments.filter((s) => s.kind !== "rapid");
+    const cut = segments.filter((s) => s.kind !== "rapid");
     if (!setup.stock.auto && mode === "mill") {
       const stk = setup.stock;
       const st = stk;
@@ -210,7 +214,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // ścieżka
     let acc = 0;
-    program.segments.forEach((sg, i) => {
+    segments.forEach((sg, i) => {
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
       drawSeg(ctx, sg, P, 1, 0.22);
@@ -281,7 +285,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
+  }, [program, segments, progress, lengths, total, mode, compact, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -344,8 +348,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 onClick={() => {
                   if (!l.segments.length) return;
                   let acc = 0;
-                  for (let i = 0; i < program.segments.length; i++) {
-                    if (program.segments[i].line === l.index) { setPlaying(false); setProgress(acc + 1e-3); return; }
+                  for (let i = 0; i < segments.length; i++) {
+                    if (segments[i].line === l.index) { setPlaying(false); setProgress(acc + 1e-3); return; }
                     acc += lengths[i];
                   }
                 }}>
@@ -387,8 +391,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         )}
         {!compact && allow3d && (
           <>
-            <div className="filters"><button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button></div>
-            {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} /></Sim3DBoundary>}
+            <div className="filters">
+              <button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button>
+              {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
+            </div>
+            {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary>}
           </>
         )}
         {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}

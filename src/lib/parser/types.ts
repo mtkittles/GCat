@@ -27,7 +27,14 @@ export interface MachineState {
   wcs: number; // 54..59
   comp: 40 | 41 | 42;
   cycle: CannedCycle | null;
+  /** Obrót układu G68: kąt w stopniach i środek; null gdy G69. */
+  rot: { deg: number; cx: number; cy: number } | null;
+  /** Przesunięcie lokalne G52 względem aktywnego G54–G59. */
+  local: { x: number; y: number; z: number };
+  /** Pozycja rzeczywista (po G52/G68) — używana do rysowania toru. */
   pos: Vec3;
+  /** Pozycja w układzie programu, przed przesunięciem i obrotem. */
+  prog: Vec3;
 }
 
 export interface Word {

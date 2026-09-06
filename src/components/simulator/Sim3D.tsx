@@ -7,13 +7,14 @@ import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[] }
 
 const GRID = 220; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
+  const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
+  const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
   const lengths = useMemo(() => program.segments.map(segmentLength), [program]);
   // narzędzie aktywne w bieżącym miejscu programu
   const activeToolNo = useMemo(() => {
@@ -26,6 +27,9 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
   // scena
   const [failed, setFailed] = useState<null | "no-webgl" | "error">(null);
+  // Bufor mapy wysokości — pozwala dokładać tylko nowe odcinki zamiast liczyć
+  // cały program przy każdej klatce.
+  const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
@@ -119,7 +123,27 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
 
     // geometria półfabrykatu
     if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); }
-    const geo = mode === "mill" ? millGeometry(program, cut, lengths, progress, setup, mode) : latheGeometry(program, cut, lengths, progress, setup);
+    let geo: THREE.BufferGeometry | null;
+    if (mode === "mill") {
+      if (!cut.length) geo = null;
+      else {
+        const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
+        let buf = hmRef.current;
+        if (!buf || buf.key !== key || progress < buf.progress) {
+          const meta = millMeta(program, cut, setup);
+          const h = new Float32Array((meta.nx + 1) * (meta.ny + 1)).fill(meta.top);
+          buf = { key, h, progress: 0, meta };
+        }
+        if (progress > buf.progress) {
+          carve(buf.h, buf.meta, program, lengths, setup, mode, buf.progress, progress);
+          buf.progress = progress;
+        }
+        hmRef.current = buf;
+        geo = meshFromHeightmap(buf.h, buf.meta);
+      }
+    } else {
+      geo = latheGeometry(program, cut, lengths, progress, setup);
+    }
     if (geo) {
       st.stock = new THREE.Mesh(geo, st.stockMat);
       st.scene.add(st.stock);
@@ -132,7 +156,7 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
     }
     } catch { broke = true; }
     if (broke) queueMicrotask(() => setFailed("error"));
-  }, [program, lengths, progress, mode, toolD, setup, tool, failed]);
+  }, [program, lengths, progress, mode, toolD, setup, tool, failed, source]);
 
   if (failed) {
     return (
@@ -347,60 +371,78 @@ function cutUpTo(cut: Segment[], allSegs: Segment[], lengths: number[], progress
   return out;
 }
 
-function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], lengths: number[], progress: number, setup: Setup, mode: SimMode) {
-  if (!cut.length) return null;
-  let minX: number, maxX: number, minY: number, maxY: number, top: number, bottom: number;
+export interface MillMeta { minX: number; maxX: number; minY: number; maxY: number; top: number; bottom: number; nx: number; ny: number; cx: number; cy: number }
+
+function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setup: Setup): MillMeta {
   const st = setup.stock;
+  let minX: number, maxX: number, minY: number, maxY: number, top: number, bottom: number;
   const maxD = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d), 6);
   if (st.auto) {
-    const m = 4 + maxD;
     let aX = Infinity, bX = -Infinity, aY = Infinity, bY = -Infinity, mz = 0;
-    for (const s of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(s, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
+    for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(sg, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
+    const m = 4 + maxD;
     minX = aX - m; maxX = bX + m; minY = aY - m; maxY = bY + m; top = 0; bottom = Math.min(mz - 5, -5);
   } else {
     minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;
     top = st.z - st.oz; bottom = -st.oz;
   }
-  const nx = GRID, ny = Math.max(20, Math.round(GRID * (maxY - minY) / (maxX - minX)));
-  const h = new Float32Array((nx + 1) * (ny + 1)).fill(top);
-  const cx = (maxX - minX) / nx, cy = (maxY - minY) / ny;
-  for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
-    const tno = program.lines[seg.line]?.state.tool ?? null;
-    const tl = toolOf(setup, tno, mode);
+  const nx = GRID;
+  const ny = Math.max(20, Math.round(GRID * (maxY - minY) / Math.max(1e-6, maxX - minX)));
+  return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
+}
+
+/** Nanosi na mapę wysokości ubytek z podanego zakresu postępu. */
+function carve(h: Float32Array, m: MillMeta, program: ReturnType<typeof parseProgram>, lengths: number[], setup: Setup, mode: SimMode, from: number, to: number) {
+  let acc = 0;
+  program.segments.forEach((sg, i) => {
+    const len = lengths[i];
+    const segStart = acc, segEnd = acc + len;
+    acc = segEnd;
+    if (sg.kind === "rapid" || segEnd <= from || segStart >= to) return;
+    const t0 = Math.max(0, (from - segStart) / (len || 1));
+    const t1 = Math.min(1, (to - segStart) / (len || 1));
+    if (t1 <= t0) return;
+    const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
     const r = cuttingRadius(tl);
     const ball = tl.kind === "ballnose";
     const cornerR = tl.kind === "bullnose" ? Math.min(r * 0.95, Math.max(0, tl.corner)) : 0;
-    const len = segmentLength(seg) * t; const steps = Math.max(1, Math.ceil(len / (Math.min(cx, cy) * 0.7)));
-    for (let i = 0; i <= steps; i++) {
-      const p = pointAt(seg, (i / steps) * t); if (p.z >= top) continue;
-      const i0 = Math.floor((p.x - r - minX) / cx), i1 = Math.ceil((p.x + r - minX) / cx);
-      const j0 = Math.floor((p.y - r - minY) / cy), j1 = Math.ceil((p.y + r - minY) / cy);
-      for (let j = Math.max(0, j0); j <= Math.min(ny, j1); j++) for (let ii = Math.max(0, i0); ii <= Math.min(nx, i1); ii++) {
-        const gx = minX + ii * cx, gy = minY + j * cy;
-        const d2 = (gx - p.x) ** 2 + (gy - p.y) ** 2;
-        if (d2 > r * r) continue;
-        const k = j * (nx + 1) + ii;
-        // frez kulisty: dno rowka jest łukiem, nie płaszczyzną
-        let zHere = p.z;
-        if (ball) zHere = p.z + (r - Math.sqrt(Math.max(0, r * r - d2)));
-        else if (cornerR > 0) {
-          const dd = Math.sqrt(d2);
-          if (dd > r - cornerR) { const t2 = dd - (r - cornerR); zHere = p.z + (cornerR - Math.sqrt(Math.max(0, cornerR * cornerR - t2 * t2))); }
+    const steps = Math.max(1, Math.ceil((len * (t1 - t0)) / (Math.min(m.cx, m.cy) * 0.7)));
+    for (let k = 0; k <= steps; k++) {
+      const p = pointAt(sg, t0 + ((t1 - t0) * k) / steps);
+      if (p.z >= m.top) continue;
+      const i0 = Math.floor((p.x - r - m.minX) / m.cx), i1 = Math.ceil((p.x + r - m.minX) / m.cx);
+      const j0 = Math.floor((p.y - r - m.minY) / m.cy), j1 = Math.ceil((p.y + r - m.minY) / m.cy);
+      for (let j = Math.max(0, j0); j <= Math.min(m.ny, j1); j++) {
+        for (let ii = Math.max(0, i0); ii <= Math.min(m.nx, i1); ii++) {
+          const gx = m.minX + ii * m.cx, gy = m.minY + j * m.cy;
+          const d2 = (gx - p.x) ** 2 + (gy - p.y) ** 2;
+          if (d2 > r * r) continue;
+          const idx = j * (m.nx + 1) + ii;
+          let zHere = p.z;
+          if (ball) zHere = p.z + (r - Math.sqrt(Math.max(0, r * r - d2)));
+          else if (cornerR > 0) {
+            const dd = Math.sqrt(d2);
+            if (dd > r - cornerR) { const t2 = dd - (r - cornerR); zHere = p.z + (cornerR - Math.sqrt(Math.max(0, cornerR * cornerR - t2 * t2))); }
+          }
+          if (zHere < h[idx]) h[idx] = Math.max(zHere, m.bottom);
         }
-        if (zHere < h[k]) h[k] = Math.max(zHere, bottom);
       }
     }
-  }
-  // siatka: góra (mapa wysokości) + ściany + dno
+  });
+}
+
+function meshFromHeightmap(h: Float32Array, m: MillMeta) {
   const pos: number[] = []; const idx: number[] = [];
   const V = (x: number, y: number, z: number) => { pos.push(x, z, -y); return pos.length / 3 - 1; };
-  for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) V(minX + i * cx, minY + j * cy, h[j * (nx + 1) + i]);
-  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
-  // ściany boczne (proste, do dna)
-  const wall = (x0: number, y0: number, x1: number, y1: number) => { const a = V(x0, y0, top), b = V(x1, y1, top), c = V(x0, y0, bottom), d = V(x1, y1, bottom); idx.push(a, b, c, b, d, c); };
-  wall(minX, minY, maxX, minY); wall(maxX, minY, maxX, maxY); wall(maxX, maxY, minX, maxY); wall(minX, maxY, minX, minY);
-  const b0 = V(minX, minY, bottom), b1 = V(maxX, minY, bottom), b2 = V(maxX, maxY, bottom), b3 = V(minX, maxY, bottom); idx.push(b0, b1, b2, b0, b2, b3);
-  const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  for (let j = 0; j <= m.ny; j++) for (let i = 0; i <= m.nx; i++) V(m.minX + i * m.cx, m.minY + j * m.cy, h[j * (m.nx + 1) + i]);
+  for (let j = 0; j < m.ny; j++) for (let i = 0; i < m.nx; i++) { const a = j * (m.nx + 1) + i, b = a + 1, c = a + m.nx + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
+  const wall = (x0: number, y0: number, x1: number, y1: number) => { const a = V(x0, y0, m.top), b = V(x1, y1, m.top), c = V(x0, y0, m.bottom), d = V(x1, y1, m.bottom); idx.push(a, b, c, b, d, c); };
+  wall(m.minX, m.minY, m.maxX, m.minY); wall(m.maxX, m.minY, m.maxX, m.maxY); wall(m.maxX, m.maxY, m.minX, m.maxY); wall(m.minX, m.maxY, m.minX, m.minY);
+  const b0 = V(m.minX, m.minY, m.bottom), b1 = V(m.maxX, m.minY, m.bottom), b2 = V(m.maxX, m.maxY, m.bottom), b3 = V(m.minX, m.maxY, m.bottom);
+  idx.push(b0, b1, b2, b0, b2, b3);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setIndex(idx); g.computeVertexNormals();
   return g;
 }
 
