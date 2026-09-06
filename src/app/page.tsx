@@ -5,6 +5,7 @@ import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
 import TechGrid from "@/components/ui/TechGrid";
 import Chip from "@/components/ui/Chip";
+import BrandLogo from "@/components/BrandLogo";
 import { exercises, lessons } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 
@@ -81,7 +82,7 @@ export default function Home() {
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.05fr_1fr] lg:items-center">
-        <div className="hero-visual-light"><TechGrid /></div>
+        <div className="hero-visual-light reveal"><TechGrid /></div>
         <div className="codecard">
           <div className="codecard-head"><span className="codecard-dot" />Symulator G-code</div>
           <pre>
@@ -90,14 +91,14 @@ export default function Home() {
 <span className="active">{`  `}<span className="ln">3</span><span className="g">G01</span> <span className="ax">X50 Y0</span> <span className="fs">F250</span>{`\n`}</span>
 {`  `}<span className="ln">4</span><span className="g">G02</span> <span className="ax">X70 Y20 I0 J20</span>{`\n`}
 {`  `}<span className="ln">5</span><span className="g">G03</span> <span className="ax">X50 Y60 R20</span>{`\n`}
-{`  `}<span className="ln">6</span><span className="m">M30</span>
+{`  `}<span className="ln">6</span><span className="m">M30</span><span className="caret">&nbsp;</span>
           </pre>
         </div>
       </section>
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Co znajdziesz w GCat" title="Pięć narzędzi, jedna ścieżka" lead="Teoria, referencja i praktyka połączone tak, żeby każdy kod dało się od razu uruchomić i zobaczyć." />
-        <div className="pillars">
+        <div className="pillars reveal reveal-1">
           {PILLARS.map((p) => (
             <Link key={p.href} href={p.href} className="pillar">
               <span className="pillar-ico">
@@ -111,6 +112,22 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="brandblock reveal">
+        <BrandLogo height={190} variant="lockup" />
+        <span className="brandblock-motto">Zrozum. Programuj. Obrabiaj.</span>
+        <p className="brandblock-lead">
+          GCat powstał z prostego założenia: G-kodu nie da się nauczyć z samej tabeli kodów.
+          Każda funkcja ma tu wyjaśnienie, schemat i program, który uruchomisz jednym kliknięciem —
+          i zobaczysz, co narzędzie naprawdę zrobi z materiałem.
+        </p>
+        <div className="brandblock-stats">
+          <span className="brandstat"><b>27</b><span>kart kodów</span></span>
+          <span className="brandstat"><b>12</b><span>lekcji</span></span>
+          <span className="brandstat"><b>16</b><span>zadań</span></span>
+          <span className="brandstat"><b>2D+3D</b><span>symulacja</span></span>
+        </div>
+      </section>
+
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
           lead="Każdy blok tłumaczony na polski, tor rysowany na bieżąco, walidator wskazujący kolizje i błędy składni."
@@ -121,7 +138,7 @@ export default function Home() {
       <section className="grid gap-4">
         <SectionHeader eyebrow="Ścieżka nauki" title="Od bloku do gotowego programu"
           action={<Link className="btn ghost" href="/nauka">Wszystkie lekcje</Link>} />
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 reveal reveal-2">
           {lessons.slice(0, 6).map((l, i) => (
             <li key={l.slug}><Link href={`/nauka/${l.slug}`} className="tile h-full">
               <span className="tile-num">LEKCJA {String(i + 1).padStart(2, "0")} · {l.minutes} MIN</span>
@@ -134,7 +151,7 @@ export default function Home() {
       <section className="grid gap-4">
         <SectionHeader eyebrow="Referencja" title="Zacznij od podstaw"
           action={<Link className="btn ghost" href="/kody">Wszystkie kody</Link>} />
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 reveal reveal-2">
           {starter.map((g) => (
             <Link key={g.slug} href={`/kody/${g.slug}`} className="tile">
               <div className="flex items-center gap-2">
@@ -152,7 +169,7 @@ export default function Home() {
         <SectionHeader eyebrow="Praktyka" title="Sprawdź się"
           lead="Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym i wskaże, co się nie zgadza."
           action={<Link className="btn ghost" href="/zadania">Wszystkie zadania</Link>} />
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 reveal reveal-3">
           {exercises.slice(0, 4).map((e) => (
             <Link key={e.slug} href={`/zadania/${e.slug}`} className="tile">
               <div className="font-semibold">{e.title}</div>

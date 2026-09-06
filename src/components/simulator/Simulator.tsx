@@ -51,6 +51,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [full, setFull] = useState(false);
   const editorRef = useRef<{ insert: (t: string) => void } | null>(null);
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
@@ -306,8 +307,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     onSourceChange?.(text.replace(/\r\n/g, "\n")); setFileName(f.name);
   };
 
+  // W trybie pełnoekranowym kolejność jest odwrócona: podgląd zajmuje dwie trzecie
+  // szerokości po lewej, konsola programu jedną trzecią po prawej.
   return (
-    <div className={`${compact ? "grid gap-3" : "workbench"} ${dragOver ? "is-dragover" : ""}`}
+    <div className={`${compact ? "grid gap-3" : "workbench"} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
@@ -401,6 +404,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <>
             <div className="filters">
               <button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button>
+              <button aria-pressed={full} onClick={() => setFull((v) => !v)} title="Powiększ obszar podglądu">
+                {full ? "Zwykły widok" : "Pełny ekran"}
+              </button>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
               {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
                 <span className="comp-note">G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu</span>

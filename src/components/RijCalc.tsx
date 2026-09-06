@@ -2,9 +2,21 @@
 import { useState } from "react";
 
 function F({ l, v, on }: { l: string; v: number; on: (n: number) => void }) {
+  const [text, setText] = useState(String(v));
+  const [focused, setFocused] = useState(false);
   return (
     <label className="grid gap-1 text-sm"><span className="text-muted">{l}</span>
-      <input type="number" inputMode="decimal" step="0.1" className="border border-line rounded px-2 py-1 bg-card font-mono" value={v} onChange={(e) => on(Number(e.target.value))} /></label>
+      <input type="text" inputMode="decimal" className="border border-line rounded px-2 py-1 bg-card font-mono"
+        value={focused ? text : String(v)}
+        onFocus={(e) => { setFocused(true); setText(String(v)); e.currentTarget.select(); }}
+        onBlur={() => { setFocused(false); const n = Number(text.replace(",", ".")); if (Number.isFinite(n)) on(n); }}
+        onChange={(e) => {
+          const raw = e.target.value;
+          if (!/^-?[0-9]*[.,]?[0-9]*$/.test(raw)) return;
+          setText(raw);
+          const n = Number(raw.replace(",", "."));
+          if (raw !== "" && raw !== "-" && Number.isFinite(n)) on(n);
+        }} /></label>
   );
 }
 

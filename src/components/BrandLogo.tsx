@@ -36,7 +36,10 @@ export default function BrandLogo({
   return (
     <span className="brand-lockup">
       {mark}
-      <span className="brand-word" style={{ fontSize: height * 0.62 }}><b>G</b>Cat</span>
+      <span className="brand-text">
+        <span className="brand-word" style={{ fontSize: height * 0.62 }}><b>G</b>Cat</span>
+        <span className="brand-motto">Zrozum. Programuj. Obrabiaj.</span>
+      </span>
     </span>
   );
 }

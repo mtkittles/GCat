@@ -24,5 +24,5 @@ export const exerciseBySlug = (s: string) => exercises.find((e) => e.slug === s)
 
 import glossaryData from "../../content/glossary.json";
 
-export interface GlossaryEntry { term: string; aliases: string[]; def: string; see: string[] }
+export interface GlossaryEntry { term: string; aliases: string[]; def: string; see: string[]; diagram?: string }
 export const glossary = glossaryData as GlossaryEntry[];

@@ -17,10 +17,29 @@ const r2 = (v: number) => (Number.isFinite(v) ? Math.round(v * 100) / 100 : 0);
 const r3 = (v: number) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0);
 
 function Field({ label, unit, value, onChange, step = 1, min = 0.01 }: { label: string; unit?: string; value: number; onChange: (v: number) => void; step?: number; min?: number }) {
+  // Pole przechowuje to, co użytkownik faktycznie wpisał. Dzięki temu można
+  // skasować całą zawartość albo zacząć od kropki bez podstawiania wartości.
+  const [text, setText] = useState(String(value));
+  const [focused, setFocused] = useState(false);
+  const shown = focused ? text : String(value);
+
   return (
     <label className="calc-field"><span>{label}{unit && <i> [{unit}]</i>}</span>
-      <input type="number" inputMode="decimal" step={step} value={value}
-        onChange={(e) => { const n = Number(e.target.value); onChange(Number.isFinite(n) ? Math.max(min, n) : min); }} /></label>
+      <input
+        type="text" inputMode="decimal" step={step} value={shown}
+        onFocus={(e) => { setFocused(true); setText(String(value)); e.currentTarget.select(); }}
+        onBlur={() => {
+          setFocused(false);
+          const n = Number(text.replace(",", "."));
+          if (Number.isFinite(n) && n >= min) onChange(n);
+        }}
+        onChange={(e) => {
+          const raw = e.target.value;
+          if (!/^[0-9]*[.,]?[0-9]*$/.test(raw)) return;
+          setText(raw);
+          const n = Number(raw.replace(",", "."));
+          if (raw !== "" && Number.isFinite(n) && n >= min) onChange(n);
+        }} /></label>
   );
 }
 function Out({ label, value, unit, big }: { label: string; value: string | number; unit: string; big?: boolean }) {

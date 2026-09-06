@@ -182,7 +182,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
 
   return (
     <div className="grid gap-1">
-      <div ref={mountRef} className="sim-canvas" style={{ height: 360 }} />
+      <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={{ height: 360 }} />
       <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>
     </div>
   );

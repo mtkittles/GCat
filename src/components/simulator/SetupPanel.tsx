@@ -1,12 +1,24 @@
 "use client";
+import { useState } from "react";
 import { FIELD_LABEL, LATHE_TOOLS, MILL_TOOLS, TOOL_FIELDS, TOOL_LABEL, makeTool, type Setup, type Tool, type ToolKind } from "./setup";
 
-function Num({ l, v, on, step = 1, min = 0, suffix, w = "5rem" }: { l: string; v: number; on: (n: number) => void; step?: number; min?: number; suffix?: string; w?: string }) {
+function Num({ l, v, on, min = 0, suffix, w = "5rem" }: { l: string; v: number; on: (n: number) => void; step?: number; min?: number; suffix?: string; w?: string }) {
+  const [text, setText] = useState(String(v));
+  const [focused, setFocused] = useState(false);
   return (
     <label className="setup-field"><span>{l}</span>
       <span className="setup-input">
-        <input type="number" inputMode="decimal" step={step} value={v} style={{ width: w }}
-          onChange={(e) => { const n = Number(e.target.value); on(Number.isFinite(n) ? Math.max(min, n) : min); }} />
+        <input type="text" inputMode="decimal" style={{ width: w }}
+          value={focused ? text : String(v)}
+          onFocus={(e) => { setFocused(true); setText(String(v)); e.currentTarget.select(); }}
+          onBlur={() => { setFocused(false); const n = Number(text.replace(",", ".")); if (Number.isFinite(n) && n >= min) on(n); }}
+          onChange={(e) => {
+            const raw = e.target.value;
+            if (!/^-?[0-9]*[.,]?[0-9]*$/.test(raw)) return;
+            setText(raw);
+            const n = Number(raw.replace(",", "."));
+            if (raw !== "" && raw !== "-" && Number.isFinite(n) && n >= min) on(n);
+          }} />
         {suffix && <i>{suffix}</i>}
       </span>
     </label>

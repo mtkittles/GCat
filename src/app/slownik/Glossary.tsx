@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import PageBanner from "@/components/ui/PageBanner";
 import { glossary } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
+import { diagrams } from "@/components/diagrams";
 
 export default function Glossary() {
   const [q, setQ] = useState("");
@@ -30,6 +31,7 @@ export default function Glossary() {
             <dt>{e.term}</dt>
             <dd>
               <p>{e.def}</p>
+              {e.diagram && diagrams[e.diagram] && <div className="glossary-fig">{diagrams[e.diagram]()}</div>}
               {e.see.length > 0 && (
                 <p className="text-sm text-muted">
                   Zobacz: {e.see.map((s, i) => { const g = bySlug(s); return g ? <span key={s}>{i > 0 && ", "}<Link href={`/kody/${s}`} className="underline">{g.code}</Link></span> : null; })}

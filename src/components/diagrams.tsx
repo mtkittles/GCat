@@ -36,10 +36,10 @@ interface PlotProps {
   step?: number;
 }
 
-export function Plot({ children, range, caption, title, height = 250, xLabel = "X", yLabel = "Y", step = 10 }: PlotProps) {
+export function Plot({ children, range, caption, title, height = 290, xLabel = "X", yLabel = "Y", step = 10 }: PlotProps) {
   const [x0, x1, y0, y1] = range;
-  const pad = 36;
-  const W = 560, H = height;
+  const pad = 44;
+  const W = 620, H = height;
   const s = Math.min((W - pad * 2) / (x1 - x0), (H - pad * 2) / (y1 - y0));
   const ox = pad + ((W - pad * 2) - (x1 - x0) * s) / 2;
   const oy = H - pad - ((H - pad * 2) - (y1 - y0) * s) / 2;
@@ -117,21 +117,28 @@ const ArcIJ = () => (
 );
 
 const Comp = () => (
-  <Plot range={[-15, 78, -14, 56]} title="G41 / G42 — po której stronie konturu"
-    caption="Kontur detalu na ciemno, tor środka narzędzia na zielono, okrąg pokazuje frez. Patrząc w kierunku ruchu (strzałka w prawo): przy G41 narzędzie jest po lewej stronie konturu, przy G42 po prawej. Odsunięcie równa się promieniowi r z rejestru korekcji.">
+  <Plot range={[-18, 82, -22, 78]} height={300} title="G41 / G42 — po której stronie konturu"
+    caption="Ten sam kontur detalu obrabiany z kompensacją włączoną z lewej i z prawej strony. Zielona linia to tor środka narzędzia, okrąg pokazuje frez, r to promień z rejestru korekcji.">
     {({ X, Y, u }) => (
       <g>
-        <rect x={X(0)} y={Y(40)} width={60 * u} height={40 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
-        <text x={X(30)} y={Y(20)} fill={C.ink} fontSize={12} textAnchor="middle">kontur detalu</text>
-        <line x1={X(0)} y1={Y(48)} x2={X(58)} y2={Y(48)} stroke={C.cut} strokeWidth={2.8} color={C.cut} markerEnd="url(#arw)" />
-        <circle cx={X(28)} cy={Y(48)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.5} strokeDasharray="3 3" />
-        <text x={X(0)} y={Y(51)} fill={C.cut} fontSize={12} fontWeight={700}>G41 — narzędzie z lewej</text>
-        <line x1={X(0)} y1={Y(32)} x2={X(58)} y2={Y(32)} stroke={C.cut} strokeWidth={2.8} color={C.cut} markerEnd="url(#arw)" opacity={0.7} />
-        <circle cx={X(28)} cy={Y(32)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.5} strokeDasharray="3 3" opacity={0.7} />
-        <text x={X(0)} y={Y(27)} fill={C.cut} fontSize={12} fontWeight={700} opacity={0.85}>G42 — narzędzie z prawej</text>
-        <line x1={X(52)} y1={Y(40)} x2={X(52)} y2={Y(48)} stroke={C.rapid} strokeWidth={1.5} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
-        <text x={X(53)} y={Y(43)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>r</text>
-        <text x={X(-14)} y={Y(-9)} fill={C.axis} fontSize={11}>Stań za narzędziem i patrz w kierunku ruchu.</text>
+        {/* kontur detalu */}
+        <rect x={X(0)} y={Y(46)} width={60 * u} height={46 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
+        <text x={X(30)} y={Y(24)} fill={C.ink} fontSize={12} textAnchor="middle">kontur detalu</text>
+
+        {/* G41 — tor nad górną krawędzią */}
+        <line x1={X(-4)} y1={Y(54)} x2={X(58)} y2={Y(54)} stroke={C.cut} strokeWidth={3} color={C.cut} markerEnd="url(#arw)" />
+        <circle cx={X(24)} cy={Y(54)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.4} strokeDasharray="3 3" />
+        <text x={X(-4)} y={Y(64)} fill={C.cut} fontSize={12.5} fontWeight={700}>G41 — narzędzie z lewej strony</text>
+        <text x={X(-4)} y={Y(59)} fill={C.axis} fontSize={11}>kierunek ruchu →</text>
+
+        {/* wymiar odsunięcia */}
+        <line x1={X(48)} y1={Y(46)} x2={X(48)} y2={Y(54)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(49.5)} y={Y(49)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>r</text>
+
+        {/* G42 — tor pod dolną krawędzią */}
+        <line x1={X(-4)} y1={Y(-8)} x2={X(58)} y2={Y(-8)} stroke={C.cut} strokeWidth={3} color={C.cut} markerEnd="url(#arw)" opacity={0.72} />
+        <circle cx={X(24)} cy={Y(-8)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.4} strokeDasharray="3 3" opacity={0.72} />
+        <text x={X(-4)} y={Y(-16)} fill={C.cut} fontSize={12.5} fontWeight={700} opacity={0.9}>G42 — narzędzie z prawej strony</text>
       </g>
     )}
   </Plot>
@@ -239,7 +246,143 @@ const Helix = () => (
   </Plot>
 );
 
+
+const ApAe = () => (
+  <Plot range={[-6, 84, -8, 50]} height={280} title="ap, ae i fz — trzy wymiary wióra"
+    caption="ap to głębokość mierzona wzdłuż osi narzędzia, ae to szerokość zaangażowania mierzona prostopadle do posuwu, fz to grubość warstwy zbieranej przez jedno ostrze w jednym obrocie.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(30)} width={76 * u} height={30 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <rect x={X(10)} y={Y(30)} width={22 * u} height={12 * u} fill={C.cut} opacity={0.18} stroke={C.cut} strokeWidth={1.5} />
+        <line x1={X(6)} y1={Y(30)} x2={X(6)} y2={Y(18)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(2)} y={Y(23)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700} textAnchor="end">ap</text>
+        <line x1={X(10)} y1={Y(34)} x2={X(32)} y2={Y(34)} stroke={C.arc} strokeWidth={1.6} color={C.arc} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(21)} y={Y(36)} fill={C.arc} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700} textAnchor="middle">ae</text>
+        <circle cx={X(21)} cy={Y(24)} r={11 * u} fill="none" stroke={C.ink} strokeWidth={1.6} strokeDasharray="4 3" />
+        <text x={X(46)} y={Y(24)} fill={C.ink} fontSize={12}>frez ⌀22</text>
+        <text x={X(46)} y={Y(18)} fill={C.axis} fontSize={11} fontFamily="var(--font-mono)">Vf = n · z · fz</text>
+        <text x={X(46)} y={Y(12)} fill={C.axis} fontSize={11} fontFamily="var(--font-mono)">Q = ap · ae · Vf / 1000</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Thinning = () => (
+  <Plot range={[-6, 84, -6, 46]} height={280} title="Pocienianie wióra przy małym ae"
+    caption="Gdy narzędzie zagłębia się bokiem płycej niż na połowę średnicy, rzeczywista grubość wióra jest mniejsza niż zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie tarłoby zamiast skrawać.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(34)} width={34 * u} height={34 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <circle cx={X(34)} cy={Y(17)} r={14 * u} fill="none" stroke={C.cut} strokeWidth={2} />
+        <text x={X(34)} y={Y(-2)} fill={C.cut} fontSize={11.5} textAnchor="middle">ae = połowa ⌀ → wiór pełny</text>
+        <rect x={X(50)} y={Y(34)} width={26 * u} height={34 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <circle cx={X(80)} cy={Y(17)} r={14 * u} fill="none" stroke={C.bad} strokeWidth={2} />
+        <path d={`M ${X(76)} ${Y(28)} A ${14 * u} ${14 * u} 0 0 0 ${X(76)} ${Y(6)}`} stroke={C.bad} strokeWidth={3} fill="none" />
+        <text x={X(63)} y={Y(-2)} fill={C.bad} fontSize={11.5} textAnchor="middle">małe ae → wiór cieńszy</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const VcDiag = () => (
+  <Plot range={[-46, 46, -46, 46]} height={300} step={20} title="Vc — prędkość skrawania"
+    caption="Prędkość skrawania to prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza. Zależy od średnicy: przy tych samych obrotach punkt na większej średnicy pokonuje dłuższą drogę.">
+    {({ X, Y, u }) => (
+      <g>
+        <circle cx={X(0)} cy={Y(0)} r={40 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <circle cx={X(0)} cy={Y(0)} r={18 * u} fill="none" stroke={C.grid} strokeWidth={1.2} strokeDasharray="4 4" />
+        <line x1={X(0)} y1={Y(0)} x2={X(40)} y2={Y(0)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(20)} y={Y(3)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" textAnchor="middle">D/2</text>
+        <path d={`M ${X(0)} ${Y(40)} A ${40 * u} ${40 * u} 0 0 1 ${X(28)} ${Y(28)}`} stroke={C.cut} strokeWidth={3.5} fill="none" color={C.cut} markerEnd="url(#arw)" />
+        <text x={X(22)} y={Y(43)} fill={C.cut} fontSize={12} fontWeight={700}>Vc</text>
+        <path d={`M ${X(0)} ${Y(18)} A ${18 * u} ${18 * u} 0 0 1 ${X(13)} ${Y(13)}`} stroke={C.arc} strokeWidth={2.5} fill="none" />
+        <text x={X(2)} y={Y(11)} fill={C.arc} fontSize={11}>mniejsza średnica — mniejsza Vc</text>
+        <text x={X(-44)} y={Y(-40)} fill={C.axis} fontSize={12} fontFamily="var(--font-mono)">Vc = π · D · n / 1000</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Climb = () => (
+  <Plot range={[-6, 96, -10, 44]} height={280} title="Frezowanie współbieżne i przeciwbieżne"
+    caption="Przy współbieżnym ostrze wchodzi w materiał od strony grubego wióra i wychodzi przy zerowej grubości. Przy przeciwbieżnym jest odwrotnie: początek styku to gniecenie materiału.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(24)} width={40 * u} height={24 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <circle cx={X(34)} cy={Y(26)} r={12 * u} fill="none" stroke={C.cut} strokeWidth={2} />
+        <path d={`M ${X(28)} ${Y(34)} A ${12 * u} ${12 * u} 0 0 1 ${X(44)} ${Y(30)}`} stroke={C.cut} strokeWidth={2} fill="none" color={C.cut} markerEnd="url(#arw)" />
+        <text x={X(20)} y={Y(-4)} fill={C.cut} fontSize={12} fontWeight={700} textAnchor="middle">współbieżne (G41 przy M03)</text>
+        <text x={X(20)} y={Y(12)} fill={C.ink} fontSize={11} textAnchor="middle">wiór: gruby → cienki</text>
+
+        <rect x={X(56)} y={Y(24)} width={40 * u} height={24 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <circle cx={X(90)} cy={Y(26)} r={12 * u} fill="none" stroke={C.bad} strokeWidth={2} />
+        <path d={`M ${X(100)} ${Y(30)} A ${12 * u} ${12 * u} 0 0 0 ${X(84)} ${Y(34)}`} stroke={C.bad} strokeWidth={2} fill="none" color={C.bad} markerEnd="url(#arw)" />
+        <text x={X(76)} y={Y(-4)} fill={C.bad} fontSize={12} fontWeight={700} textAnchor="middle">przeciwbieżne (G42 przy M03)</text>
+        <text x={X(76)} y={Y(12)} fill={C.ink} fontSize={11} textAnchor="middle">wiór: cienki → gruby</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const RzDiag = () => (
+  <Plot range={[-4, 64, -8, 26]} height={260} step={10} yLabel="mm" title="Rz — chropowatość teoretyczna"
+    caption="Ślady kolejnych obrotów tworzą regularne wgłębienia. Ich głębokość zależy wyłącznie od posuwu na obrót i promienia naroża płytki, a nie od obrotów.">
+    {({ X, Y }) => (
+      <g>
+        <path d={`M ${X(0)} ${Y(10)} ${[0, 1, 2, 3, 4, 5].map((i) => `Q ${X(i * 10 + 5)} ${Y(2)} ${X(i * 10 + 10)} ${Y(10)}`).join(" ")}`}
+          stroke={C.ink} strokeWidth={2.5} fill="none" />
+        <line x1={X(15)} y1={Y(10)} x2={X(15)} y2={Y(3)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(17)} y={Y(6)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>Rz</text>
+        <line x1={X(20)} y1={Y(16)} x2={X(30)} y2={Y(16)} stroke={C.arc} strokeWidth={1.6} color={C.arc} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(25)} y={Y(19)} fill={C.arc} fontSize={12} fontFamily="var(--font-mono)" textAnchor="middle">f</text>
+        <text x={X(36)} y={Y(20)} fill={C.axis} fontSize={12} fontFamily="var(--font-mono)">Rz ≈ f² / (8 · rε)</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Allowance = () => (
+  <Plot range={[-6, 86, -8, 44]} height={270} title="Naddatek na obróbkę"
+    caption="Warstwa pozostawiona celowo do zdjęcia w kolejnej operacji. Zgrubne przejścia zatrzymują się przed wymiarem, a przejście wykańczające zbiera resztę jednym cienkim wiórem.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(32)} width={76 * u} height={32 * u} fill={C.stock} stroke={C.grid} strokeWidth={1.5} strokeDasharray="5 4" />
+        <rect x={X(6)} y={Y(26)} width={64 * u} height={26 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
+        <text x={X(38)} y={Y(13)} fill={C.ink} fontSize={12} textAnchor="middle">wymiar gotowy</text>
+        <line x1={X(0)} y1={Y(36)} x2={X(6)} y2={Y(36)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(3)} y={Y(39)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" textAnchor="middle">naddatek</text>
+        <text x={X(78)} y={Y(30)} fill={C.axis} fontSize={11} textAnchor="start">półfabrykat</text>
+      </g>
+    )}
+  </Plot>
+);
+
+const Runout = () => (
+  <Plot range={[-16, 84, -22, 26]} height={270} yLabel="X" xLabel="Z" step={10} title="Rozbieg i wybieg gwintu"
+    caption="Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Bez rozbiegu pierwsze zwoje mają zaniżony skok, bez wybiegu ostatnie są zniekształcone.">
+    {({ X, Y, u }) => (
+      <g>
+        <rect x={X(0)} y={Y(16)} width={70 * u} height={32 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
+        <line x1={X(-16)} y1={Y(0)} x2={X(84)} y2={Y(0)} stroke={C.axis} strokeDasharray="12 4 3 4" />
+        <line x1={X(-12)} y1={Y(20)} x2={X(0)} y2={Y(20)} stroke={C.rapid} strokeWidth={2.5} strokeDasharray="5 3" />
+        <text x={X(-13)} y={Y(24)} fill={C.rapid} fontSize={11.5}>rozbieg ≥ 2 × skok</text>
+        <line x1={X(0)} y1={Y(20)} x2={X(56)} y2={Y(20)} stroke={C.cut} strokeWidth={3} color={C.cut} markerEnd="url(#arw)" />
+        <text x={X(24)} y={Y(24)} fill={C.cut} fontSize={12} fontWeight={700}>gwint</text>
+        <line x1={X(56)} y1={Y(20)} x2={X(70)} y2={Y(20)} stroke={C.bad} strokeWidth={2.5} strokeDasharray="4 3" />
+        <text x={X(58)} y={Y(-6)} fill={C.bad} fontSize={11.5}>wybieg lub podcięcie</text>
+      </g>
+    )}
+  </Plot>
+);
+
 export const diagrams: Record<string, () => ReactNode> = {
+  apae: ApAe,
+  thinning: Thinning,
+  vc: VcDiag,
+  climb: Climb,
+  rz: RzDiag,
+  allowance: Allowance,
+  runout: Runout,
   g00: Rapid,
   g01: Rapid,
   g02: ArcIJ,
