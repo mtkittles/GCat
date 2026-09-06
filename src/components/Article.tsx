@@ -18,11 +18,12 @@ function rich(s: string) {
 
 export const slugify = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
 
-export function Toc({ blocks }: { blocks: Block[] }) {
+export function Toc({ blocks, sticky = false }: { blocks: Block[]; sticky?: boolean }) {
   const hs = blocks.filter((b): b is Extract<Block, { t: "h" }> => b.t === "h");
   if (hs.length < 3) return null;
   return (
-    <nav className="toc"><span className="toc-title">W tym artykule</span>
+    <nav className={`toc ${sticky ? "toc-sticky" : ""}`} aria-label="Spis treści artykułu">
+      <span className="toc-title">W tym artykule</span>
       <ol>{hs.map((h) => <li key={h.x}><a href={`#${h.id ?? slugify(h.x)}`}>{h.x}</a></li>)}</ol>
     </nav>
   );
@@ -47,7 +48,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
             </table></div>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;
-          case "widget": return b.id === "rij" ? <RijCalc key={i} /> : null;
+          case "widget": return b.id === "rij" ? <div key={i} id="kalkulator-zamiany-r-i-j"><RijCalc /></div> : null;
         }
       })}
     </div>

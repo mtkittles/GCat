@@ -35,7 +35,7 @@ const arcBlocks = (cw: boolean): Block[] => [
   { t: "p", x: "Gdy punkt początkowy i końcowy są tym samym punktem, promień nie wystarcza do opisania łuku — takich okręgów jest nieskończenie wiele. Dlatego **pełne koło da się zaprogramować wyłącznie w składni I/J/K**, pomijając współrzędne końcowe." },
   { t: "code", x: `G00 X30 Y10\nG01 Z-2 F120\n${cw ? "G02" : "G03"} I0 J20 F350     (pełny okrąg o promieniu 20 wokół punktu X30 Y30)\nG00 Z5`, caption: "Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś." },
   { t: "sim", src: "G21 G90 G17 G54\nS2200 M03\nG00 X30 Y10 Z5\nG01 Z-2 F120\n" + (cw ? "G02 I0 J20 F350" : "G03 I0 J20 F350") + "\nG00 Z5\nM30", caption: "Pełny okrąg wykonany jednym blokiem." },
-  { t: "h", x: "Kalkulator zamiany R ↔ I, J" },
+  { t: "h", x: "Kalkulator zamiany R ↔ I, J", id: "kalkulator-zamiany-r-i-j" },
   { t: "p", x: "Poniższe pola przeliczają obie postacie w dwie strony. Przydaje się przy poprawianiu programów z CAM-u i przy przepisywaniu wymiarów z rysunku." },
   { t: "widget", id: "rij" },
   { t: "h", x: "Wzory" },

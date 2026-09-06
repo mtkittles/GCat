@@ -22,6 +22,19 @@ function Formula({ children }: { children: React.ReactNode }) {
   return <p className="calc-formula">{children}</p>;
 }
 
+/** Gotowy fragment G-kodu z przyciskiem kopiowania. */
+function CodeOut({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <div className="codeout">
+      <pre className="syntax">{text}</pre>
+      <button onClick={() => { navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1600); }}>
+        {copied ? "Skopiowano" : "Kopiuj"}
+      </button>
+    </div>
+  );
+}
+
 export default function Calc() {
   const [tab, setTab] = useState<Tab>("mill");
   const [matId, setMatId] = useState("s235");
@@ -101,9 +114,9 @@ export default function Calc() {
       </div>
       {mat.note && <p className="note note-info max-w-prose">{mat.note}</p>}
 
-      <div className="filters">
+      <div className="segmented" role="tablist" aria-label="Rodzaj obróbki">
         {([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([k, l]) => (
-          <button key={k} aria-pressed={tab === k} onClick={() => setTab(k)}>{l}</button>
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
         ))}
       </div>
 
@@ -135,7 +148,7 @@ export default function Calc() {
             <Formula>Q = ap · ae · Vf / 1000 = {ap} · {ae} · {r0(vfMill)} / 1000 = <strong>{r2(qMill)} cm³/min</strong></Formula>
             <Formula>P = Q · kc / 60000 = {r2(qMill)} · {mat.kc} / 60000 = <strong>{r2(pMill)} kW</strong></Formula>
           </div>
-          <pre className="syntax">{`S${r0(nMill)} M03\nG01 X_ Y_ F${r0(vfMill)}`}</pre>
+          <CodeOut text={`S${r0(nMill)} M03\nG01 X_ Y_ F${r0(vfMill)}`} />
         </section>
       )}
 
@@ -160,7 +173,7 @@ export default function Calc() {
             <Formula>Rz ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża. Jeżeli wychodzi za wysoka, zmniejsz posuw albo weź płytkę o większym rε — zwiększanie obrotów nic tu nie da.</p>
-          <pre className="syntax">{`G50 S${Math.min(4000, r0(nTurn * 2))}\nG96 S${vcTurn} M03\nG95 F${fTurn}`}</pre>
+          <CodeOut text={`G50 S${Math.min(4000, r0(nTurn * 2))}\nG96 S${vcTurn} M03\nG95 F${fTurn}`} />
         </section>
       )}
 
@@ -181,7 +194,7 @@ export default function Calc() {
             <Formula>Vf = n · f = {r0(nDrill)} · {fDrill} = <strong>{r0(vfDrill)} mm/min</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Powyżej 3 × D użyj cyklu G83 z odprowadzeniem wióra. Zasada startowa dla posuwu: około 2% średnicy wiertła.</p>
-          <pre className="syntax">{`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`}</pre>
+          <CodeOut text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
         </section>
       )}
 
@@ -203,7 +216,7 @@ export default function Calc() {
             <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {th.name.slice(1)} − {th.pitch} = <strong>{th.drill} mm</strong></Formula>
           </div>
           <p className="note note-warn max-w-prose">Posuw gwintowania musi wynikać ze skoku. Wpisanie dowolnej wartości F kończy się złamaniem gwintownika w otworze.</p>
-          <pre className="syntax">{`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`}</pre>
+          <CodeOut text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
           <div className="overflow-x-auto"><table className="code-table">
             <thead><tr><th>Gwint</th><th>Skok</th><th>Otwór</th><th>⌀ zewn.</th></tr></thead>
             <tbody>{THREADS.map((t) => <tr key={t.name} style={t.name === thr ? { background: "var(--warn-bg)" } : undefined}><td className="font-mono font-bold">{t.name}</td><td>{t.pitch}</td><td>{t.drill}</td><td>{t.outer}</td></tr>)}</tbody>

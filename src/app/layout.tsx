@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { Wordmark } from "@/components/Logo";
-import ThemeToggle from "@/components/ThemeToggle";
-import SearchBox from "@/components/SearchBox";
+import AppHeader from "@/components/AppHeader";
+import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,15 +11,6 @@ export const metadata: Metadata = {
 };
 
 const themeInit = `(function(){try{var t=localStorage.getItem('theme');if(!t){t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t}catch(e){}})();`;
-
-const NAV = [
-  { href: "/nauka", label: "Nauka" },
-  { href: "/symulator", label: "Symulator" },
-  { href: "/kody", label: "Kody" },
-  { href: "/kalkulator", label: "Kalkulator" },
-  { href: "/zadania", label: "Zadania" },
-  { href: "/slownik", label: "Słownik" },
-];
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -37,21 +26,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: themeInit }} />
       </head>
       <body className="min-h-screen flex flex-col">
-        <header className="site-header">
-          <div className="wrap flex items-center gap-3 py-2">
-            <Link href="/" aria-label="GCat — strona główna"><Wordmark /></Link>
-            <nav className="flex gap-1 overflow-x-auto">
-              {NAV.map((n) => <Link key={n.href} href={n.href}>{n.label}</Link>)}
-            </nav>
-            <div className="ml-auto flex items-center gap-2"><SearchBox /><ThemeToggle /></div>
-          </div>
-        </header>
+        <AppHeader />
 
         <main className="wrap flex-1 py-7 w-full">{children}</main>
 
         <footer className="site-footer">
           <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <Wordmark size={24} />
+            <BrandLogo height={24} />
             <span className="footer-tag">Zrozum. Programuj. Obrabiaj.</span>
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
           </div>

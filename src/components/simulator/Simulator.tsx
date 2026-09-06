@@ -307,7 +307,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   };
 
   return (
-    <div className={`grid gap-3 ${compact ? "" : "lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"} ${dragOver ? "is-dragover" : ""}`}
+    <div className={`${compact ? "grid gap-3" : "workbench"} ${dragOver ? "is-dragover" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
