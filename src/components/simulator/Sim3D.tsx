@@ -434,12 +434,50 @@ function carve(h: Float32Array, m: MillMeta, program: ReturnType<typeof parsePro
 function meshFromHeightmap(h: Float32Array, m: MillMeta) {
   const pos: number[] = []; const idx: number[] = [];
   const V = (x: number, y: number, z: number) => { pos.push(x, z, -y); return pos.length / 3 - 1; };
-  for (let j = 0; j <= m.ny; j++) for (let i = 0; i <= m.nx; i++) V(m.minX + i * m.cx, m.minY + j * m.cy, h[j * (m.nx + 1) + i]);
-  for (let j = 0; j < m.ny; j++) for (let i = 0; i < m.nx; i++) { const a = j * (m.nx + 1) + i, b = a + 1, c = a + m.nx + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
-  const wall = (x0: number, y0: number, x1: number, y1: number) => { const a = V(x0, y0, m.top), b = V(x1, y1, m.top), c = V(x0, y0, m.bottom), d = V(x1, y1, m.bottom); idx.push(a, b, c, b, d, c); };
-  wall(m.minX, m.minY, m.maxX, m.minY); wall(m.maxX, m.minY, m.maxX, m.maxY); wall(m.maxX, m.maxY, m.minX, m.maxY); wall(m.minX, m.maxY, m.minX, m.minY);
-  const b0 = V(m.minX, m.minY, m.bottom), b1 = V(m.maxX, m.minY, m.bottom), b2 = V(m.maxX, m.maxY, m.bottom), b3 = V(m.minX, m.maxY, m.bottom);
+  const H = (i: number, j: number) => h[j * (m.nx + 1) + i];
+  const gx = (i: number) => m.minX + i * m.cx;
+  const gy = (j: number) => m.minY + j * m.cy;
+
+  // powierzchnia górna z mapy wysokości
+  for (let j = 0; j <= m.ny; j++) for (let i = 0; i <= m.nx; i++) V(gx(i), gy(j), H(i, j));
+  for (let j = 0; j < m.ny; j++) for (let i = 0; i < m.nx; i++) {
+    const a = j * (m.nx + 1) + i, b = a + 1, c = a + m.nx + 1, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+
+  // Ściany boczne budowane z rzeczywistych wysokości brzegowych — dzięki temu
+  // materiał zebrany przy krawędzi znika także ze ściany, bez pozostawiania rantu.
+  const wallStrip = (pts: { x: number; y: number; z: number }[]) => {
+    for (let k = 0; k < pts.length - 1; k++) {
+      const p = pts[k], q = pts[k + 1];
+      const a = V(p.x, p.y, p.z), b = V(q.x, q.y, q.z);
+      const c = V(p.x, p.y, m.bottom), d = V(q.x, q.y, m.bottom);
+      idx.push(a, b, c, b, d, c);
+    }
+  };
+
+  const south: { x: number; y: number; z: number }[] = [];
+  const north: { x: number; y: number; z: number }[] = [];
+  for (let i = 0; i <= m.nx; i++) {
+    south.push({ x: gx(i), y: gy(0), z: H(i, 0) });
+    north.push({ x: gx(i), y: gy(m.ny), z: H(i, m.ny) });
+  }
+  const west: { x: number; y: number; z: number }[] = [];
+  const east: { x: number; y: number; z: number }[] = [];
+  for (let j = 0; j <= m.ny; j++) {
+    west.push({ x: gx(0), y: gy(j), z: H(0, j) });
+    east.push({ x: gx(m.nx), y: gy(j), z: H(m.nx, j) });
+  }
+  wallStrip(south);
+  wallStrip([...north].reverse());
+  wallStrip([...west].reverse());
+  wallStrip(east);
+
+  // dno
+  const b0 = V(m.minX, m.minY, m.bottom), b1 = V(m.maxX, m.minY, m.bottom);
+  const b2 = V(m.maxX, m.maxY, m.bottom), b3 = V(m.minX, m.maxY, m.bottom);
   idx.push(b0, b1, b2, b0, b2, b3);
+
   const g = new THREE.BufferGeometry();
   g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
   g.setIndex(idx); g.computeVertexNormals();
