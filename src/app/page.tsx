@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
@@ -28,6 +29,13 @@ const I = {
   check: "M4 12l5 5L20 6",
 };
 
+const HERO_BULLETS: { i: string; a: string; b: string }[] = [
+  { i: I.play, a: "Symulator", b: "CNC" },
+  { i: I.calc, a: "Kalkulatory", b: "technologiczne" },
+  { i: I.check, a: "Praktyczne", b: "zadania" },
+  { i: I.book, a: "Wiedza", b: "w jednym miejscu" },
+];
+
 const PILLARS = [
   { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwanaście lekcji od pierwszego bloku do programu wielonarzędziowego.", m: "12 lekcji" },
   { href: "/symulator", ico: I.play, t: "Symulator", d: "Tor 2D i 3D, cykle stałe, kompensacja, kontrola kolizji.", m: "2D · 3D" },
@@ -41,35 +49,49 @@ export default function Home() {
   return (
     <div className="grid gap-14">
       <section className="hero">
-        <div className="grid gap-7 lg:grid-cols-[1.05fr_1fr] lg:items-center">
-          <div className="grid gap-5">
-            <span className="eyebrow">G-code · CNC · praktyka</span>
-            <h1>Naucz się czytać i pisać G-kod.</h1>
-            <p className="text-lg max-w-prose">
-              Po polsku, z symulatorem toru narzędzia. Lekcje, karty funkcji ze składnią Fanuc i Sinumerik,
-              walidator programu i kalkulatory parametrów skrawania — w jednym miejscu.
-            </p>
+        <Image src="/img/hero-cnc.jpg" alt="Frez w trakcie obróbki bloku stalowego z wygrawerowanym znakiem GCat"
+          fill priority sizes="100vw" className="hero-photo" />
+        <div className="hero-scrim" />
+        <div className="hero-inner">
+          <div className="grid gap-5 max-w-2xl">
+            <span className="hero-kicker">
+              <span className="on">G-code</span><i>/</i>CNC<i>/</i>Praktyka
+            </span>
+            <h1>Naucz się czytać<br />i pisać G-kod.</h1>
+            <p className="text-lg">Po polsku, z symulatorem toru narzędzia.</p>
             <div className="hero-actions">
               <Link className="btn" href="/nauka">Rozpocznij naukę</Link>
-              <Link className="btn ghost" href="/symulator">Otwórz symulator</Link>
+              <Link className="btn ghost" href="/kody">Przeglądaj kody</Link>
             </div>
-            <span className="hero-tagline">Zrozum. Programuj. Obrabiaj.</span>
           </div>
 
-          <div className="grid gap-3">
-            <div className="hero-visual"><TechGrid /></div>
-            <div className="codecard">
-              <div className="codecard-head"><span className="codecard-dot" />Symulator G-code</div>
-              <pre>
+          <ul className="hero-bullets">
+            {HERO_BULLETS.map((b) => (
+              <li key={b.a}>
+                <span className="hero-bullet-ico">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={b.i} /></svg>
+                </span>
+                <span>{b.a}<br />{b.b}</span>
+              </li>
+            ))}
+          </ul>
+
+          <span className="hero-corner">From<br />G-code<br />to parts</span>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+        <div className="hero-visual-light"><TechGrid /></div>
+        <div className="codecard">
+          <div className="codecard-head"><span className="codecard-dot" />Symulator G-code</div>
+          <pre>
 {`  `}<span className="ln">1</span><span className="g">G21 G90 G17 G54</span>{`\n`}
 {`  `}<span className="ln">2</span><span className="fs">S1500</span> <span className="m">M03</span>{`\n`}
 <span className="active">{`  `}<span className="ln">3</span><span className="g">G01</span> <span className="ax">X50 Y0</span> <span className="fs">F250</span>{`\n`}</span>
 {`  `}<span className="ln">4</span><span className="g">G02</span> <span className="ax">X70 Y20 I0 J20</span>{`\n`}
 {`  `}<span className="ln">5</span><span className="g">G03</span> <span className="ax">X50 Y60 R20</span>{`\n`}
 {`  `}<span className="ln">6</span><span className="m">M30</span>
-              </pre>
-            </div>
-          </div>
+          </pre>
         </div>
       </section>
 

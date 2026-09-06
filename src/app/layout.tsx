@@ -6,7 +6,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "GCat — zrozum, programuj, obrabiaj",
   description: "Nauka G-kodu po polsku: lekcje, karty funkcji G i M, symulator 2D/3D toru narzędzia, walidator, kalkulator parametrów skrawania.",
-  icons: { icon: [{ url: "/icon.svg", type: "image/svg+xml" }] },
+  icons: { icon: [{ url: "/icon-192.png", type: "image/png" }] },
   openGraph: { title: "GCat — nauka G-kodu po polsku", description: "Zrozum. Programuj. Obrabiaj. Lekcje, symulator 2D/3D, walidator, kalkulator.", siteName: "GCat" },
 };
 
@@ -32,7 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <footer className="site-footer">
           <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <BrandLogo height={24} />
+            <BrandLogo height={26} variant="lockup" />
             <span className="footer-tag">Zrozum. Programuj. Obrabiaj.</span>
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
           </div>
