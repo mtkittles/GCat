@@ -20,7 +20,7 @@
         "desc": "Współrzędne punktu docelowego"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z10\nG00 X50 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
+    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z10\nG00 X80 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
     "sinumerik": "Identycznie: G0. Sinumerik ma dodatkowo RTLION/RTLIOF — dojazd po linii prostej lub niezależnie osiami.",
     "pitfalls": [
       "Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na głębokość G01.",

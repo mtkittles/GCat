@@ -380,7 +380,7 @@ function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setu
   if (st.auto) {
     let aX = Infinity, bX = -Infinity, aY = Infinity, bY = -Infinity, mz = 0;
     for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(sg, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
-    const m = 4 + maxD;
+    const m = Math.min(6, 2 + maxD * 0.25);
     minX = aX - m; maxX = bX + m; minY = aY - m; maxY = bY + m; top = 0; bottom = Math.min(mz - 5, -5);
   } else {
     minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;

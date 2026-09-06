@@ -3,7 +3,7 @@ import { useState } from "react";
 import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Simulator";
 
 const EXAMPLES: Record<string, { mode: SimMode; src: string; stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number } }> = {
-  "Kontur z łukami (frez)": { mode: "mill", src: `G21 G90 G17 G54\nS1500 M03\nG00 X-10 Y-10 Z5\nG01 Z-2 F100\nG01 X0 Y0 F250\nG01 X50\nG02 X70 Y20 I0 J20\nG01 Y40\nG03 X50 Y60 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30` },
+  "Kontur z łukami (frez)": { mode: "mill", src: `G21 G90 G17 G54\nS1500 M03\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X50 F250\nG02 X70 Y20 I0 J20\nG01 Y40\nG03 X50 Y60 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30` },
 
   "Korpus — pełna obróbka 4 narzędziami": { mode: "mill", stock: { x: 120, y: 80, z: 25, ox: 0, oy: 0, oz: 25 }, src: `O0600 (KORPUS 120x80x25)
 (POLFABRYKAT 120 x 80 x 25, ZERO: LEWY DOLNY NAROZNIK, Z NA GORZE)
@@ -116,11 +116,10 @@ T01 M06
 G43 H01 Z50
 S2200 M03
 M08
-G00 X-8 Y-8
+G00 X0 Y0
 G00 Z2
 G01 Z-4 F120
-G01 X0 Y0 F450
-G01 X80
+G01 X80 F450
 G01 Y50
 G01 X0
 G01 Y-8

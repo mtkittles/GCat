@@ -42,7 +42,7 @@
         "p": "Sześć niezależnych rejestrów przesunięć. Dwa zamocowania na stole = G54 i G55, ten sam program wywołany dwa razy."
       }
     ],
-    "example": "G21 G90 G17\nG54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nM30",
+    "example": "G21 G90 G17\nG54\nG00 X20 Y20 Z5\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nG55\nG00 X20 Y20\nG01 Z-1 F100\nG01 X20 Y20 F250\nG00 Z5\nM30",
     "task": "Ten sam kwadratowy ruch wykonany w G54 i G55. Symulator nie zna przesunięć rejestrów, więc rysuje w tym samym miejscu — na maszynie wyjdą dwa różne miejsca na stole."
   },
   {
@@ -65,7 +65,7 @@
         "p": "G00 rusza osiami niezależnie z maksymalną prędkością — tor nie jest prostą, a siły przekraczają wszystko, na co narzędzie jest policzone."
       }
     ],
-    "example": "G21 G90 G17 G54\nS2000 M03\nG00 X-5 Y-5 Z10\nG00 Z2\nG01 Z-3 F80\nG01 X0 Y0 F300\nG01 X60\nG01 Y40\nG01 X0\nG01 Y-5\nG00 Z10\nM30",
+    "example": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z10\nG00 Z2\nG01 Z-3 F80\nG01 X60 F300\nG01 Y40\nG01 X0\nG01 Y-5\nG00 Z10\nM30",
     "task": "Zadanie: zmień program tak, żeby wyfrezować prostokąt 80×30 zaczynając od X0 Y0. Sprawdź w podglądzie, czy kontur się zamyka."
   },
   {
@@ -222,7 +222,7 @@
         "p": "Najpierw operacje zdejmujące najwięcej materiału, na końcu wykańczające i te wymagające dokładności. Nawiercanie przed wierceniem, wiercenie przed gwintowaniem, kontur zgrubny przed wykańczającym."
       }
     ],
-    "example": "O0200 (PLYTKA)\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-8 Y-8\nG00 Z2\nG01 Z-4 F120\nG01 X0 Y0 F450\nG01 X80\nG01 Y50\nG01 X0\nG01 Y-8\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1200 M03\nM08\nG99 G83 X15 Y15 Z-24 R2 Q6 F110\nX65\nY35\nX15\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "example": "O0200 (PLYTKA)\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X0 Y0\nG00 Z2\nG01 Z-4 F120\nG01 X80 F450\nG01 Y50\nG01 X0\nG01 Y-8\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1200 M03\nM08\nG99 G83 X15 Y15 Z-24 R2 Q6 F110\nX65\nY35\nX15\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
     "task": "Otwórz panel narzędzi pod symulatorem i przypisz T01 frez ⌀12, a T02 wiertło ⌀8,5. Włącz widok 3D i prześledź całą operację od początku do końca."
   },
   {

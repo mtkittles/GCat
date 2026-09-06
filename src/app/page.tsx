@@ -5,10 +5,9 @@ import { exercises, lessons } from "@/lib/content";
 
 const DEMO = `G21 G90 G17 G54
 S1500 M03
-G00 X-10 Y-10 Z5
+G00 X0 Y0 Z5
 G01 Z-2 F100
-G01 X0 Y0 F250
-G01 X50
+G01 X50 F250
 G02 X70 Y20 I0 J20
 G01 Y40
 G03 X50 Y60 R20
