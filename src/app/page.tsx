@@ -105,6 +105,13 @@ export default function Home() {
       </section>
 
       <section className="grid gap-4">
+        <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
+          lead="Program po lewej, tor narzędzia po prawej — linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
+          action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
+        <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
+      </section>
+
+      <section className="grid gap-4">
         <SectionHeader eyebrow="Co znajdziesz w GCat" title="Pięć narzędzi, jedna ścieżka" lead="Teoria, referencja i praktyka połączone tak, żeby każdy kod dało się od razu uruchomić i zobaczyć." />
         <div className="pillars reveal reveal-1">
           {PILLARS.map((p) => (
@@ -118,13 +125,6 @@ export default function Home() {
             </Link>
           ))}
         </div>
-      </section>
-
-      <section className="grid gap-4">
-        <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
-          lead="Program po lewej, tor narzędzia po prawej — linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
-          action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
-        <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
 
       <section className="grid gap-4">

@@ -10,8 +10,21 @@ import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./set
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[] }
 
 const CELL_TARGET = 0.35;   // docelowy rozmiar komórki mapy wysokości [mm]
-const GRID_MIN = 120;
-const GRID_MAX = 420; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
+const GRID_MIN = 100;
+
+/**
+ * Górny limit rozdzielczości mapy wysokości. Siatka 420 × 420 to ponad 170 tys.
+ * punktów i model o milionie wierzchołków — na telefonie kończy się to
+ * wyczerpaniem pamięci i zabiciem karty przez przeglądarkę.
+ */
+function gridMax() {
+  if (typeof window === "undefined") return 260;
+  const narrow = window.innerWidth < 900;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  if (narrow || mem <= 4) return 190;
+  if (mem <= 6) return 280;
+  return 380;
+} // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
 export default function Sim3D({ source, mode, progress, setup, segments: segs }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -107,9 +120,23 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
       raf = requestAnimationFrame(loop);
     };
     loop();
-    const onResize = () => { const w = el.clientWidth, h = el.clientHeight; renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix(); };
+    const onResize = () => {
+      const w = el.clientWidth, h = el.clientHeight;
+      if (w < 8 || h < 8) return;
+      renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+    };
     window.addEventListener("resize", onResize);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", onResize); renderer.dispose(); el.innerHTML = ""; sceneRef.current = null; };
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
+    ro?.observe(el);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onResize);
+      ro?.disconnect();
+      scene.traverse((o) => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); });
+      renderer.dispose();
+      el.innerHTML = "";
+      sceneRef.current = null;
+    };
   }, [program, mode, toolD, tool]);
 
   // ubytek materiału + pozycja narzędzia
@@ -124,7 +151,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
     st.tool.position.copy(toW(pos, mode));
 
     // geometria półfabrykatu
-    if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); }
+    if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); st.stock = null; }
     let geo: THREE.BufferGeometry | null;
     if (mode === "mill") {
       if (!cut.length) geo = null;
@@ -396,8 +423,9 @@ function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setu
     top = st.z - st.oz; bottom = -st.oz;
   }
   const spanX = Math.max(1e-6, maxX - minX), spanY = Math.max(1e-6, maxY - minY);
-  const nx = Math.max(GRID_MIN, Math.min(GRID_MAX, Math.round(spanX / CELL_TARGET)));
-  const ny = Math.max(40, Math.min(GRID_MAX, Math.round(nx * spanY / spanX)));
+  const cap = gridMax();
+  const nx = Math.max(GRID_MIN, Math.min(cap, Math.round(spanX / CELL_TARGET)));
+  const ny = Math.max(40, Math.min(cap, Math.round(nx * spanY / spanX)));
   return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
 }
 
@@ -551,7 +579,7 @@ function latheGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[],
   const st = setup.stock;
   const R0 = st.auto ? maxR + 2 : st.d / 2;
   const z0 = st.auto ? minZ - 8 : -st.len; const z1 = Math.max(maxZ, 0);
-  const n = 260; const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
+  const n = Math.min(260, gridMax()); const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
   for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
     const steps = Math.max(2, Math.ceil((segmentLength(seg) * t) / (dz * 0.5)));
     for (let i = 0; i <= steps; i++) { const p = pointAt(seg, (i / steps) * t); const k = Math.round((p.z - z0) / dz); if (k >= 0 && k <= n && p.x < prof[k]) prof[k] = Math.max(0.2, p.x); }

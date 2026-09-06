@@ -147,12 +147,27 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
   const activeTool = toolOf(setup, activeToolNo, mode);
 
+  // Przerysowanie po zmianie rozmiaru kontenera — inaczej po obrocie telefonu
+  // kanwa zostaje w starej rozdzielczości i rysunek jest rozmyty.
+  const [resizeTick, setResizeTick] = useState(0);
+  useEffect(() => {
+    const cv = canvasRef.current; if (!cv || typeof ResizeObserver === "undefined") return;
+    let raf = 0;
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => setResizeTick((t) => t + 1));
+    });
+    ro.observe(cv);
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
   // rysowanie
   useEffect(() => {
     const cv = canvasRef.current; if (!cv) return;
     const ctx = cv.getContext("2d"); if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
+    if (W < 8 || H < 8) return;   // kontener jeszcze bez wymiarów
     cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
@@ -303,7 +318,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -328,12 +343,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     return (
       <div className="showcase">
         <div className="showcase-view">
-          <canvas ref={canvasRef} className="sim-canvas" style={{ height: "100%" }} />
-          <div className="showcase-legend">
-            <span><i style={{ background: "var(--amber)" }} />G00 · szybki przejazd</span>
-            <span><i style={{ background: "var(--green)" }} />G01 · ruch roboczy</span>
-            <span><i style={{ background: "var(--blue)" }} />G02 / G03 · łuk</span>
-          </div>
+          <canvas ref={canvasRef} className="sim-canvas showcase-canvas" />
+          <ul className="showcase-legend">
+            <li><i style={{ background: "var(--amber)" }} />G00 · szybki przejazd</li>
+            <li><i style={{ background: "var(--green)" }} />G01 · ruch roboczy</li>
+            <li><i style={{ background: "var(--blue)" }} />G02 / G03 · łuk</li>
+          </ul>
         </div>
         <div className="showcase-code">
           <div className="codecard-head"><span className="codecard-dot" />Symulacja programu</div>
@@ -450,8 +465,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <>
             <div className="filters">
               <button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button>
-              <button aria-pressed={full} onClick={() => setFull((v) => !v)} title="Powiększ obszar podglądu">
-                {full ? "Zwykły widok" : "Pełny ekran"}
+              <button className="only-wide" aria-pressed={full} onClick={() => setFull((v) => !v)} title="Podgląd na dwie trzecie szerokości, konsola programu obok">
+                {full ? "Zwykły układ" : "Szeroki podgląd"}
               </button>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
               {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
