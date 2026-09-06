@@ -62,9 +62,11 @@ const activeDeco = Decoration.line({ class: "cm-sim-active" });
 const errorDeco = Decoration.line({ class: "cm-sim-error" });
 const warnDeco = Decoration.line({ class: "cm-sim-warn" });
 
-interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; }
+export interface EditorHandle { insert: (text: string) => void }
 
-export default function GcodeEditor({ value, onChange, activeLine, errorLines = [], warnLines = [] }: Props) {
+interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void }
+
+export default function GcodeEditor({ value, onChange, activeLine, errorLines = [], warnLines = [], onReady }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const marks = useRef({ activeLine, errorLines, warnLines });
@@ -101,6 +103,14 @@ export default function GcodeEditor({ value, onChange, activeLine, errorLines = 
       }),
     });
     viewRef.current = view;
+    onReady?.({
+      insert: (text: string) => {
+        const v = viewRef.current; if (!v) return;
+        const sel = v.state.selection.main;
+        v.dispatch({ changes: { from: sel.from, to: sel.to, insert: text }, selection: { anchor: sel.from + text.length } });
+        v.focus();
+      },
+    });
     return () => { view.destroy(); viewRef.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

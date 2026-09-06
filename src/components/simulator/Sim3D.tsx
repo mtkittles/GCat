@@ -9,7 +9,9 @@ import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./set
 
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[] }
 
-const GRID = 220; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
+const CELL_TARGET = 0.35;   // docelowy rozmiar komórki mapy wysokości [mm]
+const GRID_MIN = 120;
+const GRID_MAX = 420; // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
 export default function Sim3D({ source, mode, progress, setup, segments: segs }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
   // cały program przy każdej klatce.
   const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
-  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
+  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; threads: THREE.Group | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
     if (!webglAvailable()) { queueMicrotask(() => setFailed("no-webgl")); return; }
@@ -91,7 +93,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
     scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
-    const st = { scene, stock: null as THREE.Mesh | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
+    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar
@@ -143,6 +145,13 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
       }
     } else {
       geo = latheGeometry(program, cut, lengths, progress, setup);
+    }
+
+    // zarys gwintu w otworach obrobionych gwintownikiem lub frezem do gwintów
+    if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; }
+    if (mode === "mill") {
+      const tg = threadVisuals(program, lengths, progress, setup, mode);
+      if (tg) { st.threads = tg; st.scene.add(tg); }
     }
     if (geo) {
       st.stock = new THREE.Mesh(geo, st.stockMat);
@@ -386,8 +395,9 @@ function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setu
     minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;
     top = st.z - st.oz; bottom = -st.oz;
   }
-  const nx = GRID;
-  const ny = Math.max(20, Math.round(GRID * (maxY - minY) / Math.max(1e-6, maxX - minX)));
+  const spanX = Math.max(1e-6, maxX - minX), spanY = Math.max(1e-6, maxY - minY);
+  const nx = Math.max(GRID_MIN, Math.min(GRID_MAX, Math.round(spanX / CELL_TARGET)));
+  const ny = Math.max(40, Math.min(GRID_MAX, Math.round(nx * spanY / spanX)));
   return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
 }
 
@@ -429,6 +439,56 @@ function carve(h: Float32Array, m: MillMeta, program: ReturnType<typeof parsePro
       }
     }
   });
+}
+
+function disposeTree(o: THREE.Object3D) {
+  o.traverse((c) => {
+    const m = c as THREE.Mesh;
+    if (m.geometry) m.geometry.dispose();
+  });
+}
+
+/**
+ * Gwint jest powierzchnią z podcięciem, więc mapa wysokości go nie odwzoruje.
+ * Dokładamy więc osobną geometrię: spiralę o zarysie gwintu w miejscu każdego
+ * otworu obrobionego gwintownikiem albo frezem do gwintów.
+ */
+function threadVisuals(program: ReturnType<typeof parseProgram>, lengths: number[], progress: number, setup: Setup, mode: SimMode) {
+  const holes: { x: number; y: number; top: number; bottom: number; pitch: number; r: number }[] = [];
+  let acc = 0;
+  program.segments.forEach((sg, i) => {
+    const len = lengths[i];
+    const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
+    acc += len;
+    if (done <= 0 || sg.kind === "rapid") return;
+    const t = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
+    if (t.kind !== "tap" && t.kind !== "threadmill") return;
+    const p = pointAt(sg, done);
+    if (p.z >= 0) return;
+    const key = holes.find((h) => Math.abs(h.x - p.x) < 0.6 && Math.abs(h.y - p.y) < 0.6);
+    const pitch = Math.max(0.3, safe(t.flutes, 1.5, 0.2, 12));
+    if (key) key.bottom = Math.min(key.bottom, p.z);
+    else holes.push({ x: p.x, y: p.y, top: 0, bottom: p.z, pitch, r: Math.max(0.4, t.d / 2) });
+  });
+  if (!holes.length) return null;
+
+  const group = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.45, roughness: 0.5, side: THREE.DoubleSide });
+  for (const h of holes) {
+    const depth = Math.max(0.5, h.top - h.bottom);
+    const turns = Math.max(1, Math.min(40, Math.floor(depth / h.pitch)));
+    const pts: THREE.Vector3[] = [];
+    const perTurn = 20;
+    for (let i = 0; i <= turns * perTurn; i++) {
+      const t = i / perTurn;
+      const ang = t * Math.PI * 2;
+      pts.push(new THREE.Vector3(h.x + h.r * Math.cos(ang), -t * h.pitch, -(h.y + h.r * Math.sin(ang))));
+    }
+    if (pts.length < 2) continue;
+    const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.min(600, turns * perTurn), h.pitch * 0.28, 5, false);
+    group.add(new THREE.Mesh(tube, mat));
+  }
+  return group;
 }
 
 function meshFromHeightmap(h: Float32Array, m: MillMeta) {
@@ -491,7 +551,7 @@ function latheGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[],
   const st = setup.stock;
   const R0 = st.auto ? maxR + 2 : st.d / 2;
   const z0 = st.auto ? minZ - 8 : -st.len; const z1 = Math.max(maxZ, 0);
-  const n = GRID; const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
+  const n = 260; const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
   for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
     const steps = Math.max(2, Math.ceil((segmentLength(seg) * t) / (dz * 0.5)));
     for (let i = 0; i <= steps; i++) { const p = pointAt(seg, (i / steps) * t); const k = Math.round((p.z - z0) / dz); if (k >= 0 && k <= n && p.x < prof[k]) prof[k] = Math.max(0.2, p.x); }

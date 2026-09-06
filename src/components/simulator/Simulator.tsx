@@ -19,6 +19,7 @@ export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
+const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 360 }} /> });
 
 interface Props {
@@ -50,6 +51,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const editorRef = useRef<{ insert: (t: string) => void } | null>(null);
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
   const [setup, setSetup] = useState<Setup>(() => { const d = defaultSetup(mode); return stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d; });
@@ -311,7 +313,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       onDrop={onDrop}>
       {!compact && (
         <div className="flex flex-col gap-2 min-h-0">
-          {editable ? <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines} /> : null}
+          {editable ? (
+            <>
+              <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
+                onReady={(h) => { editorRef.current = h; }} />
+              <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
+            </>
+          ) : null}
           {editable && (
             <div className="file-bar">
               <label className="file-btn">

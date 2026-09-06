@@ -264,3 +264,60 @@ a { text-underline-offset: 3px; }
 .tool-tilt > summary { color: var(--muted); cursor: pointer; padding: .15rem 0; }
 
 .comp-note { font-size: 12px; color: var(--muted); }
+
+/* klawiatura G-kodu */
+.pad { display: grid; gap: .4rem; }
+.pad-toggle { justify-self: start; padding: .35rem .75rem; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-size: 13px; font-weight: 600; }
+.pad-body { border: 1px solid var(--line); border-radius: 8px; background: var(--card); padding: .5rem; display: grid; gap: .5rem; }
+.pad-tabs { display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none; }
+.pad-tabs::-webkit-scrollbar { display: none; }
+.pad-tabs button { flex: none; padding: .25rem .6rem; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); font-size: 12px; }
+.pad-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.pad-keys { display: grid; grid-template-columns: repeat(auto-fill, minmax(3.4rem, 1fr)); gap: .35rem; }
+.pad-keys button { padding: .55rem .2rem; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+.pad-keys button:active { background: var(--warn-bg); border-color: var(--amber); }
+.pad-snippets { display: flex; flex-wrap: wrap; gap: .3rem; }
+.pad-snippets button { padding: .3rem .6rem; border: 1px dashed var(--line); border-radius: 6px; background: var(--bg); font-size: 12px; }
+
+/* --- dopracowanie wyglądu i obsługi na telefonie --- */
+* { -webkit-tap-highlight-color: transparent; }
+button, a, select, summary { transition: background-color .14s ease, border-color .14s ease, color .14s ease, transform .08s ease; }
+button:active { transform: scale(.98); }
+@media (hover: hover) {
+  .btn:hover { filter: brightness(1.08); }
+  .sim-controls button:hover, .filters button:hover, .pad-keys button:hover { border-color: var(--ink); }
+}
+
+/* wygodniejsze cele dotykowe */
+@media (max-width: 640px) {
+  .sim-controls button, .filters button { min-height: 40px; padding-inline: .8rem; }
+  .sim-controls { gap: .5rem; }
+  .setup-field input[type="number"], .calc-field input, .calc-field select { min-height: 38px; font-size: 16px; }
+  .code-table td, .code-table th { padding: .6rem .35rem; }
+  .article h2 { margin-top: 1.1rem; }
+  .wrap { padding-inline: .85rem; }
+}
+
+/* czytelniejsza typografia treści */
+.article p, .article li { font-size: 15.5px; }
+.article h2 { line-height: 1.25; }
+.toc a:hover { color: var(--amber); }
+
+/* karty i tabele */
+.code-table tbody tr { transition: background-color .12s ease; }
+@media (hover: hover) { .code-table tbody tr:hover { background: var(--card); } }
+.btn, .filters button, .sim-controls button, .pad-keys button { -webkit-user-select: none; user-select: none; }
+
+/* suwaki wygodniejsze pod palec */
+input[type="range"] { height: 26px; accent-color: var(--amber); }
+.sim-controls .sim-scrub { height: 30px; }
+
+/* płynne przewijanie do kotwic w artykułach */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* nagłówek przyklejony na telefonie — nawigacja zawsze pod ręką */
+.site-header { position: sticky; top: 0; z-index: 40; background: var(--bg); }
+
+/* stopka i odstępy */
+.article > * + * { margin-top: 0 }
