@@ -394,6 +394,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <div className="filters">
               <button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
+              {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
+                <span className="comp-note">G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu</span>
+              )}
             </div>
             {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary>}
           </>

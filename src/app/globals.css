@@ -262,3 +262,5 @@ a { text-underline-offset: 3px; }
 
 .tool-tilt { font-size: 12px; }
 .tool-tilt > summary { color: var(--muted); cursor: pointer; padding: .15rem 0; }
+
+.comp-note { font-size: 12px; color: var(--muted); }
