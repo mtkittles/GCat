@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
-import { TOOL_LABEL, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
+import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
 import {
   parseProgram,
   pointAt,
@@ -236,7 +236,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // narzędzie
     const [tx, ty] = P(currentPos);
     ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
-    const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, (activeTool.d / 2) * scale) : 6;
+    const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, cuttingRadius(activeTool) * scale) : 6;
     ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
@@ -266,7 +266,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         mode === "mill"
           ? `X ${fmt(currentPos.x)}  Y ${fmt(currentPos.y)}  Z ${fmt(currentPos.z)}`
           : `X ${fmt(currentPos.x * 2)}⌀  Z ${fmt(currentPos.z)}`,
-        `T${String(activeToolNo ?? 0).padStart(2, "0")}  ${TOOL_LABEL[activeTool.kind]}${activeTool.kind === "endmill" || activeTool.kind === "ballnose" || activeTool.kind === "drill" ? ` ⌀${activeTool.d}` : ""}`,
+        `T${String(activeToolNo ?? 0).padStart(2, "0")}  ${TOOL_LABEL[activeTool.kind]}${isLatheTool(activeTool.kind) ? ` rε${activeTool.d}` : ` ⌀${activeTool.d}`}${activeTool.tiltA || activeTool.tiltB ? `  A${activeTool.tiltA}° B${activeTool.tiltB}°` : ""}`,
         L ? `linia ${L.index + 1}: ${(L.raw.trim() || "—").slice(0, 34)}` : "koniec programu",
       ];
       ctx.save();
@@ -382,7 +382,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
             <span>{st.coolant ? "M08" : "M09"}</span>
             <span>czas {formatTime(program.seconds)}</span>
-            <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {activeTool.kind === "endmill" || activeTool.kind === "ballnose" || activeTool.kind === "drill" ? `⌀${activeTool.d}` : ""}</span>
+            <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</span>
           </div>
         )}
         {!compact && allow3d && (

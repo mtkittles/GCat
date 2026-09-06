@@ -259,3 +259,6 @@ a { text-underline-offset: 3px; }
 
 .sim-3d-fallback { border: 1px solid var(--line); border-left: 4px solid var(--amber); border-radius: 0 6px 6px 0; background: var(--card); padding: .8rem 1rem; display: grid; gap: .3rem; max-width: 60ch; font-size: 14px; }
 .sim-3d-fallback p { color: var(--muted); line-height: 1.6; }
+
+.tool-tilt { font-size: 12px; }
+.tool-tilt > summary { color: var(--muted); cursor: pointer; padding: .15rem 0; }

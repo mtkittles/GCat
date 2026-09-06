@@ -42,9 +42,12 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
     if (ms.includes(30) || ms.includes(2)) sawM30 = true;
     if (gs.some((g) => g <= 3)) sawMotion = true;
 
+    let plungeFlagged = false;
     for (const sg of l.segments) {
-      if (sg.kind === "rapid" && l.state.plane === 17 && sg.to.z < sg.from.z && sg.to.z < 0)
+      if (!plungeFlagged && sg.kind === "rapid" && l.state.plane === 17 && sg.to.z < sg.from.z && sg.to.z < 0 && !l.state.cycle) {
         out.push({ line: l.index, level: "warn", msg: `G00 w dół do Z${fmt(sg.to.z)} — poniżej zera detalu. Zagłębiaj na G01.` });
+        plungeFlagged = true;
+      }
       if (sg.kind !== "rapid") {
         if (firstCutLine === null) firstCutLine = l.index;
         if (!sawSpindle) out.push({ line: l.index, level: "warn", msg: "Ruch roboczy przy wyłączonym wrzecionie (brak M03/M04)." });
@@ -61,13 +64,19 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
   // kontrola kolizji z półfabrykatem
   if (stock) {
     for (const l of program.lines) {
+      let flagged = false;
       for (const sg of l.segments) {
-        if (sg.kind !== "rapid") continue;
+        if (flagged || sg.kind !== "rapid") continue;
+        // Pionowe zjazdy i wycofania (także te generowane przez cykle) są normalne —
+        // groźny jest dopiero szybki przejazd BOKIEM poniżej powierzchni materiału.
+        const lateral = Math.hypot(sg.to.x - sg.from.x, sg.to.y - sg.from.y);
+        if (lateral < 0.01) continue;
         const n = 12;
         for (let i = 0; i <= n; i++) {
           const p: Vec3 = pointAt(sg, i / n);
-          if (p.z < stock.top - 1e-6 && inside(p, stock)) {
-            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd na Z${fmt(p.z)} przechodzi przez materiał (górna powierzchnia Z${fmt(stock.top)}). Zagłębiaj i przejeżdżaj w materiale na G01.` });
+          if (p.z < stock.top - 0.01 && inside(p, stock)) {
+            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd w poprzek materiału na Z${fmt(p.z)} (górna powierzchnia Z${fmt(stock.top)}). Podnieś narzędzie nad materiał albo przejedź na G01.` });
+            flagged = true;
             break;
           }
         }
@@ -89,7 +98,13 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
     if (seen.has(key)) continue;
     seen.add(key); res.push(i);
   }
-  return res.sort((a, b) => a.line - b.line);
+  const sorted = res.sort((a, b) => a.line - b.line);
+  if (sorted.length > 30) {
+    const head = sorted.slice(0, 30);
+    head.push({ line: sorted[30].line, level: "warn", msg: `…oraz ${sorted.length - 30} dalszych uwag. Popraw powyższe i sprawdź ponownie.` });
+    return head;
+  }
+  return sorted;
 }
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
 const inside = (p: Vec3, s: StockBox) => p.x > s.minX - 1e-6 && p.x < s.maxX + 1e-6 && p.y > s.minY - 1e-6 && p.y < s.maxY + 1e-6 && p.z > s.bottom - 1e-6;

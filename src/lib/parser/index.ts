@@ -279,6 +279,15 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
   }
   seconds += dwellMs / 1000;
 
+  // Pierwszy ruch programu to pozycjonowanie z nieznanego miejsca (baza maszyny).
+  // Rysowanie go jako odcinka z punktu (0,0,0) sugerowałoby przejazd przez detal.
+  const first = allSegments[0];
+  if (first && first.kind === "rapid" && Math.abs(first.from.x) < 1e-9 && Math.abs(first.from.y) < 1e-9 && Math.abs(first.from.z) < 1e-9) {
+    allSegments.shift();
+    const l = lines[first.line];
+    if (l) l.segments = l.segments.filter((sg) => sg !== first);
+  }
+
   const bounds = computeBounds(allSegments);
   return { lines, segments: allSegments, bounds, seconds };
 }

@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
 import type { SimMode } from "./Simulator";
-import { isLatheTool, toolOf, type Setup, type Tool } from "./setup";
+import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; }
 
@@ -22,7 +22,7 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
     return no;
   }, [program, lengths, progress]);
   const tool: Tool = toolOf(setup, activeToolNo, mode);
-  const toolD = isLatheTool(tool.kind) ? 6 : tool.d;
+  const toolD = cuttingRadius(tool) * 2;
 
   // scena
   const [failed, setFailed] = useState<null | "no-webgl" | "error">(null);
@@ -80,6 +80,10 @@ export default function Sim3D({ source, mode, progress, setup }: Props) {
       toolGeo.translate(0, toolLen / 2, 0);
     }
     const toolMesh = new THREE.Mesh(toolGeo, new THREE.MeshStandardMaterial({ color: 0xd6dae0, metalness: 0.65, roughness: 0.28 }));
+    if (mode === "mill") {
+      toolMesh.rotation.z = -(safe(tool.tiltB, 0, -90, 90) * Math.PI) / 180;
+      toolMesh.rotation.x = (safe(tool.tiltA, 0, -90, 90) * Math.PI) / 180;
+    }
     scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
@@ -181,76 +185,120 @@ function safe(v: number, fallback: number, min = 0.01, max = 1e4) {
   return Number.isFinite(v) && v >= min && v <= max ? v : fallback;
 }
 
-/** Bryły narzędzi zbliżone do rzeczywistych kształtów. */
-function buildToolGeometry(tool: Tool, toolD: number, toolLen: number, mode: SimMode): THREE.BufferGeometry {
-  const r = safe(toolD / 2, 3, 0.05, 100);
+/** Bryły narzędzi odwzorowujące rzeczywistą geometrię. */
+function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimMode): THREE.BufferGeometry {
+  const r = Math.max(0.15, safe(toolD, 10) / 2);
+  const cut = Math.max(2, safe(tool.len, 30, 1, 400));
+  const shankLen = 26;
   const k = tool.kind;
-  toolLen = safe(toolLen, 30, 1, 500);
 
-  if (k === "drill") {
-    const ang = (safe(tool.angle, 118, 30, 179) * Math.PI) / 180;
-    const tip = safe(r / Math.tan(ang / 2), r);
-    const cone = new THREE.ConeGeometry(r, tip, 24); cone.translate(0, tip / 2, 0);
-    let g: THREE.BufferGeometry = cone;
-    // trzon z rowkami wiórowymi zaznaczonymi wielobokiem
-    const body = new THREE.CylinderGeometry(r, r, toolLen * 0.55, 24); body.translate(0, tip + toolLen * 0.275, 0);
-    g = mergeGeo(g, body);
-    const shank = new THREE.CylinderGeometry(r * 0.95, r * 0.95, toolLen * 0.45, 16);
-    shank.translate(0, tip + toolLen * 0.55 + toolLen * 0.225, 0);
-    return mergeGeo(g, shank);
-  }
-
-  if (k === "tap") {
-    // gwintownik: rdzeń + spirala zwojów, żeby było widać że to gwint
-    const pitch = safe(tool.flutes, 1.25, 0.2, 10);
-    const core = new THREE.CylinderGeometry(r * 0.78, r * 0.78, toolLen, 18); core.translate(0, toolLen / 2, 0);
-    let g: THREE.BufferGeometry = core;
-    const turns = Math.max(2, Math.min(14, Math.floor((toolLen * 0.55) / pitch)));
-    const path: THREE.Vector3[] = [];
-    for (let i = 0; i <= turns * 16; i++) {
-      const t = i / 16;
-      path.push(new THREE.Vector3(Math.cos(t * Math.PI * 2) * r * 0.92, t * pitch, Math.sin(t * Math.PI * 2) * r * 0.92));
-    }
-    const thread = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), Math.min(220, turns * 10), r * 0.16, 5, false);
-    g = mergeGeo(g, thread);
-    // stożek wejściowy
-    const lead = new THREE.ConeGeometry(r * 0.78, r * 1.2, 18); lead.translate(0, r * 0.6, 0); lead.rotateX(Math.PI);
-    return mergeGeo(g, lead);
-  }
-
-  if (k === "ballnose") {
-    // pełna półkula o promieniu r + trzon
-    const ball = new THREE.SphereGeometry(r, 32, 20, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
-    ball.translate(0, r, 0);
-    const shaft = new THREE.CylinderGeometry(r, r, toolLen, 32); shaft.translate(0, r + toolLen / 2, 0);
-    return mergeGeo(ball, shaft);
-  }
-
-  if (k === "endmill") {
-    // frez walcowy z zaznaczonymi rowkami wiórowymi
-    const z = Math.round(safe(tool.flutes, 4, 1, 8));
-    const body = new THREE.CylinderGeometry(r, r, toolLen * 0.6, 6 * z, 1);
-    body.translate(0, toolLen * 0.3, 0);
-    let g: THREE.BufferGeometry = body;
-    for (let i = 0; i < z; i++) {
-      const a = (i / z) * Math.PI * 2;
+  const shank = (rr: number, from: number, len = shankLen) => {
+    const g = new THREE.CylinderGeometry(rr, rr, len, 20); g.translate(0, from + len / 2, 0); return g;
+  };
+  const helix = (g: THREE.BufferGeometry, rr: number, height: number, z: number, thick: number) => {
+    const n = Math.max(1, Math.min(8, Math.round(z)));
+    for (let i = 0; i < n; i++) {
+      const a0 = (i / n) * Math.PI * 2;
       const pts: THREE.Vector3[] = [];
-      for (let t = 0; t <= 1.0001; t += 0.05) {
-        const th = a + t * 1.6;
-        pts.push(new THREE.Vector3(Math.cos(th) * r, t * toolLen * 0.6, Math.sin(th) * r));
+      for (let t = 0; t <= 1.0001; t += 0.08) {
+        const th = a0 + t * 1.5;
+        pts.push(new THREE.Vector3(Math.cos(th) * rr, t * height, Math.sin(th) * rr));
       }
-      const flute = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 20, r * 0.1, 4, false);
-      g = mergeGeo(g, flute);
+      g = mergeGeo(g, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 18, thick, 4, false));
     }
-    const shank = new THREE.CylinderGeometry(r * 0.98, r * 0.98, toolLen * 0.5, 20);
-    shank.translate(0, toolLen * 0.6 + toolLen * 0.25, 0);
-    return mergeGeo(g, shank);
+    return g;
+  };
+
+  switch (k) {
+    case "ballnose": {
+      const ball = new THREE.SphereGeometry(r, 28, 18, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2);
+      ball.translate(0, r, 0);
+      let g: THREE.BufferGeometry = mergeGeo(ball, shank(r, r, cut - r));
+      g = helix(g, r, cut, tool.flutes, r * 0.09);
+      return mergeGeo(g, shank(r * 0.98, cut));
+    }
+    case "bullnose": {
+      const cr = Math.min(r * 0.95, Math.max(0.05, safe(tool.corner, 1, 0.01, 50)));
+      // torus naroża + walec wewnętrzny + płaszcz
+      const torus = new THREE.TorusGeometry(r - cr, cr, 12, 28, Math.PI * 2);
+      torus.rotateX(Math.PI / 2); torus.translate(0, cr, 0);
+      const inner = new THREE.CylinderGeometry(r - cr, r - cr, cr, 24); inner.translate(0, cr / 2, 0);
+      let g: THREE.BufferGeometry = mergeGeo(torus, inner);
+      g = mergeGeo(g, shank(r, cr, cut - cr));
+      g = helix(g, r, cut, tool.flutes, r * 0.08);
+      return mergeGeo(g, shank(r * 0.98, cut));
+    }
+    case "chamfer": {
+      const ang = safe(tool.angle, 90, 10, 179) * Math.PI / 180;
+      const tipR = r * 0.15;
+      const h = (r - tipR) / Math.tan(ang / 2);
+      const cone = new THREE.CylinderGeometry(r, tipR, h, 24); cone.translate(0, h / 2, 0);
+      return mergeGeo(cone, shank(r, h));
+    }
+    case "vbit": {
+      const ang = safe(tool.angle, 60, 10, 179) * Math.PI / 180;
+      const h = r / Math.tan(ang / 2);
+      const cone = new THREE.ConeGeometry(r, h, 24); cone.translate(0, h / 2, 0);
+      return mergeGeo(cone, shank(r, h));
+    }
+    case "facemill": {
+      const body = new THREE.CylinderGeometry(r, r * 0.92, 12, 28); body.translate(0, 6, 0);
+      let g: THREE.BufferGeometry = body;
+      const z = Math.max(2, Math.min(10, Math.round(tool.flutes)));
+      for (let i = 0; i < z; i++) {
+        const a = (i / z) * Math.PI * 2;
+        const ins = new THREE.BoxGeometry(r * 0.28, 3, r * 0.2);
+        ins.translate(r * 0.82, 1.4, 0); ins.rotateY(a);
+        g = mergeGeo(g, ins);
+      }
+      return mergeGeo(g, shank(r * 0.45, 12, shankLen));
+    }
+    case "tslot": {
+      const disc = new THREE.CylinderGeometry(r, r, Math.max(1.5, safe(tool.len, 6, 0.5, 60)), 28);
+      disc.translate(0, safe(tool.len, 6, 0.5, 60) / 2, 0);
+      return mergeGeo(disc, shank(r * 0.42, safe(tool.len, 6, 0.5, 60)));
+    }
+    case "drill": case "spotdrill": {
+      const angDeg = Math.min(179, Math.max(30, safe(tool.angle, k === "drill" ? 118 : 90, 30, 179)));
+      const tip = Math.max(0.2, r / Math.tan((angDeg * Math.PI / 180) / 2));
+      const cone = new THREE.ConeGeometry(r, tip, 24); cone.translate(0, tip / 2, 0);
+      let g: THREE.BufferGeometry = cone;
+      const bodyLen = k === "drill" ? cut : 8;
+      g = mergeGeo(g, shank(r, tip, bodyLen));
+      if (k === "drill") g = helix(g, r, bodyLen, 2, r * 0.13);
+      return mergeGeo(g, shank(r * 0.95, tip + bodyLen));
+    }
+    case "reamer": {
+      const lead = new THREE.ConeGeometry(r, r * 0.8, 20); lead.translate(0, r * 0.4, 0);
+      let g: THREE.BufferGeometry = mergeGeo(lead, shank(r, r * 0.8, cut));
+      g = helix(g, r, cut, Math.min(8, tool.flutes), r * 0.05);
+      return mergeGeo(g, shank(r * 0.9, cut + r * 0.8));
+    }
+    case "tap": case "threadmill": {
+      const pitch = Math.max(0.3, safe(tool.flutes, 1.5, 0.2, 12));
+      const coreR = k === "tap" ? r * 0.78 : r * 0.8;
+      let g: THREE.BufferGeometry = shank(coreR, 0, cut);
+      const turns = Math.max(2, Math.min(16, Math.floor(cut / pitch)));
+      const path: THREE.Vector3[] = [];
+      for (let i = 0; i <= turns * 14; i++) {
+        const t = i / 14;
+        path.push(new THREE.Vector3(Math.cos(t * Math.PI * 2) * r * 0.95, t * pitch, Math.sin(t * Math.PI * 2) * r * 0.95));
+      }
+      g = mergeGeo(g, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), Math.min(240, turns * 10), r * 0.15, 5, false));
+      if (k === "tap") {
+        const lead = new THREE.ConeGeometry(coreR, r * 1.3, 18); lead.translate(0, r * 0.65, 0); lead.rotateX(Math.PI);
+        g = mergeGeo(g, lead);
+      }
+      return mergeGeo(g, shank(coreR, cut));
+    }
+    default: {
+      if (mode === "lathe") return latheToolGeo(tool.angle, tool.d);
+      // frez walcowy
+      let g: THREE.BufferGeometry = shank(r, 0, cut);
+      g = helix(g, r, cut, tool.flutes, r * 0.1);
+      return mergeGeo(g, shank(r * 0.98, cut));
+    }
   }
-
-  if (mode === "lathe") return latheToolGeo(safe(tool.angle, 93, 35, 150), safe(tool.d, 0.8, 0.1, 10));
-
-  const cyl = new THREE.CylinderGeometry(r, r, toolLen, 24); cyl.translate(0, toolLen / 2, 0);
-  return cyl;
 }
 
 function mergeGeo(a: THREE.BufferGeometry, b: THREE.BufferGeometry): THREE.BufferGeometry {
@@ -319,8 +367,9 @@ function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], 
   for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
     const tno = program.lines[seg.line]?.state.tool ?? null;
     const tl = toolOf(setup, tno, mode);
-    const r = (isLatheTool(tl.kind) ? 6 : tl.d) / 2;
+    const r = cuttingRadius(tl);
     const ball = tl.kind === "ballnose";
+    const cornerR = tl.kind === "bullnose" ? Math.min(r * 0.95, Math.max(0, tl.corner)) : 0;
     const len = segmentLength(seg) * t; const steps = Math.max(1, Math.ceil(len / (Math.min(cx, cy) * 0.7)));
     for (let i = 0; i <= steps; i++) {
       const p = pointAt(seg, (i / steps) * t); if (p.z >= top) continue;
@@ -332,7 +381,12 @@ function millGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], 
         if (d2 > r * r) continue;
         const k = j * (nx + 1) + ii;
         // frez kulisty: dno rowka jest łukiem, nie płaszczyzną
-        const zHere = ball ? p.z + (r - Math.sqrt(Math.max(0, r * r - d2))) : p.z;
+        let zHere = p.z;
+        if (ball) zHere = p.z + (r - Math.sqrt(Math.max(0, r * r - d2)));
+        else if (cornerR > 0) {
+          const dd = Math.sqrt(d2);
+          if (dd > r - cornerR) { const t2 = dd - (r - cornerR); zHere = p.z + (cornerR - Math.sqrt(Math.max(0, cornerR * cornerR - t2 * t2))); }
+        }
         if (zHere < h[k]) h[k] = Math.max(zHere, bottom);
       }
     }
