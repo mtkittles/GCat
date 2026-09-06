@@ -738,3 +738,4 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .showcase-lines .t-cm { color: #64748B; font-style: italic; }
 .showcase-state { display: flex; flex-wrap: wrap; gap: .3rem; padding: .55rem .9rem; border-top: 1px solid rgba(148,163,184,.16); font-family: var(--font-mono); font-size: 11.5px; }
 .showcase-state span { background: rgba(148,163,184,.1); border-radius: 5px; padding: .12rem .45rem; color: #CBD5E1; }
+.showcase-state span.is-tool { background: rgba(249,115,22,.15); color: #FDBA74; }

@@ -137,12 +137,31 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
 
-  // W pokazie lista kodu podąża za wykonywaną linią.
+  // W pokazie lista kodu podąża za wykonywaną linią, ale przewijamy wyłącznie
+  // wnętrze konsoli. scrollIntoView pociągnąłby za sobą całą stronę i wyrywał
+  // czytelnika z powrotem do symulacji przy każdym bloku.
   useEffect(() => {
     if (!showcase || activeLine === null) return;
-    const el = linesRef.current?.querySelector<HTMLLIElement>("li.is-active");
-    el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    const list = linesRef.current;
+    const el = list?.querySelector<HTMLLIElement>("li.is-active");
+    if (!list || !el) return;
+    const target = el.offsetTop - list.clientHeight / 2 + el.clientHeight / 2;
+    const max = list.scrollHeight - list.clientHeight;
+    const next = Math.max(0, Math.min(max, target));
+    if (Math.abs(list.scrollTop - next) > 2) {
+      list.scrollTo({ top: next, behavior: reduceMotion() ? "auto" : "smooth" });
+    }
   }, [activeLine, showcase]);
+
+  // Pokaz działa tylko wtedy, gdy jest widoczny — poza ekranem nie ma sensu
+  // liczyć animacji ani zużywać baterii.
+  useEffect(() => {
+    if (!showcase) return;
+    const el = canvasRef.current; if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setPlaying(e.isIntersecting), { threshold: 0.15 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [showcase]);
 
   const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
   const activeTool = toolOf(setup, activeToolNo, mode);
@@ -364,6 +383,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <span>X {fmt(currentPos.x)}</span><span>Y {fmt(currentPos.y)}</span><span>Z {fmt(currentPos.z)}</span>
             {st?.feed != null && <span>F {st.feed}</span>}
             {st?.spindle != null && <span>S {st.spindle}</span>}
+            <span className="is-tool">T{String(activeToolNo ?? 1).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]}</span>
           </div>
         </div>
       </div>
@@ -507,6 +527,9 @@ function highlight(line: string) {
     return <span key={i}>{tok}</span>;
   });
 }
+
+const reduceMotion = () =>
+  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
 function segIndexAt(p: number, lengths: number[]) {
   let acc = 0;

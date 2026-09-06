@@ -8,10 +8,11 @@ import BrandLogo from "@/components/BrandLogo";
 import { exercises, lessons } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 
-const DEMO = `(PLYTKA Z ZAOKRAGLENIAMI)
-G21 G90 G17 G54
+const DEMO = `(PLYTKA MOCUJACA 80 x 50)
+G21 G90 G17 G54 G40 G80
 T01 M06
 S2400 M03
+(KONTUR ZEWNETRZNY Z ZAOKRAGLENIAMI R10)
 G00 X10 Y0 Z5
 G01 Z-3 F120
 G01 X70 F400
@@ -23,9 +24,29 @@ G03 X0 Y40 R10
 G01 Y10
 G03 X10 Y0 R10
 G00 Z5
+(KIESZEN OKRAGLA W SRODKU)
 G00 X40 Y25
 G01 Z-2 F120
-G02 I12 J0 F300
+G02 I10 J0 F300
+G02 I14 J0
+G00 Z5
+(ROWEK POPRZECZNY)
+G00 X18 Y25
+G01 Z-2 F120
+G01 X30 F350
+G00 Z5
+G00 X50 Y25
+G01 Z-2 F120
+G01 X62 F350
+G00 Z5
+(CZTERY OTWORY MOCUJACE)
+T02 M06
+S1400 M03
+G99 G81 X12 Y10 Z-14 R2 F130
+X68
+Y40
+X12
+G80
 G00 Z20
 M30`;
 
@@ -106,7 +127,7 @@ export default function Home() {
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
-          lead="Program po lewej, tor narzędzia po prawej — linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
+          lead="Kontur z zaokrągleniami, kieszeń okrągła, dwa rowki i cztery otwory cyklem G81 — dwa narzędzia, jeden program. Linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
           action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
         <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
