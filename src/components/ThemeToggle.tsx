@@ -11,5 +11,9 @@ export default function ThemeToggle() {
     document.documentElement.dataset.theme = next;
     try { localStorage.setItem("theme", next); } catch {}
   };
-  return <button onClick={toggle} className="theme-toggle" aria-label={dark ? "Włącz jasny motyw" : "Włącz ciemny motyw"} title={dark ? "Jasny motyw" : "Ciemny motyw"}>{dark ? "☀" : "☾"}</button>;
+  return (
+    <button onClick={toggle} className="theme-toggle" aria-label={dark ? "Włącz jasny motyw" : "Włącz ciemny motyw"} title={dark ? "Jasny motyw" : "Ciemny motyw"}>
+      <span>{dark ? "☾" : "☀"}</span>
+    </button>
+  );
 }

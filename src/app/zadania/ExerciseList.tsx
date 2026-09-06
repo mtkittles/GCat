@@ -17,14 +17,14 @@ export default function ExerciseList() {
     <div className="grid gap-5">
       <div>
         <h1 className="text-3xl font-bold">Zadania</h1>
-        <p className="text-muted max-w-prose">Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym. Nie musisz trafić w identyczny zapis — liczy się geometria.</p>
+        <p className="section-lead">Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym. Nie musisz trafić w identyczny zapis — liczy się geometria.</p>
         {done.length > 0 && <p className="text-sm text-muted mt-1">Zaliczone: {done.length} z {exercises.length}</p>}
       </div>
       <ol className="grid gap-2 max-w-2xl">
         {exercises.map((e, i) => (
           <li key={e.slug}>
-            <Link href={`/zadania/${e.slug}`} className="flex gap-4 items-start bg-card border border-line rounded-md p-4 hover:border-ink">
-              <span className="font-mono text-xl font-bold w-6" style={{ color: done.includes(e.slug) ? "var(--green)" : "var(--amber)" }}>{done.includes(e.slug) ? "✓" : i + 1}</span>
+            <Link href={`/zadania/${e.slug}`} className="tile flex gap-4 items-start">
+              <span className="font-mono text-xl font-bold w-6" style={{ color: done.includes(e.slug) ? "var(--green)" : "var(--accent)" }}>{done.includes(e.slug) ? "✓" : i + 1}</span>
               <span>
                 <span className="font-semibold block">{e.title}</span>
                 <span className="text-sm text-muted">{LEVEL[e.level]} · {e.mode === "mill" ? "frezowanie" : "toczenie"} — {e.brief.slice(0, 110)}…</span>

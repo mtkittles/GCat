@@ -17,7 +17,7 @@ export default function Glossary() {
     <div className="grid gap-5">
       <div>
         <h1 className="text-3xl font-bold">Słownik pojęć</h1>
-        <p className="text-muted max-w-prose">Terminy, które pojawiają się w artykułach i na hali. Bez skrótów myślowych.</p>
+        <p className="section-lead">Terminy, które pojawiają się w artykułach i na hali. Bez skrótów myślowych.</p>
       </div>
       <div className="filters">
         <input placeholder="Szukaj: pocienianie, naddatek, ap…" value={q} onChange={(e) => setQ(e.target.value)} />
