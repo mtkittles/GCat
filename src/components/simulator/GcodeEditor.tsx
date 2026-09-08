@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { EditorState } from "@codemirror/state";
-import { EditorView, keymap, lineNumbers, highlightActiveLine, Decoration, type DecorationSet, ViewPlugin, type ViewUpdate } from "@codemirror/view";
+import { EditorView, keymap, lineNumbers, highlightActiveLine, drawSelection, Decoration, type DecorationSet, ViewPlugin, type ViewUpdate } from "@codemirror/view";
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { StreamLanguage, syntaxHighlighting, HighlightStyle } from "@codemirror/language";
 import { autocompletion, type CompletionContext, type Completion } from "@codemirror/autocomplete";
@@ -13,13 +13,20 @@ import { reference } from "@/lib/content";
 const gcodeLang = StreamLanguage.define({
   token(stream) {
     if (stream.match(/\([^)]*\)?/) || stream.match(/;.*/)) return "comment";
-    if (stream.match(/[Gg]\s*\d+(\.\d+)?/)) return "keyword";
+    const g = stream.match(/[Gg]\s*(\d+)(\.\d+)?/) as RegExpMatchArray | null;
+    if (g) {
+      const n = Number(g[1]);
+      if (n === 0) return "className";        // szybki przejazd
+      if (n === 1) return "typeName";         // ruch roboczy
+      if (n === 2 || n === 3) return "labelName"; // łuk
+      return "keyword";                        // pozostałe funkcje G
+    }
     if (stream.match(/[Mm]\s*\d+/)) return "atom";
     if (stream.match(/[NnOo]\s*\d+/)) return "meta";
     if (stream.match(/[XxYyZzAaBbCcUuVvWw]\s*[-+]?\d*\.?\d+/)) return "number";
     if (stream.match(/[IiJjKkRr]\s*[-+]?\d*\.?\d+/)) return "propertyName";
     if (stream.match(/[FfSs]\s*[-+]?\d*\.?\d+/)) return "string";
-    if (stream.match(/[TtHhDdPpQqLl]\s*\d*\.?\d+/)) return "typeName";
+    if (stream.match(/[TtHhDdPpQqLl]\s*\d*\.?\d+/)) return "variableName";
     if (stream.match(/[A-Za-z]+/) || stream.match(/[-+]?\d*\.?\d+/)) return "invalid";
     stream.next(); return null;
   },
@@ -27,13 +34,18 @@ const gcodeLang = StreamLanguage.define({
 
 const style = HighlightStyle.define([
   { tag: t.comment, color: "var(--cm-comment)", fontStyle: "italic" },
+  // Kolory ruchów zgodne z torem na podglądzie: G00 bursztynowy,
+  // G01 zielony, G02/G03 błękitny — kod czyta się tak samo jak rysunek.
+  { tag: t.className, color: "var(--cm-g00)", fontWeight: "700" },
+  { tag: t.typeName, color: "var(--cm-g01)", fontWeight: "700" },
+  { tag: t.labelName, color: "var(--cm-g02)", fontWeight: "700" },
   { tag: t.keyword, color: "var(--cm-g)", fontWeight: "700" },
   { tag: t.atom, color: "var(--cm-m)", fontWeight: "700" },
   { tag: t.meta, color: "var(--cm-n)" },
   { tag: t.number, color: "var(--cm-axis)" },
   { tag: t.propertyName, color: "var(--cm-ijk)" },
   { tag: t.string, color: "var(--cm-fs)" },
-  { tag: t.typeName, color: "var(--cm-t)" },
+  { tag: t.variableName, color: "var(--cm-t)" },
   { tag: t.invalid, color: "var(--red)", textDecoration: "underline wavy" },
 ]);
 
@@ -64,9 +76,9 @@ const warnDeco = Decoration.line({ class: "cm-sim-warn" });
 
 export interface EditorHandle { insert: (text: string) => void }
 
-interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void }
+interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void }
 
-export default function GcodeEditor({ value, onChange, activeLine, errorLines = [], warnLines = [], onReady }: Props) {
+export default function GcodeEditor({ value, onChange, activeLine, errorLines = [], warnLines = [], onReady, onCaret }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const marks = useRef({ activeLine, errorLines, warnLines });
@@ -95,9 +107,17 @@ export default function GcodeEditor({ value, onChange, activeLine, errorLines = 
         doc: value,
         extensions: [
           lineNumbers(), highlightActiveLine(), history(), keymap.of([...defaultKeymap, ...historyKeymap]),
+          drawSelection({ cursorBlinkRate: 1000 }),
           gcodeLang, syntaxHighlighting(style), autocompletion({ override: [complete], activateOnTyping: true }),
           plugin,
-          EditorView.updateListener.of((u) => { if (u.docChanged) onChange(u.state.doc.toString()); }),
+          EditorView.updateListener.of((u) => {
+            if (u.docChanged) onChange(u.state.doc.toString());
+            if (u.docChanged || u.selectionSet) {
+              const pos = u.state.selection.main.head;
+              const line = u.state.doc.lineAt(pos);
+              onCaret?.({ line: line.number, col: pos - line.from + 1 });
+            }
+          }),
           EditorView.theme({ "&": { fontSize: "13px" }, ".cm-content": { fontFamily: "var(--font-mono)" }, ".cm-gutters": { background: "transparent", border: "none" } }),
         ],
       }),

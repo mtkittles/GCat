@@ -42,7 +42,8 @@
   --shadow: 0 6px 20px rgba(15, 23, 42, .08);
 
   /* kolory składni w edytorze */
-  --cm-comment: #94A3B8; --cm-g: #EA580C; --cm-m: #7C3AED; --cm-n: #94A3B8;
+  --cm-comment: #94A3B8; --cm-g: #B45309; --cm-m: #7C3AED; --cm-n: #94A3B8;
+  --cm-g00: #D97706; --cm-g01: #15803D; --cm-g02: #0369A1;
   --cm-axis: #0F172A; --cm-ijk: #0891B2; --cm-fs: #16A34A; --cm-t: #DB2777;
 }
 
@@ -70,7 +71,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, .4);
   --shadow: 0 8px 26px rgba(0, 0, 0, .45);
 
-  --cm-comment: #64748B; --cm-g: #FB923C; --cm-m: #C4B5FD; --cm-n: #64748B;
+  --cm-comment: #64748B; --cm-g: #FBBF24; --cm-m: #C4B5FD; --cm-n: #64748B;
+  --cm-g00: #F59E0B; --cm-g01: #4ADE80; --cm-g02: #38BDF8;
   --cm-axis: #E2E8F0; --cm-ijk: #67E8F9; --cm-fs: #86EFAC; --cm-t: #F9A8D4;
 }
 
@@ -208,7 +210,13 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .gcode-editor .cm-tooltip-autocomplete { background: var(--card); border: 1px solid var(--line); color: var(--ink); font-family: var(--font-mono); font-size: 12px; border-radius: 8px; overflow: hidden; }
 .gcode-editor .cm-tooltip-autocomplete li[aria-selected] { background: var(--accent-soft); color: var(--ink); }
 .gcode-editor .cm-completionDetail { font-style: normal; color: var(--muted); margin-left: .6rem; }
-.gcode-editor .cm-cursor { border-left-color: var(--accent); }
+.gcode-editor .cm-cursor, .gcode-editor .cm-dropCursor { border-left: 2.5px solid var(--accent); }
+.gcode-editor .cm-cursorLayer { animation: gc-caret 1s steps(1) infinite; }
+@keyframes gc-caret { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .gcode-editor .cm-cursorLayer { animation: none; } }
+.gcode-editor .cm-activeLineGutter { color: var(--accent); font-weight: 700; }
+.caret-pos { font-family: var(--font-mono); font-size: 11.5px; color: var(--muted); }
+.caret-pos b { color: var(--accent); font-weight: 600; }
 
 /* ---------- klawiatura G-kodu ---------- */
 .pad { display: grid; gap: .4rem; }
@@ -739,3 +747,38 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .showcase-state { display: flex; flex-wrap: wrap; gap: .3rem; padding: .55rem .9rem; border-top: 1px solid rgba(148,163,184,.16); font-family: var(--font-mono); font-size: 11.5px; }
 .showcase-state span { background: rgba(148,163,184,.1); border-radius: 5px; padding: .12rem .45rem; color: #CBD5E1; }
 .showcase-state span.is-tool { background: rgba(249,115,22,.15); color: #FDBA74; }
+
+.editor-status { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; padding: 0 .2rem; }
+.editor-legend { display: inline-flex; align-items: center; gap: .3rem; font-family: var(--font-mono); font-size: 11px; color: var(--muted); margin-left: auto; }
+.editor-legend i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-left: .5rem; }
+
+/* ---------- panele symulatora (układ mobilny) ---------- */
+.panel { border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.panel-head { padding: .6rem .85rem; font-weight: 600; font-size: 14px; cursor: pointer; list-style: none; display: flex; align-items: center; gap: .5rem; }
+.panel-head::before { content: "▾"; color: var(--accent); font-size: 12px; transition: transform .16s ease; }
+.panel:not([open]) .panel-head::before { transform: rotate(-90deg); }
+.panel-head::-webkit-details-marker { display: none; }
+.panel-body { padding: 0 .7rem .7rem; }
+@media (min-width: 1100px) {
+  .panel { border: none; background: transparent; }
+  .panel-head { display: none; }
+  .panel-body { padding: 0; }
+}
+
+/* pasek widoku */
+.viewbar { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; }
+.viewbar .segmented { padding: 2px; }
+.viewbar .segmented button { padding: .42rem .95rem; font-size: 13px; min-height: 38px; }
+.icon-btn { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); display: grid; place-items: center; }
+.icon-btn[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+.only-narrow { display: inline-grid; }
+@media (min-width: 1100px) { .only-narrow { display: none; } }
+
+/* sterowanie odtwarzaniem */
+.sim-controls button { display: inline-flex; align-items: center; gap: .4rem; }
+.ctrl-ico { flex: none; }
+@media (max-width: 560px) {
+  .ctrl-label { display: none; }
+  .sim-controls button { width: 46px; height: 44px; justify-content: center; padding: 0; }
+  .sim-controls label { font-size: 12px; }
+}

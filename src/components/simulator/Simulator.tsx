@@ -53,7 +53,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
   const [full, setFull] = useState(false);
+  const [tall, setTall] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
   const editorRef = useRef<{ insert: (t: string) => void } | null>(null);
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
@@ -401,11 +403,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
       {!compact && (
-        <div className="flex flex-col gap-2 min-h-0">
+        <details className="panel" open>
+          <summary className="panel-head">Program</summary>
+          <div className="flex flex-col gap-2 min-h-0 panel-body">
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
-                onReady={(h) => { editorRef.current = h; }} />
+                onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
+              <div className="editor-status">
+                <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
+                <span className="editor-legend">
+                  <i style={{ background: "var(--amber)" }} />G00
+                  <i style={{ background: "var(--green)" }} />G01
+                  <i style={{ background: "var(--blue)" }} />G02/G03
+                </span>
+              </div>
               <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
             </>
           ) : null}
@@ -429,6 +441,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 a.click(); URL.revokeObjectURL(a.href);
               }}>Zapisz jako .nc</button>
               <button onClick={() => { navigator.clipboard?.writeText(source); }}>Kopiuj</button>
+              <button onClick={() => onSourceChange?.(renumber(source))} title="Nadaj blokom numery N co 5">N-umeruj</button>
+              <button onClick={() => onSourceChange?.(stripNumbers(source))} title="Usuń numery bloków">Bez N</button>
               {fileName && <span className="file-name">{fileName}</span>}
               <span className="file-hint">albo przeciągnij plik tutaj</span>
               <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
@@ -455,19 +469,35 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               </li>
             ))}
           </ol>
-        </div>
+          </div>
+        </details>
+
       )}
       <div className="flex flex-col gap-2">
-        <canvas ref={canvasRef} className="sim-canvas" style={{ height: compact ? 220 : 380, touchAction: "none" }}
+        <canvas ref={canvasRef} className="sim-canvas" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
           onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
         <div className="sim-controls">
-          <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }}>{playing ? "Pauza" : "Start"}</button>
-          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }}>Krok ›</button>
-          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }}>‹ Krok</button>
-          <button onClick={() => { setPlaying(false); setProgress(0); }}>Reset</button>
+          <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
+            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+              {playing ? <path d="M7 5h4v14H7zM13 5h4v14h-4z" /> : <path d="M7 4l13 8-13 8z" />}
+            </svg>
+            <span className="ctrl-label">{playing ? "Pauza" : "Start"}</span>
+          </button>
+          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
+            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
+            <span className="ctrl-label">‹ Krok</span>
+          </button>
+          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
+            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
+            <span className="ctrl-label">Krok ›</span>
+          </button>
+          <button onClick={() => { setPlaying(false); setProgress(0); }} aria-label="Reset">
+            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
+            <span className="ctrl-label">Reset</span>
+          </button>
           <label>
             Prędkość
             <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
@@ -488,10 +518,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         )}
         {!compact && allow3d && (
           <>
-            <div className="filters">
-              <button aria-pressed={show3d} onClick={() => setShow3d((v) => !v)}>{show3d ? "Ukryj widok 3D" : "Pokaż widok 3D"}</button>
+            <div className="viewbar">
+              <div className="segmented" role="tablist" aria-label="Widok">
+                <button role="tab" aria-selected={!show3d} onClick={() => setShow3d(false)}>{mode === "lathe" ? "ZX" : "XY"}</button>
+                <button role="tab" aria-selected={show3d} onClick={() => setShow3d(true)}>3D</button>
+              </div>
               <button className="only-wide" aria-pressed={full} onClick={() => setFull((v) => !v)} title="Podgląd na dwie trzecie szerokości, konsola programu obok">
                 {full ? "Zwykły układ" : "Szeroki podgląd"}
+              </button>
+              <button className="icon-btn only-narrow" aria-pressed={tall} onClick={() => setTall((v) => !v)} aria-label="Powiększ podgląd" title="Powiększ podgląd">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
+                </svg>
               </button>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
               {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
@@ -531,6 +569,22 @@ function highlight(line: string) {
     if (L && "XYZIJKR".includes(L)) return <span key={i} className="t-ax">{tok}</span>;
     return <span key={i}>{tok}</span>;
   });
+}
+
+/** Nadaje blokom numery N co 5, pomijając komentarze i puste linie. */
+function renumber(src: string, step = 5) {
+  let n = 0;
+  return src.split("\n").map((raw) => {
+    const body = raw.replace(/^\s*N\d+\s*/i, "");
+    if (!body.trim() || /^\s*[(;%]/.test(body)) return body;
+    n += step;
+    return `N${n} ${body.trim()}`;
+  }).join("\n");
+}
+
+/** Usuwa numery bloków. */
+function stripNumbers(src: string) {
+  return src.split("\n").map((l) => l.replace(/^\s*N\d+\s*/i, "")).join("\n");
 }
 
 const reduceMotion = () =>

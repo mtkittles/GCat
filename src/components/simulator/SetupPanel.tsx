@@ -71,7 +71,7 @@ export default function SetupPanel({ mode, setup, onChange, activeTool }: { mode
   const nextFree = (nums.at(-1) ?? 0) + 1;
 
   return (
-    <details className="setup" open>
+    <details className="setup">
       <summary>Narzędzia i półfabrykat</summary>
       <div className="setup-grid">
         <fieldset><legend>Tabela narzędzi</legend>
