@@ -5,6 +5,7 @@ import { EditorView, keymap, lineNumbers, highlightActiveLine, drawSelection, De
 import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { StreamLanguage, syntaxHighlighting, HighlightStyle } from "@codemirror/language";
 import { autocompletion, type CompletionContext, type Completion } from "@codemirror/autocomplete";
+import { search, searchKeymap, highlightSelectionMatches } from "@codemirror/search";
 import { tags as t } from "@lezer/highlight";
 import { gcodes } from "@/lib/gcodes";
 import { reference } from "@/lib/content";
@@ -74,7 +75,11 @@ const activeDeco = Decoration.line({ class: "cm-sim-active" });
 const errorDeco = Decoration.line({ class: "cm-sim-error" });
 const warnDeco = Decoration.line({ class: "cm-sim-warn" });
 
-export interface EditorHandle { insert: (text: string) => void }
+export interface EditorHandle {
+  insert: (text: string) => void;
+  /** Ustawia kursor na wskazanej linii (numeracja od 1) i przewija do niej. */
+  goToLine: (line: number) => void;
+}
 
 interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void }
 
@@ -108,6 +113,7 @@ export default function GcodeEditor({ value, onChange, activeLine, errorLines = 
         extensions: [
           lineNumbers(), highlightActiveLine(), history(), keymap.of([...defaultKeymap, ...historyKeymap]),
           drawSelection({ cursorBlinkRate: 1000 }),
+          search({ top: true }), highlightSelectionMatches(), keymap.of(searchKeymap),
           gcodeLang, syntaxHighlighting(style), autocompletion({ override: [complete], activateOnTyping: true }),
           plugin,
           EditorView.updateListener.of((u) => {
@@ -124,6 +130,13 @@ export default function GcodeEditor({ value, onChange, activeLine, errorLines = 
     });
     viewRef.current = view;
     onReady?.({
+      goToLine: (line: number) => {
+        const v = viewRef.current; if (!v) return;
+        const n = Math.max(1, Math.min(v.state.doc.lines, line));
+        const l = v.state.doc.line(n);
+        v.dispatch({ selection: { anchor: l.from }, effects: EditorView.scrollIntoView(l.from, { y: "center" }) });
+        v.focus();
+      },
       insert: (text: string) => {
         const v = viewRef.current; if (!v) return;
         const sel = v.state.selection.main;

@@ -20,6 +20,7 @@ export type Dialect = "fanuc" | "sinumerik";
 
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
+const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
 const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 360 }} /> });
 
 interface Props {
@@ -57,7 +58,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [full, setFull] = useState(false);
   const [tall, setTall] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
-  const editorRef = useRef<{ insert: (t: string) => void } | null>(null);
+  const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
+  const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
   const [setup, setSetup] = useState<Setup>(() => { const d = defaultSetup(mode); return stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d; });
@@ -412,6 +414,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
               <div className="editor-status">
                 <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
+                <form className="goto" onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = gotoN.trim().replace(/^n/i, "");
+                  if (!q) return;
+                  const n = Number(q);
+                  if (!Number.isFinite(n)) return;
+                  // najpierw szukamy bloku o numerze N, w razie braku traktujemy jako numer linii
+                  const byBlock = program.lines.findIndex((l) => l.words.some((w) => w.letter === "N" && w.value === n));
+                  editorRef.current?.goToLine((byBlock >= 0 ? byBlock : n - 1) + 1);
+                }}>
+                  <input value={gotoN} onChange={(e) => setGotoN(e.target.value)} placeholder="N / linia" aria-label="Idź do bloku" inputMode="numeric" />
+                  <button type="submit">Idź</button>
+                </form>
                 <span className="editor-legend">
                   <i style={{ background: "var(--amber)" }} />G00
                   <i style={{ background: "var(--green)" }} />G01
@@ -540,6 +555,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           </>
         )}
         {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}
+        {!compact && <StatsPanel program={program} setup={setup} mode={mode} />}
       </div>
     </div>
   );

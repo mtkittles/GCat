@@ -46,6 +46,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
   // cały program przy każdej klatce.
   const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
+  const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
   const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; threads: THREE.Group | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
@@ -109,10 +110,21 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
     const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
     sceneRef.current = st;
 
-    // kamera na obszar
-    const b = program.bounds; const ctr = toW({ x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, z: (b.min.z + b.max.z) / 2 }, mode);
+    // kamera na obszar + gotowe ustawienia widoku
+    const b = program.bounds;
+    const ctr = toW({ x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, z: (b.min.z + b.max.z) / 2 }, mode);
     const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 40);
-    camera.position.set(ctr.x + span * 0.9, ctr.y + span * 0.8, ctr.z + span * 1.1); controls.target.copy(ctr);
+    const apply = (v: "iso" | "top" | "front" | "side" | "fit") => {
+      const d = span * 1.5;
+      if (v === "top") camera.position.set(ctr.x, ctr.y + d, ctr.z + 0.001);
+      else if (v === "front") camera.position.set(ctr.x, ctr.y + span * 0.15, ctr.z + d);
+      else if (v === "side") camera.position.set(ctr.x + d, ctr.y + span * 0.15, ctr.z);
+      else camera.position.set(ctr.x + span * 0.9, ctr.y + span * 0.8, ctr.z + span * 1.1);
+      controls.target.copy(ctr);
+      controls.update();
+    };
+    viewApi.current = apply;
+    apply("iso");
 
     let raf = 0;
     const loop = () => {
@@ -194,6 +206,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
     if (broke) queueMicrotask(() => setFailed("error"));
   }, [program, lengths, progress, mode, toolD, setup, tool, failed, source]);
 
+  const setView = (v: "iso" | "top" | "front" | "side" | "fit") => {
+    const api = viewApi.current; if (api) api(v);
+  };
+
   if (failed) {
     return (
       <div className="sim-3d-fallback">
@@ -209,7 +225,15 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
 
   return (
     <div className="grid gap-1">
-      <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={{ height: 360 }} />
+      <div className="view3d">
+        <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={{ height: 360 }} />
+        <div className="view3d-bar">
+          {([["iso", "IZO"], ["top", "GÓRA"], ["front", "PRZÓD"], ["side", "BOK"]] as const).map(([k, l]) => (
+            <button key={k} onClick={() => setView(k)}>{l}</button>
+          ))}
+          <button onClick={() => setView("fit")} title="Dopasuj widok">DOPASUJ</button>
+        </div>
+      </div>
       <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>
     </div>
   );

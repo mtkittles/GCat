@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { loadActiveId, loadPrograms, newId, saveActiveId, savePrograms, type StoredProgram } from "./programs";
 import PageBanner from "@/components/ui/PageBanner";
 import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Simulator";
 
@@ -348,6 +349,70 @@ export default function SimPage() {
   const [mode, setMode] = useState<SimMode>(EXAMPLES[first].mode);
   const [stock, setStock] = useState(EXAMPLES[first].stock);
   const [dialect, setDialect] = useState<Dialect>("fanuc");
+
+  // --- zakładki programów zapisywane w przeglądarce ---
+  const [tabs, setTabs] = useState<StoredProgram[]>([]);
+  const [active, setActive] = useState<string | null>(null);
+
+  // Odtworzenie zapisanych programów przy pierwszym renderze po stronie klienta.
+  const [restored, setRestored] = useState(false);
+  if (typeof window !== "undefined" && !restored) {
+    setRestored(true);
+    const list = loadPrograms();
+    if (list.length) {
+      const id = loadActiveId() ?? list[0].id;
+      const cur = list.find((t) => t.id === id) ?? list[0];
+      setTabs(list); setActive(cur.id); setSrc(cur.src); setMode(cur.mode); setStock(undefined); setName(cur.name);
+    }
+  }
+
+  // zapis bieżącego programu z opóźnieniem, żeby nie pisać przy każdym znaku
+  useEffect(() => {
+    if (!active) return;
+    const t = setTimeout(() => {
+      setTabs((prev) => {
+        const next = prev.map((p) => (p.id === active ? { ...p, src, mode, updated: Date.now() } : p));
+        savePrograms(next);
+        return next;
+      });
+    }, 700);
+    return () => clearTimeout(t);
+  }, [src, mode, active]);
+
+  const openTab = (t: StoredProgram) => {
+    setActive(t.id); saveActiveId(t.id);
+    setSrc(t.src); setMode(t.mode); setStock(undefined); setName(t.name);
+  };
+
+  const addTab = (from?: { name: string; src: string; mode: SimMode }) => {
+    const t: StoredProgram = {
+      id: newId(),
+      name: from?.name ?? `Program ${tabs.length + 1}`,
+      src: from?.src ?? "G21 G90 G17 G54\nS1500 M03\nG00 X0 Y0 Z5\n\nM30",
+      mode: from?.mode ?? mode,
+      updated: Date.now(),
+    };
+    const next = [...tabs, t];
+    setTabs(next); savePrograms(next); openTab(t);
+  };
+
+  const closeTab = (id: string) => {
+    const next = tabs.filter((t) => t.id !== id);
+    setTabs(next); savePrograms(next);
+    if (active === id) {
+      if (next.length) openTab(next[next.length - 1]);
+      else { setActive(null); setName(first); setSrc(EXAMPLES[first].src); setMode(EXAMPLES[first].mode); setStock(EXAMPLES[first].stock); }
+    }
+  };
+
+  const renameTab = (id: string) => {
+    const t = tabs.find((x) => x.id === id); if (!t) return;
+    const nm = prompt("Nazwa programu", t.name)?.trim();
+    if (!nm) return;
+    const next = tabs.map((x) => (x.id === id ? { ...x, name: nm } : x));
+    setTabs(next); savePrograms(next);
+    if (active === id) setName(nm);
+  };
   return (
     <div className="grid gap-4">
       <PageBanner src="/img/banner-simulator.jpg" title="Symulator" subtitle="Wizualizacja obróbki CNC w czasie rzeczywistym." priority />
@@ -355,8 +420,19 @@ export default function SimPage() {
         <h1 className="text-3xl font-bold">Symulator</h1>
         <p className="text-muted">W trybie toczenia X jest średnicą (jak w Fanuc). Wpisz program (podpowiedzi po literze G, M, X…), uruchom, krokuj. Każda linia jest tłumaczona na polski; walidator zaznacza błędy na czerwono i ostrzeżenia na żółto.</p>
       </div>
+      <div className="tabs">
+        {tabs.map((t) => (
+          <span key={t.id} className={`tab ${active === t.id ? "is-active" : ""}`}>
+            <button onClick={() => openTab(t)} onDoubleClick={() => renameTab(t.id)} title="Kliknij dwukrotnie, aby zmienić nazwę">{t.name}</button>
+            <button className="tab-x" onClick={() => closeTab(t.id)} aria-label={`Zamknij ${t.name}`}>×</button>
+          </span>
+        ))}
+        <button className="tab-add" onClick={() => addTab()} title="Nowy pusty program">+ Nowy</button>
+        <button className="tab-add" onClick={() => addTab({ name, src, mode })} title="Zapisz bieżący program jako zakładkę">Zapisz bieżący</button>
+      </div>
+
       <div className="filters">
-        <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); setStock(EXAMPLES[n].stock); }}>
+        <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); setStock(EXAMPLES[n].stock); setActive(null); }}>
           {Object.keys(EXAMPLES).map((k) => <option key={k}>{k}</option>)}
         </select>
         <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezowanie (XY)</button>
