@@ -21,6 +21,7 @@ export type Dialect = "fanuc" | "sinumerik";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
+const FullscreenSim = dynamic(() => import("./FullscreenSim"), { ssr: false });
 const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 360 }} /> });
 
 interface Props {
@@ -57,6 +58,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
   const [full, setFull] = useState(false);
   const [tall, setTall] = useState(false);
+  const [fs, setFs] = useState(false);
+  const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
   const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
   const [gotoN, setGotoN] = useState("");
@@ -96,6 +99,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [prevToolsKey, setPrevToolsKey] = useState(toolsKey);
   if (prevToolsKey !== toolsKey) { setPrevToolsKey(toolsKey); setSetup((s) => withProgramTools(s, usedTools, mode)); }
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fsCanvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
   const [speed, setSpeed] = useState(1);
@@ -179,19 +183,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // kanwa zostaje w starej rozdzielczości i rysunek jest rozmyty.
   const [resizeTick, setResizeTick] = useState(0);
   useEffect(() => {
-    const cv = canvasRef.current; if (!cv || typeof ResizeObserver === "undefined") return;
+    if (typeof ResizeObserver === "undefined") return;
     let raf = 0;
     const ro = new ResizeObserver(() => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => setResizeTick((t) => t + 1));
     });
-    ro.observe(cv);
+    if (canvasRef.current) ro.observe(canvasRef.current);
+    if (fsCanvasRef.current) ro.observe(fsCanvasRef.current);
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
-  }, []);
+  }, [fs]);
 
   // rysowanie
   useEffect(() => {
-    const cv = canvasRef.current; if (!cv) return;
+    // W trybie pełnoekranowym rysujemy na kanwie powłoki, w zwykłym na osadzonej.
+    const cv = (fs ? fsCanvasRef.current : canvasRef.current); if (!cv) return;
     const ctx = cv.getContext("2d"); if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
@@ -346,7 +352,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -367,6 +373,57 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   // W trybie pełnoekranowym kolejność jest odwrócona: podgląd zajmuje dwie trzecie
   // szerokości po lewej, konsola programu jedną trzecią po prawej.
+  // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
+  const viewSwitch = (
+    <div className="segmented" role="tablist" aria-label="Widok">
+      <button role="tab" aria-selected={!show3d} onClick={() => setShow3d(false)}>{mode === "lathe" ? "ZX" : "XY"}</button>
+      <button role="tab" aria-selected={show3d} onClick={() => setShow3d(true)}>3D</button>
+    </div>
+  );
+
+  const transportBar = (
+    <div className="sim-controls">
+      <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
+        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+          {playing ? <path d="M7 5h4v14H7zM13 5h4v14h-4z" /> : <path d="M7 4l13 8-13 8z" />}
+        </svg>
+        <span className="ctrl-label">{playing ? "Pauza" : "Start"}</span>
+      </button>
+      <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
+        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
+        <span className="ctrl-label">‹ Krok</span>
+      </button>
+      <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
+        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
+        <span className="ctrl-label">Krok ›</span>
+      </button>
+      <button onClick={() => { setPlaying(false); setProgress(0); }} aria-label="Reset">
+        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
+        <span className="ctrl-label">Reset</span>
+      </button>
+      <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
+        onChange={(e) => { setPlaying(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
+    </div>
+  );
+
+  const activeLineText = activeLine !== null ? program.lines[activeLine] : null;
+  const statusStrip = (
+    <>
+      <div className="fs-line">
+        <span className="fs-line-no">{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</span>
+        <code>{activeLineText?.raw.trim() || "koniec programu"}</code>
+      </div>
+      <div className="fs-coords">
+        <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}</span>
+        {mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}
+        <span>Z {fmt(currentPos.z)}</span>
+        <span>{st?.feed != null ? `F ${st.feed}` : "F --"}</span>
+        <span>{st?.spindle != null ? `S ${st.spindle}` : "S --"}</span>
+        <span className="is-tool">T{String(activeToolNo ?? 1).padStart(2, "0")}</span>
+      </div>
+    </>
+  );
+
   if (showcase) {
     return (
       <div className="showcase">
@@ -440,7 +497,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <div className="file-bar">
               <label className="file-btn">
                 Wczytaj plik
-                <input type="file" accept=".nc,.gcode,.tap,.txt,.cnc,.mpf,.min,.eia,.ngc" onChange={async (e) => {
+                {/* Bez atrybutu accept — iOS wygasza pliki .nc, .tap czy .mpf, bo nie zna ich typu MIME. */}
+                <input type="file" onChange={async (e) => {
                   const f = e.target.files?.[0]; if (!f) return;
                   const text = await f.text();
                   onSourceChange?.(text.replace(/\r\n/g, "\n"));
@@ -494,31 +552,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-        <div className="sim-controls">
-          <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
-            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-              {playing ? <path d="M7 5h4v14H7zM13 5h4v14h-4z" /> : <path d="M7 4l13 8-13 8z" />}
-            </svg>
-            <span className="ctrl-label">{playing ? "Pauza" : "Start"}</span>
-          </button>
-          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
-            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
-            <span className="ctrl-label">‹ Krok</span>
-          </button>
-          <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
-            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
-            <span className="ctrl-label">Krok ›</span>
-          </button>
-          <button onClick={() => { setPlaying(false); setProgress(0); }} aria-label="Reset">
-            <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
-            <span className="ctrl-label">Reset</span>
-          </button>
-          <label>
-            Prędkość
-            <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
-          </label>
-          <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress} onChange={(e) => { setPlaying(false); setProgress(Number(e.target.value)); }} />
-        </div>
+        {transportBar}
+        <label className="speed">
+          Prędkość
+          <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
+        </label>
         {!compact && st && (
           <div className="sim-state">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
@@ -534,12 +572,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {!compact && allow3d && (
           <>
             <div className="viewbar">
-              <div className="segmented" role="tablist" aria-label="Widok">
-                <button role="tab" aria-selected={!show3d} onClick={() => setShow3d(false)}>{mode === "lathe" ? "ZX" : "XY"}</button>
-                <button role="tab" aria-selected={show3d} onClick={() => setShow3d(true)}>3D</button>
-              </div>
+              {viewSwitch}
               <button className="only-wide" aria-pressed={full} onClick={() => setFull((v) => !v)} title="Podgląd na dwie trzecie szerokości, konsola programu obok">
                 {full ? "Zwykły układ" : "Szeroki podgląd"}
+              </button>
+              <button className="btn only-narrow fs-open" onClick={() => setFs(true)}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 9V3h6M21 15v6h-6M21 9V3h-6M3 15v6h6" /></svg>
+                Pełny ekran
               </button>
               <button className="icon-btn only-narrow" aria-pressed={tall} onClick={() => setTall((v) => !v)} aria-label="Powiększ podgląd" title="Powiększ podgląd">
                 <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -556,6 +595,34 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         )}
         {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}
         {!compact && <StatsPanel program={program} setup={setup} mode={mode} />}
+
+        {!compact && (
+          <FullscreenSim
+            open={fs}
+            onClose={() => { setFs(false); setSheet(false); }}
+            title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
+            toolbar={viewSwitch}
+            view={show3d
+              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill /></Sim3DBoundary>
+              : <canvas ref={fsCanvasRef} className="fs-canvas" style={{ touchAction: "none" }} />}
+            status={statusStrip}
+            transport={transportBar}
+            sheetOpen={sheet}
+            onSheetToggle={() => setSheet((v) => !v)}
+            console={
+              <div className="grid gap-2">
+                <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
+                  onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
+                <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
+                {issues.length > 0 && (
+                  <ul className="sim-issues">
+                    {issues.slice(0, 8).map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
+                  </ul>
+                )}
+              </div>
+            }
+          />
+        )}
       </div>
     </div>
   );

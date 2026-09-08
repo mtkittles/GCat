@@ -7,7 +7,7 @@ import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[] }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean }
 
 const CELL_TARGET = 0.35;   // docelowy rozmiar komórki mapy wysokości [mm]
 const GRID_MIN = 100;
@@ -26,7 +26,7 @@ function gridMax() {
   return 380;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
@@ -224,9 +224,9 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
   }
 
   return (
-    <div className="grid gap-1">
-      <div className="view3d">
-        <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={{ height: 360 }} />
+    <div className={fill ? "grid h-full" : "grid gap-1"}>
+      <div className={`view3d ${fill ? "is-fill" : ""}`}>
+        <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={fill ? { height: "100%" } : { height: 360 }} />
         <div className="view3d-bar">
           {([["iso", "IZO"], ["top", "GÓRA"], ["front", "PRZÓD"], ["side", "BOK"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setView(k)}>{l}</button>
@@ -234,7 +234,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs }:
           <button onClick={() => setView("fit")} title="Dopasuj widok">DOPASUJ</button>
         </div>
       </div>
-      <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>
+      {!fill && <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>}
     </div>
   );
 }

@@ -818,3 +818,59 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .tab-x:hover { color: var(--red); }
 .tab-add { padding: .38rem .7rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--muted); background: transparent; }
 .tab-add:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- pełnoekranowy symulator (telefon) ---------- */
+.fs-sim {
+  position: fixed; inset: 0; z-index: 90; background: var(--panel); color: #F8FAFC;
+  display: grid; grid-template-rows: auto 1fr auto auto;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.fs-bar { display: flex; align-items: center; gap: .6rem; padding: .55rem .7rem; border-bottom: 1px solid rgba(148,163,184,.18); padding-top: max(.55rem, env(safe-area-inset-top)); }
+.fs-close { width: 38px; height: 38px; border-radius: var(--radius-sm); border: 1px solid rgba(148,163,184,.25); background: rgba(148,163,184,.08); color: #F8FAFC; display: grid; place-items: center; flex: none; }
+.fs-title { font-family: var(--font-display); font-weight: 650; font-size: 15px; }
+.fs-tools { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
+.fs-tools .segmented { background: rgba(148,163,184,.1); border-color: rgba(148,163,184,.22); }
+.fs-tools .segmented button { color: #CBD5E1; min-height: 36px; padding: .35rem .8rem; }
+
+.fs-view { position: relative; min-height: 0; overflow: hidden; }
+.fs-view > * { height: 100%; }
+.fs-canvas { width: 100%; height: 100%; display: block; background: var(--panel); }
+.view3d.is-fill { height: 100%; }
+.view3d.is-fill .sim-canvas-3d { border: none; border-radius: 0; }
+
+.fs-status { padding: .5rem .7rem; border-top: 1px solid rgba(148,163,184,.18); display: grid; gap: .35rem; background: rgba(8,13,20,.6); }
+.fs-line { display: flex; gap: .6rem; align-items: baseline; font-family: var(--font-mono); font-size: 13.5px; }
+.fs-line-no { color: var(--accent); font-weight: 700; }
+.fs-line code { color: #F8FAFC; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fs-coords { display: flex; flex-wrap: wrap; gap: .3rem; font-family: var(--font-mono); font-size: 11.5px; }
+.fs-coords span { background: rgba(148,163,184,.12); border-radius: 5px; padding: .12rem .45rem; color: #CBD5E1; }
+.fs-coords span.is-tool { background: rgba(249,115,22,.18); color: #FDBA74; }
+
+.fs-transport { padding: .5rem .7rem .7rem; border-top: 1px solid rgba(148,163,184,.18); display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.fs-transport .sim-controls { flex: 1; gap: .4rem; }
+.fs-transport .sim-controls button { background: rgba(148,163,184,.1); border-color: rgba(148,163,184,.25); color: #F8FAFC; }
+.fs-transport .sim-controls button:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
+.fs-sheet-btn { display: inline-flex; align-items: center; gap: .35rem; padding: 0 .85rem; height: 44px; border-radius: var(--radius-sm); border: 1px solid rgba(148,163,184,.25); background: rgba(148,163,184,.1); color: #F8FAFC; font-weight: 600; font-size: 13px; }
+.fs-sheet-btn.is-open { background: var(--accent); border-color: var(--accent); }
+
+.fs-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  max-height: 82vh; display: flex; flex-direction: column;
+  background: var(--surface); color: var(--ink);
+  border-top: 1px solid var(--line); border-radius: 16px 16px 0 0;
+  transform: translateY(101%); transition: transform .26s cubic-bezier(.22,.7,.3,1);
+  box-shadow: 0 -18px 40px rgba(0,0,0,.45);
+}
+.fs-sheet.is-open { transform: none; }
+@media (prefers-reduced-motion: reduce) { .fs-sheet { transition: none; } }
+.fs-sheet-head { display: flex; align-items: center; gap: .6rem; padding: .5rem .9rem; border-bottom: 1px solid var(--line); position: relative; }
+.fs-sheet-head strong { font-size: 14px; }
+.fs-sheet-head button { margin-left: auto; width: 34px; height: 34px; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card); color: var(--ink); display: grid; place-items: center; }
+.fs-sheet-grip { position: absolute; top: .3rem; left: 50%; transform: translateX(-50%); width: 40px; height: 4px; border-radius: 2px; background: var(--line-strong); }
+.fs-sheet-body { padding: .7rem .8rem calc(.9rem + env(safe-area-inset-bottom)); overflow: auto; }
+.fs-sheet-body .gcode-editor .cm-editor { max-height: 42vh; }
+
+@media (min-width: 1100px) { .fs-open { display: none; } }
+
+.speed { display: inline-flex; gap: .45rem; align-items: center; font-size: 12.5px; color: var(--muted); }
+.speed input { width: 8rem; }
