@@ -75,6 +75,9 @@ export function applyCompensation(program: Program, setup: Setup, mode: "mill" |
   for (let i = 0; i < out.length - 1; i++) {
     const a = out[i], b = out[i + 1];
     if (comps[i] === 40 || comps[i + 1] === 40) continue;
+    // Zmiana strony kompensacji: tor rzeczywiście przeskakuje na drugą stronę
+    // konturu. Nie udajemy przecięcia — pokazujemy przeskok tak, jak wygląda.
+    if (comps[i] !== comps[i + 1]) continue;
     if (a.kind === "rapid" || b.kind === "rapid") continue;
     const gap = Math.hypot(b.from.x - a.to.x, b.from.y - a.to.y);
     if (gap < 1e-6) continue;

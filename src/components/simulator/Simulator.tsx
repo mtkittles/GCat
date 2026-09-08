@@ -73,7 +73,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const st = setup.stock;
     return { minX: -st.ox, maxX: st.x - st.ox, minY: -st.oy, maxY: st.y - st.oy, top: st.z - st.oz, bottom: -st.oz };
   }, [mode, setup.stock]);
-  const issues = useMemo(() => validate(program, dialect, stockBox), [program, dialect, stockBox]);
+  const compR = useMemo(() => {
+    const nums = Object.keys(setup.tools).map(Number);
+    const t = setup.tools[nums[0]];
+    return t ? cuttingRadius(t) : undefined;
+  }, [setup]);
+  const issues = useMemo(() => validate(program, dialect, stockBox, undefined, compR), [program, dialect, stockBox, compR]);
   const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
 

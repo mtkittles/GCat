@@ -9,7 +9,7 @@ export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 /** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
 const ONCE = /wrzecion|G43|posuw F/i;
 
-export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stock?: StockBox, toolLen?: number): Issue[] {
+export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stock?: StockBox, toolLen?: number, compRadius?: number): Issue[] {
   const out: Issue[] = [];
   const L = program.lines;
   let sawToolChange = false, sawG43 = false, sawM30 = false, sawSpindle = false, sawMotion = false;
@@ -61,6 +61,49 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
 
   if (L.some((l) => l.words.length) && !sawM30) out.push({ line: L.length - 1, level: "warn", msg: "Brak M30/M02 na końcu programu." });
   if (L.some((l) => l.words.length) && !sawMotion) out.push({ line: 0, level: "warn", msg: "Program nie zawiera żadnego ruchu (G00–G03)." });
+  // kontrola poprawności kompensacji promienia
+  {
+    let prevComp: 40 | 41 | 42 = 40;
+    let activatedAt: number | null = null;
+    program.lines.forEach((l) => {
+      const comp = l.state.comp;
+      const gs = l.words.filter((w) => w.letter === "G").map((w) => w.value);
+
+      // zmiana strony bez wyłączenia kompensacji
+      if ((prevComp === 41 && comp === 42) || (prevComp === 42 && comp === 41)) {
+        out.push({ line: l.index, level: "error", msg: "Zmiana strony kompensacji z G41 na G42 (lub odwrotnie) bez pośredniego G40. Tor przeskakuje na drugą stronę konturu — wyłącz kompensację, odjedź i włącz ją ponownie." });
+      }
+
+      // włączenie kompensacji
+      if (prevComp === 40 && (comp === 41 || comp === 42)) {
+        activatedAt = l.index;
+        if (l.state.motion === 0) {
+          out.push({ line: l.index, level: "warn", msg: "Kompensacja włączona w bloku szybkiego przejazdu. Blok dojazdowy powinien być ruchem G01 — na części sterowników G00 z G41/G42 kończy się alarmem." });
+        }
+        const move = l.segments.find((sg) => sg.kind !== "rapid") ?? l.segments[0];
+        if (move && compRadius) {
+          const len = Math.hypot(move.to.x - move.from.x, move.to.y - move.from.y);
+          if (len > 0 && len < compRadius * 1.05) {
+            out.push({ line: l.index, level: "error", msg: `Blok dojazdowy ma ${fmt(len)} mm, a promień narzędzia to ${fmt(compRadius)} mm. Dojazd musi być dłuższy niż promień, inaczej sterownik zgłosi przecięcie toru.` });
+          }
+        }
+        if (l.words.some((w) => w.letter === "Z") && !l.words.some((w) => w.letter === "X" || w.letter === "Y")) {
+          out.push({ line: l.index, level: "warn", msg: "Kompensacji nie da się włączyć ruchem wyłącznie w osi Z — potrzebny jest ruch w płaszczyźnie obróbki." });
+        }
+      }
+
+      // łuk w bloku włączającym
+      if ((comp === 41 || comp === 42) && activatedAt === l.index && gs.some((g) => g === 2 || g === 3)) {
+        out.push({ line: l.index, level: "error", msg: "Kompensacji nie wolno włączać w bloku z łukiem G02/G03 — użyj ruchu prostoliniowego." });
+      }
+
+      prevComp = comp;
+    });
+    if (prevComp !== 40 && program.lines.some((l) => l.words.length)) {
+      out.push({ line: program.lines.length - 1, level: "warn", msg: "Program kończy się z aktywną kompensacją promienia. Dodaj G40 w bloku odjazdowym." });
+    }
+  }
+
   // kontrola kolizji z półfabrykatem
   if (stock) {
     for (const l of program.lines) {
