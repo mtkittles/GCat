@@ -51,7 +51,8 @@ const COLORS = {
 };
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, showcase = false }: Props) {
-  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
+  const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
+  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units }), [source, mode, units]);
   const [show3d, setShow3d] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -175,6 +176,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     io.observe(el);
     return () => io.disconnect();
   }, [showcase]);
+
+  // Program wgrany z zewnątrz bywa calowy — podpowiadamy, gdy wykryjemy G20.
+  const hasG20 = useMemo(() => program.lines.some((l) => l.words.some((w) => w.letter === "G" && w.value === 20)), [program]);
 
   const activeToolNo = (activeLine !== null ? program.lines[activeLine]?.state.tool : program.lines.at(-1)?.state.tool) ?? usedTools[0] ?? null;
   const activeTool = toolOf(setup, activeToolNo, mode);
@@ -521,6 +525,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
             </div>
           )}
+          {units === "auto" && hasG20 && (
+            <p className="units-note">Program zawiera G20 — współrzędne liczone w calach i przeliczane na milimetry (1&nbsp;cal = 25,4&nbsp;mm). Jeśli tor wygląda źle, wymuś jednostki przełącznikiem powyżej.</p>
+          )}
           {issues.length > 0 && (
             <ul className="sim-issues">
               {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
@@ -558,7 +565,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
         {!compact && st && (
-          <div className="sim-state">
+          <div className="sim-state" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
             <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
             <span>G{st.wcs}</span><span>G{st.comp}</span>
@@ -573,6 +580,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <>
             <div className="viewbar">
               {viewSwitch}
+              <label className="units">
+                <span>Jednostki</span>
+                <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
+                  <option value="auto">auto (G20/G21)</option>
+                  <option value="mm">milimetry</option>
+                  <option value="inch">cale</option>
+                </select>
+              </label>
               <button className="only-wide" aria-pressed={full} onClick={() => setFull((v) => !v)} title="Podgląd na dwie trzecie szerokości, konsola programu obok">
                 {full ? "Zwykły układ" : "Szeroki podgląd"}
               </button>
@@ -593,8 +608,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary>}
           </>
         )}
-        {!compact && <SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} />}
-        {!compact && <StatsPanel program={program} setup={setup} mode={mode} />}
+        {!compact && <div className="wb-aside-inline"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} /></div>}
+        {!compact && <div className="wb-aside-inline"><StatsPanel program={program} setup={setup} mode={mode} /></div>}
 
         {!compact && (
           <FullscreenSim

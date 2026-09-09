@@ -11,11 +11,11 @@ import type {
 
 export * from "./types";
 
-export const initialState = (): MachineState => ({
+export const initialState = (units: "mm" | "inch" = "mm"): MachineState => ({
   motion: 0, // sterowniki startują w trybie szybkiego przejazdu
   plane: 17,
   absolute: true,
-  units: "mm",
+  units,
   feed: null,
   feedMode: 94,
   spindle: null,
@@ -111,12 +111,20 @@ export interface ParseOptions {
   diameterX?: boolean;
   /** Prędkość szybkiego przejazdu [mm/min] do szacowania czasu cyklu. */
   rapidRate?: number;
+  /**
+   * Jednostki programu. "auto" respektuje G20/G21 w kodzie, pozostałe wymuszają
+   * interpretację niezależnie od programu. Wewnętrznie wszystko liczymy w mm,
+   * więc program calowy jest przeliczany współczynnikiem 25,4.
+   */
+  units?: "auto" | "mm" | "inch";
 }
 
-export function parseProgram(source: string, opts: ParseOptions = {}, start: MachineState = initialState()): Program {
-  let state = start;
+export function parseProgram(source: string, opts: ParseOptions = {}, start?: MachineState): Program {
+  const forcedInit = opts.units && opts.units !== "auto" ? opts.units : "mm";
+  let state = start ?? initialState(forcedInit);
   const dia = !!opts.diameterX;
   const rapidRate = opts.rapidRate ?? 20000;
+  const forced = opts.units && opts.units !== "auto" ? opts.units : null;
   let seconds = 0;
   let dwellMs = 0;
   const lines: ParsedLine[] = [];
@@ -124,7 +132,22 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
 
   source.split(/\r?\n/).forEach((raw, index) => {
     const { words: rawWords, comment } = tokenize(raw);
-    const words = dia ? rawWords.map((w) => (w.letter === "X" || w.letter === "I" || w.letter === "U" ? { ...w, value: w.value / 2 } : w)) : rawWords;
+
+    // Jednostki ustalamy przed przeliczeniem słów: G20/G21 w tym samym bloku
+    // obowiązuje już dla jego współrzędnych.
+    const gsRaw = rawWords.filter((w) => w.letter === "G").map((w) => w.value);
+    const unitsNow: "mm" | "inch" =
+      forced ?? (gsRaw.includes(20) ? "inch" : gsRaw.includes(21) ? "mm" : state.units);
+    const u = unitsNow === "inch" ? 25.4 : 1;
+
+    const SCALED = "XYZUVWIJKRQ";           // długości i promienie
+    const words = rawWords.map((w) => {
+      let v = w.value;
+      if (u !== 1 && SCALED.includes(w.letter)) v *= u;
+      if (u !== 1 && w.letter === "F") v *= u;   // posuw cale/min → mm/min
+      if (dia && (w.letter === "X" || w.letter === "I" || w.letter === "U")) v /= 2;
+      return v === w.value ? w : { ...w, value: v };
+    });
     const errors: string[] = [];
     const desc: string[] = [];
     const s: MachineState = { ...state, pos: { ...state.pos }, prog: { ...state.prog } };
@@ -145,8 +168,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start: Mac
         case 4: { const pv = get("P"); const xv = get("X"); const secs = pv !== undefined ? pv / 1000 : (xv ?? 0); dwellMs += secs * 1000; desc.push(`Postój ${fmt(secs)} s (G04)`); break; }
         case 17: case 18: case 19:
           s.plane = g as Plane; desc.push(`Płaszczyzna ${planeName(s.plane)} (G${g})`); break;
-        case 20: s.units = "inch"; desc.push("Jednostki: cale (G20)"); break;
-        case 21: s.units = "mm"; desc.push("Jednostki: mm (G21)"); break;
+        case 20: s.units = forced ?? "inch"; desc.push(forced ? `G20 w programie — wymuszono ${forced === "mm" ? "milimetry" : "cale"}` : "Jednostki: cale (G20)"); break;
+        case 21: s.units = forced ?? "mm"; desc.push(forced ? `G21 w programie — wymuszono ${forced === "mm" ? "milimetry" : "cale"}` : "Jednostki: mm (G21)"); break;
         case 28: desc.push("Powrót do punktu referencyjnego (G28)"); break;
         case 40: s.comp = 40; desc.push("Wyłącz kompensację promienia (G40)"); break;
         case 41: s.comp = 41; desc.push("Kompensacja promienia — lewa (G41)"); break;
