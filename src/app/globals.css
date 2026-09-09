@@ -905,3 +905,23 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
   .sim-state { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.2rem, 1fr)); gap: .35rem; }
   .sim-state span { text-align: center; padding: .3rem .4rem; }
 }
+
+/* ---------- pojęcie z podpowiedzią ---------- */
+.term-wrap { position: relative; display: inline; }
+.term {
+  background: none; border: none; padding: 0; font: inherit; color: inherit;
+  border-bottom: 1.5px dotted var(--accent); cursor: help; line-height: inherit;
+}
+.term:hover { color: var(--accent); }
+.term-pop {
+  position: absolute; left: 0; top: calc(100% + .45rem); z-index: 30;
+  width: min(88vw, 24rem); display: grid; gap: .3rem;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: .7rem .85rem; font-size: 14px; line-height: 1.55;
+  animation: gc-rise 140ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) { .term-pop { animation: none; } }
+.term-kind { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.term-pop strong { font-size: 14.5px; color: var(--ink); }
+.term-def { color: var(--ink-2); }
+.term-link { font-size: 13px; font-weight: 600; color: var(--accent); }

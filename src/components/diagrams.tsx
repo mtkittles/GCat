@@ -375,7 +375,72 @@ const Runout = () => (
   </Plot>
 );
 
+
+/** Dojazd wprost kontra dookoła przeszkody — z animacją obu wariantów. */
+const RapidClamp = () => (
+  <Plot range={[-8, 108, -8, 82]} height={320} title="Dojazd wprost kontra dookoła przeszkody"
+    caption="Ten sam punkt docelowy, dwie drogi. Czerwona prowadzi przekątną przez zacisk — na maszynie to kolizja. Zielona rozbija ruch na dwa etapy: najpierw wzdłuż jednej osi, potem wzdłuż drugiej. Obie są szybkimi przejazdami i trwają podobnie.">
+    {({ X, Y, u }) => {
+      const P1 = { x: 10, y: 10 }, P2 = { x: 90, y: 70 };
+      const dLen = Math.hypot(X(P2.x) - X(P1.x), Y(P2.y) - Y(P1.y));
+      const iLen = Math.abs(X(P2.x) - X(P1.x)) + Math.abs(Y(P2.y) - Y(P1.y));
+      return (
+        <g>
+          <rect x={X(0)} y={Y(80)} width={100 * u} height={80 * u} fill={C.stock} stroke={C.grid} strokeWidth={1.2} strokeDasharray="5 4" />
+          <text x={X(2)} y={Y(76)} fill={C.axis} fontSize={11}>obszar roboczy</text>
+
+          {/* zacisk na drodze przekątnej */}
+          <rect x={X(40)} y={Y(52)} width={22 * u} height={24 * u} fill={C.bad} opacity={0.18} stroke={C.bad} strokeWidth={1.6} />
+          <text x={X(51)} y={Y(38)} fill={C.bad} fontSize={11.5} textAnchor="middle" fontWeight={600}>zacisk</text>
+
+          {/* wariant zły */}
+          <line x1={X(P1.x)} y1={Y(P1.y)} x2={X(P2.x)} y2={Y(P2.y)} stroke={C.bad} strokeWidth={2.6}
+            strokeDasharray={`${dLen} ${dLen}`} className="draw" style={{ ["--len" as string]: dLen }} />
+          <text x={X(24)} y={Y(28)} fill={C.bad} fontSize={11.5} fontFamily="var(--font-mono)">G00 X90 Y70</text>
+
+          {/* wariant bezpieczny */}
+          <polyline points={`${X(P1.x)},${Y(P1.y)} ${X(P2.x)},${Y(P1.y)} ${X(P2.x)},${Y(P2.y)}`} fill="none"
+            stroke={C.cut} strokeWidth={3} strokeDasharray={`${iLen} ${iLen}`} className="draw" style={{ ["--len" as string]: iLen }} />
+          <text x={X(52)} y={Y(6)} fill={C.cut} fontSize={11.5} fontFamily="var(--font-mono)" textAnchor="middle">G00 X90</text>
+          <text x={X(92)} y={Y(44)} fill={C.cut} fontSize={11.5} fontFamily="var(--font-mono)">G00 Y70</text>
+
+          <circle cx={X(P1.x)} cy={Y(P1.y)} r={5} fill={C.ink} />
+          <text x={X(P1.x) - 3} y={Y(P1.y) + 16} fill={C.ink} fontSize={12} fontWeight={700} textAnchor="end">P1</text>
+          <circle cx={X(P2.x)} cy={Y(P2.y)} r={5} fill={C.ink} />
+          <text x={X(P2.x) + 8} y={Y(P2.y) + 4} fill={C.ink} fontSize={12} fontWeight={700}>P2</text>
+        </g>
+      );
+    }}
+  </Plot>
+);
+
+/** Tor wypadkowy przy niezależnym ruchu osi. */
+const RapidPath = () => (
+  <Plot range={[-6, 96, -6, 66]} height={300} title="Dlaczego G00 nie jedzie po przekątnej"
+    caption="Obie osie ruszają jednocześnie z własną prędkością maksymalną. Oś o krótszej drodze kończy ruch pierwsza, więc dalej pracuje już tylko druga. Tor składa się z odcinka skośnego i dobiegu wzdłuż jednej osi — nie z prostej.">
+    {({ X, Y }) => (
+      <g>
+        <line x1={X(10)} y1={Y(10)} x2={X(80)} y2={Y(50)} stroke={C.grid} strokeWidth={1.6} strokeDasharray="6 5" />
+        <text x={X(44)} y={Y(35)} fill={C.axis} fontSize={11}>tor zakładany</text>
+
+        <polyline points={`${X(10)},${Y(10)} ${X(50)},${Y(50)} ${X(80)},${Y(50)}`} fill="none"
+          stroke={C.rapid} strokeWidth={3.2} color={C.rapid} markerEnd="url(#arw)" className="draw" style={{ ["--len" as string]: 900 }} />
+        <text x={X(24)} y={Y(34)} fill={C.rapid} fontSize={11.5} fontWeight={700}>obie osie</text>
+        <text x={X(62)} y={Y(54)} fill={C.rapid} fontSize={11.5} fontWeight={700}>tylko X</text>
+
+        <circle cx={X(10)} cy={Y(10)} r={4.5} fill={C.ink} />
+        <circle cx={X(50)} cy={Y(50)} r={3.5} fill={C.rapid} />
+        <circle cx={X(80)} cy={Y(50)} r={4.5} fill={C.ink} />
+        <text x={X(81)} y={Y(56)} fill={C.ink} fontSize={11} fontFamily="var(--font-mono)">X80 Y50</text>
+        <text x={X(4)} y={Y(4)} fill={C.ink} fontSize={11} fontFamily="var(--font-mono)">X10 Y10</text>
+      </g>
+    )}
+  </Plot>
+);
+
 export const diagrams: Record<string, () => ReactNode> = {
+  "rapid-clamp": RapidClamp,
+  "rapid-path": RapidPath,
   apae: ApAe,
   thinning: Thinning,
   vc: VcDiag,
@@ -383,7 +448,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   rz: RzDiag,
   allowance: Allowance,
   runout: Runout,
-  g00: Rapid,
+  g00: RapidPath,
   g01: Rapid,
   g02: ArcIJ,
   g03: ArcIJ,

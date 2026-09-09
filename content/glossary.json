@@ -314,5 +314,36 @@
     "see": [
       "g81-g83"
     ]
+  },
+  {
+    "term": "Głowica rewolwerowa",
+    "aliases": [
+      "rewolwer",
+      "głowica narzędziowa"
+    ],
+    "def": "Obrotowy magazyn narzędzi na tokarce. Mieści zwykle od 8 do 16 pozycji, a zmiana narzędzia polega na obróceniu głowicy. Przed obrotem narzędzie musi znaleźć się w bezpiecznym miejscu, poza detalem i konikiem.",
+    "see": []
+  },
+  {
+    "term": "Wysokość bezpieczna",
+    "aliases": [
+      "płaszczyzna bezpieczna",
+      "safe Z"
+    ],
+    "def": "Poziom w osi Z, powyżej którego narzędzie może swobodnie przejeżdżać nad całym stołem — ponad zaciskami, detalem i konikiem. Wszystkie szybkie przejazdy w płaszczyźnie XY wykonuje się na tej wysokości.",
+    "see": [
+      "g00"
+    ]
+  },
+  {
+    "term": "Kolizja",
+    "aliases": [
+      "crash",
+      "zderzenie"
+    ],
+    "def": "Zderzenie narzędzia, uchwytu albo wrzeciona z detalem, zaciskiem lub elementem maszyny. Przy szybkim przejeździe energia uderzenia jest na tyle duża, że uszkodzeniu ulega zwykle nie tylko narzędzie, ale i łożyskowanie wrzeciona.",
+    "see": [
+      "g00"
+    ]
   }
 ]
