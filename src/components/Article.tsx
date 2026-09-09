@@ -2,6 +2,7 @@ import type { Block } from "@/lib/article";
 import SimClient from "@/components/simulator/SimClient";
 import { diagrams } from "@/components/diagrams";
 import RijCalc from "@/components/RijCalc";
+import ArcCalc from "@/components/ArcCalc";
 import Term from "@/components/ui/Term";
 
 /**
@@ -62,7 +63,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
             </table></div>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;
-          case "widget": return b.id === "rij" ? <div key={i} id="kalkulator-zamiany-r-i-j"><RijCalc /></div> : null;
+          case "widget": return <div key={i} id="kalkulator-zamiany-r-i-j">{b.id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
         }
       })}
     </div>
