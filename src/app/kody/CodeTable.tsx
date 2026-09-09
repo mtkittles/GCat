@@ -2,8 +2,9 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { levelName, type GCode } from "@/lib/gcodes";
+import { CURATED } from "@/content/articles";
 
-type Filter = "all" | "mill" | "lathe";
+type Filter = "all" | "mill" | "lathe" | "curated";
 
 export default function CodeTable({ items }: { items: GCode[] }) {
   const [filter, setFilter] = useState<Filter>("all");
@@ -11,6 +12,7 @@ export default function CodeTable({ items }: { items: GCode[] }) {
   const list = useMemo(() => items.filter((g) => {
     if (filter === "mill" && !g.milling) return false;
     if (filter === "lathe" && !g.turning) return false;
+    if (filter === "curated" && !CURATED.has(g.slug)) return false;
     const s = q.trim().toLowerCase();
     return !s || [g.code, g.name, g.short, g.group].join(" ").toLowerCase().includes(s);
   }), [items, filter, q]);
@@ -18,8 +20,10 @@ export default function CodeTable({ items }: { items: GCode[] }) {
   return (
     <div className="grid gap-4">
       <div className="filters">
-        {(["all", "mill", "lathe"] as Filter[]).map((f) => (
-          <button key={f} aria-pressed={filter === f} onClick={() => setFilter(f)}>{f === "all" ? "Wszystkie" : f === "mill" ? "Frezowanie" : "Toczenie"}</button>
+        {(["all", "mill", "lathe", "curated"] as Filter[]).map((f) => (
+          <button key={f} aria-pressed={filter === f} onClick={() => setFilter(f)}>
+            {f === "all" ? "Wszystkie" : f === "mill" ? "Frezowanie" : f === "lathe" ? "Toczenie" : `★ Opracowane (${CURATED.size})`}
+          </button>
         ))}
         <input placeholder="Szukaj: G02, łuk, chłodziwo…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
@@ -28,7 +32,10 @@ export default function CodeTable({ items }: { items: GCode[] }) {
         <tbody>
           {list.map((g) => (
             <tr key={g.slug}>
-              <td><Link href={`/kody/${g.slug}`}>{g.code}</Link></td>
+              <td>
+                <Link href={`/kody/${g.slug}`}>{g.code}</Link>
+                {CURATED.has(g.slug) && <span className="star" title="Karta opracowana w pełnym układzie: schematy, animacje, sterowniki, błędy">★</span>}
+              </td>
               <td><Link href={`/kody/${g.slug}`} className="font-semibold">{g.name}</Link><div className="text-muted text-[13px]">{g.short}</div>
                 <div className="mt-1"><span className={`tag ${g.milling ? "on" : ""}`}>frez</span><span className={`tag ${g.turning ? "on" : ""}`}>tok</span>{g.modal && <span className="tag">modalny</span>}</div></td>
               <td className="hidden sm:table-cell">{g.group}</td>

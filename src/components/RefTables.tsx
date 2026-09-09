@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { reference } from "@/lib/content";
+import { CURATED } from "@/content/articles";
 
 function Code({ code, slug }: { code: string; slug: string | null }) {
-  return slug ? <Link href={`/kody/${slug}`} className="font-mono font-bold underline">{code}</Link> : <span className="font-mono font-bold text-muted">{code}</span>;
+  if (!slug) return <span className="font-mono font-bold text-muted">{code}</span>;
+  return (
+    <span className="code-cell">
+      <Link href={`/kody/${slug}`} className="font-mono font-bold underline">{code}</Link>
+      {CURATED.has(slug) && <span className="star" title="Karta opracowana w pełnym układzie">★</span>}
+    </span>
+  );
 }
 
 export default function RefTables() {
@@ -10,7 +17,7 @@ export default function RefTables() {
     <div className="grid gap-8">
       <section className="grid gap-2">
         <h2 className="text-2xl font-bold">Funkcje G</h2>
-        <p className="text-muted text-sm">Podkreślone kody mają pełną kartę z animacją. Reszta — w przygotowaniu.</p>
+        <p className="text-muted text-sm">Podkreślone kody mają kartę z opisem i animacją. Gwiazdką <span className="star">★</span> oznaczyliśmy karty opracowane w pełnym układzie referencyjnym.</p>
         <div className="overflow-x-auto"><table className="code-table">
           <thead><tr><th>Kod</th><th>Działanie</th><th className="text-center">Frez</th><th className="text-center">Tok</th></tr></thead>
           <tbody>{reference.g.map(([code, desc, slug, mill, lathe]) => (

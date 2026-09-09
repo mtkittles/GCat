@@ -302,6 +302,32 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.strokeRect(bx1, by2, bx2 - bx1, by1 - by2); ctx.restore();
     }
 
+    // punkty charakterystyczne toru z podpisem współrzędnych (tryb pokazowy)
+    if (showcase && !compact) {
+      ctx.save();
+      ctx.font = "10.5px ui-monospace, monospace";
+      const shown = new Set<string>();
+      let accP = 0;
+      segments.forEach((sg, i) => {
+        const len = lengths[i];
+        const done = Math.min(1, Math.max(0, (progress - accP) / (len || 1)));
+        accP += len;
+        if (done < 1 || sg.kind === "rapid") return;
+        const key = `${Math.round(sg.to.x)}:${Math.round(sg.to.y)}`;
+        if (shown.has(key)) return;
+        shown.add(key);
+        const [px, py] = P(sg.to);
+        ctx.fillStyle = "rgba(248,250,252,0.9)";
+        ctx.beginPath(); ctx.arc(px, py, 2.6, 0, Math.PI * 2); ctx.fill();
+        const label = mode === "lathe"
+          ? `X${fmt(sg.to.x * 2)} Z${fmt(sg.to.z)}`
+          : `X${fmt(sg.to.x)} Y${fmt(sg.to.y)}`;
+        ctx.fillStyle = "rgba(148,163,184,0.85)";
+        ctx.fillText(label, px + 6, py - 5);
+      });
+      ctx.restore();
+    }
+
     // znacznik zera detalu
     ctx.fillStyle = "#F97316";
     const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });

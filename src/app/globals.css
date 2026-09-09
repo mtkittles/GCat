@@ -925,3 +925,14 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .term-pop strong { font-size: 14.5px; color: var(--ink); }
 .term-def { color: var(--ink-2); }
 .term-link { font-size: 13px; font-weight: 600; color: var(--accent); }
+
+/* ---------- animacja z kodem w artykule ---------- */
+.demo-fig { max-width: 100%; }
+.demo-title { font-family: var(--font-display); font-weight: 650; font-size: 1.02rem; color: var(--ink); }
+.demo-fig .showcase { border-radius: var(--radius); }
+.demo-fig .showcase-canvas { height: clamp(230px, 46vw, 340px); }
+@media (min-width: 900px) { .demo-fig .showcase-canvas { height: clamp(280px, 22vw, 380px); } }
+
+/* oznaczenie kart opracowanych */
+.star { color: var(--accent); font-size: 12px; margin-left: .3rem; vertical-align: super; }
+.code-cell { display: inline-flex; align-items: baseline; }
