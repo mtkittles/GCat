@@ -276,7 +276,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     const noMotion = gs.some((g) => g === 52 || g === 68 || g === 10 || g === 92);
 
     // Ruch
-    const hasAxis = !noMotion && ["X", "Y", "Z"].some((l) => get(l) !== undefined);
+    // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
+    // taki blok też musi wygenerować ruch.
+    const arcWords = words.some((w) => "IJK".includes(w.letter));
+    const isArcMode = s.motion === 2 || s.motion === 3;
+    const hasAxis = !noMotion && (["X", "Y", "Z"].some((l) => get(l) !== undefined) || (isArcMode && arcWords));
     if (hasAxis) {
       const progTarget: Vec3 = { ...state.prog };
       (["x", "y", "z"] as const).forEach((ax) => {

@@ -62,6 +62,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [fs, setFs] = useState(false);
   const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
+  const holdRef = useRef(0);
   const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
   const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
@@ -123,9 +124,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         // szybki dojazd 3x szybciej niż posuw
         const idx = segIndexAt(p, lengths);
         const mult = segments[idx]?.kind === "rapid" ? 3 : 1;
-        const np = p + dt * 40 * speed * mult;
+        // W pokazie tempo dobieramy do długości programu — krótkie przykłady
+        // przy stałej prędkości tylko migały.
+        const rate = showcase ? Math.min(40, Math.max(5, total / 14)) : 40;
+        const np = p + dt * rate * speed * mult;
         if (np >= total) {
-          if (showcase) return 0;      // pokaz startuje od nowa
+          if (showcase) {
+            // pauza na gotowym torze, dopiero potem start od nowa
+            if (holdRef.current === 0) { holdRef.current = performance.now(); return total; }
+            if (performance.now() - holdRef.current < 1600) return total;
+            holdRef.current = 0;
+            return 0;
+          }
           setPlaying(false); return total;
         }
         return np;
@@ -223,8 +233,23 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     ctx.clearRect(0, 0, W, H);
 
-    // siatka
+    // Siatka dwupoziomowa: cienka podziałka pomocnicza i wyraźniejsze linie
+    // główne z opisem — układ znany z podręczników programowania.
     const step = niceStep(Math.max(spanH, spanV) / 8);
+    const minor = step / 5;
+    if (minor * scale > 4) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
+      for (let v = Math.floor(min[ha] / minor) * minor; v <= max[ha] + minor; v += minor) {
+        const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let v = Math.floor(min[va] / minor) * minor; v <= max[va] + minor; v += minor) {
+        const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+      ctx.restore();
+    }
     ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
     for (let v = Math.floor(min[ha] / step) * step; v <= max[ha] + step; v += step) {
       const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
@@ -329,10 +354,24 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // znacznik zera detalu
-    ctx.fillStyle = "#F97316";
-    const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
-    ctx.beginPath(); ctx.arc(oxp, oyp, 3.5, 0, Math.PI * 2); ctx.fill();
-    ctx.font = "10px ui-monospace, monospace"; ctx.fillText("0", oxp + 6, oyp + 12);
+    {
+      // Celownik zera detalu: okrąg z krzyżem i zaczernionymi ćwiartkami —
+      // oznaczenie stosowane na rysunkach warsztatowych.
+      const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
+      const r = 9;
+      ctx.save();
+      ctx.strokeStyle = "#F97316"; ctx.fillStyle = "#F97316"; ctx.lineWidth = 1.4;
+      ctx.beginPath(); ctx.arc(oxp, oyp, r, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(oxp, oyp); ctx.arc(oxp, oyp, r, 0, Math.PI / 2); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(oxp, oyp); ctx.arc(oxp, oyp, r, Math.PI, Math.PI * 1.5); ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.moveTo(oxp - r - 6, oyp); ctx.lineTo(oxp + r + 6, oyp);
+      ctx.moveTo(oxp, oyp - r - 6); ctx.lineTo(oxp, oyp + r + 6);
+      ctx.stroke();
+      ctx.font = "10px ui-monospace, monospace";
+      ctx.fillText(mode === "lathe" ? "X0 Z0" : "X0 Y0", oxp + r + 8, oyp + r + 7);
+      ctx.restore();
+    }
 
     // narzędzie
     const [tx, ty] = P(currentPos);

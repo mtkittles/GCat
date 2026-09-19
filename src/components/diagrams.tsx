@@ -438,7 +438,101 @@ const RapidPath = () => (
   </Plot>
 );
 
+
+/** Helisa w dwóch rzutach: z góry okrąg, z boku schodkowe zejście w Z. */
+const HelixZ = () => (
+  <Plot range={[-6, 128, -34, 34]} height={330} step={10} yLabel="Y / Z" title="Interpolacja śrubowa — rzut z góry i z boku"
+    caption="Z góry helisa wygląda jak zwykły okrąg, bo ruch w osi Z jest niewidoczny. Dopiero rzut z boku pokazuje, co naprawdę robi narzędzie: każdy pełny obrót schodzi o stałą wartość — tutaj 2 mm. Trzy obroty dają rowek na głębokości 6 mm.">
+    {({ X, Y, u }) => (
+      <g>
+        {/* rzut z góry */}
+        <text x={X(-4)} y={Y(30)} fill={C.ink} fontSize={12} fontWeight={700}>Rzut z góry (XY)</text>
+        {[0, 1, 2].map((i) => (
+          <circle key={i} cx={X(24)} cy={Y(0)} r={(20 - i * 0.8) * u} fill="none" stroke={C.arc} strokeWidth={2.2} opacity={1 - i * 0.24} />
+        ))}
+        <circle cx={X(24)} cy={Y(0)} r={3} fill={C.arc} />
+        <text x={X(26)} y={Y(-4)} fill={C.arc} fontSize={10.5} fontFamily="var(--font-mono)">środek</text>
+        <circle cx={X(4)} cy={Y(0)} r={4.5} fill={C.ink} />
+        <text x={X(2)} y={Y(5)} fill={C.ink} fontSize={10.5} textAnchor="end" fontFamily="var(--font-mono)">start</text>
+        <line x1={X(4)} y1={Y(0)} x2={X(24)} y2={Y(0)} stroke={C.rapid} strokeWidth={1.5} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(14)} y={Y(2.5)} fill={C.rapid} fontSize={10.5} textAnchor="middle" fontFamily="var(--font-mono)">I20 J0</text>
+
+        {/* separator */}
+        <line x1={X(52)} y1={Y(-30)} x2={X(52)} y2={Y(30)} stroke={C.grid} strokeWidth={1.5} strokeDasharray="6 5" />
+
+        {/* rzut z boku */}
+        <text x={X(58)} y={Y(30)} fill={C.ink} fontSize={12} fontWeight={700}>Rzut z boku (XZ)</text>
+        <rect x={X(62)} y={Y(20)} width={56 * u} height={20 * u} fill={C.stock} stroke={C.ink} strokeWidth={1.8} />
+        <line x1={X(60)} y1={Y(20)} x2={X(122)} y2={Y(20)} stroke={C.ink} strokeWidth={2} />
+        <text x={X(120)} y={Y(23)} fill={C.axis} fontSize={10} textAnchor="end" fontFamily="var(--font-mono)">Z0</text>
+
+        {/* trzy zwoje widziane z boku — sinusoida opadająca */}
+        {[0, 1, 2].map((turn) => {
+          const z0 = -turn * 6, z1 = -(turn + 1) * 6;
+          const pts: string[] = [];
+          for (let t = 0; t <= 1.001; t += 0.05) {
+            const x = 90 + 26 * Math.cos(Math.PI * 2 * t + Math.PI);
+            const z = z0 + (z1 - z0) * t;
+            pts.push(`${X(x)},${Y(z)}`);
+          }
+          return <polyline key={turn} points={pts.join(" ")} fill="none" stroke={C.arc} strokeWidth={2.4} opacity={0.55 + turn * 0.15} />;
+        })}
+
+        {/* wymiar skoku na obrót */}
+        <line x1={X(66)} y1={Y(0)} x2={X(66)} y2={Y(-6)} stroke={C.rapid} strokeWidth={1.5} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+        <text x={X(64)} y={Y(-3)} fill={C.rapid} fontSize={10.5} textAnchor="end" fontFamily="var(--font-mono)">2 mm</text>
+        <text x={X(90)} y={Y(-26)} fill={C.arc} fontSize={11} textAnchor="middle">3 obroty → Z−6</text>
+        {[0, -6, -12, -18].map((z) => (
+          <g key={z}>
+            <line x1={X(62)} y1={Y(z)} x2={X(118)} y2={Y(z)} stroke={C.grid} strokeWidth={1} strokeDasharray="3 4" />
+            <text x={X(120)} y={Y(z) + 3.5} fill={C.axis} fontSize={9.5} fontFamily="var(--font-mono)">{z}</text>
+          </g>
+        ))}
+      </g>
+    )}
+  </Plot>
+);
+
+/** Wejście i wyjście z kompensacją promienia — pełna sekwencja bloków. */
+const CompEntry = () => (
+  <Plot range={[-34, 96, -34, 76]} height={340} title="G41 — pełna sekwencja: dojazd, kontur, odjazd"
+    caption="Kompensacja włącza się w bloku dojazdowym i wyłącza w odjazdowym — oba muszą być ruchami prostoliniowymi dłuższymi niż promień narzędzia. Zielona linia to tor środka freza: przy dojeździe przechodzi płynnie z punktu startowego na tor odsunięty o r od konturu.">
+    {({ X, Y, u }) => {
+      const r = 8;
+      return (
+        <g>
+          {/* kontur detalu */}
+          <rect x={X(0)} y={Y(50)} width={70 * u} height={50 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
+          <text x={X(35)} y={Y(24)} fill={C.ink} fontSize={12} textAnchor="middle">kontur detalu 70 × 50</text>
+
+          {/* tor środka narzędzia — odsunięty o r na zewnątrz */}
+          <rect x={X(-r)} y={Y(50 + r)} width={(70 + 2 * r) * u} height={(50 + 2 * r) * u}
+            fill="none" stroke={C.cut} strokeWidth={2.8} strokeDasharray="1 0" />
+
+          {/* dojazd */}
+          <line x1={X(-25)} y1={Y(-25)} x2={X(-r)} y2={Y(-r)} stroke={C.cut} strokeWidth={2.4} strokeDasharray="7 4" color={C.cut} markerEnd="url(#arw)" />
+          <circle cx={X(-25)} cy={Y(-25)} r={4.5} fill={C.ink} />
+          <text x={X(-25)} y={Y(-30)} fill={C.ink} fontSize={11} textAnchor="middle" fontFamily="var(--font-mono)">X−25 Y−25</text>
+          <text x={X(-30)} y={Y(-14)} fill={C.cut} fontSize={11} fontWeight={700}>G41 D1 X0 Y0</text>
+
+          {/* okrąg narzędzia w narożniku */}
+          <circle cx={X(-r)} cy={Y(-r)} r={r * u} fill="none" stroke={C.cut} strokeWidth={1.4} strokeDasharray="3 3" />
+
+          {/* wymiar promienia */}
+          <line x1={X(35)} y1={Y(0)} x2={X(35)} y2={Y(-r)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
+          <text x={X(37)} y={Y(-4)} fill={C.rapid} fontSize={11.5} fontFamily="var(--font-mono)" fontWeight={700}>r = D/2</text>
+
+          <text x={X(-32)} y={Y(66)} fill={C.cut} fontSize={11.5} fontWeight={700}>tor środka narzędzia</text>
+          <text x={X(-32)} y={Y(60)} fill={C.ink} fontSize={11}>kontur programowany</text>
+        </g>
+      );
+    }}
+  </Plot>
+);
+
 export const diagrams: Record<string, () => ReactNode> = {
+  "helix-z": HelixZ,
+  "comp-entry": CompEntry,
   "rapid-clamp": RapidClamp,
   "rapid-path": RapidPath,
   apae: ApAe,

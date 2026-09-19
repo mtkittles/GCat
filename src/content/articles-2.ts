@@ -6,6 +6,7 @@ export const part2: Record<string, Block[]> = {
     { t: "h", x: "Po której stronie konturu" },
     { t: "p", x: "Reguła jest jedna i zawsze ta sama: **stań za narzędziem i patrz w kierunku jego ruchu**. Jeżeli narzędzie ma być po lewej stronie konturu, użyj **G41**; jeżeli po prawej — **G42**. **G40** kompensację wyłącza." },
     { t: "diagram", id: "g40-g42" },
+    { t: "diagram", id: "comp-entry" },
     { t: "note", kind: "info", x: "Przy standardowych obrotach w prawo (M03) i frezowaniu konturu zewnętrznego, **G41 daje frezowanie współbieżne**, a G42 — przeciwbieżne. Współbieżne jest korzystniejsze na maszynach ze śrubą kulową: wiór jest grubszy na początku, cieńszy na końcu, przez co narzędzie mniej się grzeje i powierzchnia wychodzi lepsza." },
     { t: "h", x: "Składnia i rejestr korekcji" },
     { t: "code", x: "G41 D1 X_ Y_ F_        (włączenie, narzędzie z lewej)\n...bloki konturu...\nG40 X_ Y_              (wyłączenie)", caption: "Adres D wskazuje numer rejestru, w którym wpisany jest promień narzędzia." },
