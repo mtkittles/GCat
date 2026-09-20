@@ -42,12 +42,16 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
 
   // scena
   const [failed, setFailed] = useState<null | "no-webgl" | "error">(null);
+  const [ghost, setGhost] = useState(false);
   // Bufor mapy wysokości — pozwala dokładać tylko nowe odcinki zamiast liczyć
   // cały program przy każdej klatce.
   const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
-  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; threads: THREE.Group | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
+  const toolRef = useRef<Tool>(tool);
+  const programRef = useRef(program);
+  useEffect(() => { toolRef.current = tool; programRef.current = program; }, [tool, program]);
+  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; threads: THREE.Group | null; path: THREE.LineSegments | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
     if (!webglAvailable()) { queueMicrotask(() => setFailed("no-webgl")); return; }
@@ -77,17 +81,6 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const om = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xF97316 }));
     scene.add(om);
 
-    // ścieżka
-    const seg = program.segments;
-    const pts: THREE.Vector3[] = []; const cols: number[] = [];
-    const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
-    for (const s of seg) {
-      const n = s.kind === "arc" ? 32 : 1;
-      for (let i = 0; i < n; i++) { const a = pointAt(s, i / n), b = pointAt(s, (i + 1) / n); pts.push(toW(a, mode), toW(b, mode)); cols.push(...c[s.kind].toArray(), ...c[s.kind].toArray()); }
-    }
-    const lg = new THREE.BufferGeometry().setFromPoints(pts); lg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-    scene.add(new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 })));
-
     // narzędzie
     const toolLen = 30;
     let toolGeo: THREE.BufferGeometry;
@@ -107,11 +100,11 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
-    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
+    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar + gotowe ustawienia widoku
-    const b = program.bounds;
+    const b = programRef.current.bounds;
     const ctr = toW({ x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, z: (b.min.z + b.max.z) / 2 }, mode);
     const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 40);
     const apply = (v: "iso" | "top" | "front" | "side" | "fit") => {
@@ -149,7 +142,44 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       el.innerHTML = "";
       sceneRef.current = null;
     };
-  }, [program, mode, toolD, tool]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  // Wymiana bryły narzędzia — bez dotykania renderera i kontekstu WebGL.
+  useEffect(() => {
+    const st = sceneRef.current; if (!st || failed) return;
+    try {
+      const geo = buildToolGeometry(tool, cuttingRadius(tool) * 2, 30, mode);
+      st.tool.geometry.dispose();
+      st.tool.geometry = geo;
+      if (mode === "mill") {
+        st.tool.rotation.z = -(safe(tool.tiltB, 0, -90, 90) * Math.PI) / 180;
+        st.tool.rotation.x = (safe(tool.tiltA, 0, -90, 90) * Math.PI) / 180;
+      }
+    } catch { /* wadliwa geometria nie może gasić podglądu */ }
+  }, [tool, mode, failed]);
+
+  // Przebudowa toru narzędzia po zmianie programu.
+  useEffect(() => {
+    const st = sceneRef.current; if (!st || failed) return;
+    if (st.path) { st.scene.remove(st.path); st.path.geometry.dispose(); st.path = null; }
+    const pts: THREE.Vector3[] = []; const cols: number[] = [];
+    const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
+    for (const sg of program.segments) {
+      const n = sg.kind === "arc" ? 32 : 1;
+      for (let i = 0; i < n; i++) {
+        const a = pointAt(sg, i / n), b = pointAt(sg, (i + 1) / n);
+        pts.push(toW(a, mode), toW(b, mode));
+        cols.push(...c[sg.kind].toArray(), ...c[sg.kind].toArray());
+      }
+    }
+    if (!pts.length) return;
+    const lg = new THREE.BufferGeometry().setFromPoints(pts);
+    lg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
+    const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
+    st.path = line;
+    st.scene.add(line);
+  }, [program, mode, failed]);
 
   // ubytek materiału + pozycja narzędzia
   useEffect(() => {
@@ -206,6 +236,16 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     if (broke) queueMicrotask(() => setFailed("error"));
   }, [program, lengths, progress, mode, toolD, setup, tool, failed, source]);
 
+  const toggleGhost = () => {
+    const st = sceneRef.current; if (!st) return;
+    const next = !ghost;
+    setGhost(next);
+    st.stockMat.transparent = next;
+    st.stockMat.opacity = next ? 0.28 : 1;
+    st.stockMat.depthWrite = !next;
+    st.stockMat.needsUpdate = true;
+  };
+
   const setView = (v: "iso" | "top" | "front" | "side" | "fit") => {
     const api = viewApi.current; if (api) api(v);
   };
@@ -232,6 +272,9 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
             <button key={k} onClick={() => setView(k)}>{l}</button>
           ))}
           <button onClick={() => setView("fit")} title="Dopasuj widok">DOPASUJ</button>
+          <button onClick={toggleGhost} aria-pressed={ghost} title="Półfabrykat półprzezroczysty — widać gotowy detal w jego wnętrzu">
+            {ghost ? "PEŁNY" : "PRZEZR."}
+          </button>
         </div>
       </div>
       {!fill && <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>}
@@ -440,7 +483,9 @@ function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setu
   if (st.auto) {
     let aX = Infinity, bX = -Infinity, aY = Infinity, bY = -Infinity, mz = 0;
     for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(sg, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
-    const m = Math.min(6, 2 + maxD * 0.25);
+    // Margines równy promieniowi największego narzędzia: krawędź półfabrykatu
+    // wypada dokładnie tam, dokąd sięga obrys narzędzia jadącego po konturze.
+    const m = maxD / 2;
     minX = aX - m; maxX = bX + m; minY = aY - m; maxY = bY + m; top = 0; bottom = Math.min(mz - 5, -5);
   } else {
     minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;

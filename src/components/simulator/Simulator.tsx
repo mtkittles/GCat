@@ -306,6 +306,29 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.fillRect(x1, y2, x2 - x1, y1 - y2); ctx.strokeRect(x1, y2, x2 - x1, y1 - y2);
     }
 
+    // Ślad narzędzia: pas o szerokości średnicy freza pokazuje, ile materiału
+    // faktycznie schodzi i którą krawędzią narzędzie skrawa.
+    if (mode === "mill" && !isLatheTool(activeTool.kind)) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(34,197,94,0.16)";
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      let accS = 0;
+      segments.forEach((sg, i) => {
+        const len = lengths[i];
+        const done = Math.min(1, Math.max(0, (progress - accS) / (len || 1)));
+        accS += len;
+        if (sg.kind === "rapid" || done <= 0) return;
+        const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
+        ctx.lineWidth = Math.max(2, cuttingRadius(tl) * 2 * scale);
+        ctx.beginPath();
+        const n = sg.kind === "arc" ? 40 : 1;
+        const [sx, sy] = P(sg.from); ctx.moveTo(sx, sy);
+        for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, (k / n) * done)); ctx.lineTo(x, y); }
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
     // ścieżka
     let acc = 0;
     segments.forEach((sg, i) => {

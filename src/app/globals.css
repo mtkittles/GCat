@@ -964,3 +964,5 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .arc-svg { width: 100%; height: auto; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
 .arc-calc .segmented { width: 100%; }
 .arc-calc .segmented button { flex: 1 1 0; font-size: 12.5px; padding-inline: .5rem; }
+
+.view3d-bar button[aria-pressed="true"] { background: var(--accent); color: #fff; }

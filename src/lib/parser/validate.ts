@@ -61,6 +61,38 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
 
   if (L.some((l) => l.words.length) && !sawM30) out.push({ line: L.length - 1, level: "warn", msg: "Brak M30/M02 na końcu programu." });
   if (L.some((l) => l.words.length) && !sawMotion) out.push({ line: 0, level: "warn", msg: "Program nie zawiera żadnego ruchu (G00–G03)." });
+  // Kierunek obiegu konturu kontra strona kompensacji.
+  // Pole zorientowane zamkniętego toru mówi, w którą stronę obchodzimy kontur;
+  // dla konturu zewnętrznego narzędzie musi zostać po jego zewnętrznej stronie.
+  {
+    const cut = program.segments.filter((sg) => sg.kind !== "rapid");
+    const comped = cut.filter((sg) => {
+      const c = program.lines[sg.line]?.state.comp;
+      return c === 41 || c === 42;
+    });
+    // Pierwszy blok z aktywną kompensacją to dojazd — nie należy do konturu.
+    const body = comped.length >= 4 ? comped.slice(1) : comped;
+    if (body.length >= 3) {
+      const pts: { x: number; y: number }[] = [];
+      for (const sg of body) for (let t = 0; t <= 1; t += 0.5) { const q = pointAt(sg, t); pts.push({ x: q.x, y: q.y }); }
+      let area2 = 0;
+      for (let i = 0; i < pts.length; i++) {
+        const j = (i + 1) % pts.length;
+        area2 += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
+      }
+      const closed = Math.hypot(pts[0].x - pts[pts.length - 1].x, pts[0].y - pts[pts.length - 1].y) < 1.5;
+      const ccw = area2 > 0;
+      const side = program.lines[comped[0].line]?.state.comp;
+      if (closed && Math.abs(area2 / 2) > 25) {
+        if (ccw && side === 41) {
+          out.push({ line: body[0].line, level: "warn", msg: "Kontur obchodzony przeciwnie do wskazówek zegara przy G41 — narzędzie idzie po wewnętrznej stronie. Dla konturu zewnętrznego użyj G42 albo odwróć kolejność bloków." });
+        } else if (!ccw && side === 42) {
+          out.push({ line: body[0].line, level: "warn", msg: "Kontur obchodzony zgodnie z ruchem wskazówek zegara przy G42 — narzędzie idzie po wewnętrznej stronie. Dla konturu zewnętrznego użyj G41 albo odwróć kolejność bloków." });
+        }
+      }
+    }
+  }
+
   // kontrola poprawności kompensacji promienia
   {
     let prevComp: 40 | 41 | 42 = 40;
