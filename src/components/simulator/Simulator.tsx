@@ -59,6 +59,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
   const [full, setFull] = useState(false);
   const [tall, setTall] = useState(false);
+  const [showStock, setShowStock] = useState(true);
   const [fs, setFs] = useState(false);
   const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
@@ -306,27 +307,52 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.fillRect(x1, y2, x2 - x1, y1 - y2); ctx.strokeRect(x1, y2, x2 - x1, y1 - y2);
     }
 
-    // Ślad narzędzia: pas o szerokości średnicy freza pokazuje, ile materiału
-    // faktycznie schodzi i którą krawędzią narzędzie skrawa.
-    if (mode === "mill" && !isLatheTool(activeTool.kind)) {
-      ctx.save();
-      ctx.strokeStyle = "rgba(34,197,94,0.16)";
-      ctx.lineCap = "round"; ctx.lineJoin = "round";
-      let accS = 0;
-      segments.forEach((sg, i) => {
-        const len = lengths[i];
-        const done = Math.min(1, Math.max(0, (progress - accS) / (len || 1)));
-        accS += len;
-        if (sg.kind === "rapid" || done <= 0) return;
-        const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
-        ctx.lineWidth = Math.max(2, cuttingRadius(tl) * 2 * scale);
-        ctx.beginPath();
-        const n = sg.kind === "arc" ? 40 : 1;
-        const [sx, sy] = P(sg.from); ctx.moveTo(sx, sy);
-        for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, (k / n) * done)); ctx.lineTo(x, y); }
-        ctx.stroke();
-      });
-      ctx.restore();
+    // Warstwa materiału: prostokąt półfabrykatu, z którego ODEJMUJEMY ślad
+    // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
+    // tak jak w symulatorach z podglądem ubytku.
+    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact) {
+      const st2 = setup.stock;
+      const box = st2.auto ? autoStockBox(segments, lengths, setup, mode) : {
+        x0: -st2.ox, x1: st2.x - st2.ox, y0: -st2.oy, y1: st2.y - st2.oy,
+      };
+      if (box) {
+        const layer = document.createElement("canvas");
+        layer.width = cv.width; layer.height = cv.height;
+        const lx = layer.getContext("2d");
+        if (lx) {
+          lx.scale(dpr, dpr);
+          const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 });
+          const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 });
+          lx.fillStyle = "rgba(148,163,184,0.20)";
+          lx.fillRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+
+          // wycięcie śladu narzędzia
+          lx.globalCompositeOperation = "destination-out";
+          lx.lineCap = "round"; lx.lineJoin = "round"; lx.strokeStyle = "#000";
+          let accS = 0;
+          segments.forEach((sg, i) => {
+            const len = lengths[i];
+            const done = Math.min(1, Math.max(0, (progress - accS) / (len || 1)));
+            accS += len;
+            if (sg.kind === "rapid" || done <= 0) return;
+            const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
+            lx.lineWidth = Math.max(1.5, cuttingRadius(tl) * 2 * scale);
+            lx.beginPath();
+            const n = sg.kind === "arc" ? 40 : 1;
+            const [sx, sy] = P(sg.from); lx.moveTo(sx, sy);
+            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, (k / n) * done)); lx.lineTo(x, y); }
+            lx.stroke();
+          });
+
+          ctx.drawImage(layer, 0, 0, W, H);
+
+          // obrys półfabrykatu — granica materiału pozostaje czytelna
+          ctx.save();
+          ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1.2;
+          ctx.strokeRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+          ctx.restore();
+        }
+      }
     }
 
     // ścieżka
@@ -398,9 +424,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // narzędzie
     const [tx, ty] = P(currentPos);
-    ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
+    // Narzędzie: obrys o rzeczywistej średnicy plus krzyż w osi wrzeciona.
     const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, cuttingRadius(activeTool) * scale) : 6;
+    ctx.save();
+    ctx.fillStyle = "rgba(248,250,252,0.10)";
+    ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
     // celownik sondy pod palcem
@@ -444,7 +475,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -668,6 +699,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <>
             <div className="viewbar">
               {viewSwitch}
+              <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia">
+                Materiał
+              </button>
               <label className="units">
                 <span>Jednostki</span>
                 <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
@@ -732,7 +766,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 }
 
 function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t: number, alpha: number, bold = false) {
-  ctx.globalAlpha = alpha; ctx.lineWidth = sg.kind === "rapid" ? (bold ? 1.6 : 1) : (bold ? 3.4 : 2.5);
+  ctx.globalAlpha = alpha; ctx.lineWidth = sg.kind === "rapid" ? (bold ? 1.4 : 1) : (bold ? 2.6 : 1.8);
   ctx.setLineDash(sg.kind === "rapid" ? [5, 4] : []);
   ctx.strokeStyle = COLORS[sg.kind];
   ctx.beginPath();
@@ -775,6 +809,23 @@ function stripNumbers(src: string) {
 
 const reduceMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
+/** Obrys półfabrykatu dobieranego automatycznie: zakres ruchów roboczych
+    powiększony o promień największego narzędzia. */
+function autoStockBox(segments: Segment[], lengths: number[], setup: Setup, mode: "mill" | "lathe") {
+  void lengths;
+  const cut = segments.filter((s) => s.kind !== "rapid");
+  if (!cut.length) return null;
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) {
+    const p = pointAt(sg, t);
+    x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
+    y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
+  }
+  const r = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d / 2), 3);
+  void mode;
+  return { x0: x0 - r, x1: x1 + r, y0: y0 - r, y1: y1 + r };
+}
 
 function segIndexAt(p: number, lengths: number[]) {
   let acc = 0;
