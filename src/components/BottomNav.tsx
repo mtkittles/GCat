@@ -69,6 +69,8 @@ export default function BottomNav() {
 
   const active = (href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(href + "/"));
   const moreActive = MORE.some((m) => active(m.href));
+  const tabIdx = TABS.findIndex((t) => active(t.href));
+  const indIdx = open || moreActive ? TABS.length : tabIdx;
 
   const [prevPath, setPrevPath] = useState(path);
   if (prevPath !== path) { setPrevPath(path); if (open) setOpen(false); }
@@ -90,6 +92,7 @@ export default function BottomNav() {
         </div>
       )}
       <nav className="bottom-nav" aria-label="Nawigacja mobilna">
+        {indIdx >= 0 && <span className="bottom-nav-ind" style={{ "--tab-i": indIdx } as React.CSSProperties} aria-hidden="true" />}
         {TABS.map((t) => (
           <Link key={t.href} href={t.href} aria-current={active(t.href) ? "page" : undefined}>
             <Icon name={t.icon} />

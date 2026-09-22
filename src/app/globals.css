@@ -561,7 +561,7 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .bottom-nav svg { width: 22px; height: 22px; }
 .bottom-nav a[aria-current="page"], .bottom-nav button.is-active { color: var(--accent); }
 
-.bottom-nav-backdrop { position: fixed; inset: 0; z-index: 49; background: rgba(0, 0, 0, .5); border: none; }
+.bottom-nav-backdrop { position: fixed; inset: 0; z-index: 49; background: rgba(0, 0, 0, .5); border: none; animation: gc-fade .2s ease both; }
 .bottom-nav-sheet {
   position: fixed; left: 0; right: 0; bottom: calc(56px + env(safe-area-inset-bottom, 0)); z-index: 50;
   background: var(--surface); border-top: 1px solid var(--line);
@@ -569,6 +569,7 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
   padding: .4rem; display: grid; gap: .1rem;
   box-shadow: 0 -6px 20px rgba(0, 0, 0, .3);
 }
+.bottom-nav-sheet { animation: sheet-up .28s cubic-bezier(.2,.8,.2,1) backwards; }
 .bottom-nav-sheet a { display: block; padding: .85rem .9rem; font-size: 15px; font-weight: 500; color: var(--ink-2); border-radius: var(--radius-sm); }
 .bottom-nav-sheet a[aria-current="page"] { color: var(--accent); font-weight: 600; }
 
@@ -670,8 +671,8 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .brand-text { display: grid; gap: 1px; }
 .brand-word { font-family: var(--font-display); font-weight: 800; letter-spacing: -.035em; color: var(--ink); line-height: 1; }
 .brand-word b { color: var(--accent); font-weight: 800; }
-.brand-motto { font-family: var(--font-mono); font-size: 7.6px; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; line-height: 1.2; white-space: nowrap; }
-@media (max-width: 420px) { .brand-motto { display: none; } }
+.brand-motto { font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; letter-spacing: .16em; color: var(--muted); text-transform: uppercase; line-height: 1.2; white-space: nowrap; }
+.brand-text { gap: 3px; }
 
 /* ---------- baner sekcji ---------- */
 .banner {
@@ -1056,3 +1057,81 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .arc-calc .segmented button { flex: 1 1 0; font-size: 12.5px; padding-inline: .5rem; }
 
 .view3d-bar button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+
+/* ================= v2: ruch i przejścia ================= */
+html { scroll-behavior: smooth; }
+
+/* wejście strony przy każdej nawigacji (template.tsx). Fill "backwards" — po animacji
+   nie zostaje żaden transform, więc nie psuje position:fixed w środku strony. */
+.page-enter { animation: page-in .32s cubic-bezier(.2,.8,.2,1) backwards; }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+
+/* dolna nawigacja: przesuwany wskaźnik + „pop” aktywnej ikony + reakcja na dotyk */
+
+.bottom-nav-ind {
+  position: absolute; top: 0; left: calc(var(--tab-i) * 20%); width: 20%; height: 3px;
+  display: flex; justify-content: center; pointer-events: none;
+  transition: left .34s cubic-bezier(.2,.9,.25,1.15);
+}
+.bottom-nav-ind::before {
+  content: ""; width: 28px; height: 3px; border-radius: 0 0 3px 3px; background: var(--accent);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.bottom-nav a, .bottom-nav button { transition: color .2s ease, transform .12s ease; -webkit-tap-highlight-color: transparent; }
+.bottom-nav a:active, .bottom-nav button:active { transform: scale(.9); }
+.bottom-nav a[aria-current="page"] svg, .bottom-nav button.is-active svg { animation: tab-pop .38s cubic-bezier(.2,.9,.3,1.4); }
+@keyframes tab-pop { 0% { transform: scale(.8) translateY(2px); } 60% { transform: scale(1.12) translateY(-1px); } 100% { transform: none; } }
+
+/* odsłanianie przy przewijaniu — czysty CSS (scroll-driven animations), bez JS.
+   Przeglądarki bez wsparcia pokazują treść normalnie. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .tile, .pillar, .brandstat, .codecard, .brandblock {
+      animation: sr-in linear both; animation-timeline: view(); animation-range: entry 0% entry 55%;
+    }
+  }
+}
+@keyframes sr-in { from { opacity: 0; transform: translateY(22px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* ---------- karuzela na starcie (mobile) ---------- */
+.hc {
+  position: relative; aspect-ratio: 3 / 2; border-radius: 18px; overflow: hidden;
+  background: var(--surface-2); border: 1px solid var(--line); box-shadow: var(--shadow);
+  touch-action: pan-y;
+}
+.hc-slide {
+  position: absolute; inset: 0; display: block; opacity: 0; visibility: hidden;
+  transform: translateX(6%) scale(1.03);
+  transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1), visibility 0s linear .9s;
+}
+.hc-slide.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity .7s ease, transform .9s cubic-bezier(.2,.8,.2,1), visibility 0s; z-index: 2; }
+.hc-slide.is-prev { transform: translateX(-6%) scale(1.03); z-index: 1; }
+.hc-img { object-fit: cover; }
+.hc-slide.is-on .hc-img { animation: kenburns 6s ease-out both; }
+@keyframes kenburns { from { transform: scale(1.08); } to { transform: scale(1); } }
+.hc-scrim { position: absolute; inset: 0; background: linear-gradient(to top, rgba(10,10,12,.78) 0%, rgba(10,10,12,.15) 38%, transparent 55%); }
+.hc-copy { position: absolute; left: 1rem; top: 1rem; right: 40%; display: grid; gap: .3rem; }
+.hc-kicker { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.hc-copy b { font-family: var(--font-display); font-size: 1.3rem; line-height: 1.15; color: #fff; text-shadow: 0 2px 14px rgba(0,0,0,.6); }
+.hc-cta {
+  position: absolute; left: .9rem; bottom: .9rem; display: inline-flex; align-items: center; gap: .3rem;
+  padding: .55rem .85rem; border-radius: 10px; background: var(--accent); color: #fff;
+  font-size: 13px; font-weight: 600; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+.hc-slide.is-on .hc-cta { animation: page-in .5s .25s cubic-bezier(.2,.8,.2,1) backwards; }
+.hc-cta svg { width: 15px; height: 15px; }
+.hc-dots { position: absolute; right: .9rem; bottom: 1.15rem; z-index: 3; display: flex; gap: 5px; }
+.hc-dots button {
+  width: 6px; height: 6px; padding: 0; border: none; border-radius: 999px; overflow: hidden;
+  background: rgba(255,255,255,.35); transition: width .3s ease;
+}
+.hc-dots button.is-on { width: 22px; }
+.hc-dots i { display: block; height: 100%; background: #fff; animation: hc-fill 5.2s linear both; }
+@keyframes hc-fill { from { width: 0; } to { width: 100%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter, .bottom-nav-sheet, .hc-slide.is-on .hc-img, .hc-slide.is-on .hc-cta { animation: none; }
+  .hc-slide { transition: none; }
+}

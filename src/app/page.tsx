@@ -78,7 +78,7 @@ export default function Home() {
   const starter = gcodes.filter((g) => g.level === 1).slice(0, 6);
   return (
     <div className="grid gap-14">
-      <MobileHome firstLesson={lessons[0] ? { slug: lessons[0].slug, title: lessons[0].title } : undefined} lessonCount={lessons.length} />
+      <MobileHome />
 
       <section className="hero">
         <Image src="/img/hero-cnc.jpg" alt="Frez w trakcie obróbki bloku stalowego z wygrawerowanym znakiem GCat"

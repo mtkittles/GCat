@@ -1,7 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
-
-type LessonRef = { slug: string; title: string };
+import HeroCarousel from "./HeroCarousel";
 
 // accent: ikona pomarańczowa (jak w mockupie część kafli), reszta biała
 const TILES = [
@@ -39,9 +37,7 @@ function SectionHead({ title, href }: { title: string; href: string }) {
   );
 }
 
-export default function MobileHome({ firstLesson, lessonCount }: { firstLesson?: LessonRef; lessonCount: number }) {
-  const startHref = firstLesson ? `/nauka/${firstLesson.slug}` : "/nauka";
-  const startTitle = firstLesson?.title ?? "Podstawy G-code";
+export default function MobileHome() {
 
   return (
     <section className="mobile-dash">
@@ -50,19 +46,7 @@ export default function MobileHome({ firstLesson, lessonCount }: { firstLesson?:
         <p>Ucz się. Ćwicz. Obrabiaj.</p>
       </div>
 
-      <Link href={startHref} className="dash-cta reveal reveal-1">
-        <span className="dash-cta-thumb">
-          <Image src="/img/hero-cnc.jpg" alt="" fill sizes="110px" />
-        </span>
-        <span className="dash-cta-body">
-          <span className="dash-cta-label">Zacznij naukę</span>
-          <b>{startTitle}</b>
-          <span className="dash-cta-sub">{lessonCount} lekcji · od podstaw</span>
-        </span>
-        <span className="dash-cta-go" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
-        </span>
-      </Link>
+      <div className="reveal reveal-1"><HeroCarousel /></div>
 
       <div className="reveal reveal-2">
         <SectionHead title="Szybki dostęp" href="/nauka" />
