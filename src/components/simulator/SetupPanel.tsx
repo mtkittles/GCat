@@ -64,14 +64,14 @@ function ToolRow({ n, tool, mode, active, onChange, onRemove }: { n: number; too
   );
 }
 
-export default function SetupPanel({ mode, setup, onChange, activeTool }: { mode: "mill" | "lathe"; setup: Setup; onChange: (s: Setup) => void; activeTool: number | null }) {
+export default function SetupPanel({ mode, setup, onChange, activeTool, defaultOpen = false }: { mode: "mill" | "lathe"; setup: Setup; onChange: (s: Setup) => void; activeTool: number | null; defaultOpen?: boolean }) {
   const { stock, tools } = setup;
   const s = (p: Partial<Setup["stock"]>) => onChange({ ...setup, stock: { ...stock, ...p } });
   const nums = Object.keys(tools).map(Number).sort((a, b) => a - b);
   const nextFree = (nums.at(-1) ?? 0) + 1;
 
   return (
-    <details className="setup">
+    <details className="setup" open={defaultOpen || undefined}>
       <summary>Narzędzia i półfabrykat</summary>
       <div className="setup-grid">
         <fieldset><legend>Tabela narzędzi</legend>

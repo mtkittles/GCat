@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation } from "./compensation";
@@ -37,7 +37,22 @@ interface Props {
   stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
   /** Tryb pokazowy: podgląd + kod z podświetlaną linią, odtwarzany w pętli. */
   showcase?: boolean;
+  /** Tylko telefon: treść na górze zakładki „Kod” (np. zakładki programów, wybór przykładu). */
+  codeTop?: ReactNode;
+  /** Tylko telefon: dodatkowe ustawienia w zakładce „Ustawienia”. */
+  settingsExtra?: ReactNode;
+  /** Układ aplikacji na telefonie: zakładki Kod / Symulacja / Narzędzia / Ustawienia (strona /symulator). */
+  appLayout?: boolean;
 }
+
+type MTab = "code" | "sim" | "tools" | "set";
+const MTABS: { id: MTab; label: string; d: string }[] = [
+  { id: "code", label: "Kod", d: "M9 8l-5 4 5 4M15 8l5 4-5 4" },
+  { id: "sim", label: "Symulacja", d: "M12 2 3 7l9 5 9-5-9-5ZM3 7v10l9 5 9-5V7M12 12v10" },
+  { id: "tools", label: "Narzędzia", d: "M14 4l6 6-9 9H5v-6zM12 6l6 6" },
+  { id: "set", label: "Ustawienia", d: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" },
+];
+const SPEEDS = [0.5, 1, 2, 4];
 
 const COLORS = {
   rapid: "#F59E0B",   // szybki przejazd
@@ -50,10 +65,12 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, showcase = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, showcase = false, codeTop, settingsExtra, appLayout = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units }), [source, mode, units]);
   const [show3d, setShow3d] = useState(false);
+  const [mTab, setMTab] = useState<MTab>("sim");
+  const rootRef = useRef<HTMLDivElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
@@ -524,6 +541,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
         <span className="ctrl-label">Reset</span>
       </button>
+      <button type="button" className="speed-chip" aria-label="Prędkość symulacji"
+        onClick={() => setSpeed((v) => SPEEDS[(SPEEDS.indexOf(v) + 1) % SPEEDS.length] ?? 1)}>
+        {Math.round(speed * 100)}%
+      </button>
       <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
         onChange={(e) => { setPlaying(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
     </div>
@@ -580,14 +601,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }
 
   return (
-    <div className={`${compact ? "grid gap-3" : "workbench"} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""}`}
+    <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined}
+      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
       {!compact && (
-        <details className="panel" open>
+        <details className="panel m-code" open>
           <summary className="panel-head">Program</summary>
           <div className="flex flex-col gap-2 min-h-0 panel-body">
+          {codeTop && <div className="m-only grid gap-2">{codeTop}</div>}
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
@@ -672,19 +695,20 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </details>
 
       )}
-      <div className="flex flex-col gap-2">
-        <canvas ref={canvasRef} className="sim-canvas" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
+      <div className="flex flex-col gap-2 wb-main">
+        <canvas ref={canvasRef} className="sim-canvas sim-canvas-2d m-sim" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
           onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
+        {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
         {transportBar}
         <label className="speed">
           Prędkość
           <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
         {!compact && st && (
-          <div className="sim-state" aria-label="Stan maszyny">
+          <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
             <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
             <span>G{st.wcs}</span><span>G{st.comp}</span>
@@ -697,7 +721,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         )}
         {!compact && allow3d && (
           <>
-            <div className="viewbar">
+            <div className="viewbar m-sim">
               {viewSwitch}
               <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia">
                 Materiał
@@ -727,11 +751,34 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 <span className="comp-note">G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu</span>
               )}
             </div>
-            {show3d && <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary>}
+            {show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary></div>}
           </>
         )}
-        {!compact && <div className="wb-aside-inline"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} /></div>}
-        {!compact && <div className="wb-aside-inline"><StatsPanel program={program} setup={setup} mode={mode} /></div>}
+        {!compact && <div className="wb-aside-inline m-tools"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} defaultOpen={appLayout} /></div>}
+        {!compact && <div className="wb-aside-inline m-sim"><StatsPanel program={program} setup={setup} mode={mode} /></div>}
+        {appLayout && !compact && (
+          <div className="m-settings m-set m-only">
+            <div className="m-set-row">
+              <span>Jednostki</span>
+              <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
+                <option value="auto">auto (G20/G21)</option>
+                <option value="mm">milimetry</option>
+                <option value="inch">cale</option>
+              </select>
+            </div>
+            <div className="m-set-row">
+              <span>Warstwa materiału</span>
+              <button type="button" className="m-toggle" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)}><i /></button>
+            </div>
+            <div className="m-set-row">
+              <span>Prędkość symulacji</span>
+              <div className="segmented m-seg" role="tablist" aria-label="Prędkość symulacji">
+                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{v * 100}%</button>)}
+              </div>
+            </div>
+            {settingsExtra}
+          </div>
+        )}
 
         {!compact && (
           <FullscreenSim
@@ -761,6 +808,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           />
         )}
       </div>
+      {appLayout && !compact && (
+        <nav className="m-simtabs" aria-label="Sekcje symulatora">
+          {MTABS.map((t) => (
+            <button key={t.id} type="button" aria-pressed={mTab === t.id}
+              onClick={() => {
+                setMTab(t.id);
+                const el = rootRef.current;
+                if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" });
+              }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={t.d} /></svg>
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </nav>
+      )}
     </div>
   );
 }

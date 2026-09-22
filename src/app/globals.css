@@ -1296,3 +1296,137 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 @media (prefers-reduced-motion: reduce) {
   .banner-pop, .toc-handle, .toc-backdrop, .toc-drawer, .ssheet, .ssheet-list a { animation: none; }
 }
+
+
+/* ================= v4: symulator na telefonie (układ jak w aplikacji) ================= */
+.m-simtabs, .m-only, .sim-controls .speed-chip { display: none; }
+.workbench.is-full > .wb-main { order: 1; }
+
+@media (max-width: 767px) {
+  .sim-top, .sim-legend { display: none; }
+  .is-app .m-only { display: block; }
+  .workbench.is-app { scroll-margin-top: 72px; padding-bottom: .25rem; }
+
+  /* przełączanie sekcji — tylko CSS, komponenty zostają zamontowane */
+  .workbench[data-mtab]:not([data-mtab="code"]) > .m-code,
+  .workbench[data-mtab]:not([data-mtab="sim"]) > .wb-main > .m-sim,
+  .workbench[data-mtab]:not([data-mtab="sim"]) > .wb-main > .sim-controls,
+  .workbench[data-mtab]:not([data-mtab="tools"]) > .wb-main > .m-tools,
+  .workbench[data-mtab]:not([data-mtab="set"]) > .wb-main > .m-set { display: none; }
+  .workbench[data-mtab="code"] > .wb-main { display: none; }
+  .is-app > .wb-main > .speed { display: none; }
+  .is-app.is-3d > .wb-main > .sim-canvas-2d { display: none; }
+  .is-app .viewbar .units, .is-app .viewbar .comp-note { display: none; }
+  .is-app .sim3d-wrap .text-xs { display: none; }
+  .is-app .panel { border: none; background: transparent; }
+  .is-app .panel-head { display: none; }
+  .is-app .panel-body { padding: 0; }
+
+  /* kolejność w zakładce Symulacja: widok → podgląd → HUD → odtwarzacz → stan → statystyki */
+  .is-app > .wb-main > .viewbar { order: 1; }
+  .is-app > .wb-main > .sim-canvas-2d { order: 2; }
+  .is-app > .wb-main > .sim3d-wrap { order: 3; }
+  .is-app > .wb-main > .m-hud { order: 4; }
+  .is-app > .wb-main > .sim-controls { order: 5; }
+  .is-app > .wb-main > .sim-state { order: 6; }
+  .is-app > .wb-main > .m-sim.wb-aside-inline { order: 7; }
+  .is-app > .wb-main > .m-tools { order: 8; }
+  .is-app > .wb-main > .m-settings { order: 9; }
+
+  .is-app > .wb-main > .sim-canvas-2d { border-radius: 16px; }
+  .is-app .sim3d-wrap .sim-canvas-3d { border-radius: 16px; }
+  .is-app .viewbar { flex-wrap: wrap; gap: .4rem; }
+  .is-app .viewbar .segmented { min-width: 0; flex-basis: 40%; }
+  .is-app .viewbar .segmented { flex: 1 1 auto; width: auto; }
+  .is-app .viewbar > button:not(.fs-open):not(.icon-btn) {
+    flex: none; height: 40px; padding: 0 .85rem; border-radius: 10px; font-size: 12.5px; font-weight: 600;
+    background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink-2);
+  }
+  .is-app .viewbar > button[aria-pressed="true"]:not(.fs-open):not(.icon-btn) { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
+  .is-app .viewbar .fs-open {
+    flex: none; width: 40px; height: 40px; padding: 0; gap: 0; font-size: 0; display: grid; place-items: center;
+    border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink); box-shadow: none;
+  }
+  .is-app .viewbar .fs-open svg { width: 17px; height: 17px; }
+  .is-app .viewbar .icon-btn.only-narrow { display: none; }
+  .is-app > .wb-main > .sim-canvas-2d { height: min(46vh, 420px) !important; }
+  .is-app .sim3d-wrap .sim-canvas-3d { height: min(46vh, 420px) !important; }
+  .is-app .setup { border-radius: 16px; }
+
+  /* HUD: bieżąca linia i współrzędne */
+  .is-app .m-hud {
+    display: grid; gap: .4rem; padding: .6rem .75rem; border-radius: 14px;
+    background: var(--panel); border: 1px solid var(--line);
+  }
+  .is-app .m-hud .fs-line { font-size: 13px; }
+
+  /* odtwarzacz */
+  .is-app > .wb-main > .sim-controls {
+    display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .6rem;
+    border-radius: 16px; background: var(--card); border: 1px solid var(--line);
+  }
+  .is-app > .wb-main > .sim-controls button {
+    width: 44px; height: 44px; min-height: 0; padding: 0; display: grid; place-items: center;
+    border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink);
+    transition: transform .12s ease, background-color .15s ease;
+  }
+  .is-app > .wb-main > .sim-controls button:first-child {
+    width: 52px; height: 48px; background: var(--accent); border-color: var(--accent); color: #fff;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .is-app > .wb-main > .sim-controls button:active { transform: scale(.93); }
+  .is-app > .wb-main > .sim-controls .ctrl-ico { width: 18px; height: 18px; }
+  .is-app > .wb-main > .sim-controls .speed-chip {
+    display: grid; width: auto; margin-left: auto; padding: 0 .8rem;
+    font: 600 13px/1 var(--font-mono); color: var(--accent); background: transparent; border-color: var(--line-strong);
+  }
+  .is-app > .wb-main > .sim-controls .sim-scrub { flex-basis: 100%; height: 26px; margin: .1rem .2rem 0; }
+
+  /* stan maszyny: jeden przewijany rząd */
+  .is-app > .wb-main > .sim-state { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .is-app > .wb-main > .sim-state::-webkit-scrollbar { display: none; }
+  .is-app > .wb-main > .sim-state span { flex: none; }
+
+  /* ustawienia */
+  .is-app .m-settings { display: grid; gap: 0; border-radius: 16px; background: var(--card); border: 1px solid var(--line); overflow: hidden; }
+  .is-app .m-set-row { display: grid; gap: .55rem; padding: .85rem .9rem; border-bottom: 1px solid var(--line); }
+  .is-app .m-set-row:last-child { border-bottom: none; }
+  .is-app .m-set-row > span { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .is-app .m-set-row select { width: 100%; padding: .6rem .7rem; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); font-size: 15px; }
+  .is-app .m-set-row .filters button { flex: 1 1 0; }
+  .is-app .m-set-row:has(.m-toggle) { grid-template-columns: 1fr auto; align-items: center; }
+  .is-app .m-toggle { width: 50px; height: 30px; border-radius: 999px; border: 1px solid var(--line-strong); background: var(--surface-3); position: relative; transition: background-color .2s ease; }
+  .is-app .m-toggle i { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 999px; background: #fff; transition: transform .22s cubic-bezier(.2,.9,.3,1.2); }
+  .is-app .m-toggle[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+  .is-app .m-toggle[aria-pressed="true"] i { transform: translateX(20px); }
+  .is-app .m-seg { width: 100%; }
+
+  /* zakładka Kod */
+  .is-app .panel-body .m-only .filters select { width: 100%; }
+  .is-app .panel-body .m-only .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+
+  /* pasek sekcji symulatora — przyklejony nad dolną nawigacją */
+  .is-app .m-simtabs {
+    position: sticky; bottom: calc(56px + env(safe-area-inset-bottom, 0px) + .5rem); z-index: 30;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; padding: 4px; margin-top: .4rem;
+    border-radius: 16px; border: 1px solid var(--line-strong);
+    background: color-mix(in srgb, var(--surface-2) 90%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  }
+  .is-app .m-simtabs button {
+    display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .45rem 0 .4rem;
+    border: none; border-radius: 12px; background: transparent; color: var(--muted);
+    font-size: 10.5px; font-weight: 600; transition: background-color .2s ease, color .2s ease, transform .12s ease;
+  }
+  .is-app .m-simtabs button svg { width: 19px; height: 19px; }
+  .is-app .m-simtabs button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+  .is-app .m-simtabs button:active { transform: scale(.94); }
+
+  /* wejście sekcji po przełączeniu */
+  .workbench[data-mtab] > .m-code,
+  .workbench[data-mtab] > .wb-main > .m-sim,
+  .workbench[data-mtab] > .wb-main > .sim-controls,
+  .workbench[data-mtab] > .wb-main > .m-tools,
+  .workbench[data-mtab] > .wb-main > .m-set { animation: page-in .28s cubic-bezier(.2,.8,.2,1) backwards; }
+}

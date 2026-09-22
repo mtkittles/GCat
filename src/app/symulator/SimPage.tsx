@@ -413,6 +413,36 @@ export default function SimPage() {
     setTabs(next); savePrograms(next);
     if (active === id) setName(nm);
   };
+  const programTabs = (
+    <div className="tabs">
+      {tabs.map((t) => (
+        <span key={t.id} className={`tab ${active === t.id ? "is-active" : ""}`}>
+          <button onClick={() => openTab(t)} onDoubleClick={() => renameTab(t.id)} title="Kliknij dwukrotnie, aby zmienić nazwę">{t.name}</button>
+          <button className="tab-x" onClick={() => closeTab(t.id)} aria-label={`Zamknij ${t.name}`}>×</button>
+        </span>
+      ))}
+      <button className="tab-add" onClick={() => addTab()} title="Nowy pusty program">+ Nowy</button>
+      <button className="tab-add" onClick={() => addTab({ name, src, mode })} title="Zapisz bieżący program jako zakładkę">Zapisz bieżący</button>
+    </div>
+  );
+  const exampleSelect = (
+    <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); setStock(EXAMPLES[n].stock); setActive(null); }}>
+      {Object.keys(EXAMPLES).map((k) => <option key={k}>{k}</option>)}
+    </select>
+  );
+  const modeButtons = (
+    <>
+      <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezowanie (XY)</button>
+      <button aria-pressed={mode === "lathe"} onClick={() => setMode("lathe")}>Toczenie (ZX)</button>
+    </>
+  );
+  const dialectButtons = (
+    <>
+      <span className="text-muted text-sm">Walidator:</span>
+      <button aria-pressed={dialect === "fanuc"} onClick={() => setDialect("fanuc")}>Fanuc</button>
+      <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
+    </>
+  );
   return (
     <div className="grid gap-4">
       <PageBanner src="/img/banner-simulator.jpg" kicker="Narzędzie" title="Symulator"
@@ -423,29 +453,21 @@ export default function SimPage() {
           <li>Walidator zaznacza błędy na czerwono, ostrzeżenia na żółto.</li>
           <li>W toczeniu X oznacza średnicę, jak w Fanuc.</li>
         </ul>} priority />
-      <div className="tabs">
-        {tabs.map((t) => (
-          <span key={t.id} className={`tab ${active === t.id ? "is-active" : ""}`}>
-            <button onClick={() => openTab(t)} onDoubleClick={() => renameTab(t.id)} title="Kliknij dwukrotnie, aby zmienić nazwę">{t.name}</button>
-            <button className="tab-x" onClick={() => closeTab(t.id)} aria-label={`Zamknij ${t.name}`}>×</button>
-          </span>
-        ))}
-        <button className="tab-add" onClick={() => addTab()} title="Nowy pusty program">+ Nowy</button>
-        <button className="tab-add" onClick={() => addTab({ name, src, mode })} title="Zapisz bieżący program jako zakładkę">Zapisz bieżący</button>
+      <div className="sim-top grid gap-4">
+        {programTabs}
+        <div className="filters">
+          {exampleSelect}
+          {modeButtons}
+          {dialectButtons}
+        </div>
       </div>
-
-      <div className="filters">
-        <select className="border border-line rounded px-2 py-1 bg-card text-sm" value={name} onChange={(e) => { const n = e.target.value; setName(n); setSrc(EXAMPLES[n].src); setMode(EXAMPLES[n].mode); setStock(EXAMPLES[n].stock); setActive(null); }}>
-          {Object.keys(EXAMPLES).map((k) => <option key={k}>{k}</option>)}
-        </select>
-        <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezowanie (XY)</button>
-        <button aria-pressed={mode === "lathe"} onClick={() => setMode("lathe")}>Toczenie (ZX)</button>
-        <span className="text-muted text-sm">Walidator:</span>
-        <button aria-pressed={dialect === "fanuc"} onClick={() => setDialect("fanuc")}>Fanuc</button>
-        <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
-      </div>
-      <Simulator source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} stock={stock} />
-      <div className="legend"><span><i style={{ background: "var(--amber)" }} />G00</span><span><i style={{ background: "var(--green)" }} />G01</span><span><i style={{ background: "var(--blue)" }} />G02/G03</span></div>
+      <Simulator appLayout source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} stock={stock}
+        codeTop={<>{programTabs}<div className="filters">{exampleSelect}</div></>}
+        settingsExtra={<>
+          <div className="m-set-row"><span>Obróbka</span><div className="filters">{modeButtons}</div></div>
+          <div className="m-set-row"><span>Sterownik</span><div className="filters">{dialectButtons}</div></div>
+        </>} />
+      <div className="legend sim-legend"><span><i style={{ background: "var(--amber)" }} />G00</span><span><i style={{ background: "var(--green)" }} />G01</span><span><i style={{ background: "var(--blue)" }} />G02/G03</span></div>
     </div>
   );
 }
