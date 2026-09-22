@@ -415,11 +415,14 @@ export default function SimPage() {
   };
   return (
     <div className="grid gap-4">
-      <PageBanner src="/img/banner-simulator.jpg" title="Symulator" subtitle="Wizualizacja obróbki CNC w czasie rzeczywistym." priority />
-      <div>
-        <h1 className="text-3xl font-bold">Symulator</h1>
-        <p className="text-muted">W trybie toczenia X jest średnicą (jak w Fanuc). Wpisz program (podpowiedzi po literze G, M, X…), uruchom, krokuj. Każda linia jest tłumaczona na polski; walidator zaznacza błędy na czerwono i ostrzeżenia na żółto.</p>
-      </div>
+      <PageBanner src="/img/banner-simulator.jpg" kicker="Narzędzie" title="Symulator"
+        subtitle="Wpisz program i sprawdź tor narzędzia w 2D i 3D."
+        info={<ul>
+          <li>Po wpisaniu litery adresu (G, M, X…) pojawiają się podpowiedzi.</li>
+          <li>Każda linia programu ma opis po polsku.</li>
+          <li>Walidator zaznacza błędy na czerwono, ostrzeżenia na żółto.</li>
+          <li>W toczeniu X oznacza średnicę, jak w Fanuc.</li>
+        </ul>} priority />
       <div className="tabs">
         {tabs.map((t) => (
           <span key={t.id} className={`tab ${active === t.id ? "is-active" : ""}`}>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
@@ -7,8 +7,15 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "GCat — zrozum, programuj, obrabiaj",
   description: "Nauka G-kodu po polsku: lekcje, karty funkcji G i M, symulator 2D/3D toru narzędzia, walidator, kalkulator parametrów skrawania.",
-  icons: { icon: [{ url: "/icon-192.png", type: "image/png" }] },
+  icons: { icon: [{ url: "/icon-192.png", type: "image/png" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
+  appleWebApp: { capable: true, title: "GCat", statusBarStyle: "black" },
   openGraph: { title: "GCat — nauka G-kodu po polsku", description: "Zrozum. Programuj. Obrabiaj. Lekcje, symulator 2D/3D, walidator, kalkulator.", siteName: "GCat" },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#111214",
+  colorScheme: "dark",
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

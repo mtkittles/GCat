@@ -6,10 +6,10 @@ import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining"
 type Tab = "mill" | "turn" | "drill" | "thread";
 
 const BANNERS: Record<Tab, { src: string; title: string; sub: string }> = {
-  mill:   { src: "/img/banner-mill.jpg",   title: "Frezowanie",   sub: "Dobór parametrów frezowania" },
-  turn:   { src: "/img/banner-turn.jpg",   title: "Toczenie",     sub: "Dobór parametrów toczenia i wytaczania" },
-  drill:  { src: "/img/banner-drill.jpg",  title: "Wiercenie",    sub: "Dobór parametrów wiercenia" },
-  thread: { src: "/img/banner-thread.jpg", title: "Gwintowanie",  sub: "Dobór parametrów gwintowania" },
+  mill:   { src: "/img/banner-mill.jpg",   title: "Frezowanie",   sub: "Obroty i posuw dla frezu i materiału." },
+  turn:   { src: "/img/banner-turn.jpg",   title: "Toczenie",     sub: "Obroty i posuw przy toczeniu i wytaczaniu." },
+  drill:  { src: "/img/banner-drill.jpg",  title: "Wiercenie",    sub: "Obroty i posuw dla wiertła." },
+  thread: { src: "/img/banner-thread.jpg", title: "Gwintowanie",  sub: "Obroty i posuw przy gwintowaniu." },
 };
 
 const r0 = (v: number) => (Number.isFinite(v) ? Math.round(v) : 0);
@@ -120,11 +120,11 @@ export default function Calc() {
 
   return (
     <div className="grid gap-5">
-      <PageBanner src={BANNERS[tab].src} title={BANNERS[tab].title} subtitle={BANNERS[tab].sub} priority />
-      <div>
-        <h1 className="text-3xl font-bold">Kalkulator parametrów skrawania</h1>
-        <p className="text-muted max-w-prose">Wybierz materiał i narzędzie — wartości startowe podstawią się z tabel. Możesz je nadpisać własnymi. Wyniki są punktem wyjścia, nie gotową receptą: dopasuj je do sztywności mocowania, wysięgu narzędzia i chłodzenia.</p>
-      </div>
+      <PageBanner src={BANNERS[tab].src} kicker="Kalkulator parametrów" title={BANNERS[tab].title} subtitle={BANNERS[tab].sub}
+        info={<ul>
+          <li>Wartości startowe pochodzą z tabel dla wybranego materiału i narzędzia. Każde pole możesz nadpisać.</li>
+          <li>Wynik to punkt startowy. Koryguj go pod mocowanie, wysięg narzędzia i chłodzenie.</li>
+        </ul>} priority />
 
       <div className="calc-presets">
         <label className="calc-field wide"><span>Materiał obrabiany</span>

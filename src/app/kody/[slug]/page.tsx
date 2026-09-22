@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
 import { diagrams } from "@/components/diagrams";
-import Article, { Toc } from "@/components/Article";
+import Article, { Toc, tocItems } from "@/components/Article";
+import TocDrawer from "@/components/TocDrawer";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import { articles } from "@/content/articles";
@@ -24,22 +25,18 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const mode = g.turning && !g.milling ? "lathe" : "mill";
   const art = articles[g.slug];
 
-  const banner = <PageBanner src={bannerFor(g)} title={g.code} subtitle={g.name} size="compact" priority />;
-
-  const header = (
-    <header className="grid gap-3">
-      <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/kody", label: "Kody" }, { label: g.code }]} />
-      <div className="flex flex-wrap gap-1.5">
-        <Chip tone="accent" mono>{g.code}</Chip>
-        <Chip>{g.group}</Chip>
+  const banner = (
+    <PageBanner src={bannerFor(g)} kicker={g.group} title={g.code} subtitle={g.name} mono size="compact" priority
+      meta={<>
         <Chip tone={g.level === 1 ? "success" : g.level === 2 ? "warning" : "danger"}>{levelName(g.level)}</Chip>
         <Chip>{g.modal ? "modalny" : "jednorazowy"}</Chip>
         {g.milling && <Chip tone="info">frezowanie</Chip>}
         {g.turning && <Chip tone="info">toczenie</Chip>}
-      </div>
-      <h1 className="text-3xl sm:text-4xl font-bold leading-tight">{g.name}</h1>
-      <p className="text-lg max-w-prose" style={{ color: "var(--ink-2)" }}>{g.short}</p>
-    </header>
+      </>} />
+  );
+
+  const header = (
+    <p className="lead max-w-prose">{g.short}</p>
   );
 
   const syntax = (
@@ -61,6 +58,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     return (
       <div className="article-layout">
         <article className="grid gap-6 min-w-0">
+          <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/kody", label: "Kody" }, { label: g.code }]} />
           {banner}
           {header}
           {syntax}
@@ -69,12 +67,14 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {footerNav}
         </article>
         <aside className="toc-rail"><Toc blocks={art} sticky /></aside>
+        <div className="toc-drawer-only"><TocDrawer title={g.code} items={tocItems(art)} /></div>
       </div>
     );
   }
 
   return (
     <article className="grid gap-6 max-w-4xl">
+      <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/kody", label: "Kody" }, { label: g.code }]} />
       {banner}
       {header}
       <p className="max-w-prose leading-relaxed" style={{ color: "var(--ink-2)" }}>{g.desc}</p>

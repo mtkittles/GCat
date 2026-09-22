@@ -16,13 +16,13 @@ export default function ExerciseList() {
   const done = useSyncExternalStore(subscribe, getDone, () => EMPTY);
   return (
     <div className="grid gap-5">
-      <PageBanner src="/img/banner-tasks.jpg" title="Zadania"
-        subtitle="Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym." priority />
-      <div>
-        <h1 className="text-3xl font-bold">Zadania</h1>
-        <p className="section-lead">Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym. Nie musisz trafić w identyczny zapis — liczy się geometria.</p>
-        {done.length > 0 && <p className="text-sm text-muted mt-1">Zaliczone: {done.length} z {exercises.length}</p>}
-      </div>
+      <PageBanner src="/img/banner-tasks.jpg" kicker="Praktyka" title="Zadania"
+        subtitle="Napisz program, symulator porówna tor z rozwiązaniem."
+        meta={done.length > 0 ? <span className="chip chip-success">Zaliczone {done.length} z {exercises.length}</span> : undefined}
+        info={<ul>
+          <li>Liczy się geometria toru, nie identyczny zapis programu.</li>
+          <li>Zadania są ułożone od najprostszych. Zaliczone oznaczamy ✓.</li>
+        </ul>} priority />
       <ol className="grid gap-2 max-w-2xl">
         {exercises.map((e, i) => (
           <li key={e.slug}>

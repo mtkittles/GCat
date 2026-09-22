@@ -116,9 +116,7 @@ export default function Home() {
         <BrandLogo height={190} variant="lockup" />
         <span className="brandblock-motto">Zrozum. Programuj. Obrabiaj.</span>
         <p className="brandblock-lead">
-          GCat powstał z prostego założenia: G-kodu nie da się nauczyć z samej tabeli kodów.
-          Każda funkcja ma tu wyjaśnienie, schemat i program, który uruchomisz jednym kliknięciem —
-          i zobaczysz, co narzędzie naprawdę zrobi z materiałem.
+          Każdy kod ma tu opis, schemat i przykładowy program, który od razu uruchomisz w symulatorze.
         </p>
         <div className="brandblock-stats">
           <span className="brandstat"><b>27</b><span>kart kodów</span></span>
@@ -130,13 +128,13 @@ export default function Home() {
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
-          lead="Kontur z zaokrągleniami, kieszeń okrągła, dwa rowki i cztery otwory cyklem G81 — dwa narzędzia, jeden program. Linia wykonywana w tej chwili podświetla się razem z rysowanym ruchem."
+          lead="Kontur, kieszeń, rowki i cztery otwory cyklem G81. Dwa narzędzia, jeden program."
           action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
         <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
 
       <section className="grid gap-4">
-        <SectionHeader eyebrow="Co znajdziesz w GCat" title="Pięć narzędzi, jedna ścieżka" lead="Teoria, referencja i praktyka połączone tak, żeby każdy kod dało się od razu uruchomić i zobaczyć." />
+        <SectionHeader eyebrow="Zawartość" title="Co znajdziesz w GCat" />
         <div className="pillars reveal reveal-1">
           {PILLARS.map((p) => (
             <Link key={p.href} href={p.href} className="pillar">
@@ -183,7 +181,7 @@ export default function Home() {
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Praktyka" title="Sprawdź się"
-          lead="Napisz program, a symulator porówna Twój tor narzędzia z rozwiązaniem wzorcowym i wskaże, co się nie zgadza."
+          lead="Symulator porówna Twój tor narzędzia z rozwiązaniem i pokaże różnice."
           action={<Link className="btn ghost" href="/zadania">Wszystkie zadania</Link>} />
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 reveal reveal-3">
           {exercises.slice(0, 4).map((e) => (

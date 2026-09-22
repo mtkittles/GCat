@@ -26,6 +26,12 @@ function rich(s: string) {
 
 export const slugify = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
 
+export function tocItems(blocks: Block[]) {
+  return blocks
+    .filter((b): b is Extract<Block, { t: "h" }> => b.t === "h")
+    .map((h) => ({ id: h.id ?? slugify(h.x), label: h.x }));
+}
+
 export function Toc({ blocks, sticky = false }: { blocks: Block[]; sticky?: boolean }) {
   const hs = blocks.filter((b): b is Extract<Block, { t: "h" }> => b.t === "h");
   if (hs.length < 3) return null;

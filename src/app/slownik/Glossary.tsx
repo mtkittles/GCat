@@ -17,11 +17,8 @@ export default function Glossary() {
 
   return (
     <div className="grid gap-5">
-      <PageBanner src="/img/banner-turn.jpg" title="Słownik" subtitle="Terminy, które pojawiają się w artykułach i na hali." size="compact" priority />
-      <div>
-        <h1 className="text-3xl font-bold">Słownik pojęć</h1>
-        <p className="section-lead">Terminy, które pojawiają się w artykułach i na hali. Bez skrótów myślowych.</p>
-      </div>
+      <PageBanner src="/img/banner-turn.jpg" kicker="Referencja" title="Słownik"
+        subtitle="Pojęcia z lekcji i z hali, wyjaśnione krótko." size="compact" priority />
       <div className="filters">
         <input placeholder="Szukaj: pocienianie, naddatek, ap…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
