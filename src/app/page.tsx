@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import MobileHome from "@/components/MobileHome";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
@@ -77,6 +78,8 @@ export default function Home() {
   const starter = gcodes.filter((g) => g.level === 1).slice(0, 6);
   return (
     <div className="grid gap-14">
+      <MobileHome firstLesson={lessons[0] ? { slug: lessons[0].slug, title: lessons[0].title } : undefined} lessonCount={lessons.length} />
+
       <section className="hero">
         <Image src="/img/hero-cnc.jpg" alt="Frez w trakcie obróbki bloku stalowego z wygrawerowanym znakiem GCat"
           fill priority sizes="100vw" className="hero-photo" />
