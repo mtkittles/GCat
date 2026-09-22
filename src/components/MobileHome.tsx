@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type LessonRef = { slug: string; title: string };
@@ -35,14 +36,23 @@ export default function MobileHome({ firstLesson, lessonCount }: { firstLesson?:
   return (
     <section className="mobile-dash">
       <div className="dash-greet reveal">
-        <h2>Witaj! 👋</h2>
+        <span className="pill">GCat</span>
+        <h2>Witaj!</h2>
         <p>Ucz się. Ćwicz. Obrabiaj.</p>
       </div>
 
       <Link href={startHref} className="dash-cta reveal reveal-1">
-        <div className="dash-cta-top"><span>Zacznij naukę</span></div>
-        <b>{startTitle}</b>
-        <span className="dash-cta-sub">{lessonCount} lekcji od podstaw do zaawansowanych</span>
+        <span className="dash-cta-thumb">
+          <Image src="/img/hero-cnc.jpg" alt="" fill sizes="72px" />
+        </span>
+        <span className="dash-cta-body">
+          <span className="dash-cta-label">Zacznij naukę</span>
+          <b>{startTitle}</b>
+          <span className="dash-cta-sub">{lessonCount} lekcji od podstaw do zaawansowanych</span>
+        </span>
+        <span className="dash-cta-go" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+        </span>
       </Link>
 
       <div className="dash-grid reveal reveal-2">
