@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
+import VisitTracker from "@/components/VisitTracker";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="min-h-screen flex flex-col">
+        <VisitTracker />
         <AppHeader />
 
         <main className="wrap flex-1 py-7 w-full">{children}</main>
