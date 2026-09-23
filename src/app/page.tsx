@@ -69,7 +69,7 @@ const HERO_BULLETS: { i: string; a: string; b: string }[] = [
 const PILLARS = [
   { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwanaście lekcji od pierwszego bloku do programu wielonarzędziowego.", m: "12 lekcji" },
   { href: "/symulator", ico: I.play, t: "Symulator", d: "Tor 2D i 3D, cykle stałe, kompensacja, kontrola kolizji.", m: "2D · 3D" },
-  { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji ze składnią Fanuc i Sinumerik oraz przykładami.", m: "27 kart" },
+  { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji ze składnią Fanuc i Sinumerik oraz przykładami.", m: `${gcodes.length} kart` },
   { href: "/kalkulator", ico: I.calc, t: "Kalkulatory", d: "Obroty, posuwy, moc skrawania, gwinty, presety materiałów.", m: "4 moduły" },
   { href: "/zadania", ico: I.check, t: "Zadania", d: "Napisz program, a symulator sprawdzi tor narzędzia.", m: "16 zadań" },
 ];

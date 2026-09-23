@@ -35,7 +35,7 @@ const build = (cw: boolean): Block[] => {
       ["**[[G18]]** — ZX (toczenie)", "X, Z", "I, K"],
       ["**[[G19]]** — YZ", "Y, Z", "J, K"],
     ], caption: "Użycie litery spoza aktywnej płaszczyzny — na przykład J przy G18 — kończy się alarmem albo torem zupełnie innym niż zamierzony." },
-    { t: "diagram", id: "g02" },
+    { t: "diagram", id: cw ? "g02" : "g03" },
 
     { t: "h", x: "Przykład 1 — zapis wektorowy I/J" },
     { t: "demo", title: `${G} z wektorem I, J`,

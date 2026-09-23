@@ -68,7 +68,7 @@ export const g00: Block[] = [
   ] },
 
   { t: "h", x: "Przykład — porównaj oba warianty" },
-  { t: "sim", src: "G21 G90 G17 G54\nT01 M06\nS2200 M03\nG00 Z50\nG00 X20 Y15\nG00 Z2\nG01 Z-3 F120\nG01 X80 F400\nG01 Y45\nG01 X20\nG01 Y15\nG00 Z50\nM05\nM30", caption: "Uruchom i prześledź krokami. Żółte linie przerywane to szybkie przejazdy, zielone ciągłe — ruch roboczy. Zwróć uwagę, że zagłębienie na Z−3 wykonuje G01, a nie G00." },
+  { t: "sim", src: "G21 G90 G17 G54\nT01 M06\nS2200 M03\nG43 G00 Z50 H01\nG00 X20 Y15\nG00 Z2\nG01 Z-3 F120\nG01 X80 F400\nG01 Y45\nG01 X20\nG01 Y15\nG00 Z50\nM05\nM30", caption: "Uruchom i prześledź krokami. Żółte linie przerywane to szybkie przejazdy, zielone ciągłe — ruch roboczy. Zwróć uwagę, że zagłębienie na Z−3 wykonuje G01, a nie G00." },
 
   { t: "h", x: "Różnice między sterownikami" },
   { t: "table", head: ["Zagadnienie", "Fanuc", "Sinumerik", "Heidenhain"], rows: [

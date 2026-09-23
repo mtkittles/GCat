@@ -28,7 +28,7 @@ export const part2: Record<string, Block[]> = {
     { t: "sim", src: "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F350\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30", caption: "Kompensacja włączana w dojeździe z punktu (−20, −20) do początku konturu i wyłączana w odjeździe do tego samego punktu. Symulator pokazuje tor programowany — na maszynie tor rzeczywisty będzie odsunięty o promień freza." },
     { t: "h", x: "Wejście styczne — wariant zalecany" },
     { t: "p", x: "Dojazd prostopadły do konturu zostawia na powierzchni ślad wejścia. Lepszym rozwiązaniem jest dojazd prostoliniowy z włączeniem kompensacji, a potem **wejście po łuku stycznym** do konturu." },
-    { t: "sim", src: "G21 G90 G17 G54 G40\nS2400 M03\nG00 X-25 Y10 Z5\nG01 Z-3 F100\nG41 D1 X-10 Y0 F350\nG03 X0 Y10 R10\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG03 X-10 Y20 R10\nG40 G01 X-25 Y10\nG00 Z5\nM30", caption: "Łuk R10 wprowadza narzędzie stycznie do ścianki — bez uskoku na powierzchni." },
+    { t: "sim", src: "G21 G90 G17 G54 G40\nS2400 M03\nG00 X-25 Y10 Z5\nG01 Z-3 F100\nG41 D1 X-10 Y0 F350\nG03 X0 Y10 R10\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG01 Y10\nG03 X-10 Y20 R10\nG40 G01 X-25 Y10\nG00 Z5\nM30", caption: "Łuk R10 wprowadza narzędzie stycznie do ścianki — bez uskoku na powierzchni." },
     { t: "h", x: "Ograniczenia geometryczne" },
     { t: "ul", items: [
       "**Łuk wewnętrzny mniejszy od promienia narzędzia** — niewykonalny. Frez ⌀12 nie zrobi naroża R4.",

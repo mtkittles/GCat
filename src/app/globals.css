@@ -1430,3 +1430,89 @@ h2[id], section[id] { scroll-margin-top: 84px; }
   .workbench[data-mtab] > .wb-main > .m-tools,
   .workbench[data-mtab] > .wb-main > .m-set { animation: page-in .28s cubic-bezier(.2,.8,.2,1) backwards; }
 }
+
+/* ================= rysunki techniczne (fig.tsx) — jeden styl ================= */
+.fig { display: grid; gap: .5rem; max-width: 40rem; margin: 0; padding: .75rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.fig-head { display: flex; align-items: center; gap: .5rem; font-family: var(--font-display); font-weight: 650; font-size: 14.5px; color: var(--ink); }
+.fig-code { font: 700 11.5px/1 var(--font-mono); color: var(--accent); background: var(--accent-soft); padding: .3rem .45rem; border-radius: 6px; }
+.fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); }
+.fig svg text { font-family: var(--font-sans, Inter, system-ui, sans-serif); font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3.2px; stroke-linejoin: round; }
+.fig svg .t-b { font-weight: 700; fill: var(--ink); }
+.fig svg .t-mono { font-family: var(--font-mono); font-size: 10.5px; }
+.fig svg .t-big { font-size: 14px; }
+.fig svg .t-sm { font-size: 9.5px; }
+.fig svg .t-ax { font-weight: 700; fill: var(--ink-2); font-size: 11.5px; }
+.fig svg .t-tick { font-family: var(--font-mono); font-size: 8.5px; fill: var(--muted); stroke-width: 2.4px; }
+.fig svg .t-mut { fill: var(--muted); }
+.fig svg .t-dim { fill: var(--ink-2); }
+.fig svg .t-acc { fill: var(--accent); }
+.fig svg .t-rap { fill: var(--amber); }
+.fig svg .t-cut { fill: var(--green); }
+.fig svg .t-arc { fill: var(--blue); }
+.fig svg .t-bad { fill: var(--red); }
+.fig .gr-min { stroke: var(--line); stroke-width: .5; opacity: .55; }
+.fig .gr-maj { stroke: var(--line-strong); stroke-width: .7; opacity: .7; }
+.fig .ax { stroke: var(--muted); stroke-width: 1.2; }
+.fig .axis-c { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 10 3 2 3; }
+.fig .p-rap { stroke: var(--amber); stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; }
+.fig .p-cut { stroke: var(--green); stroke-width: 2; fill: none; }
+.fig .p-arc { stroke: var(--blue); stroke-width: 2; fill: none; }
+.fig .p-con { stroke: var(--ink); stroke-width: 1.6; }
+.fig .p-bad { stroke: var(--red); stroke-width: 1.6; stroke-dasharray: 5 4; fill: none; }
+.fig .p-acc { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+.fig .p-dim { stroke: var(--ink-2); stroke-width: .9; fill: none; }
+.fig .p-ext { stroke: var(--ink-2); stroke-width: .6; opacity: .7; }
+.fig .p-cons { stroke: var(--muted); stroke-width: .9; stroke-dasharray: 3 3; fill: none; }
+.fig .thick { stroke-width: 2.8; }
+.fig .dashed { stroke-dasharray: 7 4; }
+.fig .hatch-line { stroke: var(--line-strong); stroke-width: 1.2; }
+.fig .mk-rap { fill: var(--amber); } .fig .mk-cut { fill: var(--green); } .fig .mk-arc { fill: var(--blue); }
+.fig .mk-con { fill: var(--ink); } .fig .mk-bad { fill: var(--red); } .fig .mk-dim { fill: var(--ink-2); } .fig .mk-acc { fill: var(--accent); }
+.fig .pt { fill: var(--ink); stroke: var(--panel); stroke-width: 1.5; }
+.fig .pt-arc { fill: var(--blue); stroke: var(--panel); stroke-width: 1.5; }
+.fig .pt-cut { fill: var(--green); stroke: var(--panel); stroke-width: 1.5; }
+.fig .pt-rap { fill: var(--amber); stroke: var(--panel); stroke-width: 1.5; }
+.fig .tool { fill: color-mix(in srgb, var(--green) 10%, transparent); stroke: var(--green); stroke-width: 1; stroke-dasharray: 3 2; }
+.fig .clamp { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
+.fig .hole { fill: var(--panel); stroke: var(--ink); stroke-width: 1.2; }
+.fig .hole-top { fill: var(--panel); stroke: var(--ink); stroke-width: 1.6; }
+.fig .solid-hatch { fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke: var(--ink); stroke-width: 1.2; }
+.fig .stock-out { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
+.fig .spindle { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
+.fig .holder { fill: color-mix(in srgb, var(--ink) 14%, transparent); stroke: var(--ink-2); stroke-width: 1; }
+.fig .cutter { fill: color-mix(in srgb, var(--ink) 30%, transparent); stroke: var(--ink); stroke-width: 1; }
+.fig .panel-bg { fill: color-mix(in srgb, var(--ink) 3%, transparent); stroke: var(--line); }
+.fig .step { fill: var(--surface-2); stroke: var(--ink-2); stroke-width: 1; }
+.fig .step-n { font: 700 10px/1 var(--font-mono); fill: var(--ink); stroke: none; }
+.fig-notes { display: flex; flex-wrap: wrap; gap: .35rem; }
+.fig-code-line { font: 500 12px/1 var(--font-mono); padding: .35rem .5rem; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); }
+.cl-cut { color: var(--green); } .cl-arc { color: var(--blue); } .cl-rap { color: var(--amber); } .cl-bad { color: var(--red); } .cl-acc { color: var(--accent); }
+.fig-legend { display: flex; flex-wrap: wrap; gap: .25rem .9rem; font-size: 11.5px; color: var(--muted); }
+.fig-legend .lg { display: inline-block; width: 16px; height: 0; border-top: 2.5px solid; vertical-align: middle; margin-right: .35rem; }
+.lg-rap { border-color: var(--amber) !important; border-top-style: dashed !important; } .lg-cut { border-color: var(--green) !important; }
+.lg-arc { border-color: var(--blue) !important; } .lg-con { border-color: var(--ink) !important; } .lg-bad { border-color: var(--red) !important; border-top-style: dashed !important; }
+.lg-dim { border-color: var(--ink-2) !important; border-top-width: 1px !important; } .lg-acc { border-color: var(--accent) !important; }
+.lg-stock { height: 9px !important; border: 1px solid var(--ink) !important; background: repeating-linear-gradient(45deg, var(--line-strong) 0 1.5px, transparent 1.5px 5px); }
+.fig-cap { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.fig-cap b { color: var(--ink); }
+
+/* starsze schematy (Plot): czytelne napisy na liniach */
+.diagram svg text { paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
+
+/* ================= standard karty kodu ================= */
+.code-card .card-h { font-family: var(--font-display); font-size: 1.2rem; font-weight: 700; letter-spacing: -.01em; display: flex; align-items: center; gap: .55rem; }
+.code-card .card-h::before { content: ""; width: 4px; height: 1.05em; border-radius: 2px; background: var(--accent); }
+.addr-table { width: 100%; max-width: 44rem; border-collapse: separate; border-spacing: 0; font-size: 14px; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.addr-table th { text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: .55rem .8rem; background: var(--surface-2); }
+.addr-table td { padding: .6rem .8rem; border-top: 1px solid var(--line); vertical-align: top; color: var(--ink-2); line-height: 1.5; }
+.addr-table td:first-child { width: 1%; white-space: nowrap; }
+.addr { font: 700 13px/1 var(--font-mono); color: var(--accent); background: var(--accent-soft); padding: .25rem .45rem; border-radius: 6px; }
+.inline-code.is-link { color: var(--accent); border-bottom: 1px dashed color-mix(in srgb, var(--accent) 60%, transparent); }
+.rel-list { display: grid; gap: .45rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+.rel { display: grid; gap: .15rem; padding: .65rem .8rem; border-radius: 12px; background: var(--card); border: 1px solid var(--line); transition: border-color .15s ease, transform .12s ease; }
+.rel:active { transform: scale(.98); }
+.rel:hover { border-color: var(--accent); }
+.rel code { font: 700 13px/1.2 var(--font-mono); color: var(--accent); }
+.rel span { font-size: 13px; color: var(--ink-2); }
+.fig .cut-zone { fill: color-mix(in srgb, var(--green) 16%, transparent); stroke: none; }
+.fig .break { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 4; }

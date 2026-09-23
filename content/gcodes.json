@@ -1,797 +1,1731 @@
 [
-  {
-    "code": "G00",
-    "slug": "g00",
-    "name": "Szybki dojazd",
-    "group": "Ruch",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "Przemieszczenie z maksymalną prędkością, bez skrawania.",
-    "desc": "G00 przesuwa narzędzie do zadanego punktu z maksymalną prędkością osi. Nie służy do skrawania — tylko do dojazdów i odjazdów. Uwaga: osie ruszają niezależnie, więc tor nie musi być linią prostą (typowo: najpierw ruch skośny 45°, potem prosto).",
-    "syntax": {
-      "fanuc": "G00 X_ Y_ Z_",
-      "sinumerik": "G0 X_ Y_ Z_"
-    },
-    "params": [
-      {
-        "key": "X Y Z",
-        "desc": "Współrzędne punktu docelowego"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z10\nG00 X80 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
-    "sinumerik": "Identycznie: G0. Sinumerik ma dodatkowo RTLION/RTLIOF — dojazd po linii prostej lub niezależnie osiami.",
-    "pitfalls": [
-      "Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na głębokość G01.",
-      "Tor G00 nie jest prostą — nie zakładaj, że ominie zacisk."
-    ]
+ {
+  "code": "G00",
+  "slug": "g00",
+  "name": "Szybki dojazd",
+  "group": "Ruch",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "Przemieszczenie z maksymalną prędkością, bez skrawania.",
+  "desc": "G00 przesuwa narzędzie do zadanego punktu z maksymalną prędkością osi. Nie służy do skrawania — tylko do dojazdów i odjazdów. Uwaga: osie ruszają niezależnie, więc tor nie musi być linią prostą (typowo: najpierw ruch skośny 45°, potem prosto).",
+  "syntax": {
+   "fanuc": "G00 X_ Y_ Z_",
+   "sinumerik": "G0 X_ Y_ Z_"
   },
-  {
-    "code": "G01",
-    "slug": "g01",
-    "name": "Interpolacja liniowa",
-    "group": "Ruch",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "Ruch po prostej z zadanym posuwem F — podstawowy ruch skrawania.",
-    "desc": "G01 prowadzi narzędzie po linii prostej z posuwem F. Wszystkie osie kończą ruch jednocześnie, więc tor jest zawsze prostą. Jest modalny: kolejne bloki z samymi współrzędnymi też będą G01.",
-    "syntax": {
-      "fanuc": "G01 X_ Y_ Z_ F_",
-      "sinumerik": "G1 X_ Y_ Z_ F_"
-    },
-    "params": [
-      {
-        "key": "X Y Z",
-        "desc": "Punkt końcowy"
-      },
-      {
-        "key": "F",
-        "desc": "Posuw (mm/min przy G94, mm/obr przy G95)"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F80\nG01 X60 F250\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30",
-    "sinumerik": "G1. Na tokarce Sinumerik posuw domyślnie w mm/obr (G95) — na frezarce mm/min (G94).",
-    "pitfalls": [
-      "G01 bez F → alarm lub posuw z poprzedniego bloku.",
-      "Na tokarce Fanuc F0.2 (mm/obr) vs frezarka F200 (mm/min) — pomylenie jednostek kończy się złamanym narzędziem."
-    ]
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "Współrzędne punktu docelowego"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z10\nG00 X80 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
+  "sinumerik": "Identycznie: G0. Sinumerik ma dodatkowo RTLION/RTLIOF — dojazd po linii prostej lub niezależnie osiami.",
+  "pitfalls": [
+   "Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na głębokość G01.",
+   "Tor G00 nie jest prostą — nie zakładaj, że ominie zacisk."
+  ]
+ },
+ {
+  "code": "G01",
+  "slug": "g01",
+  "name": "Interpolacja liniowa",
+  "group": "Ruch",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "Ruch po prostej z zadanym posuwem F — podstawowy ruch skrawania.",
+  "desc": "G01 prowadzi narzędzie po linii prostej z posuwem F. Wszystkie osie kończą ruch jednocześnie, więc tor jest zawsze prostą. Jest modalny: kolejne bloki z samymi współrzędnymi też będą G01.",
+  "syntax": {
+   "fanuc": "G01 X_ Y_ Z_ F_",
+   "sinumerik": "G1 X_ Y_ Z_ F_"
   },
-  {
-    "code": "G02",
-    "slug": "g02",
-    "name": "Interpolacja kołowa CW",
-    "group": "Ruch",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "Łuk zgodnie z ruchem wskazówek zegara.",
-    "desc": "G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara (patrząc od strony dodatniej osi prostopadłej do płaszczyzny). Środek łuku podaje się przyrostowo od punktu startu przez I, J, K albo promieniem R.",
-    "syntax": {
-      "fanuc": "G02 X_ Y_ I_ J_ F_\nG02 X_ Y_ R_ F_",
-      "sinumerik": "G2 X_ Y_ I_ J_ F_\nG2 X_ Y_ CR=_ F_"
-    },
-    "params": [
-      {
-        "key": "X Y",
-        "desc": "Punkt końcowy łuku"
-      },
-      {
-        "key": "I J K",
-        "desc": "Odległość od punktu startu do środka łuku (przyrostowo)"
-      },
-      {
-        "key": "R",
-        "desc": "Promień; R ujemne = łuk > 180°"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG02 X60 Y20 I0 J20\nG02 X40 Y40 I-20 J0\nG01 X0\nG01 Y0\nG00 Z5\nM30",
-    "sinumerik": "G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.",
-    "pitfalls": [
-      "Pełne koło (start = koniec) nie zadziała z R — użyj I/J.",
-      "Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz bywa odwrócony.",
-      "I/J są od punktu STARTU, nie od zera detalu."
-    ]
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "Punkt końcowy"
+   },
+   {
+    "key": "F",
+    "desc": "Posuw (mm/min przy G94, mm/obr przy G95)"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F80\nG01 X60 F250\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+  "sinumerik": "G1. Na tokarce Sinumerik posuw domyślnie w mm/obr (G95) — na frezarce mm/min (G94).",
+  "pitfalls": [
+   "G01 bez F → alarm lub posuw z poprzedniego bloku.",
+   "Na tokarce Fanuc F0.2 (mm/obr) vs frezarka F200 (mm/min) — pomylenie jednostek kończy się złamanym narzędziem."
+  ]
+ },
+ {
+  "code": "G02",
+  "slug": "g02",
+  "name": "Interpolacja kołowa CW",
+  "group": "Ruch",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "Łuk zgodnie z ruchem wskazówek zegara.",
+  "desc": "G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara (patrząc od strony dodatniej osi prostopadłej do płaszczyzny). Środek łuku podaje się przyrostowo od punktu startu przez I, J, K albo promieniem R.",
+  "syntax": {
+   "fanuc": "G02 X_ Y_ I_ J_ F_\nG02 X_ Y_ R_ F_",
+   "sinumerik": "G2 X_ Y_ I_ J_ F_\nG2 X_ Y_ CR=_ F_"
   },
-  {
-    "code": "G03",
-    "slug": "g03",
-    "name": "Interpolacja kołowa CCW",
-    "group": "Ruch",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "Łuk przeciwnie do ruchu wskazówek zegara.",
-    "desc": "Jak G02, ale przeciwnie do ruchu wskazówek zegara. Ten sam sposób definiowania środka: I/J/K lub R.",
-    "syntax": {
-      "fanuc": "G03 X_ Y_ I_ J_ F_\nG03 X_ Y_ R_ F_",
-      "sinumerik": "G3 X_ Y_ I_ J_ F_\nG3 X_ Y_ CR=_ F_"
-    },
-    "params": [
-      {
-        "key": "X Y",
-        "desc": "Punkt końcowy łuku"
-      },
-      {
-        "key": "I J K",
-        "desc": "Wektor start → środek"
-      },
-      {
-        "key": "R",
-        "desc": "Promień"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG03 X60 Y20 R20\nG03 X40 Y40 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30",
-    "sinumerik": "G3, CR= zamiast R.",
-    "pitfalls": [
-      "Przy R kontroler wybiera krótszy łuk (≤180°). Jeśli chcesz dłuższy, podaj R ujemne."
-    ]
+  "params": [
+   {
+    "key": "X Y",
+    "desc": "Punkt końcowy łuku"
+   },
+   {
+    "key": "I J K",
+    "desc": "Odległość od punktu startu do środka łuku (przyrostowo)"
+   },
+   {
+    "key": "R",
+    "desc": "Promień; R ujemne = łuk > 180°"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG02 X60 Y20 I0 J20\nG02 X40 Y40 I-20 J0\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+  "sinumerik": "G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.",
+  "pitfalls": [
+   "Pełne koło (start = koniec) nie zadziała z R — użyj I/J.",
+   "Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz bywa odwrócony.",
+   "I/J są od punktu STARTU, nie od zera detalu."
+  ]
+ },
+ {
+  "code": "G03",
+  "slug": "g03",
+  "name": "Interpolacja kołowa CCW",
+  "group": "Ruch",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "Łuk przeciwnie do ruchu wskazówek zegara.",
+  "desc": "Jak G02, ale przeciwnie do ruchu wskazówek zegara. Ten sam sposób definiowania środka: I/J/K lub R.",
+  "syntax": {
+   "fanuc": "G03 X_ Y_ I_ J_ F_\nG03 X_ Y_ R_ F_",
+   "sinumerik": "G3 X_ Y_ I_ J_ F_\nG3 X_ Y_ CR=_ F_"
   },
-  {
-    "code": "G04",
-    "slug": "g04",
-    "name": "Postój czasowy",
-    "group": "Pomocnicze",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "Zatrzymanie posuwu na zadany czas (wrzeciono nadal się obraca).",
-    "desc": "G04 wstrzymuje ruch osi na czas P lub X. Używane np. na dnie otworu, żeby wygładzić dno, albo przy rowkach na tokarce.",
-    "syntax": {
-      "fanuc": "G04 P1000  (ms)\nG04 X1.0  (s)",
-      "sinumerik": "G4 F1  (s)\nG4 S10  (obroty wrzeciona)"
-    },
-    "params": [
-      {
-        "key": "P",
-        "desc": "Fanuc: milisekundy (bez kropki)"
-      },
-      {
-        "key": "X / F",
-        "desc": "Sekundy"
-      }
-    ],
-    "example": "G21 G90 G17\nG00 X20 Y20 Z5\nG01 Z-5 F100\nG04 P500\nG00 Z5\nM30",
-    "sinumerik": "G4 F (sekundy) lub G4 S (liczba obrotów).",
-    "pitfalls": [
-      "Fanuc: G04 P1 to 1 ms, a G04 X1 to 1 s — kropka i litera zmieniają wszystko."
-    ]
+  "params": [
+   {
+    "key": "X Y",
+    "desc": "Punkt końcowy łuku"
+   },
+   {
+    "key": "I J K",
+    "desc": "Wektor start → środek"
+   },
+   {
+    "key": "R",
+    "desc": "Promień"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG03 X60 Y20 R20\nG03 X40 Y40 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+  "sinumerik": "G3, CR= zamiast R.",
+  "pitfalls": [
+   "Przy R kontroler wybiera krótszy łuk (≤180°). Jeśli chcesz dłuższy, podaj R ujemne."
+  ]
+ },
+ {
+  "code": "G04",
+  "slug": "g04",
+  "name": "Postój czasowy",
+  "group": "Pomocnicze",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "Zatrzymanie posuwu na zadany czas (wrzeciono nadal się obraca).",
+  "desc": "G04 wstrzymuje ruch osi na czas P lub X. Używane np. na dnie otworu, żeby wygładzić dno, albo przy rowkach na tokarce.",
+  "syntax": {
+   "fanuc": "G04 P1000  (ms)\nG04 X1.0  (s)",
+   "sinumerik": "G4 F1  (s)\nG4 S10  (obroty wrzeciona)"
   },
-  {
-    "code": "G17 G18 G19",
-    "slug": "g17-g19",
-    "name": "Wybór płaszczyzny",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19).",
-    "desc": "Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18.",
-    "syntax": {
-      "fanuc": "G17 | G18 | G19",
-      "sinumerik": "G17 | G18 | G19"
-    },
-    "params": [],
-    "example": "G21 G90 G18\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R5\nG01 X70\nG00 X80 Z2\nM30",
-    "sinumerik": "Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.",
-    "pitfalls": [
-      "Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor."
-    ]
+  "params": [
+   {
+    "key": "P",
+    "desc": "Fanuc: milisekundy (bez kropki)"
+   },
+   {
+    "key": "X / F",
+    "desc": "Sekundy"
+   }
+  ],
+  "example": "G21 G90 G17\nG00 X20 Y20 Z5\nG01 Z-5 F100\nG04 P500\nG00 Z5\nM30",
+  "sinumerik": "G4 F (sekundy) lub G4 S (liczba obrotów).",
+  "pitfalls": [
+   "Fanuc: G04 P1 to 1 ms, a G04 X1 to 1 s — kropka i litera zmieniają wszystko."
+  ]
+ },
+ {
+  "code": "G09 G61 G64",
+  "slug": "g09-g61-g64",
+  "name": "Dokładne zatrzymanie i tryb ciągły",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "G09 i G61 każą osiom wyhamować do zera na końcu bloku, więc naroża wychodzą ostre. G64 pozwala przejść płynnie do następnego ruchu.",
+  "desc": "W trybie **G64** (domyślnym) sterowanie nie zatrzymuje osi między blokami. Obróbka jest szybsza, ale naroża toru są lekko zaokrąglone.\n\n**G61** włącza dokładne zatrzymanie modalnie: każdy blok kończy się pełnym wyhamowaniem i sprawdzeniem pozycji. **G09** robi to samo tylko w bloku, w którym stoi — wstawia się go w blok kończący się w narożu, które ma być ostre.\n\n**G62** automatycznie zmniejsza posuw w narożach wewnętrznych przy włączonej kompensacji promienia, żeby frez nie wbijał się w materiał.",
+  "syntax": {
+   "fanuc": "G09 G01 X_ Y_ F_\nG61\nG64",
+   "sinumerik": "G9 G1 X_ Y_ F_\nG60\nG64"
   },
-  {
-    "code": "G20 G21",
-    "slug": "g20-g21",
-    "name": "Cale / milimetry",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "Jednostki programu: G20 cale, G21 milimetry.",
-    "desc": "Ustawia jednostkę dla wszystkich współrzędnych i posuwu. Warto zawsze dawać G21 w bloku startowym — nie polegaj na ustawieniu maszyny.",
-    "syntax": {
-      "fanuc": "G20 | G21",
-      "sinumerik": "G70 | G71"
-    },
-    "params": [],
-    "example": "G21 G90 G17\nG00 X10 Y10\nM30",
-    "sinumerik": "Uwaga: w Sinumerik cale/mm to G70/G71 — a G20/G21 nie istnieją. Fanuc G70/G71 to cykle tokarskie. Klasyczna pułapka przy przenoszeniu programów.",
-    "pitfalls": [
-      "Program w calach uruchomiony na maszynie w mm → wszystko 25,4× za małe (albo za duże)."
-    ]
+  "example": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG61\nG01 X40 F400\nG01 Y30\nG64\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+  "sinumerik": "G9 działa w jednym bloku, **G60** włącza dokładne zatrzymanie modalnie, **G64** tryb ciągły. Kryterium zatrzymania wybiera G601 (dokładne) albo G602 (zgrubne).",
+  "pitfalls": [
+   "G61 zostawione na cały program wydłuża obróbkę konturów z wieloma krótkimi odcinkami — oś hamuje w każdym punkcie.",
+   "Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku kończącym się w tym narożu."
+  ],
+  "related": [
+   "g01",
+   "g04",
+   "g40-g42"
+  ],
+  "params": []
+ },
+ {
+  "code": "G10",
+  "slug": "g10",
+  "name": "Wpisywanie korekt i baz z programu",
+  "group": "Ustawienia",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Zapisuje z programu wartości do tabel sterowania: przesunięcia baz G54–G59 i korekcje narzędzi.",
+  "desc": "**G10 L2 P1** wpisuje przesunięcie bazy G54 (P1 = G54 … P6 = G59). Na frezarce **G10 L10** i **L11** zapisują długość narzędzia (geometria i zużycie), a **L12** i **L13** promień.\n\nZ **G90** wartość jest nadpisywana, z **G91** dodawana do obecnej. Na tokarce składnia to G10 P_ X_ Z_ R_ Q_: numer korekcji, wartości w X i Z, promień ostrza i jego położenie.\n\nPrzydaje się przy kilku detalach na jednej płycie i w programach pomiarowych, które same korygują bazę.",
+  "syntax": {
+   "fanuc": "G10 L2 P_ X_ Y_ Z_\nG10 L10 P_ R_\nG10 L12 P_ R_",
+   "sinumerik": "$P_UIFR[1]=CTRANS(X,_,Y,_,Z,_)\n$TC_DP3[1,1]=_"
   },
-  {
-    "code": "G28",
-    "slug": "g28",
-    "name": "Powrót do punktu referencyjnego",
-    "group": "Pomocnicze",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "Dojazd do bazy maszyny przez punkt pośredni.",
-    "desc": "G28 jedzie najpierw do punktu pośredniego podanego w bloku, a potem do punktu referencyjnego maszyny. Typowo: G91 G28 Z0 — czyli „z tego miejsca prosto do góry do bazy”.",
-    "syntax": {
-      "fanuc": "G91 G28 Z0\nG28 X0 Y0",
-      "sinumerik": "SUPA G0 Z0  (lub G75)"
-    },
-    "params": [
-      {
-        "key": "X Y Z",
-        "desc": "Punkt pośredni"
-      }
-    ],
-    "example": "G21 G90 G17\nG00 X30 Y20 Z5\nG91 G28 Z0\nG90\nM30",
-    "sinumerik": "Brak G28. Używa się SUPA (współrzędne maszynowe) lub G75 (dojazd do punktu stałego).",
-    "pitfalls": [
-      "G90 G28 Z0 jedzie NAJPIERW do Z0 detalu (kolizja!), dopiero potem do bazy. Prawie zawsze chcesz G91 G28 Z0.",
-      "Po G91 G28 pamiętaj wrócić do G90."
-    ]
+  "params": [
+   {
+    "key": "L2",
+    "desc": "przesunięcie bazy"
+   },
+   {
+    "key": "P",
+    "desc": "numer bazy (1 = G54 … 6 = G59) albo numer korektora"
+   },
+   {
+    "key": "X Y Z",
+    "desc": "wartości przesunięcia bazy"
+   },
+   {
+    "key": "R",
+    "desc": "wartość korekcji (w L10–L13)"
+   },
+   {
+    "key": "L10 / L11",
+    "desc": "długość: geometria / zużycie"
+   },
+   {
+    "key": "L12 / L13",
+    "desc": "promień: geometria / zużycie"
+   }
+  ],
+  "example": "G90 G10 L2 P1 X-250.0 Y-180.0 Z-310.0 (G54)\nG90 G10 L2 P2 X-150.0 Y-180.0 Z-310.0 (G55)\nG90 G10 L10 P1 R125.37 (H1 geometria)\nG91 G10 L11 P1 R-0.02 (H1 zuzycie -0.02)\nG90\nM30",
+  "sinumerik": "Sinumerik nie ma G10. Bazy zapisuje się przez **$P_UIFR[n]**, dane narzędzia przez **$TC_DP…**. Po zmianie bazy, która jest aktywna, trzeba ją wywołać ponownie (np. G54).",
+  "pitfalls": [
+   "Pomyłka G90/G91 przy G10: zamiast dodać −0,02 do zużycia nadpiszesz je wartością −0,02.",
+   "P w G10 L2 to numer bazy, nie numer narzędzia."
+  ],
+  "related": [
+   "g54-g59",
+   "g43-g49",
+   "g40-g42",
+   "g52-g53"
+  ]
+ },
+ {
+  "code": "G15 G16",
+  "slug": "g15-g16",
+  "name": "Współrzędne biegunowe",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 2,
+  "simulate": false,
+  "short": "Po G16 pierwsza oś płaszczyzny to promień, druga to kąt. G15 wraca do zwykłych współrzędnych.",
+  "desc": "W **G17** po **G16** adres **X** oznacza promień, a **Y** kąt w stopniach, liczony od osi +X przeciwnie do ruchu wskazówek zegara.\n\nBiegunem jest zero układu współrzędnych, jeśli G16 stoi w bloku z **G90**, albo bieżąca pozycja narzędzia przy **G91**.\n\nNajczęstsze zastosowanie to otwory na okręgu podziałowym: cykl **G81** i kolejne bloki z samym kątem Y.",
+  "syntax": {
+   "fanuc": "G17 G90 G16\nG81 X_(promień) Y_(kąt) Z_ R_ F_\nG15",
+   "sinumerik": "G111 X_ Y_   ; biegun\nG1 RP=_ AP=_"
   },
-  {
-    "code": "G40 G41 G42",
-    "slug": "g40-g42",
-    "name": "Kompensacja promienia narzędzia",
-    "group": "Korekcje",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 3,
-    "short": "Przesunięcie toru o promień freza: G41 w lewo od konturu, G42 w prawo, G40 wyłącza.",
-    "desc": "Programujesz kontur detalu, a sterownik sam odsuwa tor o promień narzędzia z rejestru D. Stojąc za narzędziem i patrząc w kierunku ruchu: G41 = narzędzie po lewej stronie konturu (frezowanie współbieżne przy prawych obrotach), G42 = po prawej. Włącza się w bloku dojazdowym (G01), nie w łuku.",
-    "syntax": {
-      "fanuc": "G41 D_ X_ Y_\n...kontur...\nG40 X_ Y_",
-      "sinumerik": "G41 X_ Y_  (D z T)\n...\nG40 X_ Y_"
-    },
-    "params": [
-      {
-        "key": "D",
-        "desc": "Numer rejestru korekcji promienia"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X-15 Y-15 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F200\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-15 Y-15\nG00 Z5\nM30",
-    "sinumerik": "Te same G40/G41/G42, ale numer korektora bierze się z narzędzia (T1 D1), nie z bloku G41.",
-    "pitfalls": [
-      "Włączenie kompensacji w bloku G02/G03 → alarm.",
-      "Blok dojazdowy krótszy niż promień → alarm „przecięcie”.",
-      "Wewnętrzny łuk mniejszy niż promień freza → podcięcie lub alarm."
-    ]
+  "params": [
+   {
+    "key": "X",
+    "desc": "promień (w G17)"
+   },
+   {
+    "key": "Y",
+    "desc": "kąt [°] od osi +X, dodatni przeciwnie do ruchu wskazówek zegara"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT01 M06\nS1200 M03\nG00 X0 Y0 Z20\nG16\nG99 G81 X40 Y0 Z-12 R2 F120\nY60\nY120\nY180\nY240\nY300\nG80 G15\nG00 Z50\nM30",
+  "sinumerik": "Biegun ustawia **G110** (względem ostatniej pozycji), **G111** (względem zera) albo **G112** (względem poprzedniego bieguna). Promień to **RP=**, kąt **AP=**.",
+  "pitfalls": [
+   "Brak G15 po cyklu: następny blok X50 Y0 zostanie odczytany jako promień i kąt.",
+   "Biegun zależy od G90/G91 w bloku z G16 — sprawdź, gdzie stoi narzędzie przed włączeniem."
+  ],
+  "related": [
+   "g81-g83",
+   "g68-g69",
+   "g17-g19"
+  ]
+ },
+ {
+  "code": "G17 G18 G19",
+  "slug": "g17-g19",
+  "name": "Wybór płaszczyzny",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19).",
+  "desc": "Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18.",
+  "syntax": {
+   "fanuc": "G17 | G18 | G19",
+   "sinumerik": "G17 | G18 | G19"
   },
-  {
-    "code": "G43 G49",
-    "slug": "g43-g49",
-    "name": "Korekcja długości narzędzia",
-    "group": "Korekcje",
-    "modal": true,
-    "milling": true,
-    "turning": false,
-    "level": 2,
-    "short": "Uwzględnia długość narzędzia z rejestru H (G43), G49 wyłącza.",
-    "desc": "Po wymianie narzędzia trzeba powiedzieć sterownikowi, jak długie jest nowe narzędzie. G43 H_ dodaje wartość z rejestru H do pozycji Z. Włącza się w pierwszym ruchu Z po wymianie.",
-    "syntax": {
-      "fanuc": "G43 H_ Z_",
-      "sinumerik": "(automatycznie z T_ D_)"
-    },
-    "params": [
-      {
-        "key": "H",
-        "desc": "Numer rejestru długości"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nT1 M06\nG43 H1 Z50\nG00 X0 Y0\nG00 Z5\nM30",
-    "sinumerik": "Nie ma G43 — długość jest aktywowana automatycznie przez T i D (np. T1 D1).",
-    "pitfalls": [
-      "Zły numer H (np. H2 przy T1) to najczęstsza przyczyna wbicia narzędzia w stół.",
-      "G43 bez ruchu Z w tym samym bloku — na części sterowników nic się nie stanie aż do następnego Z."
-    ]
+  "params": [],
+  "example": "G21 G90 G18\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R5\nG01 X70\nG00 X80 Z2\nM30",
+  "sinumerik": "Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.",
+  "pitfalls": [
+   "Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor."
+  ]
+ },
+ {
+  "code": "G20 G21",
+  "slug": "g20-g21",
+  "name": "Cale / milimetry",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "Jednostki programu: G20 cale, G21 milimetry.",
+  "desc": "Ustawia jednostkę dla wszystkich współrzędnych i posuwu. Warto zawsze dawać G21 w bloku startowym — nie polegaj na ustawieniu maszyny.",
+  "syntax": {
+   "fanuc": "G20 | G21",
+   "sinumerik": "G70 | G71"
   },
-  {
-    "code": "G54–G59",
-    "slug": "g54-g59",
-    "name": "Układy współrzędnych detalu",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "Wybór przesunięcia zera detalu (6 układów).",
-    "desc": "Sterownik pamięta odległość między zerem maszyny a zerem detalu w rejestrach G54–G59. W programie wybierasz, którego użyć. Kilka zamocowań na stole = kilka układów.",
-    "syntax": {
-      "fanuc": "G54 ... G59\nG54.1 P1 (dodatkowe)",
-      "sinumerik": "G54 ... G57, G505 ... G599"
-    },
-    "params": [],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
-    "sinumerik": "Standardowo G54–G57, dalej G505–G599. Dodatkowo TRANS/ATRANS jako programowalne przesunięcia.",
-    "pitfalls": [
-      "Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00."
-    ]
+  "params": [],
+  "example": "G21 G90 G17\nG00 X10 Y10\nM30",
+  "sinumerik": "Uwaga: w Sinumerik cale/mm to G70/G71 — a G20/G21 nie istnieją. Fanuc G70/G71 to cykle tokarskie. Klasyczna pułapka przy przenoszeniu programów.",
+  "pitfalls": [
+   "Program w calach uruchomiony na maszynie w mm → wszystko 25,4× za małe (albo za duże)."
+  ]
+ },
+ {
+  "code": "G22 G23",
+  "slug": "g22-g23",
+  "name": "Strefy zabronione",
+  "group": "Pomocnicze",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "G22 włącza obszar zapisany w programie, do którego narzędzie nie może wjechać. G23 wyłącza tę kontrolę.",
+  "desc": "**G22 X_ Y_ Z_ I_ J_ K_** definiuje prostopadłościan przez dwa przeciwległe naroża. Sterowanie zatrzymuje ruch z alarmem, zanim punkt narzędzia wejdzie do środka (albo wyjdzie na zewnątrz — zależnie od parametru).\n\nChroni uchwyt, konik, podzielnicę. Współrzędne podaje się w układzie maszyny. **G23** wyłącza kontrolę tej strefy; granice programowe ustawione w parametrach działają zawsze.",
+  "syntax": {
+   "fanuc": "G22 X_ Y_ Z_ I_ J_ K_\nG23",
+   "sinumerik": "G25 X_ Y_ Z_   ; dolna granica\nG26 X_ Y_ Z_   ; górna granica\nWALIMON / WALIMOF"
   },
-  {
-    "code": "G80 G81 G83",
-    "slug": "g81-g83",
-    "name": "Cykle wiercenia",
-    "group": "Cykle",
-    "modal": true,
-    "milling": true,
-    "turning": false,
-    "level": 3,
-    "short": "G81 wiercenie proste, G83 wiercenie z wycofaniem wiórów, G80 anuluje.",
-    "desc": "Cykl stały wykonuje w jednym bloku: dojazd, wiercenie na Z, wycofanie do R (G99) lub do punktu początkowego (G98). Kolejne bloki z samymi X Y powtarzają cykl w nowych punktach. G83 dodatkowo wycofuje wiertło co Q milimetrów, żeby wyrzucić wióry.",
-    "syntax": {
-      "fanuc": "G99 G81 X_ Y_ Z_ R_ F_\nG99 G83 X_ Y_ Z_ R_ Q_ F_\nG80",
-      "sinumerik": "CYCLE81(RTP, RFP, SDIS, DP)\nCYCLE83(...)"
-    },
-    "params": [
-      {
-        "key": "Z",
-        "desc": "Dno otworu"
-      },
-      {
-        "key": "R",
-        "desc": "Płaszczyzna bezpieczna (start posuwu)"
-      },
-      {
-        "key": "Q",
-        "desc": "Głębokość jednego zagłębienia (G83)"
-      },
-      {
-        "key": "F",
-        "desc": "Posuw"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X10 Y10 Z10\nG01 Z-15 F100\nG00 Z2\nG00 X40 Y10\nG01 Z-15\nG00 Z2\nG00 X40 Y30\nG01 Z-15\nG00 Z2\nG00 Z10\nM30",
-    "sinumerik": "Zamiast G81/G83 są cykle CYCLE81, CYCLE83 z parametrami w nawiasie i MCALL do powtarzania w kolejnych punktach.",
-    "pitfalls": [
-      "Zapomniane G80 → następny ruch X Y też wywierci otwór.",
-      "G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w zacisk."
-    ]
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "pierwsze naroże strefy (układ maszyny)"
+   },
+   {
+    "key": "I J K",
+    "desc": "drugie naroże strefy"
+   }
+  ],
+  "example": "G22 X-400.0 Y-300.0 Z-200.0 I-250.0 J-150.0 K0 (uchwyt)\n(... obrobka ...)\nG23\nM30",
+  "sinumerik": "Obszar roboczy ograniczają **G25** (dolna granica) i **G26** (górna), kontrolę włącza **WALIMON**, wyłącza **WALIMOF**. Uwaga: G25/G26 z adresem S ograniczają obroty wrzeciona.",
+  "pitfalls": [
+   "Współrzędne strefy są w układzie maszyny, nie w G54.",
+   "Sprawdzany jest punkt odniesienia narzędzia, nie jego obrys. Zostaw zapas na średnicę i wysięg."
+  ],
+  "related": [
+   "g53",
+   "g28",
+   "g27-g30"
+  ]
+ },
+ {
+  "code": "G27 G29 G30",
+  "slug": "g27-g30",
+  "name": "Punkty referencyjne: sprawdzenie, powrót, drugi punkt",
+  "group": "Pomocnicze",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "G30 jedzie do drugiego punktu referencyjnego (np. wymiany narzędzia), G27 sprawdza powrót do bazy, G29 wraca z bazy do wskazanego punktu.",
+  "desc": "Działają jak **G28**: najpierw ruch szybki do punktu pośredniego z bloku, potem do punktu referencyjnego.\n\n**G30 P2** jedzie do drugiego punktu (P2 można pominąć), **P3** i **P4** do trzeciego i czwartego. Ich położenie ustawia producent w parametrach — często to pozycja wymiany narzędzia albo zmiany palety.\n\n**G27** jedzie do podanej pozycji i sprawdza, czy to punkt referencyjny; jeśli nie — alarm. **G29** wraca z punktu referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji z bloku.",
+  "syntax": {
+   "fanuc": "G91 G30 P2 Z0\nG27 X_ Y_ Z_\nG29 X_ Y_ Z_",
+   "sinumerik": "G75 FP=2 Z0   ; punkt stały 2\nG74 Z1=0       ; najazd na bazę"
   },
-  {
-    "code": "G90 G91",
-    "slug": "g90-g91",
-    "name": "Wymiarowanie absolutne / przyrostowe",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "G90: współrzędne od zera detalu. G91: od aktualnej pozycji.",
-    "desc": "W G90 „X50” znaczy „jedź do X=50”. W G91 „X50” znaczy „przesuń się o 50 w X od miejsca, w którym jesteś”. G91 przydaje się do powtarzalnych wzorów i podprogramów.",
-    "syntax": {
-      "fanuc": "G90 | G91",
-      "sinumerik": "G90 | G91  (albo X=IC(50) w jednym słowie)"
-    },
-    "params": [],
-    "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG91\nG01 X20 F200\nG01 Y20\nG01 X-20\nG01 Y-20\nG90\nG00 Z5\nM30",
-    "sinumerik": "G90/G91 działają tak samo. Dodatkowo można mieszać w jednym bloku: X=AC(10) Y=IC(5).",
-    "pitfalls": [
-      "Uruchomienie programu przyrostowego od złego punktu startowego → cały detal przesunięty.",
-      "Na tokarce Fanuc zamiast G91 często używa się U/W (przyrost X/Z)."
-    ]
+  "params": [
+   {
+    "key": "P",
+    "desc": "numer punktu referencyjnego (2–4)"
+   },
+   {
+    "key": "X Y Z",
+    "desc": "punkt pośredni (G30) albo pozycja docelowa (G27, G29)"
+   }
+  ],
+  "example": "G91 G30 P2 Z0 (os Z do punktu wymiany)\nG30 P2 X0 Y0\nT05 M06\nG90 G54 G00 X50.0 Y30.0\nM30",
+  "sinumerik": "Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi — **G74**.",
+  "pitfalls": [
+   "G30 w G90 z Z0 prowadzi przez zero detalu, tak samo jak G28. Używaj G91 … Z0.",
+   "Położenie drugiego punktu ustawia producent maszyny. Sprawdź je, zanim użyjesz G30 w programie."
+  ],
+  "related": [
+   "g28",
+   "g53",
+   "m06"
+  ]
+ },
+ {
+  "code": "G28",
+  "slug": "g28",
+  "name": "Powrót do punktu referencyjnego",
+  "group": "Pomocnicze",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "Dojazd do bazy maszyny przez punkt pośredni.",
+  "desc": "G28 jedzie najpierw do punktu pośredniego podanego w bloku, a potem do punktu referencyjnego maszyny. Typowo: G91 G28 Z0 — czyli „z tego miejsca prosto do góry do bazy”.",
+  "syntax": {
+   "fanuc": "G91 G28 Z0\nG28 X0 Y0",
+   "sinumerik": "SUPA G0 Z0  (lub G75)"
   },
-  {
-    "code": "G94 G95",
-    "slug": "g94-g95",
-    "name": "Jednostka posuwu",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "G94 posuw w mm/min, G95 w mm/obrót.",
-    "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle G95 (mm/obr), bo posuw na obrót bezpośrednio przekłada się na chropowatość.",
-    "syntax": {
-      "fanuc": "G94 | G95  (tokarki Fanuc: G98 | G99)",
-      "sinumerik": "G94 | G95"
-    },
-    "params": [],
-    "example": "G21 G90 G18 G95\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
-    "sinumerik": "G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G95.",
-    "pitfalls": [
-      "Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr — a na frezarkach G98/G99 to powrót w cyklach. Ten sam kod, inne znaczenie!"
-    ]
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "Punkt pośredni"
+   }
+  ],
+  "example": "G21 G90 G17\nG00 X30 Y20 Z5\nG91 G28 Z0\nG90\nM30",
+  "sinumerik": "Brak G28. Używa się SUPA (współrzędne maszynowe) lub G75 (dojazd do punktu stałego).",
+  "pitfalls": [
+   "G90 G28 Z0 jedzie NAJPIERW do Z0 detalu (kolizja!), dopiero potem do bazy. Prawie zawsze chcesz G91 G28 Z0.",
+   "Po G91 G28 pamiętaj wrócić do G90."
+  ],
+  "related": [
+   "g27-g30",
+   "g53",
+   "m06"
+  ]
+ },
+ {
+  "code": "G31",
+  "slug": "g31",
+  "name": "Pomiar sondą (skip)",
+  "group": "Pomocnicze",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Ruch roboczy przerywany sygnałem z sondy. Pozycja w chwili styku trafia do zmiennych #5061–#5066.",
+  "desc": "**G31** porusza osią jak G01 z posuwem **F**. Gdy sonda dotknie detalu, sterowanie przerywa ruch, zapisuje pozycję w zmiennych systemowych (**#5061** X, **#5062** Y, **#5063** Z…) i przechodzi do następnego bloku.\n\nNa tej podstawie makro liczy przesunięcie bazy albo wymiar. Jeśli styku nie było, blok kończy się normalnie w punkcie docelowym — makro musi to sprawdzić.\n\nGotowe cykle pomiarowe dostarczają producenci sond jako makra wywoływane przez G65.",
+  "syntax": {
+   "fanuc": "G31 X_ Y_ Z_ F_\n#100=#5063",
+   "sinumerik": "MEAS=1 G1 Z_ F_\nR1=$AA_MW[Z]"
   },
-  {
-    "code": "G96 G97",
-    "slug": "g96-g97",
-    "name": "Stała prędkość skrawania",
-    "group": "Wrzeciono",
-    "modal": true,
-    "milling": false,
-    "turning": true,
-    "level": 2,
-    "short": "G96: sterownik dobiera obroty tak, by prędkość skrawania (m/min) była stała. G97: stałe obroty.",
-    "desc": "Przy toczeniu czołowym średnica maleje w trakcie cięcia — przy stałych obrotach prędkość skrawania spada do zera w osi. G96 S200 utrzymuje 200 m/min zwiększając obroty. G50 S_ (Fanuc) lub LIMS= (Sinumerik) ogranicza maksymalne obroty.",
-    "syntax": {
-      "fanuc": "G50 S3000\nG96 S200 M03\nG97 S1500",
-      "sinumerik": "LIMS=3000\nG96 S200 M3\nG97 S1500"
-    },
-    "params": [
-      {
-        "key": "S",
-        "desc": "Przy G96: m/min. Przy G97: obr/min"
-      }
-    ],
-    "example": "G21 G90 G18 G95\nG97 S1500 M03\nG00 X62 Z2\nG96 S200\nG01 Z-30 F0.2\nG01 X70\nG00 Z2\nG97 S1500\nM30",
-    "sinumerik": "Identycznie G96/G97, limit obrotów przez LIMS=.",
-    "pitfalls": [
-      "G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do maksimum.",
-      "Wiercenie w osi zawsze na G97."
-    ]
+  "params": [
+   {
+    "key": "F",
+    "desc": "posuw pomiaru — mały, zwykle 50–300 mm/min"
+   },
+   {
+    "key": "X Y Z",
+    "desc": "punkt, do którego sonda najdalej dojedzie"
+   }
+  ],
+  "example": "G90 G54 G00 X0 Y0\nG00 Z10.0\nG31 Z-5.0 F150 (szukaj powierzchni)\n#100=#5063 (Z w chwili styku)\nG00 Z10.0\nM30",
+  "sinumerik": "Pomiar z przerwaniem ruchu: **MEAS=1**, bez przerwania: **MEAW=1**. Zmierzona pozycja w układzie detalu to **$AA_MW[oś]**, w układzie maszyny **$AA_MM[oś]**.",
+  "pitfalls": [
+   "Za duży posuw G31 zwiększa błąd pomiaru i może uszkodzić końcówkę sondy.",
+   "Bez sprawdzenia, czy był styk, makro przyjmie punkt docelowy jako wynik pomiaru."
+  ],
+  "related": [
+   "g65-g67",
+   "g10",
+   "g54-g59"
+  ]
+ },
+ {
+  "code": "G33 G32",
+  "slug": "g33",
+  "name": "Gwintowanie jednym przejściem",
+  "group": "Cykle",
+  "modal": true,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "short": "Ruch zsynchronizowany z obrotami: jedna nitka gwintu na przejście. G76 robi to samo wielokrotnie.",
+  "desc": "G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na obrót, startując zawsze od tego samego położenia kątowego wrzeciona — dzięki temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz sam w każdym przejściu.",
+  "syntax": {
+   "fanuc": "G00 X23.2\nG32 Z-25 F1.5\nG00 X30\nG00 Z3\nG00 X22.8\nG32 Z-25 F1.5 ...",
+   "sinumerik": "G33 Z-25 K1.5"
   },
-  {
-    "code": "G71 G70",
-    "slug": "g71-g70",
-    "name": "Cykl zgrubnego i wykańczającego toczenia",
-    "group": "Cykle",
-    "modal": false,
-    "milling": false,
-    "turning": true,
-    "level": 3,
-    "short": "G71 zdejmuje naddatek warstwami wzdłuż konturu, G70 wykonuje przejście wykańczające po tym samym konturze.",
-    "desc": "Podajesz kontur gotowy (bloki P–Q), a G71 sam generuje przejścia zgrubne o głębokości U z naddatkiem U/W na wykańczanie. G70 P_ Q_ potem jedzie po konturze na czysto.",
-    "syntax": {
-      "fanuc": "G71 U2 R1\nG71 P10 Q20 U0.5 W0.1 F0.3\nN10 ...kontur...\nN20 ...\nG70 P10 Q20 F0.15",
-      "sinumerik": "CYCLE95(\"KONTUR\", 2, 0.5, 0.1, ...)"
-    },
-    "params": [
-      {
-        "key": "U (1. blok)",
-        "desc": "Głębokość jednego przejścia"
-      },
-      {
-        "key": "R",
-        "desc": "Wycofanie po przejściu"
-      },
-      {
-        "key": "P Q",
-        "desc": "Numery bloków początku i końca konturu"
-      },
-      {
-        "key": "U W (2. blok)",
-        "desc": "Naddatek na X (średnicowo) i Z"
-      }
-    ],
-    "example": "G21 G90 G18 G95\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
-    "sinumerik": "Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to milimetry!",
-    "pitfalls": [
-      "Kontur musi być monotoniczny w obu osiach (Fanuc typ I).",
-      "Pierwszy blok konturu (N P) może zawierać tylko ruch w X."
-    ]
+  "params": [
+   {
+    "key": "F / K",
+    "desc": "Skok gwintu"
+   },
+   {
+    "key": "Z",
+    "desc": "Koniec gwintu"
+   }
+  ],
+  "example": "G21 G90 G18 G97\nS600 M03\nG00 X24 Z3\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nM30",
+  "sinumerik": "G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97.",
+  "pitfalls": [
+   "Zawsze G97 (stałe obroty) — przy G96 skok by pływał.",
+   "Rozbieg przed gwintem ≥ 2× skok, inaczej pierwsze zwoje są zniekształcone."
+  ]
+ },
+ {
+  "code": "G40 G41 G42",
+  "slug": "g40-g42",
+  "name": "Kompensacja promienia narzędzia",
+  "group": "Korekcje",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "short": "Przesunięcie toru o promień freza: G41 w lewo od konturu, G42 w prawo, G40 wyłącza.",
+  "desc": "Programujesz kontur detalu, a sterownik sam odsuwa tor o promień narzędzia z rejestru D. Stojąc za narzędziem i patrząc w kierunku ruchu: G41 = narzędzie po lewej stronie konturu (frezowanie współbieżne przy prawych obrotach), G42 = po prawej. Włącza się w bloku dojazdowym (G01), nie w łuku.",
+  "syntax": {
+   "fanuc": "G41 D_ X_ Y_\n...kontur...\nG40 X_ Y_",
+   "sinumerik": "G41 X_ Y_  (D z T)\n...\nG40 X_ Y_"
   },
-  {
-    "code": "G76",
-    "slug": "g76",
-    "name": "Cykl gwintowania (tokarka)",
-    "group": "Cykle",
-    "modal": false,
-    "milling": false,
-    "turning": true,
-    "level": 3,
-    "short": "Wielokrotne przejścia gwintu w jednym cyklu.",
-    "desc": "G76 nacina gwint w kilku przejściach o malejącej głębokości. W dwóch blokach podaje się: liczbę przejść wykańczających, kąt zarysu, głębokość całkowitą, głębokość pierwszego przejścia i skok.",
-    "syntax": {
-      "fanuc": "G76 P010060 Q100 R0.05\nG76 X_ Z_ P_ Q_ F_ (skok)",
-      "sinumerik": "CYCLE97(...)"
-    },
-    "params": [
-      {
-        "key": "F",
-        "desc": "Skok gwintu"
-      },
-      {
-        "key": "P (2. blok)",
-        "desc": "Głębokość gwintu (μm, promieniowo)"
-      },
-      {
-        "key": "Q",
-        "desc": "Głębokość pierwszego przejścia (μm)"
-      }
-    ],
-    "example": "G21 G90 G18 G95\nG97 S800 M03\nG00 X24 Z5\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30",
-    "sinumerik": "CYCLE97 — parametry przez ekran cyklu, nie zakodowane w P jak w Fanuc.",
-    "pitfalls": [
-      "P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60° kąt.",
-      "Skok F musi zgadzać się z obrotami — gwint zaczynaj z rozbiegiem Z ≥ 2×skok."
-    ]
+  "params": [
+   {
+    "key": "D",
+    "desc": "Numer rejestru korekcji promienia"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X-15 Y-15 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F200\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-15 Y-15\nG00 Z5\nM30",
+  "sinumerik": "Te same G40/G41/G42, ale numer korektora bierze się z narzędzia (T1 D1), nie z bloku G41.",
+  "pitfalls": [
+   "Włączenie kompensacji w bloku G02/G03 → alarm.",
+   "Blok dojazdowy krótszy niż promień → alarm „przecięcie”.",
+   "Wewnętrzny łuk mniejszy niż promień freza → podcięcie lub alarm."
+  ]
+ },
+ {
+  "code": "G43 G44 G49",
+  "slug": "g43-g49",
+  "name": "Korekcja długości narzędzia",
+  "group": "Korekcje",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 2,
+  "short": "Uwzględnia długość narzędzia z rejestru H (G43), G49 wyłącza.",
+  "desc": "Po wymianie narzędzia trzeba powiedzieć sterownikowi, jak długie jest nowe narzędzie. G43 H_ dodaje wartość z rejestru H do pozycji Z. Włącza się w pierwszym ruchu Z po wymianie.\n\n**G44** odejmuje wartość korekcji zamiast ją dodawać. Dziś używa się go rzadko; standardem jest G43.",
+  "syntax": {
+   "fanuc": "G43 H_ Z_",
+   "sinumerik": "(automatycznie z T_ D_)"
   },
-  {
-    "code": "M03 M04 M05",
-    "slug": "m03-m05",
-    "name": "Wrzeciono",
-    "group": "Funkcje M",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "M03 obroty w prawo, M04 w lewo, M05 stop.",
-    "desc": "M03 uruchamia wrzeciono zgodnie z ruchem wskazówek zegara (patrząc od góry na frezarce) z obrotami S. M04 przeciwnie — do gwintowników lewych, narzędzi tokarskich lewych. M05 zatrzymuje.",
-    "syntax": {
-      "fanuc": "S1200 M03",
-      "sinumerik": "S1200 M3"
-    },
-    "params": [
-      {
-        "key": "S",
-        "desc": "Obroty (obr/min) lub prędkość skrawania przy G96"
-      }
-    ],
-    "example": "G21 G90 G17\nS1200 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG00 Z5\nM05\nM30",
-    "sinumerik": "M3/M4/M5 — zera wiodące opcjonalne.",
-    "pitfalls": [
-      "Tylko jedna funkcja M w bloku (Fanuc). M03 M08 w jednej linii → alarm lub zignorowanie."
-    ]
+  "params": [
+   {
+    "key": "H",
+    "desc": "Numer rejestru długości"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT1 M06\nG43 H1 Z50\nG00 X0 Y0\nG00 Z5\nM30",
+  "sinumerik": "Nie ma G43 — długość jest aktywowana automatycznie przez T i D (np. T1 D1).",
+  "pitfalls": [
+   "Zły numer H (np. H2 przy T1) to najczęstsza przyczyna wbicia narzędzia w stół.",
+   "G43 bez ruchu Z w tym samym bloku — na części sterowników nic się nie stanie aż do następnego Z."
+  ],
+  "related": [
+   "m06",
+   "g10",
+   "g40-g42",
+   "g28"
+  ]
+ },
+ {
+  "code": "G50",
+  "slug": "g50",
+  "name": "Ograniczenie obrotów i ustawienie układu (tokarka)",
+  "group": "Wrzeciono",
+  "modal": false,
+  "milling": false,
+  "turning": true,
+  "level": 2,
+  "simulate": false,
+  "short": "G50 S_ ogranicza maksymalne obroty przy stałej prędkości skrawania G96. G50 X_ Z_ w starszych programach ustawia układ współrzędnych.",
+  "desc": "Przy **G96** obroty rosną, gdy nóż zbliża się do osi: n = 1000 · Vc / (π · D). Na średnicy 2 mm przy Vc = 200 m/min wyszłoby około 32 000 obr/min. **G50 S2500** ogranicza je do 2500.\n\nBlok z G50 S musi stać przed G96. W systemie A **G50 X_ Z_** ustawia też układ współrzędnych od bieżącej pozycji noża (jak G92 na frezarce). Dziś zastępują to korekcje narzędzi i G54.",
+  "syntax": {
+   "fanuc": "G50 S_\nG50 X_ Z_",
+   "sinumerik": "LIMS=_   ; limit obrotów przy G96\nG26 S_   ; górna granica obrotów"
   },
-  {
-    "code": "M08 M09",
-    "slug": "m08-m09",
-    "name": "Chłodziwo",
-    "group": "Funkcje M",
-    "modal": true,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "M08 włącza chłodziwo, M09 wyłącza.",
-    "desc": "M08 — chłodziwo zalewowe. M07 — mgła (na części maszyn). M09 wyłącza oba.",
-    "syntax": {
-      "fanuc": "M08 / M09",
-      "sinumerik": "M8 / M9"
-    },
-    "params": [],
-    "example": "G21 G90 G17\nS1500 M03\nG00 X0 Y0 Z5\nM08\nG01 Z-2 F100\nG01 X40 F200\nG00 Z5\nM09\nM30",
-    "sinumerik": "M7/M8/M9 identycznie.",
-    "pitfalls": []
+  "params": [
+   {
+    "key": "S",
+    "desc": "maksymalne obroty wrzeciona [obr/min]"
+   },
+   {
+    "key": "X Z",
+    "desc": "pozycja noża w nowym układzie (tryb ustawiania układu)"
+   }
+  ],
+  "example": "G21 G18 G54\nT0101\nG50 S2500\nG96 S200 M03\nG00 X60.0 Z2.0\nG01 X0.0 F0.15\nG00 Z5.0\nG97 S800\nG00 X100.0 Z100.0\nM30",
+  "sinumerik": "Limit obrotów przy stałej prędkości skrawania to **LIMS=**. Ogólną górną granicę obrotów ustawia **G26 S_**.",
+  "pitfalls": [
+   "G96 bez G50 S: przy planowaniu do osi wrzeciono rozpędzi się do maksimum maszyny. Przy niewyważonym detalu to realne zagrożenie.",
+   "Literówka G50 X_ zamiast G50 S_ przestawi układ współrzędnych."
+  ],
+  "related": [
+   "g96-g97",
+   "g92",
+   "g71-g70"
+  ]
+ },
+ {
+  "code": "G52 G53",
+  "slug": "g52-g53",
+  "name": "Układ lokalny i współrzędne maszynowe",
+  "group": "Ustawienia",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "short": "G52 przesuwa zero tymczasowo względem G54. G53 jedzie w układzie maszyny (jednorazowo).",
+  "desc": "G52 X_ Y_ ustawia lokalne zero przesunięte o podane wartości od aktualnego G54–G59 — wygodne dla kilku identycznych kieszeni. G52 X0 Y0 kasuje. G53 działa tylko w bloku, w którym jest, i interpretuje współrzędne jako maszynowe — do dojazdu do pozycji wymiany narzędzia lub wyładunku.",
+  "syntax": {
+   "fanuc": "G52 X50 Y0\n...\nG52 X0 Y0\nG53 G00 Z0",
+   "sinumerik": "TRANS X50 Y0 / ATRANS\nSUPA G0 Z0"
   },
-  {
-    "code": "M30 M02",
-    "slug": "m30",
-    "name": "Koniec programu",
-    "group": "Funkcje M",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 1,
-    "short": "M30 kończy program i przewija do początku. M02 tylko kończy.",
-    "desc": "M30 wyłącza wrzeciono i chłodziwo, resetuje funkcje modalne i ustawia kursor na początku programu. Standardowe zakończenie każdego programu.",
-    "syntax": {
-      "fanuc": "M30",
-      "sinumerik": "M30  (M2 / M17 w podprogramie)"
-    },
-    "params": [],
-    "example": "G21 G90 G17\nG00 X0 Y0\nM30",
-    "sinumerik": "M30 lub M2 kończy program główny, M17 kończy podprogram (jak M99 w Fanuc).",
-    "pitfalls": [
-      "M99 zamiast M30 w programie głównym → program zapętla się w nieskończoność."
-    ]
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "Przesunięcie (G52) lub pozycja maszynowa (G53)"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG01 Y10\nG00 Z5\nG00 X50 Y0\nG01 Z-1 F100\nG01 X70 F200\nG01 Y10\nG00 Z5\nM30",
+  "sinumerik": "TRANS/ATRANS zamiast G52; SUPA zamiast G53.",
+  "pitfalls": [
+   "G53 tylko z G90 i tylko w jednym bloku.",
+   "G52 nie kasuje się samo po M30 na części sterowników."
+  ]
+ },
+ {
+  "code": "G54–G59",
+  "slug": "g54-g59",
+  "name": "Układy współrzędnych detalu",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "Wybór przesunięcia zera detalu (6 układów).",
+  "desc": "Sterownik pamięta odległość między zerem maszyny a zerem detalu w rejestrach G54–G59. W programie wybierasz, którego użyć. Kilka zamocowań na stole = kilka układów.",
+  "syntax": {
+   "fanuc": "G54 ... G59\nG54.1 P1 (dodatkowe)",
+   "sinumerik": "G54 ... G57, G505 ... G599"
   },
-  {
-    "code": "G84",
-    "slug": "g84",
-    "name": "Cykl gwintowania",
-    "group": "Cykle",
-    "modal": true,
-    "milling": true,
-    "turning": false,
-    "level": 3,
-    "short": "Gwintowanie gwintownikiem: posuw sprzężony z obrotami, na dnie zmiana kierunku i wyjście.",
-    "desc": "G84 wkręca gwintownik na głębokość Z z posuwem F = skok × obroty, zatrzymuje wrzeciono, odwraca (M04) i wykręca. Przy gwintowaniu sztywnym (M29 S_ przed G84 w Fanuc) posuw i obroty są zsynchronizowane elektronicznie, bez uchwytu kompensacyjnego.",
-    "syntax": {
-      "fanuc": "M29 S500\nG99 G84 X_ Y_ Z_ R_ F1.0  (F = skok)\nG80",
-      "sinumerik": "CYCLE84(RTP, RFP, SDIS, DP, ..., PIT=1.0)"
-    },
-    "params": [
-      {
-        "key": "Z",
-        "desc": "Głębokość gwintu"
-      },
-      {
-        "key": "R",
-        "desc": "Płaszczyzna startu (zostaw miejsce na rozbieg 2–3 skoki)"
-      },
-      {
-        "key": "F",
-        "desc": "Fanuc G94: skok × obroty (mm/min); G95: skok (mm/obr)"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nS500 M03\nG00 X20 Y20 Z10\nG01 Z-12 F500\nG04 P200\nG01 Z10 F500\nM30",
-    "sinumerik": "CYCLE84 (sztywne) lub CYCLE840 (z uchwytem kompensacyjnym). Skok przez parametr PIT.",
-    "pitfalls": [
-      "F musi wynikać ze skoku: M6 (skok 1,0) przy S500 → F500. Inaczej gwintownik pęka.",
-      "Przed G84 zawsze otwór wstępny na średnicę rdzenia (M6 → 5,0 mm)."
-    ]
+  "params": [],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
+  "sinumerik": "Standardowo G54–G57, dalej G505–G599. Dodatkowo TRANS/ATRANS jako programowalne przesunięcia.",
+  "pitfalls": [
+   "Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00."
+  ]
+ },
+ {
+  "code": "G65 G66 G67",
+  "slug": "g65-g67",
+  "name": "Wywołanie makra",
+  "group": "Podprogramy",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "G65 wywołuje makro i przekazuje mu argumenty. G66 wywołuje je po każdym ruchu, aż do G67.",
+  "desc": "**G65 P9010 A1.0 B2.0** uruchamia program O9010. Argumenty trafiają do zmiennych lokalnych: A → **#1**, B → **#2**, C → **#3**, I → **#4**, X → **#24**, Y → **#25**, Z → **#26**.\n\nW odróżnieniu od **M98** makro dostaje parametry i ma własne zmienne #1–#33, czyszczone przy każdym wywołaniu. **L** podaje liczbę powtórzeń.\n\n**G66** działa modalnie: makro wykonuje się po każdym bloku z ruchem, więc można nim napisać własny cykl otworów. **G67** kończy wywołanie modalne.",
+  "syntax": {
+   "fanuc": "G65 P_ L_ A_ B_ …\nG66 P_ A_ B_ …\nG67",
+   "sinumerik": "NAZWA(par1, par2)\nMCALL NAZWA(par1, par2)\nMCALL   ; koniec"
   },
-  {
-    "code": "G85 G86",
-    "slug": "g85-g86",
-    "name": "Cykle wytaczania",
-    "group": "Cykle",
-    "modal": true,
-    "milling": true,
-    "turning": false,
-    "level": 3,
-    "short": "G85 wytacza i wychodzi na posuwie (gładka ściana), G86 zatrzymuje wrzeciono i wychodzi szybko.",
-    "desc": "Cykle wytaczania różnią się sposobem wyjścia z otworu. G85: wyjście na posuwie — brak śladu, ale podwójne czas. G86: stop wrzeciona, szybkie wyjście — może zostawić rysę od ostrza. G76 (frezarka): orientacja wrzeciona i odsunięcie ostrza od ściany przed wyjściem.",
-    "syntax": {
-      "fanuc": "G99 G85 X_ Y_ Z_ R_ F_\nG99 G86 X_ Y_ Z_ R_ F_\nG80",
-      "sinumerik": "CYCLE85(...)  /  CYCLE86(...)"
-    },
-    "params": [
-      {
-        "key": "Z",
-        "desc": "Głębokość"
-      },
-      {
-        "key": "R",
-        "desc": "Płaszczyzna startu posuwu"
-      },
-      {
-        "key": "F",
-        "desc": "Posuw"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nS800 M03\nG00 X30 Y20 Z5\nG01 Z-20 F60\nG01 Z5 F60\nM30",
-    "sinumerik": "CYCLE85 (wyjście na posuwie), CYCLE86 (z orientacją wrzeciona i odsunięciem).",
-    "pitfalls": [
-      "G86 w otworze na wymiar H7 zostawi ślad — użyj G85 lub G76."
-    ]
+  "params": [
+   {
+    "key": "P",
+    "desc": "numer programu makra"
+   },
+   {
+    "key": "L",
+    "desc": "liczba powtórzeń"
+   },
+   {
+    "key": "A B C",
+    "desc": "argumenty → #1 #2 #3"
+   },
+   {
+    "key": "X Y Z",
+    "desc": "argumenty → #24 #25 #26"
+   }
+  ],
+  "example": "O1000\nG90 G54 G00 X0 Y0 Z20\nG65 P9100 X20.0 Y15.0 R4.0 Z-3.0 (kieszen okragla)\nM30\n\nO9100 (#24=X #25=Y #18=R #26=Z)\nG00 X#24 Y#25\nG01 Z#26 F100\nG01 X[#24+#18] F300\nG02 I-#18\nG00 Z20.0\nM99",
+  "sinumerik": "Podprogram z parametrami deklaruje się jako **PROC NAZWA(REAL A, REAL B)** i wywołuje nazwą. Wywołanie modalne po każdym ruchu to **MCALL**.",
+  "pitfalls": [
+   "Zmienne #1–#33 znikają po wyjściu z makra. Wyniki do zapamiętania zapisuj w #100+ albo #500+.",
+   "Programy O9000–O9999 bywają zablokowane parametrem przed edycją — to nie błąd programu."
+  ],
+  "related": [
+   "m98-m99",
+   "g31",
+   "g81-g83"
+  ]
+ },
+ {
+  "code": "G68 G69",
+  "slug": "g68-g69",
+  "name": "Obrót układu współrzędnych",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "short": "Obraca cały układ o kąt R wokół punktu X Y. G69 wyłącza.",
+  "desc": "Po G68 X_ Y_ R_ wszystkie kolejne współrzędne są interpretowane w układzie obróconym o R stopni wokół punktu (X, Y). Idealne do detali zamocowanych pod kątem i do powtarzania kieszeni co 60°.",
+  "syntax": {
+   "fanuc": "G68 X0 Y0 R30\n...program...\nG69",
+   "sinumerik": "ROT RPL=30\n...\nROT"
   },
-  {
-    "code": "G68 G69",
-    "slug": "g68-g69",
-    "name": "Obrót układu współrzędnych",
-    "group": "Ustawienia",
-    "modal": true,
-    "milling": true,
-    "turning": false,
-    "level": 3,
-    "short": "Obraca cały układ o kąt R wokół punktu X Y. G69 wyłącza.",
-    "desc": "Po G68 X_ Y_ R_ wszystkie kolejne współrzędne są interpretowane w układzie obróconym o R stopni wokół punktu (X, Y). Idealne do detali zamocowanych pod kątem i do powtarzania kieszeni co 60°.",
-    "syntax": {
-      "fanuc": "G68 X0 Y0 R30\n...program...\nG69",
-      "sinumerik": "ROT RPL=30\n...\nROT"
-    },
-    "params": [
-      {
-        "key": "X Y",
-        "desc": "Środek obrotu"
-      },
-      {
-        "key": "R",
-        "desc": "Kąt (dodatni = przeciwnie do wskazówek zegara)"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG01 Y15\nG01 X0\nG01 Y0\nG00 Z5\nM30",
-    "sinumerik": "ROT / AROT (przyrostowo). Samo ROT bez parametrów kasuje obrót. Podobnie TRANS (przesunięcie) i SCALE.",
-    "pitfalls": [
-      "Zapomniane G69 → następne narzędzie pracuje w obróconym układzie.",
-      "Symulator nie obsługuje jeszcze G68 — przykład pokazuje kontur bazowy."
-    ]
+  "params": [
+   {
+    "key": "X Y",
+    "desc": "Środek obrotu"
+   },
+   {
+    "key": "R",
+    "desc": "Kąt (dodatni = przeciwnie do wskazówek zegara)"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG01 Y15\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+  "sinumerik": "ROT / AROT (przyrostowo). Samo ROT bez parametrów kasuje obrót. Podobnie TRANS (przesunięcie) i SCALE.",
+  "pitfalls": [
+   "Zapomniane G69 → następne narzędzie pracuje w obróconym układzie.",
+   "Symulator nie obsługuje jeszcze G68 — przykład pokazuje kontur bazowy."
+  ]
+ },
+ {
+  "code": "G71 G70",
+  "slug": "g71-g70",
+  "name": "Cykl zgrubnego i wykańczającego toczenia",
+  "group": "Cykle",
+  "modal": false,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "short": "G71 zdejmuje naddatek warstwami wzdłuż konturu, G70 wykonuje przejście wykańczające po tym samym konturze.",
+  "desc": "Podajesz kontur gotowy (bloki P–Q), a G71 sam generuje przejścia zgrubne o głębokości U z naddatkiem U/W na wykańczanie. G70 P_ Q_ potem jedzie po konturze na czysto.",
+  "syntax": {
+   "fanuc": "G71 U2 R1\nG71 P10 Q20 U0.5 W0.1 F0.3\nN10 ...kontur...\nN20 ...\nG70 P10 Q20 F0.15",
+   "sinumerik": "CYCLE95(\"KONTUR\", 2, 0.5, 0.1, ...)"
   },
-  {
-    "code": "M98 M99",
-    "slug": "m98-m99",
-    "name": "Podprogramy",
-    "group": "Funkcje M",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 2,
-    "short": "M98 P_ wywołuje podprogram (z powtórzeniami), M99 wraca.",
-    "desc": "Fragment powtarzany w kilku miejscach (np. kieszeń) zapisujesz raz jako osobny program O1001, a wywołujesz M98 P1001. Fanuc: liczba powtórzeń przed numerem — M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór przesuwany w każdym wywołaniu.",
-    "syntax": {
-      "fanuc": "M98 P1001      (raz)\nM98 P51001     (5×)\nM98 P1001 L5   (część sterowników)",
-      "sinumerik": "L1001          (raz)\nL1001 P5       (5×)\nM17 kończy podprogram"
-    },
-    "params": [
-      {
-        "key": "P",
-        "desc": "Numer podprogramu (+ liczba powtórzeń z przodu w Fanuc)"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X10 Y10 Z5\nG91\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG00 X40\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG90\nM30",
-    "sinumerik": "Podprogram wywołuje się samą nazwą (L1001 lub KIESZEN), kończy M17 lub RET.",
-    "pitfalls": [
-      "M99 w programie głównym = pętla nieskończona.",
-      "Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór „ucieka”."
-    ]
+  "params": [
+   {
+    "key": "U (1. blok)",
+    "desc": "Głębokość jednego przejścia"
+   },
+   {
+    "key": "R",
+    "desc": "Wycofanie po przejściu"
+   },
+   {
+    "key": "P Q",
+    "desc": "Numery bloków początku i końca konturu"
+   },
+   {
+    "key": "U W (2. blok)",
+    "desc": "Naddatek na X (średnicowo) i Z"
+   }
+  ],
+  "example": "G21 G90 G18 G95\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
+  "sinumerik": "Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to milimetry!",
+  "pitfalls": [
+   "Kontur musi być monotoniczny w obu osiach (Fanuc typ I).",
+   "Pierwszy blok konturu (N P) może zawierać tylko ruch w X."
+  ]
+ },
+ {
+  "code": "G72",
+  "slug": "g72",
+  "name": "Cykl zgrubny planowania (tokarka)",
+  "group": "Cykle",
+  "modal": false,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Zgrubne toczenie konturu przejściami poprzecznymi, wzdłuż osi X. Jak G71, ale dla detali krótkich i szerokich.",
+  "desc": "**G72 W_ R_** ustala głębokość skrawania w Z i cofnięcie. Drugi blok **G72 P_ Q_ U_ W_ F_** wskazuje numery bloków N początku (P) i końca (Q) konturu oraz naddatki na wykończenie w X (U, na średnicy) i Z (W).\n\nNóż zbiera materiał warstwami równoległymi do czoła. Po zgrubieniu kontur wykańcza **G70 P_ Q_**.\n\nWybierz G72, gdy materiału jest więcej w osi Z niż w X — tarcze, kołnierze, krótkie czopy.",
+  "syntax": {
+   "fanuc": "G72 W_ R_\nG72 P_ Q_ U_ W_ F_\nN_ G00 Z_ …\n…\nN_ …\nG70 P_ Q_",
+   "sinumerik": "CYCLE95(…)    ; obróbka poprzeczna\nCYCLE952(…)   ; nowsze sterowania"
   },
-  {
-    "code": "G52 G53",
-    "slug": "g52-g53",
-    "name": "Układ lokalny i współrzędne maszynowe",
-    "group": "Ustawienia",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 3,
-    "short": "G52 przesuwa zero tymczasowo względem G54. G53 jedzie w układzie maszyny (jednorazowo).",
-    "desc": "G52 X_ Y_ ustawia lokalne zero przesunięte o podane wartości od aktualnego G54–G59 — wygodne dla kilku identycznych kieszeni. G52 X0 Y0 kasuje. G53 działa tylko w bloku, w którym jest, i interpretuje współrzędne jako maszynowe — do dojazdu do pozycji wymiany narzędzia lub wyładunku.",
-    "syntax": {
-      "fanuc": "G52 X50 Y0\n...\nG52 X0 Y0\nG53 G00 Z0",
-      "sinumerik": "TRANS X50 Y0 / ATRANS\nSUPA G0 Z0"
-    },
-    "params": [
-      {
-        "key": "X Y Z",
-        "desc": "Przesunięcie (G52) lub pozycja maszynowa (G53)"
-      }
-    ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG01 Y10\nG00 Z5\nG00 X50 Y0\nG01 Z-1 F100\nG01 X70 F200\nG01 Y10\nG00 Z5\nM30",
-    "sinumerik": "TRANS/ATRANS zamiast G52; SUPA zamiast G53.",
-    "pitfalls": [
-      "G53 tylko z G90 i tylko w jednym bloku.",
-      "G52 nie kasuje się samo po M30 na części sterowników."
-    ]
+  "params": [
+   {
+    "key": "W (1. blok)",
+    "desc": "głębokość skrawania w Z"
+   },
+   {
+    "key": "R",
+    "desc": "cofnięcie po przejściu"
+   },
+   {
+    "key": "P / Q",
+    "desc": "numery N pierwszego i ostatniego bloku konturu"
+   },
+   {
+    "key": "U",
+    "desc": "naddatek w X (na średnicy)"
+   },
+   {
+    "key": "W (2. blok)",
+    "desc": "naddatek w Z"
+   },
+   {
+    "key": "F",
+    "desc": "posuw zgrubny"
+   }
+  ],
+  "example": "G21 G18 G54\nT0101\nG50 S2500\nG96 S180 M03\nG00 X82.0 Z2.0\nG72 W2.0 R0.5\nG72 P10 Q20 U0.4 W0.2 F0.25\nN10 G00 Z-12.0\nG01 X60.0 F0.12\nZ-8.0\nX30.0 Z-4.0\nZ0.0\nN20 X0.0\nG70 P10 Q20\nG00 X100.0 Z100.0\nM30",
+  "sinumerik": "Toczenie zgrubne konturu wykonuje **CYCLE95** (starsze) albo **CYCLE952** (nowsze) z wyborem obróbki poprzecznej.",
+  "pitfalls": [
+   "Pierwszy blok konturu (N z adresu P) może mieć ruch tylko w osi Z — dopisane X daje alarm.",
+   "Kontur musi być monotoniczny: bez podcięć i zmian kierunku w osi Z."
+  ],
+  "related": [
+   "g71-g70",
+   "g50",
+   "g96-g97"
+  ]
+ },
+ {
+  "code": "G73",
+  "slug": "g73",
+  "name": "Wiercenie z łamaniem wióra",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "short": "Cykl wiercenia krokami Q. Po każdym kroku wiertło cofa się tylko o małą wartość d, żeby złamać wiór.",
+  "desc": "Wiertło schodzi krokami **Q**, a po każdym cofa się o **d** — parametr sterowania, zwykle 0,1–1 mm. Wiór się łamie, ale narzędzie nie wychodzi z otworu.\n\nTo szybsze niż **G83**, gdzie wiertło po każdym kroku wraca do płaszczyzny R i wyrzuca wiór. G73 wybieraj do materiałów dających długi wiór i otworów do 3–4 średnic. Głębsze wierć G83.\n\nNa tokarce Fanuc G73 to inny cykl: toczenie równoległe do konturu (dla odlewów i odkuwek).",
+  "syntax": {
+   "fanuc": "G98/G99 G73 X_ Y_ Z_ R_ Q_ F_",
+   "sinumerik": "CYCLE83(…, VARI=0)   ; łamanie wióra"
   },
-  {
-    "code": "G92",
-    "slug": "g92",
-    "name": "Tymczasowe ustawienie zera / limit obrotów",
-    "group": "Ustawienia",
-    "modal": false,
-    "milling": true,
-    "turning": true,
-    "level": 3,
-    "short": "Frezarka: „tu jest teraz X_ Y_ Z_”. Tokarka Fanuc: limit obrotów przy G96 (G92 S_ lub G50 S_).",
-    "desc": "G92 X0 Y0 nie rusza maszyną — mówi jej, że aktualne miejsce ma od teraz współrzędne (0,0). Stary sposób ustawiania zera sprzed G54; dziś głównie w programach z konwerterów i na starych maszynach. Na tokarkach Fanuc 0T G92 S2500 ogranicza obroty przy G96 (nowsze: G50 S).",
-    "syntax": {
-      "fanuc": "G92 X0 Y0 Z100\nG92 S2500 (tokarka, limit)",
-      "sinumerik": "brak (TRANS / LIMS=)"
-    },
-    "params": [
-      {
-        "key": "X Y Z",
-        "desc": "Współrzędne przypisane aktualnej pozycji"
-      },
-      {
-        "key": "S",
-        "desc": "Limit obrotów (tokarka)"
-      }
-    ],
-    "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
-    "sinumerik": "Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.",
-    "pitfalls": [
-      "G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z innego miejsca przesuwa cały detal.",
-      "Po G92 nie ufaj wartościom G54 na ekranie, dopóki nie zresetujesz."
-    ]
+  "params": [
+   {
+    "key": "X Y",
+    "desc": "pozycja otworu"
+   },
+   {
+    "key": "Z",
+    "desc": "dno otworu"
+   },
+   {
+    "key": "R",
+    "desc": "płaszczyzna, od której zaczyna się posuw"
+   },
+   {
+    "key": "Q",
+    "desc": "głębokość kroku, bez znaku"
+   },
+   {
+    "key": "F",
+    "desc": "posuw [mm/min]"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT03 M06\nS1500 M03\nG00 X20 Y20\nG43 Z20 H03\nG99 G73 Z-24 R2 Q4 F120\nX50\nX80\nG80\nG00 Z50\nM30",
+  "sinumerik": "**CYCLE83** z parametrem VARI = 0 łamie wiór, z VARI = 1 wycofuje wiertło do usunięcia wióra (jak G83).",
+  "pitfalls": [
+   "Q to wartość bez znaku. Q−4 da alarm albo zostanie odczytane inaczej — zależnie od sterowania.",
+   "W głębokim otworze G73 nie wyrzuca wióra i wiertło może się zakleszczyć. Wtedy G83."
+  ],
+  "related": [
+   "g81-g83",
+   "g82",
+   "g98-g99"
+  ]
+ },
+ {
+  "code": "G74",
+  "slug": "g74",
+  "name": "Gwintowanie lewe (frezarka) / cykl czołowy (tokarka)",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Na frezarce: cykl gwintowania gwintu lewego. Na tokarce: wiercenie albo rowkowanie wzdłuż osi Z z łamaniem wióra.",
+  "desc": "**Frezarka.** G74 to lustrzane odbicie **G84**: wrzeciono kręci w lewo (M04) podczas wejścia, w dnie zmienia kierunek i wyjeżdża. Posuw musi odpowiadać skokowi: F = S × skok (przy G94). Gwintowanie sztywne poprzedza się zwykle M29 S_.\n\n**Tokarka.** **G74 R_** ustala cofnięcie, a **G74 Z_ Q_ F_** wierci wzdłuż osi Z krokami Q. Z adresami X i P robi rowek czołowy kilkoma wgłębieniami.",
+  "syntax": {
+   "fanuc": "frezarka:\nG98/G99 G74 X_ Y_ Z_ R_ F_\ntokarka:\nG74 R_\nG74 X_ Z_ P_ Q_ F_",
+   "sinumerik": "CYCLE84   ; kierunek gwintu w parametrach\nCYCLE83 / CYCLE93   ; tokarka"
   },
-  {
-    "code": "G33 G32",
-    "slug": "g33",
-    "name": "Gwintowanie jednym przejściem",
-    "group": "Cykle",
-    "modal": true,
-    "milling": false,
-    "turning": true,
-    "level": 3,
-    "short": "Ruch zsynchronizowany z obrotami: jedna nitka gwintu na przejście. G76 robi to samo wielokrotnie.",
-    "desc": "G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na obrót, startując zawsze od tego samego położenia kątowego wrzeciona — dzięki temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz sam w każdym przejściu.",
-    "syntax": {
-      "fanuc": "G00 X23.2\nG32 Z-25 F1.5\nG00 X30\nG00 Z3\nG00 X22.8\nG32 Z-25 F1.5 ...",
-      "sinumerik": "G33 Z-25 K1.5"
-    },
-    "params": [
-      {
-        "key": "F / K",
-        "desc": "Skok gwintu"
-      },
-      {
-        "key": "Z",
-        "desc": "Koniec gwintu"
-      }
-    ],
-    "example": "G21 G90 G18 G97\nS600 M03\nG00 X24 Z3\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nM30",
-    "sinumerik": "G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97.",
-    "pitfalls": [
-      "Zawsze G97 (stałe obroty) — przy G96 skok by pływał.",
-      "Rozbieg przed gwintem ≥ 2× skok, inaczej pierwsze zwoje są zniekształcone."
-    ]
-  }
+  "params": [
+   {
+    "key": "Z",
+    "desc": "dno otworu (frezarka) / koniec wiercenia (tokarka)"
+   },
+   {
+    "key": "R",
+    "desc": "płaszczyzna startu (frezarka) / cofnięcie po kroku (tokarka, 1. blok)"
+   },
+   {
+    "key": "F",
+    "desc": "posuw — przy gwintowaniu F = S × skok"
+   },
+   {
+    "key": "Q",
+    "desc": "tokarka: krok w Z, w mikrometrach, bez kropki"
+   },
+   {
+    "key": "P",
+    "desc": "tokarka: przesunięcie w X, w mikrometrach, bez kropki"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT07 M06 (gwintownik M10x1.5 lewy)\nS400 M04\nG00 X30 Y20 Z20\nG99 G74 Z-15 R3 F600\nG80\nG00 Z50\nM30",
+  "sinumerik": "Gwintowanie wykonuje **CYCLE84**; kierunek gwintu (lewy/prawy) wybiera się w parametrach cyklu. Na tokarce wiercenie osiowe to **CYCLE83**, rowki — **CYCLE93**.",
+  "pitfalls": [
+   "Gwintownik lewy z M03 zamiast M04 zniszczy gwint i narzędzie. Kierunek obrotów musi pasować do cyklu.",
+   "Na tokarce P i Q w G74 wpisuje się bez kropki, w mikrometrach: Q5000 = 5 mm."
+  ],
+  "related": [
+   "g84",
+   "g75",
+   "g81-g83"
+  ]
+ },
+ {
+  "code": "G75",
+  "slug": "g75",
+  "name": "Cykl rowkowania (tokarka)",
+  "group": "Cykle",
+  "modal": false,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Rowek promieniowy wykonany krokami z łamaniem wióra. Z adresami Z i Q robi szerszy rowek kilkoma wgłębieniami.",
+  "desc": "Pierwszy blok **G75 R_** ustala cofnięcie po każdym kroku. Drugi **G75 X_ Z_ P_ Q_ F_** wcina się w osi X do średnicy X krokami **P**, cofając się o R.\n\nPo dojściu do dna wraca na średnicę startową, przesuwa się w Z o **Q** i powtarza aż do Z. Q musi być mniejsze od szerokości płytki, żeby dno rowka było ciągłe.\n\nCykl zostawia ścianki surowe. Dokładne rowki kończy się przejściem wykańczającym po konturze.",
+  "syntax": {
+   "fanuc": "G75 R_\nG75 X_ Z_ P_ Q_ F_",
+   "sinumerik": "CYCLE93(…)    ; rowek\nCYCLE930(…)   ; nowsze sterowania"
+  },
+  "params": [
+   {
+    "key": "R (1. blok)",
+    "desc": "cofnięcie po każdym kroku"
+   },
+   {
+    "key": "X",
+    "desc": "średnica dna rowka"
+   },
+   {
+    "key": "Z",
+    "desc": "koniec rowka w osi Z"
+   },
+   {
+    "key": "P",
+    "desc": "krok wcięcia w X, promieniowo, w mikrometrach bez kropki"
+   },
+   {
+    "key": "Q",
+    "desc": "przesunięcie w Z między wgłębieniami, w mikrometrach bez kropki"
+   },
+   {
+    "key": "F",
+    "desc": "posuw [mm/obr]"
+   }
+  ],
+  "example": "G21 G18 G54\nT0404 (noz do rowkow 3 mm)\nG97 S600 M03\nG00 X42.0 Z-20.0\nG75 R0.5\nG75 X30.0 Z-26.0 P2000 Q2500 F0.08\nG00 X100.0 Z100.0\nM30",
+  "sinumerik": "Rowki toczy się cyklem **CYCLE93** albo **CYCLE930** w nowszych wersjach.",
+  "pitfalls": [
+   "Pozycja startowa w Z odnosi się do lewej albo prawej krawędzi płytki — zależnie od punktu odniesienia noża. Pomyłka poszerza rowek o szerokość płytki.",
+   "P i Q bez kropki, w mikrometrach: P2000 = 2 mm."
+  ],
+  "related": [
+   "g74",
+   "g71-g70",
+   "g96-g97"
+  ]
+ },
+ {
+  "code": "G76 G87 G88 G89",
+  "slug": "g76-g89",
+  "name": "Wytaczanie dokładne i specjalne (frezarka)",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "simulate": false,
+  "short": "Cykle wytaczania: G76 z orientacją wrzeciona i odsunięciem ostrza, G87 wytaczanie wsteczne, G88 z ręcznym wycofaniem, G89 z postojem w dnie.",
+  "desc": "**G76.** W dnie otworu wrzeciono zatrzymuje się w stałej pozycji (orientacja, jak **M19**), ostrze odsuwa się o **Q** od ścianki i narzędzie wyjeżdża szybko, nie rysując powierzchni.\n\n**G87.** Wytaczanie od spodu: narzędzie wchodzi zorientowane i odsunięte, na dole wraca na oś i skrawa w górę.\n\n**G88.** Postój w dnie i zatrzymanie wrzeciona, wycofanie ręczne. **G89.** Jak **G85** (wyjazd na posuwie), ale z postojem **P** w dnie — czyste dno i czoło pogłębienia.\n\nNa tokarce Fanuc G76 to cykl gwintowania.",
+  "syntax": {
+   "fanuc": "G98/G99 G76 X_ Y_ Z_ R_ Q_ P_ F_\nG87 X_ Y_ Z_ R_ Q_ P_ F_\nG88 X_ Y_ Z_ R_ P_ F_\nG89 X_ Y_ Z_ R_ P_ F_",
+   "sinumerik": "CYCLE86   ; orientacja i odsunięcie\nCYCLE87 / CYCLE88   ; zatrzymanie, wyjazd ręczny\nCYCLE89   ; postój, wyjazd na posuwie"
+  },
+  "params": [
+   {
+    "key": "Q",
+    "desc": "odsunięcie ostrza w dnie (G76, G87) — kierunek ustawia parametr"
+   },
+   {
+    "key": "P",
+    "desc": "postój w dnie w milisekundach, bez kropki"
+   },
+   {
+    "key": "Z",
+    "desc": "dno otworu"
+   },
+   {
+    "key": "R",
+    "desc": "płaszczyzna startu"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT10 M06 (wytak dokladny)\nS900 M03\nG00 X40 Y30 Z20\nG98 G76 Z-25 R2 Q0.2 P500 F60\nG80\nG00 Z100\nM30",
+  "sinumerik": "Odpowiedniki to **CYCLE86** (orientacja i odsunięcie), **CYCLE87** i **CYCLE88** (zatrzymanie, wyjazd ręczny) oraz **CYCLE89** (postój, wyjazd na posuwie).",
+  "pitfalls": [
+   "Kierunek odsunięcia Q w G76 ustawia parametr maszyny. Źle ustawiony wbije ostrze w ściankę zamiast je odsunąć — sprawdź na pierwszym otworze przy zmniejszonym posuwie szybkim.",
+   "Q w G76 to odsunięcie, a Q w G83 to głębokość kroku. Te same litery, inne znaczenie."
+  ],
+  "related": [
+   "g85-g86",
+   "m19",
+   "g81-g83"
+  ]
+ },
+ {
+  "code": "G76",
+  "slug": "g76",
+  "name": "Cykl gwintowania (tokarka)",
+  "group": "Cykle",
+  "modal": false,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "short": "Wielokrotne przejścia gwintu w jednym cyklu.",
+  "desc": "G76 nacina gwint w kilku przejściach o malejącej głębokości. W dwóch blokach podaje się: liczbę przejść wykańczających, kąt zarysu, głębokość całkowitą, głębokość pierwszego przejścia i skok.",
+  "syntax": {
+   "fanuc": "G76 P010060 Q100 R0.05\nG76 X_ Z_ P_ Q_ F_ (skok)",
+   "sinumerik": "CYCLE97(...)"
+  },
+  "params": [
+   {
+    "key": "F",
+    "desc": "Skok gwintu"
+   },
+   {
+    "key": "P (2. blok)",
+    "desc": "Głębokość gwintu (μm, promieniowo)"
+   },
+   {
+    "key": "Q",
+    "desc": "Głębokość pierwszego przejścia (μm)"
+   }
+  ],
+  "example": "G21 G90 G18 G95\nG97 S800 M03\nG00 X24 Z5\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30",
+  "sinumerik": "CYCLE97 — parametry przez ekran cyklu, nie zakodowane w P jak w Fanuc.",
+  "pitfalls": [
+   "P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60° kąt.",
+   "Skok F musi zgadzać się z obrotami — gwint zaczynaj z rozbiegiem Z ≥ 2×skok.",
+   "Na frezarce G76 to cykl wytaczania dokładnego z orientacją wrzeciona."
+  ],
+  "related": [
+   "g33",
+   "g92",
+   "g90-g94-t",
+   "g76-g89"
+  ]
+ },
+ {
+  "code": "G80 G81 G83",
+  "slug": "g81-g83",
+  "name": "Cykle wiercenia",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "short": "G81 wiercenie proste, G83 wiercenie z wycofaniem wiórów, G80 anuluje.",
+  "desc": "Cykl stały wykonuje w jednym bloku: dojazd, wiercenie na Z, wycofanie do R (G99) lub do punktu początkowego (G98). Kolejne bloki z samymi X Y powtarzają cykl w nowych punktach. G83 dodatkowo wycofuje wiertło co Q milimetrów, żeby wyrzucić wióry.",
+  "syntax": {
+   "fanuc": "G99 G81 X_ Y_ Z_ R_ F_\nG99 G83 X_ Y_ Z_ R_ Q_ F_\nG80",
+   "sinumerik": "CYCLE81(RTP, RFP, SDIS, DP)\nCYCLE83(...)"
+  },
+  "params": [
+   {
+    "key": "Z",
+    "desc": "Dno otworu"
+   },
+   {
+    "key": "R",
+    "desc": "Płaszczyzna bezpieczna (start posuwu)"
+   },
+   {
+    "key": "Q",
+    "desc": "Głębokość jednego zagłębienia (G83)"
+   },
+   {
+    "key": "F",
+    "desc": "Posuw"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X10 Y10 Z10\nG01 Z-15 F100\nG00 Z2\nG00 X40 Y10\nG01 Z-15\nG00 Z2\nG00 X40 Y30\nG01 Z-15\nG00 Z2\nG00 Z10\nM30",
+  "sinumerik": "Zamiast G81/G83 są cykle CYCLE81, CYCLE83 z parametrami w nawiasie i MCALL do powtarzania w kolejnych punktach.",
+  "pitfalls": [
+   "Zapomniane G80 → następny ruch X Y też wywierci otwór.",
+   "G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w zacisk."
+  ],
+  "related": [
+   "g73",
+   "g82",
+   "g98-g99",
+   "g84",
+   "g85-g86"
+  ]
+ },
+ {
+  "code": "G82",
+  "slug": "g82",
+  "name": "Wiercenie z postojem w dnie",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 2,
+  "short": "Jak G81, ale z postojem P w dnie otworu. Do pogłębień, nakiełków i fazowania otworów.",
+  "desc": "Narzędzie schodzi na posuwie do **Z**, czeka **P** milisekund i wraca szybko do płaszczyzny **R** (**G99**) albo poziomu początkowego (**G98**).\n\nPostój pozwala ostrzu zebrać materiał na pełnym obwodzie, więc dno i faza są równe. Bez niego nawiertak zostawia ślad spirali.",
+  "syntax": {
+   "fanuc": "G98/G99 G82 X_ Y_ Z_ R_ P_ F_",
+   "sinumerik": "CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)"
+  },
+  "params": [
+   {
+    "key": "P",
+    "desc": "postój w dnie w milisekundach: P300 = 0,3 s"
+   },
+   {
+    "key": "Z",
+    "desc": "dno otworu"
+   },
+   {
+    "key": "R",
+    "desc": "płaszczyzna startu"
+   },
+   {
+    "key": "F",
+    "desc": "posuw [mm/min]"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT02 M06 (nawiertak 90)\nS1800 M03\nG00 X15 Y15\nG43 Z20 H02\nG99 G82 Z-3 R2 P300 F150\nX45\nX75\nG80\nG00 Z50\nM30",
+  "sinumerik": "**CYCLE82** — postój w dnie to parametr **DTB** w sekundach.",
+  "pitfalls": [
+   "P w cyklu to milisekundy bez kropki. P0.3 zostanie odczytane inaczej albo da alarm — zależnie od sterowania.",
+   "Długi postój przy dużych obrotach i słabym chłodzeniu przegrzewa ostrze. Wystarczy kilka obrotów wrzeciona."
+  ],
+  "related": [
+   "g81-g83",
+   "g73",
+   "g04"
+  ]
+ },
+ {
+  "code": "G84",
+  "slug": "g84",
+  "name": "Cykl gwintowania",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "short": "Gwintowanie gwintownikiem: posuw sprzężony z obrotami, na dnie zmiana kierunku i wyjście.",
+  "desc": "G84 wkręca gwintownik na głębokość Z z posuwem F = skok × obroty, zatrzymuje wrzeciono, odwraca (M04) i wykręca. Przy gwintowaniu sztywnym (M29 S_ przed G84 w Fanuc) posuw i obroty są zsynchronizowane elektronicznie, bez uchwytu kompensacyjnego.",
+  "syntax": {
+   "fanuc": "M29 S500\nG99 G84 X_ Y_ Z_ R_ F1.0  (F = skok)\nG80",
+   "sinumerik": "CYCLE84(RTP, RFP, SDIS, DP, ..., PIT=1.0)"
+  },
+  "params": [
+   {
+    "key": "Z",
+    "desc": "Głębokość gwintu"
+   },
+   {
+    "key": "R",
+    "desc": "Płaszczyzna startu (zostaw miejsce na rozbieg 2–3 skoki)"
+   },
+   {
+    "key": "F",
+    "desc": "Fanuc G94: skok × obroty (mm/min); G95: skok (mm/obr)"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nS500 M03\nG00 X20 Y20 Z10\nG01 Z-12 F500\nG04 P200\nG01 Z10 F500\nM30",
+  "sinumerik": "CYCLE84 (sztywne) lub CYCLE840 (z uchwytem kompensacyjnym). Skok przez parametr PIT.",
+  "pitfalls": [
+   "F musi wynikać ze skoku: M6 (skok 1,0) przy S500 → F500. Inaczej gwintownik pęka.",
+   "Przed G84 zawsze otwór wstępny na średnicę rdzenia (M6 → 5,0 mm)."
+  ]
+ },
+ {
+  "code": "G85 G86",
+  "slug": "g85-g86",
+  "name": "Cykle wytaczania",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "short": "G85 wytacza i wychodzi na posuwie (gładka ściana), G86 zatrzymuje wrzeciono i wychodzi szybko.",
+  "desc": "Cykle wytaczania różnią się sposobem wyjścia z otworu. G85: wyjście na posuwie — brak śladu, ale podwójne czas. G86: stop wrzeciona, szybkie wyjście — może zostawić rysę od ostrza. G76 (frezarka): orientacja wrzeciona i odsunięcie ostrza od ściany przed wyjściem.",
+  "syntax": {
+   "fanuc": "G99 G85 X_ Y_ Z_ R_ F_\nG99 G86 X_ Y_ Z_ R_ F_\nG80",
+   "sinumerik": "CYCLE85(...)  /  CYCLE86(...)"
+  },
+  "params": [
+   {
+    "key": "Z",
+    "desc": "Głębokość"
+   },
+   {
+    "key": "R",
+    "desc": "Płaszczyzna startu posuwu"
+   },
+   {
+    "key": "F",
+    "desc": "Posuw"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nS800 M03\nG00 X30 Y20 Z5\nG01 Z-20 F60\nG01 Z5 F60\nM30",
+  "sinumerik": "CYCLE85 (wyjście na posuwie), CYCLE86 (z orientacją wrzeciona i odsunięciem).",
+  "pitfalls": [
+   "G86 w otworze na wymiar H7 zostawi ślad — użyj G85 lub G76."
+  ]
+ },
+ {
+  "code": "G90 G91",
+  "slug": "g90-g91",
+  "name": "Wymiarowanie absolutne / przyrostowe",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "G90: współrzędne od zera detalu. G91: od aktualnej pozycji.",
+  "desc": "W G90 „X50” znaczy „jedź do X=50”. W G91 „X50” znaczy „przesuń się o 50 w X od miejsca, w którym jesteś”. G91 przydaje się do powtarzalnych wzorów i podprogramów.",
+  "syntax": {
+   "fanuc": "G90 | G91",
+   "sinumerik": "G90 | G91  (albo X=IC(50) w jednym słowie)"
+  },
+  "params": [],
+  "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG91\nG01 X20 F200\nG01 Y20\nG01 X-20\nG01 Y-20\nG90\nG00 Z5\nM30",
+  "sinumerik": "G90/G91 działają tak samo. Dodatkowo można mieszać w jednym bloku: X=AC(10) Y=IC(5).",
+  "pitfalls": [
+   "Uruchomienie programu przyrostowego od złego punktu startowego → cały detal przesunięty.",
+   "Na tokarce Fanuc zamiast G91 często używa się U/W (przyrost X/Z).",
+   "Na tokarce Fanuc w systemie A G90 to cykl toczenia, a wymiary przyrostowe pisze się adresami U i W. Zobacz [[G90 G92 G94 (tokarka)|proste cykle tokarskie]]."
+  ],
+  "related": [
+   "g90-g94-t",
+   "g54-g59",
+   "g52-g53"
+  ]
+ },
+ {
+  "code": "G90 G92 G94 (tokarka)",
+  "slug": "g90-g94-t",
+  "name": "Proste cykle tokarskie (system A)",
+  "group": "Cykle",
+  "modal": true,
+  "milling": false,
+  "turning": true,
+  "level": 3,
+  "simulate": false,
+  "short": "Na tokarce Fanuc w systemie A: G90 toczy wzdłużnie jednym przejściem, G92 nacina gwint jednym przejściem, G94 planuje czoło.",
+  "desc": "Każdy blok to cztery ruchy: dojazd na średnicę, skrawanie, wyjście i powrót szybki do punktu startu.\n\n**G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_** robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość. **G94 X_ Z_ F_** planuje czoło do Z.\n\nW systemie A wymiary przyrostowe pisze się adresami **U** i **W**, nie G91. Na frezarce te same numery znaczą co innego: G90 to wymiarowanie absolutne, G92 ustawienie układu, G94 posuw na minutę.",
+  "syntax": {
+   "fanuc": "G90 X_ Z_ (R_) F_\nG92 X_ Z_ (R_) F_\nG94 X_ Z_ (R_) F_",
+   "sinumerik": "brak bezpośrednich odpowiedników:\nCYCLE95 (toczenie), CYCLE97 (gwint)"
+  },
+  "params": [
+   {
+    "key": "X",
+    "desc": "średnica końcowa przejścia"
+   },
+   {
+    "key": "Z",
+    "desc": "koniec przejścia w osi Z"
+   },
+   {
+    "key": "R",
+    "desc": "stożek: różnica promieni między początkiem a końcem przejścia"
+   },
+   {
+    "key": "F",
+    "desc": "posuw [mm/obr]; w G92 — skok gwintu"
+   }
+  ],
+  "example": "G21 G18 G54\nT0101\nG97 S1200 M03\nG00 X52.0 Z2.0\nG90 X46.0 Z-40.0 F0.25\nX42.0\nX38.0\nG00 X100.0 Z100.0\nM30",
+  "sinumerik": "Sinumerik nie ma prostych cykli jednoprzejściowych. Toczenie wykonuje **CYCLE95**, gwintowanie **CYCLE97** (nowsze: CYCLE99), albo programuje się przejścia ręcznie G1.",
+  "pitfalls": [
+   "Program z tokarki w systemie A przeniesiony na frezarkę albo tokarkę w systemie B/C zrobi coś zupełnie innego.",
+   "W G92 obroty muszą być stałe (G97). Przy G96 skok gwintu się rozjedzie."
+  ],
+  "related": [
+   "g90-g91",
+   "g92",
+   "g94-g95",
+   "g71-g70",
+   "g76"
+  ]
+ },
+ {
+  "code": "G92",
+  "slug": "g92",
+  "name": "Tymczasowe ustawienie zera / limit obrotów",
+  "group": "Ustawienia",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 3,
+  "short": "Frezarka: „tu jest teraz X_ Y_ Z_”. Tokarka Fanuc: limit obrotów przy G96 (G92 S_ lub G50 S_).",
+  "desc": "G92 X0 Y0 nie rusza maszyną — mówi jej, że aktualne miejsce ma od teraz współrzędne (0,0). Stary sposób ustawiania zera sprzed G54; dziś głównie w programach z konwerterów i na starych maszynach. Na tokarkach Fanuc 0T G92 S2500 ogranicza obroty przy G96 (nowsze: G50 S).",
+  "syntax": {
+   "fanuc": "G92 X0 Y0 Z100\nG92 S2500 (tokarka, limit)",
+   "sinumerik": "brak (TRANS / LIMS=)"
+  },
+  "params": [
+   {
+    "key": "X Y Z",
+    "desc": "Współrzędne przypisane aktualnej pozycji"
+   },
+   {
+    "key": "S",
+    "desc": "Limit obrotów (tokarka)"
+   }
+  ],
+  "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
+  "sinumerik": "Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.",
+  "pitfalls": [
+   "G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z innego miejsca przesuwa cały detal.",
+   "Po G92 nie ufaj wartościom G54 na ekranie, dopóki nie zresetujesz.",
+   "Na tokarce w systemie A G92 to cykl gwintowania jednym przejściem, a nie ustawienie układu."
+  ],
+  "related": [
+   "g54-g59",
+   "g52-g53",
+   "g50",
+   "g90-g94-t"
+  ]
+ },
+ {
+  "code": "G93",
+  "slug": "g93",
+  "name": "Posuw w odwrotności czasu",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": false,
+  "level": 3,
+  "simulate": false,
+  "short": "F oznacza, ile razy na minutę blok może się wykonać: czas bloku = 1/F minuty. Stosowany przy osiach obrotowych.",
+  "desc": "W **G93** posuw nie jest prędkością, tylko odwrotnością czasu: **F2** oznacza, że blok ma trwać pół minuty, niezależnie od długości ruchu.\n\nPrzy jednoczesnym ruchu osi liniowych i obrotowej (A, B, C) sterowanie nie musi wtedy przeliczać stopni na minutę na prędkość na ostrzu — robi to CAM. **F** trzeba podać w każdym bloku ruchu roboczego. Wraca się przez **G94**.",
+  "syntax": {
+   "fanuc": "G93 G01 X_ A_ F_",
+   "sinumerik": "G93 G1 X_ A_ F_"
+  },
+  "params": [
+   {
+    "key": "F",
+    "desc": "odwrotność czasu bloku [1/min]: F4 = blok trwa 15 s"
+   }
+  ],
+  "example": "G21 G90 G54\nG00 X0 A0\nG93 G01 X20.0 A90.0 F4.0 (blok trwa 15 s)\nX40.0 A180.0 F4.0\nG94 F300\nM30",
+  "sinumerik": "Te same kody: **G93** odwrotność czasu, **G94** posuw na minutę, **G95** na obrót.",
+  "pitfalls": [
+   "W G93 F nie jest modalne. Blok ruchu roboczego bez F daje alarm.",
+   "Po G93 wróć do G94, zanim użyjesz zwykłego F w mm/min."
+  ],
+  "related": [
+   "g94-g95",
+   "g01"
+  ]
+ },
+ {
+  "code": "G94 G95",
+  "slug": "g94-g95",
+  "name": "Jednostka posuwu",
+  "group": "Ustawienia",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "G94 posuw w mm/min, G95 w mm/obrót.",
+  "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle G95 (mm/obr), bo posuw na obrót bezpośrednio przekłada się na chropowatość.",
+  "syntax": {
+   "fanuc": "G94 | G95  (tokarki Fanuc: G98 | G99)",
+   "sinumerik": "G94 | G95"
+  },
+  "params": [],
+  "example": "G21 G90 G18 G95\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
+  "sinumerik": "G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G95.",
+  "pitfalls": [
+   "Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr — a na frezarkach G98/G99 to powrót w cyklach. Ten sam kod, inne znaczenie!",
+   "Na tokarce w systemie A jednostkę posuwu wybierają G98 (mm/min) i G99 (mm/obr), a G94 to cykl planowania."
+  ],
+  "related": [
+   "g93",
+   "g98-g99",
+   "g96-g97",
+   "g90-g94-t"
+  ]
+ },
+ {
+  "code": "G96 G97",
+  "slug": "g96-g97",
+  "name": "Stała prędkość skrawania",
+  "group": "Wrzeciono",
+  "modal": true,
+  "milling": false,
+  "turning": true,
+  "level": 2,
+  "short": "G96: sterownik dobiera obroty tak, by prędkość skrawania (m/min) była stała. G97: stałe obroty.",
+  "desc": "Przy toczeniu czołowym średnica maleje w trakcie cięcia — przy stałych obrotach prędkość skrawania spada do zera w osi. G96 S200 utrzymuje 200 m/min zwiększając obroty. G50 S_ (Fanuc) lub LIMS= (Sinumerik) ogranicza maksymalne obroty.",
+  "syntax": {
+   "fanuc": "G50 S3000\nG96 S200 M03\nG97 S1500",
+   "sinumerik": "LIMS=3000\nG96 S200 M3\nG97 S1500"
+  },
+  "params": [
+   {
+    "key": "S",
+    "desc": "Przy G96: m/min. Przy G97: obr/min"
+   }
+  ],
+  "example": "G21 G90 G18 G95\nG97 S1500 M03\nG00 X62 Z2\nG96 S200\nG01 Z-30 F0.2\nG01 X70\nG00 Z2\nG97 S1500\nM30",
+  "sinumerik": "Identycznie G96/G97, limit obrotów przez LIMS=.",
+  "pitfalls": [
+   "G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do maksimum.",
+   "Wiercenie w osi zawsze na G97."
+  ]
+ },
+ {
+  "code": "G98 G99",
+  "slug": "g98-g99",
+  "name": "Poziom powrotu w cyklu (frezarka) / jednostka posuwu (tokarka)",
+  "group": "Cykle",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "Frezarka: po otworze G98 wraca do poziomu początkowego, G99 do płaszczyzny R. Tokarka w systemie A: G98 to posuw mm/min, G99 mm/obr.",
+  "desc": "**Frezarka.** Wysokość, na której stało narzędzie przed wejściem w cykl, to **poziom początkowy**. **R** to płaszczyzna, od której zaczyna się posuw roboczy. Z **G99** narzędzie przejeżdża między otworami na wysokości R — szybciej. Z **G98** podnosi się do poziomu początkowego — bezpieczniej, gdy między otworami stoi zacisk albo wyższy fragment detalu.\n\n**Tokarka (system A).** Te same kody wybierają jednostkę posuwu: **G99** mm/obr (domyślnie), **G98** mm/min. Odpowiadają frezarkowym G95 i G94.",
+  "syntax": {
+   "fanuc": "G98 G81 X_ Y_ Z_ R_ F_\nG99 G81 X_ Y_ Z_ R_ F_",
+   "sinumerik": "CYCLE81(RTP, RFP, SDIS, DP)   ; RTP = poziom powrotu\nG94 / G95   ; jednostka posuwu"
+  },
+  "params": [
+   {
+    "key": "G98",
+    "desc": "powrót do poziomu początkowego"
+   },
+   {
+    "key": "G99",
+    "desc": "powrót do płaszczyzny R"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nT01 M06\nS1500 M03\nG00 X10 Y20\nG43 Z30 H01\nG99 G81 Z-10 R2 F150\nG98 X50\nG99 X90\nG80\nG00 Z50\nM30",
+  "sinumerik": "Cykle Sinumerik nie mają G98/G99 — płaszczyznę powrotu podaje parametr **RTP**. Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.",
+  "pitfalls": [
+   "G99 przy zaciskach między otworami: narzędzie przejedzie na wysokości R i uderzy w zacisk.",
+   "Na tokarce w systemie A F0.2 z G98 to 0,2 mm/min, a nie 0,2 mm/obr."
+  ],
+  "related": [
+   "g81-g83",
+   "g94-g95",
+   "g82",
+   "g73"
+  ]
+ },
+ {
+  "code": "M00 M01",
+  "slug": "m00-m01",
+  "name": "Zatrzymanie programu i zatrzymanie warunkowe",
+  "group": "Funkcje M",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "simulate": false,
+  "short": "M00 zatrzymuje program zawsze, M01 tylko przy włączonym przełączniku OPTIONAL STOP na pulpicie. CYCLE START wznawia.",
+  "desc": "Po **M00** sterowanie czeka na **CYCLE START**. Na większości maszyn zatrzymuje też wrzeciono i chłodziwo; stany modalne zostają. Używa się go do przełożenia detalu, pomiaru, usunięcia wiórów.\n\n**M01** działa tak samo, ale tylko przy włączonym przełączniku zatrzymania warunkowego. Wstawia się je np. po każdym narzędziu: przy pierwszej sztuce można sprawdzić wynik, a w serii puścić program bez przerw.",
+  "syntax": {
+   "fanuc": "M00\nM01",
+   "sinumerik": "M0\nM1"
+  },
+  "example": "G21 G90 G17 G54\nT01 M06\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F400\nG00 Z20\nM01 (sprawdz pierwsza sztuke)\nT02 M06\nM30",
+  "sinumerik": "Te same funkcje: **M0** i **M1**.",
+  "pitfalls": [
+   "Po M00 i ręcznym przesunięciu osi program wznowi się z miejsca, w którym stoi narzędzie. Pierwszy ruch może pójść inną drogą niż zwykle.",
+   "M01 przy wyłączonym przełączniku na pulpicie nic nie robi."
+  ],
+  "related": [
+   "m30",
+   "m03-m05",
+   "m06"
+  ],
+  "params": []
+ },
+ {
+  "code": "M03 M04 M05",
+  "slug": "m03-m05",
+  "name": "Wrzeciono",
+  "group": "Funkcje M",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "M03 obroty w prawo, M04 w lewo, M05 stop.",
+  "desc": "M03 uruchamia wrzeciono zgodnie z ruchem wskazówek zegara (patrząc od góry na frezarce) z obrotami S. M04 przeciwnie — do gwintowników lewych, narzędzi tokarskich lewych. M05 zatrzymuje.",
+  "syntax": {
+   "fanuc": "S1200 M03",
+   "sinumerik": "S1200 M3"
+  },
+  "params": [
+   {
+    "key": "S",
+    "desc": "Obroty (obr/min) lub prędkość skrawania przy G96"
+   }
+  ],
+  "example": "G21 G90 G17\nS1200 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG00 Z5\nM05\nM30",
+  "sinumerik": "M3/M4/M5 — zera wiodące opcjonalne.",
+  "pitfalls": [
+   "Tylko jedna funkcja M w bloku (Fanuc). M03 M08 w jednej linii → alarm lub zignorowanie."
+  ],
+  "related": [
+   "m19",
+   "m41-m44",
+   "g96-g97",
+   "m06"
+  ]
+ },
+ {
+  "code": "M06",
+  "slug": "m06",
+  "name": "Zmiana narzędzia",
+  "group": "Funkcje M",
+  "modal": false,
+  "milling": true,
+  "turning": false,
+  "level": 1,
+  "simulate": false,
+  "short": "T_ M06 wymienia narzędzie we wrzecionie na wskazane. Samo T tylko przygotowuje narzędzie w magazynie.",
+  "desc": "**T05** wybiera narzędzie — magazyn może je przygotować, zanim skończy się poprzednia operacja. **M06** wykonuje wymianę.\n\nPrzed M06 wiele maszyn wymaga odjazdu Z do punktu wymiany (**G91 G28 Z0** albo **G30**); często robi to makro producenta. Po wymianie trzeba włączyć korekcję długości **G43 H_** i uruchomić wrzeciono.\n\nNa tokarce M06 zwykle nie występuje: **T0101** obraca głowicę na narzędzie 1 i włącza korekcję 01.",
+  "syntax": {
+   "fanuc": "T_ M06",
+   "sinumerik": "T=\"NAZWA\" M6   ; z zarządzaniem narzędziami\nT_ M6"
+  },
+  "example": "G21 G90 G17 G54\nG91 G28 Z0\nT05 M06\nG90 G00 X0 Y0\nG43 Z50.0 H05\nS2500 M03\nM30",
+  "sinumerik": "Wymianę wykonuje **M6**. Przy zarządzaniu narzędziami wywołuje się je nazwą: T=\"FREZ_D10\". Korekcję aktywuje numer ostrza **D**.",
+  "pitfalls": [
+   "Po M06 bez G43 H_ narzędzie pracuje z długością poprzedniego albo bez korekcji — ryzyko kolizji.",
+   "Numer H inny niż T (T05 z H04) to częsty błąd przy kopiowaniu fragmentów programu."
+  ],
+  "related": [
+   "g43-g49",
+   "g28",
+   "m03-m05",
+   "m19"
+  ],
+  "params": []
+ },
+ {
+  "code": "M07 M08 M09",
+  "slug": "m08-m09",
+  "name": "Chłodziwo",
+  "group": "Funkcje M",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "M08 włącza chłodziwo, M09 wyłącza.",
+  "desc": "M08 — chłodziwo zalewowe. M07 — mgła (na części maszyn). M09 wyłącza oba.\n\n**M07** włącza chłodzenie mgłą (jeśli maszyna je ma), **M09** wyłącza każdy rodzaj chłodziwa.",
+  "syntax": {
+   "fanuc": "M08 / M09",
+   "sinumerik": "M8 / M9"
+  },
+  "params": [],
+  "example": "G21 G90 G17\nS1500 M03\nG00 X0 Y0 Z5\nM08\nG01 Z-2 F100\nG01 X40 F200\nG00 Z5\nM09\nM30",
+  "sinumerik": "M7/M8/M9 identycznie.",
+  "pitfalls": []
+ },
+ {
+  "code": "M19",
+  "slug": "m19",
+  "name": "Orientacja wrzeciona",
+  "group": "Funkcje M",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "simulate": false,
+  "short": "Zatrzymuje wrzeciono w stałej pozycji kątowej. Potrzebne przy wymianie narzędzia i w cyklach wytaczania G76 i G87.",
+  "desc": "Wrzeciono obraca się do pozycji ustawionej w parametrach i zostaje w niej zablokowane. Zabierak oprawki trafia wtedy w rowek przy wymianie, a ostrze wytaka stoi w znanym kierunku, więc cykl może je odsunąć od ścianki.\n\nNa części maszyn kąt orientacji podaje się w bloku z M19 — sposób zależy od producenta.",
+  "syntax": {
+   "fanuc": "M19",
+   "sinumerik": "SPOS=_   ; kąt w stopniach\nM19      ; jeśli skonfigurowane"
+  },
+  "example": "G00 Z100.0\nM19\nM00 (sprawdz polozenie ostrza wytaka)\nM30",
+  "sinumerik": "Pozycjonowanie wrzeciona to **SPOS=kąt**. M19 działa, jeśli producent je skonfigurował.",
+  "pitfalls": [
+   "Kąt orientacji z parametrów nie musi odpowiadać kierunkowi ostrza. Ustaw wytak w oprawce tak, żeby cykl G76 odsuwał ostrze od ścianki, a nie w nią."
+  ],
+  "related": [
+   "g76-g89",
+   "m06",
+   "m03-m05"
+  ],
+  "params": []
+ },
+ {
+  "code": "M30 M02",
+  "slug": "m30",
+  "name": "Koniec programu",
+  "group": "Funkcje M",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 1,
+  "short": "M30 kończy program i przewija do początku. M02 tylko kończy.",
+  "desc": "M30 wyłącza wrzeciono i chłodziwo, resetuje funkcje modalne i ustawia kursor na początku programu. Standardowe zakończenie każdego programu.",
+  "syntax": {
+   "fanuc": "M30",
+   "sinumerik": "M30  (M2 / M17 w podprogramie)"
+  },
+  "params": [],
+  "example": "G21 G90 G17\nG00 X0 Y0\nM30",
+  "sinumerik": "M30 lub M2 kończy program główny, M17 kończy podprogram (jak M99 w Fanuc).",
+  "pitfalls": [
+   "M99 zamiast M30 w programie głównym → program zapętla się w nieskończoność."
+  ],
+  "related": [
+   "m00-m01",
+   "m98-m99"
+  ]
+ },
+ {
+  "code": "M41 M42 M43 M44",
+  "slug": "m41-m44",
+  "name": "Zakresy przełożeń wrzeciona",
+  "group": "Funkcje M",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "simulate": false,
+  "short": "Wybierają bieg przekładni wrzeciona: niski daje duży moment, wysoki — duże obroty. Liczba zakresów zależy od maszyny.",
+  "desc": "Maszyny z przekładnią mają kilka zakresów obrotów. Niski bieg (**M41**) daje duży moment przy małych obrotach — do dużych średnic, dużych wierteł, gwintowania. Wysokie biegi pozwalają osiągnąć maksymalne obroty.\n\nWiele sterowań wybiera zakres samo, na podstawie wartości S. Ręczne M41–M44 wymusza konkretny bieg. Przy **G96** na tokarce zmiana biegu w trakcie przejścia jest niemożliwa, więc wybiera się go przed skrawaniem.",
+  "syntax": {
+   "fanuc": "M41 | M42 | M43 | M44",
+   "sinumerik": "M40   ; automatyczny wybór\nM41 … M45"
+  },
+  "example": "M41 (niski zakres)\nG97 S300 M03\n(... wiercenie D30 ...)\nM42\nG97 S2500 M03\nM30",
+  "sinumerik": "**M40** włącza automatyczny wybór zakresu, **M41–M45** wymuszają konkretny.",
+  "pitfalls": [
+   "S większe niż maksimum wybranego zakresu zostanie obcięte albo da alarm.",
+   "Znaczenie i liczbę kodów M41–M44 ustala producent maszyny — sprawdź dokumentację."
+  ],
+  "related": [
+   "m03-m05",
+   "g96-g97",
+   "g50"
+  ],
+  "params": []
+ },
+ {
+  "code": "M48 M49",
+  "slug": "m48-m49",
+  "name": "Blokada potencjometrów korekcji",
+  "group": "Funkcje M",
+  "modal": true,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "simulate": false,
+  "short": "M49 blokuje potencjometry posuwu i obrotów na pulpicie, M48 je odblokowuje. Kody zależne od producenta.",
+  "desc": "Przy gwintowaniu zmiana posuwu potencjometrem rozjechałaby synchronizację osi z wrzecionem, dlatego cykle gwintowania ignorują korekcję same.\n\n**M49** pozwala zablokować korekcję na wybranym fragmencie programu, np. przy pomiarze sondą albo operacji, która wymaga dokładnie zaprogramowanego posuwu. **M48** przywraca działanie potencjometrów.",
+  "syntax": {
+   "fanuc": "M48\nM49",
+   "sinumerik": "zależnie od konfiguracji producenta"
+  },
+  "example": "M49 (korekcja zablokowana)\nG31 Z-5.0 F150\nM48\nM30",
+  "sinumerik": "Standardowego odpowiednika nie ma — blokadę korekcji realizuje producent maszyny w PLC.",
+  "pitfalls": [
+   "Po M49 potencjometr na pulpicie nic nie zmienia. Jeśli zapomnisz o M48, operator straci możliwość zwolnienia maszyny w reszcie programu."
+  ],
+  "related": [
+   "g84",
+   "g31"
+  ],
+  "params": []
+ },
+ {
+  "code": "M98 M99",
+  "slug": "m98-m99",
+  "name": "Podprogramy",
+  "group": "Funkcje M",
+  "modal": false,
+  "milling": true,
+  "turning": true,
+  "level": 2,
+  "short": "M98 P_ wywołuje podprogram (z powtórzeniami), M99 wraca.",
+  "desc": "Fragment powtarzany w kilku miejscach (np. kieszeń) zapisujesz raz jako osobny program O1001, a wywołujesz M98 P1001. Fanuc: liczba powtórzeń przed numerem — M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór przesuwany w każdym wywołaniu.",
+  "syntax": {
+   "fanuc": "M98 P1001      (raz)\nM98 P51001     (5×)\nM98 P1001 L5   (część sterowników)",
+   "sinumerik": "L1001          (raz)\nL1001 P5       (5×)\nM17 kończy podprogram"
+  },
+  "params": [
+   {
+    "key": "P",
+    "desc": "Numer podprogramu (+ liczba powtórzeń z przodu w Fanuc)"
+   }
+  ],
+  "example": "G21 G90 G17 G54\nG00 X10 Y10 Z5\nG91\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG00 X40\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG90\nM30",
+  "sinumerik": "Podprogram wywołuje się samą nazwą (L1001 lub KIESZEN), kończy M17 lub RET.",
+  "pitfalls": [
+   "M99 w programie głównym = pętla nieskończona.",
+   "Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór „ucieka”."
+  ]
+ }
 ]

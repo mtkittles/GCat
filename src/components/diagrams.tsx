@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AbsInc, ArcIJ, Comp as CompFig, CycleRetract, LatheRough, LatheSingle, Peck, Planes, Polar, RefPoint, ToolLen } from "./figs";
 
 /*
   Wspólny układ dla wszystkich schematów w serwisie:
@@ -90,102 +91,6 @@ export function Plot({ children, range, caption, title, height = 290, xLabel = "
     </figure>
   );
 }
-
-const ArcIJ = () => (
-  <Plot range={[-5, 75, -5, 55]} title="Łuk: I/J kontra R"
-    caption="Z punktu A(20,20) do B(50,50) promieniem 30. Wektor I/J prowadzi od punktu startu do środka S(50,20): I = 50 − 20 = 30, J = 20 − 20 = 0. Zapis promieniowy R30 wybiera łuk krótszy (niebieski), R−30 — dłuższy (czerwony przerywany).">
-    {({ X, Y, u }) => (
-      <g>
-        <circle cx={X(50)} cy={Y(20)} r={30 * u} fill="none" stroke={C.arc} strokeWidth={1} strokeDasharray="3 4" opacity={0.45} />
-        <path d={`M ${X(20)} ${Y(20)} A ${30 * u} ${30 * u} 0 0 0 ${X(50)} ${Y(50)}`} fill="none" stroke={C.arc} strokeWidth={3.5} color={C.arc} markerEnd="url(#arw)" />
-        <path d={`M ${X(20)} ${Y(20)} A ${30 * u} ${30 * u} 0 1 1 ${X(50)} ${Y(50)}`} fill="none" stroke={C.bad} strokeWidth={1.8} strokeDasharray="6 4" />
-        <line x1={X(20)} y1={Y(20)} x2={X(50)} y2={Y(20)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
-        <text x={X(35)} y={Y(20) - 7} fill={C.rapid} fontSize={12} textAnchor="middle" fontFamily="var(--font-mono)" fontWeight={700}>I = +30</text>
-        <text x={X(52)} y={Y(16)} fill={C.rapid} fontSize={11} fontFamily="var(--font-mono)">J = 0</text>
-        <circle cx={X(20)} cy={Y(20)} r={4.5} fill={C.ink} />
-        <text x={X(19)} y={Y(20) - 9} fill={C.ink} fontSize={12} fontWeight={700} textAnchor="end">A (20,20)</text>
-        <circle cx={X(50)} cy={Y(50)} r={4.5} fill={C.ink} />
-        <text x={X(51)} y={Y(50) - 5} fill={C.ink} fontSize={12} fontWeight={700}>B (50,50)</text>
-        <circle cx={X(50)} cy={Y(20)} r={3.5} fill={C.arc} />
-        <text x={X(52)} y={Y(20) + 14} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">S (50,20)</text>
-        <text x={X(-3)} y={Y(52)} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 I30 J0</text>
-        <text x={X(-3)} y={Y(47)} fill={C.arc} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 R30</text>
-        <text x={X(-3)} y={Y(42)} fill={C.bad} fontSize={11} fontFamily="var(--font-mono)">G03 X50 Y50 R−30</text>
-      </g>
-    )}
-  </Plot>
-);
-
-const Comp = () => (
-  <Plot range={[-18, 82, -22, 78]} height={300} title="G41 / G42 — po której stronie konturu"
-    caption="Ten sam kontur detalu obrabiany z kompensacją włączoną z lewej i z prawej strony. Zielona linia to tor środka narzędzia, okrąg pokazuje frez, r to promień z rejestru korekcji.">
-    {({ X, Y, u }) => (
-      <g>
-        {/* kontur detalu */}
-        <rect x={X(0)} y={Y(46)} width={60 * u} height={46 * u} fill={C.stock} stroke={C.ink} strokeWidth={2.5} />
-        <text x={X(30)} y={Y(24)} fill={C.ink} fontSize={12} textAnchor="middle">kontur detalu</text>
-
-        {/* G41 — tor nad górną krawędzią */}
-        <line x1={X(-4)} y1={Y(54)} x2={X(58)} y2={Y(54)} stroke={C.cut} strokeWidth={3} color={C.cut} markerEnd="url(#arw)" />
-        <circle cx={X(24)} cy={Y(54)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.4} strokeDasharray="3 3" />
-        <text x={X(-4)} y={Y(64)} fill={C.cut} fontSize={12.5} fontWeight={700}>G41 — narzędzie z lewej strony</text>
-        <text x={X(-4)} y={Y(59)} fill={C.axis} fontSize={11}>kierunek ruchu →</text>
-
-        {/* wymiar odsunięcia */}
-        <line x1={X(48)} y1={Y(46)} x2={X(48)} y2={Y(54)} stroke={C.rapid} strokeWidth={1.6} color={C.rapid} markerStart="url(#dot)" markerEnd="url(#arw)" />
-        <text x={X(49.5)} y={Y(49)} fill={C.rapid} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>r</text>
-
-        {/* G42 — tor pod dolną krawędzią */}
-        <line x1={X(-4)} y1={Y(-8)} x2={X(58)} y2={Y(-8)} stroke={C.cut} strokeWidth={3} color={C.cut} markerEnd="url(#arw)" opacity={0.72} />
-        <circle cx={X(24)} cy={Y(-8)} r={8 * u} fill="none" stroke={C.cut} strokeWidth={1.4} strokeDasharray="3 3" opacity={0.72} />
-        <text x={X(-4)} y={Y(-16)} fill={C.cut} fontSize={12.5} fontWeight={700} opacity={0.9}>G42 — narzędzie z prawej strony</text>
-      </g>
-    )}
-  </Plot>
-);
-
-const AbsInc = () => (
-  <Plot range={[-5, 65, -5, 45]} title="G90 kontra G91 — ten sam blok, dwa miejsca"
-    caption="Narzędzie stoi w punkcie (20,10). Blok G01 X30 Y20 w trybie absolutnym prowadzi do punktu (30,20). W trybie przyrostowym oznacza przesunięcie o 30 w X i 20 w Y, czyli dojazd do punktu (50,30).">
-    {({ X, Y }) => (
-      <g>
-        <circle cx={X(20)} cy={Y(10)} r={4.5} fill={C.ink} />
-        <text x={X(19)} y={Y(10) + 16} fill={C.ink} fontSize={12} textAnchor="end">start (20,10)</text>
-        <line x1={X(20)} y1={Y(10)} x2={X(30)} y2={Y(20)} stroke={C.cut} strokeWidth={3.2} color={C.cut} markerEnd="url(#arw)" />
-        <circle cx={X(30)} cy={Y(20)} r={4} fill={C.cut} />
-        <text x={X(31)} y={Y(21)} fill={C.cut} fontSize={12} fontWeight={700}>G90 → (30,20)</text>
-        <line x1={X(20)} y1={Y(10)} x2={X(50)} y2={Y(30)} stroke={C.arc} strokeWidth={3.2} strokeDasharray="8 4" color={C.arc} markerEnd="url(#arw)" />
-        <circle cx={X(50)} cy={Y(30)} r={4} fill={C.arc} />
-        <text x={X(51)} y={Y(31)} fill={C.arc} fontSize={12} fontWeight={700}>G91 → (50,30)</text>
-        <text x={X(1)} y={Y(41)} fill={C.axis} fontSize={12} fontFamily="var(--font-mono)" fontWeight={700}>G01 X30 Y20</text>
-      </g>
-    )}
-  </Plot>
-);
-
-const Cycle = () => (
-  <Plot range={[-5, 108, -30, 22]} yLabel="Z" title="G98 kontra G99 — powrót w cyklu"
-    caption="Dwa otwory, między nimi zacisk. W trybie G99 narzędzie wraca tylko do płaszczyzny R i uderza w przeszkodę (czerwony). W trybie G98 wraca na wysokość początkową i przechodzi ponad nią bezpiecznie (zielony).">
-    {({ X, Y, u }) => (
-      <g>
-        <rect x={X(0)} y={Y(0)} width={100 * u} height={25 * u} fill={C.stock} stroke={C.ink} strokeWidth={2} />
-        <rect x={X(42)} y={Y(15)} width={16 * u} height={15 * u} fill={C.ink} opacity={0.7} />
-        <text x={X(50)} y={Y(17.5)} fill={C.ink} fontSize={11} textAnchor="middle">zacisk</text>
-        <line x1={X(0)} y1={Y(15)} x2={X(100)} y2={Y(15)} stroke={C.axis} strokeDasharray="4 4" />
-        <text x={X(101)} y={Y(15) + 4} fill={C.axis} fontSize={11}>start</text>
-        <line x1={X(0)} y1={Y(3)} x2={X(100)} y2={Y(3)} stroke={C.axis} strokeDasharray="4 4" />
-        <text x={X(101)} y={Y(3) + 4} fill={C.axis} fontSize={11}>R</text>
-        <polyline points={`${X(18)},${Y(15)} ${X(18)},${Y(3)}`} fill="none" stroke={C.rapid} strokeWidth={1.6} strokeDasharray="5 3" />
-        <polyline points={`${X(18)},${Y(3)} ${X(18)},${Y(-20)}`} fill="none" stroke={C.cut} strokeWidth={3.2} />
-        <polyline points={`${X(21)},${Y(-20)} ${X(21)},${Y(3)} ${X(77)},${Y(3)}`} fill="none" stroke={C.bad} strokeWidth={2} strokeDasharray="5 3" />
-        <text x={X(50)} y={Y(5.5)} fill={C.bad} fontSize={11} textAnchor="middle" fontWeight={700}>G99 — kolizja</text>
-        <polyline points={`${X(24)},${Y(-20)} ${X(24)},${Y(15)} ${X(80)},${Y(15)} ${X(80)},${Y(3)}`} fill="none" stroke={C.cut} strokeWidth={2} strokeDasharray="5 3" />
-        <text x={X(58)} y={Y(17)} fill={C.cut} fontSize={11} fontWeight={700}>G98 — nad zaciskiem</text>
-        <polyline points={`${X(80)},${Y(3)} ${X(80)},${Y(-20)}`} fill="none" stroke={C.cut} strokeWidth={3.2} />
-      </g>
-    )}
-  </Plot>
-);
 
 const Dia = () => (
   <Plot range={[-12, 92, -34, 34]} yLabel="X" xLabel="Z" title="Tokarka: X jest średnicą"
@@ -542,21 +447,23 @@ export const diagrams: Record<string, () => ReactNode> = {
   rz: RzDiag,
   allowance: Allowance,
   runout: Runout,
+  helix: Helix,
   g00: RapidPath,
   g01: Rapid,
-  g02: ArcIJ,
-  g03: ArcIJ,
-  "g40-g42": Comp,
-  "g43-g49": Comp,
-  "g81-g83": Cycle,
-  g84: Cycle,
-  "g85-g86": Cycle,
-  "g90-g91": AbsInc,
-  "g94-g95": Dia,
+  g02: () => <ArcIJ dir={2} />,
+  g03: () => <ArcIJ dir={3} />,
+  "g40-g42": () => <CompFig />,
+  "g43-g49": () => <ToolLen />,
+  "g81-g83": () => <CycleRetract />,
+  "g98-g99": () => <CycleRetract />,
+  g73: () => <Peck />,
+  "g90-g91": () => <AbsInc />,
+  "g17-g19": () => <Planes />,
+  "g71-g70": () => <LatheRough />,
+  "g90-g94-t": () => <LatheSingle />,
+  "g15-g16": () => <Polar />,
+  g28: () => <RefPoint />,
+  "g27-g30": () => <RefPoint />,
   "g96-g97": Dia,
-  "g71-g70": Dia,
-  g76: Dia,
-  g33: Dia,
-  "g17-g19": Dia,
-  helix: Helix,
 };
+// Kody bez dopasowanego rysunku celowo nie mają żadnego — lepiej brak niż schemat od innego tematu.

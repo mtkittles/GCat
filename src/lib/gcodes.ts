@@ -7,6 +7,10 @@ export interface GCode {
   syntax: { fanuc: string; sinumerik: string };
   params: { key: string; desc: string }[];
   example: string; sinumerik: string; pitfalls: string[];
+  /** Slugi kart powiązanych (gdy brak — karty z tej samej grupy). */
+  related?: string[];
+  /** false: przykład pokazywany jako kod, bo symulator nie obsługuje tej funkcji. */
+  simulate?: boolean;
 }
 
 export const gcodes = data as GCode[];

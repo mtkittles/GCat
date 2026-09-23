@@ -103,7 +103,7 @@ export const part3: Record<string, Block[]> = {
     ] },
     { t: "p", x: "Domyślną płaszczyzną frezarki jest **G17**, tokarki — **G18**. Płaszczyzny inne niż domyślna przydają się przy obróbce na głowicy kątowej, na centrach wieloosiowych i przy frezowaniu łuków w ściance bocznej detalu." },
     { t: "note", kind: "tip", x: "Płaszczyznę warto wpisywać jawnie w bloku bezpiecznego startu, nawet jeżeli jest domyślna. Program przenoszony na inną maszynę albo uruchamiany po awarii nie może zakładać, w jakim stanie zostawił sterownik poprzedni operator." },
-    { t: "sim", src: "G21 G90 G18 G95\nG97 S1000 M03\nG00 X52 Z2\nG01 X40 F0.25\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-40\nG01 X52\nG00 Z2\nM30", caption: "Łuk w płaszczyźnie ZX na tokarce. Zwróć uwagę, że użyto adresu R — przy zapisie przez środek należałoby użyć liter I i K, nie I i J." },
+    { t: "sim", mode: "lathe", src: "G21 G90 G18 G95\nG97 S1000 M03\nG00 X52 Z2\nG01 X40 F0.25\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-40\nG01 X52\nG00 Z2\nM30", caption: "Łuk w płaszczyźnie ZX na tokarce. Zwróć uwagę, że użyto adresu R — przy zapisie przez środek należałoby użyć liter I i K, nie I i J." },
     { t: "h", x: "Typowe błędy" },
     { t: "ul", items: [
       "**Adres J w płaszczyźnie G18** — alarm albo tor niezgodny z zamierzeniem.",
@@ -175,7 +175,7 @@ export const part3: Record<string, Block[]> = {
     { t: "p", x: "Dla gwintu zewnętrznego o skoku P wysokość zarysu wynosi w praktyce **h ≈ 0,613 × P**, a średnica dna **d₃ ≈ d − 1,227 × P**. Dla M24×3: h ≈ 1,84 mm (czyli P1840 w składni cyklu), średnica dna ≈ 20,3 mm. Średnicę zewnętrzną przed gwintowaniem toczy się zwykle o 0,1–0,2 mm mniejszą od nominalnej, żeby wierzchołki nie wychodziły ostre." },
     { t: "h", x: "Rozbieg i wybieg" },
     { t: "p", x: "Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**; przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku." },
-    { t: "sim", src: "G21 G90 G18\nG97 S700 M03\nG00 X26 Z5\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30", caption: "Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76." },
+    { t: "sim", mode: "lathe", src: "G21 G90 G18 G95\nG97 S700 M03\nG00 X26 Z5\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30", caption: "Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76." },
     { t: "note", kind: "warn", x: "Gwintowanie zawsze przy **G97** (stałe obroty). Przy G96 obroty zmieniałyby się wraz ze średnicą, a razem z nimi rzeczywisty skok gwintu." },
     { t: "h", x: "Sinumerik" },
     { t: "p", x: "Odpowiednikiem jest **CYCLE97** z parametrami podawanymi opisowo (skok, głębokość, liczba przejść, kąt, wybieg). Pojedyncze przejście gwintu realizuje **G33** z adresem `K` określającym skok." },

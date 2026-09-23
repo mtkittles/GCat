@@ -154,7 +154,7 @@ export const part4: Record<string, Block[]> = {
       ["M5", "0,8", "4,2"], ["M6", "1,0", "5,0"], ["M8", "1,25", "6,8"],
       ["M10", "1,5", "8,5"], ["M12", "1,75", "10,2"], ["M16", "2,0", "14,0"], ["M20", "2,5", "17,5"],
     ] },
-    { t: "sim", src: "G21 G90 G17 G54 G80\nT01 M06\nS400 M03\nG00 X20 Y20 Z10\nG99 G84 X20 Y20 Z-18 R5 F600\nX60\nY45\nX20\nG80\nG00 Z50\nM05\nM30", caption: "Cztery gwinty M10 cyklem G84. Symulator rozwija cykl na ruchy elementarne — wejście i wyjście odbywają się na posuwie roboczym." },
+    { t: "sim", src: "G21 G90 G17 G54 G80\nT01 M06\nS400 M03\nG00 X20 Y20\nG43 Z10 H01\nG99 G84 X20 Y20 Z-18 R5 F600\nX60\nY45\nX20\nG80\nG00 Z50\nM05\nM30", caption: "Cztery gwinty M10 cyklem G84. Symulator rozwija cykl na ruchy elementarne — wejście i wyjście odbywają się na posuwie roboczym." },
     { t: "h", x: "Sinumerik" },
     { t: "p", x: "**`CYCLE84`** — gwintowanie sztywne, **`CYCLE840`** — z uchwytem kompensacyjnym. Skok podaje się parametrem `PIT`, a kierunek gwintu parametrem `SDR`. Cykl liczy posuw samodzielnie, więc nie ma ryzyka pomyłki w obliczeniu F." },
   ],
@@ -177,7 +177,7 @@ export const part4: Record<string, Block[]> = {
     ] },
     { t: "h", x: "Składnia" },
     { t: "code", x: "G99 G85 X30 Y30 Z-25 R2 F80      ; wytaczanie, wyjście na posuwie\nG80\nG99 G86 X70 Y30 Z-25 R2 F120     ; wytaczanie, wyjście szybkie\nG80" },
-    { t: "sim", src: "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30 Z10\nM08\nG99 G85 X30 Y30 Z-25 R2 F80\nG80\nG00 Z50\nM09\nM30", caption: "Cykl G85 — zwróć uwagę, że wyjście z otworu jest ruchem roboczym (zielona linia), a nie szybkim przejazdem." },
+    { t: "sim", src: "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30\nG43 Z10 H01\nM08\nG99 G85 X30 Y30 Z-25 R2 F80\nG80\nG00 Z50\nM09\nM30", caption: "Cykl G85 — zwróć uwagę, że wyjście z otworu jest ruchem roboczym (zielona linia), a nie szybkim przejazdem." },
     { t: "note", kind: "tip", x: "Przy wytaczaniu na wymiar warto zostawić 0,2–0,4 mm naddatku po wierceniu i pracować z posuwem 0,05–0,12 mm/obr. Wytaczak jest długi i podatny na drgania — mniejszy naddatek daje lepszą powierzchnię niż większy posuw." },
   ],
 
@@ -190,7 +190,7 @@ export const part4: Record<string, Block[]> = {
     { t: "p", x: "Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Zasada: **rozbieg ≥ 2 × skok**, przy dużych skokach i obrotach nawet 4 × skok. Bez tego pierwsze zwoje mają zaniżony skok i są zniekształcone. Analogicznie na końcu potrzebny jest wybieg albo rowek podcięcia." },
     { t: "h", x: "Składnia" },
     { t: "code", x: "; Fanuc\nG00 X23.2 Z5\nG32 Z-25 F1.5\nG00 X30\nG00 Z5\n\n; Sinumerik\nG0 X23.2 Z5\nG33 Z-25 K1.5\nG0 X30\nG0 Z5", caption: "Jedno przejście. Pełny gwint wymaga powtórzenia tego bloku z coraz mniejszą średnicą X." },
-    { t: "sim", src: "G21 G90 G18\nG97 S700 M03\nG00 X26 Z6\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X21.8\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nM30", caption: "Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm." },
+    { t: "sim", mode: "lathe", src: "G21 G90 G18 G95\nG97 S700 M03\nG00 X26 Z6\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X21.8\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nM30", caption: "Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm." },
     { t: "h", x: "G33 kontra G76" },
     { t: "table", head: ["", "G33 / G32", "G76"], rows: [
       ["Podział na przejścia", "Ręczny", "Automatyczny"],
