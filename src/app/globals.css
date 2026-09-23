@@ -1516,3 +1516,18 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .rel span { font-size: 13px; color: var(--ink-2); }
 .fig .cut-zone { fill: color-mix(in srgb, var(--green) 16%, transparent); stroke: none; }
 .fig .break { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 4; }
+.lg-cons { border-color: var(--muted) !important; border-top-style: dashed !important; border-top-width: 1px !important; }
+.lg-tool { height: 9px !important; border: 1px dashed var(--green) !important; border-radius: 999px; }
+.fig .p-fill-acc { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: none; }
+.fig .p-fill-bad { fill: color-mix(in srgb, var(--red) 16%, transparent); stroke: var(--red); stroke-width: 1.2; }
+.fig .p-fill-cut { fill: color-mix(in srgb, var(--green) 18%, transparent); stroke: none; }
+.fig .rot { stroke: var(--ink-2); stroke-width: 1.2; fill: none; }
+.fig .probe { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
+.fig .ruby { fill: #E0457B; stroke: var(--panel); stroke-width: 1; }
+/* rysowanie toru przy przewijaniu (tylko ciągłe linie z pathLength=1) */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .fig .draw { stroke-dasharray: 1 1; animation: fig-draw linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+  }
+}
+@keyframes fig-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
