@@ -583,3 +583,40 @@ export function Runout() {
     </Fig>
   );
 }
+
+/* ================= G04: postój na dnie rowka ================= */
+export function Dwell() {
+  const zx = (v: number) => 180 + v * 9, xx = (v: number) => 118 - (v - 14) * 11;
+  const t0 = 30, t1 = 330, TMAX = 1.0;              // oś czasu: 0 … 1,0 s
+  const tx = (s: number) => t0 + (s / TMAX) * (t1 - t0);
+  const cut = 0.56, dw = 0.2, ret = 0.12;            // czasy etapów [s]
+  return (
+    <Fig id="g04" code="G04" title="Postój na dnie rowka: osie stoją, wrzeciono się kręci" h={250} legend={["cut", "rap", "acc", "stock"]}
+      notes={<><Code>G01 X30 F0.05</Code><Code k="acc">G04 X0.2</Code><Code k="rap">G00 X44</Code></>}
+      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,2 s</b> — przy 600 obr/min to <b>dwa obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je.</>}>
+      {(c) => (
+        <g>
+          <polygon points={[[-14, 22], [-1.5, 22], [-1.5, 15], [1.5, 15], [1.5, 22], [14, 22], [14, 14.4], [-14, 14.4]].map(([z, r]) => `${zx(z)},${xx(r)}`).join(" ")} fill={c.hatch} className="p-con" />
+          <line x1={zx(-16)} y1={xx(14.4)} x2={zx(16)} y2={xx(14.4)} className="break" />
+          <line x1={zx(0)} y1={xx(24)} x2={zx(0)} y2={xx(15.4)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={zx(0) + 8} y1={xx(15.4)} x2={zx(0) + 8} y2={xx(24)} className="p-rap" markerEnd={c.a("rap")} />
+          <path d={`M ${zx(0) - 26} ${xx(15) - 2} a 12 7 0 1 1 0.1 0`} className="p-acc" markerEnd={c.a("acc")} />
+          <T x={zx(0) - 42} y={xx(15) + 2} anchor="end" cls="t-acc t-b">2 obroty</T>
+          <T x={zx(0) + 16} y={xx(23.4)} cls="t-rap">wyjazd G00</T>
+          <T x={zx(-10)} y={xx(18.5)} anchor="middle" cls="t-b">Ø44</T>
+          <T x={zx(0)} y={xx(15) + 16} anchor="middle" cls="t-mono t-b">Ø30</T>
+          {/* oś czasu */}
+          <rect x={tx(0)} y={186} width={tx(cut) - tx(0)} height={14} rx={3} className="p-fill-cut" />
+          <rect x={tx(cut)} y={186} width={tx(cut + dw) - tx(cut)} height={14} rx={3} className="p-fill-acc" />
+          <rect x={tx(cut + dw)} y={186} width={tx(cut + dw + ret) - tx(cut + dw)} height={14} rx={3} fill="color-mix(in srgb, var(--amber) 28%, transparent)" />
+          <T x={(tx(0) + tx(cut)) / 2} y={181} anchor="middle" cls="t-cut t-sm">wcięcie G01</T>
+          <T x={(tx(cut) + tx(cut + dw)) / 2} y={181} anchor="middle" cls="t-acc t-b t-sm">G04</T>
+          <T x={tx(cut + dw + ret) + 4} y={197} cls="t-rap t-sm">G00</T>
+          <line x1={t0} y1={208} x2={t1 + 6} y2={208} className="ax" markerEnd={c.a("dim")} />
+          {[0, 0.2, 0.4, 0.6, 0.8, 1.0].map((s) => <g key={s}><line x1={tx(s)} y1={205} x2={tx(s)} y2={211} className="ax" /><T x={tx(s)} y={223} anchor="middle" cls="t-tick">{s.toFixed(1)}</T></g>)}
+          <T x={t1 + 6} y={238} anchor="end" cls="t-ax">czas [s]</T>
+        </g>
+      )}
+    </Fig>
+  );
+}

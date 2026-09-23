@@ -6,10 +6,11 @@ import { part3 } from "./articles-3";
 import { part4 } from "./articles-4";
 import { g00 } from "./articles-g00";
 import { g01 } from "./articles-g01";
+import { g04 } from "./articles-g04";
 
 // Karty opracowane indywidualnie nadpisują wersje zbiorcze.
-export const articles: Record<string, Block[]> = { ...part1, ...part2, ...part3, ...part4, g00, g01, g02, g03 };
+export const articles: Record<string, Block[]> = { ...part1, ...part2, ...part3, ...part4, g00, g01, g02, g03, g04 };
 export const hasArticle = (slug: string) => slug in articles;
 
 /** Karty opracowane w pełnym układzie referencyjnym — oznaczane w spisie. */
-export const CURATED = new Set(["g00", "g01", "g02", "g03"]);
+export const CURATED = new Set(["g00", "g01", "g02", "g03", "g04"]);

@@ -165,7 +165,18 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       switch (g) {
         case 0: case 1: case 2: case 3:
           s.motion = g as 0 | 1 | 2 | 3; break;
-        case 4: { const pv = get("P"); const xv = get("X"); const secs = pv !== undefined ? pv / 1000 : (xv ?? 0); dwellMs += secs * 1000; desc.push(`Postój ${fmt(secs)} s (G04)`); break; }
+        case 4: {
+          // Fanuc: X/U w sekundach, P w milisekundach. Sinumerik: F w sekundach, S w obrotach wrzeciona.
+          const pv = get("P"), xv = get("X") ?? get("U"), fv = get("F"), sv = get("S");
+          let secs = 0, how = "";
+          if (pv !== undefined) secs = pv / 1000;
+          else if (xv !== undefined) secs = xv;
+          else if (fv !== undefined) secs = fv;
+          else if (sv !== undefined && s.spindle) { secs = (sv * 60) / s.spindle; how = ` = ${fmt(sv)} obr. wrzeciona`; }
+          dwellMs += secs * 1000;
+          desc.push(`Postój ${fmt(secs)} s${how} — osie stoją, wrzeciono pracuje (G04)`);
+          break;
+        }
         case 17: case 18: case 19:
           s.plane = g as Plane; desc.push(`Płaszczyzna ${planeName(s.plane)} (G${g})`); break;
         case 20: s.units = forced ?? "inch"; desc.push(forced ? `G20 w programie — wymuszono ${forced === "mm" ? "milimetry" : "cale"}` : "Jednostki: cale (G20)"); break;
@@ -209,8 +220,10 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     // jak aktualne położenie wyraża się w nowym układzie programu.
     if (gs.some((g) => g === 52 || g === 68 || g === 69)) s.prog = inverseFrames(s.pos, s);
 
-    const f = get("F"); if (f !== undefined) { s.feed = f; }
-    const sp = get("S"); if (sp !== undefined && !gs.includes(96)) { s.spindle = sp; }
+    // W bloku G04 adresy F i S (Sinumerik) oznaczają czas postoju, nie posuw i obroty.
+    const isDwell = gs.includes(4);
+    const f = get("F"); if (f !== undefined && !isDwell) { s.feed = f; }
+    const sp = get("S"); if (sp !== undefined && !gs.includes(96) && !isDwell) { s.spindle = sp; }
     const t = get("T"); if (t !== undefined) { s.tool = t; desc.push(`Wybierz narzędzie T${fmt(t)}`); }
 
     for (const m of ms) {
@@ -272,8 +285,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     }
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
-    // mimo że zawierają adresy osi.
-    const noMotion = gs.some((g) => g === 52 || g === 68 || g === 10 || g === 92);
+    // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
+    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92);
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —

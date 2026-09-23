@@ -35,6 +35,21 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       if (gs.includes(70) || gs.includes(71)) if (l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "G70/G71 na frezarce Fanuc to nie jednostki (to cykle tokarskie). Jednostki: G20/G21." });
     }
 
+    // G04 — postój
+    if (gs.includes(4)) {
+      const w = (x: string) => l.words.find((v) => v.letter === x);
+      const others = l.words.filter((v) => !["G", "N", "P", "X", "U", "F", "S"].includes(v.letter) || (v.letter === "G" && v.value !== 4));
+      if (others.length) out.push({ line: l.index, level: "warn", msg: "G04 zapisuj w osobnym bloku — bez ruchu i innych funkcji." });
+      if (dialect === "sinumerik") {
+        if (has("P") || has("X") || has("U")) out.push({ line: l.index, level: "warn", msg: "Sinumerik: postój to G4 F_ (sekundy) albo G4 S_ (obroty wrzeciona)." });
+      } else {
+        if (w("P")?.raw.includes(".")) out.push({ line: l.index, level: "error", msg: "Fanuc: w G04 adres P podaje się bez kropki, w milisekundach (P500 = 0,5 s)." });
+        for (const a of ["X", "U"]) if (w(a) && !w(a)!.raw.includes(".")) out.push({ line: l.index, level: "warn", msg: `Fanuc: G04 ${a} bez kropki może zostać odczytane jako tysięczne sekundy. Pisz ${a}${w(a)!.value}.0.` });
+        if (has("F") || has("S")) out.push({ line: l.index, level: "warn", msg: "Fanuc: czas postoju podaje X, U albo P. F i S w bloku G04 zmieniłyby posuw lub obroty." });
+      }
+      if (!has("P") && !has("X") && !has("U") && !has("F") && !has("S")) out.push({ line: l.index, level: "warn", msg: "G04 bez czasu postoju." });
+    }
+
     if (ms.includes(6)) { sawToolChange = true; sawG43 = false; }
     if (gs.includes(43)) sawG43 = true;
     if (ms.includes(3) || ms.includes(4)) sawSpindle = true;

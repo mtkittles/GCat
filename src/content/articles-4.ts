@@ -1,27 +1,6 @@
 import type { Block } from "@/lib/article";
 
 export const part4: Record<string, Block[]> = {
-  g04: [
-    { t: "p", x: "**G04** zatrzymuje ruch osi na zadany czas. Wrzeciono obraca się dalej, chłodziwo płynie — stoi wyłącznie posuw. To funkcja jednorazowa, obowiązuje tylko w bloku, w którym została wpisana." },
-    { t: "h", x: "Do czego służy" },
-    { t: "ul", items: [
-      "**Wygładzenie dna otworu.** Wiertło albo pogłębiacz obraca się jeszcze chwilę na dnie, zbierając nierówność powstałą od sprężystości narzędzia. W cyklach robi to za nas G82.",
-      "**Rowki na tokarce.** Postój na dnie rowka pozwala nożowi obrócić detal o pełny obrót i wyrównać średnicę.",
-      "**Ustabilizowanie obrotów.** Po M03 przy dużym wrzecionie warto odczekać, zanim zacznie się skrawanie.",
-      "**Przedmuch i czyszczenie.** Postój po włączeniu chłodziwa albo przedmuchu przed pomiarem sondą.",
-      "**Zmiana kierunku obrotów.** Między M03 a M04 wrzeciono musi się zatrzymać — postój daje mu czas.",
-    ] },
-    { t: "h", x: "Składnia — uwaga na jednostki" },
-    { t: "table", head: ["Zapis", "Sterownik", "Znaczenie"], rows: [
-      ["`G04 P1000`", "Fanuc", "1000 milisekund, czyli 1 sekunda. Bez kropki dziesiętnej"],
-      ["`G04 X1.0`", "Fanuc", "1 sekunda. Z kropką dziesiętną"],
-      ["`G04 F2.5`", "Sinumerik", "2,5 sekundy"],
-      ["`G04 S10`", "Sinumerik", "Czas równy 10 obrotom wrzeciona"],
-    ] },
-    { t: "note", kind: "warn", x: "`G04 P1` na sterowniku Fanuc oznacza **jedną milisekundę**, a nie jedną sekundę. Postój, którego praktycznie nie ma. Jeżeli chcesz sekundę, wpisz `P1000` albo `X1.0`." },
-    { t: "sim", src: "G21 G90 G17 G54\nS1500 M03\nG00 X25 Y25 Z5\nG01 Z-8 F120\nG04 P500\nG00 Z5\nM30", caption: "Postój pół sekundy na dnie otworu. W panelu stanu zobaczysz, że czas cyklu uwzględnia ten postój." },
-    { t: "note", kind: "tip", x: "Zasada kciuka dla postoju na dnie: co najmniej **dwa pełne obroty wrzeciona**. Przy 600 obr/min to 0,2 s, przy 3000 obr/min — 0,04 s. Dłuższy postój nie poprawia już powierzchni, a wyciera ostrze." },
-  ],
 
   g28: [
     { t: "p", x: "**G28** odsyła osie do **punktu referencyjnego maszyny** — stałego położenia wyznaczonego przy bazowaniu. Ruch odbywa się dwuetapowo: najpierw do punktu pośredniego podanego w bloku, potem do bazy." },

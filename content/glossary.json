@@ -270,7 +270,7 @@
     ],
     "def": "Zatrzymanie programu działające tylko przy włączonym przełączniku na pulpicie. Pozwala wstawić punkty kontrolne do pomiaru detalu podczas uruchamiania programu i ignorować je w produkcji.",
     "see": [
-      "m30"
+      "m00-m01"
     ]
   },
   {
@@ -344,6 +344,17 @@
     "def": "Zderzenie narzędzia, uchwytu albo wrzeciona z detalem, zaciskiem lub elementem maszyny. Przy szybkim przejeździe energia uderzenia jest na tyle duża, że uszkodzeniu ulega zwykle nie tylko narzędzie, ale i łożyskowanie wrzeciona.",
     "see": [
       "g00"
+    ]
+  },
+  {
+    "term": "Postój",
+    "aliases": [
+      "dwell",
+      "postój czasowy"
+    ],
+    "def": "Zaprogramowana przerwa w ruchu osi przy pracującym wrzecionie. Na dnie rowka czy otworu wystarczą jeden–dwa obroty wrzeciona; dłuższy postój tylko grzeje i wyciera ostrze.",
+    "see": [
+      "g04"
     ]
   }
 ]

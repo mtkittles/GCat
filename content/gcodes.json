@@ -140,26 +140,41 @@
     "milling": true,
     "turning": true,
     "level": 1,
-    "short": "Zatrzymanie posuwu na zadany czas (wrzeciono nadal się obraca).",
-    "desc": "G04 wstrzymuje ruch osi na czas P lub X. Używane np. na dnie otworu, żeby wygładzić dno, albo przy rowkach na tokarce.",
+    "short": "Osie stoją przez zadany czas, wrzeciono i chłodziwo pracują dalej. Program rusza sam, bez przycisku.",
+    "desc": "G04 wstrzymuje wykonanie następnego bloku na zadany czas. Na Fanucu czas podaje **X** lub **U** w sekundach albo **P** w milisekundach, na Sinumeriku **F** w sekundach albo **S** w obrotach wrzeciona.",
     "syntax": {
-      "fanuc": "G04 P1000  (ms)\nG04 X1.0  (s)",
-      "sinumerik": "G4 F1  (s)\nG4 S10  (obroty wrzeciona)"
+      "fanuc": "G04 X_   (s, z kropką)\nG04 U_   (s, tokarka)\nG04 P_   (ms, bez kropki)",
+      "sinumerik": "G4 F_   (s)\nG4 S_   (obroty wrzeciona)"
     },
     "params": [
       {
-        "key": "P",
-        "desc": "Fanuc: milisekundy (bez kropki)"
+        "key": "X / U",
+        "desc": "Fanuc: czas w sekundach, zawsze z kropką (X0.5)"
       },
       {
-        "key": "X / F",
-        "desc": "Sekundy"
+        "key": "P",
+        "desc": "Fanuc: czas w milisekundach, bez kropki (P500 = 0,5 s)"
+      },
+      {
+        "key": "F",
+        "desc": "Sinumerik: czas w sekundach — nie zmienia zaprogramowanego posuwu"
+      },
+      {
+        "key": "S",
+        "desc": "Sinumerik: liczba obrotów wrzeciona — nie zmienia zaprogramowanych obrotów"
       }
     ],
-    "example": "G21 G90 G17\nG00 X20 Y20 Z5\nG01 Z-5 F100\nG04 P500\nG00 Z5\nM30",
-    "sinumerik": "G4 F (sekundy) lub G4 S (liczba obrotów).",
+    "example": "G21 G90 G17 G54\nT01 M06\nG00 G43 Z50 H01\nS1200 M03\nG00 X30 Y20\nG00 Z2\nG01 Z-6 F80\nG04 X0.1\nG00 Z50\nM30",
+    "sinumerik": "**G4 F2.5** czeka 2,5 s, **G4 S3** — trzy obroty wrzeciona. G4 musi stać w osobnym bloku.",
     "pitfalls": [
-      "Fanuc: G04 P1 to 1 ms, a G04 X1 to 1 s — kropka i litera zmieniają wszystko."
+      "Fanuc: G04 P1 to 1 ms, a G04 X1.0 to 1 s — liczy się litera i kropka.",
+      "G04 zapisuj w osobnym bloku. W bloku z ruchem X zostanie odczytany jako czas."
+    ],
+    "related": [
+      "g09-g61-g64",
+      "g82",
+      "m00-m01",
+      "g94-g95"
     ]
   },
   {

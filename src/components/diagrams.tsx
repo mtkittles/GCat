@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { AbsInc, ArcIJ, Comp, CycleRetract, LatheRough, LatheSingle, Peck, Planes, Polar, RefPoint, ToolLen } from "./figs";
 import {
-  Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
+  Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
 
@@ -30,6 +30,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   g01: () => <Linear />,
   g02: () => <ArcIJ dir={2} />,
   g03: () => <ArcIJ dir={3} />,
+  g04: () => <Dwell />,
   "g15-g16": () => <Polar />,
   "g17-g19": () => <Planes />,
   "g22-g23": () => <Zone />,
