@@ -175,6 +175,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
           else if (sv !== undefined && s.spindle) { secs = (sv * 60) / s.spindle; how = ` = ${fmt(sv)} obr. wrzeciona`; }
           dwellMs += secs * 1000;
           desc.push(`Postój ${fmt(secs)} s${how} — osie stoją, wrzeciono pracuje (G04)`);
+          segments.push({ kind: "dwell", from: { ...s.pos }, to: { ...s.pos }, seconds: secs, line: index });
           break;
         }
         case 17: case 18: case 19:
@@ -506,6 +507,18 @@ export function segmentLength(sg: Segment) {
   if (sg.kind !== "arc") return Math.hypot(sg.to.x - sg.from.x, sg.to.y - sg.from.y, sg.to.z - sg.from.z);
   const { sweep, r } = arcParams(sg);
   return Math.abs(sweep) * r;
+}
+
+/**
+ * Długość dla odtwarzacza i rysowania toru — geometryczna dla ruchu, a dla postoju (G04)
+ * umowna wartość proporcjonalna do realnego czasu (40 jednostek/s, tyle co prędkość
+ * odtwarzania ruchu roboczego), więc postój rzeczywiście trwa na animacji, zamiast
+ * znikać jako odcinek zerowej długości. Nigdy nie używać do statystyk drogi/czasu —
+ * do tego służy segmentLength + realny sg.seconds.
+ */
+export function playLength(sg: Segment) {
+  if (sg.kind === "dwell") return Math.max(sg.seconds, 0.5) * 40;
+  return segmentLength(sg);
 }
 
 export { planeAxes };

@@ -54,7 +54,11 @@ export type Segment =
       cw: boolean;
       plane: Plane;
       line: number;
-    };
+    }
+  /** Postój (G04): brak ruchu, from i to to ten sam punkt. `seconds` to realny czas z programu,
+      niezależny od geometrii — używany zarówno do statystyk, jak i do tego, żeby odtwarzacz
+      rzeczywiście się na nim zatrzymał. */
+  | { kind: "dwell"; from: Vec3; to: Vec3; seconds: number; line: number };
 
 export interface ParsedLine {
   index: number;

@@ -64,7 +64,7 @@ export function applyCompensation(program: Program, setup: Setup, mode: "mill" |
 
   const out = program.segments.map((sg, i) => {
     const c = comps[i];
-    if (c === 40 || sg.kind === "rapid") return sg;
+    if (c === 40 || sg.kind === "rapid" || sg.kind === "dwell") return sg;
     const tool = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
     const r = cuttingRadius(tool);
     if (r < EPS) return sg;
@@ -78,7 +78,7 @@ export function applyCompensation(program: Program, setup: Setup, mode: "mill" |
     // Zmiana strony kompensacji: tor rzeczywiście przeskakuje na drugą stronę
     // konturu. Nie udajemy przecięcia — pokazujemy przeskok tak, jak wygląda.
     if (comps[i] !== comps[i + 1]) continue;
-    if (a.kind === "rapid" || b.kind === "rapid") continue;
+    if (a.kind === "rapid" || b.kind === "rapid" || a.kind === "dwell" || b.kind === "dwell") continue;
     const gap = Math.hypot(b.from.x - a.to.x, b.from.y - a.to.y);
     if (gap < 1e-6) continue;
     if (a.kind !== "arc" && b.kind !== "arc") {

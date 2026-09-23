@@ -24,6 +24,7 @@ export interface ProgramStats {
 }
 
 const segSeconds = (sg: Segment, program: Program, rapidRate = 20000) => {
+  if (sg.kind === "dwell") return sg.seconds;
   const len = segmentLength(sg);
   if (sg.kind === "rapid") return (len / rapidRate) * 60;
   const l = program.lines[sg.line];
@@ -43,12 +44,12 @@ export function computeStats(program: Program): ProgramStats {
     const t = program.lines[sg.line]?.state.tool ?? 1;
     const secs = segSeconds(sg, program);
     seconds += secs;
-    if (sg.kind === "rapid") rapidLength += len; else cutLength += len;
+    if (sg.kind === "rapid") rapidLength += len; else if (sg.kind !== "dwell") cutLength += len;
     if (sg.kind === "arc") arcs++;
 
     const st = perTool.get(t) ?? { tool: t, seconds: 0, cutLength: 0, rapidLength: 0, minZ: 0, blocks: 0 };
     st.seconds += secs;
-    if (sg.kind === "rapid") st.rapidLength += len; else st.cutLength += len;
+    if (sg.kind === "rapid") st.rapidLength += len; else if (sg.kind !== "dwell") st.cutLength += len;
     st.minZ = Math.min(st.minZ, sg.to.z, sg.from.z);
     perTool.set(t, st);
   }

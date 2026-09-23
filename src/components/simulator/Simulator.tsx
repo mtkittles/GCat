@@ -10,7 +10,7 @@ import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgr
 import {
   parseProgram,
   pointAt,
-  segmentLength,
+  playLength,
   type Segment,
   type Vec3,
 } from "@/lib/parser";
@@ -58,6 +58,7 @@ const COLORS = {
   rapid: "#F59E0B",   // szybki przejazd
   linear: "#22C55E",  // ruch roboczy
   arc: "#38BDF8",     // interpolacja kołowa
+  dwell: "#F97316",   // postój (G04) — bez ruchu, rysowany osobnym znacznikiem
   grid: "rgba(255,255,255,0.06)",
   axis: "rgba(255,255,255,0.22)",
   tool: "#FFFFFF",
@@ -129,7 +130,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [showComp, setShowComp] = useState(true);
   const comp = useMemo(() => applyCompensation(program, setup, mode), [program, setup, mode]);
   const segments = showComp && comp.active ? comp.segments : program.segments;
-  const lengths = useMemo(() => segments.map(segmentLength), [segments]);
+  const lengths = useMemo(() => segments.map(playLength), [segments]);
   const total = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
 
   // pętla animacji
@@ -373,16 +374,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // ścieżka
+    const bare = compact || showcase;
     let acc = 0;
     segments.forEach((sg, i) => {
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
+      if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
       drawSeg(ctx, sg, P, 1, showcase ? 0.28 : 0.22, showcase);
       if (done > 0) drawSeg(ctx, sg, P, done, 1, showcase);
       acc += len;
     });
-
-    const bare = compact || showcase;
 
     // zakres obróbki (bounding box ruchów roboczych)
     if (cut.length && !bare) {
@@ -825,6 +826,48 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       )}
     </div>
   );
+}
+
+/**
+ * Postój G04: narzędzie się nie porusza, więc zamiast toru rysujemy w tym miejscu
+ * rosnący pierścień i odliczanie sekund — inaczej postój byłby na torze niewidoczny.
+ */
+function drawDwell(ctx: CanvasRenderingContext2D, sg: Extract<Segment, { kind: "dwell" }>, P: (p: Vec3) => readonly [number, number], done: number, bare: boolean, W: number, H: number) {
+  const [dx, dy] = P(sg.from);
+
+  // stały, przygaszony znacznik miejsca postoju — widoczny zawsze, jak reszta toru
+  ctx.save();
+  ctx.strokeStyle = "rgba(249,115,22,0.4)"; ctx.lineWidth = 1.3;
+  ctx.beginPath(); ctx.arc(dx, dy, 5, 0, Math.PI * 2); ctx.stroke();
+  ctx.restore();
+
+  if (done <= 0) return;
+
+  if (done < 1) {
+    const ring = 5 + done * 15;
+    ctx.save();
+    ctx.strokeStyle = COLORS.dwell; ctx.lineWidth = 2; ctx.globalAlpha = 0.9 - done * 0.5;
+    ctx.beginPath(); ctx.arc(dx, dy, ring, 0, Math.PI * 2); ctx.stroke();
+    ctx.restore();
+    if (!bare) {
+      const remain = Math.max(0, sg.seconds * (1 - done));
+      const label = `G04 · ${remain.toFixed(1)} s`;
+      ctx.font = "600 11px ui-monospace, monospace";
+      const w = ctx.measureText(label).width + 12;
+      // Punkt postoju bywa w narożu podglądu (np. ostatni punkt konturu) — dymek
+      // przerzucamy na stronę, po której jest miejsce, żeby nie wychodził z kanwy.
+      const bx = dx + 12 + w > W ? dx - 12 - w : dx + 12;
+      const by = dy - 20 < 0 ? Math.min(dy + 14, H - 20) : dy - 20;
+      ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by, w, 18);
+      ctx.strokeStyle = "rgba(249,115,22,0.55)"; ctx.lineWidth = 1; ctx.strokeRect(bx, by, w, 18);
+      ctx.fillStyle = COLORS.dwell; ctx.fillText(label, bx + 6, by + 13);
+    }
+  } else {
+    ctx.save();
+    ctx.fillStyle = COLORS.dwell;
+    ctx.beginPath(); ctx.arc(dx, dy, 2.6, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+  }
 }
 
 function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t: number, alpha: number, bold = false) {

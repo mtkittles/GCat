@@ -166,6 +166,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const pts: THREE.Vector3[] = []; const cols: number[] = [];
     const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
     for (const sg of program.segments) {
+      if (sg.kind === "dwell") continue;   // bez ruchu — nic do narysowania na torze 3D
       const n = sg.kind === "arc" ? 32 : 1;
       for (let i = 0; i < n; i++) {
         const a = pointAt(sg, i / n), b = pointAt(sg, (i + 1) / n);
@@ -186,7 +187,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const st = sceneRef.current; if (!st || failed) return;
     let broke = false;
     try {
-    const cut = program.segments.filter((s) => s.kind !== "rapid");
+    const cut = program.segments.filter((s) => s.kind !== "rapid" && s.kind !== "dwell");
     // pozycja
     let acc = 0; let pos: Vec3 = program.segments[0]?.from ?? { x: 0, y: 0, z: 0 };
     program.segments.forEach((sg, i) => { const len = lengths[i]; const d = Math.min(1, Math.max(0, (progress - acc) / (len || 1))); if (d > 0) pos = d < 1 ? pointAt(sg, d) : sg.to; acc += len; });
@@ -505,7 +506,7 @@ function carve(h: Float32Array, m: MillMeta, program: ReturnType<typeof parsePro
     const len = lengths[i];
     const segStart = acc, segEnd = acc + len;
     acc = segEnd;
-    if (sg.kind === "rapid" || segEnd <= from || segStart >= to) return;
+    if (sg.kind === "rapid" || sg.kind === "dwell" || segEnd <= from || segStart >= to) return;
     const t0 = Math.max(0, (from - segStart) / (len || 1));
     const t1 = Math.min(1, (to - segStart) / (len || 1));
     if (t1 <= t0) return;
