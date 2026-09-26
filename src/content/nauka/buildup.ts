@@ -7,8 +7,8 @@ import type { Track } from "@/lib/course";
 
   Zapis w stylu Fanuc: wymiary z kropką dziesiętną (lekcja F1.1).
   Frezowanie: płytka 80 × 50 × 20, naroża R10, obróbka konturu frezem Ø10 na głębokość 5 mm.
-  Do czasu lekcji o korekcji promienia (F4.2) program prowadzi środek freza,
-  odsunięty od konturu o promień 5 mm — stąd X−5, Y55 i łuki R15.
+  Do lekcji F4.2 program prowadzi środek freza, odsunięty od konturu o promień 5 mm
+  (X−5, Y55, łuki R15). Od F4.2 — wymiary z rysunku i korekcja G41 D1.
 */
 
 /** `until` — lekcja, od której linia znika (zastąpiona innym zapisem). */
@@ -31,20 +31,30 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "G00 X-20. Y10.", since: "F3.1", note: "Ruch szybki nad punkt startu, z boku detalu." },
       { code: "G00 Z5.", since: "F3.1", note: "Zjazd szybki na wysokość bezpieczną 5 mm nad górną powierzchnią." },
       { code: "G01 Z-5. F150", since: "F3.2", note: "Wejście na głębokość obok detalu, posuw 150 mm/min." },
-      { code: "G01 X-5. F400", since: "F3.2", note: "Dojazd do lewej krawędzi (środek freza 5 mm od konturu)." },
+      { code: "G01 X-5. F400", since: "F3.2", until: "F4.2", note: "Dojazd do lewej krawędzi (środek freza 5 mm od konturu)." },
+      { code: "G41 D1 G01 X0. F400", since: "F4.2", until: "F4.3", note: "Włączenie korekcji promienia z rejestru D1 na dojeździe. Od teraz program opisuje kontur detalu." },
+      { code: "G41 D1 G01 X-10. Y0. F400", since: "F4.3", note: "Korekcja promienia włączana na odcinku w powietrzu, przed łukiem najazdu." },
+      { code: "G03 X0. Y10. R10.", since: "F4.3", note: "Łuk najazdu stycznego — frez wchodzi na kontur bez zatrzymania na ścianie." },
       { code: "G01 Y55.", since: "F3.2", until: "F3.3", note: "Lewa krawędź w górę, do narożnika toru — kontur bez zaokrągleń." },
       { code: "G01 X85.", since: "F3.2", until: "F3.3", note: "Górna krawędź." },
       { code: "G01 Y-5.", since: "F3.2", until: "F3.3", note: "Prawa krawędź w dół." },
       { code: "G01 X-5.", since: "F3.2", until: "F3.3", note: "Dolna krawędź." },
       { code: "G01 Y10.", since: "F3.2", until: "F3.3", note: "Domknięcie konturu. Od lekcji F3.3 naroża dostaną promień R10." },
       { code: "G01 Y40.", since: "F3.3", note: "Lewa krawędź w górę, do początku naroża." },
-      { code: "G02 X10. Y55. R15.", since: "F3.3", note: "Naroże R10 + promień freza 5 = tor R15." },
+      { code: "G02 X10. Y55. R15.", since: "F3.3", until: "F4.2", note: "Naroże R10 + promień freza 5 = tor R15." },
+      { code: "G02 X10. Y50. R10.", since: "F4.2", note: "Naroże z rysunku: R10. Promień freza dolicza korekcja." },
       { code: "G01 X70.", since: "F3.3", note: "Górna krawędź." },
-      { code: "G02 X85. Y40. R15.", since: "F3.3", note: "Prawe górne naroże." },
+      { code: "G02 X85. Y40. R15.", since: "F3.3", until: "F4.2", note: "Prawe górne naroże." },
+      { code: "G02 X80. Y40. R10.", since: "F4.2", note: "Prawe górne naroże, wymiar z rysunku." },
       { code: "G01 Y10.", since: "F3.3", note: "Prawa krawędź w dół." },
-      { code: "G02 X70. Y-5. R15.", since: "F3.3", note: "Prawe dolne naroże." },
+      { code: "G02 X70. Y-5. R15.", since: "F3.3", until: "F4.2", note: "Prawe dolne naroże." },
+      { code: "G02 X70. Y0. R10.", since: "F4.2", note: "Prawe dolne naroże, wymiar z rysunku." },
       { code: "G01 X10.", since: "F3.3", note: "Dolna krawędź." },
-      { code: "G02 X-5. Y10. R15.", since: "F3.3", note: "Lewe dolne naroże — kontur zamknięty." },
+      { code: "G02 X-5. Y10. R15.", since: "F3.3", until: "F4.2", note: "Lewe dolne naroże — kontur zamknięty." },
+      { code: "G02 X0. Y10. R10.", since: "F4.2", note: "Lewe dolne naroże — kontur zamknięty w punkcie wejścia." },
+      { code: "G40 G01 X-20.", since: "F4.2", until: "F4.3", note: "Wyłączenie korekcji na odjeździe od konturu." },
+      { code: "G03 X-10. Y20. R10.", since: "F4.3", note: "Łuk odjazdu stycznego." },
+      { code: "G40 G01 X-20. Y10.", since: "F4.3", note: "Wyłączenie korekcji na odcinku w powietrzu." },
       { code: "G00 Z5.", since: "F3.1", note: "Odjazd w górę ruchem szybkim." },
       { code: "M09", since: "F2.4", note: "Chłodziwo wyłączone po obróbce." },
       { code: "M05", since: "F2.2", note: "Stop wrzeciona." },

@@ -16,6 +16,9 @@ import { f3_2 } from "@/content/nauka/f3-2";
 import { f3_3 } from "@/content/nauka/f3-3";
 import { f3_4 } from "@/content/nauka/f3-4";
 import { f3_5 } from "@/content/nauka/f3-5";
+import { f4_1 } from "@/content/nauka/f4-1";
+import { f4_2 } from "@/content/nauka/f4-2";
+import { f4_3 } from "@/content/nauka/f4-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -67,9 +70,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("F3.5", "G04 — postój", f3_5),
       ] },
       { id: "F4", title: "Korekcje", lessons: [
-        L("F4.1", "G43 — korekcja długości"),
-        L("F4.2", "G41, G42, G40 — korekcja promienia"),
-        L("F4.3", "Najazd i odjazd od konturu"),
+        L("F4.1", "G43 — korekcja długości", f4_1),
+        L("F4.2", "G41, G42, G40 — korekcja promienia", f4_2),
+        L("F4.3", "Najazd i odjazd od konturu", f4_3),
       ] },
       { id: "F5", title: "Cykle wiercenia", lessons: [
         L("F5.1", "G81 i G82"),
