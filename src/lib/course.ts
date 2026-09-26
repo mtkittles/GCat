@@ -26,6 +26,8 @@ import { f5_4 } from "@/content/nauka/f5-4";
 import { f6_1 } from "@/content/nauka/f6-1";
 import { f6_2 } from "@/content/nauka/f6-2";
 import { f6_3 } from "@/content/nauka/f6-3";
+import { f7_1 } from "@/content/nauka/f7-1";
+import { f7_2 } from "@/content/nauka/f7-2";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -93,8 +95,8 @@ export const tracks: Record<Track, TrackDef> = {
         L("F6.3", "Kieszeń okrągła", f6_3),
       ] },
       { id: "F7", title: "Podprogramy", lessons: [
-        L("F7.1", "M98 i M99"),
-        L("F7.2", "Podprogramy w Sinumeriku"),
+        L("F7.1", "M98 i M99", f7_1),
+        L("F7.2", "Podprogramy w Sinumeriku", f7_2),
       ] },
     ],
   },

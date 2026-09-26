@@ -65,7 +65,9 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       }
       if (sg.kind !== "rapid") {
         if (firstCutLine === null) firstCutLine = l.index;
-        if (!sawSpindle) out.push({ line: l.index, level: "warn", msg: "Ruch roboczy przy wyłączonym wrzecionie (brak M03/M04)." });
+        // Linie podprogramu pod M30 mają stan z chwili wywołania — liczy się on, a nie kolejność w pliku.
+        const spindleOn = sawM30 ? l.state.spindleOn !== "off" : sawSpindle;
+        if (!spindleOn) out.push({ line: l.index, level: "warn", msg: "Ruch roboczy przy wyłączonym wrzecionie (brak M03/M04)." });
         if (dialect === "fanuc" && l.state.plane === 17 && sawToolChange && !sawG43) out.push({ line: l.index, level: "warn", msg: "Po wymianie narzędzia brak G43 H_ — długość narzędzia nieaktywna." });
         if (l.state.feed !== null && l.state.feedMode === 94 && l.state.plane === 18 && l.state.feed < 5) out.push({ line: l.index, level: "warn", msg: `Posuw F${l.state.feed} przy G94 (mm/min) wygląda na wartość mm/obr — sprawdź G95.` });
         if (l.state.feed !== null && l.state.feedMode === 95 && l.state.feed > 5) out.push({ line: l.index, level: "warn", msg: `Posuw F${l.state.feed} przy G95 (mm/obr) jest bardzo duży — to nie mm/min?` });

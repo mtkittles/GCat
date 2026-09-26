@@ -129,8 +129,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   let dwellMs = 0;
   const lines: ParsedLine[] = [];
   const allSegments: Segment[] = [];
+  /** Każda linia źródła ma jeden wpis — przy wielokrotnym wykonaniu (podprogram) zostaje pierwszy. */
+  const lineMap = new Map<number, ParsedLine>();
+  const record = (l: ParsedLine) => { if (!lineMap.has(l.index)) lineMap.set(l.index, l); };
 
-  source.split(/\r?\n/).forEach((raw, index) => {
+  const step = (raw: string, index: number) => {
     const { words: rawWords, comment } = tokenize(raw);
 
     // Jednostki ustalamy przed przeliczeniem słów: G20/G21 w tym samym bloku
@@ -239,6 +242,13 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 8: s.coolant = true; desc.push("Chłodziwo włączone (M08)"); break;
         case 9: s.coolant = false; desc.push("Chłodziwo wyłączone (M09)"); break;
         case 30: desc.push("Koniec programu i przewinięcie (M30)"); break;
+        case 98: {
+          const pw = words.find((w) => w.letter === "P")?.raw.replace(/^P/i, "") ?? "", lw = get("L");
+          const long = pw.length > 4 && lw === undefined;
+          const num = long ? Number(pw.slice(-4)) : Number(pw), cnt = long ? Number(pw.slice(0, -4)) : (lw ?? 1);
+          desc.push(`Wywołanie podprogramu O${fmt(num)}${cnt > 1 ? ` × ${fmt(cnt)}` : ""} (M98)`); break;
+        }
+        case 99: desc.push("Koniec podprogramu, powrót do programu wywołującego (M99)"); break;
         default: desc.push(`M${fmt(m)}`);
       }
     }
@@ -279,7 +289,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       s.prog = { ...progTarget, z: s.pos.z };
       desc.push(cycleDescription(cyc, target, dia));
       if (cyc.p) dwellMs += cyc.p;
-      lines.push({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
+      record({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
       allSegments.push(...segments);
       state = s;
       return;
@@ -332,10 +342,59 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     if (desc.length === 0 && words.length > 0 && words.every((w) => w.letter === "N" || w.letter === "O"))
       desc.push(words[0].letter === "O" ? `Program O${fmt(words[0].value)}` : "");
 
-    lines.push({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
+    record({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
     allSegments.push(...segments);
     state = s;
-  });
+  };
+
+  const src = source.split(/\r?\n/);
+  const clean = (l: string) => l.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
+  const isCall = (c: string) => /M0*98(?!\d)/.test(c);
+  if (!src.some((l) => isCall(clean(l)))) {
+    src.forEach((raw, i) => step(raw, i));
+  } else {
+    // Podprogramy (Fanuc): bloki O…–M99 zapisane pod końcem programu głównego (M30/M02).
+    // Wywołanie M98 P2000 L4 albo M98 P42000 (4 powtórzenia, program 2000).
+    const endRe = /M0*(30|2)(?!\d)/, retRe = /M0*99(?!\d)/;
+    const mainEnd = src.findIndex((l) => endRe.test(clean(l)));
+    const subs = new Map<number, number>();
+    src.forEach((l, i) => {
+      const m = clean(l).match(/^\s*(?:N\d+\s*)?O0*(\d+)/);
+      if (m && mainEnd >= 0 && i > mainEnd) subs.set(Number(m[1]), i);
+    });
+    const callErrors = new Map<number, string>();
+    let guard = 0;
+    const run = (from: number, depth: number): boolean => {
+      for (let i = from; i < src.length; i++) {
+        if (++guard > 20000) return true;
+        step(src[i], i);
+        const c = clean(src[i]);
+        if (retRe.test(c)) return true;
+        if (depth === 0 && endRe.test(c)) return true;
+        if (isCall(c)) {
+          const p = c.match(/P(\d+)/), l = c.match(/L(\d+)/);
+          let num = p ? Number(p[1]) : NaN, count = l ? Number(l[1]) : 1;
+          if (p && p[1].length > 4 && !l) { count = Number(p[1].slice(0, -4)); num = Number(p[1].slice(-4)); }
+          const target = subs.get(num);
+          if (target === undefined) callErrors.set(i, `Brak podprogramu O${Number.isNaN(num) ? "?" : num} pod końcem programu (M30).`);
+          else if (depth >= 4) callErrors.set(i, "Za głębokie zagnieżdżenie podprogramów.");
+          else for (let k = 0; k < Math.max(1, count); k++) if (!run(target + 1, depth + 1)) callErrors.set(target, "Podprogram bez M99.");
+        }
+      }
+      return depth === 0;
+    };
+    run(0, 0);
+    // Linie niewykonane (np. nieużyty podprogram) — tylko opis i błędy, bez ruchu i bez zmiany stanu.
+    src.forEach((raw, i) => {
+      if (lineMap.has(i)) return;
+      const snap = state, sec = seconds, dw = dwellMs, len = allSegments.length;
+      step(raw, i);
+      state = snap; seconds = sec; dwellMs = dw; allSegments.length = len;
+      const e = lineMap.get(i); if (e) e.segments = [];
+    });
+    callErrors.forEach((msg, i) => lineMap.get(i)?.errors.push(msg));
+  }
+  lines.push(...[...lineMap.entries()].sort((a, b) => a[0] - b[0]).map((e) => e[1]));
 
   for (const sg of allSegments) {
     const len = segmentLength(sg);
