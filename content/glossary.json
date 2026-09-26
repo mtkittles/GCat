@@ -376,5 +376,18 @@
     "see": [
       "g54-g59"
     ]
+  },
+  {
+    "term": "Interpolacja śrubowa",
+    "aliases": [
+      "spirala",
+      "helix",
+      "wejście po spirali"
+    ],
+    "def": "Ruch po łuku G02/G03 połączony z ruchem w osi prostopadłej do płaszczyzny, np. Z przy G17. Narzędzie porusza się po linii śrubowej. Służy do wejścia w materiał w kieszeniach i otworach oraz do frezowania gwintów.",
+    "see": [
+      "g02",
+      "g03"
+    ]
   }
 ]

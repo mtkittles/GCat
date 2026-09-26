@@ -23,6 +23,9 @@ import { f5_1 } from "@/content/nauka/f5-1";
 import { f5_2 } from "@/content/nauka/f5-2";
 import { f5_3 } from "@/content/nauka/f5-3";
 import { f5_4 } from "@/content/nauka/f5-4";
+import { f6_1 } from "@/content/nauka/f6-1";
+import { f6_2 } from "@/content/nauka/f6-2";
+import { f6_3 } from "@/content/nauka/f6-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -85,9 +88,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("F5.4", "G98, G99 i G80", f5_4),
       ] },
       { id: "F6", title: "Kieszenie i kontury", lessons: [
-        L("F6.1", "Planowanie"),
-        L("F6.2", "Kieszeń prostokątna"),
-        L("F6.3", "Kieszeń okrągła"),
+        L("F6.1", "Planowanie", f6_1),
+        L("F6.2", "Kieszeń prostokątna", f6_2),
+        L("F6.3", "Kieszeń okrągła", f6_3),
       ] },
       { id: "F7", title: "Podprogramy", lessons: [
         L("F7.1", "M98 i M99"),
