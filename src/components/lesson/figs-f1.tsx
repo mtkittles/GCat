@@ -129,8 +129,66 @@ export function AbsIncPlate() {
   );
 }
 
+
+/* ================= F1.4: ten sam zapis, dwie jednostki ================= */
+export function UnitsCompare() {
+  const R: [number, number, number, number] = [-8, 92, -10, 40];
+  const m = mapper(R, [12, 8, 336, 190]);
+  return (
+    <Fig id="f14un" code="G20 G21" title="Ten sam blok X2. w milimetrach i w calach" h={212} legend={["cut", "acc", "stock"]}
+      notes={<><Code k="cut">G21 X2. → 2 mm</Code><Code k="acc">G20 X2. → 2 × 25,4 = 50,8 mm</Code></>}
+      caption={<>Sterowanie nie wie, w jakich jednostkach zwymiarowano rysunek. Liczy tak, jak każe aktywny kod G20 albo G21.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(0)} y={m.Y(30)} width={80 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
+          <line x1={m.X(0)} y1={m.Y(22)} x2={m.X(2) + 2} y2={m.Y(22)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <T x={m.X(4)} y={m.Y(22) + 4} cls="t-cut t-b t-mono">G21: 2 mm</T>
+          <line x1={m.X(0)} y1={m.Y(9)} x2={m.X(50.8) - 2} y2={m.Y(9)} className="p-acc thick" markerEnd={c.a("acc")} />
+          <T x={m.X(52)} y={m.Y(9) + 4} cls="t-acc t-b t-mono">G20: 50,8 mm</T>
+          <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-b" dot="pt-cut" />
+          <Dim x1={m.X(0)} y1={m.Y(0)} x2={m.X(80)} y2={m.Y(0)} off={18} label="80 mm" c={c} lside={1} />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F1.5: szkielet programu ================= */
+export function ProgramSkeleton() {
+  const secs: { t: string; d: string; lines: string[]; col: string }[] = [
+    { t: "Nagłówek", d: "numer, nazwa, zero", lines: ["O1000 (PLYTKA 80X50X20)", "(ZERO W: LEWY DOLNY)"], col: "var(--muted)" },
+    { t: "Bezpieczny start", d: "jednostki, tryby, kasowanie", lines: ["G21 G90 G17", "G40 G49 G80"], col: "var(--accent)" },
+    { t: "Układ detalu", d: "zero W", lines: ["G54"], col: "var(--accent)" },
+    { t: "Narzędzie i wrzeciono", d: "wymiana, obroty", lines: ["T1 M06", "S2500 M03"], col: "var(--cm-t)" },
+    { t: "Obróbka", d: "ruchy", lines: ["G00 X-20. Y10.", "…"], col: "var(--green)" },
+    { t: "Zakończenie", d: "odjazd, stop, koniec", lines: ["G00 Z5.", "M05", "G91 G28 Z0.", "G90", "M30"], col: "var(--cm-m)" },
+  ];
+  let y = 10;
+  const boxes = secs.map((s) => { const h = 22 + s.lines.length * 15; const b = { ...s, y, h }; y += h + 6; return b; });
+  return (
+    <Fig id="f15sk" code="O…M30" title="Szkielet każdego programu" h={y + 4}
+      caption={<>Kolejność sekcji jest stała. Sekcja obróbki zmienia się z detalu na detal, a początek i koniec zostają prawie takie same.</>}>
+      {() => (
+        <g>
+          {boxes.map((b) => (
+            <g key={b.t}>
+              <rect x={10} y={b.y} width={340} height={b.h} rx={8} className="panel-bg" />
+              <rect x={10} y={b.y} width={4} height={b.h} rx={2} style={{ fill: b.col }} />
+              <T x={24} y={b.y + 18} cls="t-b">{b.t}</T>
+              <T x={24} y={b.y + 32} cls="t-mut t-sm">{b.d}</T>
+              {b.lines.map((l, i) => <T key={i} x={178} y={b.y + 18 + i * 15} cls="t-mono">{l}</T>)}
+            </g>
+          ))}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const f1Figs = {
   "f11-block": () => <BlockAnatomy />,
   "f12-carry": () => <ModalCarry />,
   "f13-absinc": () => <AbsIncPlate />,
+  "f14-units": () => <UnitsCompare />,
+  "f15-skeleton": () => <ProgramSkeleton />,
 };

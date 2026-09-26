@@ -16,13 +16,14 @@ const same = (a: string, b: string) => {
   return a.trim().toUpperCase() === b.trim().toUpperCase();
 };
 
-type Ans = number | string[] | [number, number] | null;
+type Ans = number | number[] | string[] | [number, number] | null;
 
 function grade(q: Question, a: Ans) {
   if (a === null) return false;
   if (q.kind === "choice") return a === q.answer;
   if (q.kind === "gap") return q.answers.every((acc, i) => acc.some((v) => same((a as string[])[i] ?? "", v)));
   if (q.kind === "token") return a === q.answer;
+  if (q.kind === "order") { const o = a as number[]; return o.length === q.answer.length && o.every((v, i) => v === q.answer[i]); }
   const p = a as [number, number]; return p[0] === q.target[0] && p[1] === q.target[1];
 }
 
@@ -72,7 +73,7 @@ export default function Quiz({ questions, figs = {}, drill = false }: { question
   }
 
   const ok = checked && grade(q, ans);
-  const ready = q.kind === "gap" ? Array.isArray(ans) && (ans as string[]).filter((v) => v?.trim()).length === q.answers.length : ans !== null;
+  const ready = q.kind === "order" ? Array.isArray(ans) && (ans as number[]).length === q.items.length : q.kind === "gap" ? Array.isArray(ans) && (ans as string[]).filter((v) => v?.trim()).length === q.answers.length : ans !== null;
 
   const check = () => {
     setChecked(true);
@@ -114,6 +115,27 @@ export default function Quiz({ questions, figs = {}, drill = false }: { question
           })}
         </div>
       )}
+      {q.kind === "order" && (() => {
+        const seq = (ans as number[] | null) ?? [];
+        const pool = q.items.map((_, i) => i).filter((i) => !seq.includes(i));
+        return (
+          <div className="ord">
+            <ol className="ord-seq">
+              {seq.length === 0 && <li className="ord-empty">Tapnij elementy poniżej w kolejności wykonania.</li>}
+              {seq.map((i, k) => {
+                const st = checked ? (q.answer[k] === i ? "is-ok" : "is-bad") : "";
+                return <li key={i}><button type="button" disabled={checked} className={`ord-item ${st}`} onClick={() => setAns(seq.filter((x) => x !== i))}>
+                  <span className="ord-n">{k + 1}</span><code>{q.items[i]}</code></button></li>;
+              })}
+            </ol>
+            {pool.length > 0 && (
+              <div className="ord-pool">
+                {pool.map((i) => <button key={i} type="button" className="tok" disabled={checked} onClick={() => setAns([...seq, i])}>{q.items[i]}</button>)}
+              </div>
+            )}
+          </div>
+        );
+      })()}
       {q.kind === "point" && (
         <PointGrid id={`q${uid}${qi}`} title="Tapnij, aby zaznaczyć" picked={ans as [number, number] | null}
           onPick={(p) => setAns(p)} target={q.target} reveal={checked} locked={checked} />
@@ -122,6 +144,7 @@ export default function Quiz({ questions, figs = {}, drill = false }: { question
       {checked && (
         <div className={`fb ${ok ? "is-ok" : "is-bad"}`}>
           <b>{ok ? "Dobrze." : "Nie tym razem."}</b>{" "}
+          {!ok && q.kind === "order" && <>Poprawnie: {q.answer.map((i) => q.items[i]).join(" → ")}. </>}
           {!ok && q.kind === "gap" && <>Poprawnie: <code className="inline-code">{q.template.replace(/\{(\d+)\}/g, (_, k) => q.answers[+k][0])}</code>. </>}
           {rich(q.why)}
         </div>

@@ -5,6 +5,10 @@ import { f0_3 } from "@/content/nauka/f0-3";
 import { f1_1 } from "@/content/nauka/f1-1";
 import { f1_2 } from "@/content/nauka/f1-2";
 import { f1_3 } from "@/content/nauka/f1-3";
+import { f1_4 } from "@/content/nauka/f1-4";
+import { f1_5 } from "@/content/nauka/f1-5";
+import { f2_1 } from "@/content/nauka/f2-1";
+import { f2_2 } from "@/content/nauka/f2-2";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -39,12 +43,12 @@ export const tracks: Record<Track, TrackDef> = {
         L("F1.1", "Blok, słowo i adres", f1_1),
         L("F1.2", "Modalność", f1_2),
         L("F1.3", "G90 i G91", f1_3),
-        L("F1.4", "Jednostki i płaszczyzny: G21, G17"),
-        L("F1.5", "Blok startowy i koniec programu"),
+        L("F1.4", "Jednostki i płaszczyzny: G21, G17", f1_4),
+        L("F1.5", "Blok startowy i koniec programu", f1_5),
       ] },
       { id: "F2", title: "Wrzeciono i narzędzie", lessons: [
-        L("F2.1", "Wymiana narzędzia: T i M06"),
-        L("F2.2", "Obroty: S i M03/M04/M05"),
+        L("F2.1", "Wymiana narzędzia: T i M06", f2_1),
+        L("F2.2", "Obroty: S i M03/M04/M05", f2_2),
         L("F2.3", "Posuw F i G94"),
         L("F2.4", "Chłodziwo: M08 i M09"),
       ] },

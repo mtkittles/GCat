@@ -15,7 +15,9 @@ export type Question =
   /** Zaznacz punkt na siatce (widok z góry, X w prawo, Y w górę). */
   | { kind: "point"; q: string; target: [number, number]; why: string; review?: string }
   /** Tapnij właściwe słowo w bloku. `block` dzielony po spacjach, `answer` = indeks słowa. */
-  | { kind: "token"; q: string; block: string; answer: number; why: string; review?: string };
+  | { kind: "token"; q: string; block: string; answer: number; why: string; review?: string }
+  /** Ułóż elementy w kolejności. `items` w kolejności wyświetlania, `answer` = indeksy items w poprawnej kolejności. */
+  | { kind: "order"; q: string; items: string[]; answer: number[]; why: string; review?: string };
 
 export interface JogGoal { x: number; y: number; z: number; label: string }
 export interface PointTask { target: [number, number]; prompt: string; guides?: boolean }

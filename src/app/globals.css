@@ -1783,3 +1783,17 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig .p-fill-cut { stroke: var(--green); stroke-width: 1; }
 
 .footer-ver { font: 500 11px/1 var(--font-mono); color: var(--muted); opacity: .7; }
+
+/* ułóż w kolejności */
+.ord { display: grid; gap: .6rem; }
+.ord-seq { display: grid; gap: .3rem; padding: .5rem; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); min-height: 3rem; }
+.ord-empty { font-size: 13.5px; color: var(--muted); padding: .4rem; }
+.ord-item { display: grid; grid-template-columns: 1.6rem 1fr; align-items: center; gap: .5rem; width: 100%; text-align: left; padding: .45rem .6rem; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface-2); }
+.ord-item code { font: 600 14px/1.3 var(--font-mono); color: var(--ink); }
+.ord-n { font: 700 11px/1 var(--font-mono); color: var(--muted); }
+.ord-item.is-ok { border-color: var(--green); }
+.ord-item.is-ok code { color: var(--green); }
+.ord-item.is-bad { border-color: var(--red); }
+.ord-item.is-bad code { color: var(--red); }
+.ord-pool { display: flex; flex-wrap: wrap; gap: .4rem; }
+.ord-pool .tok { font-size: 14px; }
