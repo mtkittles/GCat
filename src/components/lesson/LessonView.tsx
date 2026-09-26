@@ -15,6 +15,7 @@ import Buildup, { type ShownLine } from "./Buildup";
 import JogDemo from "./JogDemo";
 import OffsetJog from "./OffsetJog";
 import StateExplorer from "./StateExplorer";
+import ProgramTask from "./ProgramTask";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 
@@ -40,10 +41,13 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
   const bu = buildup[track];
   const lines: ShownLine[] = bu.lines
-    .map((l) => {
+    .flatMap((l) => {
       const o = orderOf(track, l.since);
+      const u = l.until ? orderOf(track, l.until) : Infinity;
+      if (idx >= u) return [];
+      if (o > idx && l.until) return [];
       const state: ShownLine["state"] = o < idx ? "old" : o === idx ? "new" : "future";
-      return { ...l, state, sinceTitle: all[o]?.title };
+      return [{ ...l, state, sinceTitle: all[o]?.title }];
     });
 
   const quizFigs: Record<string, ReactNode> = {};
@@ -95,6 +99,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
               : p.kind === "offset" ? <OffsetJog parts={p.parts} goals={p.goals} set={p.set} />
               : p.kind === "drill" ? <Quiz questions={p.questions} drill />
               : p.kind === "state" ? <StateExplorer program={p.program} />
+              : p.kind === "task" ? <ProgramTask starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} />
               : <PointDrill tasks={p.tasks} />}
           </div>
         ))}

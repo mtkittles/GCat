@@ -109,7 +109,7 @@ export default function Quiz({ questions, figs = {}, drill = false }: { question
       )}
       {q.kind === "token" && (
         <div className="tok-line" role="radiogroup">
-          {q.block.split(/\s+/).map((w, i) => {
+          {(q.block.includes("|") ? q.block.split("|").map((x) => x.trim()) : q.block.split(/\s+/)).map((w, i) => {
             const state = checked ? (i === q.answer ? "is-ok" : i === ans ? "is-bad" : "") : ans === i ? "is-sel" : "";
             return <button key={i} type="button" role="radio" aria-checked={ans === i} disabled={checked} className={`tok ${state}`} onClick={() => setAns(i)}>{w}</button>;
           })}

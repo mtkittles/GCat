@@ -27,6 +27,15 @@ export type OffsetGoal =
   | { kind: "move"; frame: "M" | "G54" | "G55"; x: number; y: number; label: string }
   | { kind: "set"; reg: "G54" | "G55"; x: number; y: number; label: string };
 
+export type TaskCheck =
+  | { t: "end"; x?: number; y?: number; z?: number; label: string }
+  /** Najazd: ruch szybki nad punkt (x, y) na wyższym Z, potem osobny ruch szybki w dół do z. */
+  | { t: "approach"; x: number; y: number; z: number; label: string }
+  /** Tor roboczy zgodny z wzorcem (bez ruchów szybkich). */
+  | { t: "cut"; reference: string; tolerance?: number }
+  | { t: "require"; codes: string[] }
+  | { t: "forbid"; codes: string[] };
+
 export type Practice =
   | { kind: "jog"; intro: string; goals: JogGoal[] }
   | { kind: "offset"; intro: string; parts: OffsetPart[]; goals: OffsetGoal[]; set?: boolean }
@@ -34,6 +43,8 @@ export type Practice =
   | { kind: "drill"; intro: string; questions: Question[] }
   /** Program z podglądem stanu modalnego w wybranej linii. */
   | { kind: "state"; intro: string; program: string }
+  /** Dopisz do programu — edytor z symulatorem i sprawdzaniem. */
+  | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
 export interface WorkedStep { x: string; code?: string }

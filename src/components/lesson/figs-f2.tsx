@@ -1,4 +1,4 @@
-import { Fig, T } from "@/components/fig";
+import { Code, Fig, T } from "@/components/fig";
 
 /* Rysunki modułu F2 — wrzeciono i narzędzie. Styl i kolory z fig.tsx. */
 
@@ -79,7 +79,66 @@ export function SpindleDir() {
   );
 }
 
+
+/* ================= F2.3: posuw na ostrze ================= */
+export function ToothFeed() {
+  const c1 = { x: 136, y: 122 }, d = 18, r = 44;
+  const ix = c1.x + d / 2, iy = Math.sqrt(r * r - (d / 2) ** 2);
+  return (
+    <Fig id="f23fz" code="fz" title="Posuw na ostrze — widok z góry, skala przesadzona" h={236} legend={["cut", "acc"]}
+      notes={<Code k="acc">vf = fz · z · n</Code>}
+      caption={<>Między wejściami dwóch kolejnych ostrzy frez przesuwa się o <b>fz</b>. Każde ostrze zbiera sierp materiału o grubości do fz. Posuw minutowy F to fz razy liczba ostrzy razy obroty.</>}>
+      {(c) => (
+        <g>
+          <path d={`M ${ix} ${c1.y - iy} A ${r} ${r} 0 1 1 ${ix} ${c1.y + iy} A ${r} ${r} 0 0 0 ${ix} ${c1.y - iy} Z`} className="p-fill-acc" />
+          <circle cx={c1.x} cy={c1.y} r={r} className="p-cons" />
+          <circle cx={c1.x + d} cy={c1.y} r={r} className="tool" />
+          {[0, 90, 180, 270].map((a) => { const t = (a * Math.PI) / 180; return <line key={a} x1={c1.x + d} y1={c1.y} x2={c1.x + d + Math.cos(t) * r} y2={c1.y + Math.sin(t) * r} className="p-dim" />; })}
+          <line x1={c1.x + r} y1={c1.y - 60} x2={c1.x + r + d} y2={c1.y - 60} className="p-acc" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <line x1={c1.x + r} y1={c1.y - 64} x2={c1.x + r} y2={c1.y} className="p-cons" />
+          <line x1={c1.x + r + d} y1={c1.y - 64} x2={c1.x + r + d} y2={c1.y} className="p-cons" />
+          <T x={c1.x + r + d / 2} y={c1.y - 68} anchor="middle" cls="t-acc t-b t-mono">fz</T>
+          <line x1={c1.x + d + r + 30} y1={c1.y + 30} x2={c1.x + d + r + 90} y2={c1.y + 30} className="p-cut thick" markerEnd={c.a("cut")} />
+          <T x={c1.x + d + r + 60} y={c1.y + 22} anchor="middle" cls="t-cut t-b">vf</T>
+          <T x={c1.x + d + r + 6} y={c1.y + 4} cls="t-acc">wiór</T>
+          <T x={c1.x - r - 6} y={c1.y + 4} anchor="end" cls="t-mut">poprzednie</T>
+          <T x={c1.x - r - 6} y={c1.y + 17} anchor="end" cls="t-mut">ostrze</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F2.4: chłodziwo ================= */
+export function Coolant() {
+  const panel = (x0: number, through: boolean) => (
+    <g>
+      <rect x={x0 + 50} y={20} width={60} height={44} className="spindle" />
+      <rect x={x0 + 66} y={64} width={28} height={18} className="holder" />
+      <rect x={x0 + 74} y={82} width={12} height={56} className="cutter" />
+      <rect x={x0 + 10} y={150} width={150} height={36} className="solid-hatch" />
+      {through ? <>
+        <line x1={x0 + 80} y1={24} x2={x0 + 80} y2={136} className="cool-in" />
+        {[-14, -6, 6, 14].map((dx) => <line key={dx} x1={x0 + 80} y1={140} x2={x0 + 80 + dx * 1.6} y2={150} className="cool-jet" />)}
+      </> : <>
+        <path d={`M ${x0 + 8} 70 L ${x0 + 40} 88 L ${x0 + 46} 98`} className="cool-pipe" />
+        {[0, 1, 2, 3].map((k) => <line key={k} x1={x0 + 48} y1={100 + k * 2} x2={x0 + 72} y2={128 + k * 5} className="cool-jet" />)}
+      </>}
+      <T x={x0 + 85} y={206} anchor="middle" cls="t-b">{through ? "przez wrzeciono" : "zalewowe — M08"}</T>
+      <T x={x0 + 85} y={220} anchor="middle" cls="t-mut t-sm">{through ? "kod zależy od maszyny" : "dysza obok narzędzia"}</T>
+    </g>
+  );
+  return (
+    <Fig id="f24cl" code="M08" title="Chłodziwo zalewowe i przez wrzeciono" h={232}
+      caption={<>Chłodziwo zalewowe podaje dysza z zewnątrz. Chłodziwo przez wrzeciono płynie kanałami w narzędziu prosto do ostrza — przydaje się przy głębokich otworach.</>}>
+      {() => <g>{panel(4, false)}{panel(184, true)}</g>}
+    </Fig>
+  );
+}
+
 export const f2Figs = {
   "f21-change": () => <ToolChange />,
   "f22-dir": () => <SpindleDir />,
+  "f23-fz": () => <ToothFeed />,
+  "f24-coolant": () => <Coolant />,
 };

@@ -15,7 +15,7 @@ export default function Buildup({ title, lines, lessonId, mode }: { title: strin
   const [open, setOpen] = useState<number | null>(null);
   const [future, setFuture] = useState(false);
   const [sim, setSim] = useState(false);
-  const shown = lines.filter((l) => future || l.state !== "future");
+  const shown = future ? lines.filter((l) => !l.until) : lines.filter((l) => l.state !== "future");
   const fresh = lines.filter((l) => l.state === "new").length;
   return (
     <div className="bu">
@@ -40,7 +40,7 @@ export default function Buildup({ title, lines, lessonId, mode }: { title: strin
         </button>
         {future && !sim && <button type="button" className="btn ghost" onClick={() => setSim(true)}>Uruchom gotowy program</button>}
       </div>
-      {future && sim && <SimClient initial={lines.map((l) => l.code).join("\n")} mode={mode} editable={false} />}
+      {future && sim && <SimClient initial={lines.filter((l) => !l.until).map((l) => l.code).join("\n")} mode={mode} editable={false} />}
     </div>
   );
 }

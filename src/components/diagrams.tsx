@@ -7,6 +7,7 @@ import {
 import { f0Figs } from "./lesson/figs-f0";
 import { f1Figs } from "./lesson/figs-f1";
 import { f2Figs } from "./lesson/figs-f2";
+import { f3Figs } from "./lesson/figs-f3";
 
 /*
   Wszystkie rysunki techniczne serwisu — jeden styl (fig.tsx).
@@ -17,6 +18,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   ...f0Figs,
   ...f1Figs,
   ...f2Figs,
+  ...f3Figs,
   // tematy (artykuły, słownik, kalkulator)
   "rapid-path": () => <RapidPath />,
   "rapid-clamp": () => <RapidClamp />,
