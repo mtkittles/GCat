@@ -4,6 +4,7 @@ import {
   Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
+import { f0Figs } from "./lesson/figs-f0";
 
 /*
   Wszystkie rysunki techniczne serwisu — jeden styl (fig.tsx).
@@ -11,6 +12,7 @@ import {
   Kody bez dopasowanego rysunku celowo nie mają żadnego — lepiej brak niż schemat od innego tematu.
 */
 export const diagrams: Record<string, () => ReactNode> = {
+  ...f0Figs,
   // tematy (artykuły, słownik, kalkulator)
   "rapid-path": () => <RapidPath />,
   "rapid-clamp": () => <RapidClamp />,

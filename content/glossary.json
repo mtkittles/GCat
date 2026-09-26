@@ -356,5 +356,25 @@
     "see": [
       "g04"
     ]
+  },
+  {
+    "term": "Reguła prawej dłoni",
+    "aliases": [
+      "prawa dłoń",
+      "układ prawoskrętny"
+    ],
+    "def": "Sposób na zapamiętanie zwrotów osi: kciuk prawej dłoni wskazuje +X, palec wskazujący +Y, środkowy +Z. Tak zorientowany układ opisuje norma ISO 841 i stosują go wszystkie sterowania CNC.",
+    "see": []
+  },
+  {
+    "term": "Układ współrzędnych",
+    "aliases": [
+      "układ osi",
+      "osie maszyny"
+    ],
+    "def": "Trzy prostopadłe osie X, Y i Z, względem których podaje się położenie narzędzia. Na obrabiarkach CNC jest prawoskrętny, a ruch w +Z zawsze oddala narzędzie od detalu.",
+    "see": [
+      "g54-g59"
+    ]
   }
 ]

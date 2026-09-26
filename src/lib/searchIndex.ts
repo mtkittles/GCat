@@ -1,6 +1,7 @@
 import { gcodes } from "./gcodes";
 import { exercises, glossary, lessons } from "./content";
 import { articles } from "@/content/articles";
+import { readyLessons, lessonHref, tracks } from "./course";
 import type { Block } from "./article";
 
 export interface SearchDoc {
@@ -29,6 +30,10 @@ export const searchDocs: SearchDoc[] = [
     kind: "lekcja" as const, title: l.title, subtitle: `Lekcja ${i + 1} · ${l.minutes} min`,
     href: `/nauka/${l.slug}`, body: [l.title, l.intro, ...l.sections.map((s) => `${s.h} ${s.p}`), l.task].join(" "),
   })),
+  ...(["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({
+    kind: "lekcja" as const, title: `${l.id} ${l.title}`, subtitle: `${tracks[t].title} · ${l.doc!.minutes} min`,
+    href: lessonHref(t, l.slug!), body: [l.title, l.doc!.goal, blockText(l.doc!.theory), ...l.doc!.summary, ...l.doc!.pitfalls.map((p) => `${p.title} ${p.x}`)].join(" "),
+  }))),
   ...exercises.map((e) => ({
     kind: "zadanie" as const, title: e.title, subtitle: e.mode === "mill" ? "frezowanie" : "toczenie",
     href: `/zadania/${e.slug}`, body: [e.title, e.brief, ...e.hints].join(" "),

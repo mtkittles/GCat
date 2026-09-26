@@ -1,0 +1,39 @@
+import type { Block } from "@/lib/article";
+
+/*
+  Stały szablon lekcji. Każda lekcja ma te same sekcje w tej samej kolejności:
+  cel → teoria → przykład rozwiązany → spróbuj sam → typowe błędy → Fanuc/Sinumerik
+  → sprawdź się → program detalu → podsumowanie → źródła.
+  Tekst obsługuje **pogrubienie**, `kod` i [[pojęcie]] / [[klucz|tekst]] (dymek).
+*/
+
+export type Question =
+  /** Wybór jednej odpowiedzi. */
+  | { kind: "choice"; q: string; options: string[]; answer: number; why: string; fig?: string; review?: string }
+  /** Uzupełnij luki. W `template` luki to {0}, {1}…; `answers[i]` to akceptowane wartości luki i. */
+  | { kind: "gap"; q: string; template: string; answers: string[][]; why: string; review?: string }
+  /** Zaznacz punkt na siatce (widok z góry, X w prawo, Y w górę). */
+  | { kind: "point"; q: string; target: [number, number]; why: string; review?: string };
+
+export interface JogGoal { x: number; y: number; z: number; label: string }
+export interface PointTask { target: [number, number]; prompt: string; guides?: boolean }
+
+export type Practice =
+  | { kind: "jog"; intro: string; goals: JogGoal[] }
+  | { kind: "points"; intro: string; tasks: PointTask[] };
+
+export interface WorkedStep { x: string; code?: string }
+
+export interface LessonDoc {
+  id: string; slug: string; title: string; minutes: number;
+  /** Jedno zdanie: co uczeń umie po lekcji. */
+  goal: string;
+  theory: Block[];
+  worked: { title: string; intro: string; fig?: string; steps: WorkedStep[]; result: string };
+  practice: Practice[];
+  pitfalls: { title: string; x: string; fig?: string }[];
+  controllers?: { rows: [string, string, string][]; note?: string };
+  quiz: Question[];
+  summary: string[];
+  sources: { id: string; where: string }[];
+}
