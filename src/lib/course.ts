@@ -2,6 +2,9 @@ import type { LessonDoc } from "@/lib/lesson";
 import { f0_1 } from "@/content/nauka/f0-1";
 import { f0_2 } from "@/content/nauka/f0-2";
 import { f0_3 } from "@/content/nauka/f0-3";
+import { f1_1 } from "@/content/nauka/f1-1";
+import { f1_2 } from "@/content/nauka/f1-2";
+import { f1_3 } from "@/content/nauka/f1-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -33,9 +36,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("F0.3", "Przesunięcia G54–G59", f0_3),
       ] },
       { id: "F1", title: "Struktura programu", lessons: [
-        L("F1.1", "Blok, słowo i adres"),
-        L("F1.2", "Modalność"),
-        L("F1.3", "G90 i G91"),
+        L("F1.1", "Blok, słowo i adres", f1_1),
+        L("F1.2", "Modalność", f1_2),
+        L("F1.3", "G90 i G91", f1_3),
         L("F1.4", "Jednostki i płaszczyzny: G21, G17"),
         L("F1.5", "Blok startowy i koniec programu"),
       ] },

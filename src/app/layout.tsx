@@ -40,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <BrandLogo height={26} variant="lockup" />
             <span className="footer-tag">Zrozum. Programuj. Obrabiaj.</span>
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
+            <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
           </div>
           <div className="wrap pb-6 text-sm text-muted max-w-prose">
             Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.

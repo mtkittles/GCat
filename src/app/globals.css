@@ -1744,3 +1744,42 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .oj-regtab tbody th { color: var(--ink-2); }
 .oj-regtab tr.is-active th, .oj-regtab tr.is-active td { color: var(--accent); }
 .ls .inline-code { white-space: nowrap; }
+
+/* tapnij słowo w bloku */
+.tok-line { display: flex; flex-wrap: wrap; gap: .4rem; padding: .8rem; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); }
+.tok { font: 700 16px/1 var(--font-mono); padding: .6rem .7rem; min-height: 44px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); }
+.tok:not(:disabled):hover { border-color: var(--ink-2); }
+.tok.is-sel { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.tok.is-ok { border-color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); color: var(--green); }
+.tok.is-bad { border-color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); color: var(--red); }
+.tok:disabled { cursor: default; }
+.quiz-drill-done { font-weight: 600; color: var(--green); }
+
+/* podgląd stanu modalnego */
+.se { display: grid; gap: .6rem; }
+.se-code { display: grid; padding: .35rem 0; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); max-height: 21rem; overflow-y: auto; }
+.se-code button { display: grid; grid-template-columns: 1.8rem 1fr; gap: .4rem; width: 100%; text-align: left; padding: .4rem .7rem .4rem 0; background: transparent; border: none; border-left: 3px solid transparent; }
+.se-code button.is-sel { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.se-n { font: 500 11px/1.4 var(--font-mono); color: var(--muted); text-align: right; }
+.se-code code { font: 500 13.5px/1.4 var(--font-mono); color: var(--ink-2); white-space: pre-wrap; }
+.se-code .is-sel code { color: var(--ink); font-weight: 700; }
+.se-panel { display: grid; gap: .5rem; padding: .75rem; border-radius: 14px; background: var(--card); border: 1px solid var(--line); }
+.se-head { font-weight: 700; font-size: 14px; }
+.se-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.4rem, 1fr)); gap: .35rem; }
+.se-cell { display: grid; gap: .15rem; padding: .45rem .55rem; border-radius: 9px; background: var(--surface-2); border: 1px solid var(--line); }
+.se-cell span { font-size: 11px; color: var(--muted); }
+.se-cell b { font: 700 14px/1.2 var(--font-mono); color: var(--ink); }
+.se-cell.is-new { border-color: var(--green); background: color-mix(in srgb, var(--green) 11%, transparent); }
+.se-cell.is-new b { color: var(--green); }
+.se-pos, .se-once { font-size: 13.5px; color: var(--ink-2); }
+.se-pos b, .se-once b { font-family: var(--font-mono); color: var(--ink); }
+.se-once b { color: var(--amber); }
+.se-leg { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: .4rem; }
+.se-leg i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--green); background: color-mix(in srgb, var(--green) 11%, transparent); }
+
+/* rysunek modalności */
+.fig .mod-rap { fill: color-mix(in srgb, var(--amber) 16%, transparent); stroke: var(--amber); stroke-width: 1; stroke-dasharray: 5 3; }
+.fig .mod-f { fill: color-mix(in srgb, var(--cm-fs) 12%, transparent); stroke: none; }
+.fig .p-fill-cut { stroke: var(--green); stroke-width: 1; }
+
+.footer-ver { font: 500 11px/1 var(--font-mono); color: var(--muted); opacity: .7; }

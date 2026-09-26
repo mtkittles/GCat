@@ -13,7 +13,9 @@ export type Question =
   /** Uzupełnij luki. W `template` luki to {0}, {1}…; `answers[i]` to akceptowane wartości luki i. */
   | { kind: "gap"; q: string; template: string; answers: string[][]; why: string; review?: string }
   /** Zaznacz punkt na siatce (widok z góry, X w prawo, Y w górę). */
-  | { kind: "point"; q: string; target: [number, number]; why: string; review?: string };
+  | { kind: "point"; q: string; target: [number, number]; why: string; review?: string }
+  /** Tapnij właściwe słowo w bloku. `block` dzielony po spacjach, `answer` = indeks słowa. */
+  | { kind: "token"; q: string; block: string; answer: number; why: string; review?: string };
 
 export interface JogGoal { x: number; y: number; z: number; label: string }
 export interface PointTask { target: [number, number]; prompt: string; guides?: boolean }
@@ -26,6 +28,10 @@ export type OffsetGoal =
 export type Practice =
   | { kind: "jog"; intro: string; goals: JogGoal[] }
   | { kind: "offset"; intro: string; parts: OffsetPart[]; goals: OffsetGoal[]; set?: boolean }
+  /** Seria krótkich zadań w formacie testu, bez punktacji końcowej. */
+  | { kind: "drill"; intro: string; questions: Question[] }
+  /** Program z podglądem stanu modalnego w wybranej linii. */
+  | { kind: "state"; intro: string; program: string }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
 export interface WorkedStep { x: string; code?: string }

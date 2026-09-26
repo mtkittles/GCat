@@ -5,6 +5,7 @@ import {
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
 import { f0Figs } from "./lesson/figs-f0";
+import { f1Figs } from "./lesson/figs-f1";
 
 /*
   Wszystkie rysunki techniczne serwisu — jeden styl (fig.tsx).
@@ -13,6 +14,7 @@ import { f0Figs } from "./lesson/figs-f0";
 */
 export const diagrams: Record<string, () => ReactNode> = {
   ...f0Figs,
+  ...f1Figs,
   // tematy (artykuły, słownik, kalkulator)
   "rapid-path": () => <RapidPath />,
   "rapid-clamp": () => <RapidClamp />,

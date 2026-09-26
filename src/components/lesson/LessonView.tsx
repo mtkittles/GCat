@@ -14,6 +14,7 @@ import { flat, lessonDoc, lessonHref, orderOf, tracks, type Track } from "@/lib/
 import Buildup, { type ShownLine } from "./Buildup";
 import JogDemo from "./JogDemo";
 import OffsetJog from "./OffsetJog";
+import StateExplorer from "./StateExplorer";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 
@@ -90,7 +91,11 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         {doc.practice.map((p, i) => (
           <div key={i} className="ls-practice">
             <p className="ls-p">{rich(p.intro)}</p>
-            {p.kind === "jog" ? <JogDemo goals={p.goals} /> : p.kind === "offset" ? <OffsetJog parts={p.parts} goals={p.goals} set={p.set} /> : <PointDrill tasks={p.tasks} />}
+            {p.kind === "jog" ? <JogDemo goals={p.goals} />
+              : p.kind === "offset" ? <OffsetJog parts={p.parts} goals={p.goals} set={p.set} />
+              : p.kind === "drill" ? <Quiz questions={p.questions} drill />
+              : p.kind === "state" ? <StateExplorer program={p.program} />
+              : <PointDrill tasks={p.tasks} />}
           </div>
         ))}
       </Sec>

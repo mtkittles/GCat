@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import type { Question } from "@/lib/lesson";
 import { rich } from "@/components/Rich";
 import { PointGrid } from "./PointGrid";
@@ -22,6 +22,7 @@ function grade(q: Question, a: Ans) {
   if (a === null) return false;
   if (q.kind === "choice") return a === q.answer;
   if (q.kind === "gap") return q.answers.every((acc, i) => acc.some((v) => same((a as string[])[i] ?? "", v)));
+  if (q.kind === "token") return a === q.answer;
   const p = a as [number, number]; return p[0] === q.target[0] && p[1] === q.target[1];
 }
 
@@ -34,7 +35,7 @@ function GapInput({ template, values, onChange, disabled }: { template: string; 
         if (!m) return <span key={i}>{p}</span>;
         const k = Number(m[1]);
         return (
-          <input key={i} inputMode="decimal" autoComplete="off" aria-label={`Luka ${k + 1}`} disabled={disabled}
+          <input key={i} inputMode="text" autoCapitalize="characters" spellCheck={false} autoComplete="off" aria-label={`Luka ${k + 1}`} disabled={disabled}
             value={values[k] ?? ""} onChange={(e) => { const v = [...values]; v[k] = e.target.value; onChange(v); }} />
         );
       })}
@@ -42,7 +43,8 @@ function GapInput({ template, values, onChange, disabled }: { template: string; 
   );
 }
 
-export default function Quiz({ questions, figs = {} }: { questions: Question[]; figs?: Record<string, ReactNode> }) {
+export default function Quiz({ questions, figs = {}, drill = false }: { questions: Question[]; figs?: Record<string, ReactNode>; drill?: boolean }) {
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [order, setOrder] = useState(() => questions.map((_, i) => i));
   const [pos, setPos] = useState(0);
   const [ans, setAns] = useState<Ans>(null);
@@ -59,8 +61,8 @@ export default function Quiz({ questions, figs = {} }: { questions: Question[]; 
     const total = order.length;
     return (
       <div className="quiz quiz-end">
-        <p className="quiz-score"><b>{score}</b> / {total}</p>
-        <p>{score === total ? "Komplet. Możesz przejść dalej." : "Wróć do teorii przy pytaniach, które poszły źle, i spróbuj jeszcze raz."}</p>
+        {drill ? <p className="quiz-drill-done">Zadania zakończone: {score} z {total} za pierwszym razem.</p> : <p className="quiz-score"><b>{score}</b> / {total}</p>}
+        {!drill && <p>{score === total ? "Komplet. Możesz przejść dalej." : "Wróć do teorii przy pytaniach, które poszły źle, i spróbuj jeszcze raz."}</p>}
         <div className="quiz-actions">
           {wrong.length > 0 && <button type="button" className="btn" onClick={() => restart(wrong)}>Powtórz błędne ({wrong.length})</button>}
           <button type="button" className="btn ghost" onClick={() => restart(questions.map((_, i) => i))}>Cały test od nowa</button>
@@ -81,7 +83,7 @@ export default function Quiz({ questions, figs = {} }: { questions: Question[]; 
   return (
     <div className="quiz">
       <div className="quiz-head">
-        <span className="quiz-n">Pytanie {pos + 1} z {order.length}</span>
+        <span className="quiz-n">{drill ? "Zadanie" : "Pytanie"} {pos + 1} z {order.length}</span>
         {q.review && <span className="chip chip-info">powtórka z {q.review}</span>}
       </div>
       <div className="quiz-bar" aria-hidden><i style={{ width: `${(pos / order.length) * 100}%` }} /></div>
@@ -104,8 +106,16 @@ export default function Quiz({ questions, figs = {} }: { questions: Question[]; 
       {q.kind === "gap" && (
         <GapInput template={q.template} values={(ans as string[]) ?? []} onChange={(v) => setAns(v)} disabled={checked} />
       )}
+      {q.kind === "token" && (
+        <div className="tok-line" role="radiogroup">
+          {q.block.split(/\s+/).map((w, i) => {
+            const state = checked ? (i === q.answer ? "is-ok" : i === ans ? "is-bad" : "") : ans === i ? "is-sel" : "";
+            return <button key={i} type="button" role="radio" aria-checked={ans === i} disabled={checked} className={`tok ${state}`} onClick={() => setAns(i)}>{w}</button>;
+          })}
+        </div>
+      )}
       {q.kind === "point" && (
-        <PointGrid id={`quiz${qi}`} title="Tapnij, aby zaznaczyć" picked={ans as [number, number] | null}
+        <PointGrid id={`q${uid}${qi}`} title="Tapnij, aby zaznaczyć" picked={ans as [number, number] | null}
           onPick={(p) => setAns(p)} target={q.target} reveal={checked} locked={checked} />
       )}
 
@@ -119,7 +129,7 @@ export default function Quiz({ questions, figs = {} }: { questions: Question[]; 
       <div className="quiz-actions">
         {!checked
           ? <button type="button" className="btn" disabled={!ready} onClick={check}>Sprawdź</button>
-          : <button type="button" className="btn" onClick={next}>{pos + 1 < order.length ? "Następne pytanie" : "Zobacz wynik"}</button>}
+          : <button type="button" className="btn" onClick={next}>{pos + 1 < order.length ? (drill ? "Następne zadanie" : "Następne pytanie") : (drill ? "Zakończ" : "Zobacz wynik")}</button>}
       </div>
     </div>
   );
