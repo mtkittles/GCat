@@ -13,6 +13,7 @@ import { sources } from "@/content/nauka/sources";
 import { flat, lessonDoc, lessonHref, orderOf, tracks, type Track } from "@/lib/course";
 import Buildup, { type ShownLine } from "./Buildup";
 import JogDemo from "./JogDemo";
+import OffsetJog from "./OffsetJog";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 
@@ -89,7 +90,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         {doc.practice.map((p, i) => (
           <div key={i} className="ls-practice">
             <p className="ls-p">{rich(p.intro)}</p>
-            {p.kind === "jog" ? <JogDemo goals={p.goals} /> : <PointDrill tasks={p.tasks} />}
+            {p.kind === "jog" ? <JogDemo goals={p.goals} /> : p.kind === "offset" ? <OffsetJog parts={p.parts} goals={p.goals} set={p.set} /> : <PointDrill tasks={p.tasks} />}
           </div>
         ))}
       </Sec>

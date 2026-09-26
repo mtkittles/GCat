@@ -18,8 +18,14 @@ export type Question =
 export interface JogGoal { x: number; y: number; z: number; label: string }
 export interface PointTask { target: [number, number]; prompt: string; guides?: boolean }
 
+export interface OffsetPart { reg: "G54" | "G55"; x: number; y: number; label: string }
+export type OffsetGoal =
+  | { kind: "move"; frame: "M" | "G54" | "G55"; x: number; y: number; label: string }
+  | { kind: "set"; reg: "G54" | "G55"; x: number; y: number; label: string };
+
 export type Practice =
   | { kind: "jog"; intro: string; goals: JogGoal[] }
+  | { kind: "offset"; intro: string; parts: OffsetPart[]; goals: OffsetGoal[]; set?: boolean }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
 export interface WorkedStep { x: string; code?: string }

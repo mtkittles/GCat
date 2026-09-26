@@ -38,6 +38,8 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "G02 X-5 Y10 R15", since: "F3.3", note: "Lewe dolne naroże — kontur zamknięty." },
       { code: "G00 Z5", since: "F3.1", note: "Odjazd w górę ruchem szybkim." },
       { code: "M05", since: "F2.2", note: "Stop wrzeciona." },
+      { code: "G91 G28 Z0", since: "F0.2", note: "Odjazd osi Z do punktu referencyjnego R (Fanuc). G91 to wymiary przyrostowe — poznasz je w F1.3." },
+      { code: "G90", since: "F1.3", note: "Powrót do wymiarów absolutnych po G91." },
       { code: "M30", since: "F1.5", note: "Koniec programu i powrót na początek." },
     ],
   },

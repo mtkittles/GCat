@@ -21,7 +21,7 @@ export default function Buildup({ title, lines, lessonId, mode }: { title: strin
     <div className="bu">
       <div className="bu-head">
         <strong>{title}</strong>
-        <span className="chip chip-accent">+{fresh} {fresh === 1 ? "linia" : fresh < 5 ? "linie" : "linii"} w {lessonId}</span>
+        {fresh > 0 && <span className="chip chip-accent">+{fresh} {fresh === 1 ? "linia" : fresh < 5 ? "linie" : "linii"} w {lessonId}</span>}
       </div>
       <ol className="bu-code">
         {shown.map((l, i) => (

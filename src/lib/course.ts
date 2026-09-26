@@ -1,5 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 import { f0_1 } from "@/content/nauka/f0-1";
+import { f0_2 } from "@/content/nauka/f0-2";
+import { f0_3 } from "@/content/nauka/f0-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -27,8 +29,8 @@ export const tracks: Record<Track, TrackDef> = {
     modules: [
       { id: "F0", title: "Maszyna", lessons: [
         L("F0.1", "Układ współrzędnych frezarki", f0_1),
-        L("F0.2", "Punkty zerowe M, R i W"),
-        L("F0.3", "Przesunięcia G54–G59"),
+        L("F0.2", "Punkty zerowe M, R i W", f0_2),
+        L("F0.3", "Przesunięcia G54–G59", f0_3),
       ] },
       { id: "F1", title: "Struktura programu", lessons: [
         L("F1.1", "Blok, słowo i adres"),
