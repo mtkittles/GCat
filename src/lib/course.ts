@@ -28,6 +28,9 @@ import { f6_2 } from "@/content/nauka/f6-2";
 import { f6_3 } from "@/content/nauka/f6-3";
 import { f7_1 } from "@/content/nauka/f7-1";
 import { f7_2 } from "@/content/nauka/f7-2";
+import { t0_1 } from "@/content/nauka/t0-1";
+import { t0_2 } from "@/content/nauka/t0-2";
+import { t0_3 } from "@/content/nauka/t0-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -107,9 +110,9 @@ export const tracks: Record<Track, TrackDef> = {
     banner: "/img/banner-turn.jpg",
     modules: [
       { id: "T0", title: "Maszyna", lessons: [
-        L("T0.1", "Układ współrzędnych tokarki"),
-        L("T0.2", "Programowanie średnicowe"),
-        L("T0.3", "Zero przedmiotu i położenie głowicy"),
+        L("T0.1", "Układ współrzędnych tokarki", t0_1),
+        L("T0.2", "Programowanie średnicowe", t0_2),
+        L("T0.3", "Zero przedmiotu i położenie głowicy", t0_3),
       ] },
       { id: "T1", title: "Struktura programu", lessons: [
         L("T1.1", "Blok, adres i modalność"),

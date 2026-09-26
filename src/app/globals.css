@@ -1802,3 +1802,19 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig .cool-in { stroke: #60A5FA; stroke-width: 2; stroke-dasharray: 5 3; }
 .ptask { display: grid; gap: .7rem; }
 .ptask-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* tokarka: ręczny przesuw */
+.lj-chuck { fill: #2A2B30; stroke: var(--ink-2); stroke-width: 1; }
+.lj-jaw { fill: #3A3B41; stroke: var(--ink-2); stroke-width: 1; }
+.lj-bar { fill: #3A3B41; stroke: var(--ink-2); stroke-width: 1; }
+.lj-bar-low { fill: #2E2F35; stroke: none; }
+.lj-axis { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 10 3 2 3; }
+.lj-ax { stroke: var(--accent); stroke-width: 2; }
+.lj-axl { font: 700 11px/1 var(--font-sans); fill: var(--accent); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.lj-lab { font: 500 10px/1 var(--font-sans); fill: var(--muted); }
+.lj-w { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+.lj-tool polygon { fill: #C9A227; stroke: #F5E6A8; stroke-width: 1; }
+.lj-tool .lj-holder { fill: #6B6E76; stroke: #D4D4D8; stroke-width: 1; }
+.lj-tool.is-bad polygon { fill: var(--red); stroke: var(--red); }
+.lj-rad { stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.lj-read { grid-template-columns: repeat(2, 1fr); }

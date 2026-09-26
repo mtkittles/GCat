@@ -36,6 +36,10 @@ export type TaskCheck =
   | { t: "require"; codes: string[] }
   | { t: "forbid"; codes: string[] };
 
+export type LatheGoal =
+  | { kind: "move"; x: number; z: number; label: string }
+  | { kind: "setz"; label: string };
+
 export type Practice =
   | { kind: "jog"; intro: string; goals: JogGoal[] }
   | { kind: "offset"; intro: string; parts: OffsetPart[]; goals: OffsetGoal[]; set?: boolean }
@@ -44,6 +48,8 @@ export type Practice =
   /** Program z podglądem stanu modalnego w wybranej linii. */
   | { kind: "state"; intro: string; program: string }
   /** Dopisz do programu — edytor z symulatorem i sprawdzaniem. */
+  /** Tokarka: ręczny przesuw X/Z z odczytem średnicy, opcjonalnie pomiar Z0. */
+  | { kind: "lathejog"; intro: string; goals: LatheGoal[]; setZ?: boolean }
   | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 

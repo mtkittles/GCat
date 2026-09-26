@@ -158,5 +158,16 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "M99", since: "F7.1", note: "Koniec podprogramu, powrót do bloku po M98." },
     ],
   },
-  toczenie: { title: "Wałek stopniowany", lines: [] },
+  toczenie: {
+    title: "Wałek stopniowany",
+    lines: [
+      { code: "O2001 (WALEK STOPNIOWANY - GCAT)", since: "T1.1", note: "Numer programu i nazwa detalu." },
+      { code: "(ZERO W: OS OBROTU, CZOLO DETALU)", since: "T0.1", note: "X0 na osi obrotu, Z0 na czole gotowego detalu. Wszystko w stronę uchwytu ma Z ujemne." },
+      { code: "(SUROWKA: PRET FI40, WYSIEG 70)", since: "T0.1", note: "Pręt Ø40 wystaje 70 mm z uchwytu." },
+      { code: "(KONTUR: X18 Z0 / X20 Z-1 / X20 Z-20 / X28 Z-20)", since: "T0.2", note: "Punkty konturu w średnicach: faza, czop Ø20, stopień." },
+      { code: "(X30 Z-21 / X30 Z-40 / X36 Z-40 / X36 Z-55)", since: "T0.2", note: "Dalsza część konturu: faza, Ø30, stopień, Ø36." },
+      { code: "G54", since: "T0.3", note: "Przesunięcie zera w Z na czoło detalu, zmierzone dotknięciem noża." },
+      { code: "M30", since: "T1.3", note: "Koniec programu." },
+    ],
+  },
 };
