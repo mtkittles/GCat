@@ -13,6 +13,9 @@ import { f2_3 } from "@/content/nauka/f2-3";
 import { f2_4 } from "@/content/nauka/f2-4";
 import { f3_1 } from "@/content/nauka/f3-1";
 import { f3_2 } from "@/content/nauka/f3-2";
+import { f3_3 } from "@/content/nauka/f3-3";
+import { f3_4 } from "@/content/nauka/f3-4";
+import { f3_5 } from "@/content/nauka/f3-5";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -59,9 +62,9 @@ export const tracks: Record<Track, TrackDef> = {
       { id: "F3", title: "Ruchy", lessons: [
         L("F3.1", "G00 — ruch szybki", f3_1),
         L("F3.2", "G01 — interpolacja liniowa", f3_2),
-        L("F3.3", "G02 i G03 z promieniem R"),
-        L("F3.4", "Łuki przez I i J"),
-        L("F3.5", "G04 — postój"),
+        L("F3.3", "G02 i G03 z promieniem R", f3_3),
+        L("F3.4", "Łuki przez I i J", f3_4),
+        L("F3.5", "G04 — postój", f3_5),
       ] },
       { id: "F4", title: "Korekcje", lessons: [
         L("F4.1", "G43 — korekcja długości"),
