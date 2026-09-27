@@ -40,6 +40,8 @@ import { t2_3 } from "@/content/nauka/t2-3";
 import { t3_1 } from "@/content/nauka/t3-1";
 import { t3_2 } from "@/content/nauka/t3-2";
 import { t3_3 } from "@/content/nauka/t3-3";
+import { t4_1 } from "@/content/nauka/t4-1";
+import { t4_2 } from "@/content/nauka/t4-2";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -139,8 +141,8 @@ export const tracks: Record<Track, TrackDef> = {
         L("T3.3", "G02 i G03 a położenie głowicy", t3_3),
       ] },
       { id: "T4", title: "Korekcja promienia płytki", lessons: [
-        L("T4.1", "G41 i G42 na tokarce"),
-        L("T4.2", "Kierunek ostrza"),
+        L("T4.1", "G41 i G42 na tokarce", t4_1),
+        L("T4.2", "Kierunek ostrza", t4_2),
       ] },
       { id: "T5", title: "Cykle zgrubne", lessons: [
         L("T5.1", "G71 i G70"),
