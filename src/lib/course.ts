@@ -42,6 +42,9 @@ import { t3_2 } from "@/content/nauka/t3-2";
 import { t3_3 } from "@/content/nauka/t3-3";
 import { t4_1 } from "@/content/nauka/t4-1";
 import { t4_2 } from "@/content/nauka/t4-2";
+import { t5_1 } from "@/content/nauka/t5-1";
+import { t5_2 } from "@/content/nauka/t5-2";
+import { t5_3 } from "@/content/nauka/t5-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -145,9 +148,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("T4.2", "Kierunek ostrza", t4_2),
       ] },
       { id: "T5", title: "Cykle zgrubne", lessons: [
-        L("T5.1", "G71 i G70"),
-        L("T5.2", "G72 — planowanie"),
-        L("T5.3", "CYCLE95 w Sinumeriku"),
+        L("T5.1", "G71 i G70", t5_1),
+        L("T5.2", "G72 — planowanie", t5_2),
+        L("T5.3", "CYCLE95 w Sinumeriku", t5_3),
       ] },
       { id: "T6", title: "Rowki i wiercenie osiowe", lessons: [
         L("T6.1", "G75 — rowki"),

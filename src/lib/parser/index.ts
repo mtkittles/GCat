@@ -221,6 +221,12 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
           if (dia) { s.maxRpm = get("S") ?? s.maxRpm ?? null; desc.push(`Limit obrotów wrzeciona ${fmt(get("S") ?? 0)} obr/min (G50)`); }
           else desc.push("G50 — nieobsługiwane w symulatorze");
           break;
+        case 70: case 71: case 72:
+          if (dia) {
+            const hasP = words.some((w) => w.letter === "P");
+            desc.push(g === 70 ? "Cykl wykańczający G70 — przejście po konturze" : hasP ? `Cykl zgrubny G${g} — kontur i naddatki` : `Cykl zgrubny G${g} — głębokość skrawania i wycofanie`);
+          } else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
+          break;
         default: desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
       }
     }
@@ -302,7 +308,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
-    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92);
+    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || (dia && (g === 70 || g === 71 || g === 72)));
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
@@ -362,7 +368,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   const src = source.split(/\r?\n/);
   const clean = (l: string) => l.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
   const isCall = (c: string) => /M0*98(?!\d)/.test(c);
-  if (!src.some((l) => isCall(clean(l)))) {
+  const latheCycle = (c: string) => c.match(/G0*(7[012])(?!\d)/);
+  const hasLatheCycle = dia && src.some((l) => latheCycle(clean(l)));
+  if (!src.some((l) => isCall(clean(l))) && !hasLatheCycle) {
     src.forEach((raw, i) => step(raw, i));
   } else {
     // Podprogramy (Fanuc): bloki O…–M99 zapisane pod końcem programu głównego (M30/M02).
@@ -376,11 +384,125 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     });
     const callErrors = new Map<number, string>();
     let guard = 0;
+
+    // ---- Cykle tokarskie Fanuc: G71 (wzdłużny), G72 (poprzeczny), G70 (wykańczający) ----
+    const skip = new Set<number>();
+    const nIndex = new Map<number, number>();
+    src.forEach((l, i) => { const m = clean(l).match(/^\s*N0*(\d+)/); if (m && !nIndex.has(Number(m[1]))) nIndex.set(Number(m[1]), i); });
+    const depth: Record<number, { d: number; e: number }> = {};
+    const num = (c: string, L: string) => { const m = c.match(new RegExp(`${L}\\s*(-?\\d*\\.?\\d+)`)); return m ? Number(m[1]) : undefined; };
+    const profileRange = (c: string, i: number): [number, number] | null => {
+      const pn = num(c, "P"), qn = num(c, "Q");
+      const a = pn !== undefined ? nIndex.get(pn) : undefined, b = qn !== undefined ? nIndex.get(qn) : undefined;
+      if (a === undefined || b === undefined || b < a) { callErrors.set(i, `Nie znaleziono bloków konturu N${pn ?? "?"}–N${qn ?? "?"}.`); return null; }
+      return [a, b];
+    };
+    const latheCycleAt = (code: number, i: number, c: string) => {
+      const start = { ...state.pos };
+      if (code !== 70 && num(c, "P") === undefined) {
+        // pierwszy blok: głębokość skrawania (G71 U, G72 W) i wycofanie R
+        const d = num(c, code === 71 ? "U" : "W"), e = num(c, "R");
+        if (d !== undefined) depth[code] = { d: Math.abs(d), e: Math.abs(e ?? 0.5) };
+        return;
+      }
+      const range = profileRange(c, i);
+      if (!range) return;
+      const [a, b] = range;
+      if (code === 70) {
+        for (let k = a; k <= b; k++) step(src[k], k);
+        const back: Segment = { kind: "rapid", from: { ...state.pos }, to: { ...start }, line: i };
+        allSegments.push(back);
+        lineMap.get(i)?.segments.push(back);
+        state = { ...state, pos: { ...start }, prog: { ...start } };
+        return;
+      }
+      for (let k = a; k <= b; k++) skip.add(k);
+      // kontur: przebieg na próbę, bez zmiany stanu
+      const snap = state, sec = seconds, dw = dwellMs, len = allSegments.length;
+      for (let k = a; k <= b; k++) step(src[k], k);
+      const prof = allSegments.slice(len);
+      state = snap; seconds = sec; dwellMs = dw; allSegments.length = len;
+      for (let k = a; k <= b; k++) lineMap.delete(k);
+      const dd = depth[code] ?? { d: 2, e: 0.5 };
+      const du = (num(c, "U") ?? 0) / 2, dw2 = num(c, "W") ?? 0;
+      // kontur jako łamana (z, r) przesunięta o naddatki
+      const pts: { z: number; r: number }[] = [];
+      const push = (z: number, r: number) => pts.push({ z: z + dw2, r: r + du });
+      // Pierwszy blok konturu (ns) to dojazd A → A' w jednej osi — nie należy do obszaru skrawania.
+      if (prof.length) push(prof[0].to.z, prof[0].to.x);
+      for (const sg of prof.slice(1)) {
+        if (sg.kind === "arc") {
+          const cz = sg.center.z, cr = sg.center.x, rad = Math.hypot(sg.from.z - cz, sg.from.x - cr);
+          const a0 = Math.atan2(sg.from.x - cr, sg.from.z - cz), a1 = Math.atan2(sg.to.x - cr, sg.to.z - cz);
+          let sw = a1 - a0;
+          if (sg.cw) { while (sw >= 0) sw -= 2 * Math.PI; } else { while (sw <= 0) sw += 2 * Math.PI; }
+          for (let t = 1; t <= 12; t++) { const an = a0 + (sw * t) / 12; push(cz + rad * Math.cos(an), cr + rad * Math.sin(an)); }
+        } else if (sg.kind !== "dwell") push(sg.to.z, sg.to.x);
+      }
+      if (pts.length < 2) return;
+      const out: Segment[] = [];
+      const P = (z: number, r: number): Vec3 => ({ x: r, y: 0, z });
+      const lin = (from: Vec3, to: Vec3): Segment => ({ kind: "linear", from, to, line: i });
+      const rap = (from: Vec3, to: Vec3): Segment => ({ kind: "rapid", from, to, line: i });
+      let cur = { ...start };
+      const cross = (axis: "z" | "r", v: number) => {
+        for (let k = 0; k < pts.length - 1; k++) {
+          const p = pts[k], q = pts[k + 1];
+          const lo = Math.min(p[axis], q[axis]), hi = Math.max(p[axis], q[axis]);
+          if (v >= lo - 1e-9 && v <= hi + 1e-9 && Math.abs(q[axis] - p[axis]) > 1e-9) {
+            const t = (v - p[axis]) / (q[axis] - p[axis]);
+            return axis === "r" ? p.z + t * (q.z - p.z) : p.r + t * (q.r - p.r);
+          }
+        }
+        return null;
+      };
+      let passes = 0;
+      if (code === 71) {
+        const rmin = Math.min(...pts.map((p) => p.r));
+        for (let k = 1; k < 200; k++) {
+          const rl = start.x - k * dd.d;
+          if (rl <= rmin + 1e-6) break;
+          const zEnd = cross("r", rl);
+          if (zEnd === null) continue;
+          out.push(rap(cur, P(start.z, rl)));
+          out.push(lin(P(start.z, rl), P(zEnd, rl)));
+          out.push(lin(P(zEnd, rl), P(zEnd + dd.e, rl + dd.e)));
+          out.push(rap(P(zEnd + dd.e, rl + dd.e), P(start.z, rl + dd.e)));
+          cur = P(start.z, rl + dd.e);
+          passes++;
+        }
+      } else {
+        const zmin = Math.min(...pts.map((p) => p.z));
+        for (let k = 1; k < 200; k++) {
+          const zl = start.z - k * dd.d;
+          if (zl <= zmin + 1e-6) break;
+          const rEnd = cross("z", zl);
+          if (rEnd === null) continue;
+          out.push(rap(cur, P(zl, start.x)));
+          out.push(lin(P(zl, start.x), P(zl, rEnd)));
+          out.push(lin(P(zl, rEnd), P(zl + dd.e, rEnd + dd.e)));
+          out.push(rap(P(zl + dd.e, rEnd + dd.e), P(zl + dd.e, start.x)));
+          cur = P(zl + dd.e, start.x);
+          passes++;
+        }
+      }
+      // przejście po konturze z naddatkiem i powrót do punktu startowego
+      out.push(rap(cur, P(pts[0].z, pts[0].r)));
+      for (let k = 1; k < pts.length; k++) out.push(lin(P(pts[k - 1].z, pts[k - 1].r), P(pts[k].z, pts[k].r)));
+      out.push(rap(P(pts[pts.length - 1].z, pts[pts.length - 1].r), { ...start }));
+      allSegments.push(...out);
+      const le = lineMap.get(i);
+      if (le) { le.segments.push(...out); le.description += ` · ${passes} przejść zgrubnych i przejście po konturze z naddatkiem`; }
+      state = { ...state, pos: { ...start }, prog: { ...start } };
+    };
     const run = (from: number, depth: number): boolean => {
       for (let i = from; i < src.length; i++) {
         if (++guard > 20000) return true;
+        if (skip.has(i)) continue;
         step(src[i], i);
         const c = clean(src[i]);
+        const lc = hasLatheCycle ? latheCycle(c) : null;
+        if (lc) latheCycleAt(Number(lc[1]), i, c);
         if (retRe.test(c)) return true;
         if (depth === 0 && endRe.test(c)) return true;
         if (isCall(c)) {

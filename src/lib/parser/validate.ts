@@ -126,7 +126,8 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       // włączenie kompensacji
       if (prevComp === 40 && (comp === 41 || comp === 42)) {
         activatedAt = l.index;
-        if (l.state.motion === 0) {
+        // Na tokarce (G18) włączenie korekcji ostrza ruchem G00 jest standardem.
+        if (l.state.motion === 0 && l.state.plane !== 18) {
           out.push({ line: l.index, level: "warn", msg: "Kompensacja włączona w bloku szybkiego przejazdu. Blok dojazdowy powinien być ruchem G01 — na części sterowników G00 z G41/G42 kończy się alarmem." });
         }
         const move = l.segments.find((sg) => sg.kind !== "rapid") ?? l.segments[0];
