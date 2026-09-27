@@ -31,6 +31,9 @@ import { f7_2 } from "@/content/nauka/f7-2";
 import { t0_1 } from "@/content/nauka/t0-1";
 import { t0_2 } from "@/content/nauka/t0-2";
 import { t0_3 } from "@/content/nauka/t0-3";
+import { t1_1 } from "@/content/nauka/t1-1";
+import { t1_2 } from "@/content/nauka/t1-2";
+import { t1_3 } from "@/content/nauka/t1-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -115,9 +118,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("T0.3", "Zero przedmiotu i położenie głowicy", t0_3),
       ] },
       { id: "T1", title: "Struktura programu", lessons: [
-        L("T1.1", "Blok, adres i modalność"),
-        L("T1.2", "G90, G91 oraz U i W"),
-        L("T1.3", "Blok startowy tokarki"),
+        L("T1.1", "Blok, adres i modalność", t1_1),
+        L("T1.2", "G90, G91 oraz U i W", t1_2),
+        L("T1.3", "Blok startowy tokarki", t1_3),
       ] },
       { id: "T2", title: "Wrzeciono i narzędzie", lessons: [
         L("T2.1", "Narzędzie: T0101 i T/D"),

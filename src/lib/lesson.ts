@@ -50,7 +50,7 @@ export type Practice =
   /** Dopisz do programu — edytor z symulatorem i sprawdzaniem. */
   /** Tokarka: ręczny przesuw X/Z z odczytem średnicy, opcjonalnie pomiar Z0. */
   | { kind: "lathejog"; intro: string; goals: LatheGoal[]; setZ?: boolean }
-  | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string }
+  | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
 export interface WorkedStep { x: string; code?: string }

@@ -207,8 +207,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
           break;
         }
         case 69: s.rot = null; desc.push("Kasowanie obrotu układu (G69)"); break;
-        case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
-        case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
+        // Tokarka Fanuc (system kodów A): G98 — posuw mm/min, G99 — posuw mm/obr.
+        case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; if (dia) { s.feedMode = 94; desc.push("Posuw w mm/min (G98, tokarka)"); } else desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
+        case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; if (dia) { s.feedMode = 95; desc.push("Posuw w mm/obr (G99, tokarka)"); } else desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
         case 73: case 81: case 82: case 83: case 84: case 85: case 86: case 89: cycleCode = g; break;
         case 90: s.absolute = true; desc.push("Wymiarowanie absolutne (G90)"); break;
         case 91: s.absolute = false; desc.push("Wymiarowanie przyrostowe (G91)"); break;
@@ -304,13 +305,20 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     // taki blok też musi wygenerować ruch.
     const arcWords = words.some((w) => "IJK".includes(w.letter));
     const isArcMode = s.motion === 2 || s.motion === 3;
-    const hasAxis = !noMotion && (["X", "Y", "Z"].some((l) => get(l) !== undefined) || (isArcMode && arcWords));
+    // Tokarka: U i W to przyrosty X i Z (U w średnicy — przeliczone wyżej na promień).
+    const uw = dia && (get("U") !== undefined || get("W") !== undefined);
+    const hasAxis = !noMotion && (["X", "Y", "Z"].some((l) => get(l) !== undefined) || uw || (isArcMode && arcWords));
     if (hasAxis) {
       const progTarget: Vec3 = { ...state.prog };
       (["x", "y", "z"] as const).forEach((ax) => {
         const v = get(ax.toUpperCase());
         if (v !== undefined) progTarget[ax] = s.absolute ? v : state.prog[ax] + v;
       });
+      if (dia) {
+        const u = get("U"), w = get("W");
+        if (u !== undefined) progTarget.x = state.prog.x + u;
+        if (w !== undefined) progTarget.z = state.prog.z + w;
+      }
       const target: Vec3 = { ...progTarget };
       applyFrames(target, s);
       const from = { ...state.pos };

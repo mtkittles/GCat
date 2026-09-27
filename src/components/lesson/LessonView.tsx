@@ -101,7 +101,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
               : p.kind === "drill" ? <Quiz questions={p.questions} drill />
               : p.kind === "state" ? <StateExplorer program={p.program} />
               : p.kind === "lathejog" ? <LatheJog goals={p.goals} setZ={p.setZ} />
-              : p.kind === "task" ? <ProgramTask starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} />
+              : p.kind === "task" ? <ProgramTask starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} mode={p.mode} />
               : <PointDrill tasks={p.tasks} />}
           </div>
         ))}

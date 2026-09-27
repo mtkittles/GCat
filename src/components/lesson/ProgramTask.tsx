@@ -14,13 +14,15 @@ import type { TaskCheck } from "@/lib/lesson";
 const near = (a: number, b: number) => Math.abs(a - b) < 0.011;
 const lastRapids = (segs: Segment[]) => segs.filter((s) => s.kind === "rapid");
 
-function run(src: string, checks: TaskCheck[]) {
-  const prog = parseProgram(src);
+function run(src: string, checks: TaskCheck[], mode: "mill" | "lathe") {
+  const lathe = mode === "lathe";
+  const prog = parseProgram(src, { diameterX: lathe });
   const out: { ok: boolean; label: string; detail?: string }[] = [];
   const errs = [...prog.lines.flatMap((l) => l.errors), ...validate(prog).filter((i) => i.level === "error").map((i) => i.msg)];
   out.push({ ok: errs.length === 0, label: "Program bez błędów składni", detail: errs[0] });
   const moves = prog.segments.filter((s) => s.kind !== "dwell");
-  const end = moves.length ? moves[moves.length - 1].to : null;
+  const last = moves.length ? moves[moves.length - 1].to : null;
+  const end = last && lathe ? { ...last, x: last.x * 2 } : last;
   for (const c of checks) {
     if (c.t === "end") {
       const ok = !!end && (c.x === undefined || near(end.x, c.x)) && (c.y === undefined || near(end.y, c.y)) && (c.z === undefined || near(end.z, c.z));
@@ -34,7 +36,7 @@ function run(src: string, checks: TaskCheck[]) {
       }
       out.push({ ok, label: c.label });
     } else if (c.t === "cut") {
-      const res = checkExercise(src, { mode: "mill", reference: c.reference, tolerance: c.tolerance ?? 0.05 });
+      const res = checkExercise(src, { mode, reference: c.reference, tolerance: c.tolerance ?? 0.05 });
       res.checks.slice(1).forEach((k) => out.push(k));
     } else if (c.t === "require" || c.t === "forbid") {
       const up = src.toUpperCase().replace(/\([^)]*\)/g, "");
@@ -47,17 +49,17 @@ function run(src: string, checks: TaskCheck[]) {
   return { passed: out.every((o) => o.ok), checks: out };
 }
 
-export default function ProgramTask({ starter, checks, hints = [], solution }: { starter: string; checks: TaskCheck[]; hints?: string[]; solution: string }) {
+export default function ProgramTask({ starter, checks, hints = [], solution, mode = "mill" }: { starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }) {
   const [src, setSrc] = useState(starter);
   const [res, setRes] = useState<ReturnType<typeof run> | null>(null);
   const [hint, setHint] = useState(0);
   const [showSol, setShowSol] = useState(false);
   return (
     <div className="ptask">
-      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode="mill"
-        stock={{ x: 80, y: 50, z: 20, ox: 0, oy: 0, oz: 20 }} />
+      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={mode}
+        stock={mode === "mill" ? { x: 80, y: 50, z: 20, ox: 0, oy: 0, oz: 20 } : undefined} />
       <div className="ptask-actions">
-        <button type="button" className="btn" onClick={() => setRes(run(src, checks))}>Sprawdź program</button>
+        <button type="button" className="btn" onClick={() => setRes(run(src, checks, mode))}>Sprawdź program</button>
         <button type="button" className="btn ghost" onClick={() => { setSrc(starter); setRes(null); }}>Od nowa</button>
         {hint < hints.length && <button type="button" className="btn ghost" onClick={() => setHint(hint + 1)}>Podpowiedź {hint + 1}/{hints.length}</button>}
         <button type="button" className="btn ghost" onClick={() => setShowSol(!showSol)}>{showSol ? "Ukryj rozwiązanie" : "Rozwiązanie"}</button>
