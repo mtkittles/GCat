@@ -45,6 +45,8 @@ import { t4_2 } from "@/content/nauka/t4-2";
 import { t5_1 } from "@/content/nauka/t5-1";
 import { t5_2 } from "@/content/nauka/t5-2";
 import { t5_3 } from "@/content/nauka/t5-3";
+import { t6_1 } from "@/content/nauka/t6-1";
+import { t6_2 } from "@/content/nauka/t6-2";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -153,8 +155,8 @@ export const tracks: Record<Track, TrackDef> = {
         L("T5.3", "CYCLE95 w Sinumeriku", t5_3),
       ] },
       { id: "T6", title: "Rowki i wiercenie osiowe", lessons: [
-        L("T6.1", "G75 — rowki"),
-        L("T6.2", "G74 — wiercenie osiowe"),
+        L("T6.1", "G75 — rowki", t6_1),
+        L("T6.2", "G74 — wiercenie osiowe", t6_2),
       ] },
       { id: "T7", title: "Gwintowanie", lessons: [
         L("T7.1", "G76 — cykl gwintowania"),

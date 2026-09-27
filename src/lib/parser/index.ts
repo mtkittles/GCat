@@ -221,6 +221,12 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
           if (dia) { s.maxRpm = get("S") ?? s.maxRpm ?? null; desc.push(`Limit obrotów wrzeciona ${fmt(get("S") ?? 0)} obr/min (G50)`); }
           else desc.push("G50 — nieobsługiwane w symulatorze");
           break;
+        case 74: case 75:
+          if (dia) {
+            const hasZX = words.some((w) => ["X", "U", "Z", "W"].includes(w.letter));
+            desc.push(hasZX ? (g === 74 ? "Cykl G74 — wiercenie / rowkowanie czołowe z wycofaniem" : "Cykl G75 — rowek promieniowy z wycofaniem") : `Cykl G${g} — wycofanie po każdym wcięciu`);
+          } else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
+          break;
         case 70: case 71: case 72:
           if (dia) {
             const hasP = words.some((w) => w.letter === "P");
@@ -308,7 +314,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
-    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || (dia && (g === 70 || g === 71 || g === 72)));
+    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || (dia && g >= 70 && g <= 75 && g !== 73));
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
@@ -368,7 +374,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   const src = source.split(/\r?\n/);
   const clean = (l: string) => l.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
   const isCall = (c: string) => /M0*98(?!\d)/.test(c);
-  const latheCycle = (c: string) => c.match(/G0*(7[012])(?!\d)/);
+  const latheCycle = (c: string) => c.match(/G0*(7[01245])(?!\d)/);
   const hasLatheCycle = dia && src.some((l) => latheCycle(clean(l)));
   if (!src.some((l) => isCall(clean(l))) && !hasLatheCycle) {
     src.forEach((raw, i) => step(raw, i));
@@ -397,8 +403,54 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       if (a === undefined || b === undefined || b < a) { callErrors.set(i, `Nie znaleziono bloków konturu N${pn ?? "?"}–N${qn ?? "?"}.`); return null; }
       return [a, b];
     };
+    // G74 (wiercenie osiowe / rowki czołowe) i G75 (rowki promieniowe): wcinanie z wycofaniem o R.
+    const peckRetract: Record<number, number> = {};
+    const peckCycle = (code: number, i: number, c: string, start: Vec3) => {
+      const hasTarget = ["X", "U", "Z", "W"].some((L) => num(c, L) !== undefined);
+      if (!hasTarget) { peckRetract[code] = Math.abs(num(c, "R") ?? 0.5); return; }
+      const e = peckRetract[code] ?? 0.5;
+      const xv = num(c, "X"), uv = num(c, "U"), zv = num(c, "Z"), wv = num(c, "W");
+      const xEnd = xv !== undefined ? xv / 2 : uv !== undefined ? start.x + uv / 2 : start.x;
+      const zEnd = zv !== undefined ? zv : wv !== undefined ? start.z + wv : start.z;
+      const di = Math.abs(num(c, "P") ?? 0) / 1000, dk = Math.abs(num(c, "Q") ?? 0) / 1000;
+      const out: Segment[] = [];
+      const V = (x: number, z: number): Vec3 => ({ x, y: 0, z });
+      const lin = (a: Vec3, b: Vec3): Segment => ({ kind: "linear", from: a, to: b, line: i });
+      const rap = (a: Vec3, b: Vec3): Segment => ({ kind: "rapid", from: a, to: b, line: i });
+      // oś wcinania: G74 — Z, G75 — X; oś przesuwu między wcięciami: druga
+      const feedAx = code === 74 ? "z" : "x";
+      const peck = code === 74 ? dk : di, shift = code === 74 ? di : dk;
+      const s0 = feedAx === "z" ? start.x : start.z, s1 = feedAx === "z" ? xEnd : zEnd;
+      const f0 = feedAx === "z" ? start.z : start.x, f1 = feedAx === "z" ? zEnd : xEnd;
+      const dir = Math.sign(f1 - f0) || -1;
+      const positions: number[] = [s0];
+      if (shift > 1e-6 && Math.abs(s1 - s0) > 1e-6) { const sd = Math.sign(s1 - s0); let v = s0; while (Math.abs(s1 - v) > shift + 1e-9) { v += sd * shift; positions.push(v); } positions.push(s1); }
+      else if (Math.abs(s1 - s0) > 1e-6) positions.push(s1);
+      const P = (sv: number, fv: number) => (feedAx === "z" ? V(sv, fv) : V(fv, sv));
+      let cur = { ...start };
+      for (const sv of positions) {
+        if (sv !== s0) { out.push(rap(cur, P(sv, f0))); cur = P(sv, f0); }
+        let f = f0, from = f0;
+        for (let guard2 = 0; guard2 < 500; guard2++) {
+          const nf = peck > 1e-6 ? (dir < 0 ? Math.max(f1, f + dir * peck) : Math.min(f1, f + dir * peck)) : f1;
+          out.push(lin(P(sv, from), P(sv, nf)));
+          if (Math.abs(nf - f1) < 1e-9) break;
+          out.push(rap(P(sv, nf), P(sv, nf - dir * e)));
+          from = nf - dir * e; f = nf;
+        }
+        out.push(rap(P(sv, f1), P(sv, f0)));
+        cur = P(sv, f0);
+      }
+      out.push(rap(cur, { ...start }));
+      allSegments.push(...out);
+      const le = lineMap.get(i);
+      if (le) { le.segments.push(...out); le.description += ` · ${positions.length} ${positions.length > 1 ? "pozycje" : "pozycja"}, wcinanie do ${feedAx === "z" ? `Z${fmt(zEnd)}` : `X${fmt(xEnd * 2)}`}, wejścia po ${fmt(peck)} mm`; }
+      state = { ...state, pos: { ...start }, prog: { ...start } };
+    };
+
     const latheCycleAt = (code: number, i: number, c: string) => {
       const start = { ...state.pos };
+      if (code === 74 || code === 75) { peckCycle(code, i, c, start); return; }
       if (code !== 70 && num(c, "P") === undefined) {
         // pierwszy blok: głębokość skrawania (G71 U, G72 W) i wycofanie R
         const d = num(c, code === 71 ? "U" : "W"), e = num(c, "R");
