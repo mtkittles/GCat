@@ -17,6 +17,7 @@ import OffsetJog from "./OffsetJog";
 import StateExplorer from "./StateExplorer";
 import ProgramTask from "./ProgramTask";
 import LatheJog from "./LatheJog";
+import CssWidget from "./CssWidget";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 
@@ -101,6 +102,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
               : p.kind === "drill" ? <Quiz questions={p.questions} drill />
               : p.kind === "state" ? <StateExplorer program={p.program} />
               : p.kind === "lathejog" ? <LatheJog goals={p.goals} setZ={p.setZ} />
+              : p.kind === "css" ? <CssWidget vc0={p.vc} limit0={p.limit} />
               : p.kind === "task" ? <ProgramTask starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} mode={p.mode} />
               : <PointDrill tasks={p.tasks} />}
           </div>

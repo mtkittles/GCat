@@ -21,6 +21,9 @@ export interface MachineState {
   feed: number | null;
   feedMode: 94 | 95;
   spindle: number | null;
+  /** Tokarka: stała prędkość skrawania G96 [m/min] i limit obrotów G50. */
+  css?: number | null;
+  maxRpm?: number | null;
   spindleOn: "cw" | "ccw" | "off";
   coolant: boolean;
   tool: number | null;

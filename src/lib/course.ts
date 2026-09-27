@@ -34,6 +34,9 @@ import { t0_3 } from "@/content/nauka/t0-3";
 import { t1_1 } from "@/content/nauka/t1-1";
 import { t1_2 } from "@/content/nauka/t1-2";
 import { t1_3 } from "@/content/nauka/t1-3";
+import { t2_1 } from "@/content/nauka/t2-1";
+import { t2_2 } from "@/content/nauka/t2-2";
+import { t2_3 } from "@/content/nauka/t2-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -123,9 +126,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("T1.3", "Blok startowy tokarki", t1_3),
       ] },
       { id: "T2", title: "Wrzeciono i narzędzie", lessons: [
-        L("T2.1", "Narzędzie: T0101 i T/D"),
-        L("T2.2", "G96, G97 i limit obrotów"),
-        L("T2.3", "Posuw na obrót: G95"),
+        L("T2.1", "Narzędzie: T0101 i T/D", t2_1),
+        L("T2.2", "G96, G97 i limit obrotów", t2_2),
+        L("T2.3", "Posuw na obrót: G99 i G95", t2_3),
       ] },
       { id: "T3", title: "Ruchy", lessons: [
         L("T3.1", "G00 — ruch szybki"),

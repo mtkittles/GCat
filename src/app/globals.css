@@ -1818,3 +1818,19 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .lj-tool.is-bad polygon { fill: var(--red); stroke: var(--red); }
 .lj-rad { stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 4 3; }
 .lj-read { grid-template-columns: repeat(2, 1fr); }
+
+/* G96: obroty a średnica */
+.css-ax { stroke: var(--line-strong); stroke-width: 1; }
+.css-t { font: 500 10px/1 var(--font-mono); fill: var(--muted); }
+.css-raw { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
+.css-cur { fill: none; stroke: var(--accent); stroke-width: 2.2; }
+.css-lim { stroke: var(--red); stroke-width: 1.2; stroke-dasharray: 6 4; }
+.css-limt { font: 700 10px/1 var(--font-mono); fill: var(--red); }
+.css-drop { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; }
+.css-dot { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+.css-dot.is-lim { fill: var(--red); }
+.css-row { display: grid; gap: .35rem; font-size: 13px; color: var(--muted); }
+.css-row input[type=range] { width: 100%; accent-color: var(--accent); }
+.css-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; }
+.css-inputs label { display: grid; gap: .25rem; font-size: 12.5px; color: var(--muted); }
+.css-inputs input { font: 600 15px/1 var(--font-mono); padding: .5rem; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); }

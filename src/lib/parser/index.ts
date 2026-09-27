@@ -215,8 +215,12 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 91: s.absolute = false; desc.push("Wymiarowanie przyrostowe (G91)"); break;
         case 94: s.feedMode = 94; desc.push("Posuw w mm/min (G94)"); break;
         case 95: s.feedMode = 95; desc.push("Posuw w mm/obr (G95)"); break;
-        case 96: desc.push(`Stała prędkość skrawania ${fmt(get("S") ?? 0)} m/min (G96)`); break;
-        case 97: desc.push("Stałe obroty wrzeciona (G97)"); break;
+        case 96: s.css = get("S") ?? s.css ?? null; desc.push(`Stała prędkość skrawania ${fmt(get("S") ?? 0)} m/min (G96)`); break;
+        case 97: s.css = null; desc.push("Stałe obroty wrzeciona (G97)"); break;
+        case 50:
+          if (dia) { s.maxRpm = get("S") ?? s.maxRpm ?? null; desc.push(`Limit obrotów wrzeciona ${fmt(get("S") ?? 0)} obr/min (G50)`); }
+          else desc.push("G50 — nieobsługiwane w symulatorze");
+          break;
         default: desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
       }
     }
@@ -228,7 +232,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     // W bloku G04 adresy F i S (Sinumerik) oznaczają czas postoju, nie posuw i obroty.
     const isDwell = gs.includes(4);
     const f = get("F"); if (f !== undefined && !isDwell) { s.feed = f; }
-    const sp = get("S"); if (sp !== undefined && !gs.includes(96) && !isDwell) { s.spindle = sp; }
+    const sp = get("S"); if (sp !== undefined && !gs.includes(96) && !(dia && gs.includes(50)) && !isDwell) { s.spindle = sp; }
     const t = get("T"); if (t !== undefined) { s.tool = t; desc.push(`Wybierz narzędzie T${fmt(t)}`); }
 
     for (const m of ms) {
@@ -410,7 +414,13 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     else {
       const ln = lines[sg.line];
       let f = ln?.state.feed ?? 200;
-      if (ln?.state.feedMode === 95) f = f * (ln.state.spindle ?? 1000);
+      if (ln?.state.feedMode === 95) {
+        // Przy G96 obroty zależą od średnicy: n = 1000 · vc / (π · D), ograniczone przez G50.
+        const css = ln.state.css;
+        const d = Math.max(1, Math.abs(sg.from.x) + Math.abs(sg.to.x)); // średnia średnica (x to promień)
+        const rpm = css ? Math.min(ln.state.maxRpm ?? 4000, (1000 * css) / (Math.PI * d)) : (ln.state.spindle ?? 1000);
+        f = f * rpm;
+      }
       seconds += (len / Math.max(1, f)) * 60;
     }
   }

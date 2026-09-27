@@ -50,6 +50,8 @@ export type Practice =
   /** Dopisz do programu — edytor z symulatorem i sprawdzaniem. */
   /** Tokarka: ręczny przesuw X/Z z odczytem średnicy, opcjonalnie pomiar Z0. */
   | { kind: "lathejog"; intro: string; goals: LatheGoal[]; setZ?: boolean }
+  /** G96: wykres obrotów w funkcji średnicy z limitem G50. */
+  | { kind: "css"; intro: string; vc?: number; limit?: number }
   | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
