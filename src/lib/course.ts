@@ -37,6 +37,9 @@ import { t1_3 } from "@/content/nauka/t1-3";
 import { t2_1 } from "@/content/nauka/t2-1";
 import { t2_2 } from "@/content/nauka/t2-2";
 import { t2_3 } from "@/content/nauka/t2-3";
+import { t3_1 } from "@/content/nauka/t3-1";
+import { t3_2 } from "@/content/nauka/t3-2";
+import { t3_3 } from "@/content/nauka/t3-3";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -131,9 +134,9 @@ export const tracks: Record<Track, TrackDef> = {
         L("T2.3", "Posuw na obrót: G99 i G95", t2_3),
       ] },
       { id: "T3", title: "Ruchy", lessons: [
-        L("T3.1", "G00 — ruch szybki"),
-        L("T3.2", "G01, fazy i promienie"),
-        L("T3.3", "G02 i G03 a położenie głowicy"),
+        L("T3.1", "G00 — ruch szybki", t3_1),
+        L("T3.2", "G01, fazy i promienie", t3_2),
+        L("T3.3", "G02 i G03 a położenie głowicy", t3_3),
       ] },
       { id: "T4", title: "Korekcja promienia płytki", lessons: [
         L("T4.1", "G41 i G42 na tokarce"),

@@ -1,0 +1,25 @@
+/* Wspólne fragmenty programu wałka dla zadań modułu T3. */
+export const T3_HEAD = `O2001 (WALEK)
+G18 G21 G40 G80 G99
+G54
+T0101 (NOZ ZEWN. CNMG R0.8)
+G50 S3000
+G96 S200 M03
+M08
+G00 X44. Z0.
+G01 X-1.6 F0.15
+G00 Z2.`;
+
+export const T3_TAIL = `M09
+M05
+G28 U0.
+G28 W0.
+M30`;
+
+export const T3_FIN_HEAD = `O2004 (WALEK - WYKANCZANIE)
+G18 G21 G40 G80 G99
+G54
+T0202 (NOZ WYKANCZAJACY VBMT R0.4)
+G50 S3000
+G96 S250 M03
+M08`;
