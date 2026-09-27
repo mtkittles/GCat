@@ -47,6 +47,8 @@ import { t5_2 } from "@/content/nauka/t5-2";
 import { t5_3 } from "@/content/nauka/t5-3";
 import { t6_1 } from "@/content/nauka/t6-1";
 import { t6_2 } from "@/content/nauka/t6-2";
+import { t7_1 } from "@/content/nauka/t7-1";
+import { t7_2 } from "@/content/nauka/t7-2";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -159,8 +161,8 @@ export const tracks: Record<Track, TrackDef> = {
         L("T6.2", "G74 — wiercenie osiowe", t6_2),
       ] },
       { id: "T7", title: "Gwintowanie", lessons: [
-        L("T7.1", "G76 — cykl gwintowania"),
-        L("T7.2", "G32 i G33"),
+        L("T7.1", "G76 — cykl gwintowania", t7_1),
+        L("T7.2", "G32 i G33", t7_2),
       ] },
       { id: "T8", title: "Podprogramy", lessons: [
         L("T8.1", "Podprogramy na tokarce"),

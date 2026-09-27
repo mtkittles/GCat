@@ -19,6 +19,7 @@ import { t3Figs } from "./lesson/figs-t3";
 import { t4Figs } from "./lesson/figs-t4";
 import { t5Figs } from "./lesson/figs-t5";
 import { t6Figs } from "./lesson/figs-t6";
+import { t7Figs } from "./lesson/figs-t7";
 
 /*
   Wszystkie rysunki techniczne serwisu — jeden styl (fig.tsx).
@@ -41,6 +42,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   ...t4Figs,
   ...t5Figs,
   ...t6Figs,
+  ...t7Figs,
   // tematy (artykuły, słownik, kalkulator)
   "rapid-path": () => <RapidPath />,
   "rapid-clamp": () => <RapidClamp />,
