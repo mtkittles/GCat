@@ -12,6 +12,20 @@ G03 X36. Z-40.5 R0.5
 G01 Z-55.
 X42.`;
 
+const demo = (comp: boolean) => `G18 G21 G40 G80 G99
+G54
+T0101 (NOZ R0.8, KIERUNEK OSTRZA 3)
+G96 S200 M03
+${comp ? "G42 " : ""}G00 X14. Z2.
+G01 X20. Z-1. F0.1
+Z-5.
+G02 X24. Z-7. R2.
+G01 X26.
+G03 X28. Z-8. R1.
+G01 Z-12.
+${comp ? "G40 " : ""}G00 X32.
+M30`;
+
 const starter = `${T3_FIN_HEAD}
 (DOPISZ DOJAZD DO X14 Z2 Z WLACZENIEM KOREKCJI)
 
@@ -38,10 +52,12 @@ export const t4_1: LessonDoc = {
     { t: "p", x: "Na średnicach (ruch w Z) i czołach (ruch w X) naroże dotyka detalu dokładnie na wysokości P, więc wymiar się zgadza. Na fazach, stożkach i łukach naroże styka się z materiałem gdzie indziej niż P i kształt wychodzi przesunięty." },
     { t: "diagram", id: "t41-chamfer" },
     { t: "code", x: "faza 45°:  błąd ≈ 0,414 · rε\nrε 0,8  →  0,33 mm\nrε 0,4  →  0,17 mm", caption: "Błąd mierzony prostopadle do fazy. Przy tolerancjach rzędu setnych to dużo." },
+    { t: "demo", mode: "lathe", title: "Bez korekcji: G40", src: demo(false), caption: "Pomarańczowy pas to ślad naroża R0,8. Na średnicach i czole dotyka konturu (linia), na fazie i obu promieniach zostaje od niego z daleka." },
 
     { t: "h", x: "Korekcja promienia ostrza", id: "g41-g42" },
     { t: "p", x: "Z [[G42]] lub [[G41]] sterowanie prowadzi środek naroża w odległości rε od konturu z programu — jak przy frezie w module F4, tylko promieniem jest naroże płytki. Program opisuje wtedy kontur z rysunku, a kształt faz i łuków wychodzi poprawny." },
     { t: "diagram", id: "t41-sides" },
+    { t: "demo", mode: "lathe", title: "Z korekcją: G42", src: demo(true), caption: "Ten sam program z G42 i G40. Przerywana linia to kontur z programu, zielony tor to droga punktu P. Ślad naroża przylega do konturu na całej długości — także na fazie i promieniach." },
     { t: "table", head: ["Obróbka", "Kierunek", "Kod"], rows: [
       ["zewnętrzna", "w stronę uchwytu", "`G42`"],
       ["wewnętrzna (wytaczanie)", "w stronę uchwytu", "`G41`"],
@@ -73,7 +89,7 @@ export const t4_1: LessonDoc = {
     {
       kind: "task",
       mode: "lathe",
-      intro: "Dopisz dojazd z włączeniem korekcji i odjazd z jej wyłączeniem. Kontur zostaje bez zmian — sprawdzany jest tor programowany i użycie G42 oraz G40.",
+      intro: "Dopisz dojazd z włączeniem korekcji i odjazd z jej wyłączeniem. Kontur zostaje bez zmian — sprawdzany jest tor programowany i użycie G42 oraz G40. Po dopisaniu przełącz w symulatorze „Tor ostrza P” i „Tor programowany”, żeby zobaczyć różnicę.",
       starter,
       checks: [
         { t: "cut", reference: `${T3_FIN_HEAD}\nG00 X14. Z2.\n${contour}\nG00 Z2.`, tolerance: 0.05 },

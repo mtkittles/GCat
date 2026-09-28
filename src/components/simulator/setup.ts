@@ -12,6 +12,7 @@ export interface Tool {
   len: number;       // długość ostrza [mm]
   tiltA: number;     // pochylenie wokół osi X [°]
   tiltB: number;     // pochylenie wokół osi Y [°]
+  tip?: number;      // nóż tokarski: kierunek ostrza 0–9 (położenie punktu P względem środka naroża)
   name?: string;
 }
 
@@ -44,7 +45,7 @@ export const TOOL_LABEL: Record<ToolKind, string> = {
 };
 
 /** Które pola mają sens dla danego narzędzia. */
-export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" | "len")[]> = {
+export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" | "len" | "tip")[]> = {
   endmill: ["d", "flutes", "len"],
   ballnose: ["d", "flutes", "len"],
   bullnose: ["d", "corner", "flutes", "len"],
@@ -57,9 +58,9 @@ export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" 
   reamer: ["d", "flutes", "len"],
   tap: ["d", "flutes"],
   threadmill: ["d", "flutes", "len"],
-  turning: ["d", "angle"],
+  turning: ["d", "tip", "angle"],
   grooving: ["d", "len"],
-  boring: ["d", "angle"],
+  boring: ["d", "tip", "angle"],
   threading: ["d", "angle"],
 };
 
@@ -69,6 +70,7 @@ export const FIELD_LABEL: Record<string, { l: string; unit?: string; step?: numb
   angle: { l: "kąt", unit: "°", step: 1, min: 1 },
   corner: { l: "R naroża", unit: "mm", step: 0.1, min: 0 },
   len: { l: "dł. ostrza", unit: "mm", step: 1, min: 1 },
+  tip: { l: "kier. ostrza", step: 1, min: 0 },
 };
 
 export const MILL_TOOLS: ToolKind[] = ["endmill", "ballnose", "bullnose", "chamfer", "vbit", "facemill", "tslot", "drill", "spotdrill", "reamer", "tap", "threadmill"];
@@ -88,9 +90,9 @@ const PRESETS: Partial<Record<ToolKind, Partial<Tool>>> = {
   reamer: { d: 8, flutes: 6, len: 40 },
   tap: { d: 10, flutes: 1.5 },
   threadmill: { d: 8, flutes: 1.5, len: 20 },
-  turning: { d: 0.8, angle: 93 },
+  turning: { d: 0.8, angle: 93, tip: 3 },
   grooving: { d: 3, len: 3 },
-  boring: { d: 0.4, angle: 95 },
+  boring: { d: 0.4, angle: 95, tip: 2 },
   threading: { d: 0.2, angle: 60 },
 };
 

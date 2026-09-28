@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
-import { applyCompensation } from "./compensation";
+import { applyCompensation, noseOf } from "./compensation";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
@@ -239,7 +239,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
     const { min: bmin, max: bmax } = program.bounds;
-    const min = mode === "lathe" ? { ...bmin, x: Math.min(bmin.x, -bmax.x) } : bmin;
+    // Tokarka: widok obu połówek wałka; w trybie pokazowym tylko górna połowa — większa skala.
+    const min = mode === "lathe" ? { ...bmin, x: showcase ? Math.min(bmin.x, 0) : Math.min(bmin.x, -bmax.x) } : bmin;
     const max = bmax;
     const spanH = Math.max(max[ha] - min[ha], 10);
     const spanV = Math.max(max[va] - min[va], 10);
@@ -373,6 +374,54 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       }
     }
 
+    // tokarka: ślad naroża płytki — obwiednia promienia rε wokół toru środka naroża.
+    // Jej krawędź od strony materiału to kontur, który nóż naprawdę zostawia.
+    if (mode === "lathe" && !compact) {
+      // Jedna ścieżka dla ciągłych odcinków — półprzezroczysty pas nie ciemnieje na złączeniach.
+      let accN = 0, open = false, lastR = 0, last: Vec3 | null = null;
+      ctx.save();
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(249,115,22,0.2)";
+      const flush = () => { if (open) ctx.stroke(); open = false; };
+      segments.forEach((sg, i) => {
+        const len = lengths[i];
+        const done = Math.min(1, Math.max(0, (progress - accN) / (len || 1)));
+        accN += len;
+        const nose = sg.kind === "rapid" || sg.kind === "dwell" || done <= 0 ? null
+          : noseOf(toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode));
+        if (!nose) { flush(); last = null; return; }
+        const cont = open && last && lastR === nose.r && Math.hypot(sg.from.x - last.x, sg.from.z - last.z) < 1e-6;
+        if (!cont) {
+          flush();
+          ctx.lineWidth = Math.max(1.5, 2 * nose.r * scale);
+          ctx.beginPath(); open = true; lastR = nose.r;
+          const [x0, y0] = P({ ...sg.from, z: sg.from.z - nose.tz, x: sg.from.x - nose.tx }); ctx.moveTo(x0, y0);
+        }
+        const n = sg.kind === "arc" ? 24 : 1;
+        for (let k = 1; k <= n; k++) {
+          const q = pointAt(sg, (k / n) * done);
+          const [x, y] = P({ ...q, z: q.z - nose.tz, x: q.x - nose.tx });
+          ctx.lineTo(x, y);
+        }
+        last = done >= 1 ? sg.to : null;
+      });
+      flush();
+      ctx.restore();
+    }
+
+    // przy podglądzie korekcji: kontur z programu jako cienka linia przerywana
+    if (showComp && comp.active && !compact) {
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "rgba(248,250,252,0.5)"; ctx.lineWidth = 1.2;
+      program.segments.forEach((sg) => {
+        if (sg.kind === "rapid" || sg.kind === "dwell") return;
+        const n = sg.kind === "arc" ? 32 : 1;
+        ctx.beginPath();
+        for (let k = 0; k <= n; k++) { const [x, y] = P(pointAt(sg, k / n)); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+        ctx.stroke();
+      });
+      ctx.restore();
+    }
+
     // ścieżka
     const bare = compact || showcase;
     let acc = 0;
@@ -399,6 +448,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.save();
       ctx.font = "10.5px ui-monospace, monospace";
       const shown = new Set<string>();
+      const placed: [number, number][] = [];
       let accP = 0;
       segments.forEach((sg, i) => {
         const len = lengths[i];
@@ -411,6 +461,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const [px, py] = P(sg.to);
         ctx.fillStyle = "rgba(248,250,252,0.9)";
         ctx.beginPath(); ctx.arc(px, py, 2.6, 0, Math.PI * 2); ctx.fill();
+        // podpis tylko tam, gdzie nie nachodzi na poprzedni
+        if (placed.some(([qx, qy]) => Math.abs(qx - px) < 70 && Math.abs(qy - py) < 13)) return;
+        placed.push([px, py]);
         const label = mode === "lathe"
           ? `X${fmt(sg.to.x * 2)} Z${fmt(sg.to.z)}`
           : `X${fmt(sg.to.x)} Y${fmt(sg.to.y)}`;
@@ -444,11 +497,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const [tx, ty] = P(currentPos);
     // Narzędzie: obrys o rzeczywistej średnicy plus krzyż w osi wrzeciona.
     const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, cuttingRadius(activeTool) * scale) : 6;
+    // Nóż tokarski z narożem: okrąg naroża rysowany wokół jego środka, krzyż w punkcie P.
+    const nose = mode === "lathe" ? noseOf(activeTool) : null;
+    const [ncx, ncy] = nose ? P({ ...currentPos, z: currentPos.z - nose.tz, x: currentPos.x - nose.tx }) : [tx, ty];
+    const nR = nose ? Math.max(2.5, nose.r * scale) : rPx;
     ctx.save();
     ctx.fillStyle = "rgba(248,250,252,0.10)";
-    ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(tx, ty, rPx, 0, Math.PI * 2); ctx.stroke();
+    ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
@@ -493,7 +550,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -747,9 +804,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
                 </svg>
               </button>
-              {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)} title="Tor środka narzędzia z uwzględnieniem G41/G42">{showComp ? "Tor rzeczywisty (G41/G42)" : "Tor programowany"}</button>}
+              {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
+                title={mode === "lathe" ? "Tor punktu P ostrza z uwzględnieniem G41/G42 i promienia naroża" : "Tor środka narzędzia z uwzględnieniem G41/G42"}>
+                {showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</button>}
               {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
-                <span className="comp-note">G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu</span>
+                <span className="comp-note">{mode === "lathe"
+                  ? "G40 — program prowadzi punkt P ostrza; na fazach i łukach naroże zostawia materiał (pomarańczowy ślad)"
+                  : "G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu"}</span>
               )}
             </div>
             {show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary></div>}
