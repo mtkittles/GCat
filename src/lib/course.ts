@@ -49,6 +49,7 @@ import { t6_1 } from "@/content/nauka/t6-1";
 import { t6_2 } from "@/content/nauka/t6-2";
 import { t7_1 } from "@/content/nauka/t7-1";
 import { t7_2 } from "@/content/nauka/t7-2";
+import { t8_1 } from "@/content/nauka/t8-1";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -165,7 +166,7 @@ export const tracks: Record<Track, TrackDef> = {
         L("T7.2", "G32 i G33", t7_2),
       ] },
       { id: "T8", title: "Podprogramy", lessons: [
-        L("T8.1", "Podprogramy na tokarce"),
+        L("T8.1", "Podprogramy na tokarce", t8_1),
       ] },
     ],
   },
