@@ -148,7 +148,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       let v = w.value;
       if (u !== 1 && SCALED.includes(w.letter)) v *= u;
       if (u !== 1 && w.letter === "F") v *= u;   // posuw cale/min → mm/min
-      if (dia && (w.letter === "X" || w.letter === "I" || w.letter === "U")) v /= 2;
+      // Tokarka: X i U w średnicy. I (środek łuku w X) — w promieniu, jak domyślnie na Fanucu.
+      if (dia && (w.letter === "X" || w.letter === "U")) v /= 2;
       return v === w.value ? w : { ...w, value: v };
     });
     const errors: string[] = [];

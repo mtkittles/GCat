@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
 import PageBanner from "@/components/ui/PageBanner";
@@ -23,6 +24,7 @@ export default async function LessonPage({ params }: { params: Promise<{ slug: s
   return (
     <article className="grid gap-6 lesson">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { label: `Lekcja ${i + 1}` }]} />
+      <p className="note note-info">To lekcja z poprzedniej wersji kursu. Aktualne ścieżki, z testami i programem budowanym lekcja po lekcji: <Link href="/nauka/frezowanie" style={{ color: "var(--accent)", fontWeight: 600 }}>frezowanie</Link> i <Link href="/nauka/toczenie" style={{ color: "var(--accent)", fontWeight: 600 }}>toczenie</Link>.</p>
       <PageBanner src={l.mode === "lathe" ? "/img/banner-turn.jpg" : "/img/banner-mill.jpg"}
         kicker={`Lekcja ${i + 1} z ${lessons.length}`} title={l.title}
         meta={<><Chip>{l.minutes} min</Chip><Chip tone="info">{l.mode === "lathe" ? "toczenie" : "frezowanie"}</Chip></>}

@@ -54,7 +54,7 @@ export const t0_1: LessonDoc = {
 
   pitfalls: [
     { title: "Z dodatnie w stronę uchwytu", x: "`Z20` zamiast `Z-20`. Nóż jedzie 20 mm przed czoło, w powietrze. Odwrotna pomyłka — dodatnie Z tam, gdzie miało być ujemne przy odjeździe — prowadzi nóż w detal albo w uchwyt." },
-    { title: "Wymiar od złej bazy", x: "Rysunek wymiaruje stopień od drugiego końca wałka, a Z0 leży na czole. Każdą długość trzeba przeliczyć na odległość od czoła, tak jak na frezarce w F0.1." },
+    { title: "Wymiar od złej bazy", x: "Rysunek wymiaruje stopień od drugiego końca wałka, a Z0 leży na czole. Każdą długość trzeba przeliczyć na odległość od czoła, zanim trafi do programu." },
     { title: "Uchwyt blisko konturu", x: "Wysięg 70 mm, a kontur kończy się w Z−55. Między końcem obróbki a szczękami zostaje 15 mm. Każdy ruch w stronę uchwytu sprawdzaj z długością wysięgu." },
   ],
 

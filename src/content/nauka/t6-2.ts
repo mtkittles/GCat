@@ -49,7 +49,7 @@ export const t6_2: LessonDoc = {
       ["**F**", "posuw na obrót"],
     ], caption: "G74 działa jak G73 z frezarki: krótkie wycofanie łamie wiór, ale go nie wyprowadza. Przy głębokich otworach operator dodaje pełne wyjście albo używa cyklu wiercenia z wyprowadzeniem wióra." },
     { t: "p", x: "Z tym samym cyklem, z adresami X i P, wykonuje się rowki czołowe — nóż wcina się w czoło w kolejnych średnicach. W tej lekcji używamy go tylko do wiercenia." },
-    { t: "note", kind: "info", x: "Z w programie to czubek wiertła, jak na frezarce (lekcja F5.2). Pełna średnica Ø8 przy kącie 118° kończy się 2,4 mm wyżej." },
+    { t: "note", kind: "info", x: "Z w programie to czubek wiertła. Stożek wiertła 118° ma długość około 0,3 · D, więc pełna średnica Ø8 kończy się 2,4 mm wyżej — przy otworze pod gwint liczy się właśnie ta głębokość." },
   ],
 
   worked: {

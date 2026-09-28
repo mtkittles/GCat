@@ -20,10 +20,12 @@ export const f2_1: LessonDoc = {
     { t: "h", x: "Numer narzędzia i tabela", id: "tabela" },
     { t: "p", x: "Numer T wskazuje narzędzie w tabeli sterowania, gdzie zapisane są jego wymiary: długość i promień. Programista i operator muszą mieć ten sam spis narzędzi — wpisuje się go do nagłówka programu." },
     { t: "table", head: ["T", "Narzędzie", "Ø", "Rejestr długości"], rows: [
-      ["`T1`", "frez walcowo-czołowy VHM", "10", "`H1`"],
+      ["`T1`", "frez walcowo-czołowy VHM, 4 ostrza", "10", "`H1`"],
       ["`T2`", "nawiertak 90°", "10", "`H2`"],
-      ["`T3`", "wiertło", "6,8", "`H3`"],
-    ], caption: "Przykładowy spis narzędzi. Numer rejestru długości zwykle równa się numerowi narzędzia — rejestry omawia lekcja F4.1." },
+      ["`T3`", "wiertło VHM 140° (pod gwint M6)", "5", "`H3`"],
+      ["`T4`", "gwintownik maszynowy M6×1", "6", "`H4`"],
+      ["`T5`", "głowica do planowania, 5 płytek 45°", "63", "`H5`"],
+    ], caption: "Spis narzędzi płytki, która powstaje w tej ścieżce. Numer rejestru długości zwykle równa się numerowi narzędzia — rejestry omawia lekcja F4.1." },
   ],
 
   worked: {

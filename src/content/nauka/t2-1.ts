@@ -27,10 +27,10 @@ export const t2_1: LessonDoc = {
 
     { t: "h", x: "Plan narzędzi wałka", id: "plan" },
     { t: "table", head: ["T", "Narzędzie", "Moduł"], rows: [
-      ["`T0101`", "nóż zewnętrzny CNMG R0,8 — planowanie i zgrubnie", "T2, T5"],
-      ["`T0202`", "nóż wykańczający VBMT R0,4", "T3, T4"],
+      ["`T0101`", "nóż zewnętrzny CNMG R0,8 — planowanie i zgrubnie", "T2, T3, T5"],
+      ["`T0202`", "nóż wykańczający VBMT R0,4", "T3–T5"],
       ["`T0303`", "nóż do rowków 3 mm", "T6"],
-      ["`T0404`", "nóż do gwintów 60°", "T7"],
+      ["`T0404`", "nóż do gwintów 60°, płytka 1,5 mm", "T7"],
       ["`T0505`", "wiertło Ø8", "T6"],
     ] },
   ],

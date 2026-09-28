@@ -38,7 +38,7 @@ export const t8_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Te same zasady, inne zastosowania", id: "zasady" },
-    { t: "p", x: "Podprogramy działają na tokarce tak samo jak na frezarce (lekcja F7.1): `M98 P… L…` wywołuje [[podprogram]], `M99` wraca do bloku po wywołaniu. Zmieniają się typowe zastosowania:" },
+    { t: "p", x: "[[Podprogram]] to fragment programu zapisany raz i wywoływany wiele razy. Na Fanucu podprogram ma własny numer O…, `M98 P… L…` wywołuje go L razy, a `M99` na jego końcu wraca do bloku po wywołaniu. W symulatorze GCat podprogram zapisuje się pod M30 programu głównego. Na tokarce typowe zastosowania to:" },
     { t: "ul", items: [
       "**powtarzalne elementy wzdłuż osi** — kilka jednakowych rowków, podcięć, fazek w odstępach,",
       "**ten sam kontur na kilku detalach** — przy obróbce z pręta, gdy z jednego wysięgu powstaje kilka sztuk,",
@@ -52,7 +52,7 @@ export const t8_1: LessonDoc = {
     { t: "note", kind: "warn", x: "Ostatni przebieg też wykona `W-10.` — po trzecim rowku nóż stoi w Z−40. Program główny musi to uwzględnić przy odjeździe albo dojeździe do kolejnej operacji." },
 
     { t: "h", x: "Sinumerik", id: "sinumerik" },
-    { t: "p", x: "Na Sinumeriku ten sam podprogram leży w pliku .SPF i jest wywoływany nazwą z liczbą przebiegów: `ROWEK P3`. Przesunięcie w Z zapisuje się przyrostowo: `Z=IC(-10)`, a koniec podprogramu — `RET` (lekcja F7.2)." },
+    { t: "p", x: "Na Sinumeriku ten sam podprogram leży w pliku .SPF i jest wywoływany nazwą z liczbą przebiegów: `ROWEK P3`. Przesunięcie w Z zapisuje się przyrostowo: `Z=IC(-10)`, a koniec podprogramu — `RET` albo `M17`." },
     { t: "note", kind: "tip", x: "To ostatnia lekcja ścieżki toczenia. Program wałka poniżej jest kompletny: planowanie, cykl G71 i G70 z korekcją ostrza, podcięcie, gwint M20×1,5 i otwór osiowy. Rozwiń go i uruchom w symulatorze." },
   ],
 

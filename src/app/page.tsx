@@ -6,7 +6,8 @@ import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Chip from "@/components/ui/Chip";
 import BrandLogo from "@/components/BrandLogo";
-import { exercises, lessons } from "@/lib/content";
+import { exercises } from "@/lib/content";
+import { flat, lessonHref, readyLessons } from "@/lib/course";
 import { gcodes } from "@/lib/gcodes";
 
 const DEMO = `(PLYTKA MOCUJACA 80 x 50)
@@ -66,8 +67,13 @@ const HERO_BULLETS: { i: string; a: string; b: string }[] = [
   { i: I.book, a: "Wiedza", b: "w jednym miejscu" },
 ];
 
+const NAUKA_TOTAL = flat("frezowanie").length + flat("toczenie").length;
+const HOME_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).slice(0, 3).map((l) => ({
+  href: lessonHref(t, l.slug!), id: l.id, title: l.title, minutes: l.doc!.minutes, track: t === "frezowanie" ? "FREZOWANIE" : "TOCZENIE",
+})));
+
 const PILLARS = [
-  { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwanaście lekcji od pierwszego bloku do programu wielonarzędziowego.", m: "12 lekcji" },
+  { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwie ścieżki — frezowanie i toczenie — od osi maszyny do gotowego programu.", m: `${NAUKA_TOTAL} lekcji` },
   { href: "/symulator", ico: I.play, t: "Symulator", d: "Tor 2D i 3D, cykle stałe, kompensacja, kontrola kolizji.", m: "2D · 3D" },
   { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji ze składnią Fanuc i Sinumerik oraz przykładami.", m: `${gcodes.length} kart` },
   { href: "/kalkulator", ico: I.calc, t: "Kalkulatory", d: "Obroty, posuwy, moc skrawania, gwinty, presety materiałów.", m: "4 moduły" },
@@ -153,9 +159,9 @@ export default function Home() {
         <SectionHeader eyebrow="Ścieżka nauki" title="Od bloku do gotowego programu"
           action={<Link className="btn ghost" href="/nauka">Wszystkie lekcje</Link>} />
         <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 reveal reveal-2">
-          {lessons.slice(0, 6).map((l, i) => (
-            <li key={l.slug}><Link href={`/nauka/${l.slug}`} className="tile h-full">
-              <span className="tile-num">LEKCJA {String(i + 1).padStart(2, "0")} · {l.minutes} MIN</span>
+          {HOME_LESSONS.map((l) => (
+            <li key={l.href}><Link href={l.href} className="tile h-full">
+              <span className="tile-num">{l.id} · {l.track} · {l.minutes} MIN</span>
               <div className="font-semibold mt-1">{l.title}</div>
             </Link></li>
           ))}

@@ -1,5 +1,5 @@
 import { gcodes } from "./gcodes";
-import { exercises, glossary, lessons } from "./content";
+import { exercises, glossary } from "./content";
 import { articles } from "@/content/articles";
 import { readyLessons, lessonHref, tracks } from "./course";
 import type { Block } from "./article";
@@ -25,10 +25,6 @@ export const searchDocs: SearchDoc[] = [
   ...gcodes.map((g) => ({
     kind: "kod" as const, title: `${g.code} — ${g.name}`, subtitle: `${g.group} · ${g.milling ? "frezowanie" : ""}${g.milling && g.turning ? " / " : ""}${g.turning ? "toczenie" : ""}`,
     href: `/kody/${g.slug}`, body: [g.code, g.name, g.short, g.desc, g.sinumerik, ...g.pitfalls, blockText(articles[g.slug])].join(" "),
-  })),
-  ...lessons.map((l, i) => ({
-    kind: "lekcja" as const, title: l.title, subtitle: `Lekcja ${i + 1} · ${l.minutes} min`,
-    href: `/nauka/${l.slug}`, body: [l.title, l.intro, ...l.sections.map((s) => `${s.h} ${s.p}`), l.task].join(" "),
   })),
   ...(["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({
     kind: "lekcja" as const, title: `${l.id} ${l.title}`, subtitle: `${tracks[t].title} · ${l.doc!.minutes} min`,

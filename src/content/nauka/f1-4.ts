@@ -29,7 +29,7 @@ export const f1_4: LessonDoc = {
 
   worked: {
     title: "Rysunek w calach",
-    intro: "Otwór na rysunku: 1.5\" od lewej krawędzi i 0.75\" od dolnej. Zero W w lewym dolnym narożniku. Możesz programować w calach albo przeliczyć na milimetry.",
+    intro: "Otwór na rysunku: 1,5″ od lewej krawędzi i 0,75″ od dolnej. Zero W w lewym dolnym narożniku. Możesz programować w calach albo przeliczyć na milimetry.",
     steps: [
       { x: "Wariant calowy: program zaczyna się od G20, wartości przepisujesz z rysunku.", code: "G20 … X1.5 Y0.75" },
       { x: "Wariant metryczny, X: 1,5 × 25,4 = 38,1 mm.", code: "X38.1" },
@@ -46,7 +46,7 @@ export const f1_4: LessonDoc = {
       questions: [
         { kind: "token", q: "Tapnij słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
         { kind: "gap", q: "G20 jest aktywne. Ile milimetrów to `X3.`?", template: "{0} mm", answers: [["76.2", "76,2"]], why: "3 × 25,4 = 76,2 mm." },
-        { kind: "gap", q: "Rysunek w calach: 2.0\". Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
+        { kind: "gap", q: "Rysunek w calach: 2,0″. Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
         { kind: "choice", q: "Frezarka pionowa, kontur w widoku z góry z łukami. Jaka płaszczyzna?", options: ["G17", "G18", "G19", "bez znaczenia"], answer: 0, why: "Widok z góry to płaszczyzna XY — G17." },
       ],
     },
