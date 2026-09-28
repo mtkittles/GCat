@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { defaultTip } from "./compensation";
-import { FIELD_LABEL, LATHE_TOOLS, MILL_TOOLS, TOOL_FIELDS, TOOL_LABEL, makeTool, type Setup, type Tool, type ToolKind } from "./setup";
+import { FIELD_LABEL, INSERT_LABEL, type InsertShape, LATHE_TOOLS, MILL_TOOLS, TOOL_FIELDS, TOOL_LABEL, makeTool, type Setup, type Tool, type ToolKind } from "./setup";
 
 function Num({ l, v, on, min = 0, suffix, w = "5rem" }: { l: string; v: number; on: (n: number) => void; step?: number; min?: number; suffix?: string; w?: string }) {
   const [text, setText] = useState(String(v));
@@ -45,7 +45,17 @@ function ToolRow({ n, tool, mode, active, onChange, onRemove }: { n: number; too
       <div className="tool-params">
         {fields.map((f) => {
           const cfg = FIELD_LABEL[f];
-          const label = f === "flutes" && isTap ? "skok" : f === "d" && mode === "lathe" ? "rε" : cfg.l;
+          const label = f === "flutes" && isTap ? "skok"
+            : f === "d" && mode === "lathe" ? (tool.kind === "grooving" ? "szer." : tool.kind === "drill" ? "⌀" : "rε")
+            : f === "angle" && (tool.kind === "turning" || tool.kind === "boring") ? "κr"
+            : cfg.l;
+          if (f === "shape") return (
+            <label key={f} className="tool-shape"><span>{label}</span>
+              <select value={tool.shape ?? (tool.kind === "boring" ? "D" : "C")} onChange={(e) => p({ shape: e.target.value as InsertShape })}>
+                {(Object.keys(INSERT_LABEL) as InsertShape[]).map((k) => <option key={k} value={k}>{INSERT_LABEL[k]}</option>)}
+              </select>
+            </label>
+          );
           const unit = f === "flutes" && isTap ? "mm" : cfg.unit;
           const step = f === "flutes" && isTap ? 0.25 : cfg.step;
           if (f === "tip") return <Num key={f} l={label} v={tool.tip ?? defaultTip(tool)} on={(v) => p({ tip: Math.max(0, Math.min(9, Math.round(v))) })} step={1} min={0} w="3.4rem" />;

@@ -20,6 +20,7 @@ import LatheJog from "./LatheJog";
 import CssWidget from "./CssWidget";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
+import { LessonNav, LessonRail, LessonStatus } from "./LessonSide";
 
 function Sec({ id, n, title, children }: { id: string; n?: number; title: string; children: ReactNode }) {
   return (
@@ -67,12 +68,21 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
     { id: "podsumowanie", label: "Podsumowanie" },
   ];
   let n = 0;
+  const modLessons = plan.module.lessons.map((l) => ({ id: l.id, title: l.title, href: l.doc ? lessonHref(track, l.slug!) : null }));
+  const prevLink = prev ? { href: lessonHref(track, prev.slug!), label: `${prev.id} ${prev.title}` } : undefined;
+  const nextLink = next ? { href: lessonHref(track, next.slug!), label: `${next.id} ${next.title}` } : { href: `/nauka/${track}`, label: "Plan ścieżki" };
 
   return (
-    <article className="grid gap-7 ls">
+    <article className="ls">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { href: `/nauka/${track}`, label: T.title }, { label: doc.id }]} />
       <PageBanner src={T.banner} kicker={`${doc.id}  ·  ${plan.module.id} ${plan.module.title}`} title={doc.title}
         meta={<><Chip>{doc.minutes} min</Chip><Chip tone="info">{T.title.toLowerCase()}</Chip></>} size="compact" priority />
+
+      <div className="ls-layout">
+      <aside className="ls-left">
+        <LessonNav toc={toc} track={track} moduleLabel={`${plan.module.id} ${plan.module.title}`} lessons={modLessons} currentId={doc.id} />
+      </aside>
+      <div className="ls-main grid gap-7">
 
       <section className="ls-goal" aria-labelledby="cel">
         <h2 id="cel">Cel lekcji</h2>
@@ -135,7 +145,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         </Sec>
       )}
 
-      <Sec id="test" n={++n} title="Sprawdź się"><Quiz questions={doc.quiz} figs={quizFigs} /></Sec>
+      <Sec id="test" n={++n} title="Sprawdź się"><Quiz questions={doc.quiz} figs={quizFigs} progressKey={`${track}/${doc.id}`} /></Sec>
 
       <Sec id="program" n={++n} title="Program detalu">
         <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Tapnij linię, żeby zobaczyć, co robi.</p>
@@ -156,11 +166,16 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         </ul>
       </section>
 
-      <LessonPager pos={idx + 1} total={all.length}
-        prev={prev ? { href: lessonHref(track, prev.slug!), label: `${prev.id} ${prev.title}` } : undefined}
-        next={next ? { href: lessonHref(track, next.slug!), label: `${next.id} ${next.title}` }
-          : { href: `/nauka/${track}`, label: "Plan ścieżki" }} />
-      <TocDrawer items={toc} title={doc.id} />
+      <LessonStatus track={track} id={doc.id} inline />
+      <LessonPager pos={idx + 1} total={all.length} prev={prevLink} next={nextLink} />
+      </div>
+      <div className="ls-right">
+        <LessonRail track={track} id={doc.id} lines={lines.map((l) => ({ code: l.code, state: l.state }))}
+          meta={[{ label: "Moduł", value: `${plan.module.id} ${plan.module.title}` }, { label: "Czas", value: `${doc.minutes} min` }, { label: "Lekcja", value: `${idx + 1} z ${all.length}` }]}
+          prev={prevLink} next={nextLink} />
+      </div>
+      </div>
+      <div className="ls-drawer"><TocDrawer items={toc} title={doc.id} /></div>
     </article>
   );
 }

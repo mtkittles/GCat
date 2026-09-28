@@ -1,4 +1,5 @@
 import Image from "next/image";
+import TrackResume from "@/components/lesson/TrackResume";
 import Link from "next/link";
 import PageBanner from "@/components/ui/PageBanner";
 import { lessons } from "@/lib/content";
@@ -28,7 +29,8 @@ export default function Nauka() {
                 </span>
               </Link>
               {first
-                ? <Link href={lessonHref(t.key, first.slug!)} className="nk-start">Zacznij od {first.id}: {first.title}</Link>
+                ? <TrackResume track={t.key} lessons={readyLessons(t.key).map((l) => ({ id: l.id, title: l.title, href: lessonHref(t.key, l.slug!) }))}
+                    fallback={{ href: lessonHref(t.key, first.slug!), label: `Zacznij od ${first.id}: ${first.title}` }} />
                 : <span className="nk-start is-off">Pierwsze lekcje w przygotowaniu</span>}
             </div>
           );

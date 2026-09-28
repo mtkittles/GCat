@@ -23,10 +23,10 @@ export default function ExerciseList() {
           <li>Liczy się geometria toru, nie identyczny zapis programu.</li>
           <li>Zadania są ułożone od najprostszych. Zaliczone oznaczamy ✓.</li>
         </ul>} priority />
-      <ol className="grid gap-2 max-w-2xl">
+      <ol className="ex-grid">
         {exercises.map((e, i) => (
           <li key={e.slug}>
-            <Link href={`/zadania/${e.slug}`} className="tile flex gap-4 items-start">
+            <Link href={`/zadania/${e.slug}`} className="tile flex gap-4 items-start h-full">
               <span className="font-mono text-xl font-bold w-6" style={{ color: done.includes(e.slug) ? "var(--green)" : "var(--accent)" }}>{done.includes(e.slug) ? "✓" : i + 1}</span>
               <span>
                 <span className="font-semibold block">{e.title}</span>

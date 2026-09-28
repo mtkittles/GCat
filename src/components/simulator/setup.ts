@@ -3,6 +3,11 @@ export type ToolKind =
   | "drill" | "spotdrill" | "reamer" | "tap" | "threadmill"
   | "turning" | "grooving" | "boring" | "threading";
 
+/** Kształt płytki tokarskiej wg ISO: litera i kąt naroża. */
+export type InsertShape = "C" | "D" | "V" | "T" | "W" | "S";
+export const INSERT_ANGLE: Record<InsertShape, number> = { C: 80, D: 55, V: 35, T: 60, W: 80, S: 90 };
+export const INSERT_LABEL: Record<InsertShape, string> = { C: "C — romb 80°", D: "D — romb 55°", V: "V — romb 35°", T: "T — trójkąt 60°", W: "W — trygon 80°", S: "S — kwadrat 90°" };
+
 export interface Tool {
   kind: ToolKind;
   d: number;         // średnica [mm] (przy nożu tokarskim: promień naroża)
@@ -13,6 +18,7 @@ export interface Tool {
   tiltA: number;     // pochylenie wokół osi X [°]
   tiltB: number;     // pochylenie wokół osi Y [°]
   tip?: number;      // nóż tokarski: kierunek ostrza 0–9 (położenie punktu P względem środka naroża)
+  shape?: InsertShape; // nóż tokarski: kształt płytki wg ISO (C, D, V, T, W, S)
   name?: string;
 }
 
@@ -45,7 +51,7 @@ export const TOOL_LABEL: Record<ToolKind, string> = {
 };
 
 /** Które pola mają sens dla danego narzędzia. */
-export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" | "len" | "tip")[]> = {
+export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" | "len" | "tip" | "shape")[]> = {
   endmill: ["d", "flutes", "len"],
   ballnose: ["d", "flutes", "len"],
   bullnose: ["d", "corner", "flutes", "len"],
@@ -58,9 +64,9 @@ export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" 
   reamer: ["d", "flutes", "len"],
   tap: ["d", "flutes"],
   threadmill: ["d", "flutes", "len"],
-  turning: ["d", "tip", "angle"],
+  turning: ["d", "tip", "angle", "shape"],
   grooving: ["d", "len"],
-  boring: ["d", "tip", "angle"],
+  boring: ["d", "tip", "angle", "shape"],
   threading: ["d", "angle"],
 };
 
@@ -71,10 +77,11 @@ export const FIELD_LABEL: Record<string, { l: string; unit?: string; step?: numb
   corner: { l: "R naroża", unit: "mm", step: 0.1, min: 0 },
   len: { l: "dł. ostrza", unit: "mm", step: 1, min: 1 },
   tip: { l: "kier. ostrza", step: 1, min: 0 },
+  shape: { l: "płytka" },
 };
 
 export const MILL_TOOLS: ToolKind[] = ["endmill", "ballnose", "bullnose", "chamfer", "vbit", "facemill", "tslot", "drill", "spotdrill", "reamer", "tap", "threadmill"];
-export const LATHE_TOOLS: ToolKind[] = ["turning", "grooving", "boring", "threading"];
+export const LATHE_TOOLS: ToolKind[] = ["turning", "grooving", "boring", "threading", "drill"];
 
 const BASE: Omit<Tool, "kind"> = { d: 10, flutes: 4, angle: 118, corner: 0, len: 30, tiltA: 0, tiltB: 0 };
 
@@ -104,11 +111,46 @@ export const defaultSetup = (mode: "mill" | "lathe"): Setup => ({
   stock: { auto: true, x: 100, y: 80, z: 20, ox: 0, oy: 0, oz: 20, d: 60, len: 120 },
 });
 
-export function withProgramTools(setup: Setup, used: number[], mode: "mill" | "lathe"): Setup {
+/**
+ * Narzędzie odczytane z komentarza przy wywołaniu, np. `T1 M06 (FREZ FI10)`,
+ * `T0303 (NOZ DO ROWKOW 3MM)`, `T0505 (WIERTLO FI8)`. Null, gdy komentarz nic nie mówi.
+ */
+export function inferTool(comment: string | undefined, mode: "mill" | "lathe"): Tool | null {
+  if (!comment) return null;
+  const c = comment.toUpperCase();
+  const num = (re: RegExp) => { const m = c.match(re); return m ? Number(m[1].replace(",", ".")) : undefined; };
+  const fi = num(/(?:FI|Ø|⌀)\s*(\d+(?:[.,]\d+)?)/);
+  const deg = num(/(\d+)\s*(?:ST\b|°)/);
+  if (mode === "lathe") {
+    if (/WIERT|DRILL/.test(c)) return { ...makeTool("drill"), d: fi ?? 8, angle: deg ?? 118 };
+    if (/ROWK|GROOV|PRZECIN/.test(c)) return { ...makeTool("grooving"), d: num(/(\d+(?:[.,]\d+)?)\s*MM/) ?? 3 };
+    if (/GWINT|THREAD/.test(c)) return { ...makeTool("threading"), angle: deg ?? 60 };
+    const r = num(/\bR\s*(\d+(?:[.,]\d+)?)/);
+    // kod ISO płytki, np. CNMG 120408, VBMT 160404: pierwsza litera to kształt, ostatnie cyfry — promień naroża
+    const iso = c.match(/\b([CDVTWS])[A-Z]{2}[A-Z]?\s*(\d{2})(\d{2})(\d{2})\b/) ?? c.match(/\b([CDVTWS])[NBC][MG][GTAX]\b/);
+    const shape = iso ? (iso[1] as InsertShape) : undefined;
+    const rIso = iso && iso[4] ? Number(iso[4]) / 10 : undefined;
+    if (/WYTACZ|BORING/.test(c)) return { ...makeTool("boring"), d: r ?? rIso ?? 0.4, ...(shape ? { shape } : {}) };
+    if (/NOZ|NÓŻ|TURN/.test(c) || iso) return { ...makeTool("turning"), d: r ?? rIso ?? 0.8, ...(shape ? { shape } : {}) };
+    return null;
+  }
+  if (/GWINTOWNIK|\bTAP\b/.test(c)) {
+    const m = c.match(/M(\d+(?:[.,]\d+)?)\s*[X×]\s*(\d+(?:[.,]\d+)?)/);
+    return { ...makeTool("tap"), d: m ? Number(m[1].replace(",", ".")) : fi ?? 10, flutes: m ? Number(m[2].replace(",", ".")) : 1.5 };
+  }
+  if (/NAWIERT|SPOT/.test(c)) return { ...makeTool("spotdrill"), d: fi ?? 10, angle: deg ?? 90 };
+  if (/WIERT|DRILL/.test(c)) return { ...makeTool("drill"), d: fi ?? 8, angle: deg ?? 118 };
+  if (/GLOWIC|GŁOWIC|FACE/.test(c)) return { ...makeTool("facemill"), d: fi ?? 50 };
+  if (/KULIST|BALL/.test(c)) return { ...makeTool("ballnose"), d: fi ?? 10 };
+  if (/FREZ|MILL/.test(c)) return { ...makeTool("endmill"), d: fi ?? 10 };
+  return null;
+}
+
+export function withProgramTools(setup: Setup, used: number[], mode: "mill" | "lathe", comments: Record<number, string> = {}): Setup {
   const missing = used.filter((t) => !(t in setup.tools));
   if (!missing.length) return setup;
   const tools = { ...setup.tools };
-  for (const t of missing) tools[t] = defaultTool(mode);
+  for (const t of missing) tools[t] = inferTool(comments[t], mode) ?? defaultTool(mode);
   return { ...setup, tools };
 }
 

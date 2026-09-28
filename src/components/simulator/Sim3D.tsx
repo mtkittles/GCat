@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { latheProfileCached, type LatheCache, type LatheProfile } from "./latheStock";
+import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
 import type { SimMode } from "./Simulator";
@@ -45,6 +47,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const [ghost, setGhost] = useState(false);
   // Bufor mapy wysokości — pozwala dokładać tylko nowe odcinki zamiast liczyć
   // cały program przy każdej klatce.
+  const latheRef = useRef<LatheCache | null>(null);
   const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
@@ -214,7 +217,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
         geo = meshFromHeightmap(buf.h, buf.meta);
       }
     } else {
-      geo = latheGeometry(program, cut, lengths, progress, setup);
+      geo = latheGeometryFrom(latheProfileCached(latheRef, program, program.segments, lengths, progress, setup));
     }
 
     // zarys gwintu w otworach obrobionych gwintownikiem lub frezem do gwintów
@@ -315,6 +318,7 @@ function safe(v: number, fallback: number, min = 0.01, max = 1e4) {
 
 /** Bryły narzędzi odwzorowujące rzeczywistą geometrię. */
 function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimMode): THREE.BufferGeometry {
+  if (mode === "lathe") return latheToolGeo(tool);
   const r = Math.max(0.15, safe(toolD, 10) / 2);
   const cut = Math.max(2, safe(tool.len, 30, 1, 400));
   const shankLen = 26;
@@ -420,7 +424,6 @@ function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimM
       return mergeGeo(g, shank(coreR, cut));
     }
     default: {
-      if (mode === "lathe") return latheToolGeo(tool.angle, tool.d);
       // frez walcowy
       let g: THREE.BufferGeometry = shank(r, 0, cut);
       g = helix(g, r, cut, tool.flutes, r * 0.1);
@@ -449,19 +452,19 @@ function mergeGeo(a: THREE.BufferGeometry, b: THREE.BufferGeometry): THREE.Buffe
   return g;
 }
 
-/** Nóż tokarski: romb o kącie przystawienia, leżący w płaszczyźnie ZX. */
-function latheToolGeo(angle: number, rEps: number): THREE.BufferGeometry {
-  const a = (Math.max(35, Math.min(120, angle)) * Math.PI) / 180;
-  const L = 16, w = 8;
-  const shape = new THREE.Shape();
-  shape.moveTo(0, 0);
-  shape.lineTo(-L * Math.cos(Math.PI - a), L * Math.sin(Math.PI - a) - w);
-  shape.lineTo(-L, -w - 4);
-  shape.lineTo(0, -w - 2);
-  shape.lineTo(0, 0);
-  const g = new THREE.ExtrudeGeometry(shape, { depth: Math.max(2, rEps * 4), bevelEnabled: false });
-  g.rotateY(Math.PI / 2);
-  return g;
+/** Nóż tokarski: płytka o kształcie ISO z oprawką, w płaszczyźnie ZX (three X = Z, three Y = X). */
+function latheToolGeo(tool: Tool): THREE.BufferGeometry {
+  const o = latheOutline(tool);
+  const extrude = (pts: [number, number][], depth: number) => {
+    const sh = new THREE.Shape();
+    pts.forEach(([z, x], k) => (k ? sh.lineTo(z, x) : sh.moveTo(z, x)));
+    sh.closePath();
+    const g = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false });
+    g.translate(0, 0, -depth / 2);
+    return g;
+  };
+  // Sama płytka (bez oprawki), żeby jej kształt i ułożenie były dobrze widoczne.
+  return extrude(o.insert, 4.8);
 }
 
 /** G-kod: X w prawo, Y od siebie, Z w górę → three: X, Y(up)=Z, Z=-Y. Tokarka: Z wzdłuż osi obrotu → three X, X promień → three Y. */
@@ -469,11 +472,6 @@ function toW(p: Vec3, mode: SimMode) {
   return mode === "mill" ? new THREE.Vector3(p.x, p.z, -p.y) : new THREE.Vector3(p.z, p.x, 0);
 }
 
-function cutUpTo(cut: Segment[], allSegs: Segment[], lengths: number[], progress: number) {
-  const out: { seg: Segment; t: number }[] = []; let acc = 0;
-  allSegs.forEach((sg, i) => { const len = lengths[i]; const d = Math.min(1, Math.max(0, (progress - acc) / (len || 1))); if (d > 0 && sg.kind !== "rapid") out.push({ seg: sg, t: d }); acc += len; });
-  return out;
-}
 
 export interface MillMeta { minX: number; maxX: number; minY: number; maxY: number; top: number; bottom: number; nx: number; ny: number; cx: number; cy: number }
 
@@ -642,23 +640,15 @@ function meshFromHeightmap(h: Float32Array, m: MillMeta) {
   return g;
 }
 
-function latheGeometry(program: ReturnType<typeof parseProgram>, cut: Segment[], lengths: number[], progress: number, setup: Setup) {
-  if (!cut.length) return null;
-  let minZ = Infinity, maxZ = -Infinity, maxR = 0;
-  for (const s of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(s, t); minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z); maxR = Math.max(maxR, p.x); }
-  const st = setup.stock;
-  const R0 = st.auto ? maxR + 2 : st.d / 2;
-  const z0 = st.auto ? minZ - 8 : -st.len; const z1 = Math.max(maxZ, 0);
-  const n = Math.min(260, gridMax()); const prof = new Float32Array(n + 1).fill(R0); const dz = (z1 - z0) / n;
-  for (const { seg, t } of cutUpTo(cut, program.segments, lengths, progress)) {
-    const steps = Math.max(2, Math.ceil((segmentLength(seg) * t) / (dz * 0.5)));
-    for (let i = 0; i <= steps; i++) { const p = pointAt(seg, (i / steps) * t); const k = Math.round((p.z - z0) / dz); if (k >= 0 && k <= n && p.x < prof[k]) prof[k] = Math.max(0.2, p.x); }
-    // narzędzie usuwa też wszystko "nad" torem na odcinku planowania — uproszczenie: ruch w -X obniża profil w tym Z
-  }
-  const points: THREE.Vector2[] = [new THREE.Vector2(0, z0)];
-  for (let k = 0; k <= n; k++) points.push(new THREE.Vector2(prof[k], z0 + k * dz));
-  points.push(new THREE.Vector2(0, z1));
-  const g = new THREE.LatheGeometry(points, 64); // obrót wokół Y; Y = Z tokarki
+/** Bryła pręta z profilu (zewnętrznego i otworu) — obrót wokół osi Z tokarki. */
+function latheGeometryFrom(pr: LatheProfile | null) {
+  if (!pr) return null;
+  const n = pr.rout.length - 1, every = Math.max(1, Math.floor(n / 500));
+  const pts: THREE.Vector2[] = [new THREE.Vector2(pr.rin[0], pr.z0)];
+  for (let k = 0; k <= n; k += every) pts.push(new THREE.Vector2(Math.max(0.05, pr.rout[k]), pr.z0 + k * pr.dz));
+  pts.push(new THREE.Vector2(Math.max(0.05, pr.rout[n]), pr.z1), new THREE.Vector2(pr.rin[n], pr.z1));
+  for (let k = n; k >= 0; k -= every) pts.push(new THREE.Vector2(pr.rin[k], pr.z0 + k * pr.dz));
+  const g = new THREE.LatheGeometry(pts, 72); // obrót wokół Y; Y = Z tokarki
   g.rotateZ(-Math.PI / 2); // Y → X (three X = Z tokarki)
   return g;
 }

@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
+import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
+import { latheOutline } from "./latheInsert";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
@@ -111,15 +113,22 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
 
   // narzędzia użyte w programie -> uzupełnij tabelę
-  const usedTools = useMemo(() => {
+  const { usedTools, toolNotes } = useMemo(() => {
     const set = new Set<number>();
-    for (const l of program.lines) for (const w of l.words) if (w.letter === "T") set.add(Math.floor(w.value));
-    return [...set].filter((n) => n > 0).sort((a, b) => a - b);
+    const notes: Record<number, string> = {};
+    for (const l of program.lines) for (const w of l.words) if (w.letter === "T") {
+      const t = Math.floor(w.value);
+      set.add(t);
+      if (l.comment && !notes[t]) notes[t] = l.comment;
+    }
+    return { usedTools: [...set].filter((n) => n > 0).sort((a, b) => a - b), toolNotes: notes };
   }, [program]);
-  const toolsKey = usedTools.join(",");
-  const [prevToolsKey, setPrevToolsKey] = useState(toolsKey);
-  if (prevToolsKey !== toolsKey) { setPrevToolsKey(toolsKey); setSetup((s) => withProgramTools(s, usedTools, mode)); }
+  const toolsKey = usedTools.map((t) => `${t}:${toolNotes[t] ?? ""}`).join(",");
+  // pusty klucz startowy: narzędzia z programu trafiają do tabeli już przy pierwszym renderze
+  const [prevToolsKey, setPrevToolsKey] = useState("");
+  if (prevToolsKey !== toolsKey) { setPrevToolsKey(toolsKey); setSetup((s) => withProgramTools(s, usedTools, mode, toolNotes)); }
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const latheCache = useRef<LatheCache | null>(null);
   const fsCanvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
@@ -131,6 +140,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const comp = useMemo(() => applyCompensation(program, setup, mode), [program, setup, mode]);
   const segments = showComp && comp.active ? comp.segments : program.segments;
   const lengths = useMemo(() => segments.map(playLength), [segments]);
+  // wymiary pręta na tokarce — widok musi objąć cały przekrój, nie tylko tor
+  const latheStockBox = useMemo(() => {
+    if (mode !== "lathe") return null;
+    const pr = initLatheProfile(program, segments, setup);
+    return pr ? { R0: pr.R0, z0: pr.z0, z1: pr.z1 } : null;
+  }, [mode, program, segments, setup]);
   const total = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
 
   // pętla animacji
@@ -238,7 +253,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
-    const { min: bmin, max: bmax } = program.bounds;
+    const { min: bmin0, max: bmax0 } = program.bounds;
+    const sb = showStock && !compact ? latheStockBox : null;
+    const bmin = sb ? { ...bmin0, z: Math.min(bmin0.z, sb.z0) } : bmin0;
+    const bmax = sb ? { ...bmax0, x: Math.max(bmax0.x, sb.R0), z: Math.max(bmax0.z, sb.z1) } : bmax0;
     // Tokarka: widok obu połówek wałka; w trybie pokazowym tylko górna połowa — większa skala.
     const min = mode === "lathe" ? { ...bmin, x: showcase ? Math.min(bmin.x, 0) : Math.min(bmin.x, -bmax.x) } : bmin;
     const max = bmax;
@@ -374,6 +392,28 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       }
     }
 
+    // tokarka: przekrój pręta — to, co zostało po dotychczasowych ruchach
+    if (mode === "lathe" && showStock && !compact) {
+      const pr = latheProfileCached(latheCache, program, segments, lengths, progress, setup);
+      if (pr) {
+        const n = pr.rout.length - 1;
+        const every = Math.max(1, Math.floor(n / 1200));
+        const halves = showcase ? [1] : [1, -1];
+        for (const sgn of halves) {
+          ctx.beginPath();
+          for (let k = 0; k <= n; k += every) { const [x, y] = P({ x: sgn * pr.rout[k], y: 0, z: pr.z0 + k * pr.dz }); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); }
+          { const [x, y] = P({ x: sgn * pr.rout[n], y: 0, z: pr.z1 }); ctx.lineTo(x, y); }
+          for (let k = n; k >= 0; k -= every) { const [x, y] = P({ x: sgn * pr.rin[k], y: 0, z: pr.z0 + k * pr.dz }); ctx.lineTo(x, y); }
+          { const [x, y] = P({ x: sgn * pr.rin[0], y: 0, z: pr.z0 }); ctx.lineTo(x, y); }
+          ctx.closePath();
+          ctx.fillStyle = sgn > 0 ? "rgba(148,163,184,0.24)" : "rgba(148,163,184,0.10)";
+          ctx.strokeStyle = sgn > 0 ? "rgba(203,213,225,0.6)" : "rgba(203,213,225,0.25)";
+          ctx.lineWidth = 1.2;
+          ctx.fill(); ctx.stroke();
+        }
+      }
+    }
+
     // tokarka: ślad naroża płytki — obwiednia promienia rε wokół toru środka naroża.
     // Jej krawędź od strony materiału to kontur, który nóż naprawdę zostawia.
     if (mode === "lathe" && !compact) {
@@ -497,15 +537,26 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const [tx, ty] = P(currentPos);
     // Narzędzie: obrys o rzeczywistej średnicy plus krzyż w osi wrzeciona.
     const rPx = mode === "mill" && !isLatheTool(activeTool.kind) ? Math.max(4, cuttingRadius(activeTool) * scale) : 6;
-    // Nóż tokarski z narożem: okrąg naroża rysowany wokół jego środka, krzyż w punkcie P.
-    const nose = mode === "lathe" ? noseOf(activeTool) : null;
-    const [ncx, ncy] = nose ? P({ ...currentPos, z: currentPos.z - nose.tz, x: currentPos.x - nose.tx }) : [tx, ty];
-    const nR = nose ? Math.max(2.5, nose.r * scale) : rPx;
     ctx.save();
-    ctx.fillStyle = "rgba(248,250,252,0.10)";
-    ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.stroke();
+    if (mode === "lathe" && !compact) {
+      // Nóż tokarski: płytka w oprawce, ułożona wg kąta przystawienia; krzyż w punkcie P.
+      const o = latheOutline(activeTool);
+      const poly = (pts: [number, number][], fill: string, stroke: string) => {
+        ctx.beginPath();
+        pts.forEach(([dz, dx], k) => { const [x, y] = P({ ...currentPos, z: currentPos.z + dz, x: currentPos.x + dx }); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+        ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke();
+      };
+      if (o.holder) poly(o.holder, "rgba(71,85,105,0.55)", "rgba(148,163,184,0.7)");
+      poly(o.insert, "rgba(202,160,40,0.55)", "#F5D76E");
+    } else {
+      const nose = mode === "lathe" ? noseOf(activeTool) : null;
+      const [ncx, ncy] = nose ? P({ ...currentPos, z: currentPos.z - nose.tz, x: currentPos.x - nose.tx }) : [tx, ty];
+      const nR = nose ? Math.max(2.5, nose.r * scale) : rPx;
+      ctx.fillStyle = "rgba(248,250,252,0.10)";
+      ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.stroke();
+    }
     ctx.restore();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
@@ -550,7 +601,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 

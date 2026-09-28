@@ -1,5 +1,6 @@
 "use client";
-import { useId, useState, type ReactNode } from "react";
+import { useEffect, useId, useState, type ReactNode } from "react";
+import { recordQuiz } from "@/lib/progress";
 import type { Question } from "@/lib/lesson";
 import { rich } from "@/components/Rich";
 import { PointGrid } from "./PointGrid";
@@ -44,7 +45,7 @@ function GapInput({ template, values, onChange, disabled }: { template: string; 
   );
 }
 
-export default function Quiz({ questions, figs = {}, drill = false }: { questions: Question[]; figs?: Record<string, ReactNode>; drill?: boolean }) {
+export default function Quiz({ questions, figs = {}, drill = false, progressKey }: { questions: Question[]; figs?: Record<string, ReactNode>; drill?: boolean; progressKey?: string }) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const [order, setOrder] = useState(() => questions.map((_, i) => i));
   const [pos, setPos] = useState(0);
@@ -55,6 +56,12 @@ export default function Quiz({ questions, figs = {}, drill = false }: { question
 
   const qi = order[pos];
   const q = questions[qi];
+
+  // wynik pełnego testu trafia do postępu nauki (powtórka samych błędnych — nie)
+  const finished = !q && !drill && !!progressKey && order.length === questions.length;
+  useEffect(() => {
+    if (finished && progressKey) recordQuiz(progressKey, score, order.length);
+  }, [finished, progressKey, score, order.length]);
 
   const restart = (idx: number[]) => { setOrder(idx); setPos(0); setAns(null); setChecked(false); setWrong([]); setScore(0); };
 
