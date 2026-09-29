@@ -1,11 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
 import MobileHome from "@/components/MobileHome";
+import HomeHero, { type HeroSlide } from "@/components/HomeHero";
+import HomeQuick from "@/components/HomeQuick";
+import { PROGRAMS } from "@/content/programy";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
 import Chip from "@/components/ui/Chip";
-import BrandLogo from "@/components/BrandLogo";
 import { exercises } from "@/lib/content";
 import { flat, lessonHref, readyLessons } from "@/lib/course";
 import { gcodes } from "@/lib/gcodes";
@@ -60,17 +61,28 @@ const I = {
   check: "M4 12l5 5L20 6",
 };
 
-const HERO_BULLETS: { i: string; a: string; b: string }[] = [
-  { i: I.play, a: "Symulator", b: "CNC" },
-  { i: I.calc, a: "Kalkulatory", b: "technologiczne" },
-  { i: I.check, a: "Praktyczne", b: "zadania" },
-  { i: I.book, a: "Wiedza", b: "w jednym miejscu" },
-];
 
 const NAUKA_TOTAL = flat("frezowanie").length + flat("toczenie").length;
 const HOME_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).slice(0, 3).map((l) => ({
   href: lessonHref(t, l.slug!), id: l.id, title: l.title, minutes: l.doc!.minutes, track: t === "frezowanie" ? "FREZOWANIE" : "TOCZENIE",
 })));
+
+const QUICK_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({ track: t, id: l.id, title: l.title, href: lessonHref(t, l.slug!) })));
+
+const HERO_SLIDES: HeroSlide[] = [
+  { src: "/img/hero-cnc.jpg", kicker: "Nauka", stat: `${NAUKA_TOTAL} lekcji`, title: "Naucz się czytać i pisać G-kod.",
+    text: "Dwie ścieżki — frezowanie i toczenie. Każda lekcja ma teorię z rysunkami, zadanie w symulatorze, test i program detalu budowany krok po kroku.",
+    cta: { href: "/nauka", label: "Rozpocznij naukę" }, alt: { href: "/nauka/toczenie", label: "Ścieżka toczenia" } },
+  { src: "/img/banner-simulator.jpg", kicker: "Symulator", stat: "2D + 3D", title: "Zobacz, co robi Twój program.",
+    text: "Tor narzędzia, ubytek materiału, korekcja promienia, cykle wiercenia i toczenia, gwinty. Frezarka i tokarka, składnia Fanuc.",
+    cta: { href: "/symulator", label: "Otwórz symulator" } },
+  { src: "/img/banner-mill.jpg", kicker: "Gotowe programy", stat: `${PROGRAMS.length} detali`, title: "Kompletne programy z narzędziami.",
+    text: "Tuleje, sworznie, kołnierze, gwinty frezowane i toczone. Podgląd detalu i otwarcie w symulatorze jednym kliknięciem.",
+    cta: { href: "/programy", label: "Przeglądaj programy" } },
+  { src: "/img/banner-thread.jpg", kicker: "Kody G i M", stat: `${gcodes.length} kart`, title: "Każdy kod wyjaśniony po polsku.",
+    text: "Składnia Fanuc i Sinumerik, schemat, symulacja przykładu, typowe błędy i lekcje, w których kod pracuje.",
+    cta: { href: "/kody", label: "Przeglądaj kody" }, alt: { href: "/kalkulator", label: "Kalkulatory" } },
+];
 
 const PILLARS = [
   { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwie ścieżki — frezowanie i toczenie — od osi maszyny do gotowego programu.", m: `${NAUKA_TOTAL} lekcji` },
@@ -86,51 +98,10 @@ export default function Home() {
     <div className="grid gap-14">
       <MobileHome />
 
-      <section className="hero">
-        <Image src="/img/hero-cnc.jpg" alt="Frez w trakcie obróbki bloku stalowego z wygrawerowanym znakiem GCat"
-          fill priority sizes="100vw" className="hero-photo" />
-        <div className="hero-scrim" />
-        <div className="hero-inner">
-          <div className="grid gap-5 max-w-2xl">
-            <span className="hero-kicker">
-              <span className="on">G-code</span><i>/</i>CNC<i>/</i>Praktyka
-            </span>
-            <h1>Naucz się czytać<br />i pisać G-kod.</h1>
-            <p className="text-lg">Po polsku, z symulatorem toru narzędzia.</p>
-            <div className="hero-actions">
-              <Link className="btn" href="/nauka">Rozpocznij naukę</Link>
-              <Link className="btn ghost" href="/kody">Przeglądaj kody</Link>
-            </div>
-          </div>
-
-          <ul className="hero-bullets">
-            {HERO_BULLETS.map((b) => (
-              <li key={b.a}>
-                <span className="hero-bullet-ico">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={b.i} /></svg>
-                </span>
-                <span>{b.a}<br />{b.b}</span>
-              </li>
-            ))}
-          </ul>
-
-          <span className="hero-corner">From<br />G-code<br />to parts</span>
-        </div>
-      </section>
-
-      <section className="brandblock reveal">
-        <BrandLogo height={190} variant="lockup" />
-        <span className="brandblock-motto">Zrozum. Programuj. Obrabiaj.</span>
-        <p className="brandblock-lead">
-          Każdy kod ma tu opis, schemat i przykładowy program, który od razu uruchomisz w symulatorze.
-        </p>
-        <div className="brandblock-stats">
-          <span className="brandstat"><b>27</b><span>kart kodów</span></span>
-          <span className="brandstat"><b>12</b><span>lekcji</span></span>
-          <span className="brandstat"><b>16</b><span>zadań</span></span>
-          <span className="brandstat"><b>2D+3D</b><span>symulacja</span></span>
-        </div>
-      </section>
+      <div className="home-top">
+        <HomeHero slides={HERO_SLIDES} />
+        <HomeQuick lessons={QUICK_LESSONS} counts={{ programs: PROGRAMS.length, codes: gcodes.length, lessons: NAUKA_TOTAL }} />
+      </div>
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"

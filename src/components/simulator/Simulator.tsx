@@ -277,8 +277,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const bmin = sb ? { ...bmin0, z: Math.min(bmin0.z, sb.z0) } : bmin0;
     const bmax = sb ? { ...bmax0, x: Math.max(bmax0.x, sb.R0), z: Math.max(bmax0.z, sb.z1) } : bmax0;
     // Tokarka: widok obu połówek wałka; w trybie pokazowym tylko górna połowa — większa skala.
-    const min = mode === "lathe" ? { ...bmin, x: showcase ? Math.min(bmin.x, 0) : Math.min(bmin.x, -bmax.x) } : bmin;
-    const max = bmax;
+    const min0 = mode === "lathe" ? { ...bmin, x: showcase ? Math.min(bmin.x, 0) : Math.min(bmin.x, -bmax.x) } : bmin;
+    // margines kadru: promień narzędzia i kilka procent rozpiętości, żeby tor nie leżał na krawędzi widoku
+    const toolR = mode === "mill" && !isLatheTool(activeTool.kind) ? cuttingRadius(activeTool) : 0;
+    const mgn = Math.max(1.5, 0.05 * Math.max(bmax[ha] - min0[ha], bmax[va] - min0[va])) + toolR;
+    const min = { ...min0, [ha]: min0[ha] - mgn, [va]: mode === "lathe" && showcase ? min0[va] : min0[va] - mgn } as Vec3;
+    const max = { ...bmax, [ha]: bmax[ha] + mgn, [va]: bmax[va] + mgn } as Vec3;
     const spanH = Math.max(max[ha] - min[ha], 10);
     const spanV = Math.max(max[va] - min[va], 10);
     const pad = 28;
@@ -488,7 +492,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
       if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-      drawSeg(ctx, sg, P, 1, showcase ? 0.28 : 0.22, showcase);
+      drawSeg(ctx, sg, P, 1, showcase ? 0.32 : 0.34, showcase);
       if (done > 0) drawSeg(ctx, sg, P, done, 1, showcase);
       acc += len;
     });

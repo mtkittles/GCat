@@ -11,7 +11,8 @@ import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./set
 
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean }
 
-const CELL_TARGET = 0.35;   // docelowy rozmiar komórki mapy wysokości [mm]
+const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
+const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
 const GRID_MIN = 100;
 
 /**
@@ -23,9 +24,11 @@ function gridMax() {
   if (typeof window === "undefined") return 260;
   const narrow = window.innerWidth < 900;
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
-  if (narrow || mem <= 4) return 190;
-  if (mem <= 6) return 280;
-  return 380;
+  // Telefon: oszczędnie. Komputer: gęsta siatka — łuki bez widocznych schodków.
+  if (narrow) return mem <= 4 ? 190 : 240;
+  if (mem < 4) return 280;
+  if (mem < 8) return 420;
+  return 520;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
 export default function Sim3D({ source, mode, progress, setup, segments: segs, fill }: Props) {
@@ -491,9 +494,13 @@ function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setu
     top = st.z - st.oz; bottom = -st.oz;
   }
   const spanX = Math.max(1e-6, maxX - minX), spanY = Math.max(1e-6, maxY - minY);
+  // Budżet punktów siatki zależny od urządzenia; na komputerze oczko schodzi do ~0,15 mm,
+  // żeby łuki i promienie w 3D nie miały widocznych schodków.
   const cap = gridMax();
-  const nx = Math.max(GRID_MIN, Math.min(cap, Math.round(spanX / CELL_TARGET)));
-  const ny = Math.max(40, Math.min(cap, Math.round(nx * spanY / spanX)));
+  const budget = cap * cap;
+  const cell = Math.max(CELL_MIN, Math.min(CELL_TARGET, Math.sqrt((spanX * spanY) / budget)));
+  const nx = Math.max(GRID_MIN, Math.min(Math.round(cap * 1.8), Math.round(spanX / cell)));
+  const ny = Math.max(40, Math.min(Math.round(cap * 1.8), Math.round(nx * spanY / spanX)));
   return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
 }
 
@@ -570,19 +577,33 @@ function threadVisuals(program: ReturnType<typeof parseProgram>, lengths: number
 
   const group = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.45, roughness: 0.5, side: THREE.DoubleSide });
+  // Ścianka gwintu: zarys piłowy 60° na obwodzie otworu, wtopiony w ściankę (od średnicy
+  // rdzenia do średnicy nominalnej), z fazą linii śrubowej — wygląda jak prawdziwy gwint.
   for (const h of holes) {
     const depth = Math.max(0.5, h.top - h.bottom);
-    const turns = Math.max(1, Math.min(40, Math.floor(depth / h.pitch)));
-    const pts: THREE.Vector3[] = [];
-    const perTurn = 20;
-    for (let i = 0; i <= turns * perTurn; i++) {
-      const t = i / perTurn;
-      const ang = t * Math.PI * 2;
-      pts.push(new THREE.Vector3(h.x + h.r * Math.cos(ang), -t * h.pitch, -(h.y + h.r * Math.sin(ang))));
+    const hDepth = Math.min(h.r * 0.35, 0.5413 * h.pitch);
+    const rMin = Math.max(0.2, h.r - hDepth);
+    const segA = 72, perPitch = 10;
+    const segZ = Math.max(4, Math.min(1400, Math.round((depth / h.pitch) * perPitch)));
+    const pos: number[] = [], idx: number[] = [];
+    for (let j = 0; j <= segZ; j++) {
+      const z = h.top - (j / segZ) * depth;
+      for (let i = 0; i <= segA; i++) {
+        const a = (i / segA) * Math.PI * 2;
+        const ph = (((h.top - z) / h.pitch + i / segA) % 1 + 1) % 1;
+        const tri = 1 - Math.abs(2 * ph - 1);
+        const r = rMin + hDepth * tri;
+        pos.push(h.x + r * Math.cos(a), z, -(h.y + r * Math.sin(a)));
+      }
     }
-    if (pts.length < 2) continue;
-    const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.min(600, turns * perTurn), h.pitch * 0.28, 5, false);
-    group.add(new THREE.Mesh(tube, mat));
+    for (let j = 0; j < segZ; j++) for (let i = 0; i < segA; i++) {
+      const a = j * (segA + 1) + i, b = a + 1, c = a + segA + 1, d = c + 1;
+      idx.push(a, b, c, b, d, c);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(idx); g.computeVertexNormals();
+    group.add(new THREE.Mesh(g, mat));
   }
   return group;
 }

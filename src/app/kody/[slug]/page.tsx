@@ -1,3 +1,4 @@
+import CardQuick from "@/components/CardQuick";
 import { cardCodes, lessonsForCodes } from "@/lib/lessonRefs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -119,7 +120,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   if (art) {
     const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(art), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
     return (
-      <div className="article-layout">
+      <div className="article-layout cc">
+        <aside className="cc-left"><LeftToc items={toc} /></aside>
         <article className="grid gap-6 min-w-0 code-card">
           {head}
           {syntax}
@@ -130,7 +132,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {related}
           {footerNav}
         </article>
-        <aside className="toc-rail"><Toc blocks={art} sticky /></aside>
+        <aside className="cc-right"><CardQuick g={g} related={rel} lessons={inLessons} toc={toc} /></aside>
         <div className="toc-drawer-only"><TocDrawer title={g.code} items={toc} /></div>
       </div>
     );
@@ -149,7 +151,9 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   ];
 
   return (
-    <article className="grid gap-6 max-w-4xl code-card">
+    <div className="article-layout cc">
+    <aside className="cc-left"><LeftToc items={toc} /></aside>
+    <article className="grid gap-6 min-w-0 code-card">
       {head}
       {syntax}
       {figure}
@@ -183,7 +187,19 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
       {lessonsSec}
       {related}
       {footerNav}
-      <TocDrawer title={g.code} items={toc} />
     </article>
+    <aside className="cc-right"><CardQuick g={g} related={rel} lessons={inLessons} toc={toc} /></aside>
+    <div className="toc-drawer-only"><TocDrawer title={g.code} items={toc} /></div>
+    </div>
+  );
+}
+
+/** Spis sekcji karty — lewa kolumna na szerokich ekranach. */
+function LeftToc({ items }: { items: { id: string; label: string }[] }) {
+  return (
+    <nav className="toc toc-sticky" aria-label="W tej karcie">
+      <span className="toc-title">W tej karcie</span>
+      <ol>{items.map((t) => <li key={t.id}><a href={`#${t.id}`}>{t.label}</a></li>)}</ol>
+    </nav>
   );
 }

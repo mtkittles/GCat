@@ -96,14 +96,18 @@ function Mill({ prog, setup, id }: { prog: Prog; setup: SetupT; id: string }) {
         <linearGradient id={`${id}-m`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#e4e9f0" /><stop offset=".55" stopColor="#bcc5d1" /><stop offset="1" stopColor="#8e98a6" />
         </linearGradient>
+        <clipPath id={`${id}-c`}><rect x={X(x0)} y={Y(y1)} width={(x1 - x0) * s} height={(y1 - y0) * s} rx={3} /></clipPath>
       </defs>
       <rect x={X(x0)} y={Y(y1)} width={(x1 - x0) * s} height={(y1 - y0) * s} rx={3} fill={`url(#${id}-m)`} className="pp-part" />
+      {/* ślady tylko w obrębie półfabrykatu — dojazdy i wybiegi poza nim nic nie zdejmują */}
+      <g clipPath={`url(#${id}-c)`}>
       {marks.map((m, k) => {
         const isHole = m.sg.kind === "linear" && Math.hypot(m.sg.to.x - m.sg.from.x, m.sg.to.y - m.sg.from.y) < 1e-6;
         return isHole
           ? <circle key={k} cx={X(m.sg.from.x)} cy={Y(m.sg.from.y)} r={m.r * s} fill={shade(m.z)} />
           : <path key={k} d={path(m.sg)} stroke={shade(m.z)} strokeWidth={Math.max(0.8, 2 * m.r * s)} strokeLinecap="round" strokeLinejoin="round" fill="none" />;
       })}
+      </g>
     </svg>
   );
 }

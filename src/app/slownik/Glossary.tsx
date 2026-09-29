@@ -6,6 +6,8 @@ import { glossary } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
 
+const first = (t: string) => t.trim().charAt(0).toLocaleUpperCase("pl");
+
 export default function Glossary() {
   const [q, setQ] = useState("");
   const list = useMemo(() => {
@@ -14,6 +16,7 @@ export default function Glossary() {
     if (!s) return sorted;
     return sorted.filter((e) => [e.term, e.def, ...e.aliases].join(" ").toLowerCase().includes(s));
   }, [q]);
+  const letters = useMemo(() => [...new Set(list.map((e) => first(e.term)))], [list]);
 
   return (
     <div className="grid gap-5">
@@ -22,9 +25,14 @@ export default function Glossary() {
       <div className="filters">
         <input placeholder="Szukaj: pocienianie, naddatek, ap…" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
+      <nav className="gl-letters" aria-label="Litery">
+        {letters.map((L) => <a key={L} href={`#litera-${L}`}>{L}</a>)}
+        <span className="gl-count">{list.length} haseł</span>
+      </nav>
       <dl className="glossary">
-        {list.map((e) => (
-          <div key={e.term} id={e.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-")}>
+        {list.map((e, k) => (
+          <div key={e.term} id={e.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-")} className={e.diagram ? "has-fig" : undefined}>
+            {(k === 0 || first(list[k - 1].term) !== first(e.term)) && <span className="gl-letter" id={`litera-${first(e.term)}`}>{first(e.term)}</span>}
             <dt>{e.term}</dt>
             <dd>
               <p>{e.def}</p>

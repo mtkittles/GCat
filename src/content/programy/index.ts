@@ -391,7 +391,7 @@ M30`,
   },
   {
     slug: "kolnierz-okragly", title: "Kołnierz z otworami na okręgu", mode: "mill", category: "Detale kompletne", level: "zaawansowany",
-    summary: "Okrągły kontur Ø90 pełnym łukiem z korekcją, kieszeń Ø40 z wejściem po spirali z podprogramu i sześć otworów na średnicy podziałowej 70.",
+    summary: "Okrągły kołnierz Ø90 na kwadratowej płycie: narożniki zebrane okręgami o malejącym promieniu, kontur na gotowo pełnym łukiem z korekcją, kieszeń Ø40 z wejściem po spirali i sześć otworów na średnicy podziałowej 70.",
     features: ["G41", "G02 pełny okrąg", "spirala", "M98", "G82", "G83"],
     stock: { x: 100, y: 100, z: 15, ox: 50, oy: 50, oz: 15 },
     lesson: L("frezowanie", "F6.3"),
@@ -407,11 +407,18 @@ T1 M06 (FREZ FI12)
 G43 H1 Z50.
 S2600 M03
 M08
-(KONTUR ZEWNETRZNY FI90)
-G00 X60. Y0.
+(KOLNIERZ FI90 - NAJPIERW NAROZNIKI PLYTY)
+G00 X80. Y0.
 G00 Z2.
 G01 Z-5. F150
-G41 D1 G01 X45. F450
+G01 X72. F450
+G02 I-72.
+G01 X64.
+G02 I-64.
+G01 X58.
+G02 I-58.
+(KONTUR FI90 NA GOTOWO Z KOREKCJA)
+G41 D1 G01 X45.
 G02 I-45.
 G40 G01 X60.
 G00 Z2.
