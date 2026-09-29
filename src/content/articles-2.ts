@@ -1,39 +1,6 @@
 import type { Block } from "@/lib/article";
 
 export const part2: Record<string, Block[]> = {
-  "g90-g91": [
-    { t: "p", x: "Funkcje **G90** i **G91** decydują, jak sterownik interpretuje liczby przy adresach osi. W trybie **absolutnym (G90)** każda współrzędna jest adresem względem **zera detalu**. W trybie **przyrostowym (G91)** — przesunięciem względem **aktualnego położenia narzędzia**." },
-    { t: "diagram", id: "g90-g91" },
-    { t: "h", x: "Ten sam blok, dwa różne miejsca" },
-    { t: "p", x: "Narzędzie stoi w punkcie X20 Y10. Blok `G01 X30 Y20` oznacza:" },
-    { t: "ul", items: [
-      "w trybie **G90** — jedź do punktu o współrzędnych (30, 20),",
-      "w trybie **G91** — przesuń się o 30 mm w X i 20 mm w Y, czyli do punktu (50, 30).",
-    ] },
-    { t: "h", x: "Kiedy który tryb" },
-    { t: "table", head: ["Zastosowanie", "Tryb", "Uzasadnienie"], rows: [
-      ["Kontur z rysunku z wymiarami od bazy", "G90", "Współrzędne przepisuje się wprost z rysunku"],
-      ["Wymiarowanie łańcuchowe na rysunku", "G91", "Odległości między elementami są podane wprost"],
-      ["Powtarzalny wzór (rząd otworów, rowki)", "G91", "Jeden fragment kodu powtarzany w pętli"],
-      ["Podprogram używany w wielu miejscach", "G91", "Działa niezależnie od punktu wywołania"],
-      ["Odjazd do punktu referencyjnego", "G91", "`G91 G28 Z0` — „stąd prosto do góry”"],
-      ["Program główny", "G90", "Odporny na przerwanie i wznowienie od dowolnego bloku"],
-    ] },
-    { t: "note", kind: "warn", x: "Program napisany w całości przyrostowo **nie da się bezpiecznie wznowić od środka**. Po zatrzymaniu narzędzia w połowie obróbki nie ma jak wrócić do właściwego punktu odniesienia — każdy kolejny ruch liczony jest od miejsca, w którym maszyna aktualnie stoi. To główny powód, dla którego G90 jest standardem w programie głównym." },
-    { t: "sim", src: "G21 G90 G17 G54\nS2000 M03\nG00 X10 Y10 Z5\nG01 Z-2 F120\nG91\nG01 X30 F350\nG01 Y20\nG01 X-30\nG01 Y-20\nG90\nG00 Z5\nG00 X60 Y10\nG01 Z-2 F120\nG91\nG01 X30 F350\nG01 Y20\nG01 X-30\nG01 Y-20\nG90\nG00 Z5\nM30", caption: "Ten sam prostokąt wykonany dwa razy: zmienia się tylko punkt startowy, a fragment przyrostowy pozostaje identyczny. Właśnie ta cecha czyni G91 użytecznym w podprogramach." },
-    { t: "h", x: "Tokarki Fanuc: U, W zamiast G91" },
-    { t: "p", x: "Na tokarkach Fanuc zamiast przełączania trybu stosuje się **osobne adresy przyrostowe**: `U` dla osi X i `W` dla osi Z. Można je mieszać z absolutnymi w jednym bloku — `G01 X40 W-10` oznacza „jedź na średnicę 40 i przesuń się o 10 mm w lewo”. Uwaga: `U` jest **średnicowe**, tak jak `X`." },
-    { t: "h", x: "Sinumerik: mieszanie w jednym bloku" },
-    { t: "p", x: "Sinumerik pozwala określić tryb osobno dla każdej osi funkcjami `AC()` (bezwzględnie) i `IC()` (przyrostowo): `G1 X=AC(50) Y=IC(10)` oznacza „jedź do X równego 50 i przesuń się o 10 w Y”. To wygodne przy jednorazowych wyjątkach od trybu ustawionego globalnie." },
-    { t: "h", x: "Typowe błędy" },
-    { t: "ul", items: [
-      "**Brak powrotu do G90** po fragmencie przyrostowym — dalsze bloki jadą w zupełnie inne miejsca.",
-      "**`G90 G28 Z0`** — maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Prawidłowo: `G91 G28 Z0`.",
-      "**Podprogram przyrostowy, który nie wraca do punktu startu** — przy każdym powtórzeniu wzór przesuwa się o nadmiar.",
-      "**Domyślne założenie trybu** — nie każdy sterownik startuje w G90. Blok bezpiecznego startu powinien go zawierać jawnie.",
-    ] },
-  ],
-
   "g81-g83": [
     { t: "p", x: "**Cykle stałe** zastępują kilkanaście bloków jednym. Zamiast pisać dojazd, zagłębienie, wycofanie i przejazd dla każdego otworu z osobna, definiujesz cykl raz, a potem podajesz same współrzędne kolejnych otworów. Sterownik powtarza w nich całą sekwencję." },
     { t: "h", x: "Anatomia cyklu wiercenia" },

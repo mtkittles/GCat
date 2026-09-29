@@ -147,7 +147,9 @@ export function inferTool(comment: string | undefined, mode: "mill" | "lathe"): 
 }
 
 export function withProgramTools(setup: Setup, used: number[], mode: "mill" | "lathe", comments: Record<number, string> = {}): Setup {
-  const missing = used.filter((t) => !(t in setup.tools));
+  // brakujące narzędzia, a także nietknięte narzędzie domyślne, jeśli komentarz mówi coś innego
+  const untouched = (t: number) => JSON.stringify(setup.tools[t]) === JSON.stringify(defaultTool(mode));
+  const missing = used.filter((t) => !(t in setup.tools) || (untouched(t) && inferTool(comments[t], mode) !== null));
   if (!missing.length) return setup;
   const tools = { ...setup.tools };
   for (const t of missing) tools[t] = inferTool(comments[t], mode) ?? defaultTool(mode);

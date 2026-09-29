@@ -38,12 +38,12 @@ const g40g42: Block[] = [
     "wyłączenie `G40` też wymaga ruchu — odjazdu od detalu.",
   ] },
   { t: "diagram", id: "comp-entry" },
-  { t: "sim", src: "G21 G90 G17 G54 G40\nT1 M06 (FREZ FI10)\nS2200 M03\nG00 X-20. Y-20. Z5.\nG01 Z-3. F100\nG41 D1 G01 X0. Y0. F350\nG01 Y40.\nX60.\nY0.\nX0.\nG40 G01 X-20. Y-20.\nG00 Z5.\nM30", caption: "Program opisuje prostokąt 60 × 40 z rysunku. Przycisk „Tor rzeczywisty (G41/G42)” pokazuje środek freza odsunięty o 5 mm, przerywana linia — kontur z programu." },
+  { t: "sim", src: "G21 G90 G17 G54 G40\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2200 M03\nG00 X-20. Y-20. Z5.\nG01 Z-3. F100\nG41 D1 G01 X0. Y0. F350\nG01 Y40.\nX60.\nY0.\nX0.\nG40 G01 X-20. Y-20.\nG00 Z5.\nM30", caption: "Program opisuje prostokąt 60 × 40 z rysunku. Przycisk „Tor rzeczywisty (G41/G42)” pokazuje środek freza odsunięty o 5 mm, przerywana linia — kontur z programu." },
 
   { t: "h", x: "Wejście styczne" },
   { t: "p", x: "Dojazd prostopadły zostawia na ściance ślad w miejscu wejścia. Lepiej włączyć korekcję na odcinku, a potem wejść na kontur **łukiem stycznym** o promieniu większym niż promień freza — tak samo wyjść." },
   { t: "diagram", id: "f43-leadin" },
-  { t: "sim", src: "G21 G90 G17 G54 G40\nT1 M06 (FREZ FI10)\nS2400 M03\nG00 X-25. Y10. Z5.\nG01 Z-3. F100\nG41 D1 G01 X-10. Y0. F350\nG03 X0. Y10. R10.\nG01 Y40.\nX60.\nY0.\nX0.\nY10.\nG03 X-10. Y20. R10.\nG40 G01 X-25. Y10.\nG00 Z5.\nM30", caption: "Łuk R10 wprowadza frez stycznie do ścianki i wyprowadza go tak samo — bez uskoku na powierzchni." },
+  { t: "sim", src: "G21 G90 G17 G54 G40\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2400 M03\nG00 X-25. Y10. Z5.\nG01 Z-3. F100\nG41 D1 G01 X-10. Y0. F350\nG03 X0. Y10. R10.\nG01 Y40.\nX60.\nY0.\nX0.\nY10.\nG03 X-10. Y20. R10.\nG40 G01 X-25. Y10.\nG00 Z5.\nM30", caption: "Łuk R10 wprowadza frez stycznie do ścianki i wyprowadza go tak samo — bez uskoku na powierzchni." },
 
   { t: "h", x: "Ograniczenia geometrii" },
   { t: "ul", items: [
