@@ -22,10 +22,12 @@ export function latheOutline(t: Tool): Outline {
     };
   }
   if (t.kind === "threading") {
+    // kierunek ostrza 6 (P nad środkiem) — nóż do gwintów wewnętrznych, ostrze skierowane od osi
+    const g = t.tip === 6 ? -1 : 1;
     const L = 9, a = rad(90 - (t.angle || 60) / 2), b = rad(90 + (t.angle || 60) / 2);
     return {
-      insert: [[0, 0], [L * Math.cos(a), L * Math.sin(a)], [L * Math.cos(b), L * Math.sin(b)]],
-      holder: [[-6, 7.5], [6, 7.5], [6, 26], [-6, 26]],
+      insert: [[0, 0], [L * Math.cos(a), g * L * Math.sin(a)], [L * Math.cos(b), g * L * Math.sin(b)]],
+      holder: g > 0 ? [[-6, 7.5], [6, 7.5], [6, 26], [-6, 26]] : [[-4, -7.5], [4, -7.5], [4, -9], [30, -9], [30, -3], [-4, -3]].map(([z, x]) => [z, x] as [number, number]),
     };
   }
   if (t.kind === "drill") {

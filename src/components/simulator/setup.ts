@@ -67,7 +67,7 @@ export const TOOL_FIELDS: Record<ToolKind, ("d" | "flutes" | "angle" | "corner" 
   turning: ["d", "tip", "angle", "shape"],
   grooving: ["d", "len"],
   boring: ["d", "tip", "angle", "shape"],
-  threading: ["d", "angle"],
+  threading: ["d", "tip", "angle"],
 };
 
 export const FIELD_LABEL: Record<string, { l: string; unit?: string; step?: number; min?: number }> = {
@@ -124,7 +124,7 @@ export function inferTool(comment: string | undefined, mode: "mill" | "lathe"): 
   if (mode === "lathe") {
     if (/WIERT|DRILL/.test(c)) return { ...makeTool("drill"), d: fi ?? 8, angle: deg ?? 118 };
     if (/ROWK|GROOV|PRZECIN/.test(c)) return { ...makeTool("grooving"), d: num(/(\d+(?:[.,]\d+)?)\s*MM/) ?? 3 };
-    if (/GWINT|THREAD/.test(c)) return { ...makeTool("threading"), angle: deg ?? 60 };
+    if (/GWINT|THREAD/.test(c)) return { ...makeTool("threading"), angle: deg ?? 60, ...(/WEWN|INTERN/.test(c) ? { tip: 6 } : {}) };
     const r = num(/\bR\s*(\d+(?:[.,]\d+)?)/);
     // kod ISO płytki, np. CNMG 120408, VBMT 160404: pierwsza litera to kształt, ostatnie cyfry — promień naroża
     const iso = c.match(/\b([CDVTWS])[A-Z]{2}[A-Z]?\s*(\d{2})(\d{2})(\d{2})\b/) ?? c.match(/\b([CDVTWS])[NBC][MG][GTAX]\b/);

@@ -347,9 +347,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       const target: Vec3 = { ...progTarget };
       applyFrames(target, s);
       const from = { ...state.pos };
-      if (s.motion === null) {
+      // G28 to jednorazowy najazd na punkt referencyjny — zawsze ruchem szybkim, bez zmiany trybu ruchu.
+      const g28 = gs.includes(28);
+      if (s.motion === null && !g28) {
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
-      } else if (s.motion === 0) {
+      } else if (s.motion === 0 || g28) {
         segments.push({ kind: "rapid", from, to: target, line: index });
         desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
       } else if (s.motion === 1) {
@@ -473,7 +475,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       const root = xv !== undefined ? xv / 2 : uv !== undefined ? start.x + uv / 2 : start.x;
       const zEnd = zv !== undefined ? zv : wv !== undefined ? start.z + wv : start.z;
       const k = Math.abs(num(c, "P") ?? 0) / 1000, d1 = Math.abs(num(c, "Q") ?? 0) / 1000;
-      const crest = root + k, tanA = Math.tan(((thr.a || 60) / 2) * Math.PI / 180);
+      // Gwint wewnętrzny: średnica z bloku (dno bruzdy) większa niż punkt startowy — nóż wchodzi na zewnątrz.
+      const inner = root > start.x;
+      const crest = inner ? root - k : root + k, tanA = Math.tan(((thr.a || 60) / 2) * Math.PI / 180);
       const out: Segment[] = [];
       const V = (x: number, z: number): Vec3 => ({ x, y: 0, z });
       const depths: number[] = [];
@@ -488,7 +492,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       for (let j = 0; j < thr.m; j++) depths.push(k);
       let cur = { ...start };
       for (const dn of depths) {
-        const sh = dn * tanA, r = crest - dn;
+        const sh = dn * tanA, r = inner ? crest + dn : crest - dn;
         out.push({ kind: "rapid", from: cur, to: V(r, start.z + sh), line: i });
         out.push({ kind: "linear", from: V(r, start.z + sh), to: V(r, zEnd + sh), line: i });
         out.push({ kind: "rapid", from: V(r, zEnd + sh), to: V(start.x, zEnd + sh), line: i });
@@ -564,17 +568,20 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       };
       let passes = 0;
       if (code === 71) {
-        const rmin = Math.min(...pts.map((p) => p.r));
+        // Wytaczanie: kontur leży dalej od osi niż punkt startowy — warstwy idą na zewnątrz.
+        const inner = pts.reduce((a, p) => a + p.r, 0) / pts.length > start.x;
+        const rlim = inner ? Math.max(...pts.map((p) => p.r)) : Math.min(...pts.map((p) => p.r));
+        const sg = inner ? 1 : -1;
         for (let k = 1; k < 200; k++) {
-          const rl = start.x - k * dd.d;
-          if (rl <= rmin + 1e-6) break;
+          const rl = start.x + sg * k * dd.d;
+          if (inner ? rl >= rlim - 1e-6 : rl <= rlim + 1e-6) break;
           const zEnd = cross("r", rl);
           if (zEnd === null) continue;
           out.push(rap(cur, P(start.z, rl)));
           out.push(lin(P(start.z, rl), P(zEnd, rl)));
-          out.push(lin(P(zEnd, rl), P(zEnd + dd.e, rl + dd.e)));
-          out.push(rap(P(zEnd + dd.e, rl + dd.e), P(start.z, rl + dd.e)));
-          cur = P(start.z, rl + dd.e);
+          out.push(lin(P(zEnd, rl), P(zEnd + dd.e, rl - sg * dd.e)));
+          out.push(rap(P(zEnd + dd.e, rl - sg * dd.e), P(start.z, rl - sg * dd.e)));
+          cur = P(start.z, rl - sg * dd.e);
           passes++;
         }
       } else {

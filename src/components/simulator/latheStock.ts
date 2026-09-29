@@ -102,9 +102,13 @@ export function carveLathe(pr: LatheProfile, program: Program, segments: Segment
       const end = pointAt(sg, done);
       const za = Math.min(sg.from.z, end.z), zb = Math.max(sg.from.z, end.z);
       const flank = 1 / Math.tan(((tool.angle || 60) / 2) * Math.PI / 180);
+      const km = Math.max(0, Math.min(n, col((za + zb) / 2)));
+      // gwint wewnętrzny: przejście bliżej otworu niż powierzchni zewnętrznej
+      const inner = Math.abs(sg.from.x - rin[km]) < Math.abs(rout[km] - sg.from.x);
       for (let k = Math.max(0, col(za)); k <= Math.min(n, col(zb)); k++) {
         const ph = (((sg.from.z - (z0 + k * dz)) % pitch) + pitch) % pitch;
-        cutOut(k, sg.from.x + Math.min(ph, pitch - ph) * flank);
+        const d = Math.min(ph, pitch - ph) * flank;
+        if (inner) cutIn(k, sg.from.x - d); else cutOut(k, sg.from.x + d);
       }
       return;
     }

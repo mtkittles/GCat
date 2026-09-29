@@ -11,6 +11,7 @@ const TABS = [
 ] as const;
 
 const MORE = [
+  { href: "/programy", label: "Gotowe programy" },
   { href: "/zadania", label: "Zadania" },
   { href: "/kody", label: "Kody" },
   { href: "/slownik", label: "Słownik" },

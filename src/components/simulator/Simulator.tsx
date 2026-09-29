@@ -8,7 +8,7 @@ import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheSt
 import { latheOutline } from "./latheInsert";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
-import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup } from "./setup";
+import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup, type Stock, type Tool } from "./setup";
 import {
   parseProgram,
   pointAt,
@@ -36,7 +36,9 @@ interface Props {
   dialect?: Dialect;
   allow3d?: boolean;
   /** Wymiary półfabrykatu narzucone przez przykład lub lekcję. */
-  stock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
+  stock?: Partial<Omit<Stock, "auto">>;
+  /** Tabela narzędzi narzucona przez gotowy program — zastępuje domyślne narzędzia. */
+  tools?: Record<number, Tool>;
   /** Tryb pokazowy: podgląd + kod z podświetlaną linią, odtwarzany w pętli. */
   showcase?: boolean;
   /** Tylko telefon: treść na górze zakładki „Kod” (np. zakładki programów, wybór przykładu). */
@@ -68,7 +70,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, showcase = false, codeTop, settingsExtra, appLayout = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units }), [source, mode, units]);
   const [show3d, setShow3d] = useState(false);
@@ -88,11 +90,23 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
-  const [setup, setSetup] = useState<Setup>(() => { const d = defaultSetup(mode); return stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d; });
+  const [setup, setSetup] = useState<Setup>(() => {
+    const d = defaultSetup(mode);
+    const base = stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d;
+    return toolsProp ? { ...base, tools: { ...toolsProp } } : base;
+  });
+  // gotowy program przynosi własną tabelę narzędzi
+  const [prevTools, setPrevTools] = useState(toolsProp);
+  const [toolsEpoch, setToolsEpoch] = useState(0);
+  if (prevTools !== toolsProp) {
+    setPrevTools(toolsProp);
+    setToolsEpoch((e) => e + 1); // po zmianie tabeli narzędzia z programu dopasowują się od nowa
+    setSetup((s2) => ({ ...s2, tools: toolsProp ? { ...toolsProp } : defaultSetup(mode).tools }));
+  }
   const [prevMode, setPrevMode] = useState(mode);
-  if (prevMode !== mode) { setPrevMode(mode); setSetup({ ...defaultSetup(mode), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
+  if (prevMode !== mode) { setPrevMode(mode); setSetup({ ...defaultSetup(mode), ...(toolsProp ? { tools: { ...toolsProp } } : {}), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
 
-  const stockKey = stockProp ? `${stockProp.x}x${stockProp.y}x${stockProp.z}:${stockProp.ox},${stockProp.oy},${stockProp.oz}` : "";
+  const stockKey = stockProp ? JSON.stringify(stockProp) : "";
   const [prevStockKey, setPrevStockKey] = useState(stockKey);
   if (prevStockKey !== stockKey) {
     setPrevStockKey(stockKey);
@@ -116,14 +130,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const { usedTools, toolNotes } = useMemo(() => {
     const set = new Set<number>();
     const notes: Record<number, string> = {};
-    for (const l of program.lines) for (const w of l.words) if (w.letter === "T") {
-      const t = Math.floor(w.value);
-      set.add(t);
-      if (l.comment && !notes[t]) notes[t] = l.comment;
+    for (const l of program.lines) {
+      // komentarz-nagłówek operacji, np. „(T03 NOZ DO ROWKOW)”
+      const hm = l.comment?.match(/^\s*T0*(\d+)\s+(.+)$/i);
+      if (hm && !notes[Number(hm[1])]) notes[Number(hm[1])] = hm[2];
+      for (const w of l.words) if (w.letter === "T") {
+        const t = Math.floor(w.value);
+        set.add(t);
+        if (l.comment && !notes[t]) notes[t] = l.comment;
+      }
     }
     return { usedTools: [...set].filter((n) => n > 0).sort((a, b) => a - b), toolNotes: notes };
   }, [program]);
-  const toolsKey = usedTools.map((t) => `${t}:${toolNotes[t] ?? ""}`).join(",");
+  const toolsKey = `${toolsEpoch}|` + usedTools.map((t) => `${t}:${toolNotes[t] ?? ""}`).join(",");
   // pusty klucz startowy: narzędzia z programu trafiają do tabeli już przy pierwszym renderze
   const [prevToolsKey, setPrevToolsKey] = useState("");
   if (prevToolsKey !== toolsKey) { setPrevToolsKey(toolsKey); setSetup((s) => withProgramTools(s, usedTools, mode, toolNotes)); }
