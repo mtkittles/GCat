@@ -1,3 +1,4 @@
+import { cardCodes, lessonsForCodes } from "@/lib/lessonRefs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
@@ -45,6 +46,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const artHasFig = !!art?.some((b) => b.t === "diagram");
   const fig = diagrams[g.slug] && !artHasFig ? diagrams[g.slug] : null;
   const rel = relatedOf(g);
+  const inLessons = lessonsForCodes(cardCodes(g.code), [...(g.milling ? ["frezowanie" as const] : []), ...(g.turning ? ["toczenie" as const] : [])]);
 
   const syntax = (
     <section className="grid gap-3">
@@ -79,6 +81,19 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     </section>
   );
 
+  const lessonsSec = inLessons.length > 0 && (
+    <section className="grid gap-3">
+      <H id="w-lekcjach">W lekcjach</H>
+      <div className="rel-list">
+        {inLessons.map((l) => (
+          <Link key={l.href} href={l.href} className="rel">
+            <code>{l.id}</code><span>{l.title}</span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+
   const footerNav = (
     <nav className="article-nav">
       <span>{prev && <Link href={`/kody/${prev.slug}`}>‹ {prev.code}</Link>}</span>
@@ -102,7 +117,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   );
 
   if (art) {
-    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(art), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
+    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(art), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
     return (
       <div className="article-layout">
         <article className="grid gap-6 min-w-0 code-card">
@@ -111,6 +126,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {figure}
           <div className="toc-mobile"><Toc blocks={art} /></div>
           <Article blocks={art} />
+          {lessonsSec}
           {related}
           {footerNav}
         </article>
@@ -128,6 +144,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     { id: "przyklad", label: "Przykład" },
     ...(g.sinumerik ? [{ id: "sinumerik", label: "Sinumerik" }] : []),
     ...(g.pitfalls.length ? [{ id: "uwagi", label: "Na co uważać" }] : []),
+    ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []),
     ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []),
   ];
 
@@ -163,6 +180,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {g.pitfalls.map((p) => <aside key={p} className="note note-warn"><CodeText text={p} self={self} /></aside>)}
         </section>
       )}
+      {lessonsSec}
       {related}
       {footerNav}
       <TocDrawer title={g.code} items={toc} />

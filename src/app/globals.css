@@ -1971,3 +1971,18 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .sim-pick, .sim-pick-sel { min-width: 0; max-width: 100%; }
 .sim-pick-sel select { width: 100%; max-width: 100%; text-overflow: ellipsis; }
 @media (max-width: 700px) { .sim-pick-lib { margin-left: 0; } .sim-pick { gap: .45rem .8rem; } }
+
+/* ===== Poprawki z testu: przewijanie w bok na telefonie ===== */
+.article p, .article li, .article td, .lead { overflow-wrap: break-word; }
+.article code, .code-card code { overflow-wrap: anywhere; }
+.article-nav { flex-wrap: wrap; }
+.arc-cols > * { min-width: 0; }
+.arc-field { min-width: 0; }
+.arc-field input { min-width: 0; max-width: 100%; }
+.tool-params { flex-wrap: wrap; min-width: 0; }
+.tool-row { min-width: 0; }
+.tool-row .setup-field input { max-width: 100%; }
+.code-card { grid-template-columns: minmax(0, 1fr); }
+.code-card > * { min-width: 0; }
+.code-card .grid > * { min-width: 0; }
+pre.syntax { max-width: 100%; overflow-x: auto; }

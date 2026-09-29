@@ -5,8 +5,8 @@ function F({ l, v, on }: { l: string; v: number; on: (n: number) => void }) {
   const [text, setText] = useState(String(v));
   const [focused, setFocused] = useState(false);
   return (
-    <label className="grid gap-1 text-sm"><span className="text-muted">{l}</span>
-      <input type="text" inputMode="decimal" className="border border-line rounded px-2 py-1 bg-card font-mono"
+    <label className="grid gap-1 text-sm min-w-0"><span className="text-muted">{l}</span>
+      <input type="text" inputMode="decimal" className="border border-line rounded px-2 py-1 bg-card font-mono w-full min-w-0"
         value={focused ? text : String(v)}
         onFocus={(e) => { setFocused(true); setText(String(v)); e.currentTarget.select(); }}
         onBlur={() => { setFocused(false); const n = Number(text.replace(",", ".")); if (Number.isFinite(n)) on(n); }}

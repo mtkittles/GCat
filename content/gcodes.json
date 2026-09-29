@@ -314,7 +314,7 @@
       "sinumerik": "G17 | G18 | G19"
     },
     "params": [],
-    "example": "G21 G90 G18\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R5\nG01 X70\nG00 X80 Z2\nM30",
+    "example": "G21 G90 G18\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R10\nG01 X70\nG00 X80 Z2\nM30",
     "sinumerik": "Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.",
     "pitfalls": [
       "Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor."
@@ -514,11 +514,53 @@
         "desc": "Koniec gwintu"
       }
     ],
-    "example": "G21 G90 G18 G97\nS600 M03\nG00 X24 Z3\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z3\nM30",
+    "example": "G21 G18 G40 G99\nG97 S600 M03\nG00 X24. Z3.\nG00 X19.4\nG32 Z-25. F1.5\nG00 X24.\nZ3.\nG00 X18.9\nG32 Z-25. F1.5\nG00 X24.\nZ3.\nG00 X18.4\nG32 Z-25. F1.5\nG00 X24.\nZ3.\nM30",
     "sinumerik": "G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97.",
     "pitfalls": [
       "Zawsze G97 (stałe obroty) — przy G96 skok by pływał.",
       "Rozbieg przed gwintem ≥ 2× skok, inaczej pierwsze zwoje są zniekształcone."
+    ]
+  },
+  {
+    "code": "G34",
+    "slug": "g34",
+    "name": "Gwintowanie ze zmiennym skokiem",
+    "group": "Cykle",
+    "modal": true,
+    "milling": false,
+    "turning": true,
+    "level": 3,
+    "simulate": false,
+    "short": "Jak G32, ale skok zmienia się o stałą wartość K na każdym obrocie — do ślimaków i gwintów o narastającym skoku.",
+    "desc": "G34 prowadzi nóż ze skokiem F na początku przejścia i zmienia go o K na każdy obrót wrzeciona (K dodatnie — skok rośnie, ujemne — maleje). Tak jak przy G32, każde przejście startuje od tego samego położenia kątowego wrzeciona, więc kolejne przejścia trafiają w ten sam zwój. Głębokość przejść programuje się ręcznie.",
+    "syntax": {
+      "fanuc": "G34 Z_ F_ K_",
+      "sinumerik": "G34 Z_ K_ F_   ; F — zmiana skoku na obrót\nG35 …          ; skok malejący"
+    },
+    "params": [
+      {
+        "key": "Z (W)",
+        "desc": "koniec gwintu"
+      },
+      {
+        "key": "F",
+        "desc": "skok na początku gwintu (mm/obr)"
+      },
+      {
+        "key": "K",
+        "desc": "przyrost skoku na każdy obrót (mm/obr²), ze znakiem"
+      }
+    ],
+    "example": "G21 G18 G40 G99\nG97 S300 M03\nG00 X44. Z5.\nG00 X39.2\nG34 Z-60. F6. K0.05\nG00 X44.\nZ5.\nM30",
+    "sinumerik": "Sinumerik rozdziela kierunki: **G34** — skok rosnący, **G35** — skok malejący. Przyrost skoku podaje się adresem **F** (mm/obr²), a skok początkowy adresem **K** (dla gwintu w osi Z).",
+    "pitfalls": [
+      "Skok końcowy nie może przekroczyć możliwości osi przy danych obrotach — licz go przed programowaniem: F + K·(liczba obrotów).",
+      "Zmiana obrotów między przejściami przesuwa zwój — jak przy G32 zawsze G97."
+    ],
+    "related": [
+      "g33",
+      "g76",
+      "g96-g97"
     ]
   },
   {
@@ -1632,6 +1674,40 @@
       "m03-m05"
     ],
     "params": []
+  },
+  {
+    "code": "M29",
+    "slug": "m29",
+    "name": "Gwintowanie sztywne",
+    "group": "Funkcje M",
+    "modal": false,
+    "milling": true,
+    "turning": true,
+    "level": 2,
+    "simulate": false,
+    "short": "Włącza gwintowanie sztywne: wrzeciono pracuje jak oś i obraca się dokładnie w takt posuwu, więc gwintownik nie potrzebuje oprawki kompensacyjnej.",
+    "desc": "Przy gwintowaniu sztywnym sterowanie synchronizuje obrót wrzeciona z ruchem osi Z: na każdy obrót oś przesuwa się dokładnie o skok. Gwintownik mocuje się w sztywnej oprawce, a cykl może pracować szybciej i dokładniej niż z oprawką kompensacyjną.\n\nNa Fanucu M29 z obrotami S stoi w bloku przed cyklem G84 (albo G74 dla gwintu lewego). Bez M29 cykl zakłada oprawkę kompensacyjną.",
+    "syntax": {
+      "fanuc": "M29 S_\nG84 X_ Y_ Z_ R_ F_",
+      "sinumerik": "; gwintowanie sztywne to CYCLE84\nCYCLE84(…)"
+    },
+    "params": [
+      {
+        "key": "S",
+        "desc": "obroty gwintowania — w tym samym bloku co M29"
+      }
+    ],
+    "example": "G21 G90 G17 G54\nT4 M06 (GWINTOWNIK M6X1)\nG43 H4 Z50.\nM29 S500\nG99 G84 X10. Y10. Z-12. R5. F500\nX70.\nG80\nG00 Z50.\nM30",
+    "sinumerik": "Sinumerik nie używa M29 — gwintowanie sztywne to cykl **CYCLE84**, a z oprawką kompensacyjną **CYCLE840**.",
+    "pitfalls": [
+      "Posuw przy G94 musi być równy S · skok (tu 500 · 1 = 500), przy G95 — skokowi. Inaczej gwintownik pęknie albo zerwie gwint.",
+      "M29 stoi w bloku przed cyklem; wpisane za G84 nie zadziała na większości sterowań."
+    ],
+    "related": [
+      "g84",
+      "g74",
+      "m03-m05"
+    ]
   },
   {
     "code": "M30 M02",
