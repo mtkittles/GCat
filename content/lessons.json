@@ -153,7 +153,7 @@
         "p": "Patrz na zarys z X w górę i Z w prawo. Zaokrąglenie wklęsłe w narożu stopnia (jadąc do uchwytu) to G02, wypukłe — G03."
       }
     ],
-    "example": "G21 G90 G18 G95\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nG97 S1200\nM30",
+    "example": "G18 G21 G40 G99\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nG97 S1200\nM30",
     "task": "Zamień G02 na G03 w linii 8 i porównaj zarys stopnia. Potem zmień R5 na R3."
   },
   {
@@ -245,7 +245,7 @@
         "p": "Cykl dzieli głębokość gwintu na przejścia o malejącym przyroście, tak by pole przekroju wióra pozostawało stałe. Zawsze przy G97, z rozbiegiem co najmniej dwóch skoków przed gwintem."
       }
     ],
-    "example": "G21 G90 G18 G95\nG50 S2500\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X54 F0.3\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X46\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X40\nG01 Z-30\nG00 X64\nG00 Z2\nG97 S1200\nM30",
+    "example": "G18 G21 G40 G99\nG50 S2500\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X54 F0.3\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X46\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X40\nG01 Z-30\nG00 X64\nG00 Z2\nG97 S1200\nM30",
     "task": "To ręcznie rozpisane przejścia, które wygenerowałby cykl G71 U4. Policz, ile przejść potrzeba, żeby z ⌀62 zejść do ⌀40 przy głębokości 4 mm na przejście."
   },
   {

@@ -18,7 +18,7 @@ export const part3: Record<string, Block[]> = {
       "**Detale niewyważone, mimośrodowe, w uchwycie szczękowym** — bezpieczniej trzymać stałe, umiarkowane obroty.",
     ] },
     { t: "h", x: "Przykład" },
-    { t: "sim", src: "G21 G90 G18 G95\nG50 S3000\nG97 S1500 M03\nG00 X62 Z2\nG96 S220\nG01 X0 Z0 F0.15\nG00 X60 Z2\nG01 X40 F0.3\nG01 Z-30\nG01 X62\nG00 Z2\nG97 S1500\nM30", caption: "Planowanie czoła do osi przy stałej Vc, następnie toczenie wzdłużne, na końcu powrót do stałych obrotów przed odjazdem. Panel stanu pokazuje aktualną pozycję średnicową." },
+    { t: "sim", src: "G18 G21 G40 G99\nG50 S3000\nG97 S1500 M03\nG00 X62 Z2\nG96 S220\nG01 X0 Z0 F0.15\nG00 X60 Z2\nG01 X40 F0.3\nG01 Z-30\nG01 X62\nG00 Z2\nG97 S1500\nM30", caption: "Planowanie czoła do osi przy stałej Vc, następnie toczenie wzdłużne, na końcu powrót do stałych obrotów przed odjazdem. Panel stanu pokazuje aktualną pozycję średnicową." },
     { t: "h", x: "Dobór prędkości skrawania" },
     { t: "table", head: ["Materiał", "Vc dla węglika [m/min]", "Uwagi"], rows: [
       ["Aluminium", "300–1000", "Ograniczeniem są zwykle obroty maszyny, nie materiał"],
@@ -53,7 +53,7 @@ export const part3: Record<string, Block[]> = {
       ["**F**", "Posuw zgrubny; w bloku G70 — posuw wykańczający"],
     ] },
     { t: "note", kind: "warn", x: "Blok wskazany przez **P musi zawierać wyłącznie ruch w osi X** — bez współrzędnej Z. Naruszenie tej zasady to najczęstsza przyczyna alarmu przy G71. Kontur musi też być **monotoniczny**: średnica może tylko rosnąć albo tylko maleć wzdłuż Z (typ I). Kontury z podcięciami wymagają typu II lub cyklu G73." },
-    { t: "sim", src: "G21 G90 G18 G95\nG50 S2500\nG96 S200 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X50\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X44\nG01 Z-35\nG01 X50 Z-45\nG00 X64\nG00 Z2\nG01 X38\nG01 Z-25\nG01 X44 Z-30\nG00 X64\nG00 Z2\nM30", caption: "Rozpisane ręcznie przejścia zgrubne — dokładnie to, co cykl G71 generuje wewnętrznie. Widać, jak kolejne przejścia stopniowo odsłaniają zarys stopnia." },
+    { t: "sim", src: "G18 G21 G40 G99\nG50 S2500\nG96 S200 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X50\nG01 Z-55\nG00 X64\nG00 Z2\nG01 X44\nG01 Z-35\nG01 X50 Z-45\nG00 X64\nG00 Z2\nG01 X38\nG01 Z-25\nG01 X44 Z-30\nG00 X64\nG00 Z2\nM30", caption: "Rozpisane ręcznie przejścia zgrubne — dokładnie to, co cykl G71 generuje wewnętrznie. Widać, jak kolejne przejścia stopniowo odsłaniają zarys stopnia." },
     { t: "h", x: "Pozostałe cykle tokarskie" },
     { t: "table", head: ["Kod", "Cykl", "Zastosowanie"], rows: [
       ["**G70**", "Wykańczanie po konturze P–Q", "Ostatnie przejście na wymiar"],
@@ -88,7 +88,7 @@ export const part3: Record<string, Block[]> = {
     { t: "p", x: "Dla gwintu zewnętrznego o skoku P wysokość zarysu wynosi w praktyce **h ≈ 0,613 × P**, a średnica dna **d₃ ≈ d − 1,227 × P**. Dla M24×3: h ≈ 1,84 mm (czyli P1840 w składni cyklu), średnica dna ≈ 20,3 mm. Średnicę zewnętrzną przed gwintowaniem toczy się zwykle o 0,1–0,2 mm mniejszą od nominalnej, żeby wierzchołki nie wychodziły ostre." },
     { t: "h", x: "Rozbieg i wybieg" },
     { t: "p", x: "Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**; przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku." },
-    { t: "sim", mode: "lathe", src: "G21 G90 G18 G95\nG97 S700 M03\nG00 X26 Z5\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30", caption: "Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76." },
+    { t: "sim", mode: "lathe", src: "G18 G21 G40 G99\nG97 S700 M03\nG00 X26 Z5\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30", caption: "Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76." },
     { t: "note", kind: "warn", x: "Gwintowanie zawsze przy **G97** (stałe obroty). Przy G96 obroty zmieniałyby się wraz ze średnicą, a razem z nimi rzeczywisty skok gwintu." },
     { t: "h", x: "Sinumerik" },
     { t: "p", x: "Odpowiednikiem jest **CYCLE97** z parametrami podawanymi opisowo (skok, głębokość, liczba przejść, kąt, wybieg). Pojedyncze przejście gwintu realizuje **G33** z adresem `K` określającym skok." },

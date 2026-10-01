@@ -6,6 +6,7 @@ import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
 import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
 import { latheOutline } from "./latheInsert";
+import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import SetupPanel from "./SetupPanel";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup, type Stock, type Tool } from "./setup";
@@ -72,8 +73,13 @@ const COLORS = {
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
-  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units }), [source, mode, units]);
-  const [show3d, setShow3d] = useState(false);
+  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units, dialect }), [source, mode, units, dialect]);
+  // Układ podglądu: na komputerze z ustawień zapamiętanych w przeglądarce, w trybie osadzonym — lokalnie.
+  const layout = useSimLayout();
+  const [localView, setLocalView] = useState<SimView>("2d");
+  const view: SimView = appLayout ? layout.view : localView;
+  const setView = (v: SimView) => (appLayout ? setLayout({ view: v }) : setLocalView(v));
+  const show3d = view !== "2d";
   const [mTab, setMTab] = useState<MTab>("sim");
   const rootRef = useRef<HTMLDivElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -265,6 +271,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   useEffect(() => {
     // W trybie pełnoekranowym rysujemy na kanwie powłoki, w zwykłym na osadzonej.
     const cv = (fs ? fsCanvasRef.current : canvasRef.current); if (!cv) return;
+    const hudHtml = !fs && appLayout && layout.hud && window.matchMedia("(min-width: 768px)").matches;
     const ctx = cv.getContext("2d"); if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
@@ -602,8 +609,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-    // HUD: współrzędne, aktywna linia, narzędzie
-    if (!bare) {
+    // HUD: współrzędne, aktywna linia, narzędzie (na komputerze zastępuje go tabelka nad podglądem)
+    if (!bare && !hudHtml) {
       const L = activeLine !== null ? program.lines[activeLine] : null;
       const rows = [
         mode === "mill"
@@ -624,7 +631,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -648,9 +655,27 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
     <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={!show3d} onClick={() => setShow3d(false)}>{mode === "lathe" ? "ZX" : "XY"}</button>
-      <button role="tab" aria-selected={show3d} onClick={() => setShow3d(true)}>3D</button>
+      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")}>{mode === "lathe" ? "ZX" : "XY"}</button>
+      <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
+      {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
     </div>
+  );
+  // Menu układu (komputer): co pokazywać na stanowisku symulatora.
+  const layoutMenu = appLayout && (
+    <details className="lay-menu">
+      <summary title="Układ ekranu symulatora">Układ ▾</summary>
+      <div className="lay-pop">
+        {([["hud", "Tabelka na podglądzie"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"]] as const).map(([k, l]) => (
+          <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
+        ))}
+        <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
+        <label className="lay-units"><span>Jednostki</span>
+          <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
+            <option value="auto">auto (G20/G21)</option><option value="mm">milimetry</option><option value="inch">cale</option>
+          </select>
+        </label>
+      </div>
+    </details>
   );
 
   const transportBar = (
@@ -683,6 +708,22 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   );
 
   const activeLineText = activeLine !== null ? program.lines[activeLine] : null;
+  const viewHud = appLayout && layout.hud && !compact && (
+    <div className="view-hud" aria-live="off">
+      <div className="vh-line"><b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b><code>{activeLineText?.raw.trim() || "koniec programu"}</code></div>
+      <table>
+        <tbody>
+          <tr><th>X</th><td>{fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td>{fmt(currentPos.y)}</td></>}<th>Z</th><td>{fmt(currentPos.z)}</td></tr>
+          <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
+        </tbody>
+      </table>
+      <div className="vh-mod">
+        <span>G{st?.motion ?? "--"}</span><span>{st?.absolute ? "G90" : "G91"}</span><span>G{st?.wcs ?? 54}</span><span>G{st?.comp ?? 40}</span>
+        <span>{st?.spindleOn === "off" ? "M05" : st?.spindleOn === "cw" ? "M03" : "M04"}</span><span>{st?.coolant ? "M08" : "M09"}</span>
+      </div>
+      <div className="vh-tool">T{String(activeToolNo ?? 0).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</div>
+    </div>
+  );
   const statusStrip = (
     <>
       <div className="fs-line">
@@ -746,7 +787,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
-                onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
+                follow={appLayout ? layout.follow : playing} onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
               <div className="editor-status">
                 <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
                 <form className="goto" onSubmit={(e) => {
@@ -807,7 +848,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
             </ul>
           )}
-          <ol className="sim-lines">
+          <ol className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
             {program.lines.map((l) => (
               <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
                 onClick={() => {
@@ -828,33 +869,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
       )}
       <div className="flex flex-col gap-2 wb-main">
-        <canvas ref={canvasRef} className="sim-canvas sim-canvas-2d m-sim" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
-          onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
-          onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
-          onPointerUp={() => setProbe(null)}
-          onPointerLeave={() => setProbe(null)} />
-        {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
-        {transportBar}
-        <label className="speed">
-          Prędkość
-          <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
-        </label>
-        {!compact && st && (
-          <div className="sim-state m-sim" aria-label="Stan maszyny">
-            <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
-            <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
-            <span>G{st.wcs}</span><span>G{st.comp}</span>
-            <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>
-            <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
-            <span>{st.coolant ? "M08" : "M09"}</span>
-            <span>czas {formatTime(program.seconds)}</span>
-            <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</span>
-          </div>
-        )}
         {!compact && allow3d && (
-          <>
             <div className="viewbar m-sim">
               {viewSwitch}
+              {layoutMenu}
               <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia">
                 Materiał
               </button>
@@ -887,9 +905,35 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   : "G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu"}</span>
               )}
             </div>
-            {show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} /></Sim3DBoundary></div>}
-          </>
         )}
+        <div className={`stage-view m-sim v-${compact || !allow3d ? "2d" : view}`}>
+          <canvas ref={canvasRef} className="sim-canvas sim-canvas-2d m-sim" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
+          onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
+          onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
+          onPointerUp={() => setProbe(null)}
+          onPointerLeave={() => setProbe(null)} />
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} /></Sim3DBoundary></div>}
+          {viewHud}
+        </div>
+        {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
+        {transportBar}
+        <label className="speed">
+          Prędkość
+          <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
+        </label>
+        {!compact && st && (
+          <div className="sim-state m-sim" aria-label="Stan maszyny">
+            <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
+            <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
+            <span>G{st.wcs}</span><span>G{st.comp}</span>
+            <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>
+            <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
+            <span>{st.coolant ? "M08" : "M09"}</span>
+            <span>czas {formatTime(program.seconds)}</span>
+            <span>T{String(activeToolNo ?? 0).padStart(2, "0")} {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</span>
+          </div>
+        )}
+
         {!compact && <div className="wb-aside-inline m-tools"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} defaultOpen={appLayout} /></div>}
         {!compact && <div className="wb-aside-inline m-sim"><StatsPanel program={program} setup={setup} mode={mode} /></div>}
         {appLayout && !compact && (

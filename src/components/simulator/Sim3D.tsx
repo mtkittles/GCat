@@ -9,7 +9,7 @@ import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean }
 
 const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
 const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
@@ -31,7 +31,7 @@ function gridMax() {
   return 520;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
@@ -257,6 +257,30 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const api = viewApi.current; if (api) api(v);
   };
 
+  // Podziałka współrzędnych w 3D: liczby wzdłuż osi (co „ładny” krok), w układzie G-kodu.
+  useEffect(() => {
+    const st = sceneRef.current; if (!st) return;
+    const old = st.scene.getObjectByName("ticks");
+    if (old) { st.scene.remove(old); old.traverse((o) => { const m = (o as THREE.Sprite).material as THREE.SpriteMaterial | undefined; if (m) { m.map?.dispose(); m.dispose(); } }); }
+    if (ticks) {
+      const b = parsed.bounds, g = new THREE.Group(); g.name = "ticks";
+      const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 10);
+      const raw = span / 10, p10 = 10 ** Math.floor(Math.log10(raw)), step = [1, 2, 5, 10].map((k) => k * p10).find((v) => v >= raw) ?? 10 * p10;
+      const add = (txt: string, v: THREE.Vector3, col: string) => { const sp = makeLabel(txt, v, col, 0.55); g.add(sp); };
+      const range = (a: number, c: number) => { const out: number[] = []; for (let v = Math.ceil(a / step) * step; v <= c + 1e-6; v += step) out.push(Math.round(v * 1000) / 1000); return out; };
+      if (mode === "mill") {
+        for (const x of range(Math.min(0, b.min.x), b.max.x)) if (x !== 0) add(`${x}`, new THREE.Vector3(x, 0, 4), "#FCA5A5");
+        for (const y of range(Math.min(0, b.min.y), b.max.y)) if (y !== 0) add(`${y}`, new THREE.Vector3(-4, 0, -y), "#86EFAC");
+        for (const z of range(Math.min(0, b.min.z), Math.max(0, b.max.z))) if (z !== 0) add(`${z}`, new THREE.Vector3(-4, z, 4), "#7DD3FC");
+      } else {
+        for (const z of range(Math.min(0, b.min.z), Math.max(0, b.max.z))) if (z !== 0) add(`${z}`, new THREE.Vector3(z, -4, 0), "#7DD3FC");
+        for (const x of range(0, b.max.x)) if (x !== 0) add(`Ø${Math.round(x * 2 * 1000) / 1000}`, new THREE.Vector3(4, x, 0), "#FCA5A5");
+      }
+      st.scene.add(g);
+    }
+    st.render();
+  }, [ticks, parsed, mode]);
+
   if (failed) {
     return (
       <div className="sim-3d-fallback">
@@ -303,13 +327,15 @@ function axisLabels(mode: SimMode): [string, THREE.Vector3, string][] {
     : [["Z", new THREE.Vector3(36, 0, 0), "#38BDF8"], ["X", new THREE.Vector3(0, 36, 0), "#EF4444"]];
 }
 
-function makeLabel(text: string, pos: THREE.Vector3, color: string) {
-  const cv = document.createElement("canvas"); cv.width = 64; cv.height = 64;
+function makeLabel(text: string, pos: THREE.Vector3, color: string, size = 1) {
+  // płótno dopasowane do długości tekstu — liczby podziałki mają po kilka znaków
+  const w = Math.max(64, 28 * text.length + 16);
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = 64;
   const c = cv.getContext("2d")!;
   c.fillStyle = color; c.font = "bold 44px ui-monospace, monospace"; c.textAlign = "center"; c.textBaseline = "middle";
-  c.fillText(text, 32, 32);
+  c.fillText(text, w / 2, 32);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false }));
-  sp.position.copy(pos); sp.scale.set(9, 9, 1);
+  sp.position.copy(pos); sp.scale.set(9 * size * (w / 64), 9 * size, 1);
   return sp;
 }
 

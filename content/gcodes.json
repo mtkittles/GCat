@@ -269,7 +269,7 @@
     "milling": true,
     "turning": false,
     "level": 2,
-    "simulate": false,
+    "simulate": true,
     "short": "Po G16 pierwsza oś płaszczyzny to promień, druga to kąt. G15 wraca do zwykłych współrzędnych.",
     "desc": "W **G17** po **G16** adres **X** oznacza promień, a **Y** kąt w stopniach, liczony od osi +X przeciwnie do ruchu wskazówek zegara.\n\nBiegunem jest zero układu współrzędnych, jeśli G16 stoi w bloku z **G90**, albo bieżąca pozycja narzędzia przy **G91**.\n\nNajczęstsze zastosowanie to otwory na okręgu podziałowym: cykl **G81** i kolejne bloki z samym kątem Y.",
     "syntax": {
@@ -825,7 +825,7 @@
         "desc": "Naddatek na X (średnicowo) i Z"
       }
     ],
-    "example": "G21 G90 G18 G95\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
+    "example": "G18 G21 G40 G99\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
     "sinumerik": "Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to milimetry!",
     "pitfalls": [
       "Kontur musi być monotoniczny w obu osiach (Fanuc typ I).",
@@ -1114,7 +1114,7 @@
         "desc": "Głębokość pierwszego przejścia (μm)"
       }
     ],
-    "example": "G21 G90 G18 G95\nG97 S800 M03\nG00 X24 Z5\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30",
+    "example": "G18 G21 G40 G99\nG97 S800 M03\nG00 X24 Z5\nG01 Z-25 F1.5\nG00 X30\nG00 Z5\nM30",
     "sinumerik": "CYCLE97 — parametry przez ekran cyklu, nie zakodowane w P jak w Fanuc.",
     "pitfalls": [
       "P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60° kąt.",
@@ -1329,7 +1329,7 @@
     "milling": false,
     "turning": true,
     "level": 3,
-    "simulate": false,
+    "simulate": true,
     "short": "Na tokarce Fanuc w systemie A: G90 toczy wzdłużnie jednym przejściem, G92 nacina gwint jednym przejściem, G94 planuje czoło.",
     "desc": "Każdy blok to cztery ruchy: dojazd na średnicę, skrawanie, wyjście i powrót szybki do punktu startu.\n\n**G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_** robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość. **G94 X_ Z_ F_** planuje czoło do Z.\n\nW systemie A wymiary przyrostowe pisze się adresami **U** i **W**, nie G91. Na frezarce te same numery znaczą co innego: G90 to wymiarowanie absolutne, G92 ustawienie układu, G94 posuw na minutę.",
     "syntax": {
@@ -1354,7 +1354,7 @@
         "desc": "posuw [mm/obr]; w G92 — skok gwintu"
       }
     ],
-    "example": "G21 G18 G54\nT0101\nG97 S1200 M03\nG00 X52.0 Z2.0\nG90 X46.0 Z-40.0 F0.25\nX42.0\nX38.0\nG00 X100.0 Z100.0\nM30",
+    "example": "G18 G21 G40 G99\nG54\nT0101\nG97 S1200 M03\nG00 X52. Z2.\nG90 X46. Z-40. F0.25\nX42.\nX38.\nG00 X54. Z2.\nG94 X20. Z-1. F0.2\nZ-2.\nG00 X100. Z100.\nM30",
     "sinumerik": "Sinumerik nie ma prostych cykli jednoprzejściowych. Toczenie wykonuje **CYCLE95**, gwintowanie **CYCLE97** (nowsze: CYCLE99), albo programuje się przejścia ręcznie G1.",
     "pitfalls": [
       "Program z tokarki w systemie A przeniesiony na frezarkę albo tokarkę w systemie B/C zrobi coś zupełnie innego.",
@@ -1456,7 +1456,7 @@
       "sinumerik": "G94 | G95"
     },
     "params": [],
-    "example": "G21 G90 G18 G95\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
+    "example": "G18 G21 G40 G99\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
     "sinumerik": "G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G95.",
     "pitfalls": [
       "Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr — a na frezarkach G98/G99 to powrót w cyklach. Ten sam kod, inne znaczenie!",
@@ -1490,7 +1490,7 @@
         "desc": "Przy G96: m/min. Przy G97: obr/min"
       }
     ],
-    "example": "G21 G90 G18 G95\nG97 S1500 M03\nG00 X62 Z2\nG96 S200\nG01 Z-30 F0.2\nG01 X70\nG00 Z2\nG97 S1500\nM30",
+    "example": "G18 G21 G40 G99\nG97 S1500 M03\nG00 X62 Z2\nG96 S200\nG01 Z-30 F0.2\nG01 X70\nG00 Z2\nG97 S1500\nM30",
     "sinumerik": "Identycznie G96/G97, limit obrotów przez LIMS=.",
     "pitfalls": [
       "G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do maksimum.",

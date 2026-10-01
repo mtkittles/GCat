@@ -38,6 +38,10 @@ export interface MachineState {
   pos: Vec3;
   /** Pozycja w układzie programu, przed przesunięciem i obrotem. */
   prog: Vec3;
+  /** Tokarka Fanuc (system A): aktywny cykl pojedynczy G90/G92/G94 i jego ostatni punkt końcowy. */
+  lcycle?: { code: 90 | 92 | 94; end: Vec3; r: number } | null;
+  /** Współrzędne biegunowe G16: promień i kąt zapamiętane modalnie. */
+  polar?: { r: number; a: number } | null;
 }
 
 export interface Word {

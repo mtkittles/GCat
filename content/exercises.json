@@ -109,8 +109,8 @@
       "Stopień to ruch w osi X przy stałym Z.",
       "Na tokarce posuw w mm/obr — tryb G95."
     ],
-    "starter": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X52 Z2\n(dopisz kontur)\nG00 Z2\nM30",
-    "reference": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X52 Z2\nG01 X30 F0.2\nG01 Z-25\nG01 X40\nG01 Z-55\nG01 X52\nG00 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X52 Z2\n(dopisz kontur)\nG00 Z2\nM30",
+    "reference": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X52 Z2\nG01 X30 F0.2\nG01 Z-25\nG01 X40\nG01 Z-55\nG01 X52\nG00 Z2\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -128,8 +128,8 @@
       "Zaokrąglenie wklęsłe w narożu stopnia to G02.",
       "Faza końcowa to zwykły ruch skośny G01 w dwóch osiach."
     ],
-    "starter": "G21 G90 G18 G95\nG97 S1400 M03\nG00 X26 Z2\n(dopisz kontur)\nG00 X52 Z2\nM30",
-    "reference": "G21 G90 G18 G95\nG97 S1400 M03\nG00 X26 Z2\nG01 X30 Z0 F0.15\nG01 Z-20\nG02 X40 Z-25 R5\nG01 Z-45\nG01 X46\nG01 X50 Z-47\nG00 X52 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nG97 S1400 M03\nG00 X26 Z2\n(dopisz kontur)\nG00 X52 Z2\nM30",
+    "reference": "G18 G21 G40 G99\nG97 S1400 M03\nG00 X26 Z2\nG01 X30 Z0 F0.15\nG01 Z-20\nG02 X40 Z-25 R5\nG01 Z-45\nG01 X46\nG01 X50 Z-47\nG00 X52 Z2\nM30",
     "tolerance": 0.15,
     "requireCodes": [
       "G02"
@@ -264,8 +264,8 @@
       "Faza 2×45° to ruch skośny z ⌀32 przy Z2 do ⌀36 przy Z0.",
       "Pamiętaj o odjeździe przed powrotem na początek."
     ],
-    "starter": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
-    "reference": "G21 G90 G18 G95\nG97 S1200 M03\nG00 X42 Z0\nG01 X0 F0.15\nG00 X32 Z2\nG01 X36 Z0 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
+    "reference": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X42 Z0\nG01 X0 F0.15\nG00 X32 Z2\nG01 X36 Z0 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -283,8 +283,8 @@
       "Wycofanie i powrót wykonuj szybkim przejazdem G00.",
       "Cztery przejścia oznaczają cztery takie sekwencje."
     ],
-    "starter": "G21 G90 G18 G95\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
-    "reference": "G21 G90 G18 G95\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
+    "reference": "G18 G21 G40 G99\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"

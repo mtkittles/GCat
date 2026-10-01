@@ -169,7 +169,7 @@ export const part4: Record<string, Block[]> = {
     { t: "p", x: "Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Zasada: **rozbieg ≥ 2 × skok**, przy dużych skokach i obrotach nawet 4 × skok. Bez tego pierwsze zwoje mają zaniżony skok i są zniekształcone. Analogicznie na końcu potrzebny jest wybieg albo rowek podcięcia." },
     { t: "h", x: "Składnia" },
     { t: "code", x: "; Fanuc\nG00 X23.2 Z5\nG32 Z-25 F1.5\nG00 X30\nG00 Z5\n\n; Sinumerik\nG0 X23.2 Z5\nG33 Z-25 K1.5\nG0 X30\nG0 Z5", caption: "Jedno przejście. Pełny gwint wymaga powtórzenia tego bloku z coraz mniejszą średnicą X." },
-    { t: "sim", mode: "lathe", src: "G21 G90 G18 G95\nG97 S700 M03\nG00 X26 Z6\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X21.8\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nM30", caption: "Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm." },
+    { t: "sim", mode: "lathe", src: "G18 G21 G40 G99\nG97 S700 M03\nG00 X26 Z6\nG00 X23.2\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.6\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X22.1\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nG00 X21.8\nG01 Z-25 F1.5\nG00 X30\nG00 Z6\nM30", caption: "Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm." },
     { t: "h", x: "G33 kontra G76" },
     { t: "table", head: ["", "G33 / G32", "G76"], rows: [
       ["Podział na przejścia", "Ręczny", "Automatyczny"],

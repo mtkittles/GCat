@@ -81,13 +81,23 @@ export interface EditorHandle {
   goToLine: (line: number) => void;
 }
 
-interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void }
+interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; follow?: boolean; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void }
 
-export default function GcodeEditor({ value, onChange, activeLine, errorLines = [], warnLines = [], onReady, onCaret }: Props) {
+export default function GcodeEditor({ value, onChange, activeLine, follow = false, errorLines = [], warnLines = [], onReady, onCaret }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const marks = useRef({ activeLine, errorLines, warnLines });
   useEffect(() => { marks.current = { activeLine, errorLines, warnLines }; viewRef.current?.dispatch({}); }, [activeLine, errorLines, warnLines]);
+  // Śledzenie wykonywanej linii: konsola przewija się za programem (bez przenoszenia kursora).
+  useEffect(() => {
+    const v = viewRef.current;
+    if (!follow || !v || activeLine == null || v.hasFocus) return;
+    const n = Math.min(v.state.doc.lines, Math.max(1, activeLine + 1));
+    const l = v.state.doc.line(n);
+    const blk = v.lineBlockAt(l.from);
+    const top = v.scrollDOM.scrollTop, h = v.scrollDOM.clientHeight;
+    if (blk.top < top + h * 0.15 || blk.bottom > top + h * 0.85) v.dispatch({ effects: EditorView.scrollIntoView(l.from, { y: "center" }) });
+  }, [activeLine, follow]);
 
   useEffect(() => {
     if (!host.current) return;

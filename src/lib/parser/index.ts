@@ -107,6 +107,8 @@ const planeName = (p: Plane) => (p === 17 ? "XY" : p === 18 ? "ZX" : "YZ");
 
 /** Interpretuje program (dialekt Fanuc/ISO) i zwraca segmenty ruchu + opis PL. */
 export interface ParseOptions {
+  /** Sterownik: na Sinumeriku G90/G92/G94 na tokarce nie są cyklami (system kodów jak na frezarce). */
+  dialect?: "fanuc" | "sinumerik";
   /** Tokarka: X i I programowane średnicowo (Fanuc domyślnie). Geometria wewnętrzna liczona na promieniu. */
   diameterX?: boolean;
   /** Prędkość szybkiego przejazdu [mm/min] do szacowania czasu cyklu. */
@@ -123,6 +125,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   const forcedInit = opts.units && opts.units !== "auto" ? opts.units : "mm";
   let state = start ?? initialState(forcedInit);
   const dia = !!opts.diameterX;
+  // Tokarka Fanuc w systemie A: G90, G92, G94 to cykle pojedyncze, nie tryby wymiarowania/posuwu.
+  const latheA = dia && opts.dialect !== "sinumerik";
   const rapidRate = opts.rapidRate ?? 20000;
   const forced = opts.units && opts.units !== "auto" ? opts.units : null;
   let seconds = 0;
@@ -168,7 +172,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     for (const g of gs) {
       switch (g) {
         case 0: case 1: case 2: case 3:
-          s.motion = g as 0 | 1 | 2 | 3; break;
+          s.motion = g as 0 | 1 | 2 | 3; s.lcycle = null; break;
         case 4: {
           // Fanuc: X/U w sekundach, P w milisekundach. Sinumerik: F w sekundach, S w obrotach wrzeciona.
           const pv = get("P"), xv = get("X") ?? get("U"), fv = get("F"), sv = get("S");
@@ -187,6 +191,29 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 20: s.units = forced ?? "inch"; desc.push(forced ? `G20 w programie — wymuszono ${forced === "mm" ? "milimetry" : "cale"}` : "Jednostki: cale (G20)"); break;
         case 21: s.units = forced ?? "mm"; desc.push(forced ? `G21 w programie — wymuszono ${forced === "mm" ? "milimetry" : "cale"}` : "Jednostki: mm (G21)"); break;
         case 28: desc.push("Powrót do punktu referencyjnego (G28)"); break;
+        case 27: desc.push("Sprawdzenie powrotu do punktu referencyjnego (G27) — ruch szybki do zadanego punktu"); break;
+        case 29: desc.push("Powrót z punktu referencyjnego przez punkt pośredni (G29) — ruch szybki"); break;
+        case 30: desc.push(`Powrót do ${fmt(get("P") ?? 2)}. punktu referencyjnego (G30) — ruch szybki przez punkt pośredni`); break;
+        case 31: desc.push("Ruch z pomiarem — przerywany sygnałem sondy (G31); w symulatorze jak G01 do końca"); break;
+        case 9: desc.push("Dokładne zatrzymanie na końcu bloku (G09, jednorazowo)"); break;
+        case 61: desc.push("Tryb dokładnego zatrzymania (G61) — osie zwalniają do zera na końcu każdego bloku"); break;
+        case 64: desc.push("Tryb skrawania (G64) — płynne przejścia między blokami"); break;
+        case 10: desc.push("Wpis danych z programu (G10) — rejestry korekcji lub przesunięć; bez ruchu"); break;
+        case 22: desc.push("Włączenie strefy zabronionej (G22) — bez ruchu"); break;
+        case 23: desc.push("Wyłączenie strefy zabronionej (G23)"); break;
+        case 15: s.polar = null; desc.push("Wyłączenie współrzędnych biegunowych (G15)"); break;
+        case 16:
+          if (dia) { desc.push("G16 — współrzędne biegunowe nie dotyczą tokarki w tym symulatorze"); break; }
+          s.polar = { r: Math.hypot(state.prog.x, state.prog.y), a: (Math.atan2(state.prog.y, state.prog.x) * 180) / Math.PI };
+          desc.push("Współrzędne biegunowe (G16): X — promień, Y — kąt w stopniach");
+          break;
+        case 44: desc.push(`Korekcja długości ujemna H${fmt(get("H") ?? 0)} (G44)`); break;
+        case 53: desc.push("Ruch we współrzędnych maszynowych (G53) — w symulatorze odjazd w górę na wysokość bezpieczną"); break;
+        case 65: desc.push(`Wywołanie makra P${fmt(get("P") ?? 0)} (G65) — symulator nie wykonuje makr`); break;
+        case 66: desc.push("Modalne wywołanie makra (G66) — symulator nie wykonuje makr"); break;
+        case 67: desc.push("Koniec modalnego wywołania makra (G67)"); break;
+        case 93: desc.push("Posuw odwrotności czasu (G93) — czas obróbki w symulatorze orientacyjny"); break;
+        case 51: desc.push("Skalowanie / lustro (G51) — symulator rysuje tor bez skalowania"); break;
         case 40: s.comp = 40; desc.push("Wyłącz kompensację promienia (G40)"); break;
         case 41: s.comp = 41; desc.push("Kompensacja promienia — lewa (G41)"); break;
         case 42: s.comp = 42; desc.push("Kompensacja promienia — prawa (G42)"); break;
@@ -212,29 +239,42 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; if (dia) { s.feedMode = 94; desc.push("Posuw w mm/min (G98, tokarka)"); } else desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
         case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; if (dia) { s.feedMode = 95; desc.push("Posuw w mm/obr (G99, tokarka)"); } else desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
         case 73: case 81: case 82: case 83: case 84: case 85: case 86: case 89: cycleCode = g; break;
-        case 90: s.absolute = true; desc.push("Wymiarowanie absolutne (G90)"); break;
+        // G87 (wytaczanie wsteczne) i G88 (z ręcznym wycofaniem) — tor jak G86: posuw w dół, wycofanie szybkie
+        case 87: case 88: cycleCode = 86; desc.push(`Cykl wytaczania G${g} — tor pokazany jak G86`); break;
+        case 90:
+          if (latheA) { s.lcycle = { code: 90, end: { ...state.prog }, r: 0 }; desc.push("Cykl toczenia wzdłużnego G90 (system A)"); }
+          else { s.absolute = true; desc.push("Wymiarowanie absolutne (G90)"); }
+          break;
+        case 92:
+          if (latheA) { s.lcycle = { code: 92, end: { ...state.prog }, r: 0 }; desc.push("Cykl gwintowania G92 — jedno przejście na blok"); }
+          else desc.push("Ustawienie układu współrzędnych w bieżącym punkcie (G92)");
+          break;
         case 91: s.absolute = false; desc.push("Wymiarowanie przyrostowe (G91)"); break;
-        case 94: s.feedMode = 94; desc.push("Posuw w mm/min (G94)"); break;
+        case 94:
+          if (latheA) { s.lcycle = { code: 94, end: { ...state.prog }, r: 0 }; desc.push("Cykl toczenia poprzecznego (planowania) G94"); }
+          else { s.feedMode = 94; desc.push("Posuw w mm/min (G94)"); }
+          break;
         case 95: s.feedMode = 95; desc.push("Posuw w mm/obr (G95)"); break;
         case 96: s.css = get("S") ?? s.css ?? null; desc.push(`Stała prędkość skrawania ${fmt(get("S") ?? 0)} m/min (G96)`); break;
         case 97: s.css = null; desc.push("Stałe obroty wrzeciona (G97)"); break;
         case 50:
           if (dia) { s.maxRpm = get("S") ?? s.maxRpm ?? null; desc.push(`Limit obrotów wrzeciona ${fmt(get("S") ?? 0)} obr/min (G50)`); }
-          else desc.push("G50 — nieobsługiwane w symulatorze");
+          else desc.push("Kasowanie skalowania (G50)");
           break;
-        case 32: case 33:
+        case 32: case 33: case 34:
           if (dia) { s.motion = 1; desc.push(`Toczenie gwintu G${g} — posuw równy skokowi F, synchronizacja z wrzecionem`); }
           else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
           break;
         case 76:
           if (dia) desc.push(words.some((w) => ["X", "U", "Z", "W"].includes(w.letter)) ? "Cykl gwintowania G76 — średnica rdzenia, długość, wysokość zwoju, pierwsze wejście, skok" : "Cykl gwintowania G76 — przejścia wykańczające, kąt, minimalne wejście, naddatek");
-          else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
+          else { cycleCode = 86; desc.push("Dokładne wytaczanie G76 (frezarka) — orientacja wrzeciona i odsunięcie ostrza przed wycofaniem; tor jak G86"); }
           break;
         case 74: case 75:
           if (dia) {
             const hasZX = words.some((w) => ["X", "U", "Z", "W"].includes(w.letter));
             desc.push(hasZX ? (g === 74 ? "Cykl G74 — wiercenie / rowkowanie czołowe z wycofaniem" : "Cykl G75 — rowek promieniowy z wycofaniem") : `Cykl G${g} — wycofanie po każdym wcięciu`);
-          } else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
+          } else if (g === 74) { cycleCode = 84; desc.push("Gwintowanie lewe G74 (frezarka) — wrzeciono w lewo, rewers na dnie; tor jak G84"); }
+          else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
           break;
         case 70: case 71: case 72:
           if (dia) {
@@ -299,6 +339,68 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       }
     }
 
+    // G92 na frezarce: bieżący punkt dostaje zadane współrzędne — przesuwamy układ lokalny.
+    if (!latheA && gs.includes(92)) {
+      const loc = { ...s.local };
+      (["x", "y", "z"] as const).forEach((ax) => { const v = get(ax.toUpperCase()); if (v !== undefined) { loc[ax] = s.local[ax] + (state.prog[ax] - v); } });
+      s.local = loc;
+      s.prog = { ...state.prog, ...Object.fromEntries((["x", "y", "z"] as const).filter((ax) => get(ax.toUpperCase()) !== undefined).map((ax) => [ax, get(ax.toUpperCase())!])) };
+    }
+
+    // Współrzędne biegunowe (G16): X — promień, Y — kąt; środek w zerze układu (G90) albo w bieżącym punkcie (G91).
+    const polarize = (t: Vec3) => {
+      if (!s.polar || dia || s.plane !== 17) return;
+      const r0 = get("X"), a0 = get("Y");
+      if (r0 === undefined && a0 === undefined) return;
+      // G90: środek w zerze układu, promień i kąt absolutne. G91: kąt narasta od poprzedniego, środek w bieżącym punkcie.
+      const r = r0 ?? s.polar.r;
+      const a = a0 !== undefined ? (s.absolute ? a0 : s.polar.a + a0) : s.polar.a;
+      s.polar = { r, a };
+      const cx = s.absolute ? 0 : state.prog.x, cy = s.absolute ? 0 : state.prog.y;
+      t.x = cx + r * Math.cos((a * Math.PI) / 180);
+      t.y = cy + r * Math.sin((a * Math.PI) / 180);
+    };
+
+    // Tokarka, system A: cykl pojedynczy G90 / G92 / G94 — każdy blok z adresem osi to cały cykl
+    // (dojazd, skrawanie, wycofanie, powrót do punktu startu). Pominięte osie biorą wartość z poprzedniego cyklu.
+    const lc = s.lcycle;
+    const lcAxis = ["X", "Z", "U", "W"].some((l) => get(l) !== undefined);
+    if (latheA && lc && lcAxis) {
+      const st0 = { ...state.pos };
+      const progEnd: Vec3 = { ...lc.end };
+      const X = get("X"), Z = get("Z"), U = get("U"), W = get("W");
+      if (X !== undefined) progEnd.x = s.absolute ? X : state.prog.x + X; else if (U !== undefined) progEnd.x = state.prog.x + U;
+      if (Z !== undefined) progEnd.z = s.absolute ? Z : state.prog.z + Z; else if (W !== undefined) progEnd.z = state.prog.z + W;
+      const R = get("R") ?? (X === undefined && Z === undefined && U === undefined && W === undefined ? lc.r : 0);
+      const end: Vec3 = { ...progEnd }; applyFrames(end, s);
+      const P = (x: number, z: number): Vec3 => ({ ...st0, x, z });
+      if (s.feed === null) errors.push(`Cykl G${lc.code} bez posuwu F.`);
+      const segs: Segment[] = [];
+      if (lc.code === 94) {
+        segs.push({ kind: "rapid", from: st0, to: P(st0.x, end.z + R), line: index });
+        segs.push({ kind: "linear", from: P(st0.x, end.z + R), to: P(end.x, end.z), line: index });
+        segs.push({ kind: "linear", from: P(end.x, end.z), to: P(end.x, st0.z), line: index });
+        segs.push({ kind: "rapid", from: P(end.x, st0.z), to: st0, line: index });
+        desc.push(`Cykl G94: planowanie do X${fmt(end.x * 2)} Z${fmt(end.z)} i powrót do punktu startu`);
+      } else {
+        const thread = lc.code === 92;
+        segs.push({ kind: "rapid", from: st0, to: P(end.x + R, st0.z), line: index });
+        segs.push({ kind: "linear", from: P(end.x + R, st0.z), to: P(end.x, end.z), line: index });
+        segs.push({ kind: thread ? "rapid" : "linear", from: P(end.x, end.z), to: P(st0.x, end.z), line: index });
+        segs.push({ kind: "rapid", from: P(st0.x, end.z), to: st0, line: index });
+        desc.push(thread
+          ? `Cykl G92: przejście gwintu na średnicy X${fmt((end.x + R) * 2)}${R ? `→${fmt(end.x * 2)}` : ""} do Z${fmt(end.z)}, skok F${fmt(s.feed ?? 0)}`
+          : `Cykl G90: toczenie na średnicę X${fmt(end.x * 2)} do Z${fmt(end.z)}${R ? ` (stożek R${fmt(R)})` : ""} i powrót do punktu startu`);
+      }
+      segments.push(...segs);
+      s.lcycle = { ...lc, end: progEnd, r: R };
+      s.pos = st0; s.prog = { ...state.prog };
+      record({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
+      allSegments.push(...segments);
+      state = s;
+      return;
+    }
+
     const cyc = s.cycle;
     const hasXY = get("X") !== undefined || get("Y") !== undefined;
     if (cyc && (cycleCode !== null || hasXY)) {
@@ -307,6 +409,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         const v = get(ax.toUpperCase());
         if (v !== undefined) progTarget[ax] = s.absolute ? v : state.prog[ax] + v;
       });
+      polarize(progTarget);
       const target: Vec3 = { ...progTarget };
       applyFrames(target, s);
       const segs = cycleSegments(state.pos, target, cyc, index);
@@ -323,7 +426,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
-    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || (dia && g >= 70 && g <= 76 && g !== 73));
+    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
@@ -344,17 +447,26 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         if (u !== undefined) progTarget.x = state.prog.x + u;
         if (w !== undefined) progTarget.z = state.prog.z + w;
       }
+      polarize(progTarget);
       const target: Vec3 = { ...progTarget };
       applyFrames(target, s);
       const from = { ...state.pos };
-      // G28 to jednorazowy najazd na punkt referencyjny — zawsze ruchem szybkim, bez zmiany trybu ruchu.
-      const g28 = gs.includes(28);
-      if (s.motion === null && !g28) {
+      // G53: współrzędne maszynowe nie są znane — pokazujemy bezpieczny odjazd w górę, bez ruchu w płaszczyźnie.
+      if (gs.includes(53)) {
+        target.x = from.x; target.y = from.y;
+        target.z = dia ? from.z : Math.max(from.z, 50);
+        if (dia) { target.x = Math.max(from.x, target.x); }
+        progTarget.x = state.prog.x; progTarget.y = state.prog.y; progTarget.z = state.prog.z + (target.z - from.z);
+      }
+      // G27/G28/G29/G30/G53 — jednorazowo ruchem szybkim; G31 — jednorazowo jak G01.
+      const g28 = gs.some((g) => g === 27 || g === 28 || g === 29 || g === 30 || g === 53);
+      const g31 = gs.includes(31);
+      if (s.motion === null && !g28 && !g31) {
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
       } else if (s.motion === 0 || g28) {
         segments.push({ kind: "rapid", from, to: target, line: index });
         desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
-      } else if (s.motion === 1) {
+      } else if (s.motion === 1 || g31) {
         if (s.feed === null) errors.push("G01 bez posuwu F.");
         segments.push({ kind: "linear", from, to: target, line: index });
         desc.push(`Ruch liniowy do ${pt(target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);

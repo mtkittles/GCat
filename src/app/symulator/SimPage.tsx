@@ -114,18 +114,21 @@ export default function SimPage() {
   }));
   const cur = lib ? programBySlug(lib) : undefined;
   // wybór gotowego programu — widoczny nad symulatorem w każdej zakładce
+  const progSelect = (
+    <select value={lib ?? ""} aria-label="Program" onChange={(e) => { const p = programBySlug(e.target.value); if (p) openLib(p); }}>
+      {!lib && <option value="">{name} (własny)</option>}
+      {groups.map((g) => (
+        <optgroup key={g.m} label={g.label}>
+          {g.items.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}
+        </optgroup>
+      ))}
+    </select>
+  );
   const picker = (
     <div className="sim-pick">
       <label className="sim-pick-sel">
         <span>Program</span>
-        <select value={lib ?? ""} onChange={(e) => { const p = programBySlug(e.target.value); if (p) openLib(p); }}>
-          {!lib && <option value="">{name} (własny)</option>}
-          {groups.map((g) => (
-            <optgroup key={g.m} label={g.label}>
-              {g.items.map((p) => <option key={p.slug} value={p.slug}>{p.title}</option>)}
-            </optgroup>
-          ))}
-        </select>
+        {progSelect}
       </label>
       {cur && <span className="sim-pick-meta">{cur.level} · {Object.keys(cur.tools).length} narz.{cur.lesson ? <> · <Link href={cur.lesson.href}>{cur.lesson.label}</Link></> : null}</span>}
       <Link href="/programy" className="sim-pick-lib">Galeria programów →</Link>
@@ -154,12 +157,21 @@ export default function SimPage() {
           <li>Walidator zaznacza błędy na czerwono, ostrzeżenia na żółto.</li>
           <li>W toczeniu X oznacza średnicę, jak w Fanuc.</li>
         </ul>} priority />
-      <div className="sim-top grid gap-4">
-        {programTabs}
-        <div className="filters">
-          {modeButtons}
-          {dialectButtons}
+      {/* Komputer: wszystko, co dotyczy programu i maszyny, w jednym pasku nad stanowiskiem */}
+      <div className="sim-bar">
+        <h1 className="sim-bar-title">Symulator</h1>
+        <label className="sim-bar-prog">{progSelect}</label>
+        <div className="seg2" role="group" aria-label="Maszyna">
+          <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezarka</button>
+          <button aria-pressed={mode === "lathe"} onClick={() => setMode("lathe")}>Tokarka</button>
         </div>
+        <div className="seg2" role="group" aria-label="Sterownik">
+          <button aria-pressed={dialect === "fanuc"} onClick={() => setDialect("fanuc")}>Fanuc</button>
+          <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
+        </div>
+        <div className="sim-bar-tabs">{programTabs}</div>
+        {cur && <span className="sim-bar-meta">{cur.level} · {Object.keys(cur.tools).length} narz.{cur.lesson ? <> · <Link href={cur.lesson.href}>{cur.lesson.label}</Link></> : null}</span>}
+        <Link href="/programy" className="sim-bar-lib">Galeria →</Link>
       </div>
       {picker}
       <Simulator appLayout source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} stock={stock} tools={tools}

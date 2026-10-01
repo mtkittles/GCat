@@ -979,7 +979,7 @@ M30`,
     3: { kind: "grooving", name: "Nóż do rowków 3 mm", d: 3 }
     },
     src: `O0400 (WALEK 3 NARZEDZIA)
-G21 G90 G18 G95
+G18 G21 G40 G99
 G50 S2800
 (T01 NOZ ZGRUBNY)
 T01 M06
@@ -1116,7 +1116,7 @@ M30`,
     tools: {
     1: { kind: "turning", name: "Nóż zewnętrzny CNMG 120408", d: 0.8, angle: 95, shape: "C" }
     },
-    src: `G21 G90 G18 G95\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nM30`,
+    src: `G18 G21 G40 G99\nG50 S3000\nG97 S1200 M03\nG00 X62 Z2\nG96 S200\nG01 X40 F0.3\nG01 Z-20\nG02 X50 Z-25 R5\nG01 Z-45\nG01 X62\nG00 Z2\nM30`,
   },
   {
     slug: "walek-faza", title: "Wałek z fazą i zaokrągleniem", mode: "lathe", category: "Kontury", level: "podstawowy",
@@ -1125,7 +1125,7 @@ M30`,
     tools: {
     1: { kind: "turning", name: "Nóż zewnętrzny DNMG 150604", d: 0.4, angle: 93, shape: "D" }
     },
-    src: `G21 G90 G18 G95\nG50 S3000\nG97 S1500 M03\nG00 X50 Z2\nG96 S220\nG01 X26 F0.25\nG01 X30 Z0\nG01 Z-15\nG02 X40 Z-20 R5\nG01 Z-35\nG01 X44\nG01 X48 Z-37\nG00 X50 Z2\nM30`,
+    src: `G18 G21 G40 G99\nG50 S3000\nG97 S1500 M03\nG00 X50 Z2\nG96 S220\nG01 X26 F0.25\nG01 X30 Z0\nG01 Z-15\nG02 X40 Z-20 R5\nG01 Z-35\nG01 X44\nG01 X48 Z-37\nG00 X50 Z2\nM30`,
   },
   {
     slug: "kolnierz-g72", title: "Kołnierz z piastą (G72)", mode: "lathe", category: "Rowki i cykle", level: "średni",

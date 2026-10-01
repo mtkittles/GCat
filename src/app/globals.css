@@ -1315,7 +1315,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
   .workbench[data-mtab]:not([data-mtab="set"]) > .wb-main > .m-set { display: none; }
   .workbench[data-mtab="code"] > .wb-main { display: none; }
   .is-app > .wb-main > .speed { display: none; }
-  .is-app.is-3d > .wb-main > .sim-canvas-2d { display: none; }
+  .is-app .stage-view.v-split { display: grid; gap: .5rem; }
   .is-app .viewbar .units, .is-app .viewbar .comp-note { display: none; }
   .is-app .sim3d-wrap .text-xs { display: none; }
   .is-app .panel { border: none; background: transparent; }
@@ -1324,8 +1324,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 
   /* kolejność w zakładce Symulacja: widok → podgląd → HUD → odtwarzacz → stan → statystyki */
   .is-app > .wb-main > .viewbar { order: 1; }
-  .is-app > .wb-main > .sim-canvas-2d { order: 2; }
-  .is-app > .wb-main > .sim3d-wrap { order: 3; }
+  .is-app > .wb-main > .stage-view { order: 2; }
   .is-app > .wb-main > .m-hud { order: 4; }
   .is-app > .wb-main > .sim-controls { order: 5; }
   .is-app > .wb-main > .sim-state { order: 6; }
@@ -2104,3 +2103,91 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .ex-title { font-weight: 700; font-size: 15.5px; color: var(--ink); }
 .ex-brief { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
 @media (min-width: 1100px) { .ex-grid { grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); } }
+
+
+/* ===== Stanowisko symulatora ===== */
+.stage-view { position: relative; display: grid; gap: .5rem; min-width: 0; }
+.stage-view.v-3d > .sim-canvas-2d { display: none; }
+.only-split { display: none; }
+.sim-bar { display: none; }
+.lay-menu { position: relative; }
+.lay-menu > summary { list-style: none; cursor: pointer; padding: .42rem .8rem; min-height: 38px; display: inline-flex; align-items: center; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card); font-size: 13px; font-weight: 600; color: var(--ink); }
+.lay-menu > summary::-webkit-details-marker { display: none; }
+.lay-menu[open] > summary { border-color: var(--accent); }
+.lay-pop { position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; min-width: 270px; display: grid; gap: .5rem; padding: .8rem .9rem; border-radius: 12px; border: 1px solid var(--line-strong); background: var(--surface-2, #1a1d22); box-shadow: 0 14px 40px rgba(0,0,0,.45); }
+.lay-pop label { display: flex; gap: .55rem; align-items: center; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+.lay-pop input { accent-color: var(--accent); width: 16px; height: 16px; }
+.view-hud { position: absolute; z-index: 4; top: 10px; left: 10px; display: grid; gap: .3rem; padding: .55rem .65rem; border-radius: 10px; background: rgba(8,10,13,.82); border: 1px solid rgba(148,163,184,.22); font: 500 12px/1.35 var(--font-mono); color: #CBD5E1; pointer-events: none; max-width: min(360px, 46%); backdrop-filter: blur(3px); }
+.vh-line { display: flex; gap: .5rem; align-items: baseline; }
+.vh-line b { color: var(--accent); }
+.vh-line code { color: #F8FAFC; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.view-hud table { border-collapse: collapse; }
+.view-hud th { color: #64748B; font-weight: 700; text-align: left; padding: 0 .3rem 0 0; }
+.view-hud td { color: #F8FAFC; padding: 0 .9rem 0 0; min-width: 4.2rem; font-variant-numeric: tabular-nums; }
+.vh-mod { display: flex; gap: .35rem; flex-wrap: wrap; }
+.vh-mod span { padding: .05rem .35rem; border-radius: 5px; background: rgba(148,163,184,.14); color: #E2E8F0; font-size: 11px; }
+.vh-tool { color: #FB923C; font-size: 11.5px; }
+
+@media (min-width: 768px) {
+  .sim-page > .banner, .sim-page > .banner-wrap { display: none; }
+  .sim-page > .sim-pick { display: none; }
+  .sim-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; padding: .5rem .7rem; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+  .sim-bar-title { font: 800 1.05rem/1 var(--font-display); margin-right: .2rem; }
+  .sim-bar-prog { flex: 1 1 15rem; max-width: 26rem; min-width: 0; }
+  .sim-bar-prog select { width: 100%; padding: .5rem .65rem; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface-2, #1a1d22); color: var(--ink); font-weight: 600; font-size: 14px; }
+  .seg2 { display: inline-flex; padding: 2px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); }
+  .seg2 button { padding: .38rem .8rem; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--ink-2); background: none; border: none; cursor: pointer; }
+  .seg2 button[aria-pressed="true"] { background: var(--accent); color: #111; }
+  .sim-bar-tabs { min-width: 0; }
+  .sim-bar-tabs .tabs { flex-wrap: nowrap; overflow-x: auto; gap: .3rem; }
+  .sim-bar-tabs .tab-add, .sim-bar-tabs .tab button { font-size: 12.5px; padding: .3rem .55rem; }
+  .sim-bar-meta { font-size: 12.5px; color: var(--muted); }
+  .sim-bar-meta a, .sim-bar-lib { color: var(--accent); font-weight: 600; }
+  .sim-bar-lib { margin-left: auto; font-size: 13px; }
+  .sim-page .sim-legend { display: none; }
+}
+
+@media (min-width: 1100px) {
+  .only-split { display: inline-flex; }
+  .workbench.is-app {
+    --stage-h: max(360px, calc(100vh - 292px));
+    grid-template-columns: minmax(330px, 30%) minmax(0, 1fr); grid-template-areas: "program view"; align-items: start;
+  }
+  .workbench.is-app.is-full { grid-template-columns: minmax(300px, 24%) minmax(0, 1fr); }
+  .workbench.is-app > .panel.m-code { grid-area: program; position: sticky; top: 68px; }
+  .workbench.is-app > .wb-main { grid-area: view; gap: .5rem; }
+  .workbench.is-app .gcode-editor .cm-editor { height: calc(var(--stage-h) + 74px); max-height: none; }
+  .workbench.is-app .sim-lines { max-height: 30vh; }
+  .workbench.is-app .sim-lines.is-desk-hidden { display: none; }
+  .workbench.is-app .stage-view { height: var(--stage-h); grid-template-rows: minmax(0, 1fr); }
+  .workbench.is-app .stage-view > .sim-canvas-2d { height: 100% !important; min-height: 0; }
+  .workbench.is-app .stage-view.v-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .workbench.is-app .stage-view > .sim3d-wrap { height: 100%; min-height: 0; }
+  .workbench.is-app .stage-view > .sim3d-wrap > div, .workbench.is-app .stage-view .view3d { height: 100%; }
+  .workbench.is-app .stage-view .sim-canvas-3d { height: 100% !important; }
+  .workbench.is-app > .wb-main > .speed { display: none; }
+  .workbench.is-app .sim-controls .speed-chip { display: inline-flex; }
+  .workbench.is-app .viewbar .segmented button { min-height: 34px; padding: .32rem .8rem; }
+  .workbench.is-app .viewbar > button, .workbench.is-app .viewbar .units select, .workbench.is-app .lay-menu > summary { min-height: 34px; }
+  .workbench.is-app .viewbar .comp-note { font-size: 12px; }
+  .workbench.is-app .sim-state { display: flex; flex-wrap: wrap; gap: .3rem; }
+  .workbench.is-app .sim-state span { padding: .2rem .45rem; font-size: 11.5px; }
+  .workbench.is-app .file-bar { gap: .3rem; }
+  .workbench.is-app .file-bar button, .workbench.is-app .file-bar .file-btn { font-size: 12.5px; padding: .3rem .55rem; }
+  .workbench.is-app .file-hint { display: none; }
+}
+
+.lay-units { justify-content: space-between; padding-top: .35rem; border-top: 1px solid var(--line); }
+.lay-units select { padding: .3rem .45rem; border-radius: 7px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font-size: 12.5px; }
+.viewbar > button { padding: .38rem .8rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--card); font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+.viewbar > button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+@media (min-width: 1100px) {
+  .workbench.is-app .viewbar { flex-wrap: nowrap; }
+  .workbench.is-app .viewbar .units, .workbench.is-app .viewbar .only-wide, .workbench.is-app .viewbar .comp-note { display: none; }
+  .workbench.is-app { --stage-h: max(340px, calc(100vh - 300px)); }
+}
+@media (min-width: 768px) and (max-width: 1499px) { .sim-bar-meta { display: none; } }
+@media (min-width: 768px) { .sim-bar { flex-wrap: nowrap; } .sim-bar-tabs { flex: 0 1 auto; overflow: hidden; } }
+
+/* telefon: tabelka i menu układu tylko na komputerze — w aplikacji jest pasek stanu i zakładka Ustawienia */
+@media (max-width: 767px) { .view-hud, .lay-menu { display: none; } }
