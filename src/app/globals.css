@@ -2191,3 +2191,31 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* telefon: tabelka i menu układu tylko na komputerze — w aplikacji jest pasek stanu i zakładka Ustawienia */
 @media (max-width: 767px) { .view-hud, .lay-menu { display: none; } }
+
+/* ===== Symulator na telefonie: podgląd na cały dostępny ekran ===== */
+.lbl-short { display: none; }
+@media (max-width: 767px) {
+  .lbl-long { display: none; }
+  .lbl-short { display: inline; }
+  .sim-page { gap: .6rem; }
+  .sim-page > .banner-wrap, .sim-page > .banner { display: none; }
+  /* wybór programu w jednym wierszu */
+  .sim-page > .sim-pick { flex-wrap: nowrap; padding: .4rem .5rem; gap: .5rem; border-radius: 12px; }
+  .sim-pick .sim-pick-sel > span, .sim-pick .sim-pick-meta { display: none; }
+  .sim-pick .sim-pick-sel { flex: 1 1 auto; }
+  .sim-pick .sim-pick-sel select { padding: .45rem .55rem; font-size: 14px; }
+  .sim-pick .sim-pick-lib { flex: none; margin: 0; font-size: 13px; padding: .45rem .6rem; border-radius: 9px; border: 1px solid var(--line); background: var(--panel); }
+  /* pasek widoku w jednym wierszu */
+  .is-app .viewbar { flex-wrap: nowrap; gap: .35rem; }
+  .is-app .viewbar .segmented button { padding: .3rem .8rem; min-height: 34px; font-size: 13px; }
+  .is-app .viewbar > button { padding: .3rem .6rem; min-height: 34px; font-size: 12.5px; white-space: nowrap; }
+  .is-app .viewbar .fs-open { margin-left: auto; }
+  /* stanowisko: podgląd zajmuje miejsce między paskiem widoku a odtwarzaczem */
+  .workbench.is-app { scroll-margin-top: 62px; }
+  .is-app .stage-view { height: max(250px, calc(100svh - 440px)); }
+  .is-app .stage-view > .sim-canvas-2d { height: 100% !important; min-height: 0; }
+  .is-app .stage-view > .sim3d-wrap { height: 100%; min-height: 0; }
+  .is-app .stage-view .view3d, .is-app .stage-view .sim-canvas-3d { height: 100% !important; }
+  .is-app .stage-view.v-split { grid-template-rows: 1fr 1fr; }
+  .is-app .view3d-bar { top: .4rem; right: .4rem; left: .4rem; justify-content: flex-end; overflow-x: auto; }
+}

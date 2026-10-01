@@ -131,7 +131,7 @@ export default function SimPage() {
         {progSelect}
       </label>
       {cur && <span className="sim-pick-meta">{cur.level} · {Object.keys(cur.tools).length} narz.{cur.lesson ? <> · <Link href={cur.lesson.href}>{cur.lesson.label}</Link></> : null}</span>}
-      <Link href="/programy" className="sim-pick-lib">Galeria programów →</Link>
+      <Link href="/programy" className="sim-pick-lib" aria-label="Galeria programów"><span className="lbl-long">Galeria programów →</span><span className="lbl-short">Galeria</span></Link>
     </div>
   );
   const modeButtons = (

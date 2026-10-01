@@ -898,7 +898,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               </button>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
                 title={mode === "lathe" ? "Tor punktu P ostrza z uwzględnieniem G41/G42 i promienia naroża" : "Tor środka narzędzia z uwzględnieniem G41/G42"}>
-                {showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</button>}
+                <span className="lbl-long">{showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</span>
+                <span className="lbl-short">{showComp ? "G41/42" : "Tor prog."}</span></button>}
               {!comp.active && program.lines.some((l) => l.segments.some((sg) => sg.kind !== "rapid")) && (
                 <span className="comp-note">{mode === "lathe"
                   ? "G40 — program prowadzi punkt P ostrza; na fazach i łukach naroże zostawia materiał (pomarańczowy ślad)"
@@ -995,7 +996,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               onClick={() => {
                 setMTab(t.id);
                 const el = rootRef.current;
-                if (el && el.getBoundingClientRect().top < 0) el.scrollIntoView({ block: "start", behavior: "smooth" });
+                // Na telefonie sekcja wypełnia ekran — przewijamy tak, żeby stanowisko zaczynało się pod nagłówkiem.
+                if (el && (el.getBoundingClientRect().top < 0 || (t.id === "sim" && el.getBoundingClientRect().top > 80))) el.scrollIntoView({ block: "start", behavior: "smooth" });
               }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={t.d} /></svg>
               <span>{t.label}</span>

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { latheProfileCached, type LatheCache, type LatheProfile } from "./latheStock";
+import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
@@ -110,19 +110,37 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     sceneRef.current = st;
 
     // kamera na obszar + gotowe ustawienia widoku
-    const b = programRef.current.bounds;
+    // Kadr obejmuje tor i — na tokarce — cały pręt (półfabrykat bywa dłuższy niż tor narzędzia).
+    const b0 = programRef.current.bounds;
+    const b = { min: { ...b0.min }, max: { ...b0.max } };
+    if (mode === "lathe") {
+      const pr = initLatheProfile(programRef.current, programRef.current.segments, setup);
+      if (pr) { b.min.z = Math.min(b.min.z, pr.z0); b.max.z = Math.max(b.max.z, pr.z1); b.max.x = Math.max(b.max.x, pr.R0); b.min.x = Math.min(b.min.x, -pr.R0); }
+    }
     const ctr = toW({ x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, z: (b.min.z + b.max.z) / 2 }, mode);
     const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 40);
+    // Odległość kamery liczona z węższego kąta widzenia — na pionowym ekranie telefonu
+    // detal mieści się w kadrze tak samo jak na szerokim monitorze.
+    let lastView: "iso" | "top" | "front" | "side" | "fit" = "iso";
     const apply = (v: "iso" | "top" | "front" | "side" | "fit") => {
-      const d = span * 1.5;
-      if (v === "top") camera.position.set(ctr.x, ctr.y + d, ctr.z + 0.001);
-      else if (v === "front") camera.position.set(ctr.x, ctr.y + span * 0.15, ctr.z + d);
-      else if (v === "side") camera.position.set(ctr.x + d, ctr.y + span * 0.15, ctr.z);
-      else camera.position.set(ctr.x + span * 0.9, ctr.y + span * 0.8, ctr.z + span * 1.1);
+      lastView = v;
+      const vf = (camera.fov * Math.PI) / 180;
+      const hf = 2 * Math.atan(Math.tan(vf / 2) * Math.max(0.2, camera.aspect));
+      const R = span * 0.62;
+      const d = (R / Math.sin(Math.min(vf, hf) / 2)) * 1.05;
+      const dir = v === "top" ? new THREE.Vector3(0, 1, 0.001)
+        : v === "front" ? new THREE.Vector3(0, 0.15, 1)
+        : v === "side" ? new THREE.Vector3(1, 0.15, 0)
+        : new THREE.Vector3(0.9, 0.8, 1.1);
+      dir.normalize().multiplyScalar(d);
+      camera.position.set(ctr.x + dir.x, ctr.y + dir.y, ctr.z + dir.z);
       controls.target.copy(ctr);
       controls.update();
     };
-    viewApi.current = apply;
+    // dopóki użytkownik nie obrócił widoku, zmiana proporcji okna kadruje detal od nowa
+    let touched = false;
+    controls.addEventListener("start", () => { touched = true; });
+    viewApi.current = (v) => { touched = false; apply(v); };
     apply("iso");
 
     let raf = 0;
@@ -135,6 +153,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       const w = el.clientWidth, h = el.clientHeight;
       if (w < 8 || h < 8) return;
       renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+      if (!touched) apply(lastView);
     };
     window.addEventListener("resize", onResize);
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
