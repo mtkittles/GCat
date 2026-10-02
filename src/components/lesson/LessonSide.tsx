@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { markVisited, progressKey, setDone, useProgress } from "@/lib/progress";
+import { isPassed, isRead, markVisited, progressKey, setRead, useProgress } from "@/lib/progress";
 
 /*
   Boczne panele lekcji na komputerze:
@@ -51,8 +51,9 @@ export function LessonNav({ toc, track, moduleLabel, lessons, currentId }: { toc
       <ol className="ls-nav-mod">
         {lessons.map((l) => {
           const p = prog[progressKey(track, l.id)];
-          const state = l.id === currentId ? "is-cur" : p?.done ? "is-done" : "";
-          const body = <><i aria-hidden>{p?.done ? "✓" : ""}</i><b>{l.id}</b><span>{l.title}</span></>;
+          const passed = isPassed(p), read = isRead(p);
+          const state = l.id === currentId ? "is-cur" : passed ? "is-done" : read ? "is-read" : "";
+          const body = <><i aria-label={passed ? "zaliczona testem" : read ? "przeczytana" : undefined}>{passed ? "✓" : read ? "•" : ""}</i><b>{l.id}</b><span>{l.title}</span></>;
           return (
             <li key={l.id}>
               {l.href && l.id !== currentId ? <Link href={l.href} className={state}>{body}</Link> : <span className={`ls-nav-self ${state}`}>{body}</span>}
@@ -70,14 +71,16 @@ export function LessonStatus({ track, id, inline = false }: { track: string; id:
   const p = useProgress()[key];
   useEffect(() => { if (!inline) markVisited(key); }, [key, inline]);
   return (
-    <div className={`ls-status${p?.done ? " is-done" : ""}${inline ? " ls-status-inline" : ""}`}>
-      <p className="ls-status-h">{p?.done ? "Lekcja zaliczona" : "Postęp"}</p>
+    <div className={`ls-status${isPassed(p) ? " is-done" : isRead(p) ? " is-read" : ""}${inline ? " ls-status-inline" : ""}`}>
+      <p className="ls-status-h">{isPassed(p) ? "Zaliczona testem" : isRead(p) ? "Przeczytana" : "Postęp"}</p>
       <p className="ls-status-q">
-        {p?.quiz ? <>Najlepszy wynik testu: <b>{p.quiz.score} / {p.quiz.total}</b></> : "Test jeszcze nierozwiązany. Wynik od 80% zalicza lekcję."}
+        {p?.quiz ? <>Najlepszy wynik testu: <b>{p.quiz.score} / {p.quiz.total}</b>{isPassed(p) ? "" : " — test zalicza wynik od 80%."}</> : "Test jeszcze nierozwiązany. Wynik od 80% zalicza lekcję testem."}
       </p>
-      <button type="button" className={p?.done ? "btn ghost" : "btn"} onClick={() => setDone(key, !p?.done)}>
-        {p?.done ? "Cofnij zaliczenie" : "Oznacz jako zaliczoną"}
-      </button>
+      {!isPassed(p) && (
+        <button type="button" className={isRead(p) ? "btn ghost" : "btn"} onClick={() => setRead(key, !isRead(p))}>
+          {isRead(p) ? "Cofnij „przeczytana”" : "Oznacz jako przeczytaną"}
+        </button>
+      )}
     </div>
   );
 }

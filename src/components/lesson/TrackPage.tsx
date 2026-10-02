@@ -4,6 +4,7 @@ import PageBanner from "@/components/ui/PageBanner";
 import { diagrams } from "@/components/diagrams";
 import { lessonHref, trackStats, tracks, type Track } from "@/lib/course";
 import TrackBody from "./TrackBody";
+import { pl } from "@/lib/plural";
 
 const PART_FIG: Record<Track, string> = { frezowanie: "f01-top", toczenie: "t01-part" };
 
@@ -19,7 +20,7 @@ export default function TrackPage({ track }: { track: Track }) {
     <div className="grid gap-6 tp">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { label: T.title }]} />
       <PageBanner src={T.banner} kicker="Ścieżka nauki" title={T.title} subtitle={T.blurb}
-        meta={<><Chip tone="accent">{ready} z {total} lekcji gotowych</Chip><Chip>{T.part}</Chip></>} size="compact" priority />
+        meta={<><Chip tone="accent">{ready === total ? pl(total, "lekcja", "lekcje", "lekcji") : `${ready} z ${total} lekcji opublikowanych`}</Chip><Chip>{T.part}</Chip></>} size="compact" priority />
       <TrackBody track={track} modules={modules} part={T.part} partFig={diagrams[PART_FIG[track]]?.()}
         other={{ href: `/nauka/${other.key}`, label: `Przejdź na ścieżkę: ${other.title.toLowerCase()}` }} />
     </div>

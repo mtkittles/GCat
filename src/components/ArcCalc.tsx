@@ -48,6 +48,44 @@ function Copy({ text }: { text: string }) {
   );
 }
 
+
+export type Geo =
+    | { ok: false; reason: string }
+    | { ok: true; cx: number; cy: number; I: number; J: number; d: number; deg: number; len: number; sag: number; sweep: number; a1: number; long: boolean };
+
+/** Geometria łuku z punktów, promienia i kierunku — czysta funkcja (kalkulator, testy). */
+export function arcGeometry(x1: number, y1: number, x2: number, y2: number, R: number, dir: Dir, longArc: boolean): Geo {
+  const dx = x2 - x1, dy = y2 - y1;
+  const d = Math.hypot(dx, dy);
+  // Łuk większy niż 180°: zaznaczony przełącznik albo wpisane ujemne R.
+  const long = longArc || R < 0;
+  const Rs = long ? -Math.abs(R) : Math.abs(R);
+  if (d < 1e-9) return { ok: false, reason: "Punkt końcowy pokrywa się z początkowym — pełne koło zapisz przez I/J." };
+  if (Math.abs(R) < d / 2 - 1e-9) return { ok: false, reason: `Promień |R| = ${n2(Math.abs(R))} jest mniejszy niż połowa cięciwy (${n2(d / 2)} mm). Taki łuk nie istnieje.` };
+
+  const h = Math.sqrt(Math.max(0, R * R - (d / 2) ** 2));
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  // znak wybiera jedną z dwóch możliwych stron cięciwy
+  let sign = dir === "cw" ? -1 : 1;
+  if (Rs < 0) sign = -sign;
+  const cx = mx - (sign * h * dy) / d;
+  const cy = my + (sign * h * dx) / d;
+
+  const a1 = Math.atan2(y1 - cy, x1 - cx);
+  const a2 = Math.atan2(y2 - cy, x2 - cx);
+  let sweep = a2 - a1;
+  if (dir === "cw") { if (sweep >= -1e-9) sweep -= 2 * Math.PI; }
+  else if (sweep <= 1e-9) sweep += 2 * Math.PI;
+
+  const deg = Math.abs((sweep * 180) / Math.PI);
+  const len = Math.abs(sweep) * Math.abs(R);
+  // Strzałka wybranego łuku (wysokość nad cięciwą): r − √(r² − (c/2)²) dla łuku do 180°,
+  // r + √(r² − (c/2)²) dla łuku większego niż 180° — tam łuk leży po drugiej stronie środka.
+  const sag = deg > 180 + 1e-9 ? Math.abs(R) + h : Math.abs(R) - h;
+
+  return { ok: true, cx, cy, I: cx - x1, J: cy - y1, d, deg, len, sag, sweep, a1, long };
+}
+
 export default function ArcCalc() {
   // --- kierunek i punkty
   const [dir, setDir] = useState<Dir>("ccw");
@@ -59,42 +97,12 @@ export default function ArcCalc() {
   // --- kierunek odwrotny: I/J → R
   const [i, setI] = useState(30), [j, setJ] = useState(0);
 
-  type Geo =
-    | { ok: false; reason: string }
-    | { ok: true; cx: number; cy: number; I: number; J: number; d: number; deg: number; len: number; sag: number; sweep: number; a1: number };
-
-  const geo = useMemo<Geo>(() => {
-    const dx = x2 - x1, dy = y2 - y1;
-    const d = Math.hypot(dx, dy);
-    const Rs = longArc ? -Math.abs(R) : Math.abs(R);
-    if (d < 1e-9) return { ok: false, reason: "Punkt końcowy pokrywa się z początkowym — pełne koło zapisz przez I/J." };
-    if (Math.abs(R) < d / 2 - 1e-9) return { ok: false, reason: `Promień |R| = ${n2(Math.abs(R))} jest mniejszy niż połowa cięciwy (${n2(d / 2)} mm). Taki łuk nie istnieje.` };
-
-    const h = Math.sqrt(Math.max(0, R * R - (d / 2) ** 2));
-    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-    // znak wybiera jedną z dwóch możliwych stron cięciwy
-    let sign = dir === "cw" ? -1 : 1;
-    if (Rs < 0) sign = -sign;
-    const cx = mx - (sign * h * dy) / d;
-    const cy = my + (sign * h * dx) / d;
-
-    const a1 = Math.atan2(y1 - cy, x1 - cx);
-    const a2 = Math.atan2(y2 - cy, x2 - cx);
-    let sweep = a2 - a1;
-    if (dir === "cw") { if (sweep >= -1e-9) sweep -= 2 * Math.PI; }
-    else if (sweep <= 1e-9) sweep += 2 * Math.PI;
-
-    const deg = Math.abs((sweep * 180) / Math.PI);
-    const len = Math.abs(sweep) * Math.abs(R);
-    const sag = Math.abs(R) - h;   // strzałka łuku nad cięciwą
-
-    return { ok: true, cx, cy, I: cx - x1, J: cy - y1, d, deg, len, sag, sweep, a1 };
-  }, [x1, y1, x2, y2, R, dir, longArc]);
+  const geo = useMemo<Geo>(() => arcGeometry(x1, y1, x2, y2, R, dir, longArc), [x1, y1, x2, y2, R, dir, longArc]);
 
   const Rfrom = n3(Math.hypot(i, j));
 
   const code = geo.ok
-    ? `${dir === "cw" ? "G02" : "G03"} X${n3(x2)} Y${n3(y2)} I${n3(geo.I)} J${n3(geo.J)} F___\n${dir === "cw" ? "G02" : "G03"} X${n3(x2)} Y${n3(y2)} R${longArc ? "-" : ""}${n3(Math.abs(R))} F___`
+    ? `${dir === "cw" ? "G02" : "G03"} X${n3(x2)} Y${n3(y2)} I${n3(geo.I)} J${n3(geo.J)} F___\n${dir === "cw" ? "G02" : "G03"} X${n3(x2)} Y${n3(y2)} R${geo.long && geo.deg > 180 + 1e-9 ? "-" : ""}${n3(Math.abs(R))} F___`
     : "";
 
   // --- podgląd geometrii
@@ -139,7 +147,7 @@ export default function ArcCalc() {
             <Num label="Promień R" unit="mm" value={R} onChange={setR} />
             <label className="arc-check">
               <input type="checkbox" checked={longArc} onChange={(e) => setLongArc(e.target.checked)} />
-              <span>Łuk dłuższy niż 180° (R ujemne)</span>
+              <span>Łuk większy niż 180° (R ujemne)</span>
             </label>
           </div>
 
@@ -151,7 +159,7 @@ export default function ArcCalc() {
                 <div className="arc-out big"><span>I</span><b>{n3(geo.I)}</b></div>
                 <div className="arc-out big"><span>J</span><b>{n3(geo.J)}</b></div>
                 <div className="arc-out"><span>Środek łuku</span><b>{n2(geo.cx)}, {n2(geo.cy)}</b></div>
-                <div className="arc-out"><span>Kąt rozwarcia</span><b>{n2(geo.deg)}°</b></div>
+                <div className="arc-out"><span>Kąt środkowy łuku</span><b>{n2(geo.deg)}°</b></div>
                 <div className="arc-out"><span>Długość łuku</span><b>{n2(geo.len)} mm</b></div>
                 <div className="arc-out"><span>Cięciwa</span><b>{n2(geo.d)} mm</b></div>
                 <div className="arc-out"><span>Strzałka</span><b>{n2(geo.sag)} mm</b></div>
@@ -202,7 +210,7 @@ export default function ArcCalc() {
           <div className="arc-outs">
             <div className="arc-out big"><span>R</span><b>{Rfrom}</b></div>
           </div>
-          <p className="setup-hint">R = √(I² + J²). Przeliczenie działa w obie strony tylko dla łuków do 180° — powyżej promień jest niejednoznaczny, więc pełne koło i łuki rozwarte zapisuje się wyłącznie przez I/J.</p>
+          <p className="setup-hint">√(I² + J²) daje <b>wartość</b> promienia |R|. Same I i J nie wystarczą do ustalenia znaku R: znak zależy też od punktu końcowego i kierunku obiegu (G02/G03). Przy programowaniu promieniem (Fanuc R, Sinumerik CR=) dodatnie R wybiera łuk do 180°, ujemne R — łuk większy niż 180°. Pełnego okręgu nie definiuje się samym R — zapisuje się go przez I/J (K).</p>
         </div>
       </div>
     </div>

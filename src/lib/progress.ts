@@ -11,7 +11,9 @@ import { useSyncExternalStore } from "react";
 export interface LessonProgress {
   /** ostatnie otwarcie lekcji (ms) */
   visited?: number;
-  /** lekcja zaliczona: test ≥ 80% albo oznaczona ręcznie */
+  /** oznaczona ręcznie jako przeczytana */
+  read?: boolean;
+  /** zapis z wcześniejszej wersji: „zaliczona” (test ≥ 80% albo ręcznie) — czytany wstecznie */
   done?: boolean;
   /** najlepszy wynik pełnego testu */
   quiz?: { score: number; total: number; at: number };
@@ -62,14 +64,22 @@ function update(key: string, fn: (p: LessonProgress) => LessonProgress) {
   commit({ ...cur, [key]: fn(cur[key] ?? {}) });
 }
 
-export function markVisited(key: string) { update(key, (p) => ({ ...p, visited: Date.now() })); }
-export function setDone(key: string, done: boolean) { update(key, (p) => ({ ...p, done })); }
+/** Zaliczona testem: najlepszy wynik pełnego testu ≥ 80%. */
+export const isPassed = (p?: LessonProgress) => !!p?.quiz && p.quiz.total > 0 && p.quiz.score / p.quiz.total >= PASS;
+/** Przeczytana: oznaczona ręcznie (albo „zaliczona” ręcznie w starszej wersji), bez zaliczonego testu. */
+export const isRead = (p?: LessonProgress) => !isPassed(p) && (!!p?.read || !!p?.done);
+/** Ukończona w jakiejkolwiek formie — do wyboru następnej lekcji. */
+export const isFinished = (p?: LessonProgress) => isPassed(p) || isRead(p);
 
-/** Wynik pełnego testu: zostaje najlepszy, ≥ 80% zalicza lekcję. */
+export function markVisited(key: string) { update(key, (p) => ({ ...p, visited: Date.now() })); }
+/** Ręczne oznaczenie „przeczytana”. Cofnięcie usuwa też zapis „done” ze starszej wersji. */
+export function setRead(key: string, read: boolean) { update(key, (p) => ({ ...p, read, ...(read ? {} : { done: false }) })); }
+
+/** Wynik pełnego testu: zostaje najlepszy; zaliczenie liczy się z wyniku (≥ 80%). */
 export function recordQuiz(key: string, score: number, total: number) {
   update(key, (p) => {
     const best = !p.quiz || score / total >= p.quiz.score / p.quiz.total ? { score, total, at: Date.now() } : p.quiz;
-    return { ...p, quiz: best, done: p.done || score / total >= PASS };
+    return { ...p, quiz: best };
   });
 }
 

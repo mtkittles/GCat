@@ -16,7 +16,7 @@ const build = (cw: boolean): Block[] => {
 
     { t: "h", x: "Jak sterownik ustala kierunek" },
     { t: "p", x: "Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej osi do niej prostopadłej**. Dla płaszczyzny XY ([[G17]]) patrzysz z góry, wzdłuż osi Z w kierunku ujemnym — tak, jak stoisz przy frezarce i patrzysz na stół. Dla płaszczyzny ZX ([[G18]]), typowej dla tokarki, patrzysz od strony dodatniej osi Y, czyli od operatora." },
-    { t: "note", kind: "warn", x: "Na tokarce ta reguła bywa myląca, bo część maszyn ma narzędzie pod osią detalu i obraz jest wtedy odwrócony. Przy standardowym układzie z osią X w górę i Z w prawo: **zaokrąglenie wklęsłe w narożu stopnia** to G02, a **wypukłe na krawędzi** to G03. Warto to raz sprawdzić na próbnym detalu." },
+    { t: "note", kind: "warn", x: "Na tokarce nie ma reguły „wklęsłe = G02, wypukłe = G03”. Kierunek wynika z czterech rzeczy: **płaszczyzny** (tokarka — ZX, G18), **kierunku patrzenia** (od strony dodatniej osi Y — w praktyce rysunek programu z osią X w górę i Z w prawo, niezależnie od tego, czy głowica stoi przed osią, czy za nią), **punktu początkowego i końcowego** oraz **kierunku przejścia po konturze**. Ten sam łuk przejechany w drugą stronę zmienia G02 na G03. Przykład: zaokrąglenie R1 w narożu stopnia z Ø30 na Ø32, przechodzone od czoła w stronę uchwytu (od Z−39 do Z−40), to łuk zgodny z ruchem wskazówek zegara — G02. Przejście tego samego łuku od uchwytu w stronę czoła to G03." },
 
     { t: "h", x: "Trzy rzeczy, które trzeba podać" },
     { t: "p", x: "Łuk jest jednoznacznie opisany przez kierunek, punkt końcowy i środek. Punkt początkowy sterownik już zna — to miejsce, w którym narzędzie stoi. Środek podaje się na dwa sposoby: wektorem **I, J, K** albo promieniem **R**." },
@@ -48,13 +48,13 @@ const build = (cw: boolean): Block[] => {
       caption: "Ten sam łuk zapisany krócej. Sterownik sam liczy środek, wybierając wariant krótszy niż półokrąg. Zapis czytelniejszy, ale ograniczony — dlaczego, wyjaśnia następny przykład." },
 
     { t: "h", x: "Przykład 3 — łuk dłuższy niż 180°" },
-    { t: "p", x: "Przez dwa punkty i zadany promień przechodzą **dwa różne łuki**: krótszy i dłuższy. Znak przy R decyduje, który wybierze sterownik. Wartość ujemna oznacza łuk rozwarty." },
+    { t: "p", x: "Przez dwa punkty i zadany promień przechodzą **dwa różne łuki** w tym samym kierunku obiegu: krótszy i dłuższy. Znak przy R decyduje, który wybierze sterownik. W konwencji Fanuca i Sinumerika (programowanie promieniem: R, na Sinumeriku CR=) **dodatnie R** wybiera łuk do 180°, a **ujemne R** — **łuk większy niż 180°**." },
     { t: "demo", title: `${G} z promieniem ujemnym`,
       src: `G21 G90 G17 G54\nS2200 M03\nG00 X20 Y20 Z2\nG01 Z-2 F120\n${G} X50 Y50 R-30 F350\nG00 Z10\nM30`,
       caption: "Te same punkty, ten sam promień, znak przy R zmieniony na ujemny — narzędzie obiega detal drugą stroną. Porównaj z poprzednią animacją." },
 
     { t: "h", x: "Przykład 4 — pełny okrąg" },
-    { t: "p", x: "Gdy punkt początkowy pokrywa się z końcowym, promień przestaje wystarczać: takich okręgów jest nieskończenie wiele. Dlatego **pełne koło zapisuje się wyłącznie przez I/J/K**, pomijając współrzędne końcowe." },
+    { t: "p", x: "Gdy punkt początkowy pokrywa się z końcowym, promień przestaje wystarczać: takich okręgów jest nieskończenie wiele. Dlatego **pełnego okręgu nie definiuje się samym R** — przy programowaniu promieniem trzeba przejść na zapis środka I/J/K, pomijając współrzędne końcowe." },
     { t: "demo", title: "Pełny okrąg jednym blokiem",
       src: `G21 G90 G17 G54\nS2400 M03\nG00 X30 Y30 Z5\nG01 Z-2 F120\n${G} I20 J0 F320\nG01 Z-4 F120\n${G} I20 J0 F320\nG00 X30 Y30 Z5\nG00 X70 Y30\nG01 Z-2 F120\n${G} I12 J0 F320\nG00 Z10\nM30`,
       caption: "Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś. Pierwsze dwa okręgi o promieniu 20 mm wykonują dwa przejścia na różnych głębokościach, trzeci o promieniu 12 mm pokazuje ten sam zapis w innym miejscu detalu." },

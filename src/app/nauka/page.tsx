@@ -1,5 +1,6 @@
 import Image from "next/image";
 import TrackResume from "@/components/lesson/TrackResume";
+import { pl } from "@/lib/plural";
 import Link from "next/link";
 import PageBanner from "@/components/ui/PageBanner";
 import { lessons } from "@/lib/content";
@@ -25,7 +26,7 @@ export default function Nauka() {
                 <span className="nk-body">
                   <b>{t.title}</b>
                   <span>{t.blurb}</span>
-                  <span className="nk-meta">{ready} z {total} lekcji gotowych</span>
+                  <span className="nk-meta">{ready === total ? pl(total, "lekcja", "lekcje", "lekcji") : `${ready} z ${total} lekcji opublikowanych`}</span>
                 </span>
               </Link>
               {first
@@ -36,8 +37,10 @@ export default function Nauka() {
           );
         })}
       </div>
-      <details className="nk-old">
-        <summary>Poprzednia wersja kursu ({lessons.length} lekcji)</summary>
+      {/* archiwum: starszy kurs zostaje pod dotychczasowymi adresami, ale nie konkuruje ze ścieżkami */}
+      <details className="nk-old nk-archive">
+        <summary>Archiwum — poprzednia wersja kursu ({pl(lessons.length, "lekcja", "lekcje", "lekcji")})</summary>
+        <p className="nk-archive-note">Starszy, krótszy kurs sprzed podziału na ścieżki. Aktualne lekcje są w ścieżkach frezowania i toczenia powyżej.</p>
         <ol className="grid gap-2">
           {lessons.map((l, i) => (
             <li key={l.slug}><Link href={`/nauka/${l.slug}`} className="tile flex gap-4">

@@ -8,6 +8,10 @@ Next.js 16 + TypeScript + Tailwind 4. Parser G-kodu (Fanuc/ISO), symulator 2D (f
 - `src/components/simulator/` — canvas, sterowanie, lista linii
 - `src/app/` — strony: `/`, `/kody`, `/kody/[slug]`, `/symulator`
 
+## Zasady pracy nad treścią
+- Standard i lista kontrolna kart kodów: `docs/karty-kodow.md`.
+- Symulator (parser, silnik, renderowanie, osadzone symulacje, programy demonstracyjne) i znaczniki odnośników `[[…]]` są chronione przy pracy nad treścią — szczegóły w tym samym dokumencie.
+
 ## Uruchomienie
     npm install
     npm run dev      # http://localhost:3000

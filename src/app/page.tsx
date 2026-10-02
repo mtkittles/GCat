@@ -1,14 +1,15 @@
 import Link from "next/link";
 import MobileHome from "@/components/MobileHome";
-import HomeHero, { type HeroSlide } from "@/components/HomeHero";
-import HomeQuick from "@/components/HomeQuick";
+import BrandLogo from "@/components/BrandLogo";
+import HomeResume from "@/components/HomeResume";
+import TrackResume from "@/components/lesson/TrackResume";
+import { pl } from "@/lib/plural";
 import { PROGRAMS } from "@/content/programy";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
-import Chip from "@/components/ui/Chip";
 import { exercises } from "@/lib/content";
-import { flat, lessonHref, readyLessons } from "@/lib/course";
+import { flat, lessonHref, readyLessons, trackList } from "@/lib/course";
 import { gcodes } from "@/lib/gcodes";
 
 const DEMO = `(PLYTKA MOCUJACA 80 x 50)
@@ -63,45 +64,34 @@ const I = {
 
 
 const NAUKA_TOTAL = flat("frezowanie").length + flat("toczenie").length;
-const HOME_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).slice(0, 3).map((l) => ({
-  href: lessonHref(t, l.slug!), id: l.id, title: l.title, minutes: l.doc!.minutes, track: t === "frezowanie" ? "FREZOWANIE" : "TOCZENIE",
-})));
-
 const QUICK_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({ track: t, id: l.id, title: l.title, href: lessonHref(t, l.slug!) })));
 
-const HERO_SLIDES: HeroSlide[] = [
-  { src: "/img/hero-cnc.jpg", kicker: "Nauka", stat: `${NAUKA_TOTAL} lekcji`, title: "Naucz się czytać i pisać G-kod.",
-    text: "Dwie ścieżki — frezowanie i toczenie. Każda lekcja ma teorię z rysunkami, zadanie w symulatorze, test i program detalu budowany krok po kroku.",
-    cta: { href: "/nauka", label: "Rozpocznij naukę" }, alt: { href: "/nauka/toczenie", label: "Ścieżka toczenia" } },
-  { src: "/img/banner-simulator.jpg", kicker: "Symulator", stat: "2D + 3D", title: "Zobacz, co robi Twój program.",
-    text: "Tor narzędzia, ubytek materiału, korekcja promienia, cykle wiercenia i toczenia, gwinty. Frezarka i tokarka, składnia Fanuc.",
-    cta: { href: "/symulator", label: "Otwórz symulator" } },
-  { src: "/img/banner-mill.jpg", kicker: "Gotowe programy", stat: `${PROGRAMS.length} detali`, title: "Kompletne programy z narzędziami.",
-    text: "Tuleje, sworznie, kołnierze, gwinty frezowane i toczone. Podgląd detalu i otwarcie w symulatorze jednym kliknięciem.",
-    cta: { href: "/programy", label: "Przeglądaj programy" } },
-  { src: "/img/banner-thread.jpg", kicker: "Kody G i M", stat: `${gcodes.length} kart`, title: "Każdy kod wyjaśniony po polsku.",
-    text: "Składnia Fanuc i Sinumerik, schemat, symulacja przykładu, typowe błędy i lekcje, w których kod pracuje.",
-    cta: { href: "/kody", label: "Przeglądaj kody" }, alt: { href: "/kalkulator", label: "Kalkulatory" } },
-];
+// „G‑kod” z twardym łącznikiem — nie rozdziela się między wierszami
+const GK = "G\u2011kod";
 
-const PILLARS = [
-  { href: "/nauka", ico: I.book, t: "Nauka", d: "Dwie ścieżki — frezowanie i toczenie — od osi maszyny do gotowego programu.", m: `${NAUKA_TOTAL} lekcji` },
-  { href: "/symulator", ico: I.play, t: "Symulator", d: "Tor 2D i 3D, cykle stałe, kompensacja, kontrola kolizji.", m: "2D · 3D" },
-  { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji ze składnią Fanuc i Sinumerik oraz przykładami.", m: `${gcodes.length} kart` },
-  { href: "/kalkulator", ico: I.calc, t: "Kalkulatory", d: "Obroty, posuwy, moc skrawania, gwinty, presety materiałów.", m: "4 moduły" },
-  { href: "/zadania", ico: I.check, t: "Zadania", d: "Napisz program, a symulator sprawdzi tor narzędzia.", m: "16 zadań" },
+const ACCESS = [
+  { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji: składnia Fanuc i Sinumerik, przykłady, typowe błędy.", m: pl(gcodes.length, "karta", "karty", "kart") },
+  { href: "/kalkulator", ico: I.calc, t: "Kalkulatory", d: "Obroty, posuw, wydajność i szacowana moc — frezowanie, toczenie, wiercenie, gwinty.", m: "4 moduły" },
+  { href: "/programy", ico: I.play, t: "Gotowe programy", d: "Kompletne programy z narzędziami, do otwarcia w symulatorze.", m: pl(PROGRAMS.length, "detal", "detale", "detali") },
+  { href: "/zadania", ico: I.check, t: "Zadania", d: "Napisz program — symulator porówna tor z rozwiązaniem.", m: pl(exercises.length, "zadanie", "zadania", "zadań") },
 ];
 
 export default function Home() {
-  const starter = gcodes.filter((g) => g.level === 1).slice(0, 6);
   return (
     <div className="grid gap-14">
       <MobileHome />
 
-      <div className="home-top">
-        <HomeHero slides={HERO_SLIDES} />
-        <HomeQuick lessons={QUICK_LESSONS} counts={{ programs: PROGRAMS.length, codes: gcodes.length, lessons: NAUKA_TOTAL }} />
-      </div>
+      {/* 1–2: czym jest GCat i dwie główne akcje — statyczny pierwszy ekran */}
+      <section className="home-intro" aria-labelledby="hi-title">
+        <div className="hi-brand"><BrandLogo height={52} variant="lockup" forceDark /><span>Zrozum. Programuj. Obrabiaj.</span></div>
+        <h1 id="hi-title" className="hi-title">Naucz się czytać i pisać {GK}.</h1>
+        <p className="hi-lead">GCat to nauka programowania CNC po polsku: {pl(NAUKA_TOTAL, "lekcja", "lekcje", "lekcji")} frezowania i toczenia z testami, symulator toru narzędzia w 2D i 3D oraz karty kodów ze składnią Fanuc i Sinumerik.</p>
+        <div className="hi-actions">
+          <Link href="/nauka" className="btn">Rozpocznij naukę</Link>
+          <Link href="/symulator" className="btn ghost">Otwórz symulator</Link>
+        </div>
+        <HomeResume lessons={QUICK_LESSONS} />
+      </section>
 
       <section className="grid gap-4">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
@@ -110,10 +100,35 @@ export default function Home() {
         <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
 
+      {/* 4: wybór ścieżki */}
       <section className="grid gap-4">
-        <SectionHeader eyebrow="Zawartość" title="Co znajdziesz w GCat" />
-        <div className="pillars reveal reveal-1">
-          {PILLARS.map((p) => (
+        <SectionHeader eyebrow="Nauka" title="Frezowanie czy toczenie?"
+          lead="Każda ścieżka prowadzi od osi maszyny do kompletnego programu detalu." />
+        <div className="home-tracks">
+          {trackList.map((t) => {
+            const ready = readyLessons(t.key);
+            const first = ready[0];
+            return (
+              <div key={t.key} className="home-track">
+                <Link href={`/nauka/${t.key}`} className="home-track-head">
+                  <span className="home-track-k">Ścieżka</span>
+                  <b>{t.title}</b>
+                  <span>{t.blurb}</span>
+                  <span className="home-track-m">{pl(ready.length, "lekcja", "lekcje", "lekcji")} · {t.part}</span>
+                </Link>
+                {first && <TrackResume track={t.key} lessons={ready.map((l) => ({ id: l.id, title: l.title, href: lessonHref(t.key, l.slug!) }))}
+                  fallback={{ href: lessonHref(t.key, first.slug!), label: `Zacznij od ${first.id}: ${first.title}` }} />}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 5: baza wiedzy i narzędzia */}
+      <section className="grid gap-4">
+        <SectionHeader eyebrow="Baza wiedzy i narzędzia" title="Kody, kalkulatory, programy, zadania" />
+        <div className="pillars">
+          {ACCESS.map((p) => (
             <Link key={p.href} href={p.href} className="pillar">
               <span className="pillar-ico">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={p.ico} /></svg>
@@ -121,50 +136,6 @@ export default function Home() {
               <b>{p.t}</b>
               <span>{p.d}</span>
               <span className="pillar-meta">{p.m}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-4">
-        <SectionHeader eyebrow="Ścieżka nauki" title="Od bloku do gotowego programu"
-          action={<Link className="btn ghost" href="/nauka">Wszystkie lekcje</Link>} />
-        <ol className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 reveal reveal-2">
-          {HOME_LESSONS.map((l) => (
-            <li key={l.href}><Link href={l.href} className="tile h-full">
-              <span className="tile-num">{l.id} · {l.track} · {l.minutes} MIN</span>
-              <div className="font-semibold mt-1">{l.title}</div>
-            </Link></li>
-          ))}
-        </ol>
-      </section>
-
-      <section className="grid gap-4">
-        <SectionHeader eyebrow="Referencja" title="Zacznij od podstaw"
-          action={<Link className="btn ghost" href="/kody">Wszystkie kody</Link>} />
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 reveal reveal-2">
-          {starter.map((g) => (
-            <Link key={g.slug} href={`/kody/${g.slug}`} className="tile">
-              <div className="flex items-center gap-2">
-                <span className="tile-code">{g.code}</span>
-                <Chip tone="neutral">{g.group}</Chip>
-              </div>
-              <div className="font-semibold mt-1">{g.name}</div>
-              <p className="text-sm mt-1" style={{ color: "var(--ink-2)" }}>{g.short}</p>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-4">
-        <SectionHeader eyebrow="Praktyka" title="Sprawdź się"
-          lead="Symulator porówna Twój tor narzędzia z rozwiązaniem i pokaże różnice."
-          action={<Link className="btn ghost" href="/zadania">Wszystkie zadania</Link>} />
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4 reveal reveal-3">
-          {exercises.slice(0, 4).map((e) => (
-            <Link key={e.slug} href={`/zadania/${e.slug}`} className="tile">
-              <div className="font-semibold">{e.title}</div>
-              <div className="mt-2"><Chip tone={e.mode === "mill" ? "accent" : "info"}>{e.mode === "mill" ? "frezowanie" : "toczenie"}</Chip></div>
             </Link>
           ))}
         </div>
