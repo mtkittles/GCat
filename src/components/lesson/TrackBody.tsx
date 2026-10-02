@@ -43,7 +43,7 @@ export default function TrackBody({ track, modules, part, partFig, other }: {
                         <Link href={l.href} className={`tp-l is-ready${isDone ? " is-done" : isRd ? " is-read" : ""}`}>
                           <span className="tp-lid">{l.id}</span>
                           <span className="tp-lt">{l.title}</span>
-                          <span className="tp-lm">{isDone ? <b className="tp-check" title="zaliczona testem" aria-label="zaliczona testem">✓</b> : isRd ? <b className="tp-read" title="przeczytana" aria-label="przeczytana">•</b> : `${l.minutes} min`}</span>
+                          <span className="tp-lm">{isDone ? <b className="tp-check"><i aria-hidden>✓</i> zaliczona testem</b> : isRd ? <b className="tp-read"><i aria-hidden>•</i> przeczytana</b> : `${l.minutes} min`}</span>
                         </Link>
                       ) : (
                         <div className="tp-l is-planned" aria-disabled>

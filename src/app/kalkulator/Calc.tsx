@@ -19,7 +19,7 @@ const r3 = (v: number) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0)
 type Rule = { min: number; max: number; int?: boolean; minIncl?: boolean };
 
 /** Sprawdza wpis: null = poprawny, tekst = komunikat do pokazania przy polu. */
-function check(raw: string, r: Rule): string | null {
+export function check(raw: string, r: Rule): string | null {
   const t = raw.trim();
   if (t === "") return "Wpisz wartość.";
   if (!/^[0-9]*[.,]?[0-9]*$/.test(t) || t === "." || t === ",") return "To nie jest liczba.";
@@ -163,7 +163,7 @@ export default function Calc() {
   const reset = () => { setVcM(0); setFzM(0); setVcT(0); setFT(0); setVcD(0); };
 
   return (
-    <div className="grid gap-5">
+    <div className="grid gap-5 calc-page">
       <PageBanner src={BANNERS[tab].src} kicker="Kalkulator parametrów" title={BANNERS[tab].title} subtitle={BANNERS[tab].sub}
         info={<ul>
           <li>Wartości startowe pochodzą z tabel dla wybranego materiału i narzędzia. Każde pole możesz nadpisać.</li>
@@ -193,7 +193,7 @@ export default function Calc() {
       </div>
 
       {tab === "mill" && (
-        <section className="grid gap-3">
+        <section className="grid gap-3 calc-section">
           <div className="calc-grid">
             <Field id="m-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcMill} onChange={setVcM} rule={{ min: 0, max: 2000 }} preset={!vcM} onValid={onValid} />
             <Field id="m-d" label="Średnica freza D" unit="mm" value={d} onChange={setD} rule={{ min: 0, max: 200 }} onValid={onValid} />
@@ -202,12 +202,15 @@ export default function Calc() {
             <Field id="m-ap" label="Głębokość ap" unit="mm" value={ap} onChange={setAp} rule={{ min: 0, max: 100 }} onValid={onValid} />
             <Field id="m-ae" label="Szerokość ae" unit="mm" value={ae} onChange={setAe} rule={{ min: 0, max: Math.max(d, 0.001), minIncl: false }} onValid={onValid} />
           </div>
+          <div className="calc-side">
           <StaleNote show={staleOf("m-")} />
           <div className="calc-outs">
             <Out big label="Obroty S" value={r0(nMill)} unit="obr/min" stale={staleOf("m-")} />
             <Out big label="Posuw F" value={r0(vfMill)} unit="mm/min" stale={staleOf("m-")} />
             <Out label="Wydajność Q" value={r2(qMill)} unit="cm³/min" stale={staleOf("m-")} />
             <Out label="Szacowana moc skrawania" value={r2(pMill)} unit="kW" stale={staleOf("m-")} />
+          </div>
+          <CodeOut text={`S${r0(nMill)} M03\nG01 X_ Y_ F${r0(vfMill)}`} stale={staleOf("m-")} />
           </div>
           {thin > 1.01 && (
             <div className="note note-tip max-w-prose">
@@ -221,12 +224,12 @@ export default function Calc() {
             <Formula>Q = ap · ae · Vf / 1000 = {ap} · {ae} · {r0(vfMill)} / 1000 = <strong>{r2(qMill)} cm³/min</strong></Formula>
             <Formula>P = Q · kc / 60000 = {r2(qMill)} · {mat.kc} / 60000 = <strong>{r2(pMill)} kW</strong></Formula>
           </div>
-          <CodeOut text={`S${r0(nMill)} M03\nG01 X_ Y_ F${r0(vfMill)}`} stale={staleOf("m-")} />
+          
         </section>
       )}
 
       {tab === "turn" && (
-        <section className="grid gap-3">
+        <section className="grid gap-3 calc-section">
           <div className="calc-grid">
             <Field id="t-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcTurn} onChange={setVcT} rule={{ min: 0, max: 2000 }} preset={!vcT} onValid={onValid} />
             <Field id="t-d" label="Średnica D" unit="mm" value={dT} onChange={setDT} rule={{ min: 0, max: 1000 }} onValid={onValid} />
@@ -234,6 +237,7 @@ export default function Calc() {
             <Field id="t-ap" label="Głębokość ap" unit="mm" value={apT} onChange={setApT} rule={{ min: 0, max: 50 }} onValid={onValid} />
             <Field id="t-re" label="Promień naroża rε" unit="mm" value={re} onChange={setRe} rule={{ min: 0, max: 5 }} onValid={onValid} />
           </div>
+          <div className="calc-side">
           <StaleNote show={staleOf("t-")} />
           <div className="calc-outs">
             <Out big label="Obroty przy tej średnicy" value={r0(nTurn)} unit="obr/min" stale={staleOf("t-")} />
@@ -241,45 +245,51 @@ export default function Calc() {
             <Out label="Wydajność Q" value={r2(qTurn)} unit="cm³/min" stale={staleOf("t-")} />
             <Out label="Szacowana moc skrawania" value={r2(pTurn)} unit="kW" stale={staleOf("t-")} />
           </div>
+          <CodeOut stale={staleOf("t-")} text={`G50 S${Math.min(4000, r0(nTurn * 2))}   (LIMIT OBROTOW - DOBIERZ DO UCHWYTU)\nG96 S${vcTurn} M03\nG99   (MM/OBR: FANUC SYSTEM A; SINUMERIK I FANUC B/C: G95)\nG01 X_ Z_ F${fTurn}`} />
+          </div>
           <div className="calc-formulas">
             <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcTurn} / (π · {dT}) = <strong>{r0(nTurn)} obr/min</strong></Formula>
             <Formula>Q = Vc · ap · f = {vcTurn} · {apT} · {fTurn} = <strong>{r2(qTurn)} cm³/min</strong></Formula>
             <Formula>Rz ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża. Jeżeli wychodzi za wysoka, zmniejsz posuw albo weź płytkę o większym rε — zwiększanie obrotów nic tu nie da.</p>
-          <CodeOut stale={staleOf("t-")} text={`G50 S${Math.min(4000, r0(nTurn * 2))}   (LIMIT OBROTOW - DOBIERZ DO UCHWYTU)\nG96 S${vcTurn} M03\nG99   (MM/OBR: FANUC SYSTEM A; SINUMERIK I FANUC B/C: G95)\nG01 X_ Z_ F${fTurn}`} />
+          
         </section>
       )}
 
       {tab === "drill" && (
-        <section className="grid gap-3">
+        <section className="grid gap-3 calc-section">
           <div className="calc-grid">
             <Field id="d-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcDrill} onChange={setVcD} rule={{ min: 0, max: 500 }} preset={!vcD} onValid={onValid} />
             <Field id="d-d" label="Średnica wiertła D" unit="mm" value={dD} onChange={setDD} rule={{ min: 0, max: 100 }} onValid={onValid} />
             <Field id="d-f" label="Posuw f" unit="mm/obr" value={fDrill} onChange={setFD} rule={{ min: 0, max: 2 }} preset={!fD} onValid={onValid} />
           </div>
+          <div className="calc-side">
           <StaleNote show={staleOf("d-")} />
           <div className="calc-outs">
             <Out big label="Obroty S" value={r0(nDrill)} unit="obr/min" stale={staleOf("d-")} />
             <Out big label="Posuw F" value={r0(vfDrill)} unit="mm/min" stale={staleOf("d-")} />
             <Out label="Szacowana moc skrawania" value={r2(pDrill)} unit="kW" stale={staleOf("d-")} />
           </div>
+          <CodeOut stale={staleOf("d-")} text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
+          </div>
           <div className="calc-formulas">
             <Formula>n = 1000 · Vc / (π · D) = <strong>{r0(nDrill)} obr/min</strong></Formula>
             <Formula>Vf = n · f = {r0(nDrill)} · {fDrill} = <strong>{r0(vfDrill)} mm/min</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Powyżej 3 × D użyj cyklu G83 z odprowadzeniem wióra. Zasada startowa dla posuwu: około 2% średnicy wiertła.</p>
-          <CodeOut stale={staleOf("d-")} text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
+          
         </section>
       )}
 
       {tab === "thread" && (
-        <section className="grid gap-3">
+        <section className="grid gap-3 calc-section">
           <div className="calc-grid">
             <label className="calc-field"><span>Gwint</span>
               <select value={thr} onChange={(e) => setThr(e.target.value)}>{THREADS.map((t) => <option key={t.name}>{t.name}</option>)}</select></label>
             <Field id="g-n" label="Obroty gwintowania" unit="obr/min" value={nTap} onChange={setNTap} rule={{ min: 10, max: 10000, int: true, minIncl: true }} onValid={onValid} />
           </div>
+          <div className="calc-side">
           <StaleNote show={staleOf("g-")} />
           <div className="calc-outs">
             <Out big label="Otwór pod gwintownik" value={th.drill} unit="mm" />
@@ -287,12 +297,14 @@ export default function Calc() {
             <Out label="Skok" value={th.pitch} unit="mm" />
             <Out label="⌀ pod gwint zewnętrzny" value={th.outer} unit="mm" />
           </div>
+          <CodeOut stale={staleOf("g-")} text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
+          </div>
           <div className="calc-formulas">
             <Formula>F = n · skok = {nTap} · {th.pitch} = <strong>{r0(fTap)} mm/min</strong></Formula>
             <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {th.name.slice(1)} − {th.pitch} = <strong>{th.drill} mm</strong></Formula>
           </div>
           <p className="note note-warn max-w-prose">Posuw gwintowania musi wynikać ze skoku. Wpisanie dowolnej wartości F kończy się złamaniem gwintownika w otworze.</p>
-          <CodeOut stale={staleOf("g-")} text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
+          
           <div className="overflow-x-auto"><table className="code-table">
             <thead><tr><th>Gwint</th><th>Skok</th><th>Otwór</th><th>⌀ zewn.</th></tr></thead>
             <tbody>{THREADS.map((t) => <tr key={t.name} style={t.name === thr ? { background: "var(--warn-bg)" } : undefined}><td className="font-mono font-bold">{t.name}</td><td>{t.pitch}</td><td>{t.drill}</td><td>{t.outer}</td></tr>)}</tbody>

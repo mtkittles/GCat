@@ -1,12 +1,13 @@
 import Link from "next/link";
-import HeroCarousel from "./HeroCarousel";
+import Image from "next/image";
+import HomeResume, { type ResumeLesson } from "./HomeResume";
 
 // accent: ikona pomarańczowa (jak w mockupie część kafli), reszta biała
 const TILES = [
   { href: "/nauka", label: ["Nauka", "G-code"], icon: "screen", accent: true },
   { href: "/symulator", label: ["Symulator", "CNC"], icon: "cube", accent: false },
   { href: "/kalkulator", label: ["Kalkulatory", "obróbki"], icon: "calc", accent: true },
-  { href: "/slownik", label: ["Baza wiedzy"], icon: "doc", accent: false },
+  { href: "/slownik", label: ["Słownik", "pojęć"], icon: "doc", accent: false },
   { href: "/zadania", label: ["Zadania", "i ćwiczenia"], icon: "task", accent: false },
   { href: "/kody", label: ["Kody", "G i M"], icon: "code", accent: false },
 ] as const;
@@ -37,18 +38,24 @@ function SectionHead({ title, href }: { title: string; href: string }) {
   );
 }
 
-export default function MobileHome() {
+export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
 
   return (
     <section className="mobile-dash">
-      <div className="dash-greet reveal">
-        <h2>Witaj w GCat</h2>
-        <p>Ucz się. Ćwicz. Obrabiaj.</p>
+      {/* 1. obietnica wartości i start — jeden statyczny baner zamiast karuzeli */}
+      <div className="m-hero">
+        <Image src="/img/hero-cnc.jpg" alt="" fill sizes="100vw" className="m-hero-photo" priority />
+        <div className="m-hero-scrim" />
+        <div className="m-hero-body">
+          <span className="m-hero-k">Zrozum. Programuj. Obrabiaj.</span>
+          <h1>Naucz się czytać i pisać G‑kod.</h1>
+          <p>Lekcje frezowania i toczenia, symulator 2D/3D, karty kodów Fanuc i Sinumerik, kalkulatory.</p>
+          <Link href="/nauka" className="btn">Rozpocznij naukę</Link>
+        </div>
       </div>
 
-      <div className="reveal reveal-1"><HeroCarousel /></div>
-
-      <div className="reveal reveal-2">
+      {/* 2. szybki dostęp — te same nazwy co w menu na komputerze */}
+      <div>
         <SectionHead title="Szybki dostęp" href="/nauka" />
         <div className="dash-grid">
           {TILES.map((t) => (
@@ -59,6 +66,9 @@ export default function MobileHome() {
           ))}
         </div>
       </div>
+
+      {/* 3. powrót do nauki — tylko gdy jest zapisany postęp w tej przeglądarce */}
+      <HomeResume lessons={lessons} />
     </section>
   );
 }

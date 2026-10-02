@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "audit:nauka": "npx --yes tsx scripts/audit-nauka.ts"
+    "audit:nauka": "npx --yes tsx scripts/audit-nauka.ts",
+    "test:calc": "npx --yes tsx scripts/test-calc.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",

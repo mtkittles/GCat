@@ -16,9 +16,11 @@ export default function HomeResume({ lessons }: { lessons: ResumeLesson[] }) {
   if (!next) return null;
   const passed = lessons.filter((l) => isPassed(P(l))).length;
   return (
-    <p className="hi-resume">
-      <Link href={next.href}>Kontynuuj: {next.id} {next.title} →</Link>
-      <span>zaliczone testem: {passed} z {lessons.length}</span>
-    </p>
+    <div className="hi-resume" aria-label="Wróć do nauki">
+      <span className="hi-resume-k">Wróć do nauki</span>
+      <span className="hi-resume-l">Aktualna lekcja: <b>{next.id} {next.title}</b></span>
+      <span className="hi-resume-s">Zaliczone testem: {passed}/{lessons.length} · postęp zapisany w tej przeglądarce</span>
+      <Link href={next.href} className="btn">Kontynuuj naukę</Link>
+    </div>
   );
 }

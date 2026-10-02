@@ -79,7 +79,7 @@ const ACCESS = [
 export default function Home() {
   return (
     <div className="grid gap-14">
-      <MobileHome />
+      <MobileHome lessons={QUICK_LESSONS} />
 
       {/* 1–2: czym jest GCat i dwie główne akcje — statyczny pierwszy ekran */}
       <section className="home-intro" aria-labelledby="hi-title">

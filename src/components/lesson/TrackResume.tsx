@@ -2,12 +2,27 @@
 import Link from "next/link";
 import { isFinished, isPassed, progressKey, useProgress } from "@/lib/progress";
 
-/** Na karcie ścieżki: liczba zaliczonych lekcji i link do pierwszej niezaliczonej. */
+/*
+  Blok postępu na karcie ścieżki: aktualna lekcja, zaliczenia testem i jeden przycisk.
+  „Rozpocznij” pokazuje się, dopóki użytkownik nie otworzył żadnej lekcji ścieżki
+  (liczy się aktywność, nie sam wynik 0/N). Postęp jest zapisany w tej przeglądarce.
+*/
 export default function TrackResume({ track, lessons, fallback }: { track: string; lessons: { id: string; title: string; href: string }[]; fallback: { href: string; label: string } }) {
   const prog = useProgress();
-  const done = lessons.filter((l) => isPassed(prog[progressKey(track, l.id)])).length;
-  const started = lessons.some((l) => prog[progressKey(track, l.id)]?.visited || isFinished(prog[progressKey(track, l.id)]));
-  const next = lessons.find((l) => !isFinished(prog[progressKey(track, l.id)]));
-  if (!started || !next) return <Link href={fallback.href} className="nk-start">{fallback.label}</Link>;
-  return <Link href={next.href} className="nk-start">Kontynuuj: {next.id} {next.title} · zaliczone testem {done} z {lessons.length}</Link>;
+  const P = (id: string) => prog[progressKey(track, id)];
+  const passed = lessons.filter((l) => isPassed(P(l.id))).length;
+  const started = lessons.some((l) => P(l.id)?.visited || isFinished(P(l.id)));
+  const next = lessons.find((l) => !isFinished(P(l.id)));
+  const first = lessons[0];
+  const cur = started ? (next ?? first) : first;
+  if (!cur) return null;
+  return (
+    <div className="tr-block">
+      <dl className="tr-meta">
+        <div><dt>{started ? "Aktualna lekcja" : "Pierwsza lekcja"}</dt><dd>{cur.id} {cur.title}</dd></div>
+        <div><dt>Zaliczone testem</dt><dd>{passed}/{lessons.length}</dd></div>
+      </dl>
+      <Link href={started ? cur.href : fallback.href} className={`btn${started ? "" : " ghost"}`}>{started ? "Kontynuuj naukę" : "Rozpocznij naukę"}</Link>
+    </div>
+  );
 }

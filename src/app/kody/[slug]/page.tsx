@@ -126,7 +126,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {head}
           {syntax}
           {figure}
-          <div className="toc-mobile"><Toc blocks={art} /></div>
+          <details className="toc-mobile toc-fold"><summary>W tej karcie</summary><Toc blocks={art} /></details>
           <Article blocks={art} />
           {lessonsSec}
           {related}
