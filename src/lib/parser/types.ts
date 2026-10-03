@@ -42,6 +42,8 @@ export interface MachineState {
   lcycle?: { code: 90 | 92 | 94; end: Vec3; r: number } | null;
   /** Współrzędne biegunowe G16: promień i kąt zapamiętane modalnie. */
   polar?: { r: number; a: number } | null;
+  /** Osie obrotowe A/B/C [°] — pozycja zapamiętana; geometria toru jest liczona dla osi liniowych. */
+  rotary?: { a?: number; b?: number; c?: number } | null;
 }
 
 export interface Word {

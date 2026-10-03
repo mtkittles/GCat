@@ -424,6 +424,20 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       return;
     }
 
+    // Osie obrotowe A/B/C: zapamiętujemy kąt (G90 — bezwzględnie, G91 — przyrost) i opisujemy ruch.
+    // Tor w symulatorze jest liczony dla osi liniowych; obrót stołu nie zmienia jeszcze geometrii.
+    if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10)) {
+      const rot: { a?: number; b?: number; c?: number } = { ...(state.rotary ?? {}) };
+      const moved: string[] = [];
+      for (const ax of ["a", "b", "c"] as const) {
+        const v = get(ax.toUpperCase());
+        if (v === undefined) continue;
+        rot[ax] = s.absolute ? v : (rot[ax] ?? 0) + v;
+        moved.push(`${ax.toUpperCase()}${fmt(rot[ax]!)}°`);
+      }
+      if (moved.length) { s.rotary = rot; desc.push(`Oś obrotowa: ${moved.join(" ")}`); }
+    }
+
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
     const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));

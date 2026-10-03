@@ -90,3 +90,13 @@ describe("czas i postój", () => {
     expect(p.seconds).toBeGreaterThanOrEqual(60);
   });
 });
+
+describe("osie obrotowe", () => {
+  it("A zapamiętane bezwzględnie i przyrostowo, z opisem; tor liniowy bez zmian", () => {
+    const p = parseProgram("G90 G00 X10 Y0 A90\nG91 G01 X5 A-30 F200");
+    expect(p.lines[0].state.rotary?.a).toBe(90);
+    expect(p.lines[1].state.rotary?.a).toBe(60);
+    expect(p.lines[1].description).toMatch(/Oś obrotowa: A60°/);
+    expect(p.lines[1].state.pos).toEqual({ x: 15, y: 0, z: 0 });
+  });
+});
