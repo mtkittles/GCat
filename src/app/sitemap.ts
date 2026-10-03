@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { gcodes } from "@/lib/gcodes";
-import { exercises, lessons } from "@/lib/content";
+import { exercises } from "@/lib/content";
 import { lessonHref, readyLessons } from "@/lib/course";
 import { PROGRAMS } from "@/content/programy";
 
@@ -15,6 +15,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...gcodes.map((g) => u(`/kody/${g.slug}`, 0.7)),
     ...exercises.map((e) => u(`/zadania/${e.slug}`, 0.6)),
     ...PROGRAMS.map((p) => u(`/programy/${p.slug}`, 0.6)),
-    ...lessons.map((l) => u(`/nauka/${l.slug}`, 0.3)),
   ];
 }
