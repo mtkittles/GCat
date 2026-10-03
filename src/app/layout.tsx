@@ -1,11 +1,19 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import { SITE_URL } from "@/lib/site";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
 import Tagline from "@/components/Tagline";
 import "./globals.css";
 
+// Czcionki serwowane z własnej domeny (bez żądań do Google Fonts), nazwy jak w globals.css.
+const inter = Inter({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-inter", display: "swap" });
+const sora = Sora({ subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-sora", display: "swap" });
+const mono = JetBrains_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "700"], variable: "--font-jetbrains", display: "swap" });
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "GCat — ucz się, programuj, skrawaj",
   description: "Nauka G-kodu po polsku: lekcje, karty funkcji G i M, symulator 2D/3D toru narzędzia, walidator, kalkulator parametrów skrawania.",
   icons: { icon: [{ url: "/icon-192.png", type: "image/png" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
@@ -21,16 +29,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" data-theme="dark">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
-        />
-      </head>
+    <html lang="pl" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`}>
       <body className="min-h-screen flex flex-col">
         <AppHeader />
 
