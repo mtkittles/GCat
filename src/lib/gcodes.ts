@@ -13,6 +13,8 @@ export interface GCode {
   variesBy?: string;
   /** false: przykład pokazywany jako kod, bo symulator nie obsługuje tej funkcji. */
   simulate?: boolean;
+  /** Tryb symulatora dla przykładu, gdy karta dotyczy obu maszyn, a przykład jest tokarski. */
+  exampleMode?: "mill" | "lathe";
 }
 
 export const gcodes = data as GCode[];

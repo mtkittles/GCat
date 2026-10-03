@@ -41,7 +41,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   if (!g) notFound();
   const i = gcodes.findIndex((x) => x.slug === g.slug);
   const prev = gcodes[i - 1], next = gcodes[i + 1];
-  const mode = g.turning && !g.milling ? "lathe" : "mill";
+  const mode = g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill");
   const art = articles[g.slug];
   const self = g.code.toUpperCase().split(/[\s/–-]+/).filter((c) => /^[GM]\d/.test(c));
   const artHasFig = !!art?.some((b) => b.t === "diagram");

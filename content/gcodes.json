@@ -20,7 +20,7 @@
         "desc": "Współrzędne punktu docelowego"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z10\nG00 X80 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z10\nG00 X80 Y30\nG00 Z2\nG01 Z-3 F100\nG01 X80 Y30 F200\nG00 Z10\nM30",
     "sinumerik": "Identycznie: G0. Sinumerik ma dodatkowo RTLION/RTLIOF — dojazd po linii prostej lub niezależnie osiami.",
     "pitfalls": [
       "Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na głębokość G01.",
@@ -52,7 +52,7 @@
         "desc": "Posuw (mm/min przy G94, mm/obr przy G95)"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F80\nG01 X60 F250\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F80\nG01 X60 F250\nG01 Y40\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "sinumerik": "G1. Na tokarce Sinumerik posuw domyślnie w mm/obr (G95) — na frezarce mm/min (G94).",
     "pitfalls": [
       "G01 bez F → alarm lub posuw z poprzedniego bloku.",
@@ -88,7 +88,7 @@
         "desc": "Promień; R ujemne = łuk > 180°"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG02 X60 Y20 I0 J20\nG02 X40 Y40 I-20 J0\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG02 X60 Y20 I0 J20\nG02 X40 Y40 I-20 J0\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "sinumerik": "G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.",
     "pitfalls": [
       "Pełne koło (start = koniec) nie zadziała z R — użyj I/J.",
@@ -125,7 +125,7 @@
         "desc": "Promień"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG03 X60 Y20 R20\nG03 X40 Y40 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-2 F100\nG01 X40 F200\nG03 X60 Y20 R20\nG03 X40 Y40 R20\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "sinumerik": "G3, CR= zamiast R.",
     "pitfalls": [
       "Przy R kontroler wybiera krótszy łuk (≤180°). Jeśli chcesz dłuższy, podaj R ujemne."
@@ -286,7 +286,7 @@
         "desc": "kąt [°] od osi +X, dodatni przeciwnie do ruchu wskazówek zegara"
       }
     ],
-    "example": "G21 G90 G17 G54\nT01 M06\nS1200 M03\nG00 X0 Y0 Z20\nG16\nG99 G81 X40 Y0 Z-12 R2 F120\nY60\nY120\nY180\nY240\nY300\nG80 G15\nG00 Z50\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS1200 M03\nG00 X0 Y0 Z20\nG16\nG99 G81 X40 Y0 Z-12 R2 F120\nY60\nY120\nY180\nY240\nY300\nG80 G15\nG00 Z50\nM30",
     "sinumerik": "Biegun ustawia **G110** (względem ostatniej pozycji), **G111** (względem zera) albo **G112** (względem poprzedniego bieguna). Promień to **RP=**, kąt **AP=**.",
     "pitfalls": [
       "Brak G15 po cyklu: następny blok X50 Y0 zostanie odczytany jako promień i kąt.",
@@ -314,11 +314,12 @@
       "sinumerik": "G17 | G18 | G19"
     },
     "params": [],
-    "example": "G21 G90 G18\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R10\nG01 X70\nG00 X80 Z2\nM30",
+    "example": "G21 G90 G18 G40 G99\nT0101\nG97 S1500 M03\nG00 X50 Z2\nG01 Z-30 F0.2\nG02 X60 Z-35 R10\nG01 X70\nG00 X80 Z2\nM30",
     "sinumerik": "Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.",
     "pitfalls": [
       "Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor."
-    ]
+    ],
+    "exampleMode": "lathe"
   },
   {
     "code": "G20 G21",
@@ -585,7 +586,7 @@
         "desc": "Numer rejestru korekcji promienia"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X-15 Y-15 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F200\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-15 Y-15\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X-15 Y-15 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F200\nG01 Y40\nG01 X60\nG01 Y0\nG01 X0\nG40 X-15 Y-15\nG00 Z5\nM30",
     "sinumerik": "Te same G40/G41/G42, ale numer korektora bierze się z narzędzia (T1 D1), nie z bloku G41.",
     "pitfalls": [
       "Włączenie kompensacji w bloku G02/G03 → alarm.",
@@ -686,7 +687,7 @@
         "desc": "Przesunięcie (G52) lub pozycja maszynowa (G53)"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG01 Y10\nG00 Z5\nG00 X50 Y0\nG01 Z-1 F100\nG01 X70 F200\nG01 Y10\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG01 Y10\nG00 Z5\nG00 X50 Y0\nG01 Z-1 F100\nG01 X70 F200\nG01 Y10\nG00 Z5\nM30",
     "sinumerik": "TRANS/ATRANS zamiast G52; SUPA zamiast G53.",
     "pitfalls": [
       "G53 tylko z G90 i tylko w jednym bloku.",
@@ -709,7 +710,7 @@
       "sinumerik": "G54 ... G57, G505 ... G599"
     },
     "params": [],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nG55\nG00 X0 Y0\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
     "sinumerik": "Standardowo G54–G57, dalej G505–G599. Dodatkowo TRANS/ATRANS jako programowalne przesunięcia.",
     "pitfalls": [
       "Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00."
@@ -786,7 +787,7 @@
         "desc": "Kąt (dodatni = przeciwnie do wskazówek zegara)"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG01 Y15\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X30 F200\nG01 Y15\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "sinumerik": "ROT / AROT (przyrostowo). Samo ROT bez parametrów kasuje obrót. Podobnie TRANS (przesunięcie) i SCALE.",
     "pitfalls": [
       "Zapomniane G69 → następne narzędzie pracuje w obróconym układzie.",
@@ -826,7 +827,7 @@
         "desc": "Naddatek na X (średnicowo) i Z"
       }
     ],
-    "example": "G18 G21 G40 G99\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
+    "example": "G18 G21 G40 G99\nT0101\nG97 S1200 M03\nG00 X62 Z2\nG01 X40 F0.3\nG01 Z-20\nG01 X50\nG01 Z-40\nG01 X62\nG00 Z2\nM30",
     "sinumerik": "Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to milimetry!",
     "pitfalls": [
       "Kontur musi być monotoniczny w obu osiach (Fanuc typ I).",
@@ -1163,7 +1164,7 @@
         "desc": "Posuw"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X10 Y10 Z10\nG01 Z-15 F100\nG00 Z2\nG00 X40 Y10\nG01 Z-15\nG00 Z2\nG00 X40 Y30\nG01 Z-15\nG00 Z2\nG00 Z10\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X10 Y10 Z10\nG99 G81 X10 Y10 Z-15 R2 F100\nX40\nY30\nG80\nG00 Z10\nM30",
     "sinumerik": "Zamiast G81/G83 są cykle CYCLE81, CYCLE83 z parametrami w nawiasie i MCALL do powtarzania w kolejnych punktach.",
     "pitfalls": [
       "Zapomniane G80 → następny ruch X Y też wywierci otwór.",
@@ -1314,7 +1315,7 @@
       "sinumerik": "G90 | G91  (albo X=IC(50) w jednym słowie)"
     },
     "params": [],
-    "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG91\nG01 X20 F200\nG01 Y20\nG01 X-20\nG01 Y-20\nG90\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG91\nG01 X20 F200\nG01 Y20\nG01 X-20\nG01 Y-20\nG90\nG00 Z5\nM30",
     "sinumerik": "G90/G91 działają tak samo. Dodatkowo można mieszać w jednym bloku: X=AC(10) Y=IC(5).",
     "pitfalls": [
       "Uruchomienie programu przyrostowego od złego punktu startowego → cały detal przesunięty.",
@@ -1401,7 +1402,7 @@
         "desc": "Limit obrotów (tokarka)"
       }
     ],
-    "example": "G21 G90 G17\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-1 F100\nG01 X20 F200\nG00 Z5\nM30",
     "sinumerik": "Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.",
     "pitfalls": [
       "G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z innego miejsca przesuwa cały detal.",
@@ -1465,7 +1466,7 @@
       "sinumerik": "G94 | G95"
     },
     "params": [],
-    "example": "G18 G21 G40 G99\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
+    "example": "G18 G21 G40 G99\nT0101\nG97 S1500 M03\nG00 X60 Z2\nG01 Z-40 F0.25\nG01 X70\nG00 Z2\nM30",
     "sinumerik": "G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G95.",
     "pitfalls": [
       "Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr — a na frezarkach G98/G99 to powrót w cyklach. Ten sam kod, inne znaczenie!",
@@ -1477,7 +1478,8 @@
       "g96-g97",
       "g90-g94-t"
     ],
-    "variesBy": "system kodów"
+    "variesBy": "system kodów",
+    "exampleMode": "lathe"
   },
   {
     "code": "G96 G97",
@@ -1823,7 +1825,7 @@
         "desc": "Numer podprogramu (+ liczba powtórzeń z przodu w Fanuc)"
       }
     ],
-    "example": "G21 G90 G17 G54\nG00 X10 Y10 Z5\nG91\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG00 X40\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG90\nM30",
+    "example": "G21 G90 G17 G54\nT01 M06\nG43 H01 Z50.\nS2000 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG00 X40\nG01 Z-6 F100\nG01 X20 F200\nG01 Y10\nG01 X-20\nG01 Y-10\nG00 Z6\nG90\nM30",
     "sinumerik": "Podprogram wywołuje się samą nazwą (L1001 lub KIESZEN), kończy M17 lub RET.",
     "pitfalls": [
       "M99 w programie głównym = pętla nieskończona.",
