@@ -52,6 +52,14 @@ export const f1_3: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "mill",
+      intro: "Ten sam kontur, co w przykładzie rozwiązanym, ale zapisany przyrostowo. Sprawdzany jest tor roboczy — liczy się geometria, nie zapis.",
+      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\n(DOPISZ W G91 TOR: X20. Y0. -> X20. Y30. -> X50. Y30. -> X50. Y0.)\nG90\nG00 Z50.\nM09\nM05\nM30",
+      checks: [{"t":"cut","reference":"G90\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG01 X20. F400\nY30.\nX50.\nY0.\nG00 Z50.","tolerance":0.05},{"t":"require","codes":["G91"]},{"t":"end","x":50,"y":0,"z":50,"label":"Koniec w X50 Y0 Z50 — przyrosty sumują się do celu"}],
+      hints: ["Po `G91` każda wartość to przyrost od bieżącej pozycji: X20. znaczy „20 mm dalej w X”.","Kolejno: `G01 X20. F400`, `Y30.`, `X30.`, `Y-30.`. Blok `G90` już stoi za komentarzem — wraca do wymiarów absolutnych przed odjazdem."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG91\nG01 X20. F400\nY30.\nX30.\nY-30.\nG90\nG00 Z50.\nM09\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Przeliczaj w obie strony. Minus wpisuj zwykłym znakiem „-”.",
       questions: [

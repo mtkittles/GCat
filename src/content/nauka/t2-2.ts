@@ -43,6 +43,14 @@ export const t2_2: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "lathe",
+      intro: "Dopisz ustawienie wrzeciona do planowania czoła: limit obrotów, stała prędkość skrawania i kierunek obrotów.",
+      starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\n(DOPISZ: LIMIT 3000 OBR/MIN, STALA PREDKOSC SKRAWANIA 200 M/MIN, WRZECIONO W PRAWO)\nM08\nG00 X44. Z0.\nG01 X-1.6 F0.15\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+      checks: [{"t":"require","codes":["G50","S3000","G96","S200","M03"]},{"t":"cut","reference":"G18 G99\nG00 X44. Z0.\nG01 X-1.6 F0.15\nG00 Z2.","tolerance":0.05}],
+      hints: ["Limit przed G96: `G50 S3000`.","`G96 S200 M03` — S to teraz m/min, nie obr/min."],
+      solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z0.\nG01 X-1.6 F0.15\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+    },
+    {
       kind: "css",
       intro: "Przesuwaj średnicę i obserwuj obroty. Zmień vc i limit, żeby zobaczyć, gdzie zaczyna działać G50.",
       vc: 200, limit: 3000,

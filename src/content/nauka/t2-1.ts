@@ -49,6 +49,14 @@ export const t2_1: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "lathe",
+      intro: "Po toczeniu nożem T0101 program ma przejść na nóż wykańczający T0202. Dopisz zmianę noża z odjazdem i nowymi obrotami.",
+      starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\n(DOPISZ: ODJAZD DO PUNKTU REFERENCYJNEGO G28 U0. I G28 W0., NOZ T0202, G96 S250 M03, DOJAZD G00 X44. Z2.)\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+      checks: [{"t":"require","codes":["T0202","G96","S250","M03"]},{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05}],
+      hints: ["Najpierw odjazd: `G28 U0.` (X), potem `G28 W0.` (Z) — osobno, żeby nóż nie zahaczył o detal.","`T0202`, potem obroty od nowa `G96 S250 M03` i dojazd `G00 X44. Z2.`."],
+      solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG28 U0.\nG28 W0.\nT0202 (NOZ WYKANCZAJACY)\nG96 S250 M03\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Słowo T i korekcja zużycia.",
       questions: [

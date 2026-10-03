@@ -42,6 +42,14 @@ export const f5_4: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "mill",
+      intro: "Trzy otwory z przykładu rozwiązanego: X15, X45, X75 w Y20, R2, dno Z−7. Między X45 a X75 stoi docisk. Dopisz cykl z właściwymi poziomami powrotu.",
+      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\n(DOPISZ CYKL G81 NA TRZY OTWORY: PO PIERWSZYM POWROT DO R, PO DRUGIM DO POZIOMU POCZATKOWEGO (DOCISK), POTEM TRZECI I KASOWANIE CYKLU; F120)\nG00 Z50.\nM09\nM05\nM30",
+      checks: [{"t":"require","codes":["G81","G98","G99","G80"]},{"t":"cut","reference":"G90\nG00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nX75.\nG80\nG00 Z50.","tolerance":0.05}],
+      hints: ["Pierwszy otwór: `G99 G81 X15. Y20. Z-7. R2. F120` — do następnego nie ma przeszkody.","Drugi otwór z `G98 X45.`, bo po nim przejazd nad dociskiem; trzeci `X75.`; na końcu `G80`."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nX75.\nG80\nG00 Z50.\nM09\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Wysokości powrotu i kasowanie cyklu.",
       questions: [

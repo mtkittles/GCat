@@ -49,6 +49,14 @@ export const f1_5: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "mill",
+      intro: "Program ma obróbkę, ale nie ma bezpiecznego początku ani zakończenia. Dopisz oba w miejscu komentarzy.",
+      starter: "O1000 (PLYTKA)\n(DOPISZ BEZPIECZNY START: JEDNOSTKI, WYMIAROWANIE, PLASZCZYZNA / KASOWANIE KOREKCJI I CYKLI / ZERO DETALU)\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ ZAKONCZENIE: STOP WRZECIONA, KONIEC PROGRAMU Z PRZEWINIECIEM)",
+      checks: [{"t":"require","codes":["G21","G90","G17","G40","G49","G80","G54","M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
+      hints: ["Blok startowy z lekcji: `G21 G90 G17`, potem `G40 G49 G80`, a na końcu wybór zera `G54`.","Zakończenie: `M05` zatrzymuje wrzeciono, `M30` kończy program i przewija go na początek."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Ułóż sekcje programu i znajdź braki.",
       questions: [

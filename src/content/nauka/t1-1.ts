@@ -47,6 +47,14 @@ export const t1_1: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "lathe",
+      intro: "Dopisz przejście z przykładu rozwiązanego: na Ø36 wzdłuż do Z−55 i wyjście na Ø42. Kody modalne pisz tylko raz — sprawdzany jest tor.",
+      starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\n(DOPISZ: G01 NA FI36 Z POSUWEM 0,2 MM/OBR, WZDLUZ DO Z-55, WYJSCIE NA FI42)\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+      checks: [{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36. F0.2\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05},{"t":"require","codes":["G01"]},{"t":"end","x":100,"z":100,"label":"Koniec w X100 Z100"}],
+      hints: ["`G01 X36. F0.2` — wejście na średnicę z posuwem.","`Z-55.` i `X42.` bez G01 i F: oba słowa dziedziczą z poprzedniego bloku."],
+      solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36. F0.2\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Słowa w blokach tokarskich.",
       questions: [

@@ -42,6 +42,14 @@ export const f2_1: LessonDoc = {
 
   practice: [
     {
+      kind: "task", mode: "mill",
+      intro: "Po frezowaniu program ma przejść na nawiertak T2. Dopisz wymianę narzędzia razem z tym, co musi jej towarzyszyć.",
+      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\n(DOPISZ: STOP WRZECIONA, WYMIANA NA T2, KOREKCJA DLUGOSCI H2 Z DOJAZDEM NA Z50, OBROTY S1800 W PRAWO)\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
+      checks: [{"t":"require","codes":["T2","M06","H2","S1800","M03"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.","tolerance":0.05}],
+      hints: ["Kolejność: `M05` (wrzeciono stoi przy wymianie), `T2 M06`, `G43 H2 Z50.`, `S1800 M03`.","Numer H musi zgadzać się z numerem narzędzia we wrzecionie — tu H2 dla T2."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nT2 M06 (NAWIERTAK)\nG43 H2 Z50.\nS1800 M03\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
+    },
+    {
       kind: "drill",
       intro: "Wymiana i przygotowanie narzędzi.",
       questions: [
