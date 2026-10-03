@@ -1,6 +1,7 @@
 import Link from "next/link";
 import MobileHome from "@/components/MobileHome";
 import BrandLogo from "@/components/BrandLogo";
+import Tagline from "@/components/Tagline";
 import HomeResume from "@/components/HomeResume";
 import TrackPicker from "@/components/lesson/TrackPicker";
 import { pl } from "@/lib/plural";
@@ -83,7 +84,7 @@ export default function Home() {
 
       {/* 1–2: czym jest GCat i dwie główne akcje — statyczny pierwszy ekran */}
       <section className="home-intro" aria-labelledby="hi-title">
-        <div className="hi-brand"><BrandLogo height={52} variant="lockup" forceDark /><span>Zrozum. Programuj. Obrabiaj.</span></div>
+        <div className="hi-brand"><BrandLogo height={52} variant="lockup" forceDark /><span><Tagline /></span></div>
         <h1 id="hi-title" className="hi-title">Naucz się czytać i pisać {GK}.</h1>
         <p className="hi-lead">GCat to nauka programowania CNC po polsku: {pl(NAUKA_TOTAL, "lekcja", "lekcje", "lekcji")} frezowania i toczenia z testami, symulator toru narzędzia w 2D i 3D oraz karty kodów ze składnią Fanuc i Sinumerik.</p>
         <div className="hi-actions">

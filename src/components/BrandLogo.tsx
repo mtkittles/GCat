@@ -3,10 +3,10 @@ import Image from "next/image";
 import { useSyncExternalStore } from "react";
 
 /*
-  Znak marki z dostarczonych plików — nigdy przerysowywany ani przebarwiany.
-  Wariant "lockup" to pełny znak pionowy (mark + sygnatura + hasło),
-  wariant "mark" to sam znak, używany w poziomym układzie nagłówka
-  razem ze złożoną typograficznie sygnaturą — odpowiednik wersji POZIOMEJ.
+  Znak marki GCat — pliki z /public/brand, ciasno przycięte SVG (bez marginesów).
+  "mark"       → sam znak (głowa kota / G)
+  "horizontal" → znak + sygnatura GCat w poziomie (nagłówek)
+  "lockup"     → alias "horizontal" (zgodność wsteczna); hasło renderuje <Tagline /> jako tekst
 */
 const subscribe = (cb: () => void) => {
   const o = new MutationObserver(cb);
@@ -15,31 +15,28 @@ const subscribe = (cb: () => void) => {
 };
 const isDark = () => document.documentElement.dataset.theme === "dark";
 
+const RATIO = { mark: 0.824, horizontal: 2.752 } as const;
+
 export default function BrandLogo({
   height = 34,
   variant = "horizontal",
   forceDark,
 }: { height?: number; variant?: "horizontal" | "lockup" | "mark"; forceDark?: boolean }) {
   const dark = useSyncExternalStore(subscribe, isDark, () => false);
-  const onDark = forceDark ?? dark;
-
-  if (variant === "lockup") {
-    const src = onDark ? "/brand/gcat-logo-full-dark.png" : "/brand/gcat-logo-full-light.png";
-    return <Image src={src} alt="GCat — zrozum, programuj, obrabiaj" height={height} width={Math.round(height * 0.94)} className="brand-logo" style={{ height, width: "auto" }} priority />;
-  }
-
-  const src = onDark ? "/brand/gcat-mark-dark.png" : "/brand/gcat-mark-light.png";
-  const mark = <Image src={src} alt="GCat" height={height} width={Math.round(height * 1.3)} className="brand-logo" style={{ height, width: "auto" }} priority />;
-
-  if (variant === "mark") return mark;
+  const theme = (forceDark ?? dark) ? "dark" : "light";
+  const kind = variant === "mark" ? "mark" : "horizontal";
+  const src = kind === "mark" ? `/brand/gcat-znak-${theme}.svg` : `/brand/gcat-poziomy-${theme}.svg`;
 
   return (
-    <span className="brand-lockup">
-      {mark}
-      <span className="brand-text">
-        <span className="brand-word" style={{ fontSize: height * 0.62 }}><b>G</b>Cat</span>
-        <span className="brand-motto">Od kodu do detalu</span>
-      </span>
-    </span>
+    <Image
+      src={src}
+      alt="GCat"
+      height={height}
+      width={Math.round(height * RATIO[kind])}
+      className="brand-logo"
+      style={{ height, width: "auto" }}
+      unoptimized
+      priority
+    />
   );
 }

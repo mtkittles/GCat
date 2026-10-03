@@ -1,3 +1,4 @@
+import Tagline from "@/components/Tagline";
 import Link from "next/link";
 import Image from "next/image";
 import HomeResume, { type ResumeLesson } from "./HomeResume";
@@ -46,7 +47,7 @@ export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
         <Image src="/img/hero-cnc.jpg" alt="" fill sizes="100vw" className="m-hero-photo" priority />
         <div className="m-hero-scrim" />
         <div className="m-hero-body">
-          <span className="m-hero-k">Zrozum. Programuj. Obrabiaj.</span>
+          <span className="m-hero-k"><Tagline /></span>
           <h1>Naucz się czytać i pisać G‑kod.</h1>
           <p>Lekcje frezowania i toczenia, symulator 2D/3D, karty kodów Fanuc i Sinumerik, kalkulatory.</p>
           <Link href="/nauka" className="btn">Rozpocznij naukę</Link>

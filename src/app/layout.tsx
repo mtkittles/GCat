@@ -2,14 +2,15 @@ import type { Metadata, Viewport } from "next";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
+import Tagline from "@/components/Tagline";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "GCat — zrozum, programuj, obrabiaj",
+  title: "GCat — ucz się, programuj, skrawaj",
   description: "Nauka G-kodu po polsku: lekcje, karty funkcji G i M, symulator 2D/3D toru narzędzia, walidator, kalkulator parametrów skrawania.",
   icons: { icon: [{ url: "/icon-192.png", type: "image/png" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
   appleWebApp: { capable: true, title: "GCat", statusBarStyle: "black" },
-  openGraph: { title: "GCat — nauka G-kodu po polsku", description: "Zrozum. Programuj. Obrabiaj. Lekcje, symulator 2D/3D, walidator, kalkulator.", siteName: "GCat" },
+  openGraph: { title: "GCat — nauka G-kodu po polsku", description: "Ucz się. Programuj. Skrawaj. Lekcje, symulator 2D/3D, walidator, kalkulator.", siteName: "GCat" },
 };
 
 export const viewport: Viewport = {
@@ -38,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="site-footer">
           <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
             <BrandLogo height={26} variant="lockup" />
-            <span className="footer-tag">Zrozum. Programuj. Obrabiaj.</span>
+            <span className="footer-tag"><Tagline /></span>
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
             <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
           </div>
