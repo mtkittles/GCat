@@ -552,8 +552,12 @@ function latheToolGeo(tool: Tool): THREE.BufferGeometry {
     g.translate(0, 0, -depth / 2);
     return g;
   };
-  // Sama płytka (bez oprawki), żeby jej kształt i ułożenie były dobrze widoczne.
-  return extrude(o.insert, 4.8);
+  // Płytka na przedzie, oprawka (trzonek albo wytaczak) cofnięta za płytkę — nie zasłania jej kształtu.
+  const ins = extrude(o.insert, 4.8);
+  if (!o.holder) return ins;
+  const hold = extrude(o.holder, 7);
+  hold.translate(0, 0, -6);
+  return mergeGeo(ins, hold);
 }
 
 /** G-kod: X w prawo, Y od siebie, Z w górę → three: X, Y(up)=Z, Z=-Y. Tokarka: Z wzdłuż osi obrotu → three X, X promień → three Y. */
@@ -765,12 +769,27 @@ function updateHeightmapMesh(g: THREE.BufferGeometry, h: Float32Array) {
 /** Bryła pręta z profilu (zewnętrznego i otworu) — obrót wokół osi Z tokarki. */
 function latheGeometryFrom(pr: LatheProfile | null) {
   if (!pr) return null;
+  // Bryła tylko tam, gdzie zostaje materiał (promień zewnętrzny > otwór). Kolumny zdjęte do zera
+  // (splanowane czoło, odcięcie) nie mogą zamknąć się tarczą — inaczej zasłaniały otwór w czole.
   const n = pr.rout.length - 1, every = Math.max(1, Math.floor(n / 500));
-  const pts: THREE.Vector2[] = [new THREE.Vector2(pr.rin[0], pr.z0)];
-  for (let k = 0; k <= n; k += every) pts.push(new THREE.Vector2(Math.max(0.05, pr.rout[k]), pr.z0 + k * pr.dz));
-  pts.push(new THREE.Vector2(Math.max(0.05, pr.rout[n]), pr.z1), new THREE.Vector2(pr.rin[n], pr.z1));
-  for (let k = n; k >= 0; k -= every) pts.push(new THREE.Vector2(pr.rin[k], pr.z0 + k * pr.dz));
-  const g = new THREE.LatheGeometry(pts, 72); // obrót wokół Y; Y = Z tokarki
-  g.rotateZ(-Math.PI / 2); // Y → X (three X = Z tokarki)
-  return g;
+  const has = (k: number) => pr.rout[k] - pr.rin[k] > 0.02;
+  const zk = (k: number) => pr.z0 + k * pr.dz;
+  const parts: THREE.BufferGeometry[] = [];
+  for (let k = 0; k <= n; k++) {
+    if (!has(k)) continue;
+    let e = k; while (e + 1 <= n && has(e + 1)) e++;
+    if (e > k) {
+      const ks: number[] = []; for (let q = k; q <= e; q += every) ks.push(q); if (ks[ks.length - 1] !== e) ks.push(e);
+      const pts: THREE.Vector2[] = [new THREE.Vector2(pr.rin[k], zk(k))];
+      for (const q of ks) pts.push(new THREE.Vector2(Math.max(0.05, pr.rout[q]), zk(q)));
+      pts.push(new THREE.Vector2(pr.rin[e], zk(e)));
+      for (let q = ks.length - 1; q >= 0; q--) pts.push(new THREE.Vector2(pr.rin[ks[q]], zk(ks[q])));
+      const g = new THREE.LatheGeometry(pts, 72); // obrót wokół Y; Y = Z tokarki
+      g.rotateZ(-Math.PI / 2); // Y → X (three X = Z tokarki)
+      parts.push(g);
+    }
+    k = e;
+  }
+  if (!parts.length) return null;
+  return parts.reduce((a, b) => mergeGeo(a, b));
 }

@@ -22,13 +22,15 @@ export function latheOutline(t: Tool): Outline {
     };
   }
   if (t.kind === "threading") {
-    // kierunek ostrza 6 (P nad środkiem) — nóż do gwintów wewnętrznych, ostrze skierowane od osi
+    // Płytka do gwintów: zarys V (domyślnie 60°) o wysokości ~3 mm na korpusie płytki.
+    // Kierunek ostrza 6 — gwint wewnętrzny: ostrze ku górze, wytaczak wzdłuż osi Z, wychodzący z otworu.
     const g = t.tip === 6 ? -1 : 1;
-    const L = 9, a = rad(90 - (t.angle || 60) / 2), b = rad(90 + (t.angle || 60) / 2);
-    return {
-      insert: [[0, 0], [L * Math.cos(a), g * L * Math.sin(a)], [L * Math.cos(b), g * L * Math.sin(b)]],
-      holder: g > 0 ? [[-6, 7.5], [6, 7.5], [6, 26], [-6, 26]] : [[-4, -7.5], [4, -7.5], [4, -9], [30, -9], [30, -3], [-4, -3]].map(([z, x]) => [z, x] as [number, number]),
-    };
+    const half = (t.angle || 60) / 2, h = 3, w = h * Math.tan(rad(half));
+    const insert: [number, number][] = [[0, 0], [w, g * h], [3.2, g * h], [3.2, g * 5.5], [-3.2, g * 5.5], [-3.2, g * h], [-w, g * h]];
+    const holder: [number, number][] = g > 0
+      ? [[-6, 5.5], [6, 5.5], [6, 28], [-6, 28]]                 // zewnętrzny: nóż prostopadle do osi
+      : [[-4.2, -5.5], [42, -5.5], [42, -14], [-4.2, -14]];        // wewnętrzny: wytaczak w osi Z
+    return { insert, holder };
   }
   if (t.kind === "drill") {
     const r = t.d / 2, cone = r / Math.tan(rad((t.angle || 118) / 2)), len = Math.max(25, t.d * 4);
@@ -50,7 +52,8 @@ export function latheOutline(t: Tool): Outline {
   const b: [number, number] = [(em[0] + es[0]) / bl, (em[1] + es[1]) / bl];
   const cd = r / Math.sin(eps / 2);
   const N: [number, number] = [C[0] - b[0] * cd, C[1] - b[1] * cd];
-  const L = EDGE[shape] ?? 13;
+  // Wytaczak ma mniejszą płytkę (np. DCMT 07) niż nóż zewnętrzny — mieści się w otworze.
+  const L = t.kind === "boring" ? Math.min(7.5, (EDGE[shape] ?? 13) * 0.5) : EDGE[shape] ?? 13;
   const tl = r / Math.tan(eps / 2);
   const Tm: [number, number] = [N[0] + em[0] * tl, N[1] + em[1] * tl];
   const Ts: [number, number] = [N[0] + es[0] * tl, N[1] + es[1] * tl];
@@ -69,8 +72,14 @@ export function latheOutline(t: Tool): Outline {
   const three = shape === "T" || shape === "W";
   const F: [number, number] = [N[0] + (em[0] + es[0]) * L, N[1] + (em[1] + es[1]) * L];
   const insert: [number, number][] = three ? [...arc, A, B] : [...arc, A, F, B];
-  // oprawka: prostokąt za płytką, wzdłuż osi X
   const far = three ? [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2] : F;
+  if (t.kind === "boring") {
+    // wytaczak: okrągły drążek wzdłuż osi Z, wychodzący z otworu (w stronę +Z), pod płytką
+    const top = Math.min(A[1], B[1], F[1]) + 1.2, bar = 9;
+    const z0 = Math.min(A[0], B[0], F[0]) - 0.5;
+    return { insert, holder: [[z0, top], [z0 + 48, top], [z0 + 48, top - bar], [z0, top - bar]] };
+  }
+  // nóż zewnętrzny: trzonek za płytką, prostopadle do osi
   const hw = 7;
   const holder: [number, number][] = [[far[0] - hw, far[1] - sgn * 4], [far[0] + hw, far[1] - sgn * 4], [far[0] + hw, far[1] + sgn * 22], [far[0] - hw, far[1] + sgn * 22]];
   return { insert, holder };
