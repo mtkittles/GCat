@@ -28,7 +28,7 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
     // dialekt
     if (dialect === "sinumerik") {
       if (gs.includes(20) || gs.includes(21)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: jednostki to G70 (cale) / G71 (mm), nie G20/G21." });
-      if (gs.includes(28)) out.push({ line: l.index, level: "warn", msg: "Sinumerik nie ma G28 — użyj SUPA G0 Z0 lub G75." });
+      if (gs.includes(28)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: G28 działa tylko w trybie ISO (G291). W języku natywnym najazd na punkt referencyjny to G74, na punkt stały — G75." });
       if (gs.includes(43)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: długość narzędzia aktywuje T_ D_, nie G43." });
       if (has("R") && (gs.includes(2) || gs.includes(3))) out.push({ line: l.index, level: "warn", msg: "Sinumerik: promień łuku to CR=, nie R." });
     } else {
@@ -55,7 +55,7 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
     if (ms.includes(3) || ms.includes(4)) sawSpindle = true;
     if (ms.includes(5)) sawSpindle = false;
     if (ms.includes(30) || ms.includes(2)) sawM30 = true;
-    if (gs.some((g) => g <= 3)) sawMotion = true;
+    if (gs.some((g) => g <= 3) || l.segments.some((sg) => sg.kind !== "dwell")) sawMotion = true;
 
     let plungeFlagged = false;
     for (const sg of l.segments) {
