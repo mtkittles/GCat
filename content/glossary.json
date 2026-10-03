@@ -1,15 +1,32 @@
 [
   {
-    "term": "Funkcja modalna",
+    "term": "Adres",
     "aliases": [
-      "modalność",
-      "modalny"
+      "słowo"
     ],
-    "def": "Funkcja, która pozostaje aktywna po bloku, w którym ją wywołano, aż do odwołania przez inną funkcję z tej samej grupy. G01 jest modalne — kolejne bloki z samymi współrzędnymi też będą ruchami liniowymi. Przeciwieństwem są funkcje jednorazowe (G04, G28, G53), działające tylko w swoim bloku.",
-    "see": [
-      "g01",
-      "g53"
-    ]
+    "def": "Litera określająca znaczenie liczby, która po niej następuje. X to współrzędna, F posuw, S obroty, T narzędzie. Ten sam adres może znaczyć różne rzeczy zależnie od kontekstu: P to raz czas postoju, raz numer podprogramu, raz parametr cyklu.",
+    "see": []
+  },
+  {
+    "term": "ae — szerokość skrawania",
+    "aliases": [
+      "ae",
+      "przekrycie boczne",
+      "stepover"
+    ],
+    "def": "Szerokość zaangażowania narzędzia w materiał, mierzona prostopadle do kierunku posuwu. Przy ae mniejszym niż połowa średnicy freza występuje pocienianie wióra i posuw można zwiększyć.",
+    "see": [],
+    "diagram": "apae"
+  },
+  {
+    "term": "ap — głębokość skrawania",
+    "aliases": [
+      "ap",
+      "głębokość skrawania"
+    ],
+    "def": "Głębokość, na jaką narzędzie wchodzi w materiał, mierzona wzdłuż osi narzędzia przy frezowaniu i promieniowo przy toczeniu. Wraz z ae i posuwem decyduje o objętości zbieranego materiału i o obciążeniu narzędzia.",
+    "see": [],
+    "diagram": "apae"
   },
   {
     "term": "Blok",
@@ -20,12 +37,778 @@
     "see": []
   },
   {
-    "term": "Adres",
+    "term": "Blok bezpiecznego startu",
     "aliases": [
-      "słowo"
+      "safe start",
+      "bezpieczny start"
     ],
-    "def": "Litera określająca znaczenie liczby, która po niej następuje. X to współrzędna, F posuw, S obroty, T narzędzie. Ten sam adres może znaczyć różne rzeczy zależnie od kontekstu: P to raz czas postoju, raz numer podprogramu, raz parametr cyklu.",
+    "def": "Blok kasujący wszystkie funkcje modalne pozostawione przez poprzednią pracę: G00 G90 G17 G54 G40 G49 G80. Powtarzany po każdej wymianie narzędzia. Bez niego program dziedziczy stan, którego nie kontrolujesz.",
+    "see": [
+      "g40-g42",
+      "g81-g83"
+    ]
+  },
+  {
+    "term": "Cykl stały",
+    "aliases": [
+      "cykl",
+      "canned cycle"
+    ],
+    "def": "Wbudowana w sterownik sekwencja ruchów, wywoływana jednym blokiem i powtarzana w kolejnych punktach. Cykle wiertarskie (G81–G89) i tokarskie (G70–G76) zastępują kilkanaście bloków jednym.",
+    "see": [
+      "g81-g83",
+      "g71-g70"
+    ]
+  },
+  {
+    "term": "Docisk",
+    "aliases": [
+      "zacisk",
+      "łapa dociskowa",
+      "mocowanie"
+    ],
+    "def": "Element mocujący detal na stole. Wystaje ponad powierzchnię, więc program musi go omijać: przejazdy nad dociskiem na bezpiecznej wysokości, w cyklach wiercenia powrót G98 zamiast G99. Symulator GCat nie zna docisków — ich położenie trzeba sprawdzić samemu.",
+    "see": [
+      "g98-g99"
+    ]
+  },
+  {
+    "term": "Faza",
+    "aliases": [
+      "fazowanie",
+      "C",
+      "CHF"
+    ],
+    "def": "Ścięcie krawędzi pod kątem, zwykle 45°. Na frezarce programuje się ją ruchem G01 po przekątnej albo frezem do faz; na tokarce — blokiem G01 z jednoczesną zmianą X i Z, a na części sterowań adresem ,C (Fanuc) lub CHF=/CHR= (Sinumerik).",
+    "see": [
+      "g01"
+    ]
+  },
+  {
+    "term": "Frezowanie przeciwbieżne",
+    "aliases": [
+      "przeciwbieżne",
+      "conventional milling"
+    ],
+    "def": "Kierunek obrotu w miejscu styku przeciwny do posuwu. Wiór zaczyna się od zera grubości, przez co ostrze na początku gniecie materiał. Stosowane na starszych maszynach z luzem w śrubie pociągowej i przy naskórku odlewniczym.",
+    "see": [
+      "g40-g42"
+    ],
+    "diagram": "climb"
+  },
+  {
+    "term": "Frezowanie współbieżne",
+    "aliases": [
+      "współbieżne",
+      "climb milling"
+    ],
+    "def": "Frezowanie, w którym kierunek obrotu narzędzia w miejscu styku zgadza się z kierunkiem posuwu. Wiór jest gruby na początku i cienki na końcu. Daje lepszą powierzchnię i mniejsze zużycie ostrza, ale wymaga maszyny bez luzów w napędzie.",
+    "see": [
+      "g40-g42"
+    ],
+    "diagram": "climb"
+  },
+  {
+    "term": "Funkcja modalna",
+    "aliases": [
+      "modalność",
+      "modalny"
+    ],
+    "def": "Funkcja, która pozostaje aktywna po bloku, w którym ją wywołano, aż do odwołania przez inną funkcję z tej samej grupy. G01 jest modalne — kolejne bloki z samymi współrzędnymi też będą ruchami liniowymi. Przeciwieństwem są funkcje jednorazowe (G04, G28, G53), działające tylko w swoim bloku.",
+    "see": [
+      "g01",
+      "g52-g53"
+    ]
+  },
+  {
+    "term": "fz — posuw na ostrze",
+    "aliases": [
+      "fz",
+      "posuw na ząb"
+    ],
+    "def": "Grubość warstwy zbieranej przez jedno ostrze freza w jednym obrocie. Podstawowy parametr doboru posuwu przy frezowaniu: Vf = n × z × fz.",
+    "see": [
+      "g94-g95"
+    ],
+    "diagram": "apae"
+  },
+  {
+    "term": "Głowica rewolwerowa",
+    "aliases": [
+      "rewolwer",
+      "głowica narzędziowa"
+    ],
+    "def": "Obrotowy magazyn narzędzi na tokarce. Mieści zwykle od 8 do 16 pozycji, a zmiana narzędzia polega na obróceniu głowicy. Przed obrotem narzędzie musi znaleźć się w bezpiecznym miejscu, poza detalem i konikiem.",
     "see": []
+  },
+  {
+    "term": "Grupa modalna",
+    "aliases": [
+      "grupa G",
+      "grupa funkcji"
+    ],
+    "def": "Zbiór funkcji G, które wzajemnie się wykluczają — w danej chwili aktywna jest tylko jedna z grupy (np. G00/G01/G02/G03 albo G90/G91). Nowa funkcja z grupy zastępuje poprzednią; funkcje z różnych grup mogą stać w jednym bloku.",
+    "see": [
+      "g90-g91",
+      "g00"
+    ]
+  },
+  {
+    "term": "Gwintowanie sztywne",
+    "aliases": [
+      "rigid tapping",
+      "M29"
+    ],
+    "def": "Gwintowanie z elektroniczną synchronizacją obrotu wrzeciona i posuwu osi, bez uchwytu kompensacyjnego. Pozwala na wyższe obroty i daje dokładniejszy gwint. W Fanuc aktywowane przez M29 przed cyklem G84.",
+    "see": [
+      "g84"
+    ]
+  },
+  {
+    "term": "Interpolacja",
+    "aliases": [
+      "interpolacja liniowa",
+      "interpolacja kołowa"
+    ],
+    "def": "Sposób, w jaki sterownik koordynuje ruch kilku osi, żeby uzyskać zadany kształt toru. Liniowa (G01) daje prostą, kołowa (G02/G03) łuk, śrubowa — helisę.",
+    "see": [
+      "g01",
+      "g02"
+    ],
+    "diagram": "g02"
+  },
+  {
+    "term": "Interpolacja śrubowa",
+    "aliases": [
+      "spirala",
+      "helix",
+      "wejście po spirali"
+    ],
+    "def": "Ruch po łuku G02/G03 połączony z ruchem w osi prostopadłej do płaszczyzny, np. Z przy G17. Narzędzie porusza się po linii śrubowej. Służy do wejścia w materiał w kieszeniach i otworach oraz do frezowania gwintów.",
+    "see": [
+      "g02",
+      "g03"
+    ]
+  },
+  {
+    "term": "Kąt przystawienia",
+    "aliases": [
+      "kappa",
+      "κ",
+      "kąt ustawienia krawędzi"
+    ],
+    "def": "Kąt między główną krawędzią skrawającą noża a kierunkiem posuwu. Wpływa na kształt przekroju wióra i siły: przy 90–95° siła działa głównie wzdłuż osi detalu, przy 45° rośnie składowa promieniowa, ale wiór jest cieńszy i można zwiększyć posuw.",
+    "see": []
+  },
+  {
+    "term": "kc — właściwy opór skrawania",
+    "aliases": [
+      "kc",
+      "opór skrawania"
+    ],
+    "def": "Siła potrzebna do zebrania wióra o przekroju 1 mm², w N/mm². Zależy od materiału: aluminium około 600, stal konstrukcyjna 1500, Inconel 2600. Służy do obliczenia mocy skrawania.",
+    "see": []
+  },
+  {
+    "term": "Kierunek ostrza",
+    "aliases": [
+      "numer kierunku ostrza",
+      "tip number",
+      "T w tabeli korekcji"
+    ],
+    "def": "Liczba 0–9 w tabeli korekcji tokarki opisująca, po której stronie środka naroża płytki leży teoretyczny punkt ostrza P. Sterowanie potrzebuje jej do kompensacji promienia naroża (G41/G42): nóż zewnętrzny toczący w stronę uchwytu ma zwykle 3, wytaczak 2, nóż do czoła 8 lub 9.",
+    "see": [
+      "g40-g42"
+    ]
+  },
+  {
+    "term": "Kieszeń",
+    "aliases": [
+      "kieszeń prostokątna",
+      "kieszeń okrągła",
+      "pocket"
+    ],
+    "def": "Wgłębienie w detalu otoczone materiałem ze wszystkich stron. Frez musi wejść w pełny materiał (po spirali, po rampie albo w nawiercony otwór), a potem usuwać materiał przejściami przesuniętymi o ae, kończąc obiegiem ścianki z kompensacją promienia.",
+    "see": [
+      "g02",
+      "g40-g42"
+    ]
+  },
+  {
+    "term": "Kolizja",
+    "aliases": [
+      "crash",
+      "zderzenie"
+    ],
+    "def": "Zderzenie narzędzia, uchwytu albo wrzeciona z detalem, zaciskiem lub elementem maszyny. Przy szybkim przejeździe energia uderzenia jest na tyle duża, że uszkodzeniu ulega zwykle nie tylko narzędzie, ale i łożyskowanie wrzeciona.",
+    "see": [
+      "g00"
+    ]
+  },
+  {
+    "term": "Komentarz w programie",
+    "aliases": [
+      "komentarz",
+      "nawias",
+      "średnik"
+    ],
+    "def": "Tekst dla człowieka, pomijany przez sterowanie. Na Fanucu w nawiasach (FREZ FI10), na Sinumeriku po średniku ; FREZ FI10. Komentarze z nazwą narzędzia przy T…M06 czyta też symulator GCat, dobierając narzędzie.",
+    "see": [
+      "m06"
+    ]
+  },
+  {
+    "term": "Kompensacja promienia",
+    "aliases": [
+      "korekcja promienia",
+      "G41",
+      "G42"
+    ],
+    "def": "Funkcja pozwalająca programować kontur gotowego detalu zamiast toru środka narzędzia. Sterownik sam odsuwa tor o promień z rejestru korekcji. Umożliwia też korektę wymiaru bez zmiany programu.",
+    "see": [
+      "g40-g42"
+    ],
+    "diagram": "g40-g42"
+  },
+  {
+    "term": "Konik",
+    "aliases": [
+      "tailstock",
+      "kieł"
+    ],
+    "def": "Zespół tokarki podpierający kłem długi detal od strony przeciwnej do uchwytu. Ogranicza ruch narzędzia w Z i wyklucza planowanie czoła do osi; strefę konika chroni się ograniczeniem obszaru pracy (G22).",
+    "see": [
+      "g22-g23"
+    ]
+  },
+  {
+    "term": "Kontur",
+    "aliases": [
+      "profil",
+      "obrys"
+    ],
+    "def": "Linia ograniczająca kształt detalu w płaszczyźnie obróbki, złożona z odcinków i łuków. Program prowadzi po niej środek narzędzia (tor odsunięty o promień) albo samą krawędź przy włączonej kompensacji G41/G42.",
+    "see": [
+      "g40-g42",
+      "g01"
+    ]
+  },
+  {
+    "term": "Korekcja długości",
+    "aliases": [
+      "korektor długości",
+      "H"
+    ],
+    "def": "Wartość dodawana do współrzędnej Z, uwzględniająca długość aktualnego narzędzia. Aktywowana przez G43 z numerem rejestru H. Bez niej sterownik liczy pozycję od czoła wrzeciona.",
+    "see": [
+      "g43-g49"
+    ]
+  },
+  {
+    "term": "Kropka dziesiętna",
+    "aliases": [
+      "zapis z kropką",
+      "X60."
+    ],
+    "def": "Na Fanucu wartość bez kropki może zostać odczytana w najmniejszych przyrostach (X60 = 0,060 mm) — zależy to od parametru. Dlatego wymiary, promienie i I/J/K pisze się z kropką: X60. Na Sinumeriku X60 znaczy 60 mm.",
+    "see": [
+      "g00"
+    ]
+  },
+  {
+    "term": "Limit obrotów",
+    "aliases": [
+      "ograniczenie obrotów",
+      "G50 S",
+      "LIMS"
+    ],
+    "def": "Maksymalne obroty wrzeciona przy stałej prędkości skrawania G96. Bez limitu obroty przy osi rosłyby bez końca; G50 S3000 (Fanuc, system A) lub LIMS=3000 (Sinumerik) trzyma je na wartości bezpiecznej dla uchwytu i detalu.",
+    "see": [
+      "g50",
+      "g96-g97"
+    ]
+  },
+  {
+    "term": "Makro",
+    "aliases": [
+      "makroprogram",
+      "makro użytkownika",
+      "zmienne #"
+    ],
+    "def": "Program z parametrami i zmiennymi (#1…#33 lokalne, #100+ wspólne, #500+ trwałe), wywoływany przez G65 (jednorazowo) lub G66 (modalnie). W makrach pisze się własne cykle, pomiary sondą i obliczenia; na Sinumeriku odpowiada im podprogram z parametrami i zmienne R.",
+    "see": [
+      "g65-g67",
+      "g31"
+    ]
+  },
+  {
+    "term": "Naddatek",
+    "aliases": [
+      "naddatek na obróbkę"
+    ],
+    "def": "Warstwa materiału pozostawiona celowo do zdjęcia w kolejnej operacji. Typowo 0,2–0,5 mm na wykańczanie przy frezowaniu, 0,3–0,5 mm na średnicy przy toczeniu. W cyklu G71 określają go adresy U i W.",
+    "see": [
+      "g71-g70"
+    ],
+    "diagram": "allowance"
+  },
+  {
+    "term": "Nakrój gwintownika",
+    "aliases": [
+      "nakrój",
+      "część stożkowa gwintownika"
+    ],
+    "def": "Stożkowy początek gwintownika, który stopniowo wcina pełny zarys gwintu. Ma zwykle 2–5 zwojów długości (zależnie od formy A, B, C). Dlatego otwór musi być głębszy niż gwint o długość nakroju — pełny zarys kończy się wyżej, niż stoi czubek narzędzia.",
+    "see": [
+      "g84"
+    ]
+  },
+  {
+    "term": "Nawiertak",
+    "aliases": [
+      "nawiercak",
+      "spot drill",
+      "wiertło do nakiełków"
+    ],
+    "def": "Krótkie, sztywne narzędzie o kącie wierzchołkowym 90° lub 120°, którym wykonuje się wgłębienie prowadzące wiertło i fazę otworu. Programuje się je cyklem G81 lub G82 (postój wyrównuje fazę).",
+    "see": [
+      "g82",
+      "g81-g83"
+    ]
+  },
+  {
+    "term": "Numer bloku",
+    "aliases": [
+      "N",
+      "numeracja bloków"
+    ],
+    "def": "Opcjonalny adres N na początku bloku. Nie wpływa na wykonanie — służy do szukania miejsca w programie, wznawiania pracy i jako odniesienie w cyklach (P i Q w G71/G70 wskazują numery N początku i końca konturu).",
+    "see": [
+      "g71-g70"
+    ]
+  },
+  {
+    "term": "Obróbka wykańczająca",
+    "aliases": [
+      "wykańczanie",
+      "finishing"
+    ],
+    "def": "Ostatnie przejście po konturze, zbierające naddatek i nadające wymiar oraz chropowatość. Mniejszy posuw, często osobne narzędzie i wyższa prędkość skrawania. Na tokarce wykonuje je cykl G70 po G71/G72.",
+    "see": [
+      "g71-g70"
+    ]
+  },
+  {
+    "term": "Obróbka zgrubna",
+    "aliases": [
+      "zgrubne",
+      "roughing"
+    ],
+    "def": "Szybkie usuwanie większości materiału dużymi przejściami, z pozostawieniem naddatku na wykańczanie. Na tokarce wykonują ją cykle G71/G72, na frezarce — przejścia z dużym ap i posuwem. Dokładność i chropowatość nie są tu celem.",
+    "see": [
+      "g71-g70",
+      "g72"
+    ]
+  },
+  {
+    "term": "Oprawka kompensacyjna",
+    "aliases": [
+      "oprawka wyrównawcza",
+      "floating tap holder"
+    ],
+    "def": "Uchwyt gwintownika z luzem osiowym, który wyrównuje różnicę między posuwem programu a rzeczywistym skokiem. Konieczna bez gwintowania sztywnego (M29); przy gwintowaniu sztywnym gwintownik mocuje się w oprawce sztywnej.",
+    "see": [
+      "m29",
+      "g84"
+    ]
+  },
+  {
+    "term": "Optional Stop",
+    "aliases": [
+      "M01",
+      "stop warunkowy"
+    ],
+    "def": "Zatrzymanie programu działające tylko przy włączonym przełączniku na pulpicie. Pozwala wstawić punkty kontrolne do pomiaru detalu podczas uruchamiania programu i ignorować je w produkcji.",
+    "see": [
+      "m00-m01"
+    ]
+  },
+  {
+    "term": "Płaszczyzna obróbki",
+    "aliases": [
+      "płaszczyzna robocza",
+      "G17",
+      "G18",
+      "G19"
+    ],
+    "def": "Para osi, w której sterowanie wykonuje łuki G02/G03, kompensację promienia i cykle stałe. G17 wybiera XY (frezarka pionowa), G18 — ZX (tokarka), G19 — YZ. Oś prostopadła do płaszczyzny jest osią cyklu wiercenia.",
+    "see": [
+      "g17-g19",
+      "g02"
+    ]
+  },
+  {
+    "term": "Płaszczyzna R",
+    "aliases": [
+      "R plane"
+    ],
+    "def": "Poziom w cyklach wiertarskich, od którego zaczyna się posuw roboczy. Szybki zjazd odbywa się do R, dalej narzędzie idzie z posuwem F. Typowo 2–5 mm nad powierzchnią materiału.",
+    "see": [
+      "g81-g83"
+    ],
+    "diagram": "g81-g83"
+  },
+  {
+    "term": "Płytka skrawająca",
+    "aliases": [
+      "płytka wymienna",
+      "płytka",
+      "kod ISO płytki"
+    ],
+    "def": "Wymienna końcówka z węglika, ceramiki lub CBN mocowana w oprawce noża lub freza. Kod ISO (np. CNMG 120408) opisuje kształt (C — romb 80°), kąt przyłożenia (N — 0°), tolerancję, typ mocowania, wymiary i promień naroża.",
+    "see": []
+  },
+  {
+    "term": "Pocienianie wióra",
+    "aliases": [
+      "chip thinning"
+    ],
+    "def": "Zjawisko występujące przy małym zaangażowaniu bocznym narzędzia (ae mniejsze niż połowa średnicy): rzeczywista grubość wióra jest mniejsza niż zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie pracuje zbyt lekko, tarcie rośnie kosztem skrawania, a ostrze szybciej się tępi.",
+    "see": [],
+    "diagram": "thinning"
+  },
+  {
+    "term": "Podprogram",
+    "aliases": [
+      "subprogram",
+      "M98"
+    ],
+    "def": "Osobny program wywoływany z programu głównego, zwykle zawierający powtarzalny fragment obróbki. Wywołanie M98 P_, powrót M99. W połączeniu z G91 pozwala powtórzyć ten sam kształt w wielu miejscach.",
+    "see": [
+      "m98-m99"
+    ]
+  },
+  {
+    "term": "Pomijanie bloku",
+    "aliases": [
+      "block skip",
+      "ukośnik",
+      "/"
+    ],
+    "def": "Ukośnik na początku bloku oznacza blok warunkowy: przy włączonym przełączniku BLOCK SKIP na pulpicie sterowanie go pomija, przy wyłączonym — wykonuje. Używany np. do pomiarów, które wykonuje się tylko przy pierwszej sztuce.",
+    "see": [
+      "m00-m01"
+    ]
+  },
+  {
+    "term": "Postój",
+    "aliases": [
+      "dwell",
+      "postój czasowy"
+    ],
+    "def": "Zaprogramowana przerwa w ruchu osi przy pracującym wrzecionie. Na dnie rowka czy otworu wystarczą jeden–dwa obroty wrzeciona; dłuższy postój tylko grzeje i wyciera ostrze.",
+    "see": [
+      "g04"
+    ]
+  },
+  {
+    "term": "Posuw minutowy",
+    "aliases": [
+      "mm/min",
+      "posuw na minutę"
+    ],
+    "def": "Jednostka posuwu typowa dla frezowania: droga narzędzia na minutę (G94; na tokarce Fanuc w systemie A — G98). Liczy się ją jako fz · z · n.",
+    "see": [
+      "g94-g95"
+    ]
+  },
+  {
+    "term": "Posuw na obrót",
+    "aliases": [
+      "mm/obr",
+      "posuw obrotowy"
+    ],
+    "def": "Jednostka posuwu typowa dla toczenia: droga narzędzia na jeden obrót wrzeciona (G95; na tokarce Fanuc w systemie A — G99). Przy tych samych obrotach F0,3 mm/obr daje 0,3 · n mm/min.",
+    "see": [
+      "g94-g95",
+      "g98-g99"
+    ]
+  },
+  {
+    "term": "Potencjometr korekty",
+    "aliases": [
+      "override",
+      "korekta posuwu",
+      "korekta obrotów"
+    ],
+    "def": "Pokrętło na pulpicie zmieniające zaprogramowany posuw lub obroty w procentach (zwykle 0–150 %). Przy gwintowaniu sterowanie ignoruje korektę posuwu; M49 blokuje potencjometry z programu, M48 je odblokowuje.",
+    "see": [
+      "m48-m49"
+    ]
+  },
+  {
+    "term": "Pozycja maszynowa",
+    "aliases": [
+      "współrzędne maszynowe",
+      "układ maszyny",
+      "MCS"
+    ],
+    "def": "Położenie osi liczone od zera maszyny (punktu referencyjnego), niezależne od przesunięć G54–G59. Widać je na ekranie sterowania jako pozycję MACHINE; blok G53 wykonuje ruch bezpośrednio w tym układzie.",
+    "see": [
+      "g52-g53",
+      "g28"
+    ]
+  },
+  {
+    "term": "Półfabrykat",
+    "aliases": [
+      "surówka",
+      "stock",
+      "materiał wyjściowy"
+    ],
+    "def": "Materiał, z którego powstaje detal: płyta, pręt, odlew. Jego wymiary i położenie zera decydują o bezpiecznych wysokościach i o tym, ile naddatku trzeba zebrać. W symulatorze GCat półfabrykat ustawia się w zakładce Narzędzia.",
+    "see": []
+  },
+  {
+    "term": "Programowanie średnicowe",
+    "aliases": [
+      "średnicowo",
+      "X średnicowe"
+    ],
+    "def": "Konwencja na tokarkach: adres X oznacza średnicę, a nie odległość od osi. G01 X40 to polecenie toczenia na ⌀40, choć ostrze fizycznie stoi 20 mm od osi. Adresy I i R pozostają promieniowe.",
+    "see": [
+      "g96-g97"
+    ],
+    "diagram": "dia"
+  },
+  {
+    "term": "Promień naroża płytki",
+    "aliases": [
+      "promień naroża",
+      "rε",
+      "R naroża"
+    ],
+    "def": "Zaokrąglenie wierzchołka płytki tokarskiej, zapisane w dwóch ostatnich cyfrach kodu ISO (CNMG 120408 → 0,8 mm). Bez kompensacji promienia stożki i łuki wychodzą z błędem rzędu tego promienia; większy promień daje gładszą powierzchnię, ale większe siły promieniowe.",
+    "see": [
+      "g40-g42"
+    ]
+  },
+  {
+    "term": "Przejście",
+    "aliases": [
+      "przejazd roboczy",
+      "pass"
+    ],
+    "def": "Jeden ruch narzędzia przez materiał, np. jedna warstwa kieszeni albo jedno zagłębienie gwintu w G76. Liczba przejść wynika z naddatku podzielonego przez głębokość skrawania ap.",
+    "see": [
+      "g76",
+      "g71-g70"
+    ]
+  },
+  {
+    "term": "Punkt pośredni",
+    "aliases": [
+      "intermediate point"
+    ],
+    "def": "Punkt podany w bloku G28/G30, przez który narzędzie przejeżdża w drodze do punktu referencyjnego. W G91 współrzędne są przyrostami od bieżącej pozycji (G91 G28 Z0 — od razu do bazy w Z), w G90 — pozycją w układzie detalu.",
+    "see": [
+      "g28",
+      "g27-g30"
+    ]
+  },
+  {
+    "term": "Reguła prawej dłoni",
+    "aliases": [
+      "prawa dłoń",
+      "układ prawoskrętny"
+    ],
+    "def": "Sposób na zapamiętanie zwrotów osi: kciuk prawej dłoni wskazuje +X, palec wskazujący +Y, środkowy +Z. Tak zorientowany układ opisuje norma ISO 841 i stosują go wszystkie sterowania CNC.",
+    "see": []
+  },
+  {
+    "term": "Rejestr korekcji",
+    "aliases": [
+      "korektor",
+      "offset",
+      "wear"
+    ],
+    "def": "Miejsce w pamięci sterownika przechowujące dane narzędzia: długość, promień i osobne kolumny zużycia. Zmiana zużycia pozwala dostroić wymiar detalu bez ingerencji w program.",
+    "see": [
+      "g43-g49",
+      "g40-g42"
+    ]
+  },
+  {
+    "term": "Rz — chropowatość",
+    "aliases": [
+      "chropowatość",
+      "Rz",
+      "Ra"
+    ],
+    "def": "Miara nierówności powierzchni. Przy toczeniu chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża płytki: Rz ≈ f² / (8 × rε). Zwiększanie obrotów jej nie poprawia.",
+    "see": [
+      "g94-g95"
+    ],
+    "diagram": "rz"
+  },
+  {
+    "term": "Skok gwintu",
+    "aliases": [
+      "skok",
+      "pitch",
+      "P"
+    ],
+    "def": "Odległość między sąsiednimi zwojami gwintu wzdłuż osi, np. 1,5 mm dla M10. W cyklach gwintowania to posuw na obrót (G84 przy G95, G76 i G32 adresem F), bo na jeden obrót narzędzie musi przesunąć się dokładnie o skok.",
+    "see": [
+      "g84",
+      "g76",
+      "g33"
+    ]
+  },
+  {
+    "term": "Sonda pomiarowa",
+    "aliases": [
+      "sonda",
+      "probe",
+      "sonda dotykowa"
+    ],
+    "def": "Narzędzie z przełącznikiem, które wysyła sygnał w chwili dotknięcia detalu. Ruch pomiarowy G31 zatrzymuje się na tym sygnale i zapisuje pozycję w zmiennych systemowych, z których makro liczy przesunięcie bazy albo wymiar.",
+    "see": [
+      "g31"
+    ]
+  },
+  {
+    "term": "Stała prędkość skrawania",
+    "aliases": [
+      "CSS",
+      "G96",
+      "stała Vc"
+    ],
+    "def": "Tryb, w którym sterowanie zmienia obroty wraz ze średnicą tak, by prędkość skrawania była stała: n = 1000 · Vc / (π · D). Daje równą chropowatość i trwałość płytki na całym profilu; przy wierceniu w osi i gwintowaniu używa się stałych obrotów G97.",
+    "see": [
+      "g96-g97",
+      "g50"
+    ]
+  },
+  {
+    "term": "Układ lokalny",
+    "aliases": [
+      "przesunięcie lokalne",
+      "G52"
+    ],
+    "def": "Dodatkowe przesunięcie zera nałożone na aktywny układ G54–G59 (G52 X_ Y_ Z_). Przydatne, gdy ten sam fragment programu ma się powtórzyć w kilku miejscach detalu. G52 X0 Y0 Z0 wraca do zera układu.",
+    "see": [
+      "g52-g53"
+    ]
+  },
+  {
+    "term": "Układ współrzędnych",
+    "aliases": [
+      "układ osi",
+      "osie maszyny"
+    ],
+    "def": "Trzy prostopadłe osie X, Y i Z, względem których podaje się położenie narzędzia. Na obrabiarkach CNC jest prawoskrętny, a ruch w +Z zawsze oddala narzędzie od detalu.",
+    "see": [
+      "g54-g59"
+    ]
+  },
+  {
+    "term": "Vc — prędkość skrawania",
+    "aliases": [
+      "Vc",
+      "prędkość skrawania"
+    ],
+    "def": "Prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w metrach na minutę. Zależy od średnicy i obrotów: Vc = π × D × n / 1000. To Vc, a nie obroty, dobiera się z katalogu narzędzia dla danego materiału.",
+    "see": [
+      "g96-g97"
+    ],
+    "diagram": "vc"
+  },
+  {
+    "term": "Wejście po rampie",
+    "aliases": [
+      "ramping",
+      "zagłębianie skośne",
+      "rampa"
+    ],
+    "def": "Zejście freza w materiał ruchem jednocześnie w Z i w płaszczyźnie (G01 X… Z…), pod małym kątem (zwykle 2–5°). Pozwala wejść w pełny materiał frezom, które nie skrawają przez środek, bez nawiercania.",
+    "see": [
+      "g01"
+    ]
+  },
+  {
+    "term": "Wejście w materiał",
+    "aliases": [
+      "zagłębianie",
+      "plunge",
+      "zejście w Z"
+    ],
+    "def": "Ruch, którym narzędzie schodzi na głębokość skrawania. Zawsze na posuwie roboczym (G01), nigdy szybkim przejazdem; posuw zejścia jest mniejszy niż konturowy, bo pracują ostrza czołowe. Frez bez ostrza przez środek wymaga rampy lub wejścia po spirali.",
+    "see": [
+      "g01",
+      "g00"
+    ]
+  },
+  {
+    "term": "Wiercenie z wycofaniem",
+    "aliases": [
+      "peck drilling",
+      "wiercenie głębokie",
+      "G83"
+    ],
+    "def": "Cykl, w którym wiertło schodzi krokami Q, a między krokami wyjeżdża — do płaszczyzny R (G83, usuwa wiór) albo tylko o niewielką wartość (G73, łamie wiór). Potrzebne w otworach głębszych niż 3–4 średnice.",
+    "see": [
+      "g81-g83",
+      "g73"
+    ]
+  },
+  {
+    "term": "Wiór",
+    "aliases": [
+      "odprowadzenie wióra",
+      "łamanie wióra"
+    ],
+    "def": "Materiał usunięty przez ostrze. Jego kształt i odprowadzenie decydują o powodzeniu obróbki: wiór długi owija się wokół narzędzia, wiór zakleszczony w otworze łamie wiertło. Stąd cykle G83 i G73 z wycofaniem.",
+    "see": [
+      "g81-g83"
+    ]
+  },
+  {
+    "term": "Wybieg gwintu",
+    "aliases": [
+      "wybieg",
+      "rozbieg"
+    ],
+    "def": "Odcinek przed gwintem i za nim, potrzebny osiom na rozpędzenie się i wyhamowanie przy ruchu zsynchronizowanym z wrzecionem. Zasada: co najmniej dwa skoki przed początkiem gwintu. Bez rozbiegu pierwsze zwoje mają zaniżony skok.",
+    "see": [
+      "g76",
+      "g33"
+    ],
+    "diagram": "runout"
+  },
+  {
+    "term": "Wysokość bezpieczna",
+    "aliases": [
+      "płaszczyzna bezpieczna",
+      "safe Z"
+    ],
+    "def": "Poziom w osi Z, powyżej którego narzędzie może swobodnie przejeżdżać nad całym stołem — ponad zaciskami, detalem i konikiem. Wszystkie szybkie przejazdy w płaszczyźnie XY wykonuje się na tej wysokości.",
+    "see": [
+      "g00"
+    ]
+  },
+  {
+    "term": "Zaokrąglenie naroża",
+    "aliases": [
+      "zaokrąglenie",
+      "promień naroża detalu",
+      "RND"
+    ],
+    "def": "Łuk łączący dwie krawędzie detalu. Programuje się go łukiem G02/G03 o promieniu R (frez jedzie po łuku R ± promień freza) albo, na części sterowań, adresem ,R (Fanuc) lub RND= (Sinumerik) w bloku ruchu liniowego.",
+    "see": [
+      "g02",
+      "g03"
+    ]
   },
   {
     "term": "Zero detalu",
@@ -48,346 +831,6 @@
     "def": "Stały punkt wyznaczony przy bazowaniu osi, niezależny od detalu. Wszystkie przesunięcia układów współrzędnych liczone są od niego. Dojazd do niego realizuje G28.",
     "see": [
       "g28"
-    ]
-  },
-  {
-    "term": "Naddatek",
-    "aliases": [
-      "naddatek na obróbkę"
-    ],
-    "def": "Warstwa materiału pozostawiona celowo do zdjęcia w kolejnej operacji. Typowo 0,2–0,5 mm na wykańczanie przy frezowaniu, 0,3–0,5 mm na średnicy przy toczeniu. W cyklu G71 określają go adresy U i W.",
-    "see": [
-      "g71-g70"
-    ],
-    "diagram": "allowance"
-  },
-  {
-    "term": "ap — głębokość skrawania",
-    "aliases": [
-      "ap",
-      "głębokość skrawania"
-    ],
-    "def": "Głębokość, na jaką narzędzie wchodzi w materiał, mierzona wzdłuż osi narzędzia przy frezowaniu i promieniowo przy toczeniu. Wraz z ae i posuwem decyduje o objętości zbieranego materiału i o obciążeniu narzędzia.",
-    "see": [],
-    "diagram": "apae"
-  },
-  {
-    "term": "ae — szerokość skrawania",
-    "aliases": [
-      "ae",
-      "przekrycie boczne",
-      "stepover"
-    ],
-    "def": "Szerokość zaangażowania narzędzia w materiał, mierzona prostopadle do kierunku posuwu. Przy ae mniejszym niż połowa średnicy freza występuje pocienianie wióra i posuw można zwiększyć.",
-    "see": [],
-    "diagram": "apae"
-  },
-  {
-    "term": "Pocienianie wióra",
-    "aliases": [
-      "chip thinning"
-    ],
-    "def": "Zjawisko występujące przy małym zaangażowaniu bocznym narzędzia (ae mniejsze niż połowa średnicy): rzeczywista grubość wióra jest mniejsza niż zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie pracuje zbyt lekko, tarcie rośnie kosztem skrawania, a ostrze szybciej się tępi.",
-    "see": [],
-    "diagram": "thinning"
-  },
-  {
-    "term": "fz — posuw na ostrze",
-    "aliases": [
-      "fz",
-      "posuw na ząb"
-    ],
-    "def": "Grubość warstwy zbieranej przez jedno ostrze freza w jednym obrocie. Podstawowy parametr doboru posuwu przy frezowaniu: Vf = n × z × fz.",
-    "see": [
-      "g94-g95"
-    ],
-    "diagram": "apae"
-  },
-  {
-    "term": "Vc — prędkość skrawania",
-    "aliases": [
-      "Vc",
-      "prędkość skrawania"
-    ],
-    "def": "Prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w metrach na minutę. Zależy od średnicy i obrotów: Vc = π × D × n / 1000. To Vc, a nie obroty, dobiera się z katalogu narzędzia dla danego materiału.",
-    "see": [
-      "g96-g97"
-    ],
-    "diagram": "vc"
-  },
-  {
-    "term": "Frezowanie współbieżne",
-    "aliases": [
-      "współbieżne",
-      "climb milling"
-    ],
-    "def": "Frezowanie, w którym kierunek obrotu narzędzia w miejscu styku zgadza się z kierunkiem posuwu. Wiór jest gruby na początku i cienki na końcu. Daje lepszą powierzchnię i mniejsze zużycie ostrza, ale wymaga maszyny bez luzów w napędzie.",
-    "see": [
-      "g40-g42"
-    ],
-    "diagram": "climb"
-  },
-  {
-    "term": "Frezowanie przeciwbieżne",
-    "aliases": [
-      "przeciwbieżne",
-      "conventional milling"
-    ],
-    "def": "Kierunek obrotu w miejscu styku przeciwny do posuwu. Wiór zaczyna się od zera grubości, przez co ostrze na początku gniecie materiał. Stosowane na starszych maszynach z luzem w śrubie pociągowej i przy naskórku odlewniczym.",
-    "see": [
-      "g40-g42"
-    ],
-    "diagram": "climb"
-  },
-  {
-    "term": "Kompensacja promienia",
-    "aliases": [
-      "korekcja promienia",
-      "G41",
-      "G42"
-    ],
-    "def": "Funkcja pozwalająca programować kontur gotowego detalu zamiast toru środka narzędzia. Sterownik sam odsuwa tor o promień z rejestru korekcji. Umożliwia też korektę wymiaru bez zmiany programu.",
-    "see": [
-      "g40-g42"
-    ],
-    "diagram": "g40-g42"
-  },
-  {
-    "term": "Korekcja długości",
-    "aliases": [
-      "korektor długości",
-      "H"
-    ],
-    "def": "Wartość dodawana do współrzędnej Z, uwzględniająca długość aktualnego narzędzia. Aktywowana przez G43 z numerem rejestru H. Bez niej sterownik liczy pozycję od czoła wrzeciona.",
-    "see": [
-      "g43-g49"
-    ]
-  },
-  {
-    "term": "Płaszczyzna R",
-    "aliases": [
-      "R plane"
-    ],
-    "def": "Poziom w cyklach wiertarskich, od którego zaczyna się posuw roboczy. Szybki zjazd odbywa się do R, dalej narzędzie idzie z posuwem F. Typowo 2–5 mm nad powierzchnią materiału.",
-    "see": [
-      "g81-g83"
-    ],
-    "diagram": "g81-g83"
-  },
-  {
-    "term": "Cykl stały",
-    "aliases": [
-      "cykl",
-      "canned cycle"
-    ],
-    "def": "Wbudowana w sterownik sekwencja ruchów, wywoływana jednym blokiem i powtarzana w kolejnych punktach. Cykle wiertarskie (G81–G89) i tokarskie (G70–G76) zastępują kilkanaście bloków jednym.",
-    "see": [
-      "g81-g83",
-      "g71-g70"
-    ]
-  },
-  {
-    "term": "Wybieg gwintu",
-    "aliases": [
-      "wybieg",
-      "rozbieg"
-    ],
-    "def": "Odcinek przed gwintem i za nim, potrzebny osiom na rozpędzenie się i wyhamowanie przy ruchu zsynchronizowanym z wrzecionem. Zasada: co najmniej dwa skoki przed początkiem gwintu. Bez rozbiegu pierwsze zwoje mają zaniżony skok.",
-    "see": [
-      "g76",
-      "g33"
-    ],
-    "diagram": "runout"
-  },
-  {
-    "term": "Programowanie średnicowe",
-    "aliases": [
-      "średnicowo",
-      "X średnicowe"
-    ],
-    "def": "Konwencja na tokarkach: adres X oznacza średnicę, a nie odległość od osi. G01 X40 to polecenie toczenia na ⌀40, choć ostrze fizycznie stoi 20 mm od osi. Adresy I i R pozostają promieniowe.",
-    "see": [
-      "g96-g97"
-    ],
-    "diagram": "dia"
-  },
-  {
-    "term": "Interpolacja",
-    "aliases": [
-      "interpolacja liniowa",
-      "interpolacja kołowa"
-    ],
-    "def": "Sposób, w jaki sterownik koordynuje ruch kilku osi, żeby uzyskać zadany kształt toru. Liniowa (G01) daje prostą, kołowa (G02/G03) łuk, śrubowa — helisę.",
-    "see": [
-      "g01",
-      "g02"
-    ],
-    "diagram": "g02"
-  },
-  {
-    "term": "Rz — chropowatość",
-    "aliases": [
-      "chropowatość",
-      "Rz",
-      "Ra"
-    ],
-    "def": "Miara nierówności powierzchni. Przy toczeniu chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża płytki: Rz ≈ f² / (8 × rε). Zwiększanie obrotów jej nie poprawia.",
-    "see": [
-      "g94-g95"
-    ],
-    "diagram": "rz"
-  },
-  {
-    "term": "Rejestr korekcji",
-    "aliases": [
-      "korektor",
-      "offset",
-      "wear"
-    ],
-    "def": "Miejsce w pamięci sterownika przechowujące dane narzędzia: długość, promień i osobne kolumny zużycia. Zmiana zużycia pozwala dostroić wymiar detalu bez ingerencji w program.",
-    "see": [
-      "g43-g49",
-      "g40-g42"
-    ]
-  },
-  {
-    "term": "Blok bezpiecznego startu",
-    "aliases": [
-      "safe start",
-      "bezpieczny start"
-    ],
-    "def": "Blok kasujący wszystkie funkcje modalne pozostawione przez poprzednią pracę: G00 G90 G17 G54 G40 G49 G80. Powtarzany po każdej wymianie narzędzia. Bez niego program dziedziczy stan, którego nie kontrolujesz.",
-    "see": [
-      "g40-g42",
-      "g81-g83"
-    ]
-  },
-  {
-    "term": "Optional Stop",
-    "aliases": [
-      "M01",
-      "stop warunkowy"
-    ],
-    "def": "Zatrzymanie programu działające tylko przy włączonym przełączniku na pulpicie. Pozwala wstawić punkty kontrolne do pomiaru detalu podczas uruchamiania programu i ignorować je w produkcji.",
-    "see": [
-      "m00-m01"
-    ]
-  },
-  {
-    "term": "Podprogram",
-    "aliases": [
-      "subprogram",
-      "M98"
-    ],
-    "def": "Osobny program wywoływany z programu głównego, zwykle zawierający powtarzalny fragment obróbki. Wywołanie M98 P_, powrót M99. W połączeniu z G91 pozwala powtórzyć ten sam kształt w wielu miejscach.",
-    "see": [
-      "m98-m99"
-    ]
-  },
-  {
-    "term": "Gwintowanie sztywne",
-    "aliases": [
-      "rigid tapping",
-      "M29"
-    ],
-    "def": "Gwintowanie z elektroniczną synchronizacją obrotu wrzeciona i posuwu osi, bez uchwytu kompensacyjnego. Pozwala na wyższe obroty i daje dokładniejszy gwint. W Fanuc aktywowane przez M29 przed cyklem G84.",
-    "see": [
-      "g84"
-    ]
-  },
-  {
-    "term": "kc — właściwy opór skrawania",
-    "aliases": [
-      "kc",
-      "opór skrawania"
-    ],
-    "def": "Siła potrzebna do zebrania wióra o przekroju 1 mm², w N/mm². Zależy od materiału: aluminium około 600, stal konstrukcyjna 1500, Inconel 2600. Służy do obliczenia mocy skrawania.",
-    "see": []
-  },
-  {
-    "term": "Wiór",
-    "aliases": [
-      "odprowadzenie wióra",
-      "łamanie wióra"
-    ],
-    "def": "Materiał usunięty przez ostrze. Jego kształt i odprowadzenie decydują o powodzeniu obróbki: wiór długi owija się wokół narzędzia, wiór zakleszczony w otworze łamie wiertło. Stąd cykle G83 i G73 z wycofaniem.",
-    "see": [
-      "g81-g83"
-    ]
-  },
-  {
-    "term": "Głowica rewolwerowa",
-    "aliases": [
-      "rewolwer",
-      "głowica narzędziowa"
-    ],
-    "def": "Obrotowy magazyn narzędzi na tokarce. Mieści zwykle od 8 do 16 pozycji, a zmiana narzędzia polega na obróceniu głowicy. Przed obrotem narzędzie musi znaleźć się w bezpiecznym miejscu, poza detalem i konikiem.",
-    "see": []
-  },
-  {
-    "term": "Wysokość bezpieczna",
-    "aliases": [
-      "płaszczyzna bezpieczna",
-      "safe Z"
-    ],
-    "def": "Poziom w osi Z, powyżej którego narzędzie może swobodnie przejeżdżać nad całym stołem — ponad zaciskami, detalem i konikiem. Wszystkie szybkie przejazdy w płaszczyźnie XY wykonuje się na tej wysokości.",
-    "see": [
-      "g00"
-    ]
-  },
-  {
-    "term": "Kolizja",
-    "aliases": [
-      "crash",
-      "zderzenie"
-    ],
-    "def": "Zderzenie narzędzia, uchwytu albo wrzeciona z detalem, zaciskiem lub elementem maszyny. Przy szybkim przejeździe energia uderzenia jest na tyle duża, że uszkodzeniu ulega zwykle nie tylko narzędzie, ale i łożyskowanie wrzeciona.",
-    "see": [
-      "g00"
-    ]
-  },
-  {
-    "term": "Postój",
-    "aliases": [
-      "dwell",
-      "postój czasowy"
-    ],
-    "def": "Zaprogramowana przerwa w ruchu osi przy pracującym wrzecionie. Na dnie rowka czy otworu wystarczą jeden–dwa obroty wrzeciona; dłuższy postój tylko grzeje i wyciera ostrze.",
-    "see": [
-      "g04"
-    ]
-  },
-  {
-    "term": "Reguła prawej dłoni",
-    "aliases": [
-      "prawa dłoń",
-      "układ prawoskrętny"
-    ],
-    "def": "Sposób na zapamiętanie zwrotów osi: kciuk prawej dłoni wskazuje +X, palec wskazujący +Y, środkowy +Z. Tak zorientowany układ opisuje norma ISO 841 i stosują go wszystkie sterowania CNC.",
-    "see": []
-  },
-  {
-    "term": "Układ współrzędnych",
-    "aliases": [
-      "układ osi",
-      "osie maszyny"
-    ],
-    "def": "Trzy prostopadłe osie X, Y i Z, względem których podaje się położenie narzędzia. Na obrabiarkach CNC jest prawoskrętny, a ruch w +Z zawsze oddala narzędzie od detalu.",
-    "see": [
-      "g54-g59"
-    ]
-  },
-  {
-    "term": "Interpolacja śrubowa",
-    "aliases": [
-      "spirala",
-      "helix",
-      "wejście po spirali"
-    ],
-    "def": "Ruch po łuku G02/G03 połączony z ruchem w osi prostopadłej do płaszczyzny, np. Z przy G17. Narzędzie porusza się po linii śrubowej. Służy do wejścia w materiał w kieszeniach i otworach oraz do frezowania gwintów.",
-    "see": [
-      "g02",
-      "g03"
     ]
   }
 ]
