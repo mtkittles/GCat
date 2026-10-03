@@ -48,7 +48,7 @@ export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
         <div className="m-hero-scrim" />
         <div className="m-hero-body">
           <span className="m-hero-k"><Tagline /></span>
-          <h1>Naucz się czytać i pisać G‑kod.</h1>
+          <p className="m-hero-h">Naucz się czytać i pisać G‑kod.</p>
           <p>Lekcje frezowania i toczenia, symulator 2D/3D, karty kodów Fanuc i Sinumerik, kalkulatory.</p>
           <Link href="/nauka" className="btn">Rozpocznij naukę</Link>
         </div>

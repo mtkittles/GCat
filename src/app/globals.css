@@ -90,9 +90,9 @@
   --color-amber: var(--amber);
   --color-blue: var(--blue);
   --color-red: var(--red);
-  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: Sora, Inter, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --font-sans: var(--font-inter), Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-sora), Sora, Inter, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
 html { background: var(--bg); color: var(--ink); scroll-behavior: smooth; }
@@ -910,6 +910,7 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .tab.is-active { border-color: var(--accent); background: var(--accent-soft); }
 .tab > button:first-child { padding: .38rem .7rem; font-size: 13px; font-weight: 600; color: var(--ink-2); max-width: 11rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tab.is-active > button:first-child { color: var(--accent); }
+.tab-rename { padding: .3rem .5rem; font: 600 13px/1.2 var(--font-sans); color: var(--ink); background: var(--panel); border: 0; outline: 2px solid var(--accent); outline-offset: -2px; min-width: 6rem; max-width: 12rem; }
 .tab-x { padding: .38rem .5rem; color: var(--muted); font-size: 15px; line-height: 1; border-left: 1px solid var(--line); }
 .tab-x:hover { color: var(--red); }
 .tab-add { padding: .38rem .7rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-sm); font-size: 12.5px; color: var(--muted); background: transparent; }
@@ -2309,7 +2310,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .m-hero-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(9,11,15,.05) 0%, rgba(9,11,15,.55) 45%, rgba(9,11,15,.94) 100%); }
 .m-hero-body { position: relative; z-index: 2; display: grid; gap: .5rem; padding: 1.1rem 1rem 1.1rem; justify-items: start; }
 .m-hero-k { font: 700 10.5px/1 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
-.m-hero h1 { font-family: var(--font-display); font-size: clamp(1.55rem, 7.2vw, 2rem); font-weight: 800; line-height: 1.08; letter-spacing: -.02em; }
+.m-hero .m-hero-h { font-family: var(--font-display); font-size: clamp(1.55rem, 7.2vw, 2rem); font-weight: 800; line-height: 1.08; letter-spacing: -.02em; }
 .m-hero p { font-size: 14px; line-height: 1.5; color: #D3D8DF; max-width: 40ch; }
 .m-hero .btn { margin-top: .2rem; min-height: 44px; }
 .dash-greet { display: none; }

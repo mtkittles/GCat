@@ -89,19 +89,29 @@ export default function SimPage() {
     }
   };
 
-  const renameTab = (id: string) => {
-    const t = tabs.find((x) => x.id === id); if (!t) return;
-    const nm = prompt("Nazwa programu", t.name)?.trim();
+  // zmiana nazwy w miejscu: dwuklik otwiera pole, Enter/utrata fokusu zapisuje, Escape cofa
+  const [renaming, setRenaming] = useState<{ id: string; value: string } | null>(null);
+  const commitRename = () => {
+    if (!renaming) return;
+    const nm = renaming.value.trim();
+    setRenaming(null);
     if (!nm) return;
-    const next = tabs.map((x) => (x.id === id ? { ...x, name: nm } : x));
+    const next = tabs.map((x) => (x.id === renaming.id ? { ...x, name: nm } : x));
     setTabs(next); savePrograms(next);
-    if (active === id) setName(nm);
+    if (active === renaming.id) setName(nm);
   };
   const programTabs = (
     <div className="tabs">
       {tabs.map((t) => (
         <span key={t.id} className={`tab ${active === t.id ? "is-active" : ""}`}>
-          <button onClick={() => openTab(t)} onDoubleClick={() => renameTab(t.id)} title="Kliknij dwukrotnie, aby zmienić nazwę">{t.name}</button>
+          {renaming?.id === t.id ? (
+            <input className="tab-rename" autoFocus value={renaming.value} aria-label="Nazwa programu" size={Math.max(6, renaming.value.length)}
+              onChange={(e) => setRenaming({ id: t.id, value: e.target.value })}
+              onBlur={commitRename}
+              onKeyDown={(e) => { if (e.key === "Enter") commitRename(); if (e.key === "Escape") setRenaming(null); }} />
+          ) : (
+            <button onClick={() => openTab(t)} onDoubleClick={() => setRenaming({ id: t.id, value: t.name })} title="Kliknij dwukrotnie, aby zmienić nazwę">{t.name}</button>
+          )}
           <button className="tab-x" onClick={() => closeTab(t.id)} aria-label={`Zamknij ${t.name}`}>×</button>
         </span>
       ))}
@@ -159,7 +169,7 @@ export default function SimPage() {
         </ul>} priority />
       {/* Komputer: wszystko, co dotyczy programu i maszyny, w jednym pasku nad stanowiskiem */}
       <div className="sim-bar">
-        <h1 className="sim-bar-title">Symulator</h1>
+        <span className="sim-bar-title">Symulator</span>
         <label className="sim-bar-prog">{progSelect}</label>
         <div className="seg2" role="group" aria-label="Maszyna">
           <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezarka</button>
