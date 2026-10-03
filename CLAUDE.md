@@ -17,6 +17,7 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
 - `src/lib/parser/` — tokenizer, interpreter (stan modalny, cykle, podprogramy, tokarka Fanuc A), `validate.ts`, `stats.ts`.
 - `src/components/simulator/` — symulator 2D (canvas), 3D (three.js), edytor, narzędzia, półfabrykat.
 - `src/components/lesson/` — widok lekcji, ćwiczenia interaktywne, rysunki `figs-*.tsx`.
+- `src/lib/progress.ts`, `exercisesDone.ts`, `app/symulator/programs.ts` — stan w przeglądarce; `src/lib/sync.ts`, `auth.ts`, `supabase.ts` — konto i synchronizacja; `entitlements.ts` — plany Free/Pro; `supabase/migrations/` — schemat bazy.
 - `docs/karty-kodow.md` — standard opracowania kart i lekcji + tabela statusu audytu. **Czytaj przed pracą nad treścią.**
 - `docs/audyt-tresci-2026-10.md` — raport audytu treści.
 
@@ -40,7 +41,8 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
    G43 po wymianie narzędzia). Przykład tokarski na karcie „frez + tok” ma `exampleMode: "lathe"`.
 4. **Symulator i parser zmieniamy świadomie** — każda zmiana w `src/lib/parser` i
    `src/components/simulator` z testem w `tests/` i przebiegiem `audit:programy`.
-5. Sekrety tylko w zmiennych środowiskowych (Vercel). Nic w repo.
+5. Sekrety tylko w zmiennych środowiskowych (Vercel, lokalnie `.env.local`). Nic w repo. Konto: `supabase/README.md`;
+   bez `NEXT_PUBLIC_SUPABASE_*` strona działa bez konta (postęp w przeglądarce). Klucz `service_role` nigdy w kliencie.
 6. Gałęzie: `sprint-N/nazwa` → draft PR do `main`. Nie commitujemy bezpośrednio na `main`.
 7. Po każdej sesji: krótkie podsumowanie `.md` dla użytkownika (zadania, commity, decyzje, env vary).
 

@@ -16,6 +16,7 @@ const MORE = [
   { href: "/kody", label: "Kody" },
   { href: "/slownik", label: "Słownik" },
   { href: "/szukaj", label: "Szukaj" },
+  { href: "/konto", label: "Konto" },
 ];
 
 function Icon({ name }: { name: string }) {
