@@ -395,7 +395,7 @@
     "desc": "Działają jak **G28**: najpierw ruch szybki do punktu pośredniego z bloku, potem do punktu referencyjnego.\n\n**G30 P2** jedzie do drugiego punktu (P2 można pominąć), **P3** i **P4** do trzeciego i czwartego. Ich położenie ustawia producent w parametrach — często to pozycja wymiany narzędzia albo zmiany palety.\n\n**G27** jedzie do podanej pozycji i sprawdza, czy to punkt referencyjny; jeśli nie — alarm. **G29** wraca z punktu referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji z bloku.",
     "syntax": {
       "fanuc": "G91 G30 P2 Z0\nG27 X_ Y_ Z_\nG29 X_ Y_ Z_",
-      "sinumerik": "G75 FP=2 Z0   ; punkt stały 2\nG74 Z1=0       ; najazd na bazę"
+      "sinumerik": "G75 FP=2 X=0 Z=0   ; punkt stały 2 (wartości osi wymagane, ale ignorowane)\nG74 X=0 Z=0        ; najazd na punkt referencyjny"
     },
     "params": [
       {
@@ -432,7 +432,7 @@
     "desc": "G28 to jednorazowy przejazd w dwóch etapach: ruchem szybkim do **punktu pośredniego** z bloku, potem do **punktu referencyjnego** maszyny. Tylko osie podane w bloku biorą udział w ruchu.\n\nPunkt pośredni zależy od trybu: w **G91** to przyrost od bieżącej pozycji (G91 G28 Z0 — bez ruchu w pierwszym etapie), w **G90** to współrzędna w układzie detalu (G90 G28 Z0 — najpierw do Z0 detalu).",
     "syntax": {
       "fanuc": "G91 G28 Z0\nG28 X0 Y0",
-      "sinumerik": "; tryb ISO (dialekt Fanuc): G28 z punktem pośrednim\nG291\nG91 G28 Z0\n; język natywny: najazd na punkt referencyjny / stały\nG74 …   G75 …"
+      "sinumerik": "; tryb ISO (dialekt Fanuc): G28 z punktem pośrednim\nG291\nG91 G28 Z0\n; język natywny: najazd na punkt referencyjny / stały\nG74 X=0 Z=0\nG75 FP=1 X=0 Z=0"
     },
     "params": [
       {
@@ -1340,7 +1340,7 @@
     "level": 3,
     "simulate": true,
     "short": "Na tokarce Fanuc w systemie A: G90 toczy wzdłużnie jednym przejściem, G92 nacina gwint jednym przejściem, G94 planuje czoło.",
-    "desc": "Każdy blok to cztery ruchy: dojazd na średnicę, skrawanie, wyjście i powrót szybki do punktu startu.\n\n**G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_** robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość. **G94 X_ Z_ F_** planuje czoło do Z.\n\nW systemie A wymiary przyrostowe pisze się adresami **U** i **W**, nie G91. Na frezarce te same numery znaczą co innego: G90 to wymiarowanie absolutne, G92 ustawienie układu, G94 posuw na minutę.",
+    "desc": "Każdy blok to cztery ruchy: dojazd na średnicę, skrawanie, wyjście i powrót szybki do punktu startu.\n\n**G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_** robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość. **G94 X_ Z_ F_** planuje czoło do Z.\n\nW systemie A wymiary przyrostowe pisze się adresami **U** i **W**, nie G91. Na frezarce te same numery znaczą co innego: G90 to wymiarowanie absolutne, G92 ustawienie układu, G94 posuw na minutę.\n\nW systemie B te same cykle mają numery **G77** (toczenie), **G78** (gwint) i **G79** (planowanie), a w systemie C — **G20**, **G21** i **G24**. Numer systemu ustala parametr sterowania; sprawdź go w instrukcji konkretnej serii, zanim przeniesiesz program między maszynami.",
     "syntax": {
       "fanuc": "G90 X_ Z_ (R_) F_\nG92 X_ Z_ (R_) F_\nG94 X_ Z_ (R_) F_",
       "sinumerik": "brak bezpośrednich odpowiedników:\nCYCLE95 (toczenie), CYCLE97 (gwint)"
@@ -1375,7 +1375,8 @@
       "g94-g95",
       "g71-g70",
       "g76"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "G92",
@@ -1460,7 +1461,7 @@
     "turning": true,
     "level": 2,
     "short": "G94 posuw w mm/min, G95 w mm/obrót.",
-    "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle posuw na obrót, bo przekłada się bezpośrednio na chropowatość — na tokarkach Fanuc w systemie A wybiera go **G99** (a mm/min — G98), w systemach B/C i na Sinumeriku **G95** (mm/min — G94).",
+    "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle posuw na obrót, bo przekłada się bezpośrednio na chropowatość — na tokarkach Fanuc w systemie A wybiera go **G99** (a mm/min — G98), w systemach B/C i na Sinumeriku **G95** (mm/min — G94).\n\nNa tokarkach Fanuc w systemie A posuw minutowy i na obrót wybierają **G98/G99**, a G94 jest cyklem planowania. W systemach B i C działa para **G94/G95** jak na frezarce.",
     "syntax": {
       "fanuc": "G94 | G95  (tokarki Fanuc: G98 | G99)",
       "sinumerik": "G94 | G95"
