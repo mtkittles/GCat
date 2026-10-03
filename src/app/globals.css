@@ -2403,3 +2403,5 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .workbench.is-app .sim-controls .sim-scrub { flex: 1 1 auto; min-width: 120px; margin: 0 .3rem; }
   .workbench.is-app { --stage-h: max(360px, calc(100vh - 252px)); }
 }
+
+.tag.tag-var { border-color: color-mix(in srgb, var(--amber) 50%, var(--line)); color: var(--amber); }

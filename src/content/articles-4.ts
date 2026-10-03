@@ -3,11 +3,17 @@ import type { Block } from "@/lib/article";
 export const part4: Record<string, Block[]> = {
 
   g28: [
-    { t: "p", x: "**G28** odsyła osie do **punktu referencyjnego maszyny** — stałego położenia wyznaczonego przy bazowaniu. Ruch odbywa się dwuetapowo: najpierw do punktu pośredniego podanego w bloku, potem do bazy." },
-    { t: "h", x: "Dlaczego przez punkt pośredni" },
-    { t: "p", x: "Bezpośredni przejazd z dowolnego miejsca do bazy mógłby przeprowadzić narzędzie przez detal albo zaciski. Punkt pośredni pozwala najpierw odsunąć się w bezpieczne miejsce. W praktyce prawie zawsze chodzi o „podnieś się prosto do góry”, co zapisuje się przyrostowo:" },
-    { t: "code", x: "G91 G28 Z0     ; z bieżącego miejsca prosto w górę do bazy\nG90            ; powrót do trybu absolutnego", caption: "Najczęściej używany zapis w całym G-kodzie frezarskim." },
-    { t: "note", kind: "warn", x: "**`G90 G28 Z0` to poważny błąd.** W trybie absolutnym punktem pośrednim jest Z0 układu detalu, czyli zwykle powierzchnia materiału. Maszyna zjeżdża tam z pełną prędkością szybką, dopiero potem jedzie do bazy. Zawsze poprzedzaj G28 przez G91 i wracaj do G90 zaraz po nim." },
+    { t: "p", x: "**G28** odsyła podane osie do **punktu referencyjnego maszyny** — położenia wyznaczonego przy bazowaniu i zapisanego przez producenta w parametrach. Ruch odbywa się dwuetapowo, ruchem szybkim: najpierw do punktu pośredniego podanego w bloku, potem do punktu referencyjnego." },
+    { t: "h", x: "Punkt pośredni w G90 i w G91" },
+    { t: "p", x: "Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy od aktywnego trybu wymiarowania:" },
+    { t: "ul", items: [
+      "**G91 G28 Z0** — przyrost 0 od bieżącej pozycji: pierwszy etap nie wykonuje ruchu, zostaje sam przejazd do punktu referencyjnego Z.",
+      "**G90 G28 Z0** — punkt pośredni to Z0 układu detalu. Jeżeli Z0 leży na powierzchni detalu, a narzędzie stoi tuż nad nią, pierwszy etap schodzi ruchem szybkim na detal.",
+      "**G90 G28 Z50** — punkt pośredni 50 mm nad zerem detalu: bezpieczny tylko wtedy, gdy na tej wysokości nie ma przeszkód.",
+    ] },
+    { t: "diagram", id: "g28-path" },
+    { t: "code", x: "; założenia: frezarka pionowa, Fanuc, G21, G54 z Z0 na górze detalu\nG91 G28 Z0     ; punkt pośredni = bieżąca pozycja, potem punkt referencyjny Z\nG90            ; powrót do trybu absolutnego", caption: "Fragment ilustrujący — nie kompletny program." },
+    { t: "note", kind: "warn", x: "Drugi etap prowadzi tam, gdzie producent ustawił punkt referencyjny. Na typowej frezarce pionowej to górne położenie osi Z, ale nie jest to reguła dla każdej maszyny — przed użyciem G28 sprawdź jego położenie w dokumentacji maszyny i to, czy droga do niego jest wolna (zaciski, wysokie elementy, oś obrotowa)." },
     { t: "h", x: "Kiedy się stosuje" },
     { t: "ul", items: [
       "Przed wymianą narzędzia — magazyn wymaga określonej pozycji Z.",
@@ -22,7 +28,8 @@ export const part4: Record<string, Block[]> = {
       ["**G30**", "Powrót do drugiego, trzeciego lub czwartego punktu referencyjnego (P2–P4)"],
     ] },
     { t: "h", x: "Sinumerik" },
-    { t: "p", x: "Sinumerik nie ma G28. Odpowiedniki: **`SUPA G0 Z0`** (ruch we współrzędnych maszynowych z pominięciem wszystkich przesunięć) albo **`G75`** — dojazd do punktu stałego zdefiniowanego w danych maszynowych." },
+    { t: "p", x: "W **trybie ISO** (dialekt Fanuc, włączany np. przez `G291`) Sinumerik obsługuje G28 z punktem pośrednim. W **języku natywnym** Siemensa te same zadania realizują inne funkcje: **G74** — najazd na punkt referencyjny, **G75** — na punkt stały z danych maszynowych. `SUPA` jedynie wyłącza przesunięcia w danym bloku (ruch we współrzędnych maszynowych) — nie jest zamiennikiem powrotu do punktu referencyjnego." },
+    { t: "note", kind: "info", x: "Źródło: Siemens, SINUMERIK 840D sl / 828D ISO Milling, instrukcja programowania 02/2012 (6FC5398-7BP40-3BA0), rozdz. 2.2.1 „Reference point approach with intermediate point (G28)”. Szczegóły G74/G75 w języku natywnym — do weryfikacji w instrukcji programowania dla wersji sterowania." },
   ],
 
   "g52-g53": [
@@ -112,30 +119,39 @@ export const part4: Record<string, Block[]> = {
   g84: [
     { t: "p", x: "**G84** wykonuje gwint gwintownikiem. Cykl wkręca narzędzie na zadaną głębokość, zatrzymuje wrzeciono, odwraca kierunek obrotów i wykręca gwintownik — wszystko w jednym bloku." },
     { t: "h", x: "Warunek podstawowy: posuw musi wynikać ze skoku" },
-    { t: "p", x: "Gwintownik nie może być prowadzony dowolnym posuwem — musi przesuwać się dokładnie o skok gwintu na każdy obrót. W trybie **G94** (mm/min) liczy się to tak: **F = obroty × skok**. Dla M10×1,5 przy 400 obr/min: F = 400 × 1,5 = **600 mm/min**. W trybie **G95** (mm/obr) wystarczy wpisać sam skok: `F1.5`." },
+    { t: "p", x: "Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jednostkę F wyznacza aktywny tryb posuwu, dlatego w niezależnym przykładzie trzeba go ustawić jawnie:" },
+    { t: "table", head: ["Tryb (frezarka, mm)", "F", "M10×1,5 przy 400 obr/min"], rows: [
+      ["**G94** — mm/min", "obroty × skok", "F600"],
+      ["**G95** — mm/obr", "skok", "F1.5"],
+    ], caption: "Na frezarce G98/G99 wybierają poziom powrotu w cyklu — nie jednostkę posuwu (to znaczenie mają na tokarkach Fanuc w systemie A)." },
     { t: "note", kind: "warn", x: "Błąd w tym obliczeniu prowadzi do złamania gwintownika w otworze — jednej z najbardziej uciążliwych awarii, bo hartowanego gwintownika nie da się wywiercić." },
     { t: "h", x: "Gwintowanie sztywne kontra z kompensacją" },
     { t: "ul", items: [
-      "**Gwintowanie sztywne** (Fanuc: `M29 S_` przed cyklem) — sterownik elektronicznie synchronizuje obrót wrzeciona z posuwem osi Z. Nie wymaga uchwytu kompensacyjnego, pozwala na wyższe obroty i daje dokładniejszy gwint.",
+      "**Gwintowanie sztywne** — sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.",
       "**Gwintowanie z uchwytem kompensacyjnym** — uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.",
     ] },
     { t: "h", x: "Składnia" },
-    { t: "code", x: "M29 S400                          ; gwintowanie sztywne\nG99 G84 X20 Y20 Z-18 R5 F600     ; M10x1.5, 400 obr/min\nX60\nG80" },
+    { t: "code", x: "; założenia: frezarka, Fanuc z gwintowaniem sztywnym przez M29, G21, G17, G90, G54,\n; narzędzie nad otworem na wysokości bezpiecznej, M10x1,5, 400 obr/min\nG94                               ; posuw mm/min\nM29 S400\nG99 G84 X20 Y20 Z-18 R5 F600      ; F = 400 x 1,5\nX60\nG80\n\n; ten sam cykl w G95 (jeśli maszyna obsługuje posuw na obrót przy gwintowaniu)\nG95                               ; posuw mm/obr\nM29 S400\nG99 G84 X20 Y20 Z-18 R5 F1.5      ; F = skok\nG80\nG94", caption: "Fragment ilustrujący. Z−18 to położenie końca gwintownika, nie długość gwintu." },
     { t: "table", head: ["Adres", "Znaczenie"], rows: [
-      ["Z", "Głębokość gwintu — mierzona do końca pełnego zarysu"],
-      ["R", "Płaszczyzna startu; zostaw zapas 3–5 mm na rozbieg"],
-      ["F", "Posuw równy skokowi razy obroty (G94) lub sam skok (G95)"],
-      ["P", "Postój na dnie przed zmianą kierunku, w milisekundach"],
+      ["Z", "Położenie końca gwintownika na dnie cyklu [mm]"],
+      ["R", "Płaszczyzna startu posuwu [mm]; zapas na rozbieg"],
+      ["F", "G94: obroty × skok [mm/min]; G95: skok [mm/obr]"],
+      ["P", "Postój na dnie przed zmianą kierunku [ms] — jeśli sterowanie go obsługuje"],
     ] },
+    { t: "h", x: "Cztery różne głębokości" },
+    { t: "p", x: "Pełny gwint, nakrój gwintownika, położenie końca narzędzia i głębokość otworu to cztery różne wartości. Nakrój (zbieżna część gwintownika) nie tnie pełnego zarysu, więc koniec narzędzia musi zejść głębiej niż żądany pełny gwint, a otwór — jeszcze głębiej." },
+    { t: "diagram", id: "g84-depths" },
+    { t: "code", x: "pełny gwint L = 15 mm, nakrój ≈ 3 zwoje × 1,5 = 4,5 mm (założenie dla danego gwintownika)\nZ końca gwintownika = −(15 + 4,5) = −19,5\notwór ≥ 19,5 + zapas (np. 2,5) = 22 mm, plus stożek wiertła", caption: "Długość nakroju zależy od formy gwintownika — wartość z katalogu narzędzia." },
     { t: "h", x: "Otwór wstępny" },
-    { t: "p", x: "Średnicę otworu pod gwint liczy się w przybliżeniu jako **średnica nominalna minus skok**. Dla gwintów metrycznych podstawowych:" },
+    { t: "p", x: "Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę otworu przyjmuje się w przybliżeniu jako **średnica nominalna minus skok**. Wygniataki (gwintowniki bezwiórowe) potrzebują większego otworu — jego średnica pochodzi z katalogu producenta narzędzia." },
     { t: "table", head: ["Gwint", "Skok [mm]", "Otwór [mm]"], rows: [
       ["M5", "0,8", "4,2"], ["M6", "1,0", "5,0"], ["M8", "1,25", "6,8"],
       ["M10", "1,5", "8,5"], ["M12", "1,75", "10,2"], ["M16", "2,0", "14,0"], ["M20", "2,5", "17,5"],
     ] },
     { t: "sim", src: "G21 G90 G17 G54 G80\nT01 M06\nS400 M03\nG00 X20 Y20\nG43 Z10 H01\nG99 G84 X20 Y20 Z-18 R5 F600\nX60\nY45\nX20\nG80\nG00 Z50\nM05\nM30", caption: "Cztery gwinty M10 cyklem G84. Symulator rozwija cykl na ruchy elementarne — wejście i wyjście odbywają się na posuwie roboczym." },
     { t: "h", x: "Sinumerik" },
-    { t: "p", x: "**`CYCLE84`** — gwintowanie sztywne, **`CYCLE840`** — z uchwytem kompensacyjnym. Skok podaje się parametrem `PIT`, a kierunek gwintu parametrem `SDR`. Cykl liczy posuw samodzielnie, więc nie ma ryzyka pomyłki w obliczeniu F." },
+    { t: "p", x: "**`CYCLE84`** — gwintowanie sztywne, **`CYCLE840`** — z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji." },
+    { t: "note", kind: "info", x: "Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas; na innych sterowaniach potwierdź w ich dokumentacji." },
   ],
 
   "g85-g86": [

@@ -9,6 +9,7 @@ import { f1Figs } from "./lesson/figs-f1";
 import { f2Figs } from "./lesson/figs-f2";
 import { f3Figs } from "./lesson/figs-f3";
 import { f4Figs } from "./lesson/figs-f4";
+import { auditFigs } from "./lesson/figs-audit";
 import { f5Figs } from "./lesson/figs-f5";
 import { f6Figs } from "./lesson/figs-f6";
 import { f7Figs } from "./lesson/figs-f7";
@@ -33,6 +34,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   ...f2Figs,
   ...f3Figs,
   ...f4Figs,
+  ...auditFigs,
   ...f5Figs,
   ...f6Figs,
   ...f7Figs,

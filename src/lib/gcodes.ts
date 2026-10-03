@@ -9,6 +9,8 @@ export interface GCode {
   example: string; sinumerik: string; pitfalls: string[];
   /** Slugi kart powiązanych (gdy brak — karty z tej samej grupy). */
   related?: string[];
+  /** znaczenie zależy od wariantu sterowania, np. „system kodów” na tokarkach Fanuc */
+  variesBy?: string;
   /** false: przykład pokazywany jako kod, bo symulator nie obsługuje tej funkcji. */
   simulate?: boolean;
 }

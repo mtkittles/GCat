@@ -56,11 +56,12 @@ export const f4_2: LessonDoc = {
     ] },
 
     { t: "h", x: "Korekcja zużycia — wymiar bez zmiany programu", id: "zuzycie" },
-    { t: "p", x: "Rejestr D ma zwykle dwie kolumny: wymiar narzędzia i zużycie. Sterowanie odsuwa środek freza o ich sumę. Jeśli płytka wyszła za duża, zmniejszasz D, a frez podchodzi bliżej konturu z każdej strony." },
-    { t: "table", head: ["Pomiar", "Odchyłka", "Zmiana D", "Efekt"], rows: [
-      ["80,04", "+0,04", "−0,02", "frez 0,02 bliżej z każdej strony, wymiar −0,04"],
-      ["49,97", "−0,03", "+0,015", "frez 0,015 dalej z każdej strony, wymiar +0,03"],
-    ], caption: "Wymiar zewnętrzny zmienia się o podwójną zmianę D, bo korekcja działa po obu stronach." },
+    { t: "p", x: "Rejestr D ma zwykle dwie kolumny: wymiar narzędzia i zużycie. Sterowanie odsuwa środek freza o ich sumę. Na Fanucu rejestr przechowuje zwykle **promień**, ale część maszyn ustawiona jest parametrem na **średnicę** — sprawdź to przed pierwszą korektą. Jeśli kontur zewnętrzny wyszedł za duży, zmniejszasz zużycie D, a frez podchodzi bliżej konturu z każdej strony." },
+    { t: "table", head: ["Scenariusz", "Pomiar", "Odchyłka", "Zmiana zużycia D (promień)", "Efekt"], rows: [
+      ["A — płytka za szeroka", "80,04 × 50,04", "+0,04 / +0,04", "−0,02", "oba wymiary −0,04"],
+      ["B — inna płytka, za mała", "79,97 × 49,97", "−0,03 / −0,03", "+0,015", "oba wymiary +0,03"],
+    ], caption: "Dwie niezależne płytki. Jedna korekcja D przesuwa wszystkie krawędzie konturu naraz, więc zmienia oba wymiary w tę samą stronę — o podwójną zmianę D." },
+    { t: "note", kind: "warn", x: "Gdyby na **tej samej** płytce szerokość wyszła +0,04, a wysokość −0,03, korekcja D tego nie naprawi — zwiększenie i zmniejszenie jednego rejestru naraz jest niemożliwe. Przyczyny szukaj gdzie indziej: w programie (współrzędne konturu), w luzie lub skalowaniu osi, w ugięciu narzędzia." },
   ],
 
   worked: {
@@ -68,6 +69,7 @@ export const f4_2: LessonDoc = {
     intro: "Kontur z F3.3 zapisany wymiarami z rysunku. Frez stoi na Z−5 w X−20 Y10.",
     steps: [
       { x: "Włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400" },
+      { x: "Lewa krawędź w górę do początku naroża. Bez tego odcinka łuk z X0 Y10 do X10 Y50 nie istnieje: cięciwa ma ok. 41,2 mm, a łuk R10 mieści najwyżej 20 mm.", code: "G01 Y40." },
       { x: "Naroża z rysunku: R10 zamiast R15, punkty końcowe na konturze.", code: "G02 X10. Y50. R10." },
       { x: "Pozostałe naroża tak samo: X80 Y40, X70 Y0, X0 Y10.", code: "R10." },
       { x: "Wyłączenie korekcji na odjeździe od konturu.", code: "G40 G01 X-20." },

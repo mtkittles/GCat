@@ -112,6 +112,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           <Chip>{g.modal ? "modalny" : "jednorazowy"}</Chip>
           {g.milling && <Chip tone="info">frezowanie</Chip>}
           {g.turning && <Chip tone="info">toczenie</Chip>}
+          {g.variesBy && <Chip tone="warning">zależy od: {g.variesBy}</Chip>}
         </>} />
       <p className="lead max-w-prose"><CodeText text={g.short} self={self} /></p>
     </>

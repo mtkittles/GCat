@@ -65,7 +65,7 @@ export default function CodeTable({ items }: { items: GCode[] }) {
                 {CURATED.has(g.slug) && <span className="star" title="Karta opracowana w pełnym układzie: schematy, animacje, sterowniki, błędy">★</span>}
               </td>
               <td><Link href={`/kody/${g.slug}`} className="font-semibold" onClick={rememberScroll}>{g.name}</Link><div className="text-muted text-[13px]">{g.short}</div>
-                <div className="mt-1"><span className={`tag ${g.milling ? "on" : ""}`}>frez</span><span className={`tag ${g.turning ? "on" : ""}`}>tok</span>{g.modal && <span className="tag">modalny</span>}</div></td>
+                <div className="mt-1"><span className={`tag ${g.milling ? "on" : ""}`}>frez</span><span className={`tag ${g.turning ? "on" : ""}`}>tok</span>{g.modal && <span className="tag">modalny</span>}{g.variesBy && <span className="tag tag-var" title={`Znaczenie zależy od: ${g.variesBy}`}>zależy od: {g.variesBy}</span>}</div></td>
               <td className="hidden sm:table-cell">{g.group}</td>
               <td className="hidden sm:table-cell">{levelName(g.level)}</td>
             </tr>

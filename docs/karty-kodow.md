@@ -93,11 +93,21 @@ To lista tematów do sprawdzenia, nie stwierdzenie istniejących błędów.
 | Karta | Co sprawdzono | Wynik | Źródła |
 |---|---|---|---|
 | G02/G03 (`/kody/g03`, `/kody/g02`) | znak R i łuk > 180°, pełny okrąg a R, kalkulator R ↔ I/J (środek, kąt, długość, strzałka), reguła kierunku na tokarce | poprawione 2026-10: opis znaku R, strzałka dużego łuku w kalkulatorze, usunięta reguła „wklęsłe = G02” | do weryfikacji (rozdział o interpolacji kołowej w podręczniku programowania Fanuc i Sinumerik — nie sprawdzono strony) |
-| pozostałe | — | nie audytowano w tym zleceniu | — |
+| G84 | jednostki F (G94/G95), G98/G99 na frezarce, 4 głębokości, otwór D − P, Sinumerik CYCLE84/840 | poprawione 2026-10 — szczegóły `docs/audyt-tresci-2026-10.md` | Haas AP-602 (04/2016) dla F; Sinumerik — do weryfikacji |
+| G28, G27/G29/G30 | punkt pośredni G90/G91, tryb ISO Sinumerika, SUPA | poprawione 2026-10 | Siemens ISO Milling 02/2012, rozdz. 2.2.1 (spis treści) |
+| G40–G42 | skutek złej strony korekcji | poprawione 2026-10 | obliczenie własne |
+| G92, G94/G95 | znaczenie na tokarce wg systemu kodów | poprawione 2026-10, oznaczenie „zależy od” | do weryfikacji (Fanuc, systemy A/B/C) |
+| pozostałe | — | nie audytowano | — |
 
 Kontrolne przypadki kalkulatora łuku (start X20 Y20, koniec X50 Y50, R30, G03):
 krótki łuk — środek (20, 50), I0 J30, 90°, 47,12 mm, strzałka 8,79 mm;
 długi łuk — środek (50, 20), I30 J0, 270°, 141,37 mm, strzałka 51,21 mm.
+
+## 7a. Standard lekcji
+
+Lekcja rozwija umiejętność, karta kodu jest referencją — dane techniczne zgodne, bez kopiowania opisów. Kolejność: cel („po lekcji potrafisz…”) → wymagania wstępne → wyjaśnienie z rysunkiem → przykład rozwiązany → ćwiczenie częściowo uzupełnione → zadanie samodzielne → analiza typowego błędu → test (wyjaśnienie poprawnej odpowiedzi i błędu rozumowania) → podsumowanie i odnośniki. Każdy niezależny przykład podaje kontekst: jednostki, płaszczyznę, tryb współrzędnych, jednostkę posuwu, punkt początkowy i aktywne korekcje.
+
+Raport z audytu treści: `docs/audyt-tresci-2026-10.md`.
 
 ## 8. Tematy do osobnego zlecenia (chronione elementy — nie zmieniono)
 

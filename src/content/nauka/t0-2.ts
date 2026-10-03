@@ -25,7 +25,8 @@ export const t0_2: LessonDoc = {
     { t: "h", x: "Fazy i stożki", id: "fazy" },
     { t: "p", x: "Faza 1 × 45° zabiera 1 mm w Z i 1 mm promieniowo. W zapisie średnicowym X zmienia się więc o 2 mm na każdy 1 mm w Z." },
     { t: "diagram", id: "t02-chamfer" },
-    { t: "code", x: "faza 45°:     ΔX = 2 · ΔZ\nstożek α:     ΔX = 2 · ΔZ · tan α" },
+    { t: "code", x: "faza 45°:     |ΔX| = 2 · |ΔZ|\nstożek α:     |ΔX| = 2 · |ΔZ| · tan α     (α — półkąt: kąt tworzącej do osi Z;\n                                          pełny kąt wierzchołkowy = 2α)", caption: "Wartości bezwzględne. Znaki ΔX i ΔZ zależą od kierunku ruchu — w stronę uchwytu Z maleje." },
+    { t: "diagram", id: "t02-taper" },
   ],
 
   worked: {
@@ -65,7 +66,7 @@ export const t0_2: LessonDoc = {
     { title: "Promień zamiast średnicy", x: "Programista wpisuje promień z rysunku: `X15.` dla Ø30. Nóż toczy Ø15 — detal do wyrzucenia, a przy głębokim przejściu nóż wchodzi w materiał z ogromnym ap." },
     { title: "ap równe różnicy średnic", x: "Z Ø40 na Ø30 policzone jako 10 mm głębokości. Przejścia są zaplanowane dwa razy płycej, niż myślisz — albo, przy odwrotnej pomyłce, dwa razy głębiej." },
     { title: "Średnica w R łuku", x: "Promień zaokrąglenia R3 wpisany jako `R6.` przez analogię do X. R jest zawsze promieniem łuku." },
-    { title: "Faza liczona jak na frezarce", x: "Faza 1 × 45° zapisana jako zmiana X o 1. W zapisie średnicowym to faza 0,5 × 45° — dwa razy za mała." },
+    { title: "Faza liczona jak na frezarce", x: "Faza 1 × 45° zapisana jako |ΔX| = 1 przy |ΔZ| = 1. W zapisie średnicowym promień zmienia się wtedy tylko o 0,5 mm na 1 mm długości — to nie faza 45°, tylko stożek o półkącie ok. 26,6° (tan α = 0,5). Dla fazy 1 × 45° potrzeba |ΔX| = 2 przy |ΔZ| = 1." },
   ],
 
   controllers: {
@@ -90,7 +91,7 @@ export const t0_2: LessonDoc = {
     "X na tokarce to średnica: X30 = 15 mm od osi.",
     "ap = (D przed − D po) / 2.",
     "R łuku i I są w promieniu, choć X jest w średnicy.",
-    "Faza 45°: ΔX = 2 · ΔZ.",
+    "Faza 45°: |ΔX| = 2 · |ΔZ| (wartości bezwzględne).",
   ],
 
   sources: [

@@ -409,7 +409,7 @@
     "example": "G91 G30 P2 Z0 (os Z do punktu wymiany)\nG30 P2 X0 Y0\nT05 M06\nG90 G54 G00 X50.0 Y30.0\nM30",
     "sinumerik": "Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi — **G74**.",
     "pitfalls": [
-      "G30 w G90 z Z0 prowadzi przez zero detalu, tak samo jak G28. Używaj G91 … Z0.",
+      "Jak przy G28: w G90 punkt pośredni Z0 to zero detalu — jeśli leży poniżej narzędzia, pierwszy etap schodzi na detal. G91 … Z0 pomija ten etap.",
       "Położenie drugiego punktu ustawia producent maszyny. Sprawdź je, zanim użyjesz G30 w programie."
     ],
     "related": [
@@ -428,22 +428,23 @@
     "turning": true,
     "level": 2,
     "short": "Dojazd do bazy maszyny przez punkt pośredni.",
-    "desc": "G28 jedzie najpierw do punktu pośredniego podanego w bloku, a potem do punktu referencyjnego maszyny. Typowo: G91 G28 Z0 — czyli „z tego miejsca prosto do góry do bazy”.",
+    "desc": "G28 to jednorazowy przejazd w dwóch etapach: ruchem szybkim do **punktu pośredniego** z bloku, potem do **punktu referencyjnego** maszyny. Tylko osie podane w bloku biorą udział w ruchu.\n\nPunkt pośredni zależy od trybu: w **G91** to przyrost od bieżącej pozycji (G91 G28 Z0 — bez ruchu w pierwszym etapie), w **G90** to współrzędna w układzie detalu (G90 G28 Z0 — najpierw do Z0 detalu).",
     "syntax": {
       "fanuc": "G91 G28 Z0\nG28 X0 Y0",
-      "sinumerik": "SUPA G0 Z0  (lub G75)"
+      "sinumerik": "; tryb ISO (dialekt Fanuc): G28 z punktem pośrednim\nG291\nG91 G28 Z0\n; język natywny: najazd na punkt referencyjny / stały\nG74 …   G75 …"
     },
     "params": [
       {
         "key": "X Y Z",
-        "desc": "Punkt pośredni"
+        "desc": "Punkt pośredni — w G90 we współrzędnych detalu, w G91 jako przyrost od bieżącej pozycji"
       }
     ],
     "example": "G21 G90 G17\nG00 X30 Y20 Z5\nG91 G28 Z0\nG90\nM30",
-    "sinumerik": "Brak G28. Używa się SUPA (współrzędne maszynowe) lub G75 (dojazd do punktu stałego).",
+    "sinumerik": "Sinumerik w **trybie ISO** (dialekt Fanuc) obsługuje G28 z punktem pośrednim (Siemens, ISO Milling, rozdz. „Reference point approach with intermediate point (G28)”). W **języku natywnym** funkcje są inne: G74 — najazd na punkt referencyjny, G75 — na punkt stały. SUPA to wyłączenie przesunięć w jednym bloku (ruch we współrzędnych maszynowych), a nie powrót do bazy — nie jest prostym zamiennikiem G28.",
     "pitfalls": [
-      "G90 G28 Z0 jedzie NAJPIERW do Z0 detalu (kolizja!), dopiero potem do bazy. Prawie zawsze chcesz G91 G28 Z0.",
-      "Po G91 G28 pamiętaj wrócić do G90."
+      "G90 G28 Z0, gdy Z0 detalu leży poniżej narzędzia (przyczyna) → pierwszy etap schodzi ruchem szybkim do Z0 — na powierzchnię detalu albo w zacisk (skutek) → w G90 podaj punkt pośredni nad przeszkodami albo użyj G91 G28 Z0 (poprawka).",
+      "G91 bez powrotu do G90 (przyczyna) → kolejne bloki liczone przyrostowo (skutek) → G90 zaraz po G28 (poprawka).",
+      "Założenie, że G28 to zawsze ruch „w górę” (przyczyna) → kierunek drugiego etapu zależy od położenia punktu referencyjnego na danej maszynie (skutek) → sprawdź położenie bazy w dokumentacji maszyny (poprawka)."
     ],
     "related": [
       "g27-g30",
@@ -983,7 +984,8 @@
       "g84",
       "g75",
       "g81-g83"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "G75",
@@ -1230,30 +1232,35 @@
     "turning": false,
     "level": 3,
     "short": "Gwintowanie gwintownikiem: posuw sprzężony z obrotami, na dnie zmiana kierunku i wyjście.",
-    "desc": "G84 wkręca gwintownik na głębokość Z z posuwem F = skok × obroty, zatrzymuje wrzeciono, odwraca (M04) i wykręca. Przy gwintowaniu sztywnym (M29 S_ przed G84 w Fanuc) posuw i obroty są zsynchronizowane elektronicznie, bez uchwytu kompensacyjnego.",
+    "desc": "G84 prowadzi gwintownik w dół z posuwem zsynchronizowanym z obrotami, na dnie odwraca kierunek obrotów i wycofuje narzędzie. Jednostkę posuwu wyznacza aktywny tryb: w **G94** F = obroty × skok (mm/min), w **G95** F = skok (mm/obr).\n\nNa wielu sterowaniach Fanuc gwintowanie sztywne (bez uchwytu kompensacyjnego) włącza **M29 S_** przed cyklem; to zależy od parametrów maszyny. Opis dotyczy frezarki — na tokarce Fanuc numery cykli gwintowania są inne.",
     "syntax": {
-      "fanuc": "M29 S500\nG99 G84 X_ Y_ Z_ R_ F1.0  (F = skok)\nG80",
-      "sinumerik": "CYCLE84(RTP, RFP, SDIS, DP, ..., PIT=1.0)"
+      "fanuc": "; frezarka, mm — F zależy od trybu posuwu\nG94 → F = obroty × skok  (S500, skok 1 → F500)\nG95 → F = skok           (F1.0)\n\nM29 S_                    (gwintowanie sztywne — na wielu Fanucach)\nG98/G99 G84 X_ Y_ Z_ R_ F_\nG80",
+      "sinumerik": "CYCLE84(…)    ; gwintowanie sztywne\nCYCLE840(…)   ; z uchwytem kompensacyjnym\n; parametry wg wydania cykli — sprawdź dokumentację sterowania"
     },
     "params": [
       {
         "key": "Z",
-        "desc": "Głębokość gwintu"
+        "desc": "Położenie końca gwintownika na dnie cyklu [mm] — nie długość pełnego gwintu i nie głębokość otworu"
       },
       {
         "key": "R",
-        "desc": "Płaszczyzna startu (zostaw miejsce na rozbieg 2–3 skoki)"
+        "desc": "Płaszczyzna startu posuwu [mm] (zapas na rozbieg, zwykle kilka skoków nad powierzchnią)"
       },
       {
         "key": "F",
-        "desc": "Fanuc G94: skok × obroty (mm/min); G95: skok (mm/obr)"
+        "desc": "G94: obroty × skok [mm/min]; G95: skok [mm/obr]"
+      },
+      {
+        "key": "G98/G99",
+        "desc": "Na frezarce: powrót do poziomu początkowego / do R — nie jednostka posuwu"
       }
     ],
     "example": "G21 G90 G17 G54\nS500 M03\nG00 X20 Y20 Z10\nG01 Z-12 F500\nG04 P200\nG01 Z10 F500\nM30",
-    "sinumerik": "CYCLE84 (sztywne) lub CYCLE840 (z uchwytem kompensacyjnym). Skok przez parametr PIT.",
+    "sinumerik": "W Sinumeriku gwintowanie wykonują cykle **CYCLE84** (sztywne) i **CYCLE840** (z uchwytem kompensacyjnym). Nazwy i kolejność parametrów zależą od wydania cykli — przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.",
     "pitfalls": [
-      "F musi wynikać ze skoku: M6 (skok 1,0) przy S500 → F500. Inaczej gwintownik pęka.",
-      "Przed G84 zawsze otwór wstępny na średnicę rdzenia (M6 → 5,0 mm)."
+      "Posuw niezgodny ze skokiem (przyczyna) → gwintownik pęka albo zrywa zwoje (skutek) → w G94 F = S × skok, w G95 F = skok, a tryb posuwu ustaw jawnie przed cyklem (poprawka).",
+      "Z wzięte z długości gwintu (przyczyna) → za krótki pełny gwint, bo nakrój nie tnie pełnego zarysu (skutek) → Z = −(pełny gwint + nakrój), otwór jeszcze głębiej (poprawka).",
+      "Otwór „D − skok” pod wygniatak (przyczyna) → za mały otwór, wygniatak się zatrze (skutek) → reguła D − P dotyczy gwintowników skrawających; dla wygniataków średnica z katalogu (poprawka)."
     ]
   },
   {
@@ -1318,7 +1325,8 @@
       "g90-g94-t",
       "g54-g59",
       "g52-g53"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "G90 G92 G94 (tokarka)",
@@ -1377,8 +1385,8 @@
     "milling": true,
     "turning": true,
     "level": 3,
-    "short": "Frezarka: „tu jest teraz X_ Y_ Z_”. Tokarka Fanuc: limit obrotów przy G96 (G92 S_ lub G50 S_).",
-    "desc": "G92 X0 Y0 nie rusza maszyną — mówi jej, że aktualne miejsce ma od teraz współrzędne (0,0). Stary sposób ustawiania zera sprzed G54; dziś głównie w programach z konwerterów i na starych maszynach. Na tokarkach Fanuc 0T G92 S2500 ogranicza obroty przy G96 (nowsze: G50 S).",
+    "short": "Frezarka: „tu jest teraz X_ Y_ Z_” (ustawienie układu). Tokarka Fanuc: znaczenie zależy od systemu kodów.",
+    "desc": "**Frezarka.** G92 X0 Y0 nie rusza maszyną — mówi sterowaniu, że bieżące miejsce ma od teraz podane współrzędne. To starszy sposób ustawiania zera sprzed G54; spotykany w programach z konwerterów i na starszych maszynach.\n\n**Tokarka Fanuc.** Znaczenie zależy od systemu kodów G: w systemie A G92 to cykl gwintowania, a ustawienie układu i limit obrotów przy G96 realizuje G50; w systemach B i C rolę G50 przejmuje G92. Przed użyciem sprawdź system kodów swojej maszyny.",
     "syntax": {
       "fanuc": "G92 X0 Y0 Z100\nG92 S2500 (tokarka, limit)",
       "sinumerik": "brak (TRANS / LIMS=)"
@@ -1405,7 +1413,8 @@
       "g52-g53",
       "g50",
       "g90-g94-t"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "G93",
@@ -1450,7 +1459,7 @@
     "turning": true,
     "level": 2,
     "short": "G94 posuw w mm/min, G95 w mm/obrót.",
-    "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle G95 (mm/obr), bo posuw na obrót bezpośrednio przekłada się na chropowatość.",
+    "desc": "Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle posuw na obrót, bo przekłada się bezpośrednio na chropowatość — na tokarkach Fanuc w systemie A wybiera go **G99** (a mm/min — G98), w systemach B/C i na Sinumeriku **G95** (mm/min — G94).",
     "syntax": {
       "fanuc": "G94 | G95  (tokarki Fanuc: G98 | G99)",
       "sinumerik": "G94 | G95"
@@ -1467,7 +1476,8 @@
       "g98-g99",
       "g96-g97",
       "g90-g94-t"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "G96 G97",
@@ -1533,7 +1543,8 @@
       "g94-g95",
       "g82",
       "g73"
-    ]
+    ],
+    "variesBy": "system kodów"
   },
   {
     "code": "M00 M01",

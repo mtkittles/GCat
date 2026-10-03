@@ -85,7 +85,7 @@ const g40g42: Block[] = [
     "**Blok włączający krótszy niż promień** — alarm przecięcia albo podcięcie naroża.",
     "**Zapomniane G40** przed wymianą narzędzia — następne narzędzie pracuje z korekcją poprzedniego.",
     "**D pomylone z H** — H to rejestr długości. Długość wpisana jako promień odsuwa tor o kilkadziesiąt milimetrów.",
-    "**Zła strona** — G42 zamiast G41 na konturze zewnętrznym prowadzi frez po wewnętrznej stronie: detal wychodzi mniejszy o średnicę freza.",
+    "**Zła strona** — G42 zamiast G41 na konturze zewnętrznym prowadzi frez po wewnętrznej stronie. Dla prostokąta z narożami R ≥ promień freza każda krawędź przesuwa się do środka o średnicę freza, więc każdy wymiar zewnętrzny maleje o dwie średnice (Ø10: 80 × 50 → 60 × 30). Przy innych kształtach skutek zależy od geometrii — naroża wewnętrzne mniejsze od promienia dają alarm albo podcięcie.",
     "**Zmiana wymiaru o całą odchyłkę** — przy konturze zewnętrznym korekcję D zmienia się o połowę odchyłki wymiaru.",
   ] },
 ];

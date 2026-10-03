@@ -118,7 +118,7 @@ export const t3_2: LessonDoc = {
     "G01: w Z — wzdłużnie, w X — poprzecznie, w obu naraz — faza lub stożek.",
     "Zgrubnie warstwami po ap ~2–2,5 mm, z naddatkiem 0,4 na średnicy.",
     "Kontur wykańczający raz, absolutnie, wejście na przedłużeniu pierwszego elementu.",
-    "Faza 45°: ΔX = 2 · ΔZ.",
+    "Faza 45°: |ΔX| = 2 · |ΔZ| (wartości bezwzględne).",
   ],
 
   sources: [
