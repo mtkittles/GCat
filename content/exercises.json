@@ -16,7 +16,22 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "x": 100,
+      "y": 70,
+      "z": 20,
+      "ox": 10,
+      "oy": 10,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      }
+    }
   },
   {
     "slug": "prostokat-zaokraglony",
@@ -35,7 +50,22 @@
     "requireCodes": [
       "G03"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 100,
+      "y": 70,
+      "z": 20,
+      "ox": 10,
+      "oy": 10,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      }
+    }
   },
   {
     "slug": "otwory-cykl",
@@ -55,7 +85,23 @@
       "G81",
       "G80"
     ],
-    "maxCutLength": 10
+    "maxCutLength": 10,
+    "stock": {
+      "x": 100,
+      "y": 70,
+      "z": 25,
+      "ox": 0,
+      "oy": 0,
+      "oz": 25
+    },
+    "tools": {
+      "1": {
+        "kind": "drill",
+        "name": "Wiertło Ø8,5",
+        "d": 8.5,
+        "angle": 118
+      }
+    }
   },
   {
     "slug": "wiercenie-glebokie",
@@ -76,7 +122,23 @@
     "forbidCodes": [
       "G73"
     ],
-    "maxCutLength": 10
+    "maxCutLength": 10,
+    "stock": {
+      "x": 60,
+      "y": 60,
+      "z": 50,
+      "ox": 0,
+      "oy": 0,
+      "oz": 50
+    },
+    "tools": {
+      "1": {
+        "kind": "drill",
+        "name": "Wiertło Ø8",
+        "d": 8,
+        "angle": 118
+      }
+    }
   },
   {
     "slug": "przyrostowo",
@@ -96,45 +158,89 @@
       "G91",
       "G90"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 50,
+      "y": 80,
+      "z": 20,
+      "ox": 0,
+      "oy": 0,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø6",
+        "d": 6
+      }
+    }
   },
   {
     "slug": "walek-stopniowy",
     "title": "Wałek stopniowy",
     "level": 2,
     "mode": "lathe",
-    "brief": "Z półfabrykatu ⌀50 wytocz wałek: ⌀30 na długości 25 mm, następnie ⌀40 na długości do 55 mm, na końcu wyjazd na średnicę 50. Jedno przejście wykańczające, posuw 0,2 mm/obr. Pamiętaj, że X programujesz średnicowo.",
+    "brief": "Z półfabrykatu ⌀50 wytocz wałek: ⌀30 na długości 25 mm i ⌀40 do Z−55, z wyjazdem na ⌀52. Tak jak na maszynie: najpierw obróbka zgrubna cyklem G71 (warstwa U2, odjazd R0,5, naddatek U0,4 na średnicy i W0,1, posuw 0,25 mm/obr), potem wykańczanie G70 po tym samym konturze N10–N20 z posuwem 0,2 mm/obr. X programujesz średnicowo.",
     "hints": [
-      "Zacznij od dojazdu na średnicę 30 przy Z2.",
-      "Stopień to ruch w osi X przy stałym Z.",
-      "Na tokarce posuw w mm/obr — tryb G95."
+      "Pierwszy blok G71 (U, R) podaje głębokość warstwy i odjazd, drugi (P, Q, U, W, F) — kontur i naddatki.",
+      "Kontur N10–N20 opisuj od czoła w stronę uchwytu: N10 G00 X30, G01 Z−25 F0.2, X40, Z−55, N20 X52.",
+      "Na tokarce Fanuc w systemie A posuw w mm/obr włącza G99 — jest już w bloku startowym."
     ],
-    "starter": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X52 Z2\n(dopisz kontur)\nG00 Z2\nM30",
-    "reference": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X52 Z2\nG01 X30 F0.2\nG01 Z-25\nG01 X40\nG01 Z-55\nG01 X52\nG00 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 i G70)\nG00 X60 Z20\nM30",
+    "reference": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X30\nG01 Z-25 F0.2\nX40\nZ-55\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
     "tolerance": 0.1,
     "requireCodes": [
-      "G01"
+      "G71",
+      "G70"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "d": 50,
+      "len": 70
+    },
+    "tools": {
+      "101": {
+        "kind": "turning",
+        "name": "Nóż zewnętrzny CNMG 120408",
+        "d": 0.8,
+        "angle": 95,
+        "shape": "C"
+      }
+    }
   },
   {
     "slug": "walek-zaokraglenie",
     "title": "Wałek z fazą i zaokrągleniem",
     "level": 3,
     "mode": "lathe",
-    "brief": "Wytocz wałek ⌀30 na długości 20 mm, przejście łukiem R5 na ⌀40, dalej ⌀40 do 45 mm, na końcu faza 2×45° i wyjazd na ⌀50. Zacznij fazą wejściową 2×45° na czole.",
+    "brief": "Z półfabrykatu ⌀50 wytocz wałek: faza 2×45° na czole (z ⌀26 przy Z0 do ⌀30 przy Z−2), ⌀30 do Z−20, zaokrąglenie R5 przechodzące na ⌀40 (koniec w Z−25), ⌀40 do Z−45, czoło do ⌀46 i faza 2×45° do ⌀50 przy Z−47, wyjazd na ⌀52. Obróbka zgrubna G71 (U2, R0,5, naddatek U0,4 W0,1, F0,25), wykańczanie G70 z posuwem 0,15 mm/obr.",
     "hints": [
-      "Faza 2×45° na wejściu: z ⌀26 przy Z2 do ⌀30 przy Z0.",
-      "Zaokrąglenie wklęsłe w narożu stopnia to G02.",
-      "Faza końcowa to zwykły ruch skośny G01 w dwóch osiach."
+      "Faza wejściowa 2×45° to 2 mm na promieniu i 2 mm w Z: z ⌀26 przy Z0 do ⌀30 przy Z−2.",
+      "Kierunek łuku zależy od kierunku przejścia: od czoła w stronę uchwytu zaokrąglenie R5 przy stopniu z ⌀30 na ⌀40 jest zgodne z ruchem wskazówek zegara — G02. Przejechane w drugą stronę byłoby G03.",
+      "Po cyklu zgrubnym dopisz G70 P10 Q20 — wykańczanie po tym samym konturze."
     ],
-    "starter": "G18 G21 G40 G99\nG97 S1400 M03\nG00 X26 Z2\n(dopisz kontur)\nG00 X52 Z2\nM30",
-    "reference": "G18 G21 G40 G99\nG97 S1400 M03\nG00 X26 Z2\nG01 X30 Z0 F0.15\nG01 Z-20\nG02 X40 Z-25 R5\nG01 Z-45\nG01 X46\nG01 X50 Z-47\nG00 X52 Z2\nM30",
+    "starter": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 z faza, R5 i faza koncowa, potem G70)\nG00 X60 Z20\nM30",
+    "reference": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X26\nG01 Z0 F0.15\nX30 Z-2\nZ-20\nG02 X40 Z-25 R5\nG01 Z-45\nX46\nX50 Z-47\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
     "tolerance": 0.15,
     "requireCodes": [
+      "G71",
+      "G70",
       "G02"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "d": 50,
+      "len": 60
+    },
+    "tools": {
+      "101": {
+        "kind": "turning",
+        "name": "Nóż zewnętrzny CNMG 120408",
+        "d": 0.8,
+        "angle": 95,
+        "shape": "C"
+      }
+    }
   },
   {
     "slug": "kieszen",
@@ -153,7 +259,22 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 80,
+      "y": 60,
+      "z": 20,
+      "ox": 0,
+      "oy": 0,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      }
+    }
   },
   {
     "slug": "kompensacja",
@@ -173,7 +294,22 @@
       "G41",
       "G40"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "x": 90,
+      "y": 65,
+      "z": 20,
+      "ox": 10,
+      "oy": 10,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      }
+    }
   },
   {
     "slug": "gwintowanie",
@@ -194,7 +330,29 @@
       "G84",
       "G80"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 90,
+      "y": 65,
+      "z": 30,
+      "ox": 0,
+      "oy": 0,
+      "oz": 30
+    },
+    "tools": {
+      "1": {
+        "kind": "drill",
+        "name": "Wiertło Ø6,8",
+        "d": 6.8,
+        "angle": 118
+      },
+      "2": {
+        "kind": "tap",
+        "name": "Gwintownik M8×1,25",
+        "d": 8,
+        "flutes": 1.25
+      }
+    }
   },
   {
     "slug": "helisa",
@@ -213,7 +371,22 @@
     "requireCodes": [
       "G03"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 80,
+      "y": 80,
+      "z": 20,
+      "ox": 0,
+      "oy": 0,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      }
+    }
   },
   {
     "slug": "podprogram",
@@ -232,7 +405,22 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "x": 60,
+      "y": 70,
+      "z": 20,
+      "ox": 0,
+      "oy": 0,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø6",
+        "d": 6
+      }
+    }
   },
   {
     "slug": "planowanie",
@@ -251,7 +439,23 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "x": 100,
+      "y": 60,
+      "z": 21,
+      "ox": 0,
+      "oy": 0,
+      "oz": 20
+    },
+    "tools": {
+      "1": {
+        "kind": "facemill",
+        "name": "Głowica Ø50",
+        "d": 50,
+        "flutes": 5
+      }
+    }
   },
   {
     "slug": "toczenie-czolo",
@@ -270,7 +474,20 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "d": 40,
+      "len": 50
+    },
+    "tools": {
+      "1": {
+        "kind": "turning",
+        "name": "Nóż zewnętrzny CNMG 120408",
+        "d": 0.8,
+        "angle": 95,
+        "shape": "C"
+      }
+    }
   },
   {
     "slug": "toczenie-zgrubne",
@@ -289,7 +506,20 @@
     "requireCodes": [
       "G01"
     ],
-    "maxCutLength": 15
+    "maxCutLength": 15,
+    "stock": {
+      "d": 60,
+      "len": 55
+    },
+    "tools": {
+      "1": {
+        "kind": "turning",
+        "name": "Nóż zewnętrzny CNMG 120408",
+        "d": 0.8,
+        "angle": 95,
+        "shape": "C"
+      }
+    }
   },
   {
     "slug": "program-pelny",
@@ -311,6 +541,27 @@
       "G80",
       "M06"
     ],
-    "maxCutLength": 20
+    "maxCutLength": 20,
+    "stock": {
+      "x": 100,
+      "y": 65,
+      "z": 25,
+      "ox": 5,
+      "oy": 5,
+      "oz": 25
+    },
+    "tools": {
+      "1": {
+        "kind": "endmill",
+        "name": "Frez walcowy Ø10",
+        "d": 10
+      },
+      "2": {
+        "kind": "drill",
+        "name": "Wiertło Ø8",
+        "d": 8,
+        "angle": 118
+      }
+    }
   }
 ]

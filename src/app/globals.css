@@ -2370,3 +2370,36 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 }
 .link-btn { background: none; border: none; padding: 0; color: var(--accent); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .filters select { padding: .45rem .6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font-size: 14px; }
+
+/* ===== Poprawki: przycisk w „Wróć do nauki”, szybki dostęp bez powtórek z paskiem, karty ścieżek ===== */
+.hi-resume a.btn { color: #fff; }
+.hi-resume a:not(.btn) { color: var(--accent); font-weight: 700; }
+.dash-grid.dash-grid-4 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 767px) { .home-access { display: none; } }
+/* delikatny, powolny ruch zdjęcia na kartach ścieżek — wyłączony przy ograniczeniu animacji */
+@keyframes nk-drift { 0% { transform: scale(1.04) translate(0, 0); } 50% { transform: scale(1.09) translate(-1.5%, -1%); } 100% { transform: scale(1.04) translate(0, 0); } }
+.nk-photo { animation: nk-drift 18s ease-in-out infinite; }
+.nk-card:nth-child(2) .nk-photo { animation-delay: -9s; }
+.nk-main:hover .nk-photo { animation-play-state: paused; }
+.nk-main::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(115deg, transparent 40%, rgba(249,115,22,.16) 50%, transparent 60%); background-size: 250% 100%; background-position: 120% 0; transition: background-position .9s ease; }
+.nk-main:hover::after { background-position: -20% 0; }
+@media (prefers-reduced-motion: reduce) { .nk-photo { animation: none; } .nk-main::after { transition: none; } }
+
+/* ===== Symulator: jeden pasek na dole zamiast dwóch ===== */
+.m-simtabs-home { display: none; }
+@media (max-width: 767px) {
+  /* telefon: dolna nawigacja serwisu ustępuje paskowi sekcji symulatora (z pozycją „Start”) */
+  body:has(.sim-page) .bottom-nav, body:has(.sim-page) .bottom-nav-ind { display: none; }
+  body:has(.sim-page) { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .is-app .m-simtabs { bottom: calc(env(safe-area-inset-bottom, 0px) + .4rem); grid-template-columns: repeat(5, 1fr); }
+  .is-app .m-simtabs-home { display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .45rem 0 .4rem; border-radius: 12px; color: var(--muted); font-size: 10.5px; font-weight: 600; }
+  .is-app .m-simtabs-home svg { width: 19px; height: 19px; }
+  .is-app .stage-view { height: max(260px, calc(100svh - 385px)); }
+}
+@media (min-width: 1100px) {
+  /* komputer: tabelka na podglądzie pokazuje stan maszyny — rząd z tymi samymi danymi pod odtwarzaczem znika */
+  .workbench.is-app:has(.view-hud) .sim-state { display: none; }
+  .workbench.is-app .sim-controls { flex-wrap: nowrap; align-items: center; }
+  .workbench.is-app .sim-controls .sim-scrub { flex: 1 1 auto; min-width: 120px; margin: 0 .3rem; }
+  .workbench.is-app { --stage-h: max(360px, calc(100vh - 252px)); }
+}

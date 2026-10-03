@@ -116,10 +116,17 @@ export function applyCompensation(program: Program, setup: Setup, mode: "mill" |
     return sg.kind === "arc" ? offsetArc(sg, r, c as 41 | 42, P, sh) : offsetLinear(sg, r, c as 41 | 42, P, sh);
   });
 
+  // Blok włączający korekcję (pierwszy ruch roboczy po G40): jak na Fanucu (rozruch typu A)
+  // prowadzi z punktu nieskompensowanego prosto do skompensowanego początku NASTĘPNEGO elementu,
+  // odsuniętego wg jego własnego kierunku — a nie wg kierunku samego bloku włączającego.
+  // Inaczej przy wejściu do kieszeni tor wychodził poza jej ściankę.
+  const activates = (i: number) => !!program.lines[program.segments[i].line]?.words.some((w) => w.letter === "G" && (w.value === 41 || w.value === 42));
+  const startup = program.segments.map((sg, i) => moved[i] && sg.kind === "linear" && (i === 0 ? activates(i) : comps[i - 1] === 40) && i + 1 < out.length && moved[i + 1]);
+
   // domknięcie naroży: sąsiednie odcinki spotykają się w punkcie przecięcia
   const gapOf = (a: Segment, b: Segment) => Math.hypot(b.from[P.h] - a.to[P.h], b.from[P.v] - a.to[P.v]);
   for (let i = 0; i < out.length - 1; i++) {
-    if (!moved[i] || !moved[i + 1]) continue;
+    if (!moved[i] || !moved[i + 1] || startup[i]) continue;
     // Zmiana strony kompensacji: tor rzeczywiście przeskakuje na drugą stronę konturu.
     if (comps[i] !== comps[i + 1]) continue;
     const a = out[i], b = out[i + 1];
@@ -148,6 +155,12 @@ export function applyCompensation(program: Program, setup: Setup, mode: "mill" |
     // ruch szybki przy aktywnej korekcji kończy się tam, gdzie zaczyna się przesunięty tor
     if (!moved[i] && i + 1 < out.length && moved[i + 1] && comps[i] !== 40 && gapOf(cur, out[i + 1]) > 1e-6) {
       out[i] = { ...cur, to: { ...cur.to, [P.h]: out[i + 1].from[P.h], [P.v]: out[i + 1].from[P.v] } };
+    }
+    if (startup[i]) {
+      const prev = i > 0 ? out[i - 1] : null;
+      const src = program.segments[i];
+      out[i] = { ...src, from: prev ? { ...src.from, [P.h]: prev.to[P.h], [P.v]: prev.to[P.v] } : src.from, to: { ...src.to, [P.h]: out[i + 1].from[P.h], [P.v]: out[i + 1].from[P.v] } };
+      continue;
     }
     // pierwszy przesunięty odcinek po G40 startuje z punktu, w którym nóż stoi
     if (moved[i] && i > 0 && comps[i - 1] === 40) {

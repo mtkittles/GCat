@@ -27,8 +27,8 @@ function gridMax() {
   // Telefon: oszczędnie. Komputer: gęsta siatka — łuki bez widocznych schodków.
   if (narrow) return mem <= 4 ? 190 : 240;
   if (mem < 4) return 280;
-  if (mem < 8) return 420;
-  return 520;
+  if (mem < 8) return 340;
+  return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
 export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false }: Props) {
@@ -52,6 +52,12 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   // cały program przy każdej klatce.
   const latheRef = useRef<LatheCache | null>(null);
   const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
+  // siatka półfabrykatu frezarki używana ponownie między klatkami + dławienie odświeżania w trakcie animacji
+  const meshRef = useRef<{ meta: MillMeta; geo: THREE.BufferGeometry } | null>(null);
+  const lastMeshT = useRef(0);
+  const trailT = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [meshTick, setMeshTick] = useState(0);
+  const threadKey = useRef("");
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
   const toolRef = useRef<Tool>(tool);
@@ -106,7 +112,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
-    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { controls.update(); renderer.render(scene, camera); }, stockMat };
+    // Renderowanie na żądanie: klatka powstaje tylko po zmianie (ruch kamery, postęp, widok).
+    // Bezczynna scena nie obciąża karty graficznej ani wątku strony.
+    let dirty = true;
+    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { dirty = true; }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar + gotowe ustawienia widoku
@@ -145,7 +154,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
 
     let raf = 0;
     const loop = () => {
-      try { st.render(); } catch { queueMicrotask(() => setFailed("error")); return; }
+      try {
+        const moved = controls.update();
+        if (dirty || moved) { dirty = false; renderer.render(scene, camera); }
+      } catch { queueMicrotask(() => setFailed("error")); return; }
       raf = requestAnimationFrame(loop);
     };
     loop();
@@ -154,6 +166,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       if (w < 8 || h < 8) return;
       renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
       if (!touched) apply(lastView);
+      st.render();
     };
     window.addEventListener("resize", onResize);
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(onResize) : null;
@@ -205,6 +218,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
     st.path = line;
     st.scene.add(line);
+    st.render();
   }, [program, mode, failed]);
 
   // ubytek materiału + pozycja narzędzia
@@ -218,12 +232,21 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     program.segments.forEach((sg, i) => { const len = lengths[i]; const d = Math.min(1, Math.max(0, (progress - acc) / (len || 1))); if (d > 0) pos = d < 1 ? pointAt(sg, d) : sg.to; acc += len; });
     st.tool.position.copy(toW(pos, mode));
 
-    // geometria półfabrykatu
-    if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); st.stock = null; }
-    let geo: THREE.BufferGeometry | null;
+    // Dławienie: w trakcie animacji bryła odświeża się co ~70 ms (pozycja narzędzia — co klatkę).
+    // Ostatni stan zawsze się dorysuje (zegar końcowy), więc po pauzie widok jest aktualny.
+    const now = performance.now();
+    const sameRun = hmRef.current && progress >= hmRef.current.progress;
+    if (sameRun && now - lastMeshT.current < 70) {
+      if (!trailT.current) trailT.current = setTimeout(() => { trailT.current = null; lastMeshT.current = 0; setMeshTick((t) => t + 1); }, 80);
+      st.render();
+      return;
+    }
+    lastMeshT.current = now;
+
+    let geo: THREE.BufferGeometry | null = null;
+    let fresh = true;
     if (mode === "mill") {
-      if (!cut.length) geo = null;
-      else {
+      if (cut.length) {
         const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
         let buf = hmRef.current;
         if (!buf || buf.key !== key || progress < buf.progress) {
@@ -236,31 +259,48 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
           buf.progress = progress;
         }
         hmRef.current = buf;
-        geo = meshFromHeightmap(buf.h, buf.meta);
+        const mr = meshRef.current;
+        if (mr && mr.meta === buf.meta && st.stock && st.stock.geometry === mr.geo) {
+          updateHeightmapMesh(mr.geo, buf.h);
+          geo = mr.geo; fresh = false;
+        } else {
+          geo = meshFromHeightmap(buf.h, buf.meta);
+          meshRef.current = { meta: buf.meta, geo };
+        }
       }
     } else {
       geo = latheGeometryFrom(latheProfileCached(latheRef, program, program.segments, lengths, progress, setup));
     }
-
-    // zarys gwintu w otworach obrobionych gwintownikiem lub frezem do gwintów
-    if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; }
-    if (mode === "mill") {
-      const tg = threadVisuals(program, lengths, progress, setup, mode);
-      if (tg) { st.threads = tg; st.scene.add(tg); }
-    }
-    if (geo) {
-      st.stock = new THREE.Mesh(geo, st.stockMat);
-      st.scene.add(st.stock);
-      // siatka zawsze pod detalem — czytelne odniesienie do podłoża
-      if (gridRef.current) {
-        geo.computeBoundingBox();
-        const bb = geo.boundingBox;
-        if (bb) gridRef.current.position.y = bb.min.y - 0.5;
+    if (fresh) {
+      if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); st.stock = null; }
+      if (geo) {
+        st.stock = new THREE.Mesh(geo, st.stockMat);
+        st.scene.add(st.stock);
+        // siatka zawsze pod detalem — czytelne odniesienie do podłoża
+        if (gridRef.current) {
+          geo.computeBoundingBox();
+          const bb = geo.boundingBox;
+          if (bb) gridRef.current.position.y = bb.min.y - 0.5;
+        }
       }
     }
+
+    // zarys gwintu w otworach — przebudowa tylko, gdy zmienił się zestaw lub głębokość otworów
+    if (mode === "mill") {
+      const holes = threadHoles(program, lengths, progress, setup, mode);
+      const hk = JSON.stringify(holes.map((h) => [h.x.toFixed(2), h.y.toFixed(2), h.bottom.toFixed(1)]));
+      if (hk !== threadKey.current || !st.threads !== !holes.length) {
+        threadKey.current = hk;
+        if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; }
+        const tg = holes.length ? threadGroup(holes) : null;
+        if (tg) { st.threads = tg; st.scene.add(tg); }
+      }
+    } else if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; threadKey.current = ""; }
+    st.render();
     } catch { broke = true; }
     if (broke) queueMicrotask(() => setFailed("error"));
-  }, [program, lengths, progress, mode, toolD, setup, tool, failed, source]);
+  }, [program, lengths, progress, mode, toolD, setup, tool, failed, source, meshTick]);
+  useEffect(() => () => { if (trailT.current) clearTimeout(trailT.current); }, []);
 
   const toggleGhost = () => {
     const st = sceneRef.current; if (!st) return;
@@ -270,6 +310,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     st.stockMat.opacity = next ? 0.28 : 1;
     st.stockMat.depthWrite = !next;
     st.stockMat.needsUpdate = true;
+    st.render();
   };
 
   const setView = (v: "iso" | "top" | "front" | "side" | "fit") => {
@@ -601,8 +642,9 @@ function disposeTree(o: THREE.Object3D) {
  * Dokładamy więc osobną geometrię: spiralę o zarysie gwintu w miejscu każdego
  * otworu obrobionego gwintownikiem albo frezem do gwintów.
  */
-function threadVisuals(program: ReturnType<typeof parseProgram>, lengths: number[], progress: number, setup: Setup, mode: SimMode) {
-  const holes: { x: number; y: number; top: number; bottom: number; pitch: number; r: number }[] = [];
+type ThreadHole = { x: number; y: number; top: number; bottom: number; pitch: number; r: number };
+function threadHoles(program: ReturnType<typeof parseProgram>, lengths: number[], progress: number, setup: Setup, mode: SimMode): ThreadHole[] {
+  const holes: ThreadHole[] = [];
   let acc = 0;
   program.segments.forEach((sg, i) => {
     const len = lengths[i];
@@ -618,8 +660,10 @@ function threadVisuals(program: ReturnType<typeof parseProgram>, lengths: number
     if (key) key.bottom = Math.min(key.bottom, p.z);
     else holes.push({ x: p.x, y: p.y, top: 0, bottom: p.z, pitch, r: Math.max(0.4, t.d / 2) });
   });
-  if (!holes.length) return null;
+  return holes;
+}
 
+function threadGroup(holes: ThreadHole[]) {
   const group = new THREE.Group();
   const mat = new THREE.MeshStandardMaterial({ color: 0x9aa4b2, metalness: 0.45, roughness: 0.5, side: THREE.DoubleSide });
   // Ścianka gwintu: zarys piłowy 60° na obwodzie otworu, wtopiony w ściankę (od średnicy
@@ -653,57 +697,69 @@ function threadVisuals(program: ReturnType<typeof parseProgram>, lengths: number
   return group;
 }
 
+/**
+ * Siatka półfabrykatu z mapy wysokości. Budowana raz dla danego układu siatki;
+ * kolejne klatki tylko przepisują wysokości (updateHeightmapMesh) — bez nowych tablic,
+ * bez sprzątania pamięci w trakcie animacji.
+ */
 function meshFromHeightmap(h: Float32Array, m: MillMeta) {
-  const pos: number[] = []; const idx: number[] = [];
-  const V = (x: number, y: number, z: number) => { pos.push(x, z, -y); return pos.length / 3 - 1; };
-  const H = (i: number, j: number) => h[j * (m.nx + 1) + i];
+  const G = (m.nx + 1) * (m.ny + 1);
+  const wallPts = 2 * (m.nx + 1) + 2 * (m.ny + 1);
+  const wallVerts = (wallPts - 4) * 4;
+  const N = G + wallVerts + 4;
+  const pos = new Float32Array(N * 3);
+  const map = new Int32Array(N).fill(-1); // indeks w mapie wysokości (−1: wierzchołek dna)
+  const idx: number[] = [];
+  let n = 0;
+  const V = (x: number, y: number, z: number, hi: number) => { pos[n * 3] = x; pos[n * 3 + 1] = z; pos[n * 3 + 2] = -y; map[n] = hi; return n++; };
   const gx = (i: number) => m.minX + i * m.cx;
   const gy = (j: number) => m.minY + j * m.cy;
+  const gi = (i: number, j: number) => j * (m.nx + 1) + i;
 
   // powierzchnia górna z mapy wysokości
-  for (let j = 0; j <= m.ny; j++) for (let i = 0; i <= m.nx; i++) V(gx(i), gy(j), H(i, j));
+  for (let j = 0; j <= m.ny; j++) for (let i = 0; i <= m.nx; i++) V(gx(i), gy(j), h[gi(i, j)], gi(i, j));
   for (let j = 0; j < m.ny; j++) for (let i = 0; i < m.nx; i++) {
     const a = j * (m.nx + 1) + i, b = a + 1, c = a + m.nx + 1, d = c + 1;
     idx.push(a, c, b, b, c, d);
   }
 
-  // Ściany boczne budowane z rzeczywistych wysokości brzegowych — dzięki temu
-  // materiał zebrany przy krawędzi znika także ze ściany, bez pozostawiania rantu.
-  const wallStrip = (pts: { x: number; y: number; z: number }[]) => {
+  // Ściany boczne z rzeczywistych wysokości brzegowych — materiał zebrany przy krawędzi znika też ze ściany.
+  const wallStrip = (pts: { x: number; y: number; k: number }[]) => {
     for (let k = 0; k < pts.length - 1; k++) {
       const p = pts[k], q = pts[k + 1];
-      const a = V(p.x, p.y, p.z), b = V(q.x, q.y, q.z);
-      const c = V(p.x, p.y, m.bottom), d = V(q.x, q.y, m.bottom);
+      const a = V(p.x, p.y, h[p.k], p.k), b = V(q.x, q.y, h[q.k], q.k);
+      const c = V(p.x, p.y, m.bottom, -1), d = V(q.x, q.y, m.bottom, -1);
       idx.push(a, b, c, b, d, c);
     }
   };
-
-  const south: { x: number; y: number; z: number }[] = [];
-  const north: { x: number; y: number; z: number }[] = [];
-  for (let i = 0; i <= m.nx; i++) {
-    south.push({ x: gx(i), y: gy(0), z: H(i, 0) });
-    north.push({ x: gx(i), y: gy(m.ny), z: H(i, m.ny) });
-  }
-  const west: { x: number; y: number; z: number }[] = [];
-  const east: { x: number; y: number; z: number }[] = [];
-  for (let j = 0; j <= m.ny; j++) {
-    west.push({ x: gx(0), y: gy(j), z: H(0, j) });
-    east.push({ x: gx(m.nx), y: gy(j), z: H(m.nx, j) });
-  }
-  wallStrip(south);
-  wallStrip([...north].reverse());
-  wallStrip([...west].reverse());
-  wallStrip(east);
+  const south: { x: number; y: number; k: number }[] = [], north: typeof south = [], west: typeof south = [], east: typeof south = [];
+  for (let i = 0; i <= m.nx; i++) { south.push({ x: gx(i), y: gy(0), k: gi(i, 0) }); north.push({ x: gx(i), y: gy(m.ny), k: gi(i, m.ny) }); }
+  for (let j = 0; j <= m.ny; j++) { west.push({ x: gx(0), y: gy(j), k: gi(0, j) }); east.push({ x: gx(m.nx), y: gy(j), k: gi(m.nx, j) }); }
+  wallStrip(south); wallStrip([...north].reverse()); wallStrip([...west].reverse()); wallStrip(east);
 
   // dno
-  const b0 = V(m.minX, m.minY, m.bottom), b1 = V(m.maxX, m.minY, m.bottom);
-  const b2 = V(m.maxX, m.maxY, m.bottom), b3 = V(m.minX, m.maxY, m.bottom);
+  const b0 = V(m.minX, m.minY, m.bottom, -1), b1 = V(m.maxX, m.minY, m.bottom, -1);
+  const b2 = V(m.maxX, m.maxY, m.bottom, -1), b3 = V(m.minX, m.maxY, m.bottom, -1);
   idx.push(b0, b1, b2, b0, b2, b3);
 
   const g = new THREE.BufferGeometry();
-  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  const attr = new THREE.BufferAttribute(pos.subarray(0, n * 3), 3);
+  attr.setUsage(THREE.DynamicDrawUsage);
+  g.setAttribute("position", attr);
   g.setIndex(idx); g.computeVertexNormals();
+  g.computeBoundingBox();
+  g.userData.map = map.subarray(0, n);
   return g;
+}
+
+/** Przepisanie wysokości w istniejącej siatce (bez alokacji). */
+function updateHeightmapMesh(g: THREE.BufferGeometry, h: Float32Array) {
+  const attr = g.getAttribute("position") as THREE.BufferAttribute;
+  const pos = attr.array as Float32Array;
+  const map = g.userData.map as Int32Array;
+  for (let v = 0; v < map.length; v++) { const k = map[v]; if (k >= 0) pos[v * 3 + 1] = h[k]; }
+  attr.needsUpdate = true;
+  g.computeVertexNormals();
 }
 
 /** Bryła pręta z profilu (zewnętrznego i otworu) — obrót wokół osi Z tokarki. */

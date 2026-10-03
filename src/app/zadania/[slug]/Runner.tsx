@@ -3,12 +3,15 @@ import { useState } from "react";
 import Simulator from "@/components/simulator/Simulator";
 import { checkExercise, type CheckResult } from "@/lib/checker";
 import type { Exercise } from "@/lib/content";
+import { exerciseTools } from "@/lib/programLibrary";
 
 const KEY = "gcat:zadania";
 const saveDone = (slug: string) => { try { const d = JSON.parse(localStorage.getItem(KEY) || "[]"); if (!d.includes(slug)) localStorage.setItem(KEY, JSON.stringify([...d, slug])); } catch {} };
 
 export default function Runner({ ex }: { ex: Exercise }) {
   const [src, setSrc] = useState(ex.starter);
+  // narzędzia dobrane do zadania (np. gwintownik w zadaniu z gwintami) — stała tabela dla całej sesji zadania
+  const [tools] = useState(() => exerciseTools(ex.tools));
   const [res, setRes] = useState<CheckResult | null>(null);
   const [showRef, setShowRef] = useState(false);
   const [hintsShown, setHintsShown] = useState(0);
@@ -21,7 +24,7 @@ export default function Runner({ ex }: { ex: Exercise }) {
 
   return (
     <div className="grid gap-4">
-      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={ex.mode} />
+      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={ex.mode} stock={ex.stock} tools={tools} />
 
       <div className="filters">
         <button className="btn" onClick={run}>Sprawdź rozwiązanie</button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
 import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
@@ -157,6 +158,20 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const fsCanvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
   const [playing, setPlaying] = useState(autoplay);
+  // Kliknięcie w link (logo, menu, karta) zatrzymuje animację — inaczej ciągłe klatki
+  // odkładały przejście na inną stronę aż do pauzy. Ukrycie karty przeglądarki też pauzuje.
+  useEffect(() => {
+    if (!playing) return;
+    const onClick = (e: MouseEvent) => {
+      const a = (e.target as Element | null)?.closest?.("a[href]");
+      const href = a?.getAttribute("href") ?? "";
+      if (a && href && !href.startsWith("#")) setPlaying(false);
+    };
+    const onVis = () => { if (document.hidden) setPlaying(false); };
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("visibilitychange", onVis);
+    return () => { document.removeEventListener("click", onClick, true); document.removeEventListener("visibilitychange", onVis); };
+  }, [playing]);
   const [speed, setSpeed] = useState(1);
   const [prevSource, setPrevSource] = useState(source);
   if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(autoplay); }
@@ -991,6 +1006,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </div>
       {appLayout && !compact && (
         <nav className="m-simtabs" aria-label="Sekcje symulatora">
+          {/* Na telefonie ten pasek zastępuje dolną nawigację serwisu — „Start” prowadzi na stronę główną */}
+          <Link href="/" className="m-simtabs-home" onClick={() => setPlaying(false)}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10" /></svg>
+            <span>Start</span>
+          </Link>
           {MTABS.map((t) => (
             <button key={t.id} type="button" aria-pressed={mTab === t.id}
               onClick={() => {

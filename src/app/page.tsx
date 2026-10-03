@@ -2,14 +2,14 @@ import Link from "next/link";
 import MobileHome from "@/components/MobileHome";
 import BrandLogo from "@/components/BrandLogo";
 import HomeResume from "@/components/HomeResume";
-import TrackResume from "@/components/lesson/TrackResume";
+import TrackPicker from "@/components/lesson/TrackPicker";
 import { pl } from "@/lib/plural";
 import { PROGRAMS } from "@/content/programy";
 import SimClient from "@/components/simulator/SimClient";
 import RefTables from "@/components/RefTables";
 import SectionHeader from "@/components/ui/SectionHeader";
 import { exercises } from "@/lib/content";
-import { flat, lessonHref, readyLessons, trackList } from "@/lib/course";
+import { flat, lessonHref, readyLessons } from "@/lib/course";
 import { gcodes } from "@/lib/gcodes";
 
 const DEMO = `(PLYTKA MOCUJACA 80 x 50)
@@ -104,28 +104,11 @@ export default function Home() {
       <section className="grid gap-4">
         <SectionHeader eyebrow="Nauka" title="Frezowanie czy toczenie?"
           lead="Każda ścieżka prowadzi od osi maszyny do kompletnego programu detalu." />
-        <div className="home-tracks">
-          {trackList.map((t) => {
-            const ready = readyLessons(t.key);
-            const first = ready[0];
-            return (
-              <div key={t.key} className="home-track">
-                <Link href={`/nauka/${t.key}`} className="home-track-head">
-                  <span className="home-track-k">Ścieżka</span>
-                  <b>{t.title}</b>
-                  <span>{t.blurb}</span>
-                  <span className="home-track-m">{pl(ready.length, "lekcja", "lekcje", "lekcji")} · {t.part}</span>
-                </Link>
-                {first && <TrackResume track={t.key} lessons={ready.map((l) => ({ id: l.id, title: l.title, href: lessonHref(t.key, l.slug!) }))}
-                  fallback={{ href: lessonHref(t.key, first.slug!), label: `Zacznij od ${first.id}: ${first.title}` }} />}
-              </div>
-            );
-          })}
-        </div>
+        <TrackPicker />
       </section>
 
-      {/* 5: baza wiedzy i narzędzia */}
-      <section className="grid gap-4">
+      {/* 5: baza wiedzy i narzędzia — na telefonie te działy są w „Szybkim dostępie” i dolnym pasku */}
+      <section className="grid gap-4 home-access">
         <SectionHeader eyebrow="Baza wiedzy i narzędzia" title="Kody, kalkulatory, programy, zadania" />
         <div className="pillars">
           {ACCESS.map((p) => (

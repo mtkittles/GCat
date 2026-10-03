@@ -3,13 +3,12 @@ import Image from "next/image";
 import HomeResume, { type ResumeLesson } from "./HomeResume";
 
 // accent: ikona pomarańczowa (jak w mockupie część kafli), reszta biała
+// Nauka, Symulator i Kalkulatory są stale w dolnym pasku — tu tylko działy, których tam nie ma.
 const TILES = [
-  { href: "/nauka", label: ["Nauka", "G-code"], icon: "screen", accent: true },
-  { href: "/symulator", label: ["Symulator", "CNC"], icon: "cube", accent: false },
-  { href: "/kalkulator", label: ["Kalkulatory", "obróbki"], icon: "calc", accent: true },
-  { href: "/slownik", label: ["Słownik", "pojęć"], icon: "doc", accent: false },
+  { href: "/kody", label: ["Kody", "G i M"], icon: "code", accent: true },
+  { href: "/programy", label: ["Gotowe", "programy"], icon: "play", accent: false },
   { href: "/zadania", label: ["Zadania", "i ćwiczenia"], icon: "task", accent: false },
-  { href: "/kody", label: ["Kody", "G i M"], icon: "code", accent: false },
+  { href: "/slownik", label: ["Słownik", "pojęć"], icon: "doc", accent: false },
 ] as const;
 
 const ICONS: Record<string, string[]> = {
@@ -19,6 +18,7 @@ const ICONS: Record<string, string[]> = {
   doc: ["M14 2H6v20h12V6z", "M14 2v4h4", "M9 12h6", "M9 16h6"],
   task: ["M15 3H5v18h7", "M15 3l4 4v5", "M8 9h6", "M8 13h4", "M14 18l2 2 4-4"],
   code: ["M9 8l-5 4 5 4", "M15 8l5 4-5 4"],
+  play: ["M4 4h16v16H4z", "M10 8.5v7l6-3.5z"],
 };
 
 function Ico({ name }: { name: string }) {
@@ -29,11 +29,10 @@ function Ico({ name }: { name: string }) {
   );
 }
 
-function SectionHead({ title, href }: { title: string; href: string }) {
+function SectionHead({ title }: { title: string }) {
   return (
     <div className="dash-head">
       <h3>{title}</h3>
-      <Link href={href}>Zobacz wszystko <span aria-hidden="true">›</span></Link>
     </div>
   );
 }
@@ -56,8 +55,8 @@ export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
 
       {/* 2. szybki dostęp — te same nazwy co w menu na komputerze */}
       <div>
-        <SectionHead title="Szybki dostęp" href="/nauka" />
-        <div className="dash-grid">
+        <SectionHead title="Szybki dostęp" />
+        <div className="dash-grid dash-grid-4">
           {TILES.map((t) => (
             <Link key={t.href} href={t.href} className={`dash-tile${t.accent ? " is-accent" : ""}`}>
               <Ico name={t.icon} />

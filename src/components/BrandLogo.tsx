@@ -29,7 +29,7 @@ export default function BrandLogo({
   }
 
   const src = onDark ? "/brand/gcat-mark-dark.png" : "/brand/gcat-mark-light.png";
-  const mark = <Image src={src} alt="GCat" height={height} width={Math.round(height * 1.38)} className="brand-logo" style={{ height, width: "auto" }} priority />;
+  const mark = <Image src={src} alt="GCat" height={height} width={Math.round(height * 1.3)} className="brand-logo" style={{ height, width: "auto" }} priority />;
 
   if (variant === "mark") return mark;
 

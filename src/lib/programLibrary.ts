@@ -31,3 +31,11 @@ export function simTools(p: LibProgram): Record<number, Tool> {
   for (const [k, t] of Object.entries(p.tools)) out[Number(k)] = { ...makeTool(t.kind), ...t };
   return out;
 }
+
+/** Narzędzia zadania (z content/exercises.json) jako tabela symulatora. */
+export function exerciseTools(tools?: Record<string, { kind: string } & Record<string, unknown>>): Record<number, Tool> | undefined {
+  if (!tools) return undefined;
+  const out: Record<number, Tool> = {};
+  for (const [k, t] of Object.entries(tools)) out[Number(k)] = { ...makeTool(t.kind as ToolKind), ...(t as Partial<Tool>) } as Tool;
+  return out;
+}
