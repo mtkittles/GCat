@@ -8,10 +8,10 @@ import { useSyncExternalStore } from "react";
 */
 
 export type SimView = "2d" | "3d" | "split";
-export interface SimLayout { view: SimView; hud: boolean; ticks: boolean; follow: boolean; lines: boolean }
+export interface SimLayout { view: SimView; hud: boolean; ticks: boolean; follow: boolean; lines: boolean; learn: boolean }
 
 const KEY = "gcat:sim:layout";
-export const DEFAULT_LAYOUT: SimLayout = { view: "2d", hud: true, ticks: false, follow: true, lines: false };
+export const DEFAULT_LAYOUT: SimLayout = { view: "2d", hud: true, ticks: false, follow: true, lines: false, learn: false };
 let mem: SimLayout = DEFAULT_LAYOUT, loaded = false;
 const subs = new Set<() => void>();
 

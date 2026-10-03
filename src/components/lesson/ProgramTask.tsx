@@ -16,7 +16,7 @@ export default function ProgramTask({ starter, checks, hints = [], solution, mod
   const [showSol, setShowSol] = useState(false);
   return (
     <div className="ptask">
-      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={mode}
+      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={mode} reference={showSol ? solution : undefined}
         stock={mode === "mill" ? { x: 80, y: 50, z: 20, ox: 0, oy: 0, oz: 20 } : undefined} />
       <div className="ptask-actions">
         <button type="button" className="btn" onClick={() => setRes(runTaskChecks(src, checks, mode))}>Sprawdź program</button>

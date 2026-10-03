@@ -22,7 +22,7 @@ export default function Runner({ ex }: { ex: Exercise }) {
 
   return (
     <div className="grid gap-4">
-      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={ex.mode} stock={ex.stock} tools={tools} />
+      <Simulator source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={ex.mode} stock={ex.stock} tools={tools} reference={ex.reference} />
 
       <div className="filters">
         <button className="btn" onClick={run}>Sprawdź rozwiązanie</button>

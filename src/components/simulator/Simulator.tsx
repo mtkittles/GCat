@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
@@ -9,6 +9,11 @@ import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheSt
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import SetupPanel from "./SetupPanel";
+import LearnPanel from "./LearnPanel";
+import { download, pathToSvg } from "./exportPath";
+import type { Sim3DApi } from "./Sim3D";
+import { useAccount } from "@/lib/auth";
+import { can } from "@/lib/entitlements";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup, type Stock, type Tool } from "./setup";
 import {
@@ -49,6 +54,8 @@ interface Props {
   settingsExtra?: ReactNode;
   /** Układ aplikacji na telefonie: zakładki Kod / Symulacja / Narzędzia / Ustawienia (strona /symulator). */
   appLayout?: boolean;
+  /** Program wzorcowy (zadanie, rozwiązanie) do nałożenia na tor jako przerywana linia. */
+  reference?: string;
 }
 
 type MTab = "code" | "sim" | "tools" | "set";
@@ -72,7 +79,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units, dialect }), [source, mode, units, dialect]);
   // Układ podglądu: na komputerze z ustawień zapamiętanych w przeglądarce, w trybie osadzonym — lokalnie.
@@ -177,6 +184,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(autoplay); }
 
   const [showComp, setShowComp] = useState(true);
+  const [localLearn, setLocalLearn] = useState(false);
+  const learn = appLayout ? layout.learn : localLearn;
+  const setLearn = (v: boolean) => (appLayout ? setLayout({ learn: v }) : setLocalLearn(v));
+  const [showRef, setShowRef] = useState(false);
+  const refSegments = useMemo(() => (reference ? parseProgram(reference, { diameterX: mode === "lathe", units, dialect }).segments.filter((sg) => sg.kind !== "rapid" && sg.kind !== "dwell") : null), [reference, mode, units, dialect]);
+  const api3d = useRef<Sim3DApi | null>(null);
+  const onApi3d = useCallback((api: Sim3DApi | null) => { api3d.current = api; }, []);
+  const account = useAccount();
+  const plan = account.profile?.plan ?? "free";
+  const proExports = can(plan, "exports");
   const comp = useMemo(() => applyCompensation(program, setup, mode), [program, setup, mode]);
   const segments = showComp && comp.active ? comp.segments : program.segments;
   const lengths = useMemo(() => segments.map(playLength), [segments]);
@@ -507,6 +524,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
+    // wzorzec z zadania: tor roboczy rozwiązania jako przerywana linia pod torem użytkownika
+    if (showRef && refSegments) {
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
+      for (const sg of refSegments) { ctx.strokeStyle = "rgba(167,139,250,0.9)"; drawSeg(ctx, sg, P, 1, 0.9); }
+      ctx.restore();
+    }
     // ścieżka
     const bare = compact || showcase;
     let acc = 0;
@@ -646,7 +669,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, showRef, refSegments]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
 
@@ -730,6 +753,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <tbody>
           <tr><th>X</th><td>{fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td>{fmt(currentPos.y)}</td></>}<th>Z</th><td>{fmt(currentPos.z)}</td></tr>
           <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
+          {st?.rotary && <tr>{(["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <Fragment key={k}><th>{k.toUpperCase()}</th><td>{fmt(st.rotary![k]!)}°</td></Fragment>)}</tr>}
         </tbody>
       </table>
       <div className="vh-mod">
@@ -789,7 +813,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }
 
   return (
-    <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined}
+    <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined} tabIndex={-1}
+      onKeyDown={(e) => {
+        const el = e.target as HTMLElement;
+        if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
+        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); setPlaying((p) => !p); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }
+        else if (e.key === "Home") { e.preventDefault(); setPlaying(false); setProgress(0); }
+      }}
       className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
@@ -911,6 +943,24 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
                 </svg>
               </button>
+              <button aria-pressed={learn} onClick={() => setLearn(!learn)} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)">
+                <span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span>
+              </button>
+              {refSegments && refSegments.length > 0 && <button aria-pressed={showRef} onClick={() => setShowRef((v) => !v)} title="Nałóż tor wzorcowy jako przerywaną linię">
+                <span className="lbl-long">Wzorzec</span><span className="lbl-short">Wzór</span>
+              </button>}
+              <details className="lay-menu exp-menu">
+                <summary title="Eksport podglądu i toru">Eksport ▾</summary>
+                <div className="lay-pop">
+                  <button type="button" onClick={() => { canvasRef.current?.toBlob((b) => { if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".png", b); }); }}>Podgląd 2D (PNG)</button>
+                  {proExports ? (
+                    <button type="button" onClick={() => download((fileName || "program").replace(/\.[^.]+$/, "") + ".svg", pathToSvg(segments, mode, fileName || "GCat"), "image/svg+xml")}>Tor narzędzia (SVG)</button>
+                  ) : <Link href="/konto/pro" className="exp-locked">Tor narzędzia (SVG) <span className="chip chip-accent">Pro</span></Link>}
+                  {proExports ? (
+                    <button type="button" disabled={!show3d} title={show3d ? "Bryła po obróbce z widoku 3D" : "Włącz widok 3D"} onClick={() => { const b = api3d.current?.exportStl(); if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".stl", b); }}>Bryła po obróbce (STL){!show3d ? " — włącz 3D" : ""}</button>
+                  ) : <Link href="/konto/pro" className="exp-locked">Bryła po obróbce (STL) <span className="chip chip-accent">Pro</span></Link>}
+                </div>
+              </details>
               {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
                 title={mode === "lathe" ? "Tor punktu P ostrza z uwzględnieniem G41/G42 i promienia naroża" : "Tor środka narzędzia z uwzględnieniem G41/G42"}>
                 <span className="lbl-long">{showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</span>
@@ -928,7 +978,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} onApi={onApi3d} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -937,6 +987,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           Prędkość
           <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
+        {!compact && learn && <div className="m-sim"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && (
           <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>

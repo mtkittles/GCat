@@ -5,11 +5,13 @@ import * as THREE from "three";
 import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean }
+export interface Sim3DApi { exportStl: () => Blob | null }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; onApi?: (api: Sim3DApi | null) => void }
 
 const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
 const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
@@ -31,7 +33,7 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, onApi }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
@@ -301,6 +303,19 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     if (broke) queueMicrotask(() => setFailed("error"));
   }, [program, lengths, progress, mode, toolD, setup, tool, failed, source, meshTick]);
   useEffect(() => () => { if (trailT.current) clearTimeout(trailT.current); }, []);
+
+  // Eksport bryły półfabrykatu po obróbce (mapa wysokości / profil) do STL w milimetrach.
+  useEffect(() => {
+    if (!onApi) return;
+    onApi({
+      exportStl: () => {
+        const st = sceneRef.current; if (!st?.stock) return null;
+        const text = new STLExporter().parse(st.stock, { binary: false }) as string;
+        return new Blob([text], { type: "model/stl" });
+      },
+    });
+    return () => onApi(null);
+  }, [onApi]);
 
   const toggleGhost = () => {
     const st = sceneRef.current; if (!st) return;
