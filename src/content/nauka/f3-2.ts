@@ -97,6 +97,9 @@ export const f3_2: LessonDoc = {
   },
 
   quiz: [
+    {"kind":"bughunt","q":"Pierwszy ruch roboczy w programie. Który blok zgłosi alarm?","program":"G00 X-20. Y10.\nG00 Z5.\nG01 Z-5.\nG01 X-5. F400\nG01 Y55.","answer":2,"why":"Pierwszy G01 bez posuwu F — sterowanie nie wie, jak szybko zejść i zgłasza alarm. Zejście potrzebuje własnego F, np. F150."},
+    {"kind":"choice","q":"Gdzie skończy frez po tym fragmencie?","code":"G90 G00 X10. Y10. Z5.\nG01 Z-2. F100\nX40.\nY30.\nG00 Z5.","options":["X40 Y30 Z5","X40 Y30 Z−2","X10 Y30 Z5","X40 Y10 Z5"],"answer":0,"why":"Bloki `X40.` i `Y30.` dziedziczą G01; ostatni blok podnosi Z do 5, X i Y zostają."},
+
     { kind: "choice", review: "F3.1", q: "Po `G00 Z5.` programista chce zejść na Z−5. Który blok?", options: ["`Z-5.`", "`G01 Z-5. F150`", "`G00 Z-5.`", "`G28 Z-5.`"], answer: 1, why: "Bez G01 obowiązuje G00 z poprzedniego bloku." },
     { kind: "choice", q: "Czym G01 różni się od G00?", options: ["jedzie z posuwem F po odcinku prostym", "jedzie szybciej", "działa tylko w Z", "nie wymaga współrzędnych"], answer: 0, why: "G01 to ruch roboczy z posuwem." },
     { kind: "gap", q: "Frez Ø12, prawa krawędź detalu w X60. Jaki X środka dla obróbki tej krawędzi z zewnątrz?", template: "X{0}", answers: [["66"]], why: "60 + 6 = 66." },

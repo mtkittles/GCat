@@ -69,6 +69,8 @@ export const f3_4: LessonDoc = {
       kind: "drill",
       intro: "Przeliczanie środka.",
       questions: [
+    {"kind":"choice","q":"Gdzie skończy się ten łuk?","code":"G90 G17 G00 X20. Y20.\nG02 X40. Y40. I20. J0.","options":["X40 Y40 — ćwierć okręgu o środku (40, 20)","X40 Y40 — ćwierć okręgu o środku (20, 40)","X60 Y20","alarm — brak R"],"answer":0,"why":"I20 J0 od punktu startu (20, 20) daje środek (40, 20); z (20, 20) do (40, 40) zgodnie z zegarem to ćwierć okręgu R20."},
+
         { kind: "gap", q: "Start X20 Y10, środek X20 Y30. Podaj I i J.", template: "I{0} J{1}", answers: [["0"], ["20"]], why: "I = 20 − 20 = 0, J = 30 − 10 = 20." },
         { kind: "gap", q: "Start X60 Y40, środek X45 Y40. Podaj I.", template: "I{0}", answers: [["-15"]], why: "45 − 60 = −15." },
         { kind: "choice", q: "Start X10 Y0, blok `G03 I-10.`. Gdzie jest środek?", options: ["X0 Y0", "X20 Y0", "X−10 Y0", "X10 Y−10"], answer: 0, why: "10 + (−10) = 0." },

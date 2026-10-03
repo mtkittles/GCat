@@ -49,6 +49,8 @@ export const f2_2: LessonDoc = {
       kind: "drill",
       intro: "Obliczenia i kody wrzeciona. Przy obliczeniach wystarczy wynik w pełnych obrotach.",
       questions: [
+        {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny nie skrawa, tylko trze i łamie się. Powinno być S2500 M03."},
+
         { kind: "gap", q: "Frez Ø8, vc = 100 m/min. Ile obrotów (w pełnych obr/min)?", template: "n = {0}", answers: [["3979", "3978", "3980"]], why: "1000 · 100 / (π · 8) ≈ 3979 obr/min." },
         { kind: "token", q: "Tapnij słowo, które **uruchamia** obroty.", block: "S1800 M03 M08", answer: 1, why: "M03 włącza obroty w prawo z wartością S1800. M08 to chłodziwo." },
         { kind: "choice", q: "Wiertło Ø5 i wiertło Ø20 z tego samego materiału, to samo vc. Które potrzebuje większych obrotów?", options: ["Ø5, czterokrotnie większych", "Ø20", "takich samych", "zależy od posuwu"], answer: 0, why: "Obroty są odwrotnie proporcjonalne do średnicy." },

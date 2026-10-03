@@ -78,6 +78,8 @@ export const t1_2: LessonDoc = {
       kind: "drill",
       intro: "Przeliczanie U i W.",
       questions: [
+    {"kind":"choice","q":"Gdzie stanie nóż po tych blokach (X w średnicy)?","code":"G00 X44. Z2.\nG01 U-8. F0.2\nW-20.\nU6.","options":["X42 Z−18","X36 Z−18","X42 Z−20","X38 Z−22"],"answer":0,"why":"U i W to przyrosty: X44 − 8 = X36, Z2 − 20 = Z−18, X36 + 6 = X42."},
+
         { kind: "gap", q: "Nóż w X40. Cel Ø32. Zapisz przyrostowo.", template: "U{0}", answers: [["-8", "-8."]], why: "32 − 40 = −8." },
         { kind: "gap", q: "Nóż w X30 Z-20. Blok `U6. W-15.`. Gdzie stanie?", template: "X{0} Z{1}", answers: [["36"], ["-35"]], why: "30 + 6 = 36, −20 − 15 = −35." },
         { kind: "choice", q: "Tokarka Fanuc, system A. Co zrobi blok `G90 X30. Z-20. F0.2`?", options: ["wykona cykl toczenia wzdłużnego", "ustawi wymiary absolutne i pojedzie po prostej", "alarm", "nic"], answer: 0, why: "W systemie A G90 to cykl." },

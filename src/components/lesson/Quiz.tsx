@@ -24,6 +24,7 @@ function grade(q: Question, a: Ans) {
   if (q.kind === "choice") return a === q.answer;
   if (q.kind === "gap") return q.answers.every((acc, i) => acc.some((v) => same((a as string[])[i] ?? "", v)));
   if (q.kind === "token") return a === q.answer;
+  if (q.kind === "bughunt") return a === q.answer;
   if (q.kind === "order") { const o = a as number[]; return o.length === q.answer.length && o.every((v, i) => v === q.answer[i]); }
   const p = a as [number, number]; return p[0] === q.target[0] && p[1] === q.target[1];
 }
@@ -96,7 +97,16 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
       </div>
       <div className="quiz-bar" aria-hidden><i style={{ width: `${(pos / order.length) * 100}%` }} /></div>
       <p className="quiz-q">{rich(q.q)}</p>
+      {(q.kind === "choice" || q.kind === "gap") && q.code && <pre className="syntax quiz-code">{q.code}</pre>}
       {q.kind === "choice" && q.fig && figs[q.fig]}
+      {q.kind === "bughunt" && (
+        <ol className="bug-code" role="radiogroup" aria-label="Linie programu">
+          {q.program.split("\n").map((line, i) => {
+            const state = checked ? (i === q.answer ? "is-ok" : i === ans ? "is-bad" : "") : ans === i ? "is-sel" : "";
+            return <li key={i}><button type="button" role="radio" aria-checked={ans === i} disabled={checked} className={state} onClick={() => setAns(i)}><span className="bug-n">{i + 1}</span><code>{line || " "}</code></button></li>;
+          })}
+        </ol>
+      )}
 
       {q.kind === "choice" && (
         <div className="quiz-opts" role="radiogroup">

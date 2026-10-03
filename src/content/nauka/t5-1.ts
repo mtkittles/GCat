@@ -114,6 +114,8 @@ export const t5_1: LessonDoc = {
       kind: "drill",
       intro: "Adresy G71 i wymagania konturu.",
       questions: [
+    {"kind":"bughunt","q":"Kontur dla G71. Który blok sprawi, że cykl zgłosi alarm?","program":"N10 G00 X14.\nG01 X20. Z-1. F0.1\nZ-20.\nX28.\nX26. Z-25.\nZ-40.\nN20 X42.","answer":4,"why":"W podstawowym G71 średnica w konturze nie może maleć — X26 po X28 to podcięcie. Rowek pod gwint robi się osobnym nożem."},
+
         { kind: "token", q: "W drugim bloku tapnij **naddatek w X**.", block: "G71 P10 Q20 U0.4 W0.1 F0.3", answer: 3, why: "U0.4 — naddatek w średnicy." },
         { kind: "choice", q: "Pręt Ø40, U2. w pierwszym bloku G71. Średnica pierwszego przejścia przy starcie z X42?", options: ["Ø38", "Ø40", "Ø36", "Ø41"], answer: 0, why: "Cykl schodzi z X42 o 2 mm na stronę: 42 − 4 = 38." },
         { kind: "choice", q: "Pierwszy blok konturu to `N10 G01 X14. Z0.`. Co jest nie tak?", options: ["pierwszy blok G71 może mieć ruch tylko w X", "brak F", "N10 musi być G00", "nic"], answer: 0, why: "Blok ns wyznacza dojście z A do konturu w jednej osi." },

@@ -8,10 +8,12 @@ import type { Block } from "@/lib/article";
 */
 
 export type Question =
-  /** Wybór jednej odpowiedzi. */
-  | { kind: "choice"; q: string; options: string[]; answer: number; why: string; fig?: string; review?: string }
+  /** Wybór jednej odpowiedzi. `code` — fragment programu pokazany nad pytaniem (np. „gdzie skończy narzędzie?”). */
+  | { kind: "choice"; q: string; options: string[]; answer: number; why: string; fig?: string; review?: string; code?: string }
   /** Uzupełnij luki. W `template` luki to {0}, {1}…; `answers[i]` to akceptowane wartości luki i. */
-  | { kind: "gap"; q: string; template: string; answers: string[][]; why: string; review?: string }
+  | { kind: "gap"; q: string; template: string; answers: string[][]; why: string; review?: string; code?: string }
+  /** Znajdź błędny blok: `program` wielowierszowy, `answer` = indeks linii (od 0). */
+  | { kind: "bughunt"; q: string; program: string; answer: number; why: string; review?: string }
   /** Zaznacz punkt na siatce (widok z góry, X w prawo, Y w górę). */
   | { kind: "point"; q: string; target: [number, number]; why: string; review?: string }
   /** Tapnij właściwe słowo w bloku. `block` dzielony po spacjach, `answer` = indeks słowa. */

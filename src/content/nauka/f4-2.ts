@@ -93,6 +93,8 @@ export const f4_2: LessonDoc = {
       kind: "drill",
       intro: "Strona korekcji i korekcja zużycia.",
       questions: [
+    {"kind":"bughunt","q":"Kompensacja promienia. Który blok zgłosi alarm na większości sterowań?","program":"G00 X-20. Y10.\nG01 Z-5. F150\nG41 D1 G03 X0. Y10. R10. F400\nG01 Y55.\nG40 G01 X-20.","answer":2,"why":"Kompensacji nie wolno włączać w bloku z łukiem. Najpierw odcinek z G41 (np. do X−10 Y0), dopiero potem G03."},
+
         { kind: "gap", q: "Płytka zmierzona: 50,06 zamiast 50,00. O ile zmienić D?", template: "{0}", answers: [["-0.03", "-0,03"]], why: "Odchyłka +0,06, połowa na każdą stronę: D − 0,03." },
         { kind: "choice", q: "Kieszeń obiegana przeciwnie do zegara, frez ma być po lewej stronie ruchu. Który kod?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Lewa strona — G41." },
         { kind: "choice", q: "Czy można włączyć korekcję blokiem `G41 D1 G02 X10. Y50. R10.`?", options: ["nie — tylko ruchem liniowym", "tak", "tylko na Sinumeriku", "tylko z G91"], answer: 0, why: "Włączanie i wyłączanie korekcji odbywa się na odcinku prostym." },

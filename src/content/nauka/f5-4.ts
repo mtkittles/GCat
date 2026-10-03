@@ -53,6 +53,8 @@ export const f5_4: LessonDoc = {
       kind: "drill",
       intro: "Wysokości powrotu i kasowanie cyklu.",
       questions: [
+    {"kind":"bughunt","q":"Między otworem 2 a 3 stoi docisk wysoki na 25 mm. Który blok jest niebezpieczny?","program":"G00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG99 X45.\nX75.\nG80","answer":2,"why":"Po otworze 2 powrót do R (2 mm nad detalem) i przejazd do X75 uderzy w docisk. Tu potrzebny G98 — powrót do poziomu początkowego Z30."},
+
         { kind: "choice", q: "Cztery otwory na płaskiej płycie, nic nie wystaje. Który kod powrotu?", options: ["G99", "G98", "bez znaczenia", "G80"], answer: 0, why: "G99 skraca drogę — nie ma nad czym przeskakiwać." },
         { kind: "choice", q: "Po którym otworze trzeba wrócić wyżej, jeśli docisk stoi między otworem 2 a 3?", options: ["po otworze 2", "po otworze 3", "po otworze 1", "po każdym"], answer: 0, why: "Wysokość powrotu po otworze 2 decyduje o przejeździe nad dociskiem." },
         { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99 (dla wszystkich otworów)?", template: "{0} mm", answers: [["444"]], why: "Na każdy otwór 2 × (40 − 3) = 74 mm, razy 6 = 444 mm." },

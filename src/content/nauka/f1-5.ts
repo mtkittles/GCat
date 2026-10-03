@@ -60,6 +60,8 @@ export const f1_5: LessonDoc = {
       kind: "drill",
       intro: "Ułóż sekcje programu i znajdź braki.",
       questions: [
+        {"kind":"bughunt","q":"Który blok jest w złym miejscu? Program ma ruszyć bezpiecznie.","program":"O1000 (PLYTKA)\nT1 M06\nG21 G90 G17\nG40 G49 G80\nG54\nG43 H1 Z50.\nS2500 M03","answer":1,"why":"Wymiana narzędzia stoi przed blokiem startowym — przy innym stanie sterowania (np. G91 z poprzedniego programu) nawet dojazd do wymiany może pójść źle. Najpierw G21 G90 G17, G40 G49 G80 i G54, potem T1 M06."},
+
         { kind: "order", q: "Ułóż bloki programu w kolejności wykonania.",
           items: ["M30", "S2500 M03", "O1000 (PLYTKA)", "(OBROBKA)", "T1 M06", "G21 G90 G17 G40 G49 G80", "M05"],
           answer: [2, 5, 4, 1, 3, 6, 0],

@@ -63,6 +63,8 @@ export const f1_3: LessonDoc = {
       kind: "drill",
       intro: "Przeliczaj w obie strony. Minus wpisuj zwykłym znakiem „-”.",
       questions: [
+    {"kind":"choice","q":"Gdzie stanie frez po tych blokach?","code":"G90 G00 X10. Y5.\nG91 G01 X20. F300\nY15.\nX-5.","options":["X25 Y20","X30 Y20","X-5 Y15","X15 Y20"],"answer":0,"why":"Od X10 Y5: +20 w X → X30, +15 w Y → Y20, −5 w X → X25."},
+
         { kind: "gap", q: "Frez w X10. Y10., cel X60. Y10. Zapisz ruch w G91.", template: "G91 X{0}", answers: [["50"]], why: "60 − 10 = 50. Y się nie zmienia, więc go pomijasz." },
         { kind: "gap", q: "Frez w X60. Y40., cel X20. Y15. Zapisz ruch w G91.", template: "G91 X{0} Y{1}", answers: [["-40"], ["-25"]], why: "20 − 60 = −40 oraz 15 − 40 = −25." },
         { kind: "gap", q: "Frez w X30. Y20. wykonuje `G91 X-15. Y25.`. Gdzie stanie w G90?", template: "X{0} Y{1}", answers: [["15"], ["45"]], why: "30 − 15 = 15 oraz 20 + 25 = 45." },

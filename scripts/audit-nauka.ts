@@ -47,6 +47,10 @@ function checkQuestion(where: string, q: Question, track: Track, idx: number) {
     const ok = q.answer.length === q.items.length && [...q.answer].sort((a, b) => a - b).every((v, i) => v === i);
     if (!ok) warn(where, `kolejność nie jest permutacją: ${q.q}`);
   }
+  if (q.kind === "bughunt") {
+    const n = q.program.split("\n").length;
+    if (q.answer < 0 || q.answer >= n) warn(where, `bughunt: linia ${q.answer} poza programem (${n} linii): ${q.q}`);
+  }
   if (q.kind === "token") {
     const toks = q.block.includes("|") ? q.block.split("|").map((x) => x.trim()) : q.block.split(/\s+/);
     if (q.answer >= toks.length) warn(where, `token poza zakresem: ${q.q}`);

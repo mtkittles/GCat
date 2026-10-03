@@ -59,6 +59,8 @@ export const t2_2: LessonDoc = {
       kind: "drill",
       intro: "Obroty przy G96.",
       questions: [
+    {"kind":"bughunt","q":"Planowanie czoła do osi. Który blok jest w złej kolejności?","program":"T0101\nG96 S200 M03\nG50 S3000\nG00 X44. Z0.\nG01 X-1.6 F0.15","answer":2,"why":"Limit obrotów musi stać PRZED G96 — tu wrzeciono rozpędza się bez ograniczenia, zanim limit zadziała. Kolejność: G50 S3000, potem G96 S200 M03."},
+
         { kind: "gap", q: "G96 S180, średnica Ø30. Obroty (pełne obr/min):", template: "n = {0}", answers: [["1910", "1909", "1911"]], why: "1000 · 180 / (π · 30) ≈ 1910." },
         { kind: "gap", q: "G96 S150, G50 S2500. Poniżej jakiej średnicy działa limit (mm, do 0,1)?", template: "Ø{0}", answers: [["19.1", "19,1"]], why: "1000 · 150 / (π · 2500) ≈ 19,1." },
         { kind: "choice", q: "Wiercenie w osi wiertłem Ø8. Który tryb obrotów?", options: ["G97 z obrotami dla Ø8", "G96", "G50", "bez znaczenia"], answer: 0, why: "Przy D = 0 G96 dałby od razu limit." },
