@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     u("/", 1, "weekly"),
     u("/nauka", 0.9, "weekly"), u("/nauka/frezowanie", 0.9), u("/nauka/toczenie", 0.9),
+    u("/nauka/start", 0.8), u("/fiszki", 0.6), u("/konto/pro", 0.4),
     u("/kody", 0.9), u("/symulator", 0.9), u("/zadania", 0.8), u("/programy", 0.8), u("/kalkulator", 0.7), u("/slownik", 0.7),
     ...(["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => u(lessonHref(t, l.slug!), 0.8))),
     ...gcodes.map((g) => u(`/kody/${g.slug}`, 0.7)),

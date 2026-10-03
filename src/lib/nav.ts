@@ -7,4 +7,5 @@ export const NAV = [
   { href: "/programy", label: "Programy" },
   { href: "/kalkulator", label: "Kalkulator" },
   { href: "/slownik", label: "Słownik" },
+  { href: "/fiszki", label: "Fiszki" },
 ];

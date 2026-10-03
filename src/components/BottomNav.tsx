@@ -15,6 +15,7 @@ const MORE = [
   { href: "/zadania", label: "Zadania" },
   { href: "/kody", label: "Kody" },
   { href: "/slownik", label: "Słownik" },
+  { href: "/fiszki", label: "Fiszki" },
   { href: "/szukaj", label: "Szukaj" },
   { href: "/konto", label: "Konto" },
 ];

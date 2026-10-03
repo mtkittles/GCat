@@ -2473,3 +2473,70 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .exp-menu .lay-pop button:disabled { color: var(--muted); }
 .exp-locked { display: flex; justify-content: space-between; align-items: center; gap: .5rem; padding: .5rem .6rem; border-radius: 8px; border: 1px dashed var(--line-strong); color: var(--muted); font-size: 13px; }
 @media (max-width: 767px) { .viewbar .exp-menu { display: block; } .exp-menu .lay-pop { left: auto; right: 0; } }
+
+/* ---------- znajdź błąd (quiz) ---------- */
+.quiz-code { font-size: 13px; }
+.bug-code { display: grid; padding: .35rem 0; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); list-style: none; margin: 0; }
+.bug-code button { display: grid; grid-template-columns: 1.8rem 1fr; gap: .4rem; width: 100%; min-height: 38px; text-align: left; padding: .35rem .7rem .35rem 0; background: transparent; border: none; border-left: 3px solid transparent; color: var(--ink); font: 500 13.5px/1.4 var(--font-mono); }
+.bug-code .bug-n { text-align: right; color: var(--muted); font-size: 12px; }
+.bug-code button.is-sel { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.bug-code button.is-ok { border-left-color: var(--green); background: color-mix(in srgb, var(--green) 14%, transparent); }
+.bug-code button.is-bad { border-left-color: var(--red); background: color-mix(in srgb, var(--red) 12%, transparent); }
+.bug-code button:disabled { cursor: default; }
+:root:not([data-theme="dark"]) .bug-code { --ink: #F5F5F4; --muted: #8B8D93; --line: #2A2B30; }
+
+/* ---------- 7 dni ---------- */
+.s7-cta { display: grid; gap: .25rem; padding: 1rem 1.1rem; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--line)); background: var(--card); }
+.s7-cta:hover { border-color: var(--accent); }
+.s7-cta-k { font: 700 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.s7-cta b { font-family: var(--font-display); font-size: 1.15rem; }
+.s7-cta > span:last-child { color: var(--ink-2); font-size: 14px; }
+.s7 { display: grid; gap: .8rem; list-style: none; margin: 0; padding: 0; }
+.s7-day { display: grid; gap: .5rem; padding: .9rem 1rem; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.s7-day.is-done { border-color: color-mix(in srgb, var(--green) 50%, var(--line)); }
+.s7-head { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; }
+.s7-n { font: 700 12px/1 var(--font-mono); color: var(--accent); letter-spacing: .06em; text-transform: uppercase; }
+.s7-head b { font-family: var(--font-display); font-size: 1.05rem; }
+.s7-m { margin-left: auto; font-size: 12.5px; color: var(--muted); }
+.s7-goal { color: var(--ink-2); font-size: 14px; }
+.s7-lessons { display: grid; gap: .3rem; list-style: none; margin: 0; padding: 0; }
+.s7-lessons a { display: grid; grid-template-columns: 1.2rem auto 1fr auto; gap: .5rem; align-items: center; padding: .5rem .6rem; border-radius: 10px; border: 1px solid var(--line); min-height: 40px; }
+.s7-lessons a:hover { border-color: var(--accent); }
+.s7-lessons a.is-done { border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.s7-lessons i { font-style: normal; color: var(--green); font-weight: 700; text-align: center; }
+.s7-lessons code { font: 700 12.5px/1 var(--font-mono); color: var(--accent); }
+.s7-lessons small { color: var(--muted); }
+
+/* ---------- fiszki ---------- */
+.fc-top { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.fc-stats { display: flex; gap: 1rem; font-size: 13px; color: var(--muted); }
+.fc-stats b { color: var(--ink); }
+.fc { display: grid; gap: .8rem; }
+.fc-card { display: grid; gap: .6rem; justify-items: center; align-content: center; min-height: 240px; padding: 1.4rem; border-radius: 18px; border: 1px solid var(--line); background: var(--card); text-align: center; cursor: pointer; }
+.fc-card.is-back { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
+.fc-kind { font: 700 11.5px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fc-front { font-family: var(--font-display); font-size: clamp(1.3rem, 4vw, 1.9rem); font-weight: 700; letter-spacing: -.02em; }
+.fc-back { font-size: 15.5px; line-height: 1.55; color: var(--ink); max-width: 56ch; }
+.fc-hint { font-size: 12.5px; color: var(--muted); }
+.fc-actions { display: flex; gap: .6rem; justify-content: center; }
+.fc-actions .btn { min-width: 9rem; }
+.fc-meta { text-align: center; font-size: 13px; color: var(--muted); }
+
+/* ---------- certyfikat ---------- */
+.cert-tools { display: flex; gap: .5rem; flex-wrap: wrap; }
+.acct-cert { font-size: 13px; color: var(--muted); }
+.acct-cert:hover { color: var(--accent); }
+.cert { position: relative; display: grid; gap: .8rem; padding: 2.4rem 2rem; border-radius: 6px; border: 2px solid var(--accent); background: #FFFDF8; color: #111; text-align: center; overflow: hidden; }
+.cert::before { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(249,115,22,.45); border-radius: 3px; pointer-events: none; }
+.cert-brand { font: 700 12px/1 var(--font-mono); letter-spacing: .25em; text-transform: uppercase; color: #F97316; }
+.cert h1 { font-family: var(--font-display); font-size: 2rem; letter-spacing: -.02em; color: #111; }
+.cert-track { color: #444; }
+.cert-name { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; padding: .4rem 0; border-bottom: 1px solid #ddd; margin: 0 auto; min-width: 60%; }
+.cert-text { color: #333; max-width: 56ch; margin: 0 auto; line-height: 1.5; }
+.cert-foot { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font: 500 12px/1.4 var(--font-mono); color: #555; margin-top: .6rem; }
+.cert-wm { position: absolute; inset: 0; display: grid; place-items: center; font: 800 5rem/1 var(--font-display); color: rgba(249,115,22,.12); transform: rotate(-20deg); pointer-events: none; }
+@media print {
+  .site-header, .site-footer, .bottom-nav, .cert-tools, .note, .breadcrumbs { display: none !important; }
+  main { padding: 0 !important; }
+  .cert { border-width: 3px; border-radius: 0; page-break-inside: avoid; }
+}

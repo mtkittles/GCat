@@ -55,11 +55,13 @@ function Stats() {
             <div className="acct-track-h"><b>{t.title}</b><span>{s.passed} z {s.total} zaliczonych{s.avg !== null ? ` · średnio ${s.avg} %` : ""}</span></div>
             <div className="tp-bar"><i style={{ width: `${s.total ? Math.round(((s.passed + s.read * 0.5) / s.total) * 100) : 0}%` }} /></div>
             {s.next ? <Link href={lessonHref(t.key, s.next.slug!)} className="acct-next">Następna: {s.next.id} {s.next.title} →</Link> : <span className="acct-next">Ścieżka ukończona.</span>}
+            <Link href={`/konto/certyfikat/${t.key}`} className="acct-cert">{s.passed === s.total ? "Certyfikat ścieżki →" : `Certyfikat po zaliczeniu wszystkich testów (${s.passed}/${s.total})`}</Link>
           </div>
         ))}
       </div>
       <div className="flex flex-wrap gap-2">
         <button type="button" className="btn ghost" onClick={exportData}>Pobierz dane (JSON)</button>
+        <Link href="/fiszki" className="btn ghost">Fiszki</Link>
         <Link href="/konto/pro" className="btn ghost">Co daje Pro?</Link>
       </div>
     </section>
