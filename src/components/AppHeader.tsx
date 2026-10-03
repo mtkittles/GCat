@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import BrandLogo from "./BrandLogo";
 import SearchBox from "./SearchBox";
+import ThemeToggle from "./ThemeToggle";
 import { NAV } from "@/lib/nav";
 
 
@@ -34,6 +35,7 @@ export default function AppHeader() {
 
         <div className="header-tools">
           <SearchBox />
+          <ThemeToggle />
           <button className="nav-burger" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
               {open ? <><path d="M6 6l12 12" /><path d="M18 6L6 18" /></> : <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>}

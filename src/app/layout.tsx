@@ -22,15 +22,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#111214",
-  colorScheme: "dark",
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#F8FAFC" }, { media: "(prefers-color-scheme: dark)", color: "#111214" }],
+  colorScheme: "dark light",
   viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`}>
+    <html lang="pl" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="min-h-screen flex flex-col">
+        {/* Zapisany motyw ustawiamy przed malowaniem treści, żeby jasny motyw nie migał na ciemno. Domyślnie ciemny. */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}` }} />
         <AppHeader />
 
         <main className="wrap flex-1 py-7 w-full">{children}</main>
