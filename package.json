@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "audit:nauka": "npx --yes tsx scripts/audit-nauka.ts",
-    "test:calc": "npx --yes tsx scripts/test-calc.ts"
+    "test:calc": "npx --yes tsx scripts/test-calc.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "audit:programy": "npx --yes tsx scripts/audit-programy.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
@@ -32,6 +35,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3.2.7"
   }
 }
