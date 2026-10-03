@@ -1,5 +1,6 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { mergeProgress } from "./merge";
 
 /*
   Postęp nauki zapisywany w przeglądarce (localStorage). Każdy odczyt i zapis
@@ -27,6 +28,8 @@ const PASS = 0.8;
 let mem: ProgressStore = EMPTY;
 let loaded = false;
 const listeners = new Set<() => void>();
+/** Odbiorcy zmian zapisanych lokalnie (synchronizacja z kontem). Import z konta ich nie budzi. */
+const hooks = new Set<(store: ProgressStore) => void>();
 
 function load(): ProgressStore {
   if (loaded) return mem;
@@ -39,11 +42,18 @@ function load(): ProgressStore {
   return mem;
 }
 
-function commit(next: ProgressStore) {
+function commit(next: ProgressStore, silent = false) {
   mem = next;
   try { window.localStorage.setItem(KEY, JSON.stringify(next)); } catch { /* bez zapisu — zostaje w pamięci */ }
   listeners.forEach((l) => l());
+  if (!silent) hooks.forEach((h) => h(next));
 }
+
+export function onProgressChange(h: (store: ProgressStore) => void) { hooks.add(h); return () => { hooks.delete(h); }; }
+/** Bieżący stan (do wysłania na konto). */
+export function snapshotProgress(): ProgressStore { return load(); }
+/** Dane z konta scalane z lokalnymi — nic nie ginie, lepszy wynik wygrywa. */
+export function importProgress(remote: ProgressStore) { commit(mergeProgress(load(), remote), true); }
 
 function subscribe(cb: () => void) {
   listeners.add(cb);

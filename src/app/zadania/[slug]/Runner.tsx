@@ -4,9 +4,7 @@ import Simulator from "@/components/simulator/Simulator";
 import { checkExercise, type CheckResult } from "@/lib/checker";
 import type { Exercise } from "@/lib/content";
 import { exerciseTools } from "@/lib/programLibrary";
-
-const KEY = "gcat:zadania";
-const saveDone = (slug: string) => { try { const d = JSON.parse(localStorage.getItem(KEY) || "[]"); if (!d.includes(slug)) localStorage.setItem(KEY, JSON.stringify([...d, slug])); } catch {} };
+import { markExerciseDone } from "@/lib/exercisesDone";
 
 export default function Runner({ ex }: { ex: Exercise }) {
   const [src, setSrc] = useState(ex.starter);
@@ -19,7 +17,7 @@ export default function Runner({ ex }: { ex: Exercise }) {
   const run = () => {
     const r = checkExercise(src, { mode: ex.mode, reference: ex.reference, tolerance: ex.tolerance, requireCodes: ex.requireCodes, forbidCodes: ex.forbidCodes, maxCutLength: ex.maxCutLength });
     setRes(r);
-    if (r.passed) saveDone(ex.slug);
+    if (r.passed) markExerciseDone(ex.slug);
   };
 
   return (

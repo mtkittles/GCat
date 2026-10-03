@@ -1,19 +1,14 @@
 "use client";
 import Link from "next/link";
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import PageBanner from "@/components/ui/PageBanner";
 import { exercises } from "@/lib/content";
+import { useDone } from "@/lib/exercisesDone";
 
 const LEVEL = { 1: "podstawy", 2: "średni", 3: "zaawansowany" } as const;
-const EMPTY: string[] = [];
-let cache: string[] = EMPTY; let cacheRaw = "";
-const getDone = () => {
-  try { const raw = localStorage.getItem("gcat:zadania") || "[]"; if (raw !== cacheRaw) { cacheRaw = raw; cache = JSON.parse(raw); } return cache; } catch { return EMPTY; }
-};
-const subscribe = (cb: () => void) => { window.addEventListener("storage", cb); return () => window.removeEventListener("storage", cb); };
 
 export default function ExerciseList({ previews = {} }: { previews?: Record<string, ReactNode> }) {
-  const done = useSyncExternalStore(subscribe, getDone, () => EMPTY);
+  const done = useDone();
   const [mode, setMode] = useState<"all" | "mill" | "lathe">("all");
   const [lvl, setLvl] = useState<0 | 1 | 2 | 3>(0);
   const shown = exercises.map((e, i) => ({ e, i })).filter(({ e }) => (mode === "all" || e.mode === mode) && (!lvl || e.level === lvl));

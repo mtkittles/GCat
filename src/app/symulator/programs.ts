@@ -5,6 +5,8 @@
   po odświeżeniu strony i trzymać kilka plików otwartych w zakładkach.
 */
 
+import { mergePrograms } from "@/lib/merge";
+
 export interface StoredProgram {
   id: string;
   name: string;
@@ -24,9 +26,16 @@ export function loadPrograms(): StoredProgram[] {
   } catch { return []; }
 }
 
-export function savePrograms(list: StoredProgram[]) {
+const hooks = new Set<(list: StoredProgram[]) => void>();
+
+export function savePrograms(list: StoredProgram[], silent = false) {
   try { localStorage.setItem(KEY, JSON.stringify(list.slice(0, 20))); } catch {}
+  if (!silent) hooks.forEach((h) => h(list));
 }
+/** Odbiorcy zapisów (synchronizacja z kontem). */
+export function onProgramsChange(h: (list: StoredProgram[]) => void) { hooks.add(h); return () => { hooks.delete(h); }; }
+/** Programy z konta scalane z lokalnymi: nowsza wersja zakładki wygrywa. */
+export function importPrograms(remote: StoredProgram[]) { savePrograms(mergePrograms(loadPrograms(), remote), true); }
 
 export function loadActiveId(): string | null {
   try { return localStorage.getItem(ACTIVE); } catch { return null; }
