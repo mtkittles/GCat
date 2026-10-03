@@ -46,9 +46,9 @@ export default function Article({ blocks }: { blocks: Block[] }) {
             </figure>
           );
           case "table": return (
-            <figure key={i} className="grid gap-1"><div className="overflow-x-auto"><table className="code-table">
+            <figure key={i} className="grid gap-1"><div className="overflow-x-auto"><table className="code-table tbl-stack">
               <thead><tr>{b.head.map((h) => <th key={h}>{rich(h)}</th>)}</tr></thead>
-              <tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k2) => <td key={k2}>{rich(c)}</td>)}</tr>)}</tbody>
+              <tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k2) => <td key={k2} data-label={(b.head[k2] ?? "").replace(/\*\*|`/g, "")}>{rich(c)}</td>)}</tr>)}</tbody>
             </table></div>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;

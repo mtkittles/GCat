@@ -134,10 +134,10 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       {doc.controllers && (
         <Sec id="sterowania" n={++n} title="Fanuc i Sinumerik">
           <div className="overflow-x-auto">
-            <table className="code-table ls-ctl">
+            <table className="code-table ls-ctl tbl-stack">
               <thead><tr><th /><th>Fanuc</th><th>Sinumerik</th></tr></thead>
               <tbody>{doc.controllers.rows.map((row) => (
-                <tr key={row[0]}><th scope="row">{row[0]}</th><td>{rich(row[1])}</td><td>{rich(row[2])}</td></tr>
+                <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc">{rich(row[1])}</td><td data-label="Sinumerik">{rich(row[2])}</td></tr>
               ))}</tbody>
             </table>
           </div>
