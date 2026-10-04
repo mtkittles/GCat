@@ -8,6 +8,7 @@ import { startSync, stopSync } from "./sync";
 /*
   Stan konta po stronie przeglądarki: sesja z Supabase i profil (plan).
   Jedna inicjalizacja na kartę; komponenty czytają stan przez useAccount().
+  Każde wywołanie Supabase jest w try/catch: błąd ląduje w `state.error` (widoczny na /konto).
 */
 export interface AccountUser { id: string; email: string | null }
 export interface Profile { plan: Plan; displayName: string | null }
@@ -18,52 +19,103 @@ const listeners = new Set<() => void>();
 const set = (patch: Partial<AccountState>) => { state = { ...state, ...patch }; listeners.forEach((l) => l()); };
 let inited = false;
 
+const messageOf = (e: unknown): string => {
+  if (e && typeof e === "object" && "message" in e && typeof (e as { message: unknown }).message === "string") return (e as { message: string }).message;
+  return String(e);
+};
+
 async function loadProfile(userId: string) {
-  const sb = await getSupabase(); if (!sb) return;
-  const { data } = await sb.from("profiles").select("plan, display_name").eq("id", userId).maybeSingle();
-  set({ profile: { plan: data?.plan === "pro" ? "pro" : "free", displayName: data?.display_name ?? null } });
+  try {
+    const sb = await getSupabase(); if (!sb) return;
+    const { data, error } = await sb.from("profiles").select("plan, display_name").eq("id", userId).maybeSingle();
+    if (error) throw error;
+    if (state.user?.id !== userId) return; // w międzyczasie wylogowano
+    set({ profile: { plan: data?.plan === "pro" ? "pro" : "free", displayName: data?.display_name ?? null } });
+  } catch (e) {
+    // Bez profilu konto działa jako Free; użytkownik widzi powód zamiast ekranu błędu.
+    if (state.user?.id === userId) set({ error: `Nie udało się pobrać profilu: ${messageOf(e)}` });
+  }
 }
 
 function applySession(session: Session | null) {
   const user = session?.user ? { id: session.user.id, email: session.user.email ?? null } : null;
   set({ user, ready: true, profile: user ? state.profile : null });
-  if (user) { loadProfile(user.id); startSync(user.id); } else stopSync();
+  if (user) { void loadProfile(user.id); void startSync(user.id); } else stopSync();
 }
 
 function init() {
   if (inited || !ACCOUNT_ENABLED) return;
   inited = true;
   const p = getSupabase(); if (!p) return;
-  p.then((sb) => {
-    sb.auth.getSession().then(({ data }) => applySession(data.session));
+  p.then(async (sb) => {
     sb.auth.onAuthStateChange((_e, session) => applySession(session));
-  }).catch((e) => set({ ready: true, error: String(e) }));
+    try {
+      const { data, error } = await sb.auth.getSession();
+      if (error) throw error;
+      applySession(data.session);
+    } catch (e) { set({ ready: true, error: `Nie udało się odczytać sesji: ${messageOf(e)}` }); }
+  }).catch((e) => set({ ready: true, error: `Nie udało się uruchomić logowania: ${messageOf(e)}` }));
 }
 
-function subscribe(cb: () => void) { listeners.add(cb); init(); return () => { listeners.delete(cb); }; }
+export function subscribeAccount(cb: () => void) { listeners.add(cb); init(); return () => { listeners.delete(cb); }; }
+export const getAccountState = (): AccountState => state;
 const SSR: AccountState = { enabled: ACCOUNT_ENABLED, ready: false, user: null, profile: null, error: null };
 
-export function useAccount(): AccountState { return useSyncExternalStore(subscribe, () => state, () => SSR); }
+export function useAccount(): AccountState { return useSyncExternalStore(subscribeAccount, getAccountState, () => SSR); }
 
 const redirectTo = () => `${window.location.origin}/konto`;
 
 export async function signInWithEmail(email: string): Promise<string | null> {
-  const sb = await getSupabase(); if (!sb) return "Konto jest wyłączone.";
-  const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo() } });
-  return error ? error.message : null;
+  try {
+    const sb = await getSupabase(); if (!sb) return "Konto jest wyłączone.";
+    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo() } });
+    return error ? error.message : null;
+  } catch (e) { return messageOf(e); }
 }
 
 export async function signInWithGoogle(): Promise<string | null> {
-  const sb = await getSupabase(); if (!sb) return "Konto jest wyłączone.";
-  const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo() } });
-  return error ? error.message : null;
+  try {
+    const sb = await getSupabase(); if (!sb) return "Konto jest wyłączone.";
+    const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: redirectTo() } });
+    return error ? error.message : null;
+  } catch (e) { return messageOf(e); }
 }
 
-export async function signOut() { const sb = await getSupabase(); if (sb) await sb.auth.signOut(); }
+/** Usuwa zapisaną sesję Supabase z przeglądarki (ostatnia deska ratunku, gdy klient nie działa). */
+function dropStoredSession() {
+  try {
+    for (const k of Object.keys(window.localStorage)) if (/^sb-.*-auth-token/.test(k)) window.localStorage.removeItem(k);
+  } catch { /* brak dostępu do pamięci — nic więcej nie zrobimy */ }
+}
+
+/*
+  Wylogowanie działa zawsze: najpierw zwykłe, potem tylko lokalne (bez sieci), na końcu
+  usunięcie zapisanej sesji. Stan konta jest czyszczony niezależnie od wyniku.
+  Zwraca komunikat tylko wtedy, gdy trzeba było sięgnąć po obejście.
+*/
+export async function signOut(): Promise<string | null> {
+  let note: string | null = null;
+  try {
+    const sb = await getSupabase();
+    if (sb) {
+      const { error } = await sb.auth.signOut();
+      if (error) {
+        note = error.message;
+        const local = await sb.auth.signOut({ scope: "local" });
+        if (local.error) dropStoredSession();
+      }
+    } else dropStoredSession();
+  } catch (e) { note = messageOf(e); dropStoredSession(); }
+  stopSync();
+  set({ user: null, profile: null, ready: true, error: null });
+  return note;
+}
 
 export async function updateDisplayName(name: string): Promise<string | null> {
-  const sb = await getSupabase(); if (!sb || !state.user) return "Brak sesji.";
-  const { error } = await sb.from("profiles").update({ display_name: name }).eq("id", state.user.id);
-  if (!error) set({ profile: { plan: state.profile?.plan ?? "free", displayName: name } });
-  return error ? error.message : null;
+  try {
+    const sb = await getSupabase(); if (!sb || !state.user) return "Brak sesji.";
+    const { error } = await sb.from("profiles").update({ display_name: name }).eq("id", state.user.id);
+    if (!error) set({ profile: { plan: state.profile?.plan ?? "free", displayName: name } });
+    return error ? error.message : null;
+  } catch (e) { return messageOf(e); }
 }

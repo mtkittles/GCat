@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useSyncExternalStore } from "react";
+import { Component, useState, useSyncExternalStore, type ReactNode } from "react";
 import PageBanner from "@/components/ui/PageBanner";
 import { signInWithEmail, signInWithGoogle, signOut, useAccount } from "@/lib/auth";
 import { PLAN_LABEL } from "@/lib/entitlements";
@@ -9,11 +9,11 @@ import { exercises } from "@/lib/content";
 import { flat, lessonHref, trackList } from "@/lib/course";
 import { isFinished, isPassed, isRead, progressKey, useProgress, type ProgressStore } from "@/lib/progress";
 import { loadPrograms } from "@/app/symulator/programs";
-import { getSyncStatus, subscribeSync } from "@/lib/sync";
+import { SYNC_OFF, getSyncStatus, subscribeSync } from "@/lib/sync";
 
 const fmtDate = (ms: number) => new Date(ms).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
 
-function useSync() { return useSyncExternalStore(subscribeSync, getSyncStatus, () => ({ status: "off" as const, error: null })); }
+function useSync() { return useSyncExternalStore(subscribeSync, getSyncStatus, () => SYNC_OFF); }
 
 function trackStats(prog: ProgressStore, key: "frezowanie" | "toczenie") {
   const all = flat(key).filter((l) => l.doc);
@@ -94,6 +94,39 @@ function Login() {
   );
 }
 
+/* Dostępny zawsze: podczas ładowania, w błędzie i w zalogowanym widoku. Wylogowanie działa też bez sieci. */
+function SignOutButton() {
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const click = async () => { setBusy(true); const r = await signOut(); setBusy(false); setNote(r); };
+  return (
+    <>
+      <button type="button" className="btn plain" onClick={click} disabled={busy}>{busy ? "Wylogowywanie…" : "Wyloguj"}</button>
+      {note && <p className="note note-warn">Wylogowano na tym urządzeniu. Szczegóły: {note}</p>}
+    </>
+  );
+}
+
+/* Wyjątek w widoku zalogowanego konta nie wywala strony: komunikat, ponowna próba i wylogowanie. */
+class AccountBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null as Error | null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    const { error } = this.state;
+    if (!error) return this.props.children;
+    return (
+      <section className="acct-card" role="alert">
+        <h2 className="text-xl font-bold">Nie udało się wyświetlić konta</h2>
+        <p className="text-muted font-mono break-words">{error.message || "(brak komunikatu)"}</p>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn ghost" onClick={() => this.setState({ error: null })}>Spróbuj ponownie</button>
+          <SignOutButton />
+        </div>
+      </section>
+    );
+  }
+}
+
 function Session() {
   const { user, profile } = useAccount();
   const sync = useSync();
@@ -113,7 +146,7 @@ function Session() {
       </p>
       <div className="flex flex-wrap gap-2">
         <Link href="/konto/pro" className="btn ghost">Plan {PLAN_LABEL[plan]} — szczegóły</Link>
-        <button type="button" className="btn plain" onClick={() => signOut()}>Wyloguj</button>
+        <SignOutButton />
       </div>
     </section>
   );
@@ -131,10 +164,19 @@ export default function Account() {
           <p className="text-muted">Logowanie nie jest jeszcze włączone na tej stronie. Postęp nauki zapisuje się w tej przeglądarce — poniżej statystyki z tego urządzenia; możesz je pobrać jako plik.</p>
         </section>
       )}
-      {acc.enabled && !acc.ready && <p className="text-muted">Sprawdzanie sesji…</p>}
-      {acc.enabled && acc.ready && (acc.user ? <Session /> : <Login />)}
-      {acc.error && <p className="note note-warn">{acc.error}</p>}
-      <Stats />
+      {acc.enabled && !acc.ready && (
+        <div className="flex flex-wrap items-center gap-2"><p className="text-muted">Sprawdzanie sesji…</p><SignOutButton /></div>
+      )}
+      <AccountBoundary>
+        {acc.enabled && acc.ready && (acc.user ? <Session /> : <Login />)}
+        {acc.error && (
+          <div className="grid gap-2" role="alert">
+            <p className="note note-warn">{acc.error}</p>
+            {acc.enabled && !acc.user && acc.ready && <div className="flex flex-wrap gap-2"><SignOutButton /></div>}
+          </div>
+        )}
+        <Stats />
+      </AccountBoundary>
     </div>
   );
 }
