@@ -103,6 +103,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [tall, setTall] = useState(false);
   const [showStock, setShowStock] = useState(true);
   const [fs, setFs] = useState(false);
+  // telefon: podgląd u góry, program pod spodem
+  const [split, setSplit] = useState(false);
   const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
   const holdRef = useRef(0);
@@ -324,7 +326,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   useEffect(() => {
     // W trybie pełnoekranowym rysujemy na kanwie powłoki, w zwykłym na osadzonej.
     const cv = (fs ? fsCanvasRef.current : canvasRef.current); if (!cv) return;
-    const hudHtml = !fs && appLayout && layout.hud && window.matchMedia("(min-width: 768px)").matches;
+    const wide = window.matchMedia("(min-width: 768px)").matches;
+    const hudHtml = !fs && appLayout && (layout.hud || !wide);
     const ctx = cv.getContext("2d"); if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
@@ -829,6 +832,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       <div className="vh-tool">T{String(activeToolNo ?? 0).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</div>
     </div>
   );
+  // Eksport: menu „Eksport” na komputerze, sekcja w Ustawieniach na telefonie
+  const exportItems = (
+    <>
+      <button type="button" onClick={() => { canvasRef.current?.toBlob((b) => { if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".png", b); }); }}>Podgląd 2D (PNG)</button>
+      {proExports ? (
+        <button type="button" onClick={() => download((fileName || "program").replace(/\.[^.]+$/, "") + ".svg", pathToSvg(segments, mode, fileName || "GCat"), "image/svg+xml")}>Tor narzędzia (SVG)</button>
+      ) : <Link href="/konto/pro" className="exp-locked">Tor narzędzia (SVG) <span className="chip chip-accent">Pro</span></Link>}
+      {proExports ? (
+        <button type="button" disabled={!show3d} title={show3d ? "Bryła po obróbce z widoku 3D" : "Włącz widok 3D"} onClick={() => { const b = api3d.current?.exportStl(); if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".stl", b); }}>Bryła po obróbce (STL){!show3d ? " — włącz 3D" : ""}</button>
+      ) : <Link href="/konto/pro" className="exp-locked">Bryła po obróbce (STL) <span className="chip chip-accent">Pro</span></Link>}
+    </>
+  );
   const statusStrip = (
     <>
       <div className="fs-line">
@@ -895,7 +910,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         else if (e.key === "ArrowLeft") { e.preventDefault(); setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }
         else if (e.key === "Home") { e.preventDefault(); setPlaying(false); setProgress(0); }
       }}
-      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""}`}
+      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
@@ -992,8 +1007,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {!compact && allow3d && (
             <div className="viewbar m-sim">
               {viewSwitch}
+              <button type="button" className="vb-m vb-dim" onClick={() => setView(view === "2d" ? "3d" : "2d")}
+                aria-label={view === "2d" ? "Przełącz na widok 3D" : "Przełącz na widok 2D"} title="Przełącz widok 2D / 3D">
+                {view === "2d" ? "3D" : mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "XA" : "XY"}
+              </button>
               {layoutMenu}
-              <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
+              <button className="vb-desk" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
               </button>
               <label className="units">
@@ -1016,25 +1035,22 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
                 </svg>
               </button>
-              <button aria-pressed={learn} onClick={() => setLearn(!learn)} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
+              <button aria-pressed={learn} onClick={() => { if (!learn) setSplit(false); setLearn(!learn); }} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg></span><span className="vb-tx"><span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span></span>
               </button>
-              {refSegments && refSegments.length > 0 && <button aria-pressed={showRef} onClick={() => setShowRef((v) => !v)} title="Nałóż tor wzorcowy jako przerywaną linię" aria-label="Wzorzec">
+              {appLayout && <button type="button" className="vb-m" aria-pressed={split} aria-label="Kod i podgląd"
+                title="Podgląd u góry, program pod spodem"
+                onClick={() => { const on = !split; setSplit(on); if (on) { setLearn(false); setMTab("sim"); } }}>
+                <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 12h18" /><path d="M7 15.5h6M7 18.5h9" /></svg></span><span className="vb-tx">Kod + podgląd</span>
+              </button>}
+              {refSegments && refSegments.length > 0 && <button className="vb-desk" aria-pressed={showRef} onClick={() => setShowRef((v) => !v)} title="Nałóż tor wzorcowy jako przerywaną linię" aria-label="Wzorzec">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17 9 11l4 4 8-8" strokeDasharray="3 3" /><path d="M3 21h18" /></svg></span><span className="vb-tx"><span className="lbl-long">Wzorzec</span><span className="lbl-short">Wzór</span></span>
               </button>}
-              <details className="lay-menu exp-menu">
+              <details className="lay-menu exp-menu vb-desk">
                 <summary title="Eksport podglądu i toru" aria-label="Eksport"><span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg></span><span className="vb-tx">Eksport ▾</span></summary>
-                <div className="lay-pop">
-                  <button type="button" onClick={() => { canvasRef.current?.toBlob((b) => { if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".png", b); }); }}>Podgląd 2D (PNG)</button>
-                  {proExports ? (
-                    <button type="button" onClick={() => download((fileName || "program").replace(/\.[^.]+$/, "") + ".svg", pathToSvg(segments, mode, fileName || "GCat"), "image/svg+xml")}>Tor narzędzia (SVG)</button>
-                  ) : <Link href="/konto/pro" className="exp-locked">Tor narzędzia (SVG) <span className="chip chip-accent">Pro</span></Link>}
-                  {proExports ? (
-                    <button type="button" disabled={!show3d} title={show3d ? "Bryła po obróbce z widoku 3D" : "Włącz widok 3D"} onClick={() => { const b = api3d.current?.exportStl(); if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".stl", b); }}>Bryła po obróbce (STL){!show3d ? " — włącz 3D" : ""}</button>
-                  ) : <Link href="/konto/pro" className="exp-locked">Bryła po obróbce (STL) <span className="chip chip-accent">Pro</span></Link>}
-                </div>
+                <div className="lay-pop">{exportItems}</div>
               </details>
-              {comp.active && <button aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
+              {comp.active && <button className="vb-desk" aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
                 title={mode === "lathe" ? "Tor punktu P ostrza z uwzględnieniem G41/G42 i promienia naroża" : "Tor środka narzędzia z uwzględnieniem G41/G42"}>
                 <span className="lbl-long">{showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</span>
                 <span className="lbl-short">{showComp ? "G41/42" : "Tor prog."}</span></button>}
@@ -1051,7 +1067,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -1091,13 +1107,29 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             </div>
             <div className="m-set-row">
               <span>Warstwa materiału</span>
-              <button type="button" className="m-toggle" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)}><i /></button>
+              <button type="button" className="m-toggle" aria-label="Warstwa materiału" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)}><i /></button>
             </div>
+            {comp.active && (
+              <div className="m-set-row">
+                <span>{mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor z korekcją G41/G42"}</span>
+                <button type="button" className="m-toggle" aria-label="Tor z korekcją promienia" aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}><i /></button>
+              </div>
+            )}
+            {refSegments && refSegments.length > 0 && (
+              <div className="m-set-row">
+                <span>Tor wzorcowy</span>
+                <button type="button" className="m-toggle" aria-label="Tor wzorcowy" aria-pressed={showRef} onClick={() => setShowRef((v) => !v)}><i /></button>
+              </div>
+            )}
             <div className="m-set-row">
               <span>Prędkość symulacji</span>
               <div className="segmented m-seg" role="tablist" aria-label="Prędkość symulacji">
                 {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{v * 100}%</button>)}
               </div>
+            </div>
+            <div className="m-set-row m-set-exp">
+              <span>Eksport</span>
+              <div className="m-set-exp-btns">{exportItems}</div>
             </div>
             {settingsExtra}
           </div>
@@ -1110,7 +1142,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
             toolbar={viewSwitch}
             view={show3d
-              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill /></Sim3DBoundary>
+              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} /></Sim3DBoundary>
               : <canvas ref={fsCanvasRef} className="fs-canvas" style={{ touchAction: "none" }} />}
             status={statusStrip}
             transport={transportBar}
@@ -1142,9 +1174,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <button key={t.id} type="button" aria-pressed={mTab === t.id}
               onClick={() => {
                 setMTab(t.id);
-                const el = rootRef.current;
                 // Na telefonie sekcja wypełnia ekran — przewijamy tak, żeby stanowisko zaczynało się pod nagłówkiem.
-                if (el && (el.getBoundingClientRect().top < 0 || (t.id === "sim" && el.getBoundingClientRect().top > 80))) el.scrollIntoView({ block: "start", behavior: "smooth" });
+                // Pozycję liczymy w następnej klatce: po zmianie zakładki znika wybór programu nad stanowiskiem.
+                requestAnimationFrame(() => {
+                  const el = rootRef.current; if (!el) return;
+                  const top = el.getBoundingClientRect().top;
+                  if (top < 0 || (t.id === "sim" && (top > 80 || window.scrollY > 0))) el.scrollIntoView({ block: "start", behavior: "smooth" });
+                });
               }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={t.d} /></svg>
               <span>{t.label}</span>

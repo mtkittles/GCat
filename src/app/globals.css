@@ -2391,8 +2391,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .is-app .m-simtabs { bottom: calc(env(safe-area-inset-bottom, 0px) + .4rem); grid-template-columns: repeat(5, 1fr); }
   .is-app .m-simtabs-home { display: flex; flex-direction: column; align-items: center; gap: .15rem; padding: .45rem 0 .4rem; border-radius: 12px; color: var(--muted); font-size: 12px; font-weight: 600; }
   .is-app .m-simtabs-home svg { width: 19px; height: 19px; }
-  .is-app > .wb-main { --sv-h: max(260px, calc(100svh - 385px)); }
-  .is-app .stage-view { height: var(--sv-h, max(260px, calc(100svh - 385px))); }
+  .is-app .stage-view { height: max(260px, calc(100svh - 385px)); }
 }
 @media (min-width: 1100px) {
   /* komputer: tabelka na podglądzie pokazuje stan maszyny — rząd z tymi samymi danymi pod odtwarzaczem znika */
@@ -2606,9 +2605,75 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .is-app > .wb-main > .learn-wrap { order: 4; }
   .is-app .learn-wrap .learn { height: 13.5rem; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .6rem .75rem; border-radius: 14px; }
   .is-app > .wb-main:has(> .learn-wrap) > .m-hud { display: none; }
-  .is-app > .wb-main:has(> .learn-wrap) { --sv-h: max(220px, calc(100svh - 540px)); }
-  .is-app > .wb-main:has(> .learn-wrap) > .stage-view { height: var(--sv-h); }
-  /* kolumna ikon nie wychodzi poza podgląd: gdy podgląd jest niski, przyciski przechodzą do drugiej kolumny (w lewo) */
-  .is-app > .wb-main > .viewbar { max-height: calc(var(--sv-h, 100svh) - 16px); flex-wrap: wrap-reverse; align-content: flex-start; }
+}
+
+/* ===== Telefon: symulator na cały ekran, 4 przyciski na podglądzie, kod + podgląd =====
+   • na podglądzie zostają: przełącznik 2D/3D, Nauka, Kod + podgląd, Pełny ekran
+   • Materiał, tor G41/G42, wzorzec i eksport są w zakładce Ustawienia (na komputerze bez zmian)
+   • zakładka Symulacja wypełnia ekran między nagłówkiem a paskiem sekcji — podgląd bierze resztę miejsca
+   • „Kod + podgląd”: podgląd u góry, program (bieżąca linia) pod spodem */
+.vb-m { display: none; }
+@media (max-width: 767px) {
+  .workbench.is-app { --m-top: calc(61px + env(safe-area-inset-top, 0px)); --m-tabs: 62px; --m-h: calc(100svh - var(--m-top) - var(--m-tabs)); }
+  .is-app > .wb-main > .viewbar > .segmented { display: none; }
+  .is-app > .wb-main > .viewbar > .vb-desk { display: none !important; }
+  .is-app > .wb-main > .viewbar > .vb-dim { font: 700 13px/1 var(--font-mono); letter-spacing: .02em; }
+
+  /* zakładka Symulacja: wysokość ekranu, podgląd elastyczny */
+  .workbench.is-app[data-mtab="sim"] > .wb-main { height: var(--m-h); min-height: 400px; }
+  .workbench.is-app[data-mtab="sim"] > .wb-main > * { flex: none; }
+  .workbench.is-app[data-mtab="sim"] > .wb-main > .stage-view { flex: 1 1 0; min-height: 200px; height: auto; }
+  .workbench.is-app[data-mtab="sim"] > .wb-main > .viewbar { flex: none; }
+
+  /* pasek pozycji: współrzędne i kody w jednym przewijanym rzędzie */
+  .is-app .m-hud { gap: .3rem; padding: .5rem .7rem; }
+  .is-app .m-hud .fs-coords { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .is-app .m-hud .fs-coords::-webkit-scrollbar { display: none; }
+  .is-app .m-hud .fs-coords span { flex: none; }
+
+  /* odtwarzacz niższy */
+  .is-app > .wb-main > .sim-controls { padding: .45rem .5rem .3rem; gap: .4rem; }
+  .is-app > .wb-main > .sim-controls button { width: 42px; height: 40px; }
+  .is-app > .wb-main > .sim-controls button:first-child { width: 50px; height: 42px; }
+  .is-app > .wb-main > .sim-controls .speed-chip { width: auto; }
+  .is-app > .wb-main > .sim-controls .sim-scrub { height: 22px; margin: 0 .2rem; }
+
+  /* pasek sekcji niżej i smuklejszy */
+  .is-app .m-simtabs { bottom: calc(env(safe-area-inset-bottom, 0px) + .2rem); margin-top: .3rem; padding: 3px; border-radius: 14px; }
+  .is-app .m-simtabs button, .is-app .m-simtabs-home { padding: .3rem 0 .26rem; gap: .08rem; font-size: 11px; }
+  .is-app .m-simtabs button svg, .is-app .m-simtabs-home svg { width: 18px; height: 18px; }
+
+  /* Kod + podgląd */
+  .workbench.is-split[data-mtab="sim"] > .wb-main { order: 1; height: calc(var(--m-h) * .56); min-height: 300px; }
+  .workbench.is-split[data-mtab="sim"] > .m-code { display: block; order: 2; }
+  .workbench.is-split[data-mtab="sim"] > .m-simtabs { order: 3; }
+  .workbench.is-split[data-mtab="sim"] > .wb-main > .m-hud,
+  .workbench.is-split[data-mtab="sim"] > .wb-main > .learn-wrap { display: none; }
+  .workbench.is-split[data-mtab="sim"] > .m-code .panel-body > :not(.gcode-editor) { display: none; }
+  .workbench.is-split[data-mtab="sim"] > .m-code .gcode-editor .cm-editor { height: calc(var(--m-h) * .44 - 1.4rem); max-height: none; }
+
+  /* Ustawienia: eksport */
+  .is-app .m-set-exp { flex-wrap: wrap; align-items: flex-start; }
+  .is-app .m-set-exp-btns { display: grid; gap: .4rem; width: 100%; }
+  .is-app .m-set-exp-btns > button, .is-app .m-set-exp-btns > a {
+    text-align: left; padding: .6rem .8rem; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); font-size: 14px;
+  }
+  .is-app .m-set-exp-btns > button:disabled { opacity: .5; }
+
+  /* strona symulatora: bez pustego pasa nad stopką */
+  body:has(.sim-page) main { padding-bottom: 0; }
+  body:has(.sim-page) .site-footer { margin-top: .4rem; }
+}
+
+/* Telefon: stopka mniejsza i delikatniejsza */
+@media (max-width: 767px) {
+  .site-footer { margin-top: 1.2rem; }
+  .site-footer > div:first-child { padding-top: .7rem; padding-bottom: .3rem; column-gap: .75rem; row-gap: .15rem; }
+  .site-footer .brand-logo { height: 18px !important; width: auto !important; }
+  .site-footer .footer-tag { font-size: 9.5px; letter-spacing: .1em; opacity: .7; }
+  .site-footer .footer-tag.ml-auto { margin-left: 0; }
+  .site-footer .footer-ver { font-size: 10px; }
+  .site-footer nav { font-size: 11.5px; padding-bottom: .25rem; column-gap: 1rem; }
+  .site-footer > div:last-child { font-size: 11px; line-height: 1.4; padding-bottom: .8rem; opacity: .65; }
 }
 .tr-sub { color: var(--muted-text); font-weight: 400; }
