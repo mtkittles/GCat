@@ -2540,3 +2540,22 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   main { padding: 0 !important; }
   .cert { border-width: 3px; border-radius: 0; page-break-inside: avoid; }
 }
+
+/* ===== Telefon: pasek nad symulatorem w dwóch równych rzędach =====
+   Rząd 1 — przełącznik widoku na całą szerokość. Rząd 2 — przyciski tej samej wysokości
+   i szerokości (Materiał, Nauka, Wzorzec, Eksport), pełny ekran jako kwadratowa ikona. */
+@media (max-width: 767px) {
+  .is-app .viewbar { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .is-app .viewbar .segmented { flex: 1 1 100%; width: 100%; min-width: 0; }
+  .is-app .viewbar .segmented button { flex: 1 1 0; min-height: 38px; padding: .3rem .5rem; white-space: nowrap; }
+  .is-app .viewbar > button:not(.fs-open):not(.icon-btn):not(.only-wide),
+  .is-app .viewbar > .exp-menu { flex: 1 1 0; min-width: 0; }
+  .is-app .viewbar > button:not(.fs-open):not(.icon-btn):not(.only-wide) {
+    height: 38px; min-height: 38px; padding: 0 .4rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+  }
+  .is-app .viewbar > .exp-menu > summary {
+    width: 100%; height: 38px; min-height: 38px; padding: 0 .4rem; justify-content: center; white-space: nowrap;
+    border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink-2); font-size: 12.5px;
+  }
+  .is-app .viewbar .fs-open { margin-left: 0; width: 40px; height: 38px; flex: none; order: 9; }
+}

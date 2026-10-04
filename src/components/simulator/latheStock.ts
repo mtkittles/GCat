@@ -174,3 +174,42 @@ export function latheProfileCached(cache: { current: LatheCache | null }, progra
   c.progress = progress;
   return c.pr;
 }
+
+/* ---------- Uchwyt tokarski ---------- */
+
+/**
+ * Uchwyt trójszczękowy: pręt wystaje z uchwytu na długość wysięgu, więc czoła szczęk leżą
+ * w Z = z0 (koniec wysięgu), a szczęki sięgają 12 mm ponad pręt. Korpus uchwytu za szczękami.
+ */
+export interface LatheChuck { zFace: number; R0: number; jawR: number; jawLen: number; bodyR: number; bodyLen: number }
+/**
+ * Półfabrykat ręczny: czoło szczęk dokładnie na końcu wysięgu (−długość).
+ * Automatyczny: wysięgu nie znamy, więc uchwyt stoi za najdalszym punktem programu (także ruchów szybkich i wiercenia).
+ */
+export function latheChuck(pr: Pick<LatheProfile, "z0" | "R0">, segments: Segment[] = [], auto = false): LatheChuck {
+  let zFace = pr.z0;
+  if (auto) for (const sg of segments) if (sg.kind !== "dwell") zFace = Math.min(zFace, sg.from.z - 3, sg.to.z - 3);
+  return { zFace, R0: pr.R0, jawR: pr.R0 + 12, jawLen: 18, bodyR: pr.R0 + 30, bodyLen: 40 };
+}
+
+/** Kolizja punktu P noża (także szybkim ruchem) ze szczękami: Z na czole szczęk lub dalej, X poniżej ich zewnętrznej średnicy. */
+export function latheCollisions(program: Program, segments: Segment[], setup: Setup): { line: number; level: "error"; msg: string }[] {
+  // Kolizję da się ocenić tylko przy znanym wysięgu (półfabrykat ustawiony ręcznie).
+  if (setup.stock.auto) return [];
+  const pr = initLatheProfile(program, segments, setup);
+  if (!pr) return [];
+  const ch = latheChuck(pr), out: { line: number; level: "error"; msg: string }[] = [], seen = new Set<number>();
+  const f = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+  for (const sg of segments) {
+    if (sg.kind === "dwell" || seen.has(sg.line)) continue;
+    for (let k = 0; k <= 16; k++) {
+      const p = pointAt(sg, k / 16);
+      if (p.z <= ch.zFace + 0.2 && p.x < ch.jawR) {
+        seen.add(sg.line);
+        out.push({ line: sg.line, level: "error", msg: `Kolizja ze szczękami uchwytu (X${f(p.x * 2)} Z${f(p.z)}) — czoło szczęk w Z${f(ch.zFace)}, szczęki do ⌀${f(ch.jawR * 2)}. Skróć ruch w Z albo zwiększ wysięg pręta.` });
+        break;
+      }
+    }
+  }
+  return out;
+}
