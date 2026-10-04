@@ -27,6 +27,8 @@ export interface Stock {
   x: number; y: number; z: number;
   ox: number; oy: number; oz: number;
   d: number; len: number;
+  /** Frezarka: osobny półfabrykat w zerze każdego używanego układu (G54, G55…, TRANS). Brak pola = tak. */
+  perWcs?: boolean;
 }
 
 export interface Setup { tools: Record<number, Tool>; stock: Stock }
@@ -108,7 +110,7 @@ export const defaultTool = (mode: "mill" | "lathe"): Tool => makeTool(mode === "
 
 export const defaultSetup = (mode: "mill" | "lathe"): Setup => ({
   tools: { 1: defaultTool(mode) },
-  stock: { auto: true, x: 100, y: 80, z: 20, ox: 0, oy: 0, oz: 20, d: 60, len: 120 },
+  stock: { auto: true, x: 100, y: 80, z: 20, ox: 0, oy: 0, oz: 20, d: 60, len: 120, perWcs: true },
 });
 
 /**

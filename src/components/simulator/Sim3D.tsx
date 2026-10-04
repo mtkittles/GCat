@@ -7,11 +7,12 @@ import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
 import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
+import { stockBoxes, type PieceBox } from "./pieces";
 import type { SimMode } from "./Simulator";
-import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
+import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; onApi?: (api: Sim3DApi | null) => void }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void }
 
 const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
 const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
@@ -33,7 +34,7 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, onApi }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
@@ -53,9 +54,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   // Bufor mapy wysokości — pozwala dokładać tylko nowe odcinki zamiast liczyć
   // cały program przy każdej klatce.
   const latheRef = useRef<LatheCache | null>(null);
-  const hmRef = useRef<{ key: string; h: Float32Array; progress: number; meta: MillMeta } | null>(null);
+  // Jeden bufor na detal (G54, G55… mają własne półfabrykaty).
+  const hmRef = useRef<{ key: string; parts: { h: Float32Array; meta: MillMeta }[]; progress: number } | null>(null);
   // siatka półfabrykatu frezarki używana ponownie między klatkami + dławienie odświeżania w trakcie animacji
-  const meshRef = useRef<{ meta: MillMeta; geo: THREE.BufferGeometry } | null>(null);
+  const meshRef = useRef<{ parts: { h: Float32Array; meta: MillMeta }[]; geos: THREE.BufferGeometry[] } | null>(null);
   const lastMeshT = useRef(0);
   const trailT = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [meshTick, setMeshTick] = useState(0);
@@ -65,7 +67,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const toolRef = useRef<Tool>(tool);
   const programRef = useRef(program);
   useEffect(() => { toolRef.current = tool; programRef.current = program; }, [tool, program]);
-  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Mesh | null; threads: THREE.Group | null; path: THREE.LineSegments | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
+  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Object3D | null; threads: THREE.Group | null; path: THREE.LineSegments | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
     if (!webglAvailable()) { queueMicrotask(() => setFailed("no-webgl")); return; }
@@ -117,7 +119,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     // Renderowanie na żądanie: klatka powstaje tylko po zmianie (ruch kamery, postęp, widok).
     // Bezczynna scena nie obciąża karty graficznej ani wątku strony.
     let dirty = true;
-    const st = { scene, stock: null as THREE.Mesh | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { dirty = true; }, stockMat };
+    const st = { scene, stock: null as THREE.Object3D | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { dirty = true; }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar + gotowe ustawienia widoku
@@ -245,44 +247,47 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     lastMeshT.current = now;
 
-    let geo: THREE.BufferGeometry | null = null;
+    let obj: THREE.Object3D | null = null;
     let fresh = true;
     if (mode === "mill") {
       if (cut.length) {
         const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
         let buf = hmRef.current;
         if (!buf || buf.key !== key || progress < buf.progress) {
-          const meta = millMeta(program, cut, setup);
-          const h = new Float32Array((meta.nx + 1) * (meta.ny + 1)).fill(meta.top);
-          buf = { key, h, progress: 0, meta };
+          const boxes = stockBoxes(program, cut, setup);
+          const parts = boxes.map((b) => { const meta = millMeta(b, boxes.length); return { h: new Float32Array((meta.nx + 1) * (meta.ny + 1)).fill(meta.top), meta }; });
+          buf = { key, parts, progress: 0 };
         }
         if (progress > buf.progress) {
-          carve(buf.h, buf.meta, program, lengths, setup, mode, buf.progress, progress);
+          for (const p of buf.parts) carve(p.h, p.meta, program, lengths, setup, mode, buf.progress, progress);
           buf.progress = progress;
         }
         hmRef.current = buf;
         const mr = meshRef.current;
-        if (mr && mr.meta === buf.meta && st.stock && st.stock.geometry === mr.geo) {
-          updateHeightmapMesh(mr.geo, buf.h);
-          geo = mr.geo; fresh = false;
+        if (mr && mr.parts === buf.parts && st.stock) {
+          buf.parts.forEach((p, i) => updateHeightmapMesh(mr.geos[i], p.h));
+          fresh = false;
         } else {
-          geo = meshFromHeightmap(buf.h, buf.meta);
-          meshRef.current = { meta: buf.meta, geo };
+          const geos = buf.parts.map((p) => meshFromHeightmap(p.h, p.meta));
+          meshRef.current = { parts: buf.parts, geos };
+          const g = new THREE.Group();
+          for (const geo of geos) g.add(new THREE.Mesh(geo, st.stockMat));
+          obj = g;
         }
       }
     } else {
-      geo = latheGeometryFrom(latheProfileCached(latheRef, program, program.segments, lengths, progress, setup));
+      const geo = latheGeometryFrom(latheProfileCached(latheRef, program, program.segments, lengths, progress, setup));
+      obj = geo ? new THREE.Mesh(geo, st.stockMat) : null;
     }
     if (fresh) {
-      if (st.stock) { st.scene.remove(st.stock); st.stock.geometry.dispose(); st.stock = null; }
-      if (geo) {
-        st.stock = new THREE.Mesh(geo, st.stockMat);
-        st.scene.add(st.stock);
+      if (st.stock) { st.scene.remove(st.stock); disposeTree(st.stock); st.stock = null; }
+      if (obj) {
+        st.stock = obj;
+        st.scene.add(obj);
         // siatka zawsze pod detalem — czytelne odniesienie do podłoża
         if (gridRef.current) {
-          geo.computeBoundingBox();
-          const bb = geo.boundingBox;
-          if (bb) gridRef.current.position.y = bb.min.y - 0.5;
+          const bb = new THREE.Box3().setFromObject(obj);
+          if (!bb.isEmpty()) gridRef.current.position.y = bb.min.y - 0.5;
         }
       }
     }
@@ -355,6 +360,22 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     st.render();
   }, [ticks, parsed, mode]);
+
+  // Znacznik zera aktywnego układu (G54–G59/G54.1/G505 + G52 + G92 + TRANS): osie 12 mm i etykieta.
+  useEffect(() => {
+    const st = sceneRef.current; if (!st) return;
+    const old = st.scene.getObjectByName("zero");
+    if (old) { st.scene.remove(old); old.traverse((o) => { const m = (o as THREE.Sprite).material as THREE.SpriteMaterial | undefined; if (m?.map) { m.map.dispose(); m.dispose(); } }); }
+    if (zeroMark) {
+      const g = new THREE.Group(); g.name = "zero";
+      // Mapowanie jak dla toru: frezarka (x, z, −y), tokarka (z, x, 0).
+      const p = mode === "mill" ? new THREE.Vector3(zeroMark.x, zeroMark.z, -zeroMark.y) : new THREE.Vector3(zeroMark.z, zeroMark.x, 0);
+      const ax = new THREE.AxesHelper(12); ax.position.copy(p); g.add(ax);
+      g.add(makeLabel("zero układu", p.clone().add(new THREE.Vector3(0, 6, 0)), "#FBBF24", 0.55));
+      st.scene.add(g);
+    }
+    st.render();
+  }, [zeroMark, mode]);
 
   if (failed) {
     return (
@@ -583,26 +604,14 @@ function toW(p: Vec3, mode: SimMode) {
 
 export interface MillMeta { minX: number; maxX: number; minY: number; maxY: number; top: number; bottom: number; nx: number; ny: number; cx: number; cy: number }
 
-function millMeta(program: ReturnType<typeof parseProgram>, cut: Segment[], setup: Setup): MillMeta {
-  const st = setup.stock;
-  let minX: number, maxX: number, minY: number, maxY: number, top: number, bottom: number;
-  const maxD = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d), 6);
-  if (st.auto) {
-    let aX = Infinity, bX = -Infinity, aY = Infinity, bY = -Infinity, mz = 0;
-    for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) { const p = pointAt(sg, t); aX = Math.min(aX, p.x); bX = Math.max(bX, p.x); aY = Math.min(aY, p.y); bY = Math.max(bY, p.y); mz = Math.min(mz, p.z); }
-    // Margines równy promieniowi największego narzędzia: krawędź półfabrykatu
-    // wypada dokładnie tam, dokąd sięga obrys narzędzia jadącego po konturze.
-    const m = maxD / 2;
-    minX = aX - m; maxX = bX + m; minY = aY - m; maxY = bY + m; top = 0; bottom = Math.min(mz - 5, -5);
-  } else {
-    minX = -st.ox; maxX = st.x - st.ox; minY = -st.oy; maxY = st.y - st.oy;
-    top = st.z - st.oz; bottom = -st.oz;
-  }
+/** Siatka mapy wysokości dla jednego detalu (prostopadłościan z `stockBoxes`); budżet punktów dzielony między detale. */
+function millMeta(box: PieceBox, count: number): MillMeta {
+  const { x0: minX, x1: maxX, y0: minY, y1: maxY, top, bottom } = box;
   const spanX = Math.max(1e-6, maxX - minX), spanY = Math.max(1e-6, maxY - minY);
   // Budżet punktów siatki zależny od urządzenia; na komputerze oczko schodzi do ~0,15 mm,
   // żeby łuki i promienie w 3D nie miały widocznych schodków.
   const cap = gridMax();
-  const budget = cap * cap;
+  const budget = (cap * cap) / Math.max(1, count);
   const cell = Math.max(CELL_MIN, Math.min(CELL_TARGET, Math.sqrt((spanX * spanY) / budget)));
   const nx = Math.max(GRID_MIN, Math.min(Math.round(cap * 1.8), Math.round(spanX / cell)));
   const ny = Math.max(40, Math.min(Math.round(cap * 1.8), Math.round(nx * spanY / spanX)));

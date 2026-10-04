@@ -8,6 +8,7 @@ import { applyCompensation, noseOf } from "./compensation";
 import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
+import { stockBoxes } from "./pieces";
 import SetupPanel from "./SetupPanel";
 import LearnPanel from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
@@ -17,9 +18,12 @@ import { can } from "@/lib/entitlements";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup, type Stock, type Tool } from "./setup";
 import {
+  frameShift,
+  inverseFrames,
   parseProgram,
   pointAt,
   playLength,
+  wcsLabel,
   type Segment,
   type Vec3,
 } from "@/lib/parser";
@@ -126,11 +130,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setPrevStockKey(stockKey);
     setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
   }
-  const stockBox = useMemo<StockBox | undefined>(() => {
+  const stockBox = useMemo<StockBox[] | undefined>(() => {
     if (mode !== "mill" || setup.stock.auto) return undefined;
-    const st = setup.stock;
-    return { minX: -st.ox, maxX: st.x - st.ox, minY: -st.oy, maxY: st.y - st.oy, top: st.z - st.oz, bottom: -st.oz };
-  }, [mode, setup.stock]);
+    return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
+  }, [mode, setup, program]);
   const compR = useMemo(() => {
     const nums = Object.keys(setup.tools).map(Number);
     const t = setup.tools[nums[0]];
@@ -251,6 +254,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
+  /** Zero aktywnego układu programu w maszynie (G54–G59/G54.1 + G52 + G92 + TRANS); null, gdy pokrywa się z początkiem kanwy. */
+  const zeroMark = useMemo<Vec3 | null>(() => {
+    const s0 = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
+    if (!s0) return null;
+    const f = frameShift(s0);
+    return Math.hypot(f.x, f.y, f.z) > 1e-6 ? f : null;
+  }, [program, activeLine]);
 
   // W pokazie lista kodu podąża za wykonywaną linią, ale przewijamy wyłącznie
   // wnętrze konsoli. scrollIntoView pociągnąłby za sobą całą stronę i wyrywał
@@ -389,15 +399,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // półfabrykat
     const cut = segments.filter((s) => s.kind !== "rapid");
     if (!setup.stock.auto && mode === "mill") {
-      const stk = setup.stock;
-      const st = stk;
-      const x0 = -st.ox, x1s = st.x - st.ox;
-      const y0 = -st.oy, y1s = st.y - st.oy;
-      const [ax, ay] = P({ x: x0, y: y0, z: 0 }); const [bx2, by2] = P({ x: x1s, y: y1s, z: 0 });
-      ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
-      ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
-      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
-      ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
+      const st = setup.stock;
+      // jeden prostokąt na detal (G54, G55…)
+      for (const b of stockBoxes(program, segments, setup)) {
+        const [ax, ay] = P({ x: b.x0, y: b.y0, z: 0 }); const [bx2, by2] = P({ x: b.x1, y: b.y1, z: 0 });
+        ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
+        ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
+        ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+        ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
+      }
+    } else if (cut.length && mode === "mill" && setup.stock.perWcs !== false && stockBoxes(program, segments, setup, false).length > 1) {
+      for (const b of stockBoxes(program, segments, setup, false)) {
+        const [x1, y1] = P({ x: b.x0, y: b.y0, z: 0 }); const [x2, y2] = P({ x: b.x1, y: b.y1, z: 0 });
+        ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge;
+        ctx.fillRect(x1, y2, x2 - x1, y1 - y2); ctx.strokeRect(x1, y2, x2 - x1, y1 - y2);
+      }
     } else if (cut.length) {
       const b = boundsOf(cut, ha, va);
       const [x1, y1] = P({ x: 0, y: 0, z: 0, [ha]: b.minH, [va]: b.minV } as Vec3);
@@ -406,24 +422,31 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.fillRect(x1, y2, x2 - x1, y1 - y2); ctx.strokeRect(x1, y2, x2 - x1, y1 - y2);
     }
 
+    // Zero aktywnego układu programu (gdy przesunięte względem początku kanwy): krzyżyk z etykietą.
+    const st0 = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
+    if (zeroMark && st0 && (!appLayout || layout.zero)) {
+      const [mx, my] = P(zeroMark);
+      ctx.save(); ctx.strokeStyle = COLORS.axis; ctx.fillStyle = COLORS.axis; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(mx - 14, my); ctx.lineTo(mx + 14, my); ctx.moveTo(mx, my - 14); ctx.lineTo(mx, my + 14); ctx.stroke();
+      ctx.setLineDash([]); ctx.beginPath(); ctx.arc(mx, my, 5, 0, Math.PI * 2); ctx.stroke();
+      if (!compact) { ctx.font = "11px ui-monospace, monospace"; ctx.fillText(`${wcsLabel(st0)} zero`, mx + 8, my - 8); }
+      ctx.restore();
+    }
+
     // Warstwa materiału: prostokąt półfabrykatu, z którego ODEJMUJEMY ślad
     // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
     // tak jak w symulatorach z podglądem ubytku.
     if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact) {
-      const st2 = setup.stock;
-      const box = st2.auto ? autoStockBox(segments, lengths, setup, mode) : {
-        x0: -st2.ox, x1: st2.x - st2.ox, y0: -st2.oy, y1: st2.y - st2.oy,
-      };
-      if (box) {
+      const boxes = stockBoxes(program, segments, setup);
+      if (boxes.length) {
         const layer = document.createElement("canvas");
         layer.width = cv.width; layer.height = cv.height;
         const lx = layer.getContext("2d");
         if (lx) {
           lx.scale(dpr, dpr);
-          const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 });
-          const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 });
+          const rects = boxes.map((box) => { const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 }); const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 }); return [Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0)] as const; });
           lx.fillStyle = "rgba(148,163,184,0.20)";
-          lx.fillRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+          for (const r of rects) lx.fillRect(...r);
 
           // wycięcie śladu narzędzia
           lx.globalCompositeOperation = "destination-out";
@@ -448,7 +471,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           // obrys półfabrykatu — granica materiału pozostaje czytelna
           ctx.save();
           ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1.2;
-          ctx.strokeRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+          for (const r of rects) ctx.strokeRect(...r);
           ctx.restore();
         }
       }
@@ -669,9 +692,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, showRef, refSegments]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
+  /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
+  const progPos = st ? inverseFrames(currentPos, st) : currentPos;
+  const offsetActive = !!zeroMark;
 
   const readProbe = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const m = mapRef.current; if (!m) return;
@@ -703,7 +729,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     <details className="lay-menu">
       <summary title="Układ ekranu symulatora">Układ ▾</summary>
       <div className="lay-pop">
-        {([["hud", "Tabelka na podglądzie"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"]] as const).map(([k, l]) => (
+        {([["hud", "Tabelka na podglądzie"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
         ))}
         <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
@@ -754,10 +780,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <tr><th>X</th><td>{fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td>{fmt(currentPos.y)}</td></>}<th>Z</th><td>{fmt(currentPos.z)}</td></tr>
           <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
           {st?.rotary && <tr>{(["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <Fragment key={k}><th>{k.toUpperCase()}</th><td>{fmt(st.rotary![k]!)}°</td></Fragment>)}</tr>}
+          {offsetActive && <tr className="vh-prog"><th title="Współrzędne w układzie programu (wiersz wyżej: maszyna)">prog</th><td>{fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}</td>{mode === "mill" && <><th /><td>{fmt(progPos.y)}</td></>}<th /><td>{fmt(progPos.z)}</td></tr>}
         </tbody>
       </table>
       <div className="vh-mod">
-        <span>G{st?.motion ?? "--"}</span><span>{st?.absolute ? "G90" : "G91"}</span><span>G{st?.wcs ?? 54}</span><span>G{st?.comp ?? 40}</span>
+        <span>G{st?.motion ?? "--"}</span><span>{st?.absolute ? "G90" : "G91"}</span><span title={zeroMark ? `Zero układu w maszynie: X${fmt(mode === "lathe" ? zeroMark.x * 2 : zeroMark.x)} Y${fmt(zeroMark.y)} Z${fmt(zeroMark.z)}` : "Układ współrzędnych"}>{st ? wcsLabel(st) : "G54"}</span><span>G{st?.comp ?? 40}</span>
         <span>{st?.spindleOn === "off" ? "M05" : st?.spindleOn === "cw" ? "M03" : "M04"}</span><span>{st?.coolant ? "M08" : "M09"}</span>
       </div>
       <div className="vh-tool">T{String(activeToolNo ?? 0).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</div>
@@ -773,6 +800,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}</span>
         {mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}
         <span>Z {fmt(currentPos.z)}</span>
+        {offsetActive && <span title="W układzie programu">prog X {fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}{mode === "mill" ? ` Y ${fmt(progPos.y)}` : ""} Z {fmt(progPos.z)}</span>}
         <span>{st?.feed != null ? `F ${st.feed}` : "F --"}</span>
         <span>{st?.spindle != null ? `S ${st.spindle}` : "S --"}</span>
         <span className="is-tool">T{String(activeToolNo ?? 1).padStart(2, "0")}</span>
@@ -978,7 +1006,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} onApi={onApi3d} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -992,7 +1020,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
             <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>
-            <span>G{st.wcs}</span><span>G{st.comp}</span>
+            <span title="Aktywny układ współrzędnych">{wcsLabel(st)}</span>
+            {zeroMark && <span title="Zero układu programu w maszynie (układ + G52 + G92 + TRANS)">zero X {fmt(mode === "lathe" ? zeroMark.x * 2 : zeroMark.x)}{mode === "mill" ? ` Y ${fmt(zeroMark.y)}` : ""} Z {fmt(zeroMark.z)}</span>}
+            {offsetActive && <span title="Bieżący punkt w układzie programu">prog X {fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}{mode === "mill" ? ` Y ${fmt(progPos.y)}` : ""} Z {fmt(progPos.z)}</span>}
+            <span>G{st.comp}</span>
             <span>F {st.feed ?? "--"}</span><span>S {st.spindle ?? "--"}</span>
             <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span>
             <span>{st.coolant ? "M08" : "M09"}</span>
@@ -1169,21 +1200,6 @@ const reduceMotion = () =>
 
 /** Obrys półfabrykatu dobieranego automatycznie: zakres ruchów roboczych
     powiększony o promień największego narzędzia. */
-function autoStockBox(segments: Segment[], lengths: number[], setup: Setup, mode: "mill" | "lathe") {
-  void lengths;
-  const cut = segments.filter((s) => s.kind !== "rapid");
-  if (!cut.length) return null;
-  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-  for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) {
-    const p = pointAt(sg, t);
-    x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
-    y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
-  }
-  const r = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d / 2), 3);
-  void mode;
-  return { x0: x0 - r, x1: x1 + r, y0: y0 - r, y1: y1 + r };
-}
-
 function segIndexAt(p: number, lengths: number[]) {
   let acc = 0;
   for (let i = 0; i < lengths.length; i++) { acc += lengths[i]; if (p < acc) return i; }

@@ -9,8 +9,11 @@ export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 /** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
 const ONCE = /wrzecion|G43|posuw F/i;
 
-export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stock?: StockBox, toolLen?: number, compRadius?: number): Issue[] {
+export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stockIn?: StockBox | StockBox[], toolLen?: number, compRadius?: number): Issue[] {
   const out: Issue[] = [];
+  // Kilka detali (G54 i G55…): kolizję sprawdzamy z każdym półfabrykatem; głębokość — względem najwyższego.
+  const stocks = stockIn === undefined ? [] : Array.isArray(stockIn) ? stockIn : [stockIn];
+  const stock = stocks.length ? { ...stocks[0], top: Math.max(...stocks.map((s) => s.top)) } : undefined;
   const L = program.lines;
   let sawToolChange = false, sawG43 = false, sawM30 = false, sawSpindle = false, sawMotion = false;
   let firstCutLine: number | null = null;
@@ -31,8 +34,16 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       if (gs.includes(28)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: G28 działa tylko w trybie ISO (G291). W języku natywnym najazd na punkt referencyjny to G74, na punkt stały — G75." });
       if (gs.includes(43)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: długość narzędzia aktywuje T_ D_, nie G43." });
       if (has("R") && (gs.includes(2) || gs.includes(3))) out.push({ line: l.index, level: "warn", msg: "Sinumerik: promień łuku to CR=, nie R." });
+      if (gs.includes(92) && l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "Sinumerik: nie ma G92 — przesunięcie programowalne to TRANS, limit obrotów LIMS=." });
+      if (gs.includes(54.1)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G54.1 P_ dodatkowe układy to G505–G599." });
+      if (gs.includes(10)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: nie ma G10 — przesunięcia zapisuje się przez $P_UIFR[n], dane narzędzi przez $TC_DP…" });
+      if (gs.includes(52)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G52 przesunięcie programowalne to TRANS / ATRANS." });
     } else {
       if (gs.includes(70) || gs.includes(71)) if (l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "G70/G71 na frezarce Fanuc to nie jednostki (to cykle tokarskie). Jednostki: G20/G21." });
+      const bare = l.raw.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
+      const kw = bare.match(/(^|[^A-Z])(ATRANS|TRANS|AROT|ROT|SUPA)(?![A-Z])/)?.[2];
+      if (kw) out.push({ line: l.index, level: "warn", msg: `${kw} to składnia Sinumerika. Fanuc: ${kw === "SUPA" ? "G53" : kw.endsWith("ROT") ? "G68/G69" : "G52 (lokalnie) albo G92"}.` });
+      if (gs.some((g) => g === 500 || (g >= 505 && g <= 599))) out.push({ line: l.index, level: "warn", msg: "G500/G505… to układy Sinumerika. Fanuc: G54–G59 i G54.1 P_." });
     }
 
     // G04 — postój
@@ -167,8 +178,9 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
         const n = 12;
         for (let i = 0; i <= n; i++) {
           const p: Vec3 = pointAt(sg, i / n);
-          if (p.z < stock.top - 0.01 && inside(p, stock)) {
-            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd w poprzek materiału na Z${fmt(p.z)} (górna powierzchnia Z${fmt(stock.top)}). Podnieś narzędzie nad materiał albo przejedź na G01.` });
+          const hit = stocks.find((s) => p.z < s.top - 0.01 && inside(p, s));
+          if (hit) {
+            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd w poprzek materiału na Z${fmt(p.z)} (górna powierzchnia Z${fmt(hit.top)}). Podnieś narzędzie nad materiał albo przejedź na G01.` });
             flagged = true;
             break;
           }
