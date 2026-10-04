@@ -1910,6 +1910,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .pp { width: 100%; height: auto; display: block; }
 .pp-axis { stroke: rgba(148,163,184,.45); stroke-width: 1; stroke-dasharray: 10 4 2 4; }
 .pp-part { stroke: rgba(15,23,42,.55); stroke-width: .8; }
+.pp-edge { fill: none; stroke: rgba(15,23,42,.6); stroke-width: .8; }
 .pp-hole { fill: #0f141c; stroke: rgba(148,163,184,.4); stroke-width: .6; }
 .pg-jump { display: flex; gap: .5rem; flex-wrap: wrap; }
 .pg-jump a { padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 14px; }
@@ -2559,3 +2560,4 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   }
   .is-app .viewbar .fs-open { margin-left: 0; width: 40px; height: 38px; flex: none; order: 9; }
 }
+.tr-sub { color: var(--muted-text); font-weight: 400; }

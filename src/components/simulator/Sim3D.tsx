@@ -7,7 +7,8 @@ import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
 import { parseProgram, playLength, pointAt, type Segment, type Vec3 } from "@/lib/parser";
-import { stockBoxes, type PieceBox } from "./pieces";
+import { stockBoxes } from "./pieces";
+import { carve, millMeta, type MillMeta } from "./heightmap";
 import { angleAt, carveCyl, cylInit, cylMesh, cylMeta, cylUpdate, fixtureOf, isCyl, type CylMeta } from "./cylinder";
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
@@ -15,9 +16,6 @@ import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 export interface Sim3DApi { exportStl: () => Blob | null }
 interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void }
 
-const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
-const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
-const GRID_MIN = 100;
 
 /**
  * Górny limit rozdzielczości mapy wysokości. Siatka 420 × 420 to ponad 170 tys.
@@ -305,7 +303,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
         let buf = hmRef.current;
         if (!buf || buf.key !== key || progress < buf.progress) {
           const boxes = stockBoxes(program, cut, setup);
-          const parts = boxes.map((b) => { const meta = millMeta(b, boxes.length); return { h: new Float32Array((meta.nx + 1) * (meta.ny + 1)).fill(meta.top), meta }; });
+          const parts = boxes.map((b) => { const meta = millMeta(b, boxes.length, gridMax()); return { h: new Float32Array((meta.nx + 1) * (meta.ny + 1)).fill(meta.top), meta }; });
           buf = { key, parts, progress: 0 };
         }
         if (progress > buf.progress) {
@@ -679,62 +677,6 @@ function toW(p: Vec3, mode: SimMode) {
   return mode === "mill" ? new THREE.Vector3(p.x, p.z, -p.y) : new THREE.Vector3(p.z, p.x, 0);
 }
 
-
-export interface MillMeta { minX: number; maxX: number; minY: number; maxY: number; top: number; bottom: number; nx: number; ny: number; cx: number; cy: number }
-
-/** Siatka mapy wysokości dla jednego detalu (prostopadłościan z `stockBoxes`); budżet punktów dzielony między detale. */
-function millMeta(box: PieceBox, count: number): MillMeta {
-  const { x0: minX, x1: maxX, y0: minY, y1: maxY, top, bottom } = box;
-  const spanX = Math.max(1e-6, maxX - minX), spanY = Math.max(1e-6, maxY - minY);
-  // Budżet punktów siatki zależny od urządzenia; na komputerze oczko schodzi do ~0,15 mm,
-  // żeby łuki i promienie w 3D nie miały widocznych schodków.
-  const cap = gridMax();
-  const budget = (cap * cap) / Math.max(1, count);
-  const cell = Math.max(CELL_MIN, Math.min(CELL_TARGET, Math.sqrt((spanX * spanY) / budget)));
-  const nx = Math.max(GRID_MIN, Math.min(Math.round(cap * 1.8), Math.round(spanX / cell)));
-  const ny = Math.max(40, Math.min(Math.round(cap * 1.8), Math.round(nx * spanY / spanX)));
-  return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
-}
-
-/** Nanosi na mapę wysokości ubytek z podanego zakresu postępu. */
-function carve(h: Float32Array, m: MillMeta, program: ReturnType<typeof parseProgram>, lengths: number[], setup: Setup, mode: SimMode, from: number, to: number) {
-  let acc = 0;
-  program.segments.forEach((sg, i) => {
-    const len = lengths[i];
-    const segStart = acc, segEnd = acc + len;
-    acc = segEnd;
-    if (sg.kind === "rapid" || sg.kind === "dwell" || segEnd <= from || segStart >= to) return;
-    const t0 = Math.max(0, (from - segStart) / (len || 1));
-    const t1 = Math.min(1, (to - segStart) / (len || 1));
-    if (t1 <= t0) return;
-    const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
-    const r = cuttingRadius(tl);
-    const ball = tl.kind === "ballnose";
-    const cornerR = tl.kind === "bullnose" ? Math.min(r * 0.95, Math.max(0, tl.corner)) : 0;
-    const steps = Math.max(1, Math.ceil((len * (t1 - t0)) / (Math.min(m.cx, m.cy) * 0.7)));
-    for (let k = 0; k <= steps; k++) {
-      const p = pointAt(sg, t0 + ((t1 - t0) * k) / steps);
-      if (p.z >= m.top) continue;
-      const i0 = Math.floor((p.x - r - m.minX) / m.cx), i1 = Math.ceil((p.x + r - m.minX) / m.cx);
-      const j0 = Math.floor((p.y - r - m.minY) / m.cy), j1 = Math.ceil((p.y + r - m.minY) / m.cy);
-      for (let j = Math.max(0, j0); j <= Math.min(m.ny, j1); j++) {
-        for (let ii = Math.max(0, i0); ii <= Math.min(m.nx, i1); ii++) {
-          const gx = m.minX + ii * m.cx, gy = m.minY + j * m.cy;
-          const d2 = (gx - p.x) ** 2 + (gy - p.y) ** 2;
-          if (d2 > r * r) continue;
-          const idx = j * (m.nx + 1) + ii;
-          let zHere = p.z;
-          if (ball) zHere = p.z + (r - Math.sqrt(Math.max(0, r * r - d2)));
-          else if (cornerR > 0) {
-            const dd = Math.sqrt(d2);
-            if (dd > r - cornerR) { const t2 = dd - (r - cornerR); zHere = p.z + (cornerR - Math.sqrt(Math.max(0, cornerR * cornerR - t2 * t2))); }
-          }
-          if (zHere < h[idx]) h[idx] = Math.max(zHere, m.bottom);
-        }
-      }
-    }
-  });
-}
 
 function disposeTree(o: THREE.Object3D) {
   o.traverse((c) => {

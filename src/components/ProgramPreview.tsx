@@ -1,13 +1,16 @@
-import { parseProgram, pointAt, segmentLength, type Segment } from "@/lib/parser";
+import { parseProgram, playLength, segmentLength } from "@/lib/parser";
 import { latheProfile } from "@/components/simulator/latheStock";
-import { cuttingRadius, defaultSetup, toolOf } from "@/components/simulator/setup";
+import { defaultSetup } from "@/components/simulator/setup";
+import { carve, millMeta } from "@/components/simulator/heightmap";
+import { stockBoxes, type PieceBox } from "@/components/simulator/pieces";
+import { palettePng } from "@/lib/png";
 import { applyCompensation } from "@/components/simulator/compensation";
 import { simTools, type LibProgram } from "@/lib/programLibrary";
 
 /*
   Podgląd gotowego detalu jako SVG, liczony przy budowie strony.
   Tokarka: przekrój wałka po obróbce (profil zewnętrzny i otwór).
-  Frezarka: widok z góry — półfabrykat i ślady narzędzi, ciemniejsze głębiej.
+  Frezarka: widok z góry obrobionego detalu (mapa wysokości z cieniowaniem).
 */
 
 const W = 400, H = 250, PAD = 18;
@@ -58,56 +61,66 @@ function Lathe({ prog, setup, id }: { prog: Prog; setup: SetupT; id: string }) {
   );
 }
 
-function Mill({ prog, setup, id }: { prog: Prog; setup: SetupT; id: string }) {
+/*
+  Frezarka: mapa wysokości po całym programie (ta sama co w 3D), z cieniowaniem światłem
+  z lewej-górnej strony i przyciemnieniem z głębokością — wygląda jak obrobiony detal,
+  a nie jak nałożone ślady narzędzia. Obrazek w palecie (64 odcienie), liczony przy budowie strony.
+*/
+const LEVELS = 64;
+const PALETTE: [number, number, number, number][] = [[0, 0, 0, 0], ...Array.from({ length: LEVELS }, (_, i) => {
+  const t = i / (LEVELS - 1); // 0 — cień, 1 — światło
+  const mix = (a: number, b: number) => Math.round(a + (b - a) * t);
+  return [mix(46, 236), mix(52, 241), mix(62, 247), 255] as [number, number, number, number];
+})];
+
+function Mill({ prog, setup }: { prog: Prog; setup: SetupT; id?: string }) {
   // tor środka narzędzia (z korekcją G41/G42), tak jak w symulatorze
   const segs = applyCompensation(prog, setup, "mill").segments;
-  const cut = segs.filter((s) => s.kind !== "rapid" && s.kind !== "dwell");
-  const st = setup.stock;
-  let x0: number, y0: number, x1: number, y1: number, zTop: number;
-  if (!st.auto) { x0 = -st.ox; y0 = -st.oy; x1 = x0 + st.x; y1 = y0 + st.y; zTop = st.z - st.oz; }
-  else {
-    const b = prog.bounds; x0 = b.min.x - 5; y0 = b.min.y - 5; x1 = b.max.x + 5; y1 = b.max.y + 5; zTop = 0;
-  }
-  const s = Math.min((W - 2 * PAD) / (x1 - x0), (H - 2 * PAD) / (y1 - y0));
-  const ox = (W - (x1 - x0) * s) / 2, oy = (H - (y1 - y0) * s) / 2;
-  const X = (x: number) => ox + (x - x0) * s, Y = (y: number) => H - oy - (y - y0) * s;
-  let zMin = 0;
-  for (const sg of cut) zMin = Math.min(zMin, sg.from.z, sg.to.z);
-  const depth = Math.max(0.5, zTop - zMin);
-  // ślady: najpierw płytkie, na wierzch głębsze
-  const marks = cut.map((sg) => {
-    const tool = toolOf(setup, prog.lines[sg.line]?.state.tool ?? null, "mill");
-    const z = Math.min(sg.from.z, sg.to.z);
-    // grawer i fazownik: szerokość śladu zależy od głębokości
-    const r = tool.kind === "vbit" || tool.kind === "chamfer"
-      ? Math.max(0.3, Math.min(tool.d / 2, (zTop - z) * Math.tan(((tool.angle || 90) / 2) * Math.PI / 180)))
-      : Math.max(0.3, cuttingRadius(tool));
-    return { sg, r, z };
-  }).filter((m) => m.z < zTop - 1e-3).sort((a, b) => b.z - a.z);
-  const shade = (z: number) => { const t = Math.min(1, (zTop - z) / depth); const l = Math.round(78 - t * 50); return `hsl(215 12% ${l}%)`; };
-  const path = (sg: Segment) => {
-    const n = sg.kind === "arc" ? 36 : 1;
-    const pts = Array.from({ length: n + 1 }, (_, k) => pointAt(sg, k / n));
-    return pts.map((q, k) => `${k ? "L" : "M"}${X(q.x).toFixed(1)},${Y(q.y).toFixed(1)}`).join("");
+  const program = { ...prog, segments: segs };
+  const boxes = stockBoxes(program, segs, setup);
+  if (!boxes.length) return <svg viewBox={`0 0 ${W} ${H}`} className="pp" />;
+  const ub: PieceBox = {
+    x0: Math.min(...boxes.map((b) => b.x0)), x1: Math.max(...boxes.map((b) => b.x1)),
+    y0: Math.min(...boxes.map((b) => b.y0)), y1: Math.max(...boxes.map((b) => b.y1)),
+    top: Math.max(...boxes.map((b) => b.top)), bottom: Math.min(...boxes.map((b) => b.bottom)), origin: { x: 0, y: 0, z: 0 },
   };
+  const m = millMeta(ub, 1, 150, true);
+  const nx = m.nx + 1, ny = m.ny + 1;
+  // komórki poza półfabrykatami: NaN (przezroczyste); w środku — wierzch swojego detalu
+  const h = new Float32Array(nx * ny).fill(NaN);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const x = m.minX + i * m.cx, y = m.minY + j * m.cy;
+    const b = boxes.find((q) => x >= q.x0 - 1e-6 && x <= q.x1 + 1e-6 && y >= q.y0 - 1e-6 && y <= q.y1 + 1e-6);
+    if (b) h[j * nx + i] = b.top;
+  }
+  const lengths = segs.map(playLength);
+  carve(h, m, program, lengths, setup, "mill", 0, lengths.reduce((a, b) => a + b, 0) + 1);
+  let zMin = ub.top;
+  for (const v of h) if (!Number.isNaN(v)) zMin = Math.min(zMin, v);
+  const depth = Math.max(0.5, ub.top - zMin);
+  // cieniowanie: normalna z różnic sąsiadów, światło z lewej-górnej strony pod 45°
+  const L = { x: -0.5, y: 0.5, z: 0.707 };
+  const px = new Uint8Array(nx * ny);
+  const at = (i: number, j: number, fb: number) => { const v = h[Math.min(ny - 1, Math.max(0, j)) * nx + Math.min(nx - 1, Math.max(0, i))]; return Number.isNaN(v) ? fb : v; };
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const v = h[j * nx + i];
+    const row = ny - 1 - j; // obraz: Y w górę
+    if (Number.isNaN(v)) { px[row * nx + i] = 0; continue; }
+    const dzx = (at(i + 1, j, v) - at(i - 1, j, v)) / (2 * m.cx), dzy = (at(i, j + 1, v) - at(i, j - 1, v)) / (2 * m.cy);
+    const nlen = Math.hypot(dzx, dzy, 1);
+    const lambert = Math.max(0, (-dzx * L.x - dzy * L.y + L.z) / nlen);
+    const dShade = 1 - 0.45 * Math.min(1, (ub.top - v) / depth);
+    const t = Math.max(0, Math.min(1, (0.25 + 0.75 * lambert) * dShade));
+    px[row * nx + i] = 1 + Math.round(t * (LEVELS - 1));
+  }
+  const img = palettePng(nx, ny, px, PALETTE);
+  const s = Math.min((W - 2 * PAD) / (ub.x1 - ub.x0), (H - 2 * PAD) / (ub.y1 - ub.y0));
+  const ox = (W - (ub.x1 - ub.x0) * s) / 2, oy = (H - (ub.y1 - ub.y0) * s) / 2;
+  const X = (x: number) => ox + (x - ub.x0) * s, Y = (y: number) => H - oy - (y - ub.y0) * s;
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="pp" role="img" aria-label="Detal z góry">
-      <defs>
-        <linearGradient id={`${id}-m`} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#e4e9f0" /><stop offset=".55" stopColor="#bcc5d1" /><stop offset="1" stopColor="#8e98a6" />
-        </linearGradient>
-        <clipPath id={`${id}-c`}><rect x={X(x0)} y={Y(y1)} width={(x1 - x0) * s} height={(y1 - y0) * s} rx={3} /></clipPath>
-      </defs>
-      <rect x={X(x0)} y={Y(y1)} width={(x1 - x0) * s} height={(y1 - y0) * s} rx={3} fill={`url(#${id}-m)`} className="pp-part" />
-      {/* ślady tylko w obrębie półfabrykatu — dojazdy i wybiegi poza nim nic nie zdejmują */}
-      <g clipPath={`url(#${id}-c)`}>
-      {marks.map((m, k) => {
-        const isHole = m.sg.kind === "linear" && Math.hypot(m.sg.to.x - m.sg.from.x, m.sg.to.y - m.sg.from.y) < 1e-6;
-        return isHole
-          ? <circle key={k} cx={X(m.sg.from.x)} cy={Y(m.sg.from.y)} r={m.r * s} fill={shade(m.z)} />
-          : <path key={k} d={path(m.sg)} stroke={shade(m.z)} strokeWidth={Math.max(0.8, 2 * m.r * s)} strokeLinecap="round" strokeLinejoin="round" fill="none" />;
-      })}
-      </g>
+    <svg viewBox={`0 0 ${W} ${H}`} className="pp" role="img" aria-label="Detal z góry po obróbce">
+      <image href={img} x={X(ub.x0)} y={Y(ub.y1)} width={(ub.x1 - ub.x0) * s} height={(ub.y1 - ub.y0) * s} preserveAspectRatio="none" />
+      {boxes.map((b, k) => <rect key={k} x={X(b.x0)} y={Y(b.y1)} width={(b.x1 - b.x0) * s} height={(b.y1 - b.y0) * s} rx={2} className="pp-edge" />)}
     </svg>
   );
 }
