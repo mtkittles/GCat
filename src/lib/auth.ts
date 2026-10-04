@@ -119,3 +119,25 @@ export async function updateDisplayName(name: string): Promise<string | null> {
     return error ? error.message : null;
   } catch (e) { return messageOf(e); }
 }
+
+/*
+  Usunięcie konta: serwer (POST /api/konto/usun, klucz service_role) weryfikuje token sesji,
+  usuwa dane i konto logowania. Potem czyścimy sesję lokalnie. Zwraca komunikat błędu albo null.
+  Dane w tej przeglądarce (postęp, programy) zostają — można je wyczyścić osobno.
+*/
+export async function deleteAccount(): Promise<string | null> {
+  try {
+    const sb = await getSupabase(); if (!sb) return "Konto jest wyłączone.";
+    const { data } = await sb.auth.getSession();
+    const token = data.session?.access_token;
+    if (!token) return "Brak sesji. Zaloguj się ponownie.";
+    const res = await fetch("/api/konto/usun", { method: "POST", headers: { authorization: `Bearer ${token}` } });
+    let msg = `Błąd serwera (${res.status}).`;
+    try { const j = (await res.json()) as { message?: string }; if (j.message) msg = j.message; } catch { /* odpowiedź bez JSON */ }
+    if (!res.ok) return msg;
+    try { await sb.auth.signOut({ scope: "local" }); } catch { dropStoredSession(); }
+    stopSync();
+    set({ user: null, profile: null, ready: true, error: null });
+    return null;
+  } catch (e) { return messageOf(e); }
+}
