@@ -31,8 +31,16 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       if (gs.includes(28)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: G28 działa tylko w trybie ISO (G291). W języku natywnym najazd na punkt referencyjny to G74, na punkt stały — G75." });
       if (gs.includes(43)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: długość narzędzia aktywuje T_ D_, nie G43." });
       if (has("R") && (gs.includes(2) || gs.includes(3))) out.push({ line: l.index, level: "warn", msg: "Sinumerik: promień łuku to CR=, nie R." });
+      if (gs.includes(92) && l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "Sinumerik: nie ma G92 — przesunięcie programowalne to TRANS, limit obrotów LIMS=." });
+      if (gs.includes(54.1)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G54.1 P_ dodatkowe układy to G505–G599." });
+      if (gs.includes(10)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: nie ma G10 — przesunięcia zapisuje się przez $P_UIFR[n], dane narzędzi przez $TC_DP…" });
+      if (gs.includes(52)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G52 przesunięcie programowalne to TRANS / ATRANS." });
     } else {
       if (gs.includes(70) || gs.includes(71)) if (l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "G70/G71 na frezarce Fanuc to nie jednostki (to cykle tokarskie). Jednostki: G20/G21." });
+      const bare = l.raw.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
+      const kw = bare.match(/(^|[^A-Z])(ATRANS|TRANS|AROT|ROT|SUPA)(?![A-Z])/)?.[2];
+      if (kw) out.push({ line: l.index, level: "warn", msg: `${kw} to składnia Sinumerika. Fanuc: ${kw === "SUPA" ? "G53" : kw.endsWith("ROT") ? "G68/G69" : "G52 (lokalnie) albo G92"}.` });
+      if (gs.some((g) => g === 500 || (g >= 505 && g <= 599))) out.push({ line: l.index, level: "warn", msg: "G500/G505… to układy Sinumerika. Fanuc: G54–G59 i G54.1 P_." });
     }
 
     // G04 — postój

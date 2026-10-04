@@ -23,13 +23,42 @@ export const initialState = (units: "mm" | "inch" = "mm"): MachineState => ({
   coolant: false,
   tool: null,
   wcs: 54,
+  wcsP: null,
+  offsets: {},
   comp: 40,
   cycle: null,
   rot: null,
   local: { x: 0, y: 0, z: 0 },
+  shift: { x: 0, y: 0, z: 0 },
+  frame: { x: 0, y: 0, z: 0 },
   pos: { x: 0, y: 0, z: 0 },
   prog: { x: 0, y: 0, z: 0 },
 });
+
+/* ---------- Układy współrzędnych: pomocnicze ---------- */
+const ZERO: Vec3 = { x: 0, y: 0, z: 0 };
+const isZero = (v: Vec3) => Math.abs(v.x) < 1e-9 && Math.abs(v.y) < 1e-9 && Math.abs(v.z) < 1e-9;
+const addV = (a: Vec3, b: Vec3): Vec3 => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z });
+
+/** Klucz tabeli przesunięć dla aktywnego układu; null dla G500 (brak przesunięcia). */
+export function wcsKey(s: Pick<MachineState, "wcs" | "wcsP">): string | null {
+  if (s.wcs === 500) return null;
+  if (s.wcs === 54.1) return `p${s.wcsP ?? 1}`;
+  return String(s.wcs);
+}
+/** Przesunięcie aktywnego układu z tabeli (zero, gdy nie wpisano). */
+export function activeOffset(s: Pick<MachineState, "wcs" | "wcsP" | "offsets">): Vec3 {
+  const k = wcsKey(s);
+  return (k && s.offsets[k]) || ZERO;
+}
+/** Łączne przesunięcie: układ + G52 + G92 + TRANS. Zero układu programu leży w tym punkcie maszyny. */
+export function frameShift(s: Pick<MachineState, "wcs" | "wcsP" | "offsets" | "local" | "shift" | "frame">): Vec3 {
+  return addV(addV(addV(activeOffset(s), s.local), s.shift), s.frame);
+}
+/** Etykieta aktywnego układu: G55, G54.1 P3, G500, G505. */
+export function wcsLabel(s: Pick<MachineState, "wcs" | "wcsP">): string {
+  return s.wcs === 54.1 ? `G54.1 P${s.wcsP ?? 1}` : `G${s.wcs}`;
+}
 
 /** Rozbija linię na słowa (litera + liczba) i komentarz. */
 export function tokenize(raw: string): { words: Word[]; comment: string | null } {
@@ -139,6 +168,10 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
   const step = (raw: string, index: number) => {
     const { words: rawWords, comment } = tokenize(raw);
+    // Słowa kluczowe Sinumerika (bez liczby po literze, więc tokenizer ich nie widzi).
+    const bare = raw.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
+    const kwTrans = bare.match(/(^|[^A-Z])(ATRANS|TRANS)(?![A-Z])/)?.[2] as "TRANS" | "ATRANS" | undefined;
+    const kwOther = bare.match(/(^|[^A-Z])(AROT|ROT|ASCALE|SCALE|AMIRROR|MIRROR|SUPA)(?![A-Z])/)?.[2];
 
     // Jednostki ustalamy przed przeliczeniem słów: G20/G21 w tym samym bloku
     // obowiązuje już dla jego współrzędnych.
@@ -169,6 +202,21 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     if (ms.length > 1) errors.push("Tylko jedna funkcja M w bloku.");
 
+    // Zmiana układu (G54–G59, G52, G92, G10 na aktywnym układzie, TRANS, G68) nie porusza maszyną —
+    // po bloku przeliczamy tylko, jak dotychczasowe położenie wyraża się w nowym układzie programu.
+    let frameChanged = false;
+    const vec = (v: Vec3) => `X${fmt(dia ? v.x * 2 : v.x)}${dia ? "" : ` Y${fmt(v.y)}`} Z${fmt(v.z)}`;
+    const axesOf = (): Partial<Vec3> => {
+      const o: Partial<Vec3> = {};
+      for (const ax of ["x", "y", "z"] as const) { const v = get(ax.toUpperCase()); if (v !== undefined) o[ax] = v; }
+      return o;
+    };
+    const selectWcs = (code: number, p: number | null) => {
+      s.wcs = code; s.wcsP = p; frameChanged = true;
+      const off = activeOffset(s);
+      desc.push(`Układ współrzędnych ${wcsLabel(s)}${isZero(off) ? "" : ` — zero w ${vec(off)} maszyny`}`);
+    };
+
     for (const g of gs) {
       switch (g) {
         case 0: case 1: case 2: case 3:
@@ -198,7 +246,27 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 9: desc.push("Dokładne zatrzymanie na końcu bloku (G09, jednorazowo)"); break;
         case 61: desc.push("Tryb dokładnego zatrzymania (G61) — osie zwalniają do zera na końcu każdego bloku"); break;
         case 64: desc.push("Tryb skrawania (G64) — płynne przejścia między blokami"); break;
-        case 10: desc.push("Wpis danych z programu (G10) — rejestry korekcji lub przesunięć; bez ruchu"); break;
+        case 10: {
+          const L = get("L"), P = get("P");
+          if (L === 2 || L === 20) {
+            const key = L === 2 ? (P === 0 ? "ext" : P !== undefined && P >= 1 && P <= 6 ? String(53 + P) : null) : (P !== undefined && P >= 1 && P <= 48 && Number.isInteger(P) ? `p${P}` : null);
+            if (key === null) { errors.push(L === 2 ? "G10 L2 wymaga P0 (zewnętrzne) albo P1–P6 (G54–G59)." : "G10 L20 wymaga P1–P48 (G54.1)."); break; }
+            const cur = s.offsets[key] ?? ZERO, ax = axesOf();
+            const next: Vec3 = { ...cur };
+            for (const k of ["x", "y", "z"] as const) if (ax[k] !== undefined) next[k] = s.absolute ? ax[k]! : cur[k] + ax[k]!;
+            s.offsets = { ...s.offsets, [key]: next };
+            if (wcsKey(s) === key) frameChanged = true;
+            const name = key === "ext" ? "zewnętrzne przesunięcie (EXT)" : key.startsWith("p") ? `G54.1 P${key.slice(1)}` : `G${key}`;
+            desc.push(`Wpis przesunięcia układu ${name}: ${vec(next)}${s.absolute ? "" : " (przyrostowo, G91)"} (G10 L${L})`);
+          } else if (L === 1 || L === 10 || L === 11 || L === 12 || L === 13) {
+            desc.push(`G10 L${fmt(L)} — zapis korektora narzędzia P${fmt(P ?? 0)}; nieobsługiwane: symulator nie ma tabeli korektorów, długość i promień bierze z ustawień narzędzia`);
+          } else if (L === undefined) {
+            errors.push("G10 wymaga L: L2 (układy G54–G59), L20 (G54.1), L10–L13 (korektory).");
+          } else {
+            desc.push(`G10 L${fmt(L)} — nieobsługiwane w symulatorze`);
+          }
+          break;
+        }
         case 22: desc.push("Włączenie strefy zabronionej (G22) — bez ruchu"); break;
         case 23: desc.push("Wyłączenie strefy zabronionej (G23)"); break;
         case 15: s.polar = null; desc.push("Wyłączenie współrzędnych biegunowych (G15)"); break;
@@ -219,22 +287,30 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 42: s.comp = 42; desc.push("Kompensacja promienia — prawa (G42)"); break;
         case 43: desc.push(`Korekcja długości narzędzia H${fmt(get("H") ?? 0)} (G43)`); break;
         case 49: desc.push("Wyłącz korekcję długości (G49)"); break;
-        case 54: case 55: case 56: case 57: case 58: case 59:
-          s.wcs = g; desc.push(`Układ współrzędnych G${g}`); break;
+        case 54: case 55: case 56: case 57: case 58: case 59: selectWcs(g, null); break;
+        case 54.1: {
+          const P = get("P");
+          if (P === undefined || !Number.isInteger(P) || P < 1 || P > 48) { errors.push("G54.1 wymaga P1–P48."); break; }
+          selectWcs(54.1, P); break;
+        }
+        case 500: selectWcs(500, null); break;
         case 80: s.cycle = null; desc.push("Anuluj cykl stały (G80)"); break;
         case 52: {
-          s.local = { x: get("X") ?? 0, y: get("Y") ?? 0, z: get("Z") ?? 0 };
-          const zero = !s.local.x && !s.local.y && !s.local.z;
-          desc.push(zero ? "Kasowanie układu lokalnego (G52)" : `Układ lokalny przesunięty o X${fmt(s.local.x)} Y${fmt(s.local.y)} Z${fmt(s.local.z)} (G52)`);
+          s.local = { x: get("X") ?? 0, y: get("Y") ?? 0, z: get("Z") ?? 0 }; frameChanged = true;
+          desc.push(isZero(s.local) ? "Kasowanie układu lokalnego (G52)" : `Układ lokalny przesunięty o ${vec(s.local)} względem ${wcsLabel(s)} (G52)`);
           break;
         }
+        case 92.1: {
+          if (latheA) { desc.push("G92.1 — nieobsługiwane w symulatorze"); break; }
+          s.shift = { ...ZERO }; frameChanged = true; desc.push("Kasowanie przesunięcia G92 (G92.1)"); break;
+        }
         case 68: {
-          const deg = get("R") ?? 0;
+          const deg = get("R") ?? 0; frameChanged = true;
           s.rot = { deg, cx: get("X") ?? 0, cy: get("Y") ?? 0 };
           desc.push(`Obrót układu o ${fmt(deg)}° wokół X${fmt(s.rot.cx)} Y${fmt(s.rot.cy)} (G68)`);
           break;
         }
-        case 69: s.rot = null; desc.push("Kasowanie obrotu układu (G69)"); break;
+        case 69: s.rot = null; frameChanged = true; desc.push("Kasowanie obrotu układu (G69)"); break;
         // Tokarka Fanuc (system kodów A): G98 — posuw mm/min, G99 — posuw mm/obr.
         case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; if (dia) { s.feedMode = 94; desc.push("Posuw w mm/min (G98, tokarka)"); } else desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
         case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; if (dia) { s.feedMode = 95; desc.push("Posuw w mm/obr (G99, tokarka)"); } else desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
@@ -282,13 +358,31 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
             desc.push(g === 70 ? "Cykl wykańczający G70 — przejście po konturze" : hasP ? `Cykl zgrubny G${g} — kontur i naddatki` : `Cykl zgrubny G${g} — głębokość skrawania i wycofanie`);
           } else desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
           break;
-        default: desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
+        default:
+          if (Number.isInteger(g) && g >= 505 && g <= 599) { selectWcs(g, null); break; }
+          desc.push(`G${fmt(g)} — nieobsługiwane w symulatorze`);
       }
     }
 
-    // Zmiana układu (G52/G68/G69) nie porusza maszyną — przeliczamy tylko,
-    // jak aktualne położenie wyraża się w nowym układzie programu.
-    if (gs.some((g) => g === 52 || g === 68 || g === 69)) s.prog = inverseFrames(s.pos, s);
+    // Sinumerik: TRANS zastępuje ramkę programowalną (bez osi — kasuje), ATRANS dodaje.
+    if (kwTrans) {
+      const ax = axesOf();
+      const base = kwTrans === "TRANS" ? ZERO : s.frame;
+      s.frame = { x: base.x + (ax.x ?? 0), y: base.y + (ax.y ?? 0), z: base.z + (ax.z ?? 0) };
+      frameChanged = true;
+      desc.push(kwTrans === "TRANS" && isZero(s.frame) ? "Kasowanie przesunięcia programowalnego (TRANS)" : `${kwTrans === "TRANS" ? "Przesunięcie programowalne" : "Dodatkowe przesunięcie"} ${vec(s.frame)} (${kwTrans})`);
+    } else if (kwOther) {
+      desc.push(`${kwOther} — ${kwOther === "SUPA" ? "ruch we współrzędnych maszynowych" : "obrót/skalowanie/lustro ramki"} (Sinumerik) — nieobsługiwane w symulatorze, blok pominięty`);
+    }
+
+    // G92 na frezarce: bieżący punkt dostaje zadane współrzędne — przesuwamy wszystkie układy (shift).
+    if (!latheA && gs.includes(92)) {
+      const ax = axesOf(), sh = { ...s.shift };
+      for (const k of ["x", "y", "z"] as const) if (ax[k] !== undefined) sh[k] = s.shift[k] + (state.prog[k] - ax[k]!);
+      s.shift = sh; frameChanged = true;
+    }
+
+    if (frameChanged) s.prog = inverseFrames(s.pos, s);
 
     // W bloku G04 adresy F i S (Sinumerik) oznaczają czas postoju, nie posuw i obroty.
     const isDwell = gs.includes(4);
@@ -337,14 +431,6 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         };
         if (s.cycle.f) s.feed = s.cycle.f;
       }
-    }
-
-    // G92 na frezarce: bieżący punkt dostaje zadane współrzędne — przesuwamy układ lokalny.
-    if (!latheA && gs.includes(92)) {
-      const loc = { ...s.local };
-      (["x", "y", "z"] as const).forEach((ax) => { const v = get(ax.toUpperCase()); if (v !== undefined) { loc[ax] = s.local[ax] + (state.prog[ax] - v); } });
-      s.local = loc;
-      s.prog = { ...state.prog, ...Object.fromEntries((["x", "y", "z"] as const).filter((ax) => get(ax.toUpperCase()) !== undefined).map((ax) => [ax, get(ax.toUpperCase())!])) };
     }
 
     // Współrzędne biegunowe (G16): X — promień, Y — kąt; środek w zerze układu (G90) albo w bieżącym punkcie (G91).
@@ -426,7 +512,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Osie obrotowe A/B/C: zapamiętujemy kąt (G90 — bezwzględnie, G91 — przyrost) i opisujemy ruch.
     // Tor w symulatorze jest liczony dla osi liniowych; obrót stołu nie zmienia jeszcze geometrii.
-    if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10)) {
+    if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10) && !kwTrans && !kwOther) {
       const rot: { a?: number; b?: number; c?: number } = { ...(state.rotary ?? {}) };
       const moved: string[] = [];
       for (const ax of ["a", "b", "c"] as const) {
@@ -440,7 +526,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
-    const noMotion = gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));
+    const noMotion = !!kwTrans || !!kwOther || gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
@@ -800,8 +886,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   return { lines, segments: allSegments, bounds, seconds };
 }
 
-/** Odwrotność applyFrames — przelicza pozycję rzeczywistą na współrzędne programu. */
-function inverseFrames(p: Vec3, s: MachineState): Vec3 {
+/** Odwrotność applyFrames — przelicza pozycję maszynową na współrzędne programu. */
+export function inverseFrames(p: Vec3, s: MachineState): Vec3 {
   const q = { ...p };
   if (s.rot && Math.abs(s.rot.deg) > 1e-9) {
     const a = (-s.rot.deg * Math.PI) / 180;
@@ -809,13 +895,15 @@ function inverseFrames(p: Vec3, s: MachineState): Vec3 {
     q.x = s.rot.cx + dx * Math.cos(a) - dy * Math.sin(a);
     q.y = s.rot.cy + dx * Math.sin(a) + dy * Math.cos(a);
   }
-  q.x -= s.local.x; q.y -= s.local.y; q.z -= s.local.z;
+  const f = frameShift(s);
+  q.x -= f.x; q.y -= f.y; q.z -= f.z;
   return q;
 }
 
-/** Nakłada przesunięcie lokalne G52 i obrót układu G68 na punkt docelowy. */
-function applyFrames(p: Vec3, s: MachineState) {
-  p.x += s.local.x; p.y += s.local.y; p.z += s.local.z;
+/** Program → maszyna: przesunięcie układu (G54–G59/G54.1/G505), G52, G92, TRANS, potem obrót G68. */
+export function applyFrames(p: Vec3, s: MachineState) {
+  const f = frameShift(s);
+  p.x += f.x; p.y += f.y; p.z += f.z;
   if (s.rot && Math.abs(s.rot.deg) > 1e-9) {
     const a = (s.rot.deg * Math.PI) / 180;
     const dx = p.x - s.rot.cx, dy = p.y - s.rot.cy;

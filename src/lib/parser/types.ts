@@ -27,14 +27,32 @@ export interface MachineState {
   spindleOn: "cw" | "ccw" | "off";
   coolant: boolean;
   tool: number | null;
-  wcs: number; // 54..59
+  /**
+   * Aktywny układ współrzędnych: 54–59 (G54–G59), 54.1 (G54.1 P — numer w `wcsP`),
+   * Sinumerik: 500 (G500 — bez przesunięcia bazowego), 505–599 (G505–G599).
+   */
+  wcs: number;
+  /** Numer P dla G54.1 (1–48); null dla pozostałych układów. */
+  wcsP: number | null;
+  /**
+   * Tabela przesunięć układów (jak w sterowniku): klucze "ext" (G10 L2 P0), "54"…"59",
+   * "p1"…"p48" (G54.1), "505"…"599". Brak klucza = zero. Zapis przez G10 L2 / L20.
+   */
+  offsets: Readonly<Record<string, Vec3>>;
   comp: 40 | 41 | 42;
   cycle: CannedCycle | null;
   /** Obrót układu G68: kąt w stopniach i środek; null gdy G69. */
   rot: { deg: number; cx: number; cy: number } | null;
-  /** Przesunięcie lokalne G52 względem aktywnego G54–G59. */
-  local: { x: number; y: number; z: number };
-  /** Pozycja rzeczywista (po G52/G68) — używana do rysowania toru. */
+  /** Przesunięcie lokalne G52 względem aktywnego układu. */
+  local: Vec3;
+  /** Przesunięcie G92 (frezarka): „bieżący punkt ma mieć te współrzędne”; kasowane przez G92.1. */
+  shift: Vec3;
+  /** Ramka programowalna Sinumerik TRANS (zastępuje) / ATRANS (dodaje). */
+  frame: Vec3;
+  /**
+   * Pozycja maszynowa — używana do rysowania toru.
+   * pos = prog + offsets[wcs] + local (G52) + shift (G92) + frame (TRANS), potem obrót G68.
+   */
   pos: Vec3;
   /** Pozycja w układzie programu, przed przesunięciem i obrotem. */
   prog: Vec3;
