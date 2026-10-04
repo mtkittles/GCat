@@ -8,6 +8,7 @@ import { applyCompensation, noseOf } from "./compensation";
 import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
+import { stockBoxes } from "./pieces";
 import SetupPanel from "./SetupPanel";
 import LearnPanel from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
@@ -129,11 +130,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setPrevStockKey(stockKey);
     setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
   }
-  const stockBox = useMemo<StockBox | undefined>(() => {
+  const stockBox = useMemo<StockBox[] | undefined>(() => {
     if (mode !== "mill" || setup.stock.auto) return undefined;
-    const st = setup.stock;
-    return { minX: -st.ox, maxX: st.x - st.ox, minY: -st.oy, maxY: st.y - st.oy, top: st.z - st.oz, bottom: -st.oz };
-  }, [mode, setup.stock]);
+    return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
+  }, [mode, setup, program]);
   const compR = useMemo(() => {
     const nums = Object.keys(setup.tools).map(Number);
     const t = setup.tools[nums[0]];
@@ -399,15 +399,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // półfabrykat
     const cut = segments.filter((s) => s.kind !== "rapid");
     if (!setup.stock.auto && mode === "mill") {
-      const stk = setup.stock;
-      const st = stk;
-      const x0 = -st.ox, x1s = st.x - st.ox;
-      const y0 = -st.oy, y1s = st.y - st.oy;
-      const [ax, ay] = P({ x: x0, y: y0, z: 0 }); const [bx2, by2] = P({ x: x1s, y: y1s, z: 0 });
-      ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
-      ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
-      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
-      ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
+      const st = setup.stock;
+      // jeden prostokąt na detal (G54, G55…)
+      for (const b of stockBoxes(program, segments, setup)) {
+        const [ax, ay] = P({ x: b.x0, y: b.y0, z: 0 }); const [bx2, by2] = P({ x: b.x1, y: b.y1, z: 0 });
+        ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
+        ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
+        ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+        ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
+      }
+    } else if (cut.length && mode === "mill" && setup.stock.perWcs !== false && stockBoxes(program, segments, setup, false).length > 1) {
+      for (const b of stockBoxes(program, segments, setup, false)) {
+        const [x1, y1] = P({ x: b.x0, y: b.y0, z: 0 }); const [x2, y2] = P({ x: b.x1, y: b.y1, z: 0 });
+        ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge;
+        ctx.fillRect(x1, y2, x2 - x1, y1 - y2); ctx.strokeRect(x1, y2, x2 - x1, y1 - y2);
+      }
     } else if (cut.length) {
       const b = boundsOf(cut, ha, va);
       const [x1, y1] = P({ x: 0, y: 0, z: 0, [ha]: b.minH, [va]: b.minV } as Vec3);
@@ -431,20 +437,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
     // tak jak w symulatorach z podglądem ubytku.
     if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact) {
-      const st2 = setup.stock;
-      const box = st2.auto ? autoStockBox(segments, lengths, setup, mode) : {
-        x0: -st2.ox, x1: st2.x - st2.ox, y0: -st2.oy, y1: st2.y - st2.oy,
-      };
-      if (box) {
+      const boxes = stockBoxes(program, segments, setup);
+      if (boxes.length) {
         const layer = document.createElement("canvas");
         layer.width = cv.width; layer.height = cv.height;
         const lx = layer.getContext("2d");
         if (lx) {
           lx.scale(dpr, dpr);
-          const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 });
-          const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 });
+          const rects = boxes.map((box) => { const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 }); const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 }); return [Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0)] as const; });
           lx.fillStyle = "rgba(148,163,184,0.20)";
-          lx.fillRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+          for (const r of rects) lx.fillRect(...r);
 
           // wycięcie śladu narzędzia
           lx.globalCompositeOperation = "destination-out";
@@ -469,7 +471,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           // obrys półfabrykatu — granica materiału pozostaje czytelna
           ctx.save();
           ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1.2;
-          ctx.strokeRect(Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0));
+          for (const r of rects) ctx.strokeRect(...r);
           ctx.restore();
         }
       }
@@ -1198,21 +1200,6 @@ const reduceMotion = () =>
 
 /** Obrys półfabrykatu dobieranego automatycznie: zakres ruchów roboczych
     powiększony o promień największego narzędzia. */
-function autoStockBox(segments: Segment[], lengths: number[], setup: Setup, mode: "mill" | "lathe") {
-  void lengths;
-  const cut = segments.filter((s) => s.kind !== "rapid");
-  if (!cut.length) return null;
-  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-  for (const sg of cut) for (let t = 0; t <= 1; t += 0.1) {
-    const p = pointAt(sg, t);
-    x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x);
-    y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
-  }
-  const r = Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d / 2), 3);
-  void mode;
-  return { x0: x0 - r, x1: x1 + r, y0: y0 - r, y1: y1 + r };
-}
-
 function segIndexAt(p: number, lengths: number[]) {
   let acc = 0;
   for (let i = 0; i < lengths.length; i++) { acc += lengths[i]; if (p < acc) return i; }

@@ -112,6 +112,9 @@ export default function SetupPanel({ mode, setup, onChange, activeTool, defaultO
                 <button onClick={() => s({ ox: 0, oy: 0, oz: stock.z })}>Narożnik, Z na górze</button>
                 <button onClick={() => s({ ox: stock.x / 2, oy: stock.y / 2, oz: stock.z })}>Środek, Z na górze</button>
               </div>
+              <label className="setup-field setup-check"><span>Osobny detal w każdym układzie (G54, G55…, TRANS)</span>
+                <input type="checkbox" checked={stock.perWcs !== false} onChange={(e) => s({ perWcs: e.target.checked })} /></label>
+              <p className="setup-hint">Program z G55 albo G54.1 P_ obrabia kolejną sztukę — dostaje własny półfabrykat w zerze tego układu. Wyłącz, by wszystko działo się na jednej bryle.</p>
             </>
           ) : (
             <>

@@ -9,8 +9,11 @@ export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 /** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
 const ONCE = /wrzecion|G43|posuw F/i;
 
-export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stock?: StockBox, toolLen?: number, compRadius?: number): Issue[] {
+export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stockIn?: StockBox | StockBox[], toolLen?: number, compRadius?: number): Issue[] {
   const out: Issue[] = [];
+  // Kilka detali (G54 i G55…): kolizję sprawdzamy z każdym półfabrykatem; głębokość — względem najwyższego.
+  const stocks = stockIn === undefined ? [] : Array.isArray(stockIn) ? stockIn : [stockIn];
+  const stock = stocks.length ? { ...stocks[0], top: Math.max(...stocks.map((s) => s.top)) } : undefined;
   const L = program.lines;
   let sawToolChange = false, sawG43 = false, sawM30 = false, sawSpindle = false, sawMotion = false;
   let firstCutLine: number | null = null;
@@ -175,8 +178,9 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
         const n = 12;
         for (let i = 0; i <= n; i++) {
           const p: Vec3 = pointAt(sg, i / n);
-          if (p.z < stock.top - 0.01 && inside(p, stock)) {
-            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd w poprzek materiału na Z${fmt(p.z)} (górna powierzchnia Z${fmt(stock.top)}). Podnieś narzędzie nad materiał albo przejedź na G01.` });
+          const hit = stocks.find((s) => p.z < s.top - 0.01 && inside(p, s));
+          if (hit) {
+            out.push({ line: l.index, level: "error", msg: `Kolizja: szybki przejazd w poprzek materiału na Z${fmt(p.z)} (górna powierzchnia Z${fmt(hit.top)}). Podnieś narzędzie nad materiał albo przejedź na G01.` });
             flagged = true;
             break;
           }
