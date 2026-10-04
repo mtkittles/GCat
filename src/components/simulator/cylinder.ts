@@ -1,5 +1,6 @@
 import { pointAt, type Program } from "@/lib/parser";
-import { cuttingRadius, toolOf, type Setup } from "./setup";
+import type { Issue } from "@/lib/parser/validate";
+import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
 /*
   4. oś, etap 1: półfabrykat walcowy w osi X (uchwyt na stole obrotowym A).
@@ -45,7 +46,8 @@ export function angleAt(program: Program, lengths: number[], progress: number): 
  * Jeden krok skrawania: frez walcowy o promieniu rt z czołem w (xt, yt, zt) maszyny, stół obrócony o A [°].
  * Zwraca liczbę zmienionych komórek (do testów).
  */
-export function carveCylStep(h: Float32Array, m: CylMeta, xt: number, yt: number, zt: number, aDeg: number, rt: number): number {
+export function carveCylStep(h: Float32Array, m: CylMeta, xt: number, yt: number, zt: number, aDeg: number, rt: number, prof?: Profile | null): number {
+  if (prof) return carveCylStepProfile(h, m, xt, yt, zt, aDeg, rt, prof);
   const zr = zt - m.axisZ;             // wysokość czoła freza nad osią
   if (zr >= m.R) return 0;
   const rMin = Math.max(R_MIN, zr);    // najmniejszy promień, do którego frez może sięgnąć
@@ -85,6 +87,63 @@ export function carveCylStep(h: Float32Array, m: CylMeta, xt: number, yt: number
   return changed;
 }
 
+/**
+ * Profil czoła narzędzia: wysokość ostrza nad wierzchołkiem w odległości d od osi (0 ≤ d ≤ rt).
+ * null — czoło płaskie (frez walcowy, rozwiertak, gwintownik…), liczone szybką ścieżką analityczną.
+ */
+export type Profile = (d: number) => number;
+export function toolProfile(t: Tool): Profile | null {
+  const r = cuttingRadius(t);
+  const tanHalf = Math.tan((Math.max(10, Math.min(170, t.angle || 90)) * Math.PI) / 360);
+  switch (t.kind) {
+    case "ballnose": return (d) => r - Math.sqrt(Math.max(0, r * r - d * d));
+    case "bullnose": {
+      const c = Math.min(r * 0.95, Math.max(0, t.corner));
+      if (c <= 0) return null;
+      return (d) => (d <= r - c ? 0 : c - Math.sqrt(Math.max(0, c * c - (d - (r - c)) ** 2)));
+    }
+    case "vbit": case "chamfer": case "spotdrill": case "drill":
+      return (d) => d / tanHalf;
+    default: return null;
+  }
+}
+
+/**
+ * Krok skrawania narzędziem o profilowanym czole (kulisty, stożkowy, z promieniem naroża, wiertło).
+ * Na każdym promieniu detalu szukamy pierwszego punktu wewnątrz bryły narzędzia (od osi na zewnątrz):
+ * próbkowanie co ~0,1 mm i dokładne zawężenie bisekcją.
+ */
+function carveCylStepProfile(h: Float32Array, m: CylMeta, xt: number, yt: number, zt: number, aDeg: number, rt: number, prof: Profile): number {
+  const zr = zt - m.axisZ;
+  if (zr >= m.R) return 0;
+  const rMin = Math.max(R_MIN, zr);
+  const lo = clamp((yt - rt) / rMin, -1, 1), hi = clamp((yt + rt) / rMin, -1, 1);
+  const A = (aDeg * Math.PI) / 180;
+  const i0 = Math.floor((Math.acos(hi) - A) / m.ct) - 1, i1 = Math.ceil((Math.acos(lo) - A) / m.ct) + 1;
+  const j0 = Math.max(0, Math.floor((xt - rt - m.x0) / m.cx)), j1 = Math.min(m.nx, Math.ceil((xt + rt - m.x0) / m.cx));
+  let changed = 0;
+  for (let i = i0; i <= i1; i++) {
+    const phi = i * m.ct + A, sn = Math.sin(phi), cs = Math.cos(phi);
+    if (sn <= 1e-3) continue;
+    for (let j = j0; j <= j1; j++) {
+      const dx = m.x0 + j * m.cx - xt;
+      if (Math.abs(dx) > rt) continue;
+      const idx = cylIndex(m, j, i), r = h[idx];
+      const inside = (q: number) => { const d = Math.hypot(dx, q * cs - yt); return d <= rt && q * sn >= zr + prof(d) - 1e-9; };
+      const start = Math.max(R_MIN, zr / sn);
+      if (start >= r) continue;
+      const step = Math.min(0.1, (r - start) / 4);
+      let prev = start, hit = -1;
+      for (let q = start; q < r; q += step) { if (inside(q)) { hit = q; break; } prev = q; }
+      if (hit < 0) continue;
+      let a = prev, b = hit;
+      if (a < b) for (let k = 0; k < 12; k++) { const mid = (a + b) / 2; if (inside(mid)) b = mid; else a = mid; }
+      if (b < r) { h[idx] = Math.max(b, R_MIN); changed++; }
+    }
+  }
+  return changed;
+}
+
 /** Nanosi ubytek z zakresu postępu [from, to] na mapę promienia. */
 export function carveCyl(h: Float32Array, m: CylMeta, program: Program, lengths: number[], setup: Setup, from: number, to: number) {
   let acc = 0;
@@ -96,7 +155,7 @@ export function carveCyl(h: Float32Array, m: CylMeta, program: Program, lengths:
     const t0 = Math.max(0, (from - segStart) / (len || 1)), t1 = Math.min(1, (to - segStart) / (len || 1));
     if (t1 <= t0) return;
     const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, "mill");
-    const rt = cuttingRadius(tl);
+    const rt = cuttingRadius(tl), prof = toolProfile(tl);
     const a0 = sg.a?.from ?? program.lines[sg.line]?.state.rotary?.a ?? 0, a1 = sg.a?.to ?? a0;
     // krok: oczko siatki wzdłuż X i po obwodzie (obrót o dA przesuwa powierzchnię o R·dA)
     const arcLen = (Math.abs(a1 - a0) * Math.PI / 180) * m.R;
@@ -104,7 +163,7 @@ export function carveCyl(h: Float32Array, m: CylMeta, program: Program, lengths:
     for (let k = 0; k <= steps; k++) {
       const t = t0 + ((t1 - t0) * k) / steps;
       const p = pointAt(sg, t);
-      carveCylStep(h, m, p.x, p.y, p.z, a0 + (a1 - a0) * t, rt);
+      carveCylStep(h, m, p.x, p.y, p.z, a0 + (a1 - a0) * t, rt, prof);
     }
   });
 }
@@ -156,4 +215,59 @@ export function cylVolume(h: Float32Array, m: CylMeta): { left: number; full: nu
   let left = 0;
   for (let j = 0; j < m.nx; j++) for (let i = 0; i < m.nt; i++) { const r = h[cylIndex(m, j, i)]; left += 0.5 * r * r * m.ct * m.cx; }
   return { left, full: Math.PI * m.R * m.R * (m.x1 - m.x0) };
+}
+
+/* ---------- Uchwyt i konik ---------- */
+
+/** Geometria osprzętu 4. osi w układzie detalu: szczęki uchwytu przy lewym czole, opcjonalnie kieł konika przy prawym. */
+export interface Fixture { x0: number; x1: number; R: number; axisZ: number; grip: number; jawR: number; bodyX0: number; tail: { x0: number; x1: number; r: number } | null }
+export function fixtureOf(setup: Setup): Fixture {
+  const st = setup.stock, R = Math.max(0.5, st.d / 2), x0 = -st.ox, x1 = x0 + Math.max(1, st.len);
+  const grip = Math.max(0, st.grip ?? 10);
+  return { x0, x1, R, axisZ: -st.oz, grip, jawR: R + 12, bodyX0: x0 - 40, tail: st.tailstock ? { x0: x1, x1: x1 + 60, r: Math.min(R, 15) } : null };
+}
+
+/** Czy narzędzie (wierzchołek p, promień rt, bryła ku górze) przecina walec osiowy o promieniu rc na odcinku X [a, b]. */
+function hitsAxisCylinder(p: { x: number; y: number; z: number }, rt: number, f: Fixture, a: number, b: number, rc: number) {
+  if (p.x + rt < a || p.x - rt > b) return false;
+  const ymin = Math.max(0, Math.abs(p.y) - rt);
+  const zd = Math.max(0, p.z - f.axisZ);
+  return ymin * ymin + zd * zd < rc * rc - 1e-6;
+}
+
+/**
+ * Kolizje narzędzia z uchwytem (szczęki na długości `grip` od lewego czoła i korpus uchwytu)
+ * oraz z kłem konika. Sprawdzamy wszystkie ruchy, także szybkie — po jednym komunikacie na linię.
+ */
+export function cylCollisions(program: Program, setup: Setup): Issue[] {
+  const f = fixtureOf(setup), out: Issue[] = [], seen = new Set<string>();
+  for (const sg of program.segments) {
+    if (sg.kind === "dwell") continue;
+    const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, "mill"), rt = cuttingRadius(tl);
+    for (let k = 0; k <= 16; k++) {
+      const p = pointAt(sg, k / 16);
+      const jaw = f.grip > 0 && hitsAxisCylinder(p, rt, f, f.x0, f.x0 + f.grip, f.jawR);
+      const body = hitsAxisCylinder(p, rt, f, f.bodyX0, f.x0, f.jawR + 13);
+      const tail = f.tail && hitsAxisCylinder(p, rt, f, f.tail.x0, f.tail.x1, f.tail.r);
+      const what = jaw ? "ze szczękami uchwytu" : body ? "z korpusem uchwytu" : tail ? "z kłem konika" : null;
+      if (!what) continue;
+      const key = `${sg.line}:${what}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        const where = jaw ? ` — szczęki trzymają materiał od X${fmt(f.x0)} do X${fmt(f.x0 + f.grip)}` : tail ? ` — kieł konika od X${fmt(f.tail!.x0)}` : "";
+        out.push({ line: sg.line, level: "error", msg: `Kolizja ${what} 4. osi (X${fmt(p.x)} Z${fmt(p.z)})${where}. Odsuń narzędzie albo zmień długość w szczękach.` });
+      }
+      break;
+    }
+  }
+  return out;
+}
+const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+
+/* ---------- Rozwinięcie walca (widok 2D) ---------- */
+
+/** Kąt detalu [°, 0–360) pod narzędziem w punkcie (y, A): kąt maszynowy styku minus obrót stołu. */
+export function contactAngle(y: number, aDeg: number, R: number): number {
+  const phi = (Math.atan2(Math.sqrt(Math.max(0, R * R - y * y)), y) * 180) / Math.PI;
+  return (((phi - aDeg) % 360) + 360) % 360;
 }

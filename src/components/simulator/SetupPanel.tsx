@@ -119,6 +119,9 @@ export default function SetupPanel({ mode, setup, onChange, activeTool, defaultO
                 <button onClick={() => s({ oz: stock.d / 2 })}>Z0 na powierzchni</button>
                 <button onClick={() => s({ oz: 0 })}>Z0 na osi</button>
               </div>
+              <Num l="Długość w szczękach" v={stock.grip ?? 10} on={(grip) => s({ grip })} min={0} suffix="mm" />
+              <label className="setup-field setup-check"><span>Kieł konika na prawym czole</span>
+                <input type="checkbox" checked={!!stock.tailstock} onChange={(e) => s({ tailstock: e.target.checked })} /></label>
               <p className="setup-hint">Walec w uchwycie 4. osi: oś obrotu A wzdłuż X, Y0 na osi. Program obraca detal słowem A (G90 — kąt bezwzględny, G91 — przyrost); ruch jednoczesny X/A grawerowanie po linii śrubowej. Frez pracuje z góry.</p>
             </>
           ) : mode === "mill" ? (

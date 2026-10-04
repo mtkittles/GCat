@@ -9,7 +9,8 @@ import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheSt
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import { stockBoxes } from "./pieces";
-import { isCyl } from "./cylinder";
+import { cylCollisions, isCyl } from "./cylinder";
+import { drawUnrolled, type UnrollCache } from "./unrolled";
 import SetupPanel from "./SetupPanel";
 import LearnPanel from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
@@ -109,6 +110,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
+  const unrollRef = useRef<UnrollCache | null>(null);
   const [setup, setSetup] = useState<Setup>(() => {
     const d = defaultSetup(mode);
     const base = stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d;
@@ -140,7 +142,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const t = setup.tools[nums[0]];
     return t ? cuttingRadius(t) : undefined;
   }, [setup]);
-  const issues = useMemo(() => validate(program, dialect, stockBox, undefined, compR), [program, dialect, stockBox, compR]);
+  const issues = useMemo(() => {
+    const base = validate(program, dialect, stockBox, undefined, compR);
+    // 4. oś: kolizje z uchwytem i konikiem
+    return isCyl(setup, mode) ? [...base, ...cylCollisions(program, setup)].sort((a, b) => a.line - b.line) : base;
+  }, [program, dialect, stockBox, compR, setup, mode]);
   const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
 
@@ -320,6 +326,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const W = cv.clientWidth, H = cv.clientHeight;
     if (W < 8 || H < 8) return;   // kontener jeszcze bez wymiarów
     cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+
+    // Walec na 4. osi: zamiast rzutu z góry — rozwinięcie płaszcza (X × kąt detalu).
+    if (isCyl(setup, mode)) {
+      const u = drawUnrolled(ctx, W, H, { program, segments, lengths, progress, setup, cache: unrollRef, currentPos, compact, probe });
+      mapRef.current = { P: () => [0, 0] as const, inv: u.inv };
+      return;
+    }
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
     const { min: bmin0, max: bmax0 } = program.bounds;
@@ -730,7 +743,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
     <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")}>{mode === "lathe" ? "ZX" : "XY"}</button>
+      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "Rozwinięcie" : "XY"}</button>
       <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
       {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
     </div>
