@@ -102,9 +102,17 @@ export function carveLathe(pr: LatheProfile, program: Program, segments: Segment
       const end = pointAt(sg, done);
       const za = Math.min(sg.from.z, end.z), zb = Math.max(sg.from.z, end.z);
       const flank = 1 / Math.tan(((tool.angle || 60) / 2) * Math.PI / 180);
-      const km = Math.max(0, Math.min(n, col((za + zb) / 2)));
-      // gwint wewnętrzny: przejście bliżej otworu niż powierzchni zewnętrznej
-      const inner = Math.abs(sg.from.x - rin[km]) < Math.abs(rout[km] - sg.from.x);
+      // Strona gwintu z CAŁEGO przejścia i tylko z kolumn z materiałem. Ocena w środku dotychczas
+      // wykonanej części przejścia trafiała na początku animacji przed czoło (brak materiału) i gwint
+      // wewnętrzny był brany za zewnętrzny — nóż zbierał wtedy powierzchnię zewnętrzną.
+      let votesIn = 0, votesOut = 0;
+      const ka = Math.max(0, col(Math.min(sg.from.z, sg.to.z))), kb = Math.min(n, col(Math.max(sg.from.z, sg.to.z)));
+      for (let k = ka; k <= kb; k++) {
+        if (rout[k] - rin[k] <= 0.02) continue;
+        if (Math.abs(sg.from.x - rin[k]) < Math.abs(rout[k] - sg.from.x)) votesIn++; else votesOut++;
+      }
+      // przejście w całości poza materiałem: wewnętrzny, gdy nóż jest bliżej osi niż powierzchni pręta
+      const inner = votesIn + votesOut > 0 ? votesIn > votesOut : sg.from.x < pr.R0 / 2;
       for (let k = Math.max(0, col(za)); k <= Math.min(n, col(zb)); k++) {
         const ph = (((sg.from.z - (z0 + k * dz)) % pitch) + pitch) % pitch;
         const d = Math.min(ph, pitch - ph) * flank;
