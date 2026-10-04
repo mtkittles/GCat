@@ -14,7 +14,7 @@ import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean }
 
 
 /**
@@ -33,8 +33,9 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
+  const showStockRef = useRef(showStock);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
   const lengths = useMemo(() => program.segments.map(playLength), [program]);
@@ -117,6 +118,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     scene.add(toolMesh);
 
     const stockMat = new THREE.MeshStandardMaterial({ color: 0x8a94a3, metalness: 0.3, roughness: 0.55, side: THREE.DoubleSide });
+    stockMat.visible = showStockRef.current;
     // Renderowanie na żądanie: klatka powstaje tylko po zmianie (ruch kamery, postęp, widok).
     // Bezczynna scena nie obciąża karty graficznej ani wątku strony.
     let dirty = true;
@@ -372,6 +374,14 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     });
     return () => onApi(null);
   }, [onApi]);
+
+  // „Materiał” wył. — chowamy bryłę półfabrykatu, zostaje tor i narzędzie (jak warstwa materiału w 2D)
+  useEffect(() => {
+    showStockRef.current = showStock;
+    const st = sceneRef.current; if (!st) return;
+    st.stockMat.visible = showStock;
+    st.render();
+  }, [showStock]);
 
   const toggleGhost = () => {
     const st = sceneRef.current; if (!st) return;
