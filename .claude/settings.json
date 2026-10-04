@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push origin sprint-8/os-a)",
+      "Bash(git push origin sprint-9/walec)",
+      "Bash(git push -u origin sprint-9/walec)"
+    ]
+  }
+}
