@@ -97,9 +97,31 @@ export default function SetupPanel({ mode, setup, onChange, activeTool, defaultO
         </fieldset>
 
         <fieldset><legend>Półfabrykat i zero detalu</legend>
-          <label className="setup-field setup-check"><span>Dobierz półfabrykat automatycznie</span>
-            <input type="checkbox" checked={stock.auto} onChange={(e) => s({ auto: e.target.checked })} /></label>
-          {mode === "mill" ? (
+          {!(mode === "mill" && stock.shape === "cylX") && (
+            <label className="setup-field setup-check"><span>Dobierz półfabrykat automatycznie</span>
+              <input type="checkbox" checked={stock.auto} onChange={(e) => s({ auto: e.target.checked })} /></label>
+          )}
+          {mode === "mill" && (
+            <label className="setup-field"><span>Kształt</span>
+              <select value={stock.shape ?? "box"} onChange={(e) => s({ shape: e.target.value as "box" | "cylX", ...(e.target.value === "cylX" ? { auto: false, oz: stock.d / 2 } : {}) })}>
+                <option value="box">prostopadłościan</option>
+                <option value="cylX">walec w osi X (4. oś A)</option>
+              </select>
+            </label>
+          )}
+          {mode === "mill" && stock.shape === "cylX" ? (
+            <>
+              <Num l="Średnica ⌀" v={stock.d} on={(d) => s({ d })} min={1} suffix="mm" />
+              <Num l="Długość (w X)" v={stock.len} on={(len) => s({ len })} min={1} suffix="mm" />
+              <Num l="Zero X od lewego czoła" v={stock.ox} on={(ox) => s({ ox })} step={0.5} min={-9999} suffix="mm" />
+              <Num l="Zero Z nad osią" v={stock.oz} on={(oz) => s({ oz })} step={0.5} min={-9999} suffix="mm" />
+              <div className="setup-presets">
+                <button onClick={() => s({ oz: stock.d / 2 })}>Z0 na powierzchni</button>
+                <button onClick={() => s({ oz: 0 })}>Z0 na osi</button>
+              </div>
+              <p className="setup-hint">Walec w uchwycie 4. osi: oś obrotu A wzdłuż X, Y0 na osi. Program obraca detal słowem A (G90 — kąt bezwzględny, G91 — przyrost); ruch jednoczesny X/A grawerowanie po linii śrubowej. Frez pracuje z góry.</p>
+            </>
+          ) : mode === "mill" ? (
             <>
               <Num l="Długość X" v={stock.x} on={(x) => s({ x })} min={1} suffix="mm" />
               <Num l="Szerokość Y" v={stock.y} on={(y) => s({ y })} min={1} suffix="mm" />

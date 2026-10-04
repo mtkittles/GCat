@@ -9,6 +9,7 @@ import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheSt
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import { stockBoxes } from "./pieces";
+import { isCyl } from "./cylinder";
 import SetupPanel from "./SetupPanel";
 import LearnPanel from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
@@ -131,7 +132,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
   }
   const stockBox = useMemo<StockBox[] | undefined>(() => {
-    if (mode !== "mill" || setup.stock.auto) return undefined;
+    if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode)) return undefined;
     return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
   }, [mode, setup, program]);
   const compR = useMemo(() => {
@@ -398,7 +399,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // półfabrykat
     const cut = segments.filter((s) => s.kind !== "rapid");
-    if (!setup.stock.auto && mode === "mill") {
+    if (isCyl(setup, mode)) {
+      // walec w osi X (4. oś): rzut z góry — prostokąt x0…x1 × ±R i oś obrotu
+      const st = setup.stock, R = st.d / 2, x0 = -st.ox, x1 = x0 + st.len;
+      const [ax, ay] = P({ x: x0, y: -R, z: 0 }); const [bx2, by2] = P({ x: x1, y: R, z: 0 });
+      ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
+      ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
+      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
+      const [, cy] = P({ x: 0, y: 0, z: 0 }); ctx.beginPath(); ctx.moveTo(ax - 10, cy); ctx.lineTo(bx2 + 10, cy); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+      ctx.fillText(`walec ⌀${st.d} × ${st.len} mm, oś A`, ax + 4, by2 - 6);
+    } else if (!setup.stock.auto && mode === "mill") {
       const st = setup.stock;
       // jeden prostokąt na detal (G54, G55…)
       for (const b of stockBoxes(program, segments, setup)) {
@@ -436,7 +447,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // Warstwa materiału: prostokąt półfabrykatu, z którego ODEJMUJEMY ślad
     // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
     // tak jak w symulatorach z podglądem ubytku.
-    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact) {
+    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode)) {
       const boxes = stockBoxes(program, segments, setup);
       if (boxes.length) {
         const layer = document.createElement("canvas");
