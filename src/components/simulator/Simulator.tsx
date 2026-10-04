@@ -758,7 +758,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
     <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "Rozwinięcie" : "XY"}</button>
+      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? <><span className="lbl-long">Rozwinięcie</span><span className="lbl-short">XA</span></> : "XY"}</button>
       <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
       {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
     </div>
@@ -844,6 +844,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <span>{st?.spindle != null ? `S ${st.spindle}` : "S --"}</span>
         <span className="is-tool">T{String(activeToolNo ?? 1).padStart(2, "0")}</span>
       </div>
+      {st && (
+        <div className="fs-mod" aria-label="Kody modalne">
+          <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span><span>{wcsLabel(st)}</span><span>G{st.comp}</span>
+          <span>{st.spindleOn === "off" ? "M05" : st.spindleOn === "cw" ? "M03" : "M04"}</span><span>{st.coolant ? "M08" : "M09"}</span>
+        </div>
+      )}
     </>
   );
 
@@ -987,8 +993,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <div className="viewbar m-sim">
               {viewSwitch}
               {layoutMenu}
-              <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia">
-                Materiał
+              <button aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
+                <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
               </button>
               <label className="units">
                 <span>Jednostki</span>
@@ -1010,14 +1016,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
                 </svg>
               </button>
-              <button aria-pressed={learn} onClick={() => setLearn(!learn)} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)">
-                <span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span>
+              <button aria-pressed={learn} onClick={() => setLearn(!learn)} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
+                <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg></span><span className="vb-tx"><span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span></span>
               </button>
-              {refSegments && refSegments.length > 0 && <button aria-pressed={showRef} onClick={() => setShowRef((v) => !v)} title="Nałóż tor wzorcowy jako przerywaną linię">
-                <span className="lbl-long">Wzorzec</span><span className="lbl-short">Wzór</span>
+              {refSegments && refSegments.length > 0 && <button aria-pressed={showRef} onClick={() => setShowRef((v) => !v)} title="Nałóż tor wzorcowy jako przerywaną linię" aria-label="Wzorzec">
+                <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 17 9 11l4 4 8-8" strokeDasharray="3 3" /><path d="M3 21h18" /></svg></span><span className="vb-tx"><span className="lbl-long">Wzorzec</span><span className="lbl-short">Wzór</span></span>
               </button>}
               <details className="lay-menu exp-menu">
-                <summary title="Eksport podglądu i toru">Eksport ▾</summary>
+                <summary title="Eksport podglądu i toru" aria-label="Eksport"><span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg></span><span className="vb-tx">Eksport ▾</span></summary>
                 <div className="lay-pop">
                   <button type="button" onClick={() => { canvasRef.current?.toBlob((b) => { if (b) download((fileName || "program").replace(/\.[^.]+$/, "") + ".png", b); }); }}>Podgląd 2D (PNG)</button>
                   {proExports ? (
@@ -1054,7 +1060,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           Prędkość
           <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
-        {!compact && learn && <div className="m-sim"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
+        {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && (
           <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>

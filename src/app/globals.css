@@ -1910,6 +1910,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .pp { width: 100%; height: auto; display: block; }
 .pp-axis { stroke: rgba(148,163,184,.45); stroke-width: 1; stroke-dasharray: 10 4 2 4; }
 .pp-part { stroke: rgba(15,23,42,.55); stroke-width: .8; }
+.pp-edge { fill: none; stroke: rgba(15,23,42,.6); stroke-width: .8; }
 .pp-hole { fill: #0f141c; stroke: rgba(148,163,184,.4); stroke-width: .6; }
 .pg-jump { display: flex; gap: .5rem; flex-wrap: wrap; }
 .pg-jump a { padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 14px; }
@@ -2541,21 +2542,65 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .cert { border-width: 3px; border-radius: 0; page-break-inside: avoid; }
 }
 
-/* ===== Telefon: pasek nad symulatorem w dwóch równych rzędach =====
-   Rząd 1 — przełącznik widoku na całą szerokość. Rząd 2 — przyciski tej samej wysokości
-   i szerokości (Materiał, Nauka, Wzorzec, Eksport), pełny ekran jako kwadratowa ikona. */
+/* ===== Telefon: symulator — więcej miejsca na podgląd =====
+   • pasek widoku jako pionowa kolumna ikon na prawej krawędzi podglądu (XY/3D, Materiał, Nauka, Wzorzec, Eksport, pełny ekran)
+   • widoki 3D w jednym menu „Widok ▾” (lewy górny róg)
+   • bez dolnego paska stanu — kody modalne są w pasku pozycji pod podglądem
+   • tryb nauki o stałej wysokości, pod odtwarzaczem — podgląd nie skacze
+   • wybór programu tylko w zakładkach Kod / Narzędzia / Ustawienia */
+.vb-ic { display: none; }
+.view3d-menu { display: none; }
+.fs-mod { display: none; }
+.learn-wrap .learn { min-height: 13rem; align-content: start; }
 @media (max-width: 767px) {
-  .is-app .viewbar { display: flex; flex-wrap: wrap; gap: .4rem; }
-  .is-app .viewbar .segmented { flex: 1 1 100%; width: 100%; min-width: 0; }
-  .is-app .viewbar .segmented button { flex: 1 1 0; min-height: 38px; padding: .3rem .5rem; white-space: nowrap; }
+  .sim-page:has(.workbench[data-mtab="sim"]) > .sim-pick { display: none; }
+  .is-app > .wb-main { position: relative; }
+  .is-app > .wb-main > .stage-view { order: 1; }
+  .is-app > .wb-main > .viewbar {
+    position: absolute; top: 8px; right: 8px; z-index: 6; order: 0;
+    display: flex; flex-direction: column; flex-wrap: nowrap; gap: 6px; width: auto;
+  }
+  .is-app .viewbar .segmented {
+    flex: none; width: 44px; flex-direction: column; padding: 2px; gap: 2px; border-radius: 12px;
+    background: rgba(16,17,19,.8); border: 1px solid rgba(148,163,184,.28); backdrop-filter: blur(4px);
+  }
+  .is-app .viewbar .segmented button { flex: none; width: 100%; min-height: 36px; padding: 0; font-size: 12px; border-radius: 9px; color: #CBD5E1; }
+  .is-app .viewbar .segmented button[aria-selected="true"] { color: #fff; }
   .is-app .viewbar > button:not(.fs-open):not(.icon-btn):not(.only-wide),
-  .is-app .viewbar > .exp-menu { flex: 1 1 0; min-width: 0; }
-  .is-app .viewbar > button:not(.fs-open):not(.icon-btn):not(.only-wide) {
-    height: 38px; min-height: 38px; padding: 0 .4rem; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap;
+  .is-app .viewbar > .exp-menu > summary,
+  .is-app .viewbar .fs-open {
+    flex: none; width: 44px; height: 44px; min-height: 0; padding: 0; display: grid; place-items: center; margin: 0;
+    border-radius: 12px; background: rgba(16,17,19,.8); border: 1px solid rgba(148,163,184,.28); color: #E2E8F0; backdrop-filter: blur(4px);
   }
-  .is-app .viewbar > .exp-menu > summary {
-    width: 100%; height: 38px; min-height: 38px; padding: 0 .4rem; justify-content: center; white-space: nowrap;
-    border-radius: 10px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink-2); font-size: 12.5px;
+  .is-app .viewbar > .exp-menu { flex: none; width: 44px; }
+  .is-app .viewbar > button[aria-pressed="true"]:not(.fs-open):not(.icon-btn) { color: #fff; background: var(--accent); border-color: var(--accent); }
+  .is-app .viewbar .fs-open { order: 9; }
+  .is-app .viewbar .vb-ic { display: grid; place-items: center; }
+  .is-app .viewbar .vb-tx { display: none; }
+  .is-app .viewbar .exp-menu .lay-pop { position: absolute; top: 0; right: 52px; left: auto; }
+  /* widoki 3D: menu w lewym górnym rogu */
+  .is-app .view3d-bar { display: none; }
+  .is-app .view3d-menu { display: block; position: absolute; top: 8px; left: 8px; z-index: 5; }
+  .view3d-menu > summary {
+    list-style: none; cursor: pointer; height: 36px; padding: 0 .75rem; display: inline-flex; align-items: center; border-radius: 10px;
+    background: rgba(16,17,19,.8); border: 1px solid rgba(148,163,184,.28); color: #E2E8F0; font: 600 12.5px/1 var(--font-mono); backdrop-filter: blur(4px);
   }
-  .is-app .viewbar .fs-open { margin-left: 0; width: 40px; height: 38px; flex: none; order: 9; }
+  .view3d-menu > summary::-webkit-details-marker { display: none; }
+  .view3d-menu[open] > summary { border-color: var(--accent); }
+  .view3d-pop { margin-top: 6px; display: grid; gap: 2px; padding: 4px; min-width: 190px; border-radius: 12px; background: rgba(16,17,19,.94); border: 1px solid rgba(148,163,184,.28); }
+  .view3d-pop button { text-align: left; padding: .55rem .7rem; border-radius: 8px; background: transparent; border: none; color: #E2E8F0; font-size: 14px; }
+  .view3d-pop button[aria-pressed="true"] { color: var(--accent); }
+  /* bez dolnego paska stanu; kody modalne w pasku pozycji */
+  .is-app > .wb-main > .sim-state { display: none; }
+  .is-app .m-hud .fs-mod { display: flex; gap: .3rem; overflow-x: auto; scrollbar-width: none; font-family: var(--font-mono); font-size: 12px; }
+  .is-app .m-hud .fs-mod::-webkit-scrollbar { display: none; }
+  .is-app .m-hud .fs-mod span { flex: none; background: rgba(148,163,184,.1); border-radius: 5px; padding: .1rem .4rem; color: #94A3B8; }
+  /* tryb nauki: stała wysokość, przewijanie w środku, pod odtwarzaczem */
+  /* Tryb nauki zastępuje pasek pozycji (te same dane są w rogu podglądu), podgląd jest niższy
+     o różnicę wysokości — wszystko mieści się na jednym ekranie i nic nie skacze. */
+  .is-app > .wb-main > .learn-wrap { order: 4; }
+  .is-app .learn-wrap .learn { height: 13.5rem; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: .6rem .75rem; border-radius: 14px; }
+  .is-app > .wb-main:has(> .learn-wrap) > .m-hud { display: none; }
+  .is-app > .wb-main:has(> .learn-wrap) > .stage-view { height: max(220px, calc(100svh - 540px)); }
 }
+.tr-sub { color: var(--muted-text); font-weight: 400; }
