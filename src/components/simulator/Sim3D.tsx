@@ -6,8 +6,9 @@ import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfil
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
-import { parseProgram, pointAt, segmentLength, type Segment, type Vec3 } from "@/lib/parser";
+import { parseProgram, playLength, pointAt, type Segment, type Vec3 } from "@/lib/parser";
 import { stockBoxes, type PieceBox } from "./pieces";
+import { angleAt, carveCyl, cylInit, cylMesh, cylMeta, cylUpdate, fixtureOf, isCyl, type CylMeta } from "./cylinder";
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
@@ -38,7 +39,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
-  const lengths = useMemo(() => program.segments.map(segmentLength), [program]);
+  const lengths = useMemo(() => program.segments.map(playLength), [program]);
   // narzędzie aktywne w bieżącym miejscu programu
   const activeToolNo = useMemo(() => {
     let acc = 0; let no: number | null = null;
@@ -58,6 +59,8 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const hmRef = useRef<{ key: string; parts: { h: Float32Array; meta: MillMeta }[]; progress: number } | null>(null);
   // siatka półfabrykatu frezarki używana ponownie między klatkami + dławienie odświeżania w trakcie animacji
   const meshRef = useRef<{ parts: { h: Float32Array; meta: MillMeta }[]; geos: THREE.BufferGeometry[] } | null>(null);
+  // Walec na 4. osi: mapa promienia i siatka (grupa obracana o kąt A).
+  const cylRef = useRef<{ key: string; h: Float32Array; meta: CylMeta; progress: number; geo: THREE.BufferGeometry | null; group: THREE.Group | null } | null>(null);
   const lastMeshT = useRef(0);
   const trailT = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [meshTick, setMeshTick] = useState(0);
@@ -249,7 +252,53 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
 
     let obj: THREE.Object3D | null = null;
     let fresh = true;
-    if (mode === "mill") {
+    if (isCyl(setup, mode)) {
+      const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
+      let c = cylRef.current;
+      if (!c || c.key !== key || progress < c.progress) {
+        const meta = cylMeta(setup, gridMax());
+        c = { key, h: cylInit(meta), meta, progress: 0, geo: null, group: null };
+      }
+      if (progress > c.progress) { carveCyl(c.h, c.meta, program, lengths, setup, c.progress, progress); c.progress = progress; }
+      cylRef.current = c;
+      if (c.geo && c.group && st.stock && c.group.parent === st.stock) {
+        const attr = c.geo.getAttribute("position") as THREE.BufferAttribute;
+        cylUpdate(attr.array as Float32Array, c.geo.userData.map as Int32Array, c.h, c.meta);
+        attr.needsUpdate = true; c.geo.computeVertexNormals();
+        fresh = false;
+      } else {
+        const mg = cylMesh(c.h, c.meta);
+        const geo = new THREE.BufferGeometry();
+        const attr = new THREE.BufferAttribute(mg.pos, 3); attr.setUsage(THREE.DynamicDrawUsage);
+        geo.setAttribute("position", attr); geo.setIndex(mg.idx); geo.computeVertexNormals(); geo.userData.map = mg.map;
+        const g = new THREE.Group(); g.add(new THREE.Mesh(geo, st.stockMat));
+        // uchwyt: korpus i trzy szczęki obracają się razem z detalem
+        const fx = fixtureOf(setup), chuckMat = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.5, roughness: 0.45 });
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(fx.jawR + 13, fx.jawR + 13, fx.x0 - fx.bodyX0, 48), chuckMat);
+        body.rotation.z = Math.PI / 2; body.position.x = (fx.bodyX0 + fx.x0) / 2; g.add(body);
+        if (fx.grip > 0) for (let k = 0; k < 3; k++) {
+          const jaw = new THREE.Mesh(new THREE.BoxGeometry(fx.grip, fx.jawR - fx.R, 10), chuckMat);
+          const ang = Math.PI / 2 + (k * 2 * Math.PI) / 3, rr = (fx.R + fx.jawR) / 2;
+          jaw.position.set(fx.x0 + fx.grip / 2, rr * Math.sin(ang), -rr * Math.cos(ang));
+          jaw.rotation.x = ang - Math.PI / 2;
+          g.add(jaw);
+        }
+        // oś walca leży na wysokości axisZ — grupa stoi na osi, więc obrót stołu to obrót grupy wokół X
+        g.position.y = c.meta.axisZ;
+        // kieł konika nie obraca się ze stołem — osobny obiekt w grupie zewnętrznej
+        const outer = new THREE.Group(); outer.add(g);
+        if (fx.tail) {
+          const tm = new THREE.MeshStandardMaterial({ color: 0x6b7280, metalness: 0.5, roughness: 0.4 });
+          const cone = new THREE.Mesh(new THREE.ConeGeometry(fx.tail.r * 0.6, 14, 32), tm);
+          cone.rotation.z = Math.PI / 2; cone.position.set(fx.x1 + 7, c.meta.axisZ, 0); outer.add(cone);
+          const quill = new THREE.Mesh(new THREE.CylinderGeometry(fx.tail.r, fx.tail.r, fx.tail.x1 - fx.tail.x0 - 14, 32), tm);
+          quill.rotation.z = Math.PI / 2; quill.position.set((fx.tail.x0 + 14 + fx.tail.x1) / 2, c.meta.axisZ, 0); outer.add(quill);
+        }
+        c.geo = geo; c.group = g; obj = outer;
+      }
+      // obrót stołu A (prawoskrętnie wokół +X maszyny = wokół +X świata)
+      const grp = c.group; if (grp) grp.rotation.x = (angleAt(program, lengths, progress) * Math.PI) / 180;
+    } else if (mode === "mill") {
       if (cut.length) {
         const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
         let buf = hmRef.current;
@@ -315,7 +364,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     onApi({
       exportStl: () => {
         const st = sceneRef.current; if (!st?.stock) return null;
-        const text = new STLExporter().parse(st.stock, { binary: false }) as string;
+        // walec na 4. osi: tylko detal, bez uchwytu i konika
+        const cg = cylRef.current?.group;
+        const target = cg && cg.parent === st.stock ? cg.children[0] : st.stock;
+        const text = new STLExporter().parse(target, { binary: false }) as string;
         return new Blob([text], { type: "model/stl" });
       },
     });

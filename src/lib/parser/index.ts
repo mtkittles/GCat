@@ -512,6 +512,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Osie obrotowe A/B/C: zapamiętujemy kąt (G90 — bezwzględnie, G91 — przyrost) i opisujemy ruch.
     // Tor w symulatorze jest liczony dla osi liniowych; obrót stołu nie zmienia jeszcze geometrii.
+    let rotaryMoved = false;
     if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10) && !kwTrans && !kwOther) {
       const rot: { a?: number; b?: number; c?: number } = { ...(state.rotary ?? {}) };
       const moved: string[] = [];
@@ -521,7 +522,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         rot[ax] = s.absolute ? v : (rot[ax] ?? 0) + v;
         moved.push(`${ax.toUpperCase()}${fmt(rot[ax]!)}°`);
       }
-      if (moved.length) { s.rotary = rot; desc.push(`Oś obrotowa: ${moved.join(" ")}`); }
+      if (moved.length) { s.rotary = rot; rotaryMoved = true; desc.push(`Oś obrotowa: ${moved.join(" ")}`); }
     }
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
@@ -535,7 +536,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     const isArcMode = s.motion === 2 || s.motion === 3;
     // Tokarka: U i W to przyrosty X i Z (U w średnicy — przeliczone wyżej na promień).
     const uw = dia && (get("U") !== undefined || get("W") !== undefined);
-    const hasAxis = !noMotion && (["X", "Y", "Z"].some((l) => get(l) !== undefined) || uw || (isArcMode && arcWords));
+    // Sam obrót osi A/B/C (bez X/Y/Z) w G00/G01 to też ruch — odcinek zerowej długości liniowej, z kątem.
+    const rotaryOnly = rotaryMoved && !["X", "Y", "Z"].some((l) => get(l) !== undefined) && !uw && (s.motion === 0 || s.motion === 1) && !isArcMode;
+    const hasAxis = !noMotion && (["X", "Y", "Z"].some((l) => get(l) !== undefined) || uw || (isArcMode && arcWords) || rotaryOnly);
     if (hasAxis) {
       const progTarget: Vec3 = { ...state.prog };
       (["x", "y", "z"] as const).forEach((ax) => {
@@ -565,11 +568,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
       } else if (s.motion === 0 || g28) {
         segments.push({ kind: "rapid", from, to: target, line: index });
-        desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
+        if (!rotaryOnly) desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
       } else if (s.motion === 1 || g31) {
         if (s.feed === null) errors.push("G01 bez posuwu F.");
         segments.push({ kind: "linear", from, to: target, line: index });
-        desc.push(`Ruch liniowy do ${pt(target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
+        if (!rotaryOnly) desc.push(`Ruch liniowy do ${pt(target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
       } else {
         const cw = s.motion === 2;
         const center = arcCenter(from, target, words, s.plane, cw, errors);
@@ -581,6 +584,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         }
       }
       s.pos = target; s.prog = progTarget;
+      // 4. oś: kąt A na początku i końcu odcinka (ruch jednoczesny X/Y/Z + A w jednym bloku).
+      const aPrev = state.rotary?.a, aNew = s.rotary?.a;
+      if (aPrev !== undefined || aNew !== undefined) for (const sg of segments) if (sg.kind !== "dwell") sg.a = { from: aPrev ?? aNew ?? 0, to: aNew ?? aPrev ?? 0 };
     } else if (s.motion !== null && gs.some((g) => g <= 3) && desc.length === 0) {
       desc.push(`Tryb ruchu G0${s.motion} (modalny)`);
     }
@@ -856,8 +862,10 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   lines.push(...[...lineMap.entries()].sort((a, b) => a[0] - b[0]).map((e) => e[1]));
 
   for (const sg of allSegments) {
-    const len = segmentLength(sg);
-    if (sg.kind === "rapid") seconds += (len / rapidRate) * 60;
+    // Sam obrót osi A: posuw F liczony w °/min (Fanuc), szybki — umownie 3000 °/min.
+    const rotDeg = sg.kind !== "dwell" && sg.a ? Math.abs(sg.a.to - sg.a.from) : 0;
+    const len = segmentLength(sg) || rotDeg;
+    if (sg.kind === "rapid") seconds += (len / (rotDeg && !segmentLength(sg) ? 3000 : rapidRate)) * 60;
     else {
       const ln = lines[sg.line];
       let f = ln?.state.feed ?? 200;
@@ -1044,7 +1052,11 @@ export function segmentLength(sg: Segment) {
  */
 export function playLength(sg: Segment) {
   if (sg.kind === "dwell") return Math.max(sg.seconds, 0.5) * 40;
-  return segmentLength(sg);
+  const len = segmentLength(sg);
+  // Sam obrót osi A (odcinek bez długości liniowej): umowna droga po obwodzie promienia 20 mm,
+  // żeby animacja i ubytek materiału miały na czym się rozwinąć.
+  if (len < 1e-9 && sg.a) return (Math.abs(sg.a.to - sg.a.from) * Math.PI / 180) * 20;
+  return len;
 }
 
 export { planeAxes };

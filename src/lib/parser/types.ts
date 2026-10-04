@@ -70,9 +70,12 @@ export interface Word {
   raw: string;
 }
 
+/** Kąt osi obrotowej A [°] na początku i końcu odcinka — tylko gdy program używa A (4. oś). */
+export interface RotaryA { from: number; to: number }
+
 export type Segment =
-  | { kind: "rapid"; from: Vec3; to: Vec3; line: number }
-  | { kind: "linear"; from: Vec3; to: Vec3; line: number }
+  | { kind: "rapid"; from: Vec3; to: Vec3; line: number; a?: RotaryA }
+  | { kind: "linear"; from: Vec3; to: Vec3; line: number; a?: RotaryA }
   | {
       kind: "arc";
       from: Vec3;
@@ -81,6 +84,7 @@ export type Segment =
       cw: boolean;
       plane: Plane;
       line: number;
+      a?: RotaryA;
     }
   /** Postój (G04): brak ruchu, from i to to ten sam punkt. `seconds` to realny czas z programu,
       niezależny od geometrii — używany zarówno do statystyk, jak i do tego, żeby odtwarzacz

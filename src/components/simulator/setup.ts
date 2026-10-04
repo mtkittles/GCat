@@ -29,6 +29,12 @@ export interface Stock {
   d: number; len: number;
   /** Frezarka: osobny półfabrykat w zerze każdego używanego układu (G54, G55…, TRANS). Brak pola = tak. */
   perWcs?: boolean;
+  /** Frezarka: prostopadłościan (domyślnie) albo walec w osi X na 4. osi (A). Walec: ⌀ `d`, długość `len`, zero X = `ox` od lewego czoła, zero Z = `oz` nad osią. */
+  shape?: "box" | "cylX";
+  /** Walec: długość materiału w szczękach uchwytu [mm] (lewe czoło w uchwycie). Brak = 10. */
+  grip?: number;
+  /** Walec: kieł konika podpiera prawe czoło. Brak = nie. */
+  tailstock?: boolean;
 }
 
 export interface Setup { tools: Record<number, Tool>; stock: Stock }

@@ -9,6 +9,8 @@ import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheSt
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import { stockBoxes } from "./pieces";
+import { cylCollisions, isCyl } from "./cylinder";
+import { drawUnrolled, type UnrollCache } from "./unrolled";
 import SetupPanel from "./SetupPanel";
 import LearnPanel from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
@@ -108,6 +110,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
   const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
+  const unrollRef = useRef<UnrollCache | null>(null);
   const [setup, setSetup] = useState<Setup>(() => {
     const d = defaultSetup(mode);
     const base = stockProp ? { ...d, stock: { ...d.stock, ...stockProp, auto: false } } : d;
@@ -131,7 +134,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
   }
   const stockBox = useMemo<StockBox[] | undefined>(() => {
-    if (mode !== "mill" || setup.stock.auto) return undefined;
+    if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode)) return undefined;
     return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
   }, [mode, setup, program]);
   const compR = useMemo(() => {
@@ -139,7 +142,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const t = setup.tools[nums[0]];
     return t ? cuttingRadius(t) : undefined;
   }, [setup]);
-  const issues = useMemo(() => validate(program, dialect, stockBox, undefined, compR), [program, dialect, stockBox, compR]);
+  const issues = useMemo(() => {
+    const base = validate(program, dialect, stockBox, undefined, compR);
+    // 4. oś: kolizje z uchwytem i konikiem
+    return isCyl(setup, mode) ? [...base, ...cylCollisions(program, setup)].sort((a, b) => a.line - b.line) : base;
+  }, [program, dialect, stockBox, compR, setup, mode]);
   const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
 
@@ -320,6 +327,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (W < 8 || H < 8) return;   // kontener jeszcze bez wymiarów
     cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
 
+    // Walec na 4. osi: zamiast rzutu z góry — rozwinięcie płaszcza (X × kąt detalu).
+    if (isCyl(setup, mode)) {
+      const u = drawUnrolled(ctx, W, H, { program, segments, lengths, progress, setup, cache: unrollRef, currentPos, compact, probe });
+      mapRef.current = { P: () => [0, 0] as const, inv: u.inv };
+      return;
+    }
+
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
     const { min: bmin0, max: bmax0 } = program.bounds;
     const sb = showStock && !compact ? latheStockBox : null;
@@ -398,7 +412,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // półfabrykat
     const cut = segments.filter((s) => s.kind !== "rapid");
-    if (!setup.stock.auto && mode === "mill") {
+    if (isCyl(setup, mode)) {
+      // walec w osi X (4. oś): rzut z góry — prostokąt x0…x1 × ±R i oś obrotu
+      const st = setup.stock, R = st.d / 2, x0 = -st.ox, x1 = x0 + st.len;
+      const [ax, ay] = P({ x: x0, y: -R, z: 0 }); const [bx2, by2] = P({ x: x1, y: R, z: 0 });
+      ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
+      ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
+      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
+      const [, cy] = P({ x: 0, y: 0, z: 0 }); ctx.beginPath(); ctx.moveTo(ax - 10, cy); ctx.lineTo(bx2 + 10, cy); ctx.stroke(); ctx.restore();
+      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+      ctx.fillText(`walec ⌀${st.d} × ${st.len} mm, oś A`, ax + 4, by2 - 6);
+    } else if (!setup.stock.auto && mode === "mill") {
       const st = setup.stock;
       // jeden prostokąt na detal (G54, G55…)
       for (const b of stockBoxes(program, segments, setup)) {
@@ -436,7 +460,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // Warstwa materiału: prostokąt półfabrykatu, z którego ODEJMUJEMY ślad
     // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
     // tak jak w symulatorach z podglądem ubytku.
-    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact) {
+    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode)) {
       const boxes = stockBoxes(program, segments, setup);
       if (boxes.length) {
         const layer = document.createElement("canvas");
@@ -719,7 +743,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
     <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")}>{mode === "lathe" ? "ZX" : "XY"}</button>
+      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "Rozwinięcie" : "XY"}</button>
       <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
       {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
     </div>
