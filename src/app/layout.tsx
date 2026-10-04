@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Sora } from "next/font/google";
 import { SITE_URL } from "@/lib/site";
@@ -44,6 +45,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
             <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
           </div>
+          <nav className="wrap pb-3 text-sm flex flex-wrap gap-x-5 gap-y-2" aria-label="Informacje prawne">
+            <Link href="/regulamin" className="text-muted">Regulamin</Link>
+            <Link href="/polityka-prywatnosci" className="text-muted">Polityka prywatności</Link>
+            <Link href="/konto" className="text-muted">Konto</Link>
+          </nav>
           <div className="wrap pb-6 text-sm text-muted max-w-prose">
             Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.
           </div>

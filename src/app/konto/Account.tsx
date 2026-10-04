@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { Component, useState, useSyncExternalStore, type ReactNode } from "react";
 import PageBanner from "@/components/ui/PageBanner";
-import { signInWithEmail, signInWithGoogle, signOut, useAccount } from "@/lib/auth";
+import { deleteAccount, signInWithEmail, signInWithGoogle, signOut, useAccount } from "@/lib/auth";
 import { PLAN_LABEL } from "@/lib/entitlements";
 import { useDone } from "@/lib/exercisesDone";
 import { exercises } from "@/lib/content";
@@ -89,6 +89,7 @@ function Login() {
         </form>
       )}
       <button type="button" className="btn ghost" onClick={async () => { const r = await signInWithGoogle(); if (r) setErr(r); }}>Zaloguj przez Google</button>
+      <p className="text-sm text-muted">Logując się, akceptujesz <Link href="/regulamin">regulamin</Link>. Jak przetwarzamy dane: <Link href="/polityka-prywatnosci">polityka prywatności</Link>.</p>
       {err && <p className="note note-warn">{err}</p>}
     </section>
   );
@@ -127,6 +128,38 @@ class AccountBoundary extends Component<{ children: ReactNode }, { error: Error 
   }
 }
 
+/* Usunięcie konta: dwa kroki (rozwinięcie + wpisanie słowa), żeby nie dało się tego zrobić przypadkiem. */
+const CONFIRM_WORD = "USUŃ";
+function DeleteAccount() {
+  const [open, setOpen] = useState(false);
+  const [word, setWord] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const run = async () => { setBusy(true); setErr(null); const r = await deleteAccount(); setBusy(false); if (r) setErr(r); };
+  if (!open) return <button type="button" className="btn plain" onClick={() => setOpen(true)}>Usuń konto…</button>;
+  return (
+    <div className="grid gap-3 note note-warn" role="group" aria-labelledby="del-h">
+      <b id="del-h">Usunąć konto?</b>
+      <p>Usuniemy z serwera postęp lekcji, wyniki zadań, zapisane programy, profil i samo konto logowania. Tego nie da się cofnąć. Dane w tej przeglądarce zostaną — możesz je wcześniej pobrać jako JSON.</p>
+      <label className="acct-form"><span>Wpisz {CONFIRM_WORD}, aby potwierdzić</span>
+        <input value={word} onChange={(e) => setWord(e.target.value)} autoComplete="off" autoCapitalize="characters" /></label>
+      <div className="flex flex-wrap gap-2">
+        <button type="button" className="btn" disabled={busy || word.trim().toUpperCase() !== CONFIRM_WORD} onClick={run}>{busy ? "Usuwanie…" : "Usuń konto na zawsze"}</button>
+        <button type="button" className="btn ghost" disabled={busy} onClick={() => { setOpen(false); setWord(""); setErr(null); }}>Anuluj</button>
+      </div>
+      {err && <p role="alert">{err}</p>}
+    </div>
+  );
+}
+
+function LegalLinks() {
+  return (
+    <p className="text-sm text-muted">
+      <Link href="/regulamin">Regulamin</Link> · <Link href="/polityka-prywatnosci">Polityka prywatności</Link>
+    </p>
+  );
+}
+
 function Session() {
   const { user, profile } = useAccount();
   const sync = useSync();
@@ -148,6 +181,7 @@ function Session() {
         <Link href="/konto/pro" className="btn ghost">Plan {PLAN_LABEL[plan]} — szczegóły</Link>
         <SignOutButton />
       </div>
+      <DeleteAccount />
     </section>
   );
 }
@@ -177,6 +211,7 @@ export default function Account() {
         )}
         <Stats />
       </AccountBoundary>
+      <LegalLinks />
     </div>
   );
 }
