@@ -102,9 +102,17 @@ export function carveLathe(pr: LatheProfile, program: Program, segments: Segment
       const end = pointAt(sg, done);
       const za = Math.min(sg.from.z, end.z), zb = Math.max(sg.from.z, end.z);
       const flank = 1 / Math.tan(((tool.angle || 60) / 2) * Math.PI / 180);
-      const km = Math.max(0, Math.min(n, col((za + zb) / 2)));
-      // gwint wewnętrzny: przejście bliżej otworu niż powierzchni zewnętrznej
-      const inner = Math.abs(sg.from.x - rin[km]) < Math.abs(rout[km] - sg.from.x);
+      // Strona gwintu z CAŁEGO przejścia i tylko z kolumn z materiałem. Ocena w środku dotychczas
+      // wykonanej części przejścia trafiała na początku animacji przed czoło (brak materiału) i gwint
+      // wewnętrzny był brany za zewnętrzny — nóż zbierał wtedy powierzchnię zewnętrzną.
+      let votesIn = 0, votesOut = 0;
+      const ka = Math.max(0, col(Math.min(sg.from.z, sg.to.z))), kb = Math.min(n, col(Math.max(sg.from.z, sg.to.z)));
+      for (let k = ka; k <= kb; k++) {
+        if (rout[k] - rin[k] <= 0.02) continue;
+        if (Math.abs(sg.from.x - rin[k]) < Math.abs(rout[k] - sg.from.x)) votesIn++; else votesOut++;
+      }
+      // przejście w całości poza materiałem: wewnętrzny, gdy nóż jest bliżej osi niż powierzchni pręta
+      const inner = votesIn + votesOut > 0 ? votesIn > votesOut : sg.from.x < pr.R0 / 2;
       for (let k = Math.max(0, col(za)); k <= Math.min(n, col(zb)); k++) {
         const ph = (((sg.from.z - (z0 + k * dz)) % pitch) + pitch) % pitch;
         const d = Math.min(ph, pitch - ph) * flank;
@@ -173,4 +181,43 @@ export function latheProfileCached(cache: { current: LatheCache | null }, progra
   if (progress > c.progress && c.pr) carveLathe(c.pr, program, segments, lengths, c.progress, progress, setup);
   c.progress = progress;
   return c.pr;
+}
+
+/* ---------- Uchwyt tokarski ---------- */
+
+/**
+ * Uchwyt trójszczękowy: pręt wystaje z uchwytu na długość wysięgu, więc czoła szczęk leżą
+ * w Z = z0 (koniec wysięgu), a szczęki sięgają 12 mm ponad pręt. Korpus uchwytu za szczękami.
+ */
+export interface LatheChuck { zFace: number; R0: number; jawR: number; jawLen: number; bodyR: number; bodyLen: number }
+/**
+ * Półfabrykat ręczny: czoło szczęk dokładnie na końcu wysięgu (−długość).
+ * Automatyczny: wysięgu nie znamy, więc uchwyt stoi za najdalszym punktem programu (także ruchów szybkich i wiercenia).
+ */
+export function latheChuck(pr: Pick<LatheProfile, "z0" | "R0">, segments: Segment[] = [], auto = false): LatheChuck {
+  let zFace = pr.z0;
+  if (auto) for (const sg of segments) if (sg.kind !== "dwell") zFace = Math.min(zFace, sg.from.z - 3, sg.to.z - 3);
+  return { zFace, R0: pr.R0, jawR: pr.R0 + 12, jawLen: 18, bodyR: pr.R0 + 30, bodyLen: 40 };
+}
+
+/** Kolizja punktu P noża (także szybkim ruchem) ze szczękami: Z na czole szczęk lub dalej, X poniżej ich zewnętrznej średnicy. */
+export function latheCollisions(program: Program, segments: Segment[], setup: Setup): { line: number; level: "error"; msg: string }[] {
+  // Kolizję da się ocenić tylko przy znanym wysięgu (półfabrykat ustawiony ręcznie).
+  if (setup.stock.auto) return [];
+  const pr = initLatheProfile(program, segments, setup);
+  if (!pr) return [];
+  const ch = latheChuck(pr), out: { line: number; level: "error"; msg: string }[] = [], seen = new Set<number>();
+  const f = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+  for (const sg of segments) {
+    if (sg.kind === "dwell" || seen.has(sg.line)) continue;
+    for (let k = 0; k <= 16; k++) {
+      const p = pointAt(sg, k / 16);
+      if (p.z <= ch.zFace + 0.2 && p.x < ch.jawR) {
+        seen.add(sg.line);
+        out.push({ line: sg.line, level: "error", msg: `Kolizja ze szczękami uchwytu (X${f(p.x * 2)} Z${f(p.z)}) — czoło szczęk w Z${f(ch.zFace)}, szczęki do ⌀${f(ch.jawR * 2)}. Skróć ruch w Z albo zwiększ wysięg pręta.` });
+        break;
+      }
+    }
+  }
+  return out;
 }

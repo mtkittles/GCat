@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile } from "./latheStock";
+import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile, latheChuck } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
@@ -131,7 +131,8 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const b = { min: { ...b0.min }, max: { ...b0.max } };
     if (mode === "lathe") {
       const pr = initLatheProfile(programRef.current, programRef.current.segments, setup);
-      if (pr) { b.min.z = Math.min(b.min.z, pr.z0); b.max.z = Math.max(b.max.z, pr.z1); b.max.x = Math.max(b.max.x, pr.R0); b.min.x = Math.min(b.min.x, -pr.R0); }
+      // …i szczęki uchwytu za końcem wysięgu, żeby było widać, czym pręt jest trzymany
+      if (pr) { const ch = latheChuck(pr, programRef.current.segments, setup.stock.auto); b.min.z = Math.min(b.min.z, ch.zFace - ch.jawLen); b.max.z = Math.max(b.max.z, pr.z1); b.max.x = Math.max(b.max.x, ch.jawR); b.min.x = Math.min(b.min.x, -ch.jawR); }
     }
     const ctr = toW({ x: (b.min.x + b.max.x) / 2, y: (b.min.y + b.max.y) / 2, z: (b.min.z + b.max.z) / 2 }, mode);
     const span = Math.max(b.max.x - b.min.x, b.max.y - b.min.y, b.max.z - b.min.z, 40);
@@ -412,6 +413,31 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     st.render();
   }, [ticks, parsed, mode]);
+
+  // Tokarka: uchwyt trójszczękowy za końcem wysięgu pręta (oś obrotu wzdłuż X świata).
+  useEffect(() => {
+    const st = sceneRef.current; if (!st) return;
+    const old = st.scene.getObjectByName("chuck");
+    if (old) { st.scene.remove(old); disposeTree(old); }
+    if (mode === "lathe") {
+      const pr = initLatheProfile(program, program.segments, setup);
+      if (pr) {
+        const ch = latheChuck(pr, program.segments, setup.stock.auto), g = new THREE.Group(); g.name = "chuck";
+        const mat = new THREE.MeshStandardMaterial({ color: 0x4b5563, metalness: 0.5, roughness: 0.45 });
+        const body = new THREE.Mesh(new THREE.CylinderGeometry(ch.bodyR, ch.bodyR, ch.bodyLen, 48), mat);
+        body.rotation.z = Math.PI / 2; body.position.x = ch.zFace - ch.jawLen - ch.bodyLen / 2; g.add(body);
+        for (let k = 0; k < 3; k++) {
+          const ang = (k * 2 * Math.PI) / 3 + Math.PI / 2, rr = (ch.R0 + ch.jawR) / 2;
+          const jaw = new THREE.Mesh(new THREE.BoxGeometry(ch.jawLen, ch.jawR - ch.R0, 12), mat);
+          jaw.position.set(ch.zFace - ch.jawLen / 2, rr * Math.sin(ang), rr * Math.cos(ang));
+          jaw.rotation.x = -(ang - Math.PI / 2);
+          g.add(jaw);
+        }
+        st.scene.add(g);
+      }
+    }
+    st.render();
+  }, [mode, program, setup]);
 
   // Znacznik zera aktywnego układu (G54–G59/G54.1/G505 + G52 + G92 + TRANS): osie 12 mm i etykieta.
   useEffect(() => {

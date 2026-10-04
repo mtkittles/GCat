@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
-import { initLatheProfile, latheProfileCached, type LatheCache } from "./latheStock";
+import { initLatheProfile, latheProfileCached, type LatheCache, latheChuck, latheCollisions } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
 import { stockBoxes } from "./pieces";
@@ -144,8 +144,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }, [setup]);
   const issues = useMemo(() => {
     const base = validate(program, dialect, stockBox, undefined, compR);
-    // 4. oś: kolizje z uchwytem i konikiem
-    return isCyl(setup, mode) ? [...base, ...cylCollisions(program, setup)].sort((a, b) => a.line - b.line) : base;
+    // 4. oś: kolizje z uchwytem i konikiem; tokarka: kolizje ze szczękami uchwytu
+    const extra = isCyl(setup, mode) ? cylCollisions(program, setup) : mode === "lathe" ? latheCollisions(program, program.segments, setup) : [];
+    return extra.length ? [...base, ...extra].sort((a, b) => a.line - b.line) : base;
   }, [program, dialect, stockBox, compR, setup, mode]);
   const errorLines = useMemo(() => issues.filter((i) => i.level === "error").map((i) => i.line), [issues]);
   const warnLines = useMemo(() => issues.filter((i) => i.level === "warn").map((i) => i.line), [issues]);
@@ -211,7 +212,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const latheStockBox = useMemo(() => {
     if (mode !== "lathe") return null;
     const pr = initLatheProfile(program, segments, setup);
-    return pr ? { R0: pr.R0, z0: pr.z0, z1: pr.z1 } : null;
+    if (!pr) return null;
+    // kadr obejmuje też szczęki uchwytu (czoło szczęk i ich wysokość nad prętem)
+    const ch = latheChuck(pr, segments, setup.stock.auto);
+    return { R0: ch.jawR, z0: ch.zFace - ch.jawLen, z1: pr.z1 };
   }, [mode, program, segments, setup]);
   const total = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
 
@@ -520,6 +524,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           ctx.lineWidth = 1.2;
           ctx.fill(); ctx.stroke();
         }
+        // uchwyt: szczęki za końcem wysięgu, po obu stronach osi
+        const ch = latheChuck(pr, segments, setup.stock.auto);
+        ctx.save();
+        for (const sgn of halves) {
+          const [ax, ay] = P({ x: sgn * ch.R0, y: 0, z: ch.zFace - ch.jawLen }), [bx, by] = P({ x: sgn * ch.jawR, y: 0, z: ch.zFace });
+          ctx.fillStyle = "rgba(100,116,139,0.55)"; ctx.strokeStyle = "rgba(203,213,225,0.55)"; ctx.lineWidth = 1.2;
+          ctx.fillRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
+          ctx.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
+        }
+        { const [lx, ly] = P({ x: ch.jawR, y: 0, z: ch.zFace - ch.jawLen }); ctx.fillStyle = "rgba(203,213,225,0.75)"; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("szczęki", lx, ly - 4); }
+        ctx.restore();
       }
     }
 
