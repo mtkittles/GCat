@@ -1,5 +1,5 @@
 "use client";
-import type { MachineState, ParsedLine, Program } from "@/lib/parser";
+import { activeOffset, frameShift, wcsLabel, type MachineState, type ParsedLine, type Program } from "@/lib/parser";
 
 /*
   Tryb nauki: dla wykonywanego bloku pokazuje, co się zmieniło w stanie maszyny
@@ -8,6 +8,8 @@ import type { MachineState, ParsedLine, Program } from "@/lib/parser";
 */
 type Row = { label: string; before: string; after: string };
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(3).replace(/0+$/, "").replace(/\.$/, ""));
+const vz = (v: { x: number; y: number; z: number }) => Math.abs(v.x) < 1e-9 && Math.abs(v.y) < 1e-9 && Math.abs(v.z) < 1e-9;
+const vec = (v: { x: number; y: number; z: number }, dia: boolean) => dia ? `X${fmt(v.x * 2)} Z${fmt(v.z)}` : `X${fmt(v.x)} Y${fmt(v.y)} Z${fmt(v.z)}`;
 
 function describe(s: MachineState | undefined, dia: boolean): Record<string, string> {
   if (!s) return {};
@@ -16,7 +18,11 @@ function describe(s: MachineState | undefined, dia: boolean): Record<string, str
     "Wymiary": s.absolute ? "G90" : "G91",
     "Płaszczyzna": `G${s.plane}`,
     "Jednostki": s.units === "mm" ? "G21 mm" : "G20 cal",
-    "Układ": `G${s.wcs}`,
+    "Układ": `${wcsLabel(s)}${vz(activeOffset(s)) ? "" : ` (${vec(activeOffset(s), dia)})`}`,
+    ...(vz(s.local) ? {} : { "G52 lokalne": vec(s.local, dia) }),
+    ...(vz(s.shift) ? {} : { "G92 przesunięcie": vec(s.shift, dia) }),
+    ...(vz(s.frame) ? {} : { "TRANS": vec(s.frame, dia) }),
+    ...(vz(frameShift(s)) ? {} : { "Zero programu w maszynie": vec(frameShift(s), dia) }),
     "Korekcja R": `G${s.comp}`,
     "Posuw": s.feed === null ? "—" : `F${fmt(s.feed)} ${s.feedMode === 95 ? "mm/obr" : "mm/min"}`,
     "Obroty": s.spindle === null ? "—" : `S${fmt(s.spindle)}${s.css ? " (G96 m/min)" : ""}`,

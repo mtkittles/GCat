@@ -11,7 +11,7 @@ import type { SimMode } from "./Simulator";
 import { cuttingRadius, isLatheTool, toolOf, type Setup, type Tool } from "./setup";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; onApi?: (api: Sim3DApi | null) => void }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void }
 
 const CELL_TARGET = 0.35;   // największa komórka mapy wysokości [mm]
 const CELL_MIN = 0.15;      // najmniejsza komórka — na mocnych urządzeniach
@@ -33,7 +33,7 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, onApi }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
@@ -355,6 +355,22 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     st.render();
   }, [ticks, parsed, mode]);
+
+  // Znacznik zera aktywnego układu (G54–G59/G54.1/G505 + G52 + G92 + TRANS): osie 12 mm i etykieta.
+  useEffect(() => {
+    const st = sceneRef.current; if (!st) return;
+    const old = st.scene.getObjectByName("zero");
+    if (old) { st.scene.remove(old); old.traverse((o) => { const m = (o as THREE.Sprite).material as THREE.SpriteMaterial | undefined; if (m?.map) { m.map.dispose(); m.dispose(); } }); }
+    if (zeroMark) {
+      const g = new THREE.Group(); g.name = "zero";
+      // Mapowanie jak dla toru: frezarka (x, z, −y), tokarka (z, x, 0).
+      const p = mode === "mill" ? new THREE.Vector3(zeroMark.x, zeroMark.z, -zeroMark.y) : new THREE.Vector3(zeroMark.z, zeroMark.x, 0);
+      const ax = new THREE.AxesHelper(12); ax.position.copy(p); g.add(ax);
+      g.add(makeLabel("zero układu", p.clone().add(new THREE.Vector3(0, 6, 0)), "#FBBF24", 0.55));
+      st.scene.add(g);
+    }
+    st.render();
+  }, [zeroMark, mode]);
 
   if (failed) {
     return (
