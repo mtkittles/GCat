@@ -15,11 +15,12 @@ export default function HomeResume({ lessons }: { lessons: ResumeLesson[] }) {
   const next = last && !isFinished(P(last)) ? last : lessons.find((l) => !isFinished(P(l)));
   if (!next) return null;
   const passed = lessons.filter((l) => isPassed(P(l))).length;
+  const finished = lessons.filter((l) => isFinished(P(l))).length;
   return (
     <div className="hi-resume" aria-label="Wróć do nauki">
       <span className="hi-resume-k">Wróć do nauki</span>
       <span className="hi-resume-l">Aktualna lekcja: <b>{next.id} {next.title}</b></span>
-      <span className="hi-resume-s">Zaliczone testem: {passed}/{lessons.length} · postęp zapisany w tej przeglądarce</span>
+      <span className="hi-resume-s">Ukończone: {finished}/{lessons.length}{passed !== finished ? ` (testem ${passed})` : ""} · postęp zapisany w tej przeglądarce</span>
       <Link href={next.href} className="btn">Kontynuuj naukę</Link>
     </div>
   );
