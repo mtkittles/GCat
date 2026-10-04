@@ -470,6 +470,16 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     <div className={fill ? "grid h-full" : "grid gap-1"}>
       <div className={`view3d ${fill ? "is-fill" : ""}`}>
         <div ref={mountRef} className="sim-canvas sim-canvas-3d" style={fill ? { height: "100%" } : { height: 360 }} />
+        {/* telefon: jedno menu „Widok” zamiast rzędu przycisków na całą szerokość */}
+        <details className="view3d-menu">
+          <summary aria-label="Widok 3D">Widok ▾</summary>
+          <div className="view3d-pop">
+            {([["iso", "Izometria"], ["top", "Z góry"], ["front", "Z przodu"], ["side", "Z boku"], ["fit", "Dopasuj"]] as const).map(([k, l]) => (
+              <button key={k} onClick={(e) => { setView(k); (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); }}>{l}</button>
+            ))}
+            <button onClick={toggleGhost} aria-pressed={ghost}>{ghost ? "Materiał pełny" : "Materiał przezroczysty"}</button>
+          </div>
+        </details>
         <div className="view3d-bar">
           {([["iso", "IZO"], ["top", "GÓRA"], ["front", "PRZÓD"], ["side", "BOK"]] as const).map(([k, l]) => (
             <button key={k} onClick={() => setView(k)}>{l}</button>
