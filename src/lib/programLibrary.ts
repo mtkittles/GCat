@@ -22,6 +22,8 @@ export interface LibProgram {
   stock?: Partial<Omit<Stock, "auto">>;
   /** tabela narzędzi przypisywana przy otwarciu programu */
   tools: Record<number, LibTool>;
+  /** karta technologiczna: kolejne zabiegi — numer narzędzia (klucz w `tools`), zabieg, kody i parametry */
+  ops?: { t: number; op: string; how: string }[];
   /** powiązana lekcja */
   lesson?: { href: string; label: string };
   src: string;

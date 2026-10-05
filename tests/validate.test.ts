@@ -35,6 +35,13 @@ describe("walidator", () => {
     const src = "S1000 M03\nG00 X-15 Y-15 Z5\nG01 Z-3 F100\nG41 D1 X0 Y0 F200\nG01 Y40\nG42 X60\nG40 X70\nM30";
     expect(msgs(src).join("\n")).toMatch(/error:Zmiana strony kompensacji/);
   });
+  it("dojazd korekcji sprawdzany promieniem narzędzia aktywnego w bloku, nie pierwszego z tabeli", () => {
+    const src = "T1 M06\nS1000 M03\nG00 X-40 Y20 Z5\nG01 Z0 F200\nG01 X150\nT2 M06\nS3000 M03\nG00 X-15 Y-10 Z2\nG01 Z-5 F200\nG41 D2 G01 X-3 Y-10 F400\nG01 Y40\nG40 G01 X-15\nM30";
+    const r = (t: number | null) => (t === 1 ? 31.5 : 8);
+    const errs = validate(parseProgram(src), "fanuc", undefined, undefined, r).filter((i) => i.level === "error");
+    expect(errs).toEqual([]);
+    expect(validate(parseProgram(src), "fanuc", undefined, undefined, 31.5).some((i) => /Blok dojazdowy/.test(i.msg))).toBe(true);
+  });
   it("kolizja: szybki przejazd bokiem przez półfabrykat", () => {
     const stock = { minX: 0, maxX: 100, minY: 0, maxY: 80, top: 0, bottom: -20 };
     const src = "S1000 M03\nG00 X-10 Y10 Z5\nG01 Z-5 F100\nG00 X50 Y10\nM30";
