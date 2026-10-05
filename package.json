@@ -15,7 +15,8 @@
     "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
     "tokeny": "npx --yes tsx scripts/tokeny.ts",
     "tresci": "tsx scripts/sprawdz-tresci.ts",
-    "eksport": "tsx scripts/eksport-tresci.ts"
+    "eksport": "tsx scripts/eksport-tresci.ts",
+    "porownaj": "tsx scripts/porownaj-build.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
