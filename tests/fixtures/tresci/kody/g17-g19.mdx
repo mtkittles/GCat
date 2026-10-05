@@ -1,0 +1,45 @@
+---
+code: G17 G18 G19
+slug: g17-g19
+name: Wybór płaszczyzny
+group: Ustawienia
+level: 2
+modal: true
+machines: [frezowanie, toczenie]
+star: false
+related: [g02, g40-g42]
+short: "Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19)."
+desc: "Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18."
+syntax:
+  fanuc: G17 | G18 | G19
+  sinumerik: G17 | G18 | G19
+sinumerik: Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.
+params: []
+pitfalls:
+  - Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor.
+example:
+  src: |
+    G21 G90 G18 G40 G99
+    T0101
+    G97 S1500 M03
+    G00 X50 Z2
+    G01 Z-30 F0.2
+    G02 X60 Z-35 R10
+    G01 X70
+    G00 X80 Z2
+    M30
+  mode: lathe
+---
+
+## Trzy płaszczyzny {#trzy-plaszczyzny}
+
+Płaszczyznę łuków wybiera [[G17]], [[G18]] albo [[G19]]. To funkcja [[funkcja modalna|modalna]] — działa do odwołania, a **`G17`** jest domyślne na frezarce.
+
+<Diagram id="g17-g19" />
+
+## Fanuc i Sinumerik {#fanuc-i-sinumerik}
+
+| Płaszczyzna | Kod | Uwagi |
+|---|---|---|
+| XY | `G17` | łuki z [[G02|G02/G03]] i I, J |
+| ZX | `G18` | domyślna na tokarce, [[kompensacja promienia]] w ZX |

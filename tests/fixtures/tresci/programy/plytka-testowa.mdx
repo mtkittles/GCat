@@ -1,0 +1,16 @@
+---
+slug: plytka-testowa
+title: Płytka testowa
+mode: mill
+category: Płyty i korpusy
+level: podstawowy
+features: [G17, G02]
+stock: { x: 60, y: 40, z: 10, ox: 0, oy: 0, oz: 10 }
+tools:
+  1: { kind: endmill, name: Frez Ø10, d: 10, flutes: 3 }
+ops:
+  - { t: 1, op: Kontur, how: "G17 G02 R10" }
+src: ./plytka-testowa.nc
+redirectsFrom: [stary-adres-testowy]
+---
+Prosta płytka do testu loadera, z łukiem w [[G17]].

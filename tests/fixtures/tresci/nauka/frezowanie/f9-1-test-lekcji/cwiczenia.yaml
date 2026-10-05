@@ -1,0 +1,17 @@
+worked:
+  title: Łuk w XY
+  intro: Ustaw płaszczyznę i zrób łuk.
+  steps:
+    - { x: Wybierz płaszczyznę., code: G17 }
+  result: Łuk w XY.
+practice:
+  - kind: task
+    intro: Dopisz wybór płaszczyzny.
+    starter: |
+      G21 G90
+    solution: |
+      G21 G90 G17
+    checks: [{ t: require, codes: [G17] }]
+quiz:
+  - { kind: gap, q: "Uzupełnij", template: "G{0} — płaszczyzna XY", answers: [["17"]], why: "G17 = XY." }
+  - { kind: choice, q: "Domyślna na tokarce?", options: [G17, G18], answer: 1, why: "Tokarka pracuje w ZX." }

@@ -1,0 +1,15 @@
+slug: plaszczyzna-testowa
+title: Płaszczyzna testowa
+level: 1
+mode: mill
+brief: Wybierz płaszczyznę XY i zrób łuk.
+hints: [G17 to XY.]
+starter: |
+  G21 G90
+reference: |
+  G21 G90 G17 G54
+  G00 X0 Y0 Z5
+  G01 Z-1 F200
+  G02 X20 Y0 R10
+  M30
+requireCodes: [G17]
