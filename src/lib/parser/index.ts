@@ -8,8 +8,10 @@ import type {
   Vec3,
   Word,
 } from "./types";
+import { axisByAxis, detectKin, eulerZXZ, lerpRot, mul as mulMat, mulV, rot3, solveAngles, tableMat, tr, type Kin } from "./kinematics";
 
 export * from "./types";
+export { axisByAxis, detectKin, eulerZXZ, lerpRot, mulV, rot3, solveAngles, tableMat, toolAxis, tr, type Kin, type Mat3, type Rot3 } from "./kinematics";
 
 export const initialState = (units: "mm" | "inch" = "mm"): MachineState => ({
   motion: 0, // sterowniki startują w trybie szybkiego przejazdu
@@ -148,6 +150,8 @@ export interface ParseOptions {
    * więc program calowy jest przeliczany współczynnikiem 25,4.
    */
   units?: "auto" | "mm" | "inch";
+  /** Kinematyka frezarki 4/5-osiowej (stół–stół). Brak — z liter osi w programie (B → B/C, inaczej A/C). */
+  kin?: Kin;
 }
 
 export function parseProgram(source: string, opts: ParseOptions = {}, start?: MachineState): Program {
@@ -157,6 +161,28 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   // Tokarka Fanuc w systemie A: G90, G92, G94 to cykle pojedyncze, nie tryby wymiarowania/posuwu.
   const latheA = dia && opts.dialect !== "sinumerik";
   const rapidRate = opts.rapidRate ?? 20000;
+  const kin: Kin = opts.kin ?? detectKin(source);
+  // 4/5 osi: w trybie TCP i na płaszczyźnie pochylonej X Y Z programu opisują wierzchołek narzędzia
+  // w układzie detalu; maszyna dostaje M = R(kąty stołu) · p. Poza tymi trybami współrzędne idą wprost na osie.
+  const multiOn = (st: MachineState) => !!(st.tcp || st.tilt);
+  const toMachine = (prog: Vec3, st: MachineState): Vec3 => {
+    let p: Vec3 = { ...prog };
+    if (st.tilt) { const q = mulV(st.tilt.m, p); p = { x: st.tilt.o.x + q.x, y: st.tilt.o.y + q.y, z: st.tilt.o.z + q.z }; }
+    applyFrames(p, st);
+    return multiOn(st) ? mulV(tableMat(kin, st.rotary), p) : p;
+  };
+  const toProg = (pos: Vec3, st: MachineState): Vec3 => {
+    let p: Vec3 = multiOn(st) ? mulV(tr(tableMat(kin, st.rotary)), pos) : { ...pos };
+    p = inverseFrames(p, st);
+    if (st.tilt) p = mulV(tr(st.tilt.m), { x: p.x - st.tilt.o.x, y: p.y - st.tilt.o.y, z: p.z - st.tilt.o.z });
+    return p;
+  };
+  const axesName = kin === "BC" ? "B i C" : kin === "A" ? "A" : "A i C";
+  /** Kąty stołu przypisane do odcinków bloku (gdy program używa osi obrotowych). */
+  const tagRot = (segs: Segment[], before: MachineState, after: MachineState) => {
+    if (dia || (!before.rotary && !after.rotary)) return;   // tokarka: C/B to nie stół frezarki
+    for (const sg of segs) if (sg.kind !== "dwell" && !sg.r) sg.r = { from: rot3(before.rotary), to: rot3(after.rotary) };
+  };
   const forced = opts.units && opts.units !== "auto" ? opts.units : null;
   let seconds = 0;
   let dwellMs = 0;
@@ -167,11 +193,15 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   const record = (l: ParsedLine) => { if (!lineMap.has(l.index)) lineMap.set(l.index, l); };
 
   const step = (raw: string, index: number) => {
-    const { words: rawWords, comment } = tokenize(raw);
+    // Sinumerik CYCLE800(…) — nawias to lista parametrów, nie komentarz.
+    // (komentarze: po średniku i w nawiasach — poza nawiasem parametrów samego CYCLE800)
+    const c800 = raw.replace(/;.*$/, "").replace(/(?<!CYCLE800\s*)\([^)]*\)/gi, " ").match(/CYCLE800\s*\(([^)]*)\)|CYCLE800(?![\w(])/i);
+    const { words: rawWords, comment } = tokenize(c800 ? raw.replace(c800[0], " ") : raw);
     // Słowa kluczowe Sinumerika (bez liczby po literze, więc tokenizer ich nie widzi).
     const bare = raw.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
     const kwTrans = bare.match(/(^|[^A-Z])(ATRANS|TRANS)(?![A-Z])/)?.[2] as "TRANS" | "ATRANS" | undefined;
     const kwOther = bare.match(/(^|[^A-Z])(AROT|ROT|ASCALE|SCALE|AMIRROR|MIRROR|SUPA)(?![A-Z])/)?.[2];
+    const kwTra = bare.match(/(^|[^A-Z])(TRAORI|TRAFOOF)(?![A-Z])/)?.[2];
 
     // Jednostki ustalamy przed przeliczeniem słów: G20/G21 w tym samym bloku
     // obowiązuje już dla jego współrzędnych.
@@ -205,6 +235,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     // Zmiana układu (G54–G59, G52, G92, G10 na aktywnym układzie, TRANS, G68) nie porusza maszyną —
     // po bloku przeliczamy tylko, jak dotychczasowe położenie wyraża się w nowym układzie programu.
     let frameChanged = false;
+    let align = false;                 // G53.1 / CYCLE800: ustaw oś narzędzia prostopadle do płaszczyzny
+    let prefer: -1 | 1 | undefined;    // CYCLE800 _DIR: kierunek obrotu pierwszej osi
     const vec = (v: Vec3) => `X${fmt(dia ? v.x * 2 : v.x)}${dia ? "" : ` Y${fmt(v.y)}`} Z${fmt(v.z)}`;
     const axesOf = (): Partial<Vec3> => {
       const o: Partial<Vec3> = {};
@@ -286,7 +318,22 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 41: s.comp = 41; desc.push("Kompensacja promienia — lewa (G41)"); break;
         case 42: s.comp = 42; desc.push("Kompensacja promienia — prawa (G42)"); break;
         case 43: desc.push(`Korekcja długości narzędzia H${fmt(get("H") ?? 0)} (G43)`); break;
-        case 49: desc.push("Wyłącz korekcję długości (G49)"); break;
+        case 49:
+          if (s.tcp) { s.tcp = false; frameChanged = true; desc.push("Wyłącz TCP i korekcję długości (G49)"); }
+          else desc.push("Wyłącz korekcję długości (G49)");
+          break;
+        case 43.4:
+          s.tcp = true; frameChanged = true;
+          desc.push(`TCP — sterowanie wierzchołkiem narzędzia H${fmt(get("H") ?? 0)} (G43.4): X Y Z to wierzchołek w układzie detalu, ${axesName} ustawiają oś narzędzia`);
+          break;
+        case 68.2: {
+          const o = { x: get("X") ?? 0, y: get("Y") ?? 0, z: get("Z") ?? 0 };
+          const I = get("I") ?? 0, J = get("J") ?? 0, K = get("K") ?? 0;
+          s.tilt = { o, m: eulerZXZ(I, J, K), src: "G68.2" }; frameChanged = true;
+          desc.push(`Płaszczyzna pochylona (G68.2): początek X${fmt(o.x)} Y${fmt(o.y)} Z${fmt(o.z)}, kąty Eulera I${fmt(I)} J${fmt(J)} K${fmt(K)} — od teraz X Y Z w pochylonym układzie`);
+          break;
+        }
+        case 53.1: align = true; break;
         case 54: case 55: case 56: case 57: case 58: case 59: selectWcs(g, null); break;
         case 54.1: {
           const P = get("P");
@@ -310,7 +357,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
           desc.push(`Obrót układu o ${fmt(deg)}° wokół X${fmt(s.rot.cx)} Y${fmt(s.rot.cy)} (G68)`);
           break;
         }
-        case 69: s.rot = null; frameChanged = true; desc.push("Kasowanie obrotu układu (G69)"); break;
+        case 69:
+          if (s.tilt) desc.push("Kasowanie płaszczyzny pochylonej (G69) — stół zostaje w obecnym położeniu");
+          else desc.push("Kasowanie obrotu układu (G69)");
+          s.rot = null; s.tilt = null; frameChanged = true;
+          break;
         // Tokarka Fanuc (system kodów A): G98 — posuw mm/min, G99 — posuw mm/obr.
         case 98: cycleRetract = 98; if (s.cycle) s.cycle = { ...s.cycle, retract: 98 }; if (dia) { s.feedMode = 94; desc.push("Posuw w mm/min (G98, tokarka)"); } else desc.push("Powrót do punktu początkowego w cyklu (G98)"); break;
         case 99: cycleRetract = 99; if (s.cycle) s.cycle = { ...s.cycle, retract: 99 }; if (dia) { s.feedMode = 95; desc.push("Posuw w mm/obr (G99, tokarka)"); } else desc.push("Powrót do płaszczyzny R w cyklu (G99)"); break;
@@ -375,6 +426,63 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       desc.push(`${kwOther} — ${kwOther === "SUPA" ? "ruch we współrzędnych maszynowych" : "obrót/skalowanie/lustro ramki"} (Sinumerik) — nieobsługiwane w symulatorze, blok pominięty`);
     }
 
+    // Sinumerik: TRAORI — transformacja 5-osiowa (TCP), TRAFOOF — wyłączenie.
+    if (kwTra === "TRAORI") { s.tcp = true; frameChanged = true; desc.push(`TRAORI — transformacja 5-osiowa: X Y Z to wierzchołek narzędzia w układzie detalu, ${axesName} ustawiają oś narzędzia`); }
+    else if (kwTra === "TRAFOOF") { if (s.tcp) frameChanged = true; s.tcp = false; desc.push("TRAFOOF — wyłączenie transformacji 5-osiowej"); }
+
+    // Sinumerik CYCLE800(_FR, _TC, _ST, _MODE, _X0, _Y0, _Z0, _A, _B, _C, _X1, _Y1, _Z1, _DIR, …).
+    if (c800) {
+      const args = (c800[1] ?? "").split(",").map((x) => x.trim());
+      const nums = args.map((x) => (x === "" || x.startsWith('"') ? NaN : Number(x)));
+      const N = (i: number) => (Number.isFinite(nums[i]) ? nums[i] : 0);
+      const reset = !args.some((x, i) => i >= 4 && i <= 12 && N(i) !== 0);
+      frameChanged = true;
+      if (!c800[1] || !c800[1].trim() || reset) {
+        s.tilt = null;
+        const cur = rot3(s.rotary);
+        if (Math.abs(cur.a) + Math.abs(cur.b) + Math.abs(cur.c) > 1e-9 && (Number.isFinite(nums[13]) ? nums[13] !== 0 : true)) align = true;
+        desc.push("CYCLE800 — położenie podstawowe: kasowanie płaszczyzny pochylonej" + (align ? ", stół wraca do 0°" : ""));
+      } else {
+        const mode = N(3), kind = (mode >> 6) & 3;
+        let m = kind === 3
+          ? tr(tableMat(kin, kin === "BC" ? { b: N(7), c: N(8) } : { a: N(7), c: kin === "A" ? 0 : N(8) }))
+          : axisByAxis(mode, { x: N(7), y: N(8), z: N(9) });
+        const shift = mulV(m, { x: N(10), y: N(11), z: N(12) });
+        let o = { x: N(4) + shift.x, y: N(5) + shift.y, z: N(6) + shift.z };
+        if (Math.round(N(2)) % 10 === 1 && s.tilt) {      // _ST …1: obrót dodawany do istniejącego
+          const q = mulV(s.tilt.m, o);
+          o = { x: s.tilt.o.x + q.x, y: s.tilt.o.y + q.y, z: s.tilt.o.z + q.z };
+          m = mulMat(s.tilt.m, m);
+        }
+        s.tilt = { o, m, src: "CYCLE800" };
+        const dir = Number.isFinite(nums[13]) ? nums[13] : -1;
+        if (dir !== 0) { align = true; prefer = dir < 0 ? -1 : 1; }
+        const how = kind === 3 ? "osie obrotowe wprost" : kind === 2 ? "kąt przestrzenny (liczony jak osiowo)" : kind === 1 ? "kąty rzutowania (liczone jak osiowo)" : "obrót osiowo";
+        desc.push(`CYCLE800 — płaszczyzna pochylona (${how}): A${fmt(N(7))} B${fmt(N(8))} C${fmt(N(9))}, zero X${fmt(o.x)} Y${fmt(o.y)} Z${fmt(o.z)}${dir === 0 ? " — bez obrotu stołu" : ""}`);
+      }
+    }
+
+    // G53.1 / CYCLE800: stół obraca się tak, żeby oś narzędzia była prostopadła do płaszczyzny.
+    // Obracają się tylko osie obrotowe — X Y Z maszyny stoją (dlatego przed obrotem odjeżdża się w górę).
+    if (align) {
+      const n = s.tilt ? mulV(s.tilt.m, { x: 0, y: 0, z: 1 }) : { x: 0, y: 0, z: 1 };
+      if (gs.includes(53.1) && !s.tilt) errors.push("G53.1 bez aktywnej płaszczyzny pochylonej G68.2.");
+      else {
+        const prev = rot3(s.rotary);
+        const ang = s.tilt ? solveAngles(kin, n, prev, prefer) : { a: 0, b: 0, c: 0 };
+        if (!ang) errors.push(kin === "A" ? "Maszyna 4-osiowa (sama oś A) nie ustawi narzędzia prostopadle do tej płaszczyzny — potrzebna oś C albo B." : "Tej orientacji nie da się ustawić osiami stołu.");
+        else {
+          const nr: { a?: number; b?: number; c?: number } = { ...(s.rotary ?? {}) };
+          if (kin !== "BC") nr.a = ang.a; else nr.b = ang.b;
+          if (kin !== "A") nr.c = ang.c;
+          s.rotary = nr; frameChanged = true;
+          segments.push({ kind: "rapid", from: { ...state.pos }, to: { ...state.pos }, line: index, r: { from: prev, to: rot3(nr) } });
+          const lbl = [kin !== "BC" ? `A${fmt(nr.a ?? 0)}°` : `B${fmt(nr.b ?? 0)}°`, kin !== "A" ? `C${fmt(nr.c ?? 0)}°` : ""].filter(Boolean).join(" ");
+          desc.push(`${gs.includes(53.1) ? "G53.1 — " : ""}obrót stołu: oś narzędzia prostopadła do płaszczyzny (${lbl})`);
+        }
+      }
+    }
+
     // G92 na frezarce: bieżący punkt dostaje zadane współrzędne — przesuwamy wszystkie układy (shift).
     if (!latheA && gs.includes(92)) {
       const ax = axesOf(), sh = { ...s.shift };
@@ -382,7 +490,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       s.shift = sh; frameChanged = true;
     }
 
-    if (frameChanged) s.prog = inverseFrames(s.pos, s);
+    if (frameChanged) s.prog = toProg(s.pos, s);
 
     // W bloku G04 adresy F i S (Sinumerik) oznaczają czas postoju, nie posuw i obroty.
     const isDwell = gs.includes(4);
@@ -419,15 +527,17 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       if (zv === undefined || rv === undefined) {
         errors.push(`Cykl G${cycleCode} wymaga Z (dno otworu) i R (płaszczyzna startu).`);
       } else {
+        // Na płaszczyźnie pochylonej / z TCP głębokości liczą się w układzie programu (oś Z płaszczyzny).
+        const zRef = multiOn(s) ? state.prog.z : state.pos.z;
         s.cycle = {
           code: cycleCode,
-          z: s.absolute ? zv : state.pos.z + zv,
-          r: s.absolute ? rv : state.pos.z + rv,
+          z: s.absolute ? zv : zRef + zv,
+          r: s.absolute ? rv : zRef + rv,
           q: get("Q") ?? null,
           p: get("P") ?? null,
           f: get("F") ?? s.feed,
           retract: cycleRetract,
-          initialZ: state.pos.z,
+          initialZ: zRef,
         };
         if (s.cycle.f) s.feed = s.cycle.f;
       }
@@ -496,6 +606,15 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         if (v !== undefined) progTarget[ax] = s.absolute ? v : state.prog[ax] + v;
       });
       polarize(progTarget);
+      if (multiOn(s)) {
+        // ruchy cyklu liczone w układzie programu (oś wiercenia = Z płaszczyzny), potem na osie maszyny
+        const pSegs = cycleSegments(state.prog, progTarget, cyc, index);
+        const segs = pSegs.map((sg) => ({ ...sg, from: toMachine(sg.from, s), to: toMachine(sg.to, s), tcp: true }));
+        segments.push(...segs);
+        s.pos = segs.length ? segs[segs.length - 1].to : state.pos;
+        s.prog = pSegs.length ? { ...pSegs[pSegs.length - 1].to } : { ...state.prog };
+        desc.push(cycleDescription(cyc, progTarget, dia));
+      } else {
       const target: Vec3 = { ...progTarget };
       applyFrames(target, s);
       const segs = cycleSegments(state.pos, target, cyc, index);
@@ -503,7 +622,9 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       s.pos = segs.length ? segs[segs.length - 1].to : state.pos;
       s.prog = { ...progTarget, z: s.pos.z };
       desc.push(cycleDescription(cyc, target, dia));
+      }
       if (cyc.p) dwellMs += cyc.p;
+      tagRot(segments, state, s);
       record({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
       allSegments.push(...segments);
       state = s;
@@ -513,7 +634,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     // Osie obrotowe A/B/C: zapamiętujemy kąt (G90 — bezwzględnie, G91 — przyrost) i opisujemy ruch.
     // Tor w symulatorze jest liczony dla osi liniowych; obrót stołu nie zmienia jeszcze geometrii.
     let rotaryMoved = false;
-    if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10) && !kwTrans && !kwOther) {
+    if (!gs.includes(4) && !gs.includes(65) && !gs.includes(10) && !kwTrans && !kwOther && !c800 && !gs.includes(53.1)) {
       const rot: { a?: number; b?: number; c?: number } = { ...(state.rotary ?? {}) };
       const moved: string[] = [];
       for (const ax of ["a", "b", "c"] as const) {
@@ -527,7 +648,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,
     // mimo że zawierają adresy osi. W G04 adres X to czas postoju, nie oś.
-    const noMotion = !!kwTrans || !!kwOther || gs.some((g) => g === 4 || g === 52 || g === 68 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));
+    const noMotion = !!kwTrans || !!kwOther || !!c800 || gs.some((g) => g === 4 || g === 52 || g === 68 || g === 68.2 || g === 53.1 || g === 10 || g === 92 || g === 65 || g === 22 || (dia && g >= 70 && g <= 76 && g !== 73));
 
     // Ruch
     // Pełny okrąg zapisuje się samym wektorem I/J/K, bez współrzędnych końcowych —
@@ -551,15 +672,16 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         if (w !== undefined) progTarget.z = state.prog.z + w;
       }
       polarize(progTarget);
-      const target: Vec3 = { ...progTarget };
-      applyFrames(target, s);
+      const target: Vec3 = toMachine(progTarget, s);
       const from = { ...state.pos };
+      const tcpMove = multiOn(s);
       // G53: współrzędne maszynowe nie są znane — pokazujemy bezpieczny odjazd w górę, bez ruchu w płaszczyźnie.
       if (gs.includes(53)) {
         target.x = from.x; target.y = from.y;
         target.z = dia ? from.z : Math.max(from.z, 50);
         if (dia) { target.x = Math.max(from.x, target.x); }
         progTarget.x = state.prog.x; progTarget.y = state.prog.y; progTarget.z = state.prog.z + (target.z - from.z);
+        if (tcpMove) Object.assign(progTarget, toProg(target, s));
       }
       // G27/G28/G29/G30/G53 — jednorazowo ruchem szybkim; G31 — jednorazowo jak G01.
       const g28 = gs.some((g) => g === 27 || g === 28 || g === 29 || g === 30 || g === 53);
@@ -567,12 +689,30 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
       if (s.motion === null && !g28 && !g31) {
         errors.push("Brak aktywnej funkcji ruchu (G00/G01/G02/G03).");
       } else if (s.motion === 0 || g28) {
-        segments.push({ kind: "rapid", from, to: target, line: index });
-        if (!rotaryOnly) desc.push(`Szybki dojazd do ${pt(target, s.plane, dia)}`);
+        segments.push({ kind: "rapid", from, to: target, line: index, ...(tcpMove ? { tcp: true } : {}) });
+        if (!rotaryOnly) desc.push(`Szybki dojazd do ${pt(tcpMove ? progTarget : target, s.plane, dia)}`);
       } else if (s.motion === 1 || g31) {
         if (s.feed === null) errors.push("G01 bez posuwu F.");
-        segments.push({ kind: "linear", from, to: target, line: index });
-        if (!rotaryOnly) desc.push(`Ruch liniowy do ${pt(target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
+        segments.push({ kind: "linear", from, to: target, line: index, ...(tcpMove ? { tcp: true } : {}) });
+        if (!rotaryOnly) desc.push(`Ruch liniowy do ${pt(tcpMove ? progTarget : target, s.plane, dia)}${s.feed ? ` z posuwem F${fmt(s.feed)}` : ""}`);
+      } else if (tcpMove) {
+        // Łuk w układzie programu (płaszczyzna pochylona / TCP) → cięciwy co ≤ 4° na osiach maszyny.
+        const cw = s.motion === 2;
+        const fromProg = toProg(from, { ...s, rotary: state.rotary });
+        const center = arcCenter(fromProg, progTarget, words, s.plane, cw, errors);
+        if (center) {
+          const tmp: Segment = { kind: "arc", from: fromProg, to: { ...progTarget }, center, cw, plane: s.plane, line: index };
+          const { sweep, r } = arcParams(tmp as Extract<Segment, { kind: "arc" }>);
+          const n = Math.max(4, Math.ceil(Math.abs(sweep) / (4 * Math.PI / 180)));
+          const r0 = rot3(state.rotary), r1 = rot3(s.rotary);
+          let prev = from;
+          for (let k = 1; k <= n; k++) {
+            const mk = k === n ? target : toMachine(pointAt(tmp, k / n), { ...s, rotary: lerpRot(r0, r1, k / n) });
+            segments.push({ kind: "linear", from: prev, to: mk, line: index, tcp: true, r: { from: lerpRot(r0, r1, (k - 1) / n), to: lerpRot(r0, r1, k / n) } });
+            prev = mk;
+          }
+          desc.push(`Łuk ${cw ? "zgodnie" : "przeciwnie"} z ruchem wskazówek do ${pt(progTarget, s.plane, dia)}, R=${fmt(r)}`);
+        }
       } else {
         const cw = s.motion === 2;
         const center = arcCenter(from, target, words, s.plane, cw, errors);
@@ -595,6 +735,7 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     if (desc.length === 0 && words.length > 0 && words.every((w) => w.letter === "N" || w.letter === "O"))
       desc.push(words[0].letter === "O" ? `Program O${fmt(words[0].value)}` : "");
 
+    tagRot(segments, state, s);
     record({ index, raw, words, comment, segments, state: s, description: desc.filter(Boolean).join(" · "), errors });
     allSegments.push(...segments);
     state = s;
@@ -884,7 +1025,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
   // Pierwszy ruch programu to pozycjonowanie z nieznanego miejsca (baza maszyny).
   // Rysowanie go jako odcinka z punktu (0,0,0) sugerowałoby przejazd przez detal.
   const first = allSegments[0];
-  if (first && first.kind === "rapid" && Math.abs(first.from.x) < 1e-9 && Math.abs(first.from.y) < 1e-9 && Math.abs(first.from.z) < 1e-9) {
+  const turns = (sg: Segment) => sg.kind !== "dwell" && !!sg.r && (sg.r.from.a !== sg.r.to.a || sg.r.from.b !== sg.r.to.b || sg.r.from.c !== sg.r.to.c);
+  if (first && first.kind === "rapid" && !turns(first) && Math.abs(first.from.x) < 1e-9 && Math.abs(first.from.y) < 1e-9 && Math.abs(first.from.z) < 1e-9) {
     allSegments.shift();
     const l = lines[first.line];
     if (l) l.segments = l.segments.filter((sg) => sg !== first);
@@ -1056,6 +1198,7 @@ export function playLength(sg: Segment) {
   // Sam obrót osi A (odcinek bez długości liniowej): umowna droga po obwodzie promienia 20 mm,
   // żeby animacja i ubytek materiału miały na czym się rozwinąć.
   if (len < 1e-9 && sg.a) return (Math.abs(sg.a.to - sg.a.from) * Math.PI / 180) * 20;
+  if (len < 1e-9 && sg.r) return (Math.max(Math.abs(sg.r.to.a - sg.r.from.a), Math.abs(sg.r.to.b - sg.r.from.b), Math.abs(sg.r.to.c - sg.r.from.c)) * Math.PI / 180) * 20;
   return len;
 }
 

@@ -6,6 +6,11 @@ import { stockBoxes, type PieceBox } from "@/components/simulator/pieces";
 import { palettePng } from "@/lib/png";
 import { applyCompensation } from "@/components/simulator/compensation";
 import { simTools, type LibProgram } from "@/lib/programLibrary";
+import { isMultiAxis, toPartFrame } from "@/components/simulator/multiaxis";
+import { voxCarve, voxInit, voxMeta, voxSample } from "@/components/simulator/voxel";
+import { carveCyl, cylInit, cylMeta, cylSdf, isCyl } from "@/components/simulator/cylinder";
+import { isoRender, type Box3 } from "@/components/simulator/isoRender";
+import { detectKin } from "@/lib/parser";
 
 /*
   Podgląd gotowego detalu jako SVG, liczony przy budowie strony.
@@ -19,7 +24,10 @@ export default function ProgramPreview({ p, id }: { p: LibProgram; id: string })
   const lathe = p.mode === "lathe";
   const prog = parseProgram(p.src, { diameterX: lathe });
   const setup = { ...defaultSetup(p.mode), tools: simTools(p), stock: { ...defaultSetup(p.mode).stock, ...(p.stock ?? {}), auto: !p.stock } };
-  return lathe ? <Lathe prog={prog} setup={setup} id={id} /> : <Mill prog={prog} setup={setup} id={id} />;
+  if (lathe) return <Lathe prog={prog} setup={setup} id={id} />;
+  // 4. oś (walec) i 4/5 osi na prostopadłościanie — rzut aksonometryczny, bo obróbka idzie też z boków
+  if (isCyl(setup, "mill") || isMultiAxis(prog)) return <Iso prog={prog} setup={setup} src={p.src} />;
+  return <Mill prog={prog} setup={setup} id={id} />;
 }
 
 type Prog = ReturnType<typeof parseProgram>;
@@ -72,6 +80,41 @@ const PALETTE: [number, number, number, number][] = [[0, 0, 0, 0], ...Array.from
   const mix = (a: number, b: number) => Math.round(a + (b - a) * t);
   return [mix(46, 236), mix(52, 241), mix(62, 247), 255] as [number, number, number, number];
 })];
+
+/** Detal po obróbce w rzucie aksonometrycznym (pole odległości: walec albo siatka objętościowa). */
+function Iso({ prog, setup, src }: { prog: Prog; setup: SetupT; src: string }) {
+  const IW = 240, IH = 150;
+  let sdf: (x: number, y: number, z: number) => number, box: Box3, step: number;
+  if (isCyl(setup, "mill")) {
+    const m = cylMeta(setup, 160);
+    const h = cylInit(m), lens = prog.segments.map(playLength);
+    carveCyl(h, m, prog, lens, setup, 0, lens.reduce((a, b) => a + b, 0) + 1);
+    sdf = cylSdf(h, m);
+    box = { x0: m.x0, x1: m.x1, y0: -m.R, y1: m.R, z0: m.axisZ - m.R, z1: m.axisZ + m.R };
+    step = Math.max(0.3, m.R / 60);
+  } else {
+    const segs = toPartFrame(prog.segments, detectKin(src));
+    const program = { ...prog, segments: segs };
+    const boxes = stockBoxes(program, segs, setup);
+    if (!boxes.length) return <svg viewBox={`0 0 ${W} ${H}`} className="pp" />;
+    const ub: PieceBox = {
+      x0: Math.min(...boxes.map((b) => b.x0)), x1: Math.max(...boxes.map((b) => b.x1)),
+      y0: Math.min(...boxes.map((b) => b.y0)), y1: Math.max(...boxes.map((b) => b.y1)),
+      top: Math.max(...boxes.map((b) => b.top)), bottom: Math.min(...boxes.map((b) => b.bottom)), origin: { x: 0, y: 0, z: 0 },
+    };
+    const m = voxMeta(ub, 160_000), f = voxInit(m, ub), lens = segs.map(playLength);
+    voxCarve(f, m, segs, lens, program, setup, 0, lens.reduce((a, b) => a + b, 0) + 1, new Set());
+    sdf = (x, y, z) => voxSample(f, m, x, y, z);
+    box = { x0: ub.x0 - 1, x1: ub.x1 + 1, y0: ub.y0 - 1, y1: ub.y1 + 1, z0: ub.bottom - 1, z1: ub.top + 1 };
+    step = m.h * 0.6;
+  }
+  const img = palettePng(IW, IH, isoRender(sdf, box, IW, IH, step, LEVELS), PALETTE);
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="pp" role="img" aria-label="Detal po obróbce w rzucie aksonometrycznym">
+      <image href={img} x={0} y={0} width={W} height={H} preserveAspectRatio="xMidYMid meet" />
+    </svg>
+  );
+}
 
 function Mill({ prog, setup }: { prog: Prog; setup: SetupT; id?: string }) {
   // tor środka narzędzia (z korekcją G41/G42), tak jak w symulatorze

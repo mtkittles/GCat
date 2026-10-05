@@ -9,6 +9,8 @@ export interface LibProgram {
   slug: string;
   title: string;
   mode: "mill" | "lathe";
+  /** sterownik, w którego języku zapisano program (brak = Fanuc) */
+  dialect?: "fanuc" | "sinumerik";
   /** grupa w liście, np. „Kontury”, „Gwinty” */
   category: string;
   level: "podstawowy" | "średni" | "zaawansowany";

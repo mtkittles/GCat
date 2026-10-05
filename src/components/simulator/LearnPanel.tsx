@@ -9,6 +9,8 @@ import { activeOffset, frameShift, wcsLabel, type MachineState, type ParsedLine,
 type Row = { label: string; before: string; after: string };
 const fmt = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(3).replace(/0+$/, "").replace(/\.$/, ""));
 const vz = (v: { x: number; y: number; z: number }) => Math.abs(v.x) < 1e-9 && Math.abs(v.y) < 1e-9 && Math.abs(v.z) < 1e-9;
+/** Kierunek osi Z płaszczyzny pochylonej w układzie detalu, np. „(0, -1, 0)”. */
+const vecN = (m: readonly number[]) => `(${[m[2], m[5], m[8]].map((v) => fmt(Math.round(v * 1000) / 1000)).join(", ")})`;
 const vec = (v: { x: number; y: number; z: number }, dia: boolean) => dia ? `X${fmt(v.x * 2)} Z${fmt(v.z)}` : `X${fmt(v.x)} Y${fmt(v.y)} Z${fmt(v.z)}`;
 
 function describe(s: MachineState | undefined, dia: boolean): Record<string, string> {
@@ -31,6 +33,8 @@ function describe(s: MachineState | undefined, dia: boolean): Record<string, str
     "Narzędzie": s.tool === null ? "—" : `T${String(s.tool).padStart(2, "0")}`,
     "Cykl": s.cycle ? `G${s.cycle.code} (${s.cycle.retract === 98 ? "G98" : "G99"})` : "—",
     ...(dia && s.maxRpm ? { "Limit obrotów": `G50 S${fmt(s.maxRpm)}` } : {}),
+    "TCP (wierzchołek narzędzia)": s.tcp ? "wł. (G43.4 / TRAORI)" : "wył.",
+    "Płaszczyzna pochylona": s.tilt ? `${s.tilt.src}, oś Z płaszczyzny ${vecN(s.tilt.m)}` : "brak",
     ...(s.rotary ? { "Osie obrotowe": ["a", "b", "c"].filter((k) => s.rotary![k as "a" | "b" | "c"] !== undefined).map((k) => `${k.toUpperCase()}${fmt(s.rotary![k as "a" | "b" | "c"]!)}°`).join(" ") } : {}),
   };
 }

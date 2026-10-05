@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { defaultTip } from "./compensation";
+import type { Kin } from "@/lib/parser";
 import { FIELD_LABEL, INSERT_LABEL, type InsertShape, LATHE_TOOLS, MILL_TOOLS, TOOL_FIELDS, TOOL_LABEL, makeTool, type Setup, type Tool, type ToolKind } from "./setup";
 
 function Num({ l, v, on, min = 0, suffix, w = "5rem" }: { l: string; v: number; on: (n: number) => void; step?: number; min?: number; suffix?: string; w?: string }) {
@@ -76,7 +77,9 @@ function ToolRow({ n, tool, mode, active, onChange, onRemove }: { n: number; too
   );
 }
 
-export default function SetupPanel({ mode, setup, onChange, activeTool, defaultOpen = false }: { mode: "mill" | "lathe"; setup: Setup; onChange: (s: Setup) => void; activeTool: number | null; defaultOpen?: boolean }) {
+const KIN_LABEL: Record<Kin, string> = { A: "4 osie — stół obrotowy A", AC: "5 osi — stół A + C", BC: "5 osi — stół B + C" };
+
+export default function SetupPanel({ mode, setup, onChange, activeTool, defaultOpen = false, kin = "auto", kinAuto = "AC", onKin }: { mode: "mill" | "lathe"; setup: Setup; onChange: (s: Setup) => void; activeTool: number | null; defaultOpen?: boolean; kin?: Kin | "auto"; kinAuto?: Kin; onKin?: (k: Kin | "auto") => void }) {
   const { stock, tools } = setup;
   const s = (p: Partial<Setup["stock"]>) => onChange({ ...setup, stock: { ...stock, ...p } });
   const nums = Object.keys(tools).map(Number).sort((a, b) => a - b);
@@ -149,6 +152,19 @@ export default function SetupPanel({ mode, setup, onChange, activeTool, defaultO
             </>
           )}
         </fieldset>
+
+        {mode === "mill" && stock.shape !== "cylX" && onKin && (
+          <fieldset><legend>Maszyna (4 i 5 osi)</legend>
+            <label className="setup-field"><span>Kinematyka</span>
+              <select value={kin} onChange={(e) => onKin(e.target.value as Kin | "auto")}>
+                <option value="auto">auto — {KIN_LABEL[kinAuto]}</option>
+                {(Object.keys(KIN_LABEL) as Kin[]).map((k) => <option key={k} value={k}>{KIN_LABEL[k]}</option>)}
+              </select>
+            </label>
+            <p className="setup-hint">Stół–stół: obraca się detal, wrzeciono stoi pionowo. Środek obrotu stołu leży w zerze G54 — ustaw zero detalu na osi obrotu. Dodatni kąt obraca stół prawoskrętnie wokół osi maszyny (A — wokół X, B — wokół Y, C — wokół osi stołu).</p>
+            <p className="setup-hint">Obsługiwane: indeksowanie A/B/C, płaszczyzna pochylona G68.2 + G53.1 (Fanuc) i CYCLE800 (Sinumerik), TCP G43.4 (Fanuc) i TRAORI (Sinumerik).</p>
+          </fieldset>
+        )}
       </div>
     </details>
   );

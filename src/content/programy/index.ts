@@ -747,6 +747,272 @@ G90
 M30`,
   },
   {
+    slug: "kostka-os-a", title: "Kostka na 4. osi — cztery ściany", mode: "mill", category: "4 i 5 osi", level: "średni",
+    summary: "Indeksowanie osi A co 90°: na dwóch ścianach rowek z podprogramu, na dwóch — po dwa otwory G81. Zero na osi obrotu, odjazd w Z przed każdym obrotem.",
+    features: ["A", "M98", "G81", "indeksowanie"],
+    stock: { x: 60, y: 40, z: 40, ox: 0, oy: 20, oz: 20 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø8", d: 8, flutes: 3 },
+    2: { kind: "drill", name: "Wiertło Ø6", d: 6, angle: 118 }
+    },
+    src: `O4001 (KOSTKA 60X40X40 - 4 SCIANY NA OSI A)
+(ZERO: X0 LEWE CZOLO, Y0 Z0 NA OSI OBROTU A)
+(KAZDA SCIANA PO OBROCIE LEZY NA Z20)
+G21 G90 G17 G40 G49 G80
+G54
+T1 M06 (FREZ FI8)
+G43 H1 Z60.
+S3500 M03
+M08
+G00 A0
+M98 P4100
+G00 Z40. (ODJAZD PRZED OBROTEM)
+G00 A180.
+M98 P4100
+G00 Z40.
+M09
+M05
+T2 M06 (WIERTLO FI6)
+G43 H2 Z60.
+S2800 M03
+M08
+G00 A90.
+M98 P4200
+G00 Z40.
+G00 A270.
+M98 P4200
+G00 Z40.
+G00 A0
+M09
+M05
+M30
+O4100 (ROWEK WZDLUZNY GL. 2)
+G00 X6. Y0 Z25.
+G01 Z18. F200
+G01 X54. F450
+G00 Z25.
+M99
+O4200 (DWA OTWORY GL. 8)
+G00 X15. Y0 Z25.
+G99 G81 Z12. R22. F150
+X45.
+G80
+G00 Z25.
+M99`,
+  },
+  {
+    slug: "walec-os-a", title: "Walec na 4. osi — rowek śrubowy", mode: "mill", category: "4 i 5 osi", level: "średni",
+    summary: "Ruch jednoczesny X i A: rowek śrubowy (jeden obrót na 60 mm), potem rowek obwodowy na ćwierć obrotu. Walec Ø60 w uchwycie, Z0 na powierzchni.",
+    features: ["A", "G01 X A", "linia śrubowa"],
+    stock: { shape: "cylX", d: 60, len: 100, ox: 0, oz: 30, grip: 10 },
+    tools: {
+    1: { kind: "ballnose", name: "Frez kulisty Ø4", d: 4, flutes: 2 }
+    },
+    src: `O4002 (WALEC FI60 - ROWEK SRUBOWY, 4. OS A)
+(ZERO: X0 LEWE CZOLO, Z0 NA POWIERZCHNI WALCA, Y0 NA OSI)
+G21 G90 G17 G40 G49 G80
+G54
+T1 M06 (FREZ KULISTY FI4)
+G43 H1 Z50.
+S6000 M03
+M08
+G00 X20. Y0 Z5. A0
+G01 Z-1. F100
+G01 X80. A360. F300 (JEDEN OBROT NA 60 MM)
+G00 Z5.
+G00 X90. A0
+G01 Z-2. F100
+G01 A90. F300 (ROWEK OBWODOWY - SAM OBROT)
+G00 Z50.
+G00 A0
+M09
+M05
+M30`,
+  },
+  {
+    slug: "plaszczyzna-g68-2", title: "3+2: skos 30° z otworami i kieszeń z boku (G68.2)", mode: "mill", category: "4 i 5 osi", level: "zaawansowany",
+    summary: "Fanuc: płaszczyzna pochylona G68.2 i obrót stołu G53.1. Skos 30° na prawej krawędzi planowany w trzech warstwach, dwa otwory G81 prostopadle do skosu, rowek na przedniej ścianie.",
+    features: ["G68.2", "G53.1", "G69", "G81", "3+2"],
+    stock: { x: 60, y: 60, z: 40, ox: 30, oy: 30, oz: 40 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø16", d: 16, flutes: 4 },
+    2: { kind: "drill", name: "Wiertło Ø6", d: 6, angle: 118 },
+    3: { kind: "endmill", name: "Frez walcowo-czołowy Ø10", d: 10, flutes: 3 }
+    },
+    src: `O5001 (3+2 - SKOS 30ST I ROWEK Z PRZODU, G68.2)
+(KOSTKA 60X60X40, ZERO: SRODEK GORNEJ POWIERZCHNI)
+(ZERO = SRODEK OBROTU STOLU, MASZYNA STOL A/C)
+G21 G90 G17 G40 G49 G80
+G54
+T1 M06 (FREZ FI16)
+S2500 M03
+M08
+(--- SKOS 30ST: PLASZCZYZNA OBROCONA WOKOL Y ---)
+(I90 J30 K-90 = OBROT 30ST WOKOL OSI Y)
+G68.2 X15. Y0 Z0 I90. J30. K-90.
+G53.1 (STOL USTAWIA OS NARZEDZIA PROSTOPADLE DO SKOSU)
+G43 H1 Z60.
+G00 X4. Y-40.
+G00 Z7.
+G01 Z5. F300
+G01 Y40. F700
+G00 X13.
+G01 Y-40.
+G01 Z2.5 F300
+G01 Y40. F700
+G00 X4.
+G01 Y-40.
+G01 Z0 F300
+G01 Y40. F700
+G00 X13.
+G01 Y-40.
+G00 Z60.
+(OTWORY PROSTOPADLE DO SKOSU)
+T2 M06 (WIERTLO FI6)
+G43 H2 Z60.
+S2800 M03
+G00 X8.66 Y-15.
+G99 G81 Z-10. R2. F150
+Y15.
+G80
+G00 Z60.
+G69
+G49 G53 Z0 (ODJAZD W OSI Z MASZYNY)
+(--- SCIANA PRZEDNIA: OS Z PLASZCZYZNY = -Y DETALU ---)
+T3 M06 (FREZ FI10)
+G68.2 X0 Y-30. Z-20. I0 J90. K0
+G53.1
+G43 H3 Z50.
+S3200 M03
+G00 X-10. Y0
+G00 Z2.
+G01 Z-3. F150
+G01 X10. F400
+G00 Z50.
+G69
+G49 G53 Z0
+G00 A0 C0
+M09
+M05
+M30`,
+  },
+  {
+    slug: "cycle800-sinumerik", title: "3+2 na Sinumeriku: CYCLE800", mode: "mill", dialect: "sinumerik", category: "4 i 5 osi", level: "zaawansowany",
+    summary: "Ta sama kostka co w programie G68.2, zapisana w języku Sinumerika: CYCLE800 obraca układ osiowo (X→Y→Z) i ustawia stół, CYCLE800() wraca do położenia podstawowego.",
+    features: ["CYCLE800", "TRANS", "Sinumerik", "3+2"],
+    stock: { x: 60, y: 60, z: 40, ox: 30, oy: 30, oz: 40 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø16", d: 16, flutes: 4 },
+    3: { kind: "endmill", name: "Frez walcowo-czołowy Ø10", d: 10, flutes: 3 }
+    },
+    src: `; KOSTKA 60X60X40 - 3+2 Z CYCLE800, STOL A/C
+; ZERO: SRODEK GORNEJ POWIERZCHNI = SRODEK OBROTU STOLU
+G17 G90 G54
+T1 D1 ; FREZ FI16
+M6
+S2500 M3
+M8
+; SKOS 30ST: OBROT O 30ST WOKOL Y, PUNKT ODNIESIENIA X15
+CYCLE800(1,"TABLE",100000,57,15,0,0,0,30,0,0,0,0,-1,100,1)
+G0 X4 Y-40 Z60
+G0 Z7
+G1 Z5 F300
+G1 Y40 F700
+G0 X13
+G1 Y-40
+G1 Z2.5 F300
+G1 Y40 F700
+G0 X4
+G1 Y-40
+G1 Z0 F300
+G1 Y40 F700
+G0 X13
+G1 Y-40
+G0 Z60
+; SCIANA PRZEDNIA: OBROT O 90ST WOKOL X
+T3 D1 ; FREZ FI10
+M6
+S3200 M3
+CYCLE800(1,"TABLE",100000,57,0,-30,-20,90,0,0,0,0,0,-1,100,1)
+G0 X-10 Y0 Z50
+G0 Z2
+G1 Z-3 F150
+G1 X10 F400
+G0 Z50
+CYCLE800()
+M9
+M5
+M30`,
+  },
+  {
+    slug: "faza-tcp-g43-4", title: "5 osi jednocześnie: faza 4×45° z TCP (G43.4)", mode: "mill", category: "4 i 5 osi", level: "zaawansowany",
+    summary: "Fanuc G43.4: X Y Z to wierzchołek narzędzia w układzie detalu, A i C ustawiają oś narzędzia prostopadle do fazy. W narożach obraca się tylko C — wierzchołek stoi, oś narzędzia przechodzi na kolejną krawędź.",
+    features: ["G43.4", "G49", "A", "C", "TCP"],
+    stock: { x: 60, y: 60, z: 40, ox: 30, oy: 30, oz: 40 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø10", d: 10, flutes: 3 }
+    },
+    src: `O5003 (5 OSI - FAZA 4X45 NA GORNYCH KRAWEDZIACH, TCP)
+(KOSTKA 60X60X40, ZERO: SRODEK GORNEJ POWIERZCHNI)
+(ZERO = SRODEK OBROTU STOLU, MASZYNA STOL A/C)
+(FREZ FI10 PRACUJE CZOLEM PROSTOPADLE DO FAZY)
+G21 G90 G17 G40 G49 G80
+G54
+T1 M06 (FREZ FI10)
+S4500 M03
+M08
+G00 A45. C0 (OS NARZEDZIA NA KRAWEDZ +Y)
+G43.4 H1 (TCP: X Y Z = WIERZCHOLEK NARZEDZIA)
+G00 X-40. Y28. Z50.
+G00 Z-2.
+G01 X28. F600
+G01 C90. (NAROZE: OBRACA SIE TYLKO STOL)
+G01 Y-28.
+G01 C180.
+G01 X-28.
+G01 C270.
+G01 Y40.
+G00 Z50.
+G49
+G00 A0 C0
+M09
+M05
+M30`,
+  },
+  {
+    slug: "faza-traori", title: "5 osi na Sinumeriku: faza z TRAORI", mode: "mill", dialect: "sinumerik", category: "4 i 5 osi", level: "zaawansowany",
+    summary: "Ta sama faza co z G43.4, zapisana dla Sinumerika: TRAORI włącza transformację 5-osiową, TRAFOOF ją wyłącza.",
+    features: ["TRAORI", "TRAFOOF", "A", "C", "TCP"],
+    stock: { x: 60, y: 60, z: 40, ox: 30, oy: 30, oz: 40 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø10", d: 10, flutes: 3 }
+    },
+    src: `; KOSTKA 60X60X40 - FAZA 4X45, TRANSFORMACJA 5-OSIOWA
+; ZERO: SRODEK GORNEJ POWIERZCHNI = SRODEK OBROTU STOLU
+G17 G90 G54
+T1 D1 ; FREZ FI10
+M6
+S4500 M3
+M8
+G0 A45 C0
+TRAORI
+G0 X-40 Y28 Z50
+G0 Z-2
+G1 X28 F600
+G1 C90
+G1 Y-28
+G1 C180
+G1 X-28
+G1 C270
+G1 Y40
+G0 Z50
+TRAFOOF
+G0 A0 C0
+M9
+M5
+M30`,
+  },
+  {
     slug: "walek-gcat", title: "Wałek stopniowany GCat", mode: "lathe", category: "Detale kompletne", level: "zaawansowany",
     summary: "Program wałka z całej ścieżki toczenia: planowanie, G71/G70 z korekcją ostrza, podcięcie, gwint M20×1,5 i otwór osiowy.",
     features: ["G71", "G70", "G42", "G75", "G76", "G74"],

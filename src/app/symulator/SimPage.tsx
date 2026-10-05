@@ -21,9 +21,9 @@ export default function SimPage() {
   const [tools, setTools] = useState<Record<number, Tool> | undefined>(() => simTools(first));
 
   const openLib = (p: LibProgram) => {
-    setLib(p.slug); setName(p.title); setSrc(p.src); setMode(p.mode); setStock(p.stock); setTools(simTools(p)); setActive(null);
+    setLib(p.slug); setName(p.title); setSrc(p.src); setMode(p.mode); setStock(p.stock); setTools(simTools(p)); setActive(null); setDialect(p.dialect ?? "fanuc");
   };
-  const [dialect, setDialect] = useState<Dialect>("fanuc");
+  const [dialect, setDialect] = useState<Dialect>(first.dialect ?? "fanuc");
 
   // --- zakładki programów zapisywane w przeglądarce ---
   const [tabs, setTabs] = useState<StoredProgram[]>([]);
@@ -39,7 +39,7 @@ export default function SimPage() {
       const fromLink = want ? programBySlug(want) : undefined;
       if (list.length) setTabs(list);
       if (fromLink) {
-        setLib(fromLink.slug); setName(fromLink.title); setSrc(fromLink.src); setMode(fromLink.mode); setStock(fromLink.stock); setTools(simTools(fromLink));
+        setLib(fromLink.slug); setName(fromLink.title); setSrc(fromLink.src); setMode(fromLink.mode); setStock(fromLink.stock); setTools(simTools(fromLink)); setDialect(fromLink.dialect ?? "fanuc");
       } else if (list.length) {
         const id = loadActiveId() ?? list[0].id;
         const cur = list.find((x) => x.id === id) ?? list[0];
