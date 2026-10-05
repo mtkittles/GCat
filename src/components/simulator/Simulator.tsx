@@ -33,6 +33,7 @@ import {
 } from "@/lib/parser";
 import { isMultiAxis, toPartFrame } from "./multiaxis";
 import { unionBox, voxCarve, voxInit, voxMeta, voxTopImage, type VoxMeta } from "./voxel";
+import { arcNear, measLabel, nearestSnap, snapPoints, type Meas2, type Pt2 } from "./measure2d";
 
 export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
@@ -76,6 +77,9 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
   { id: "set", label: "Ustawienia", d: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" },
 ];
 const SPEEDS = [0.5, 1, 2, 4];
+/** Widok 2D bez powiększenia: punkt ekranu = punkt kadru · k + (tx, ty). */
+const Z0 = { k: 1, tx: 0, ty: 0 };
+const ZMIN = 0.5, ZMAX = 80;
 
 const COLORS = {
   rapid: "#F59E0B",   // szybki przejazd
@@ -121,7 +125,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
   const [gotoN, setGotoN] = useState("");
   const [probe, setProbe] = useState<{ h: number; v: number; px: number; py: number } | null>(null);
-  const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number] } | null>(null);
+  const mapRef = useRef<{ P: (p: Vec3) => readonly [number, number]; inv: (px: number, py: number) => [number, number]; /** piksele na mm */ s?: number } | null>(null);
+  // 2D: powiększenie/przesunięcie widoku i pomiary (wymiar między punktami, promień łuku)
+  const [zoom, setZoom] = useState(Z0);
+  const [measure, setMeasure] = useState(false);
+  const [meas, setMeas] = useState<Meas2[]>([]);
+  const [pending, setPending] = useState<Pt2 | null>(null);
+  const [hover, setHover] = useState<{ p: Pt2; snap: boolean; arc: { c: Pt2; r: number; p: Pt2 } | null } | null>(null);
+  const gest = useRef<{ pts: Map<number, { x: number; y: number }>; pinch: { d0: number; mx: number; my: number; z: typeof Z0 } | null; pan: { x: number; y: number; z: typeof Z0 } | null; panning: boolean; down: { x: number; y: number; id: number } | null }>({ pts: new Map(), pinch: null, pan: null, panning: false, down: null });
   const unrollRef = useRef<UnrollCache | null>(null);
   // 2D przy 4/5 osiach: model objętościowy (rzadszy niż w 3D) i jego obraz z góry
   const vox2d = useRef<{ key: string; f: Float32Array; meta: VoxMeta; top: number; bottom: number; progress: number; img: HTMLCanvasElement | null; imgAt: number } | null>(null);
@@ -139,13 +150,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setSetup((s2) => ({ ...s2, tools: toolsProp ? { ...toolsProp } : defaultSetup(mode).tools }));
   }
   const [prevMode, setPrevMode] = useState(mode);
-  if (prevMode !== mode) { setPrevMode(mode); setSetup({ ...defaultSetup(mode), ...(toolsProp ? { tools: { ...toolsProp } } : {}), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
+  if (prevMode !== mode) { setPrevMode(mode); setZoom(Z0); setMeas([]); setPending(null); setSetup({ ...defaultSetup(mode), ...(toolsProp ? { tools: { ...toolsProp } } : {}), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
 
   const stockKey = stockProp ? JSON.stringify(stockProp) : "";
   const [prevStockKey, setPrevStockKey] = useState(stockKey);
   if (prevStockKey !== stockKey) {
     setPrevStockKey(stockKey);
-    setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
+    // nowy program — półfabrykat od zera (inaczej kształt „walec” z poprzedniego programu zostaje przy kostce)
+    setSetup((s2) => {
+      const base = { ...defaultSetup(mode).stock, perWcs: s2.stock.perWcs };
+      return { ...s2, stock: stockProp ? { ...base, ...stockProp, auto: false } : base };
+    });
+    setZoom(Z0); setMeas([]); setPending(null);
   }
   // 4/5 osi (obrót stołu, TCP, płaszczyzna pochylona): podgląd i ubytek liczone w układzie detalu.
   const multi = useMemo(() => mode === "mill" && !isCyl(setup, mode) && isMultiAxis(program), [mode, setup, program]);
@@ -378,38 +394,42 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const spanH = Math.max(max[ha] - min[ha], 10);
     const spanV = Math.max(max[va] - min[va], 10);
     const pad = 28;
-    const scale = Math.min((W - pad * 2) / spanH, (H - pad * 2) / spanV);
-    const ox = pad + ((W - pad * 2) - spanH * scale) / 2 - min[ha] * scale;
-    const oy = H - pad - ((H - pad * 2) - spanV * scale) / 2 + min[va] * scale;
+    const scale0 = Math.min((W - pad * 2) / spanH, (H - pad * 2) / spanV);
+    const ox0 = pad + ((W - pad * 2) - spanH * scale0) / 2 - min[ha] * scale0;
+    const oy0 = H - pad - ((H - pad * 2) - spanV * scale0) / 2 + min[va] * scale0;
+    // powiększenie i przesunięcie widoku (kółko, szczypanie, przyciski): punkt ekranu = punkt kadru · k + t
+    const zv = compact || showcase ? Z0 : zoom;
+    const scale = scale0 * zv.k, ox = ox0 * zv.k + zv.tx, oy = oy0 * zv.k + zv.ty;
     const P = (p: Vec3) => [ox + p[ha] * scale, oy - p[va] * scale] as const;
-    mapRef.current = { P, inv: (px, py) => [(px - ox) / scale, (oy - py) / scale] };
+    mapRef.current = { P, inv: (px, py) => [(px - ox) / scale, (oy - py) / scale], s: scale };
 
     ctx.clearRect(0, 0, W, H);
 
     // Siatka dwupoziomowa: cienka podziałka pomocnicza i wyraźniejsze linie
-    // główne z opisem — układ znany z podręczników programowania.
-    const step = niceStep(Math.max(spanH, spanV) / 8);
+    // główne z opisem — układ znany z podręczników programowania. Zakres — to, co widać na kanwie.
+    const vis = { h0: -ox / scale, h1: (W - ox) / scale, v0: (oy - H) / scale, v1: oy / scale };
+    const step = niceStep(Math.max(spanH, spanV) / zv.k / 8);
     const minor = step / 5;
     if (minor * scale > 4) {
       ctx.save();
       ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
-      for (let v = Math.floor(min[ha] / minor) * minor; v <= max[ha] + minor; v += minor) {
+      for (let v = Math.floor(vis.h0 / minor) * minor; v <= vis.h1 + minor; v += minor) {
         const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
         ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       }
-      for (let v = Math.floor(min[va] / minor) * minor; v <= max[va] + minor; v += minor) {
+      for (let v = Math.floor(vis.v0 / minor) * minor; v <= vis.v1 + minor; v += minor) {
         const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       }
       ctx.restore();
     }
     ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
-    for (let v = Math.floor(min[ha] / step) * step; v <= max[ha] + step; v += step) {
+    for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
       const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), x + 2, H - 4);
     }
-    for (let v = Math.floor(min[va] / step) * step; v <= max[va] + step; v += step) {
+    for (let v = Math.floor(vis.v0 / step) * step; v <= vis.v1 + step; v += step) {
       const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), 4, y - 2);
@@ -744,6 +764,65 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.restore();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
+    // pomiary: wymiary jak na rysunku (żółte), punkt w toku i przyciąganie pod kursorem
+    if (!bare && (meas.length || pending || (measure && hover))) {
+      const Q = (p: Pt2) => P({ x: 0, y: 0, z: 0, [ha]: p[0], [va]: p[1] } as Vec3);
+      const YEL = "#FACC15";
+      const arrow = (x: number, y: number, ang: number) => {
+        ctx.beginPath(); ctx.moveTo(x, y);
+        ctx.lineTo(x - 9 * Math.cos(ang - 0.35), y - 9 * Math.sin(ang - 0.35));
+        ctx.lineTo(x - 9 * Math.cos(ang + 0.35), y - 9 * Math.sin(ang + 0.35));
+        ctx.closePath(); ctx.fill();
+      };
+      const tag = (x: number, y: number, main: string, sub: string, alpha = 1) => {
+        ctx.save(); ctx.globalAlpha = alpha;
+        ctx.font = "600 12px ui-monospace, monospace"; const w1 = ctx.measureText(main).width;
+        ctx.font = "10.5px ui-monospace, monospace"; const w2 = ctx.measureText(sub).width;
+        const w = Math.max(w1, w2) + 14, h = sub ? 34 : 20;
+        const bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = Math.max(4, Math.min(H - h - 4, y - h - 8));
+        ctx.fillStyle = "rgba(5,7,10,0.88)"; ctx.strokeStyle = "rgba(250,204,21,0.7)"; ctx.lineWidth = 1;
+        ctx.fillRect(bx, by, w, h); ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
+        ctx.fillStyle = YEL; ctx.font = "600 12px ui-monospace, monospace"; ctx.fillText(main, bx + 7, by + 14);
+        if (sub) { ctx.fillStyle = "#CBD5E1"; ctx.font = "10.5px ui-monospace, monospace"; ctx.fillText(sub, bx + 7, by + 28); }
+        ctx.restore();
+      };
+      const dim = (m: Meas2, alpha = 1) => {
+        ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = YEL; ctx.fillStyle = YEL; ctx.lineWidth = 1.5;
+        const lb = measLabel(m, mode);
+        if (m.kind === "d") {
+          const [ax, ay] = Q(m.a), [bx, by] = Q(m.b);
+          // przyrosty w osiach — cienkie linie pomocnicze
+          ctx.save(); ctx.setLineDash([3, 4]); ctx.globalAlpha = alpha * 0.45; ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
+          ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+          const ang = Math.atan2(by - ay, bx - ax);
+          if (Math.hypot(bx - ax, by - ay) > 24) { arrow(bx, by, ang); arrow(ax, ay, ang + Math.PI); }
+          for (const [x, y] of [[ax, ay], [bx, by]]) { ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill(); }
+          tag((ax + bx) / 2, (ay + by) / 2, lb.main, lb.sub, alpha);
+        } else {
+          const [cx, cy] = Q(m.c), [px, py] = Q(m.p);
+          ctx.beginPath(); ctx.moveTo(cx - 6, cy); ctx.lineTo(cx + 6, cy); ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy + 6); ctx.stroke();
+          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+          arrow(px, py, Math.atan2(py - cy, px - cx));
+          tag(px, py, lb.main, lb.sub, alpha);
+        }
+        ctx.restore();
+      };
+      for (const m of meas) dim(m);
+      if (pending) {
+        const tgt = hover?.p;
+        if (tgt) dim({ kind: "d", a: pending, b: tgt }, 0.7);
+        else { const [x, y] = Q(pending); ctx.save(); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
+      } else if (hover?.arc) dim({ kind: "r", ...hover.arc }, 0.55);
+      if (measure && hover) {
+        const [x, y] = Q(hover.p);
+        ctx.save(); ctx.strokeStyle = YEL; ctx.lineWidth = 1.5;
+        if (hover.snap) ctx.strokeRect(x - 5, y - 5, 10, 10);
+        else { ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x + 6, y); ctx.moveTo(x, y - 6); ctx.lineTo(x, y + 6); ctx.stroke(); }
+        ctx.restore();
+      }
+    }
+
     // celownik sondy pod palcem
     if (probe && !bare) {
       ctx.save();
@@ -785,7 +864,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, zoom, meas, pending, hover, measure]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -799,6 +878,124 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const [h, v] = m.inv(px, py);
     setProbe({ h, v, px, py });
   };
+
+  // ---- widok 2D: powiększanie, przesuwanie, pomiary ----
+  const zoomable = !compact && !showcase && !isCyl(setup, mode);
+  const [ha2, va2] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
+  const snaps = useMemo(() => {
+    if (!measure || !zoomable) return null;
+    const extra: Pt2[] = [];
+    if (mode === "mill" && !setup.stock.auto) for (const b of stockBoxes(program, segments, setup)) extra.push([b.x0, b.y0], [b.x1, b.y0], [b.x1, b.y1], [b.x0, b.y1]);
+    return snapPoints(segments, ha2, va2, extra);
+  }, [measure, zoomable, segments, ha2, va2, mode, program, setup]);
+  const zoomAt = useCallback((sx: number, sy: number, f: number) => {
+    setZoom((z) => {
+      const k = Math.min(ZMAX, Math.max(ZMIN, z.k * f)), r = k / z.k;
+      return { k, tx: sx - (sx - z.tx) * r, ty: sy - (sy - z.ty) * r };
+    });
+  }, []);
+  const zoomBtn = (f: number) => {
+    const cv = fs ? fsCanvasRef.current : canvasRef.current; if (!cv) return;
+    zoomAt(cv.clientWidth / 2, cv.clientHeight / 2, f);
+  };
+  // kółko myszy: na stronie symulatora i w pełnym ekranie zawsze, w lekcjach z Ctrl (nie zabiera przewijania strony)
+  useEffect(() => {
+    if (!zoomable) return;
+    const els = [canvasRef.current, fsCanvasRef.current].filter((x): x is HTMLCanvasElement => !!x);
+    const onWheel = (e: WheelEvent) => {
+      if (!(appLayout || fs || e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * (e.deltaMode === 1 ? 0.05 : 0.0015)));
+    };
+    for (const el of els) el.addEventListener("wheel", onWheel, { passive: false });
+    return () => { for (const el of els) el.removeEventListener("wheel", onWheel); };
+  }, [zoomable, appLayout, fs, view, zoomAt]);
+  /** Punkt pomiaru pod kursorem: przyciągnięty do końca ruchu / środka łuku / naroża albo wolny; łuk — do wymiaru R. */
+  const measAt = (x: number, y: number) => {
+    const m = mapRef.current; if (!m?.s) return null;
+    const [h, v] = m.inv(x, y);
+    const tol = 12 / m.s;
+    const sn = snaps ? nearestSnap(snaps, h, v, tol) : null;
+    const arc = sn || pending ? null : arcNear(segments, ha2, va2, h, v, 8 / m.s);
+    return { p: sn ?? ([h, v] as Pt2), snap: !!sn, arc };
+  };
+  const pickMeas = (x: number, y: number) => {
+    const hit = measAt(x, y); if (!hit) return;
+    if (pending) { const a = pending; setMeas((ms) => [...ms.slice(-5), { kind: "d", a, b: hit.p }]); setPending(null); return; }
+    if (hit.arc) { const arc = hit.arc; setMeas((ms) => [...ms.slice(-5), { kind: "r", ...arc }]); return; }
+    setPending(hit.p);
+  };
+  const local = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  // Mysz: przeciąganie przesuwa, najechanie pokazuje współrzędne. Palec: dwa palce — szczypanie i przesuwanie;
+  // jeden — współrzędne pod palcem, a po powiększeniu albo w trybie pomiaru przesuwa widok. Stuknięcie w trybie pomiaru — punkt.
+  const canvasEvents = {
+    onPointerDown: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (compact) return;
+      e.currentTarget.setPointerCapture(e.pointerId);
+      const g = gest.current, p = local(e);
+      g.pts.set(e.pointerId, p);
+      if (g.pts.size === 2 && zoomable) {
+        const [a, b] = [...g.pts.values()];
+        g.pinch = { d0: Math.max(10, Math.hypot(a.x - b.x, a.y - b.y)), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, z: zoom };
+        g.pan = null; g.down = null; setProbe(null); return;
+      }
+      if (g.pts.size > 1) return;
+      g.down = { ...p, id: e.pointerId }; g.panning = false;
+      const panOk = zoomable && (e.pointerType === "mouse" ? e.button === 0 : measure || zoom.k > 1.01);
+      g.pan = panOk ? { ...p, z: zoom } : null;
+      if (!g.pan && !measure) readProbe(e);
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      if (compact) return;
+      const g = gest.current, p = local(e);
+      if (g.pts.has(e.pointerId)) g.pts.set(e.pointerId, p);
+      if (g.pinch && g.pts.size >= 2) {
+        const [a, b] = [...g.pts.values()], z = g.pinch.z;
+        const k = Math.min(ZMAX, Math.max(ZMIN, z.k * Math.hypot(a.x - b.x, a.y - b.y) / g.pinch.d0));
+        const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+        setZoom({ k, tx: mx - (g.pinch.mx - z.tx) * (k / z.k), ty: my - (g.pinch.my - z.ty) * (k / z.k) });
+        return;
+      }
+      if (g.pan && g.down && e.buttons) {
+        if (!g.panning && Math.hypot(p.x - g.down.x, p.y - g.down.y) > 5) { g.panning = true; setProbe(null); }
+        if (g.panning) { const z = g.pan.z; setZoom({ k: z.k, tx: z.tx + p.x - g.pan.x, ty: z.ty + p.y - g.pan.y }); return; }
+      }
+      if (measure && zoomable) { if (e.pointerType === "mouse" || !e.buttons) setHover(measAt(p.x, p.y)); return; }
+      if (e.pointerType === "mouse" ? true : e.buttons !== 0 && !g.pan) readProbe(e);
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const g = gest.current, p = local(e);
+      const tap = g.down && g.down.id === e.pointerId && !g.panning && !g.pinch && Math.hypot(p.x - g.down.x, p.y - g.down.y) <= 6;
+      g.pts.delete(e.pointerId);
+      if (g.pts.size < 2) g.pinch = null;
+      if (!g.pts.size) { g.pan = null; g.panning = false; g.down = null; }
+      if (tap && measure && zoomable) pickMeas(p.x, p.y);
+      if (e.pointerType !== "mouse") { setProbe(null); if (!pending) setHover(null); }
+    },
+    onPointerCancel: (e: React.PointerEvent<HTMLCanvasElement>) => {
+      const g = gest.current; g.pts.delete(e.pointerId); g.pinch = null; g.pan = null; g.panning = false; g.down = null; setProbe(null);
+    },
+    onPointerLeave: () => { setProbe(null); if (!pending) setHover(null); },
+    onDoubleClick: () => { if (zoomable && !measure) setZoom(Z0); },
+  };
+  const zoomTools = zoomable && (
+    <div className="z2d" role="toolbar" aria-label="Powiększenie i pomiary 2D">
+      <button type="button" className="z2d-desk" onClick={() => zoomBtn(1.5)} title="Przybliż (kółko myszy)" aria-label="Przybliż">+</button>
+      <button type="button" className="z2d-desk" onClick={() => zoomBtn(1 / 1.5)} title="Oddal" aria-label="Oddal">−</button>
+      {(zoom.k !== 1 || zoom.tx !== 0 || zoom.ty !== 0) && <button type="button" onClick={() => setZoom(Z0)} title="Cały program w kadrze (dwuklik)" aria-label="Dopasuj widok">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 9V3h6M21 15v6h-6M21 9V3h-6M3 15v6h6" /></svg>
+      </button>}
+      <button type="button" aria-pressed={measure} onClick={() => { setMeasure((v) => !v); setPending(null); setHover(null); }}
+        title="Pomiar: kliknij dwa punkty (przyciągają się do końców ruchów, środków łuków i naroży półfabrykatu) albo łuk — promień" aria-label="Pomiar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 17 17 3l4 4L7 21z" /><path d="m7 13 2 2M10 10l2 2M13 7l2 2" /></svg>
+      </button>
+      {measure && (meas.length > 0 || pending) && <button type="button" onClick={() => { setMeas([]); setPending(null); }} title="Usuń wymiary" aria-label="Usuń wymiary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+      </button>}
+      {measure && <span className="z2d-hint">{pending ? "drugi punkt" : "punkt lub łuk"}</span>}
+    </div>
+  );
 
   const onDrop = async (e: React.DragEvent) => {
     e.preventDefault(); setDragOver(false);
@@ -1115,11 +1312,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             </div>
         )}
         <div className={`stage-view m-sim v-${compact || !allow3d ? "2d" : view}`}>
-          <canvas ref={canvasRef} className="sim-canvas sim-canvas-2d m-sim" style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }}
-          onPointerDown={(e) => { if (compact) return; e.currentTarget.setPointerCapture(e.pointerId); readProbe(e); }}
-          onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
-          onPointerUp={() => setProbe(null)}
-          onPointerLeave={() => setProbe(null)} />
+          <div className="c2d m-sim">
+            <canvas ref={canvasRef} className={`sim-canvas sim-canvas-2d${measure ? " is-measure" : ""}`} style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }} {...canvasEvents} />
+            {view !== "3d" && zoomTools}
+          </div>
           {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
@@ -1200,7 +1396,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             toolbar={viewSwitch}
             view={show3d
               ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary>
-              : <canvas ref={fsCanvasRef} className="fs-canvas" style={{ touchAction: "none" }} />}
+              : <div className="c2d c2d-fs"><canvas ref={fsCanvasRef} className={`fs-canvas${measure ? " is-measure" : ""}`} style={{ touchAction: "none" }} {...canvasEvents} />{zoomTools}</div>}
             status={statusStrip}
             transport={transportBar}
             sheetOpen={sheet}

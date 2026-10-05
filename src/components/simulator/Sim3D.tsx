@@ -84,6 +84,22 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const lastFrameKey = useRef("");
   const voxMeshT = useRef(0);
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
+  // pomiar w 3D: kliknięcia na powierzchni detalu (współrzędne w grupie detalu — obracają się razem ze stołem)
+  const [measure, setMeasure] = useState(false);
+  const [meas, setMeas] = useState<{ a: P3; b: P3 | null }[]>([]);
+  const measureRef = useRef(false);
+  const pickRef = useRef<((p: P3) => void) | null>(null);
+  const measGrp = useRef<THREE.Group | null>(null);
+  const [prevSrc, setPrevSrc] = useState(source);
+  if (prevSrc !== source) { setPrevSrc(source); setMeas([]); }
+  useEffect(() => {
+    measureRef.current = measure;
+    pickRef.current = (p) => setMeas((ms) => {
+      const last = ms.at(-1);
+      if (last && !last.b) return [...ms.slice(0, -1), { a: last.a, b: p }];
+      return [...ms.slice(-5), { a: p, b: null }];
+    });
+  }, [measure]);
   const toolRef = useRef<Tool>(tool);
   const programRef = useRef(program);
   useEffect(() => { toolRef.current = tool; programRef.current = program; }, [tool, program]);
@@ -174,6 +190,24 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       controls.target.copy(ctr);
       controls.update();
     };
+    // pomiar: stuknięcie/kliknięcie bez przeciągania — punkt na powierzchni półfabrykatu
+    const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+    let downAt: { x: number; y: number; t: number } | null = null;
+    const onDown = (e: PointerEvent) => { downAt = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now() } : null; };
+    const onUp = (e: PointerEvent) => {
+      const d = downAt; downAt = null;
+      if (!measureRef.current || !d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 700) return;
+      const r = renderer.domElement.getBoundingClientRect();
+      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      if (!stockMat.visible) return;
+      const hit = ray.intersectObject(part, true).find((h) => (h.object as THREE.Mesh).material === stockMat);
+      if (!hit) return;
+      const lp = part.worldToLocal(hit.point.clone());
+      pickRef.current?.({ x: lp.x, y: lp.y, z: lp.z });
+    };
+    renderer.domElement.addEventListener("pointerdown", onDown);
+    renderer.domElement.addEventListener("pointerup", onUp);
     // dopóki użytkownik nie obrócił widoku, zmiana proporcji okna kadruje detal od nowa
     let touched = false;
     controls.addEventListener("start", () => { touched = true; });
@@ -208,6 +242,8 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
+      renderer.domElement.removeEventListener("pointerdown", onDown);
+      renderer.domElement.removeEventListener("pointerup", onUp);
       ro?.disconnect();
       scene.traverse((o) => { const m = o as THREE.Mesh; if (m.geometry) m.geometry.dispose(); });
       renderer.dispose();
@@ -576,6 +612,40 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     st.render();
   }, [zeroMark, mode]);
 
+  // wymiary 3D: punkty, linia i opis odległości (stały rozmiar na ekranie, zawsze na wierzchu)
+  useEffect(() => {
+    const st = sceneRef.current; if (!st || failed) return;
+    if (measGrp.current) {
+      st.part.remove(measGrp.current);
+      measGrp.current.traverse((o) => {
+        const m = o as THREE.Mesh; m.geometry?.dispose();
+        const mat = m.material as (THREE.Material & { map?: THREE.Texture | null }) | undefined;
+        mat?.map?.dispose(); mat?.dispose();
+      });
+      measGrp.current = null;
+    }
+    if (!meas.length) { st.render(); return; }
+    const g = new THREE.Group(); g.renderOrder = 999;
+    const YEL = 0xfacc15;
+    const pts: number[] = [];
+    for (const m of meas) {
+      pts.push(m.a.x, m.a.y, m.a.z);
+      if (!m.b) continue;
+      pts.push(m.b.x, m.b.y, m.b.z);
+      const lg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(m.a.x, m.a.y, m.a.z), new THREE.Vector3(m.b.x, m.b.y, m.b.z)]);
+      const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: YEL, depthTest: false, transparent: true }));
+      line.renderOrder = 999; g.add(line);
+      const lb = measText3(m.a, m.b, mode);
+      const sp = screenLabel(lb.main, new THREE.Vector3((m.a.x + m.b.x) / 2, (m.a.y + m.b.y) / 2, (m.a.z + m.b.z) / 2));
+      g.add(sp);
+    }
+    const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
+    const dots = new THREE.Points(pg, new THREE.PointsMaterial({ color: YEL, size: 8, sizeAttenuation: false, depthTest: false, transparent: true }));
+    dots.renderOrder = 1000; g.add(dots);
+    st.part.add(g); measGrp.current = g;
+    st.render();
+  }, [meas, mode, failed]);
+
   if (failed) {
     return (
       <div className="sim-3d-fallback">
@@ -603,6 +673,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
             <button onClick={toggleGhost} aria-pressed={ghost}>{ghost ? "Materiał pełny" : "Materiał przezroczysty"}</button>
             {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView}>{machineView ? "Detal nieruchomy, narzędzie pochylone" : "Ruch stołu (jak na maszynie)"}</button>}
             {onTogglePath && <button onClick={onTogglePath} aria-pressed={!showPath}>{showPath ? "Ukryj tor narzędzia" : "Pokaż tor narzędzia"}</button>}
+            <button onClick={(e) => { setMeasure((v) => !v); (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); }} aria-pressed={measure}>{measure ? "Zakończ pomiar" : "Pomiar odległości"}</button>
           </div>
         </details>
         <div className="view3d-bar">
@@ -615,7 +686,22 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
           </button>
           {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView} title="Widok maszyny stół–stół: obraca się detal, wrzeciono stoi pionowo">STÓŁ</button>}
           {onTogglePath && <button onClick={onTogglePath} aria-pressed={showPath} title="Tor narzędzia na podglądzie">TOR</button>}
+          <button onClick={() => setMeasure((v) => !v)} aria-pressed={measure} title="Pomiar: kliknij dwa punkty na powierzchni detalu (obracanie widoku działa dalej)">MIARA</button>
         </div>
+        {(measure || meas.length > 0) && (
+          <div className="m3d" aria-live="polite">
+            {meas.map((m, i) => {
+              if (!m.b) return <div key={i} className="m3d-row"><b>{i + 1}.</b> {measText3(m.a, m.a, mode).at} — kliknij drugi punkt</div>;
+              const t = measText3(m.a, m.b, mode);
+              return <div key={i} className="m3d-row"><b>{i + 1}.</b> <span className="m3d-l">{t.main}</span> <span>{t.sub}</span></div>;
+            })}
+            {measure && !meas.length && <div className="m3d-row">Kliknij punkt na powierzchni detalu</div>}
+            <div className="m3d-act">
+              {meas.length > 0 && <button type="button" onClick={() => setMeas([])}>Wyczyść</button>}
+              {measure && <button type="button" onClick={() => setMeasure(false)}>Zakończ</button>}
+            </div>
+          </div>
+        )}
       </div>
       {!fill && <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>}
     </div>
@@ -1069,4 +1155,32 @@ function latheGeometryFrom(pr: LatheProfile | null) {
   }
   if (!parts.length) return null;
   return parts.reduce((a, b) => mergeGeo(a, b));
+}
+
+type P3 = { x: number; y: number; z: number };
+const f3 = (v: number) => (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3);
+/** Opis wymiaru 3D w osiach programu (scena: X, Y w górę = Z, Z = −Y; tokarka: X sceny = Z, promień = odległość od osi). */
+function measText3(a: P3, b: P3, mode: SimMode) {
+  const L = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
+  if (mode === "lathe") {
+    const ra = Math.hypot(a.y, a.z), rb = Math.hypot(b.y, b.z);
+    return { main: `${f3(L)} mm`, sub: `ΔZ ${f3(b.x - a.x)}  ΔX⌀ ${f3(2 * (rb - ra))}`, at: `Z${f3(a.x)} X${f3(2 * ra)}` };
+  }
+  return { main: `${f3(L)} mm`, sub: `ΔX ${f3(b.x - a.x)}  ΔY ${f3(-(b.z - a.z))}  ΔZ ${f3(b.y - a.y)}`, at: `X${f3(a.x)} Y${f3(-a.z)} Z${f3(a.y)}` };
+}
+
+/** Napis o stałym rozmiarze na ekranie (nie maleje przy oddalaniu), zawsze na wierzchu. */
+function screenLabel(text: string, pos: THREE.Vector3) {
+  const w = Math.max(96, 26 * text.length + 28);
+  const cv = document.createElement("canvas"); cv.width = w; cv.height = 64;
+  const c = cv.getContext("2d")!;
+  c.fillStyle = "rgba(5,7,10,0.88)"; c.fillRect(0, 0, w, 64);
+  c.strokeStyle = "rgba(250,204,21,0.8)"; c.lineWidth = 3; c.strokeRect(1.5, 1.5, w - 3, 61);
+  c.fillStyle = "#FACC15"; c.font = "600 40px ui-monospace, monospace"; c.textAlign = "center"; c.textBaseline = "middle";
+  c.fillText(text, w / 2, 33);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false, sizeAttenuation: false }));
+  const h = 0.042;
+  sp.position.copy(pos); sp.scale.set(h * (w / 64), h, 1); sp.center.set(0.5, -0.25);
+  sp.renderOrder = 1001;
+  return sp;
 }
