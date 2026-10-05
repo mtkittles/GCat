@@ -148,7 +148,7 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
     put(r, "kody/g17-g19.mdx", card + "\n## Bez kotwicy\n\nZobacz [[G999]].\n\n<Diagram id=\"nie-ma\" />\n\n<Script />\n\n{1 + 1}\n");
     const m = await errs(r);
     expect(m).toMatch(/kody\/g17-g19\.mdx:\d+:\d+ — nagłówek bez jawnej kotwicy/);
-    expect(m).toMatch(/kody\/g17-g19\.mdx:\d+:\d+ — marker \[\[G999\]\]: klucz „G999” nie pasuje/);
+    expect(m).toContain(`g17-g19.mdx:${card.split("\n").length + 3}:8 — marker [[G999]]: klucz „G999” nie pasuje`);
     expect(m).toContain('<Diagram id="nie-ma" /> — nie ma takiego rysunku');
     expect(m).toContain("nieznany komponent <Script>");
     expect(m).toContain("wyrażenie {…} jest niedozwolone");

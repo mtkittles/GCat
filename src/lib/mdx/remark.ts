@@ -89,6 +89,13 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     const issues: ContentIssue[] = [];
     const at = (n: { position?: { start: { line: number; column: number } } } | undefined, message: string) =>
       issues.push({ line: n?.position?.start.line, column: n?.position?.start.column, message });
+    /** pozycja znaku `i` w węźle tekstu (przybliżona przy ucieczkach \[ w źródle) */
+    const atText = (t: Text, i: number, message: string) => {
+      const p = t.position?.start;
+      if (!p) return at(t, message);
+      const before = t.value.slice(0, i).split("\n");
+      issues.push({ line: p.line + before.length - 1, column: before.length > 1 ? before[before.length - 1].length + 1 : p.column + i, message });
+    };
 
     // 1. Nagłówki: jawna, unikalna kotwica {#id}.
     const ids = new Set<string>();
@@ -131,7 +138,7 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       for (const m of s.matchAll(MARKER_RE)) {
         out.push(...codes(s.slice(last, m.index)));
         const key = m[1];
-        if (!resolveKey(key, opts.sources)) at(t, `marker [[${m[0].slice(2, -2)}]]: klucz „${key}” nie pasuje do żadnej karty ani hasła słownika`);
+        if (!resolveKey(key, opts.sources)) atText(t, m.index, `marker [[${m[0].slice(2, -2)}]]: klucz „${key}” nie pasuje do żadnej karty ani hasła słownika`);
         out.push(termEl(key, [{ type: "text", value: m[2] ?? key }]));
         last = m.index + m[0].length;
       }
