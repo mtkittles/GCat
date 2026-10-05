@@ -1,5 +1,6 @@
 import { flat, lessonHref, type Track } from "@/lib/course";
 import type { LibProgram } from "@/lib/programLibrary";
+import { camForma, camKopula } from "./cam";
 
 /* Gotowe programy: frezowanie i toczenie. Kolejność = kolejność w liście i galerii. */
 
@@ -1011,6 +1012,28 @@ G0 A0 C0
 M9
 M5
 M30`,
+  },
+  {
+    slug: "cam-forma", title: "Forma z powierzchnią swobodną (program z CAM)", mode: "mill", category: "Programy z CAM", level: "zaawansowany",
+    summary: "Tak wygląda program z CAM dla kształtu z modelu 3D: zgrubnie warstwami frezem Ø10 z naddatkiem, potem wykańczanie frezem kulistym Ø6 co 1 mm — około 7 tysięcy bloków samych współrzędnych.",
+    features: ["CAM", "G01", "frez kulisty", "3D"],
+    stock: { x: 80, y: 60, z: 25, ox: 0, oy: 0, oz: 25 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø10", d: 10, flutes: 3 },
+    2: { kind: "ballnose", name: "Frez kulisty Ø6", d: 6, flutes: 2, len: 20 }
+    },
+    src: camForma(),
+  },
+  {
+    slug: "cam-kopula-5osi", title: "Kopuła 5-osiowa z TCP (program z CAM)", mode: "mill", category: "Programy z CAM", level: "zaawansowany",
+    summary: "Zgrubnie okręgami wokół kopuły (3 osie), potem wykańczanie 5-osiowe po spirali: wierzchołek narzędzia na powierzchni (G43.4), oś narzędzia pochylona w stronę normalnej, A i C zmieniają się w każdym bloku.",
+    features: ["CAM", "G43.4", "A", "C", "5 osi jednocześnie"],
+    stock: { x: 60, y: 60, z: 40, ox: 30, oy: 30, oz: 40 },
+    tools: {
+    1: { kind: "endmill", name: "Frez walcowo-czołowy Ø12", d: 12, flutes: 4 },
+    2: { kind: "ballnose", name: "Frez kulisty Ø6", d: 6, flutes: 2, len: 25 }
+    },
+    src: camKopula(),
   },
   {
     slug: "walek-gcat", title: "Wałek stopniowany GCat", mode: "lathe", category: "Detale kompletne", level: "zaawansowany",

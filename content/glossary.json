@@ -74,6 +74,19 @@
     ]
   },
   {
+    "term": "CAM (program z modelu 3D)",
+    "aliases": [
+      "CAM",
+      "postprocesor",
+      "program z CAM"
+    ],
+    "def": "Oprogramowanie, które z modelu 3D liczy tor narzędzia, a postprocesor zapisuje go jako G-kod dla konkretnej maszyny. Kształty swobodne (formy, łopatki, kopuły) to tysiące krótkich ruchów G01 po powierzchni, często z osiami obrotowymi i TCP. Taki plik wczytasz w symulatorze przyciskiem „Wczytaj plik”.",
+    "see": [
+      "g43-4",
+      "osie-abc"
+    ]
+  },
+  {
     "term": "Cykl stały",
     "aliases": [
       "cykl",

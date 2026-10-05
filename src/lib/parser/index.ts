@@ -77,6 +77,8 @@ export function tokenize(raw: string): { words: Word[]; comment: string | null }
     if (c) comment = comment ? `${comment} ${c}` : c;
     text = text.slice(0, semi);
   }
+  // Przypisania Sinumerika (A3=0.7, CR=5, R1=10, _X0=…) to parametry, nie osie — inaczej A3=0.7 czytałoby się jako A3.
+  text = text.replace(/\b[A-Za-z_][A-Za-z_0-9]*\s*=\s*(?:"[^"]*"|[^\s;]+)/g, " ");
   const words: Word[] = [];
   const re = /([A-Za-z])\s*([-+]?\d*\.?\d+)/g;
   let m: RegExpExecArray | null;
@@ -202,6 +204,11 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
     const kwTrans = bare.match(/(^|[^A-Z])(ATRANS|TRANS)(?![A-Z])/)?.[2] as "TRANS" | "ATRANS" | undefined;
     const kwOther = bare.match(/(^|[^A-Z])(AROT|ROT|ASCALE|SCALE|AMIRROR|MIRROR|SUPA)(?![A-Z])/)?.[2];
     const kwTra = bare.match(/(^|[^A-Z])(TRAORI|TRAFOOF)(?![A-Z])/)?.[2];
+    // Programy z CAM: ustawienia obróbki szybkiej i orientacji — opis, bez wpływu na tor
+    const kwCam = bare.match(/(^|[^A-Z])(CYCLE832|COMPCAD|COMPCURV|COMPON|COMPOF|SOFT|BRISK|FFWON|FFWOF|ORIWKS|ORIMKS|ORIAXES|ORIVECT|UPATH|SPATH)(?![A-Z0-9])/)?.[2];
+    // Orientacja narzędzia wektorem (Sinumerik TRAORI: A3= B3= C3=)
+    const vec3: Partial<Record<"x" | "y" | "z", number>> = {};
+    for (const m of bare.matchAll(/(^|[^A-Z_])([ABC])3\s*=\s*([-+]?\d*\.?\d+)/g)) vec3[m[2] === "A" ? "x" : m[2] === "B" ? "y" : "z"] = Number(m[3]);
 
     // Jednostki ustalamy przed przeliczeniem słów: G20/G21 w tym samym bloku
     // obowiązuje już dla jego współrzędnych.
@@ -319,9 +326,19 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         case 42: s.comp = 42; desc.push("Kompensacja promienia — prawa (G42)"); break;
         case 43: desc.push(`Korekcja długości narzędzia H${fmt(get("H") ?? 0)} (G43)`); break;
         case 49:
-          if (s.tcp) { s.tcp = false; frameChanged = true; desc.push("Wyłącz TCP i korekcję długości (G49)"); }
+          if (s.tcp) { s.tcp = false; s.tcpVec = false; frameChanged = true; desc.push("Wyłącz TCP i korekcję długości (G49)"); }
           else desc.push("Wyłącz korekcję długości (G49)");
           break;
+        case 43.5:
+          s.tcp = true; s.tcpVec = true; frameChanged = true;
+          desc.push(`TCP z wektorem osi narzędzia H${fmt(get("H") ?? 0)} (G43.5): X Y Z to wierzchołek, I J K — kierunek osi narzędzia`);
+          break;
+        case 5.1: desc.push("Sterowanie AI kontur (G05.1) — wyprzedzanie bloków i wygładzanie; tor w symulatorze bez zmian"); break;
+        case 5: desc.push("Obróbka szybka HPCC (G05) — tor w symulatorze bez zmian"); break;
+        case 8: desc.push("Sterowanie z wyprzedzeniem (G08) — tor w symulatorze bez zmian"); break;
+        case 61.1: desc.push("Sterowanie kształtem z wyprzedzeniem (G61.1) — tor w symulatorze bez zmian"); break;
+        case 641: case 642: case 645: desc.push(`Przejścia między blokami z wygładzaniem (G${g}) — tor w symulatorze bez zmian`); break;
+        case 601: case 602: case 603: desc.push(`Dokładne zatrzymanie (G${g}) — tor w symulatorze bez zmian`); break;
         case 43.4:
           s.tcp = true; frameChanged = true;
           desc.push(`TCP — sterowanie wierzchołkiem narzędzia H${fmt(get("H") ?? 0)} (G43.4): X Y Z to wierzchołek w układzie detalu, ${axesName} ustawiają oś narzędzia`);
@@ -428,7 +445,8 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
 
     // Sinumerik: TRAORI — transformacja 5-osiowa (TCP), TRAFOOF — wyłączenie.
     if (kwTra === "TRAORI") { s.tcp = true; frameChanged = true; desc.push(`TRAORI — transformacja 5-osiowa: X Y Z to wierzchołek narzędzia w układzie detalu, ${axesName} ustawiają oś narzędzia`); }
-    else if (kwTra === "TRAFOOF") { if (s.tcp) frameChanged = true; s.tcp = false; desc.push("TRAFOOF — wyłączenie transformacji 5-osiowej"); }
+    else if (kwTra === "TRAFOOF") { if (s.tcp) frameChanged = true; s.tcp = false; s.tcpVec = false; desc.push("TRAFOOF — wyłączenie transformacji 5-osiowej"); }
+    if (kwCam) desc.push(`${kwCam} — ${kwCam === "CYCLE832" ? "ustawienia obróbki szybkiej (tolerancja, wygładzanie)" : kwCam.startsWith("ORI") ? "sposób interpolacji orientacji narzędzia" : kwCam.endsWith("PATH") ? "sposób interpolacji ścieżki" : "kompresja / wygładzanie / sterowanie z wyprzedzeniem"} — tor w symulatorze bez zmian`);
 
     // Sinumerik CYCLE800(_FR, _TC, _ST, _MODE, _X0, _Y0, _Z0, _A, _B, _C, _X1, _Y1, _Z1, _DIR, …).
     if (c800) {
@@ -644,6 +662,21 @@ export function parseProgram(source: string, opts: ParseOptions = {}, start?: Ma
         moved.push(`${ax.toUpperCase()}${fmt(rot[ax]!)}°`);
       }
       if (moved.length) { s.rotary = rot; rotaryMoved = true; desc.push(`Oś obrotowa: ${moved.join(" ")}`); }
+      // TCP z wektorem osi narzędzia: Sinumerik A3= B3= C3=, Fanuc G43.5 I J K (w ruchu G00/G01) → kąty stołu
+      const vi = s.tcpVec && (s.motion === 0 || s.motion === 1) ? { x: get("I"), y: get("J"), z: get("K") } : {};
+      const vx = vec3.x ?? vi.x, vy = vec3.y ?? vi.y, vz = vec3.z ?? vi.z;
+      if (s.tcp && (vx !== undefined || vy !== undefined || vz !== undefined)) {
+        const n = { x: vx ?? 0, y: vy ?? 0, z: vz ?? 0 };
+        const ang = solveAngles(kin, n, rot3(s.rotary));
+        if (!ang) errors.push("Tego kierunku osi narzędzia nie ustawią osie stołu tej maszyny.");
+        else {
+          const nr: { a?: number; b?: number; c?: number } = { ...(s.rotary ?? {}) };
+          if (kin !== "BC") nr.a = ang.a; else nr.b = ang.b;
+          if (kin !== "A") nr.c = ang.c;
+          s.rotary = nr; rotaryMoved = true;
+          desc.push(`Oś narzędzia (${fmt(n.x)}, ${fmt(n.y)}, ${fmt(n.z)}) → ${kin !== "BC" ? `A${fmt(Math.round((nr.a ?? 0) * 1000) / 1000)}°` : `B${fmt(Math.round((nr.b ?? 0) * 1000) / 1000)}°`}${kin !== "A" ? ` C${fmt(Math.round((nr.c ?? 0) * 1000) / 1000)}°` : ""}`);
+        }
+      }
     }
 
     // Bloki ustawiające układ współrzędnych albo rejestry nie wykonują ruchu,

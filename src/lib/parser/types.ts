@@ -69,6 +69,8 @@ export interface MachineState {
    * X Y Z to wierzchołek narzędzia w układzie detalu, osie obrotowe ustawiają tylko orientację.
    */
   tcp?: boolean;
+  /** Fanuc G43.5: w ruchach G00/G01 I J K to wektor osi narzędzia (nie środek łuku). */
+  tcpVec?: boolean;
   /**
    * Płaszczyzna pochylona (Fanuc G68.2, Sinumerik CYCLE800): początek `o` i orientacja `m`
    * w układzie detalu. X Y Z programu są w tym pochylonym układzie.

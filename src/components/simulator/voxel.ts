@@ -87,8 +87,13 @@ function stamp(f: Float32Array, m: VoxMeta, px: number, py: number, pz: number, 
       for (let ci = c(i0 - 2, m.cx); ci <= c(i1 + 1, m.cx); ci++) dirty.add(chunkKey(m, ci, cj, ck));
 }
 
-/** Nanosi ubytek z zakresu postępu [from, to]; `dirty` dostaje numery kawałków do przebudowy. */
-export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: number[], program: Program, setup: Setup, from: number, to: number, dirty: Set<number>) {
+/**
+ * Nanosi ubytek z zakresu postępu [from, to]; `dirty` dostaje numery kawałków do przebudowy.
+ * `deadline` (performance.now()) — długie programy z CAM liczone porcjami: zwraca postęp,
+ * do którego zdążyło (resztę dolicza się w następnych klatkach).
+ */
+export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: number[], program: Program, setup: Setup, from: number, to: number, dirty: Set<number>, deadline = Infinity): number {
+  let stamps = 0;
   let acc = 0;
   for (let i = 0; i < segs.length; i++) {
     const sg = segs[i], len = lengths[i];
@@ -109,8 +114,10 @@ export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: 
       const t = t0 + ((t1 - t0) * k) / steps;
       const p = pointAt(sg, t), n = axisAt(sg, t);
       stamp(f, m, p.x, p.y, p.z, n.x, n.y, n.z, r, L, prof, dirty);
+      if ((++stamps & 31) === 0 && deadline !== Infinity && performance.now() > deadline && k < steps) return s0 + t * len;
     }
   }
+  return to;
 }
 
 /** Wszystkie kawałki (pierwsza budowa siatki). */
@@ -209,4 +216,42 @@ export function voxSample(f: Float32Array, m: VoxMeta, x: number, y: number, z: 
     l(l(at(i, j, k + 1), at(i + 1, j, k + 1), tx), l(at(i, j + 1, k + 1), at(i + 1, j + 1, k + 1), tx), ty),
     tz,
   );
+}
+
+/** Obrys kilku półfabrykatów jednym prostopadłościanem (5 osi: jeden detal na stole). */
+export function unionBox(boxes: PieceBox[]): PieceBox | null {
+  if (!boxes.length) return null;
+  return boxes.reduce((a, b) => ({ ...a, x0: Math.min(a.x0, b.x0), x1: Math.max(a.x1, b.x1), y0: Math.min(a.y0, b.y0), y1: Math.max(a.y1, b.y1), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) }));
+}
+
+/**
+ * Widok z góry modelu objętościowego: obraz RGBA (nx × ny, wiersz 0 = największe Y),
+ * jasność z cieniowania wzgórzowego i głębokości — dla widoku 2D przy obróbce 4/5-osiowej.
+ */
+export function voxTopImage(f: Float32Array, m: VoxMeta, top: number, bottom: number): { w: number; h: number; data: Uint8ClampedArray<ArrayBuffer> } {
+  const { nx, ny, nz } = m;
+  const zt = new Float32Array(nx * ny).fill(NaN);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    for (let k = nz - 2; k >= 0; k--) {
+      const a = f[i + nx * (j + ny * k)];
+      if (a > 0) {
+        const b = f[i + nx * (j + ny * (k + 1))];
+        zt[j * nx + i] = m.z0 + (k + (b < 0 ? a / (a - b) : 0)) * m.h;
+        break;
+      }
+    }
+  }
+  const data = new Uint8ClampedArray(new ArrayBuffer(nx * ny * 4));
+  const L = { x: -0.5, y: 0.5, z: 0.707 }, depth = Math.max(0.5, top - bottom);
+  const at = (i: number, j: number, fb: number) => { const v = zt[Math.min(ny - 1, Math.max(0, j)) * nx + Math.min(nx - 1, Math.max(0, i))]; return Number.isNaN(v) ? fb : v; };
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const v = zt[j * nx + i];
+    const o = ((ny - 1 - j) * nx + i) * 4;
+    if (Number.isNaN(v)) continue;
+    const dx = (at(i + 1, j, v) - at(i - 1, j, v)) / (2 * m.h), dy = (at(i, j + 1, v) - at(i, j - 1, v)) / (2 * m.h);
+    const lam = Math.max(0, (-dx * L.x - dy * L.y + L.z) / Math.hypot(dx, dy, 1));
+    const t = Math.max(0, Math.min(1, (0.3 + 0.7 * lam) * (1 - 0.65 * Math.min(1, (top - v) / depth))));
+    data[o] = 50 + 170 * t; data[o + 1] = 58 + 172 * t; data[o + 2] = 72 + 170 * t; data[o + 3] = 225;
+  }
+  return { w: nx, h: ny, data };
 }

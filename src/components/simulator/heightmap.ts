@@ -30,17 +30,22 @@ export function millMeta(box: PieceBox, count: number, cap: number, coarse = fal
   return { minX, maxX, minY, maxY, top, bottom, nx, ny, cx: (maxX - minX) / nx, cy: (maxY - minY) / ny };
 }
 
-/** Nanosi na mapę wysokości ubytek z podanego zakresu postępu. */
-export function carve(h: Float32Array, m: MillMeta, program: Program, lengths: number[], setup: Setup, mode: "mill" | "lathe", from: number, to: number) {
+/**
+ * Nanosi na mapę wysokości ubytek z podanego zakresu postępu. `deadline` (performance.now()) —
+ * długie programy z CAM liczone porcjami: zwraca postęp, do którego zdążyło.
+ */
+export function carve(h: Float32Array, m: MillMeta, program: Program, lengths: number[], setup: Setup, mode: "mill" | "lathe", from: number, to: number, deadline = Infinity): number {
   let acc = 0;
-  program.segments.forEach((sg, i) => {
+  for (let i = 0; i < program.segments.length; i++) {
+    const sg = program.segments[i];
     const len = lengths[i];
     const segStart = acc, segEnd = acc + len;
     acc = segEnd;
-    if (sg.kind === "rapid" || sg.kind === "dwell" || segEnd <= from || segStart >= to) return;
+    if (sg.kind === "rapid" || sg.kind === "dwell" || segEnd <= from || segStart >= to) continue;
+    if (deadline !== Infinity && performance.now() > deadline) return Math.max(from, segStart);
     const t0 = Math.max(0, (from - segStart) / (len || 1));
     const t1 = Math.min(1, (to - segStart) / (len || 1));
-    if (t1 <= t0) return;
+    if (t1 <= t0) continue;
     const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
     const r = cuttingRadius(tl), prof = toolProfile(tl);
     const steps = Math.max(1, Math.ceil((len * (t1 - t0)) / (Math.min(m.cx, m.cy) * 0.7)));
@@ -60,5 +65,6 @@ export function carve(h: Float32Array, m: MillMeta, program: Program, lengths: n
         }
       }
     }
-  });
+  }
+  return to;
 }
