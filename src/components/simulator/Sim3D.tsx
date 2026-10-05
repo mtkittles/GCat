@@ -343,12 +343,21 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
         const meta = voxMeta(box, voxBudget());
         if (v?.group) for (const m of v.meshes.values()) m.geometry.dispose();
         v = { key, f: voxInit(meta, box), meta, progress: 0, dirty: allChunks(meta), meshes: new Map(), group: null };
-        // stół obrotowy pod detalem (obraca się razem z nim w widoku maszyny)
+        // mocowanie (obraca się razem z detalem w widoku maszyny): 4. oś A — tarcza na lewym czole,
+        // stół A/C i B/C — stół obrotowy pod detalem
         const g = new THREE.Group();
-        const R = 0.55 * Math.hypot(box.x1 - box.x0, box.y1 - box.y0) + 8;
-        const table = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 8, 64), new THREE.MeshStandardMaterial({ color: 0x3f4855, metalness: 0.45, roughness: 0.5 }));
-        table.position.set((box.x0 + box.x1) / 2, box.bottom - 4.05, -(box.y0 + box.y1) / 2);
-        g.add(table);
+        const fixMat = new THREE.MeshStandardMaterial({ color: 0x3f4855, metalness: 0.45, roughness: 0.5 });
+        if (kin === "A") {
+          const R = 0.6 * Math.hypot(box.y1 - box.y0, box.top - box.bottom) + 6;
+          const plate = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 10, 64), fixMat);
+          plate.rotation.z = Math.PI / 2; plate.position.set(box.x0 - 5.05, 0, 0);
+          g.add(plate);
+        } else {
+          const R = 0.55 * Math.hypot(box.x1 - box.x0, box.y1 - box.y0) + 8;
+          const table = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 8, 64), fixMat);
+          table.position.set((box.x0 + box.x1) / 2, box.bottom - 4.05, -(box.y0 + box.y1) / 2);
+          g.add(table);
+        }
         v.group = g; obj = g;
       } else fresh = false;
       if (progress > v.progress) { voxCarve(v.f, v.meta, program.segments as PartSeg[], lengths, program, setup, v.progress, progress, v.dirty); v.progress = progress; }

@@ -170,7 +170,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
             <figcaption className="cap">Program do przeczytania — symulator nie odtwarza tej funkcji.</figcaption>
           </figure>
         ) : (
-          <SimClient initial={g.example} mode={mode} />
+          <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
         )}
       </section>
       {g.sinumerik && (

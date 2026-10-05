@@ -28,6 +28,8 @@ const gcodeLang = StreamLanguage.define({
     if (stream.match(/[IiJjKkRr]\s*[-+]?\d*\.?\d+/)) return "propertyName";
     if (stream.match(/[FfSs]\s*[-+]?\d*\.?\d+/)) return "string";
     if (stream.match(/[TtHhDdPpQqLl]\s*\d*\.?\d+/)) return "variableName";
+    // słowa kluczowe Sinumerika (cykle, transformacje, ramki) — bez liczby po literze, ale poprawne
+    if (stream.match(/(CYCLE\d+|TRAORI|TRAFOOF|TRACYL|TRANSMIT|ATRANS|TRANS|AROT|ROT|ASCALE|SCALE|AMIRROR|MIRROR|SUPA)(?![A-Za-z])/i)) return "keyword";
     if (stream.match(/[A-Za-z]+/) || stream.match(/[-+]?\d*\.?\d+/)) return "invalid";
     stream.next(); return null;
   },

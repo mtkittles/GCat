@@ -106,8 +106,14 @@ export function axisByAxis(mode: number, ang: { x: number; y: number; z: number 
   return m;
 }
 
-/** Kinematyka z liter użytych w programie: oś B → stół B/C, w pozostałych przypadkach A/C. */
+/**
+ * Kinematyka z liter użytych w programie: oś B → stół B/C; oś C albo płaszczyzna pochylona
+ * (G68.2 / CYCLE800) → A/C; sama oś A → 4. oś A. Bez osi obrotowych — A/C (bez znaczenia).
+ */
 export function detectKin(source: string): Kin {
-  const clean = source.replace(/\([^)]*\)/g, " ").replace(/;[^\n]*/g, " ").toUpperCase();
-  return /(^|[^A-Z_])B\s*=?\s*[-+]?\.?\d/m.test(clean) ? "BC" : "AC";
+  const clean = source.replace(/;[^\n]*/g, " ").replace(/CYCLE800\s*\([^)]*\)/gi, " CYCLE800 ").replace(/\([^)]*\)/g, " ").toUpperCase();
+  const word = (l: string) => new RegExp(`(^|[^A-Z_])${l}\\s*=?\\s*[-+]?\\.?\\d`, "m").test(clean);
+  if (word("B")) return "BC";
+  if (word("C") || /G0*68\.2|CYCLE800|G0*43\.4|TRAORI/.test(clean)) return "AC";
+  return word("A") ? "A" : "AC";
 }

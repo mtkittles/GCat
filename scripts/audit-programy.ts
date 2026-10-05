@@ -18,7 +18,7 @@ type Item = { where: string; src: string; mode: Mode; starter?: boolean; dialect
 const items: Item[] = [];
 const add = (where: string, src: string | undefined, mode: Mode = "mill", starter = false) => { if (src) items.push({ where, src, mode, starter }); };
 
-for (const g of gcodes) if (g.simulate !== false) add(`kody/${g.slug}`, g.example, g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill"));
+for (const g of gcodes) if (g.simulate !== false) items.push({ where: `kody/${g.slug}`, src: g.example, mode: g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill"), dialect: g.exampleDialect });
 for (const e of exercises) { add(`zadania/${e.slug} starter`, e.starter, e.mode, true); add(`zadania/${e.slug} wzorzec`, e.reference, e.mode); }
 for (const [slug, blocks] of Object.entries(articles)) (blocks as Block[]).forEach((b, i) => { if (b.t === "sim" || b.t === "demo") add(`artykuł ${slug} blok ${i}`, b.src, b.mode ?? "mill"); });
 for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) {

@@ -1,5 +1,30 @@
 [
   {
+    "term": "3+2 (obróbka pozycjonowana)",
+    "aliases": [
+      "3+2",
+      "obróbka 3+2",
+      "5 osi pozycjonowane"
+    ],
+    "def": "Dwie osie obrotowe ustawiają detal pod kątem i stoją, a skrawa się trzema osiami liniowymi. Tak obrabia się pochylone ściany, otwory pod kątem i boki detalu z jednego zamocowania. Fanuc: G68.2 + G53.1, Sinumerik: CYCLE800.",
+    "see": [
+      "g68-2-g53-1",
+      "cycle800"
+    ]
+  },
+  {
+    "term": "4. oś",
+    "aliases": [
+      "czwarta oś",
+      "stół obrotowy",
+      "podzielnica"
+    ],
+    "def": "Oś obrotowa dołożona do frezarki 3-osiowej — zwykle A, obracająca detal wokół X. Służy do obróbki kilku ścian z jednego zamocowania (indeksowanie) i do rowków na walcu (ruch jednoczesny X i A).",
+    "see": [
+      "osie-abc"
+    ]
+  },
+  {
     "term": "Adres",
     "aliases": [
       "słowo"
@@ -232,6 +257,18 @@
     "see": [
       "g02",
       "g40-g42"
+    ]
+  },
+  {
+    "term": "Kinematyka stół–stół",
+    "aliases": [
+      "trunnion",
+      "stół uchylny",
+      "kołyska"
+    ],
+    "def": "Budowa frezarki 5-osiowej, w której obie osie obrotowe są w stole: kołyska A albo B pochyla stół, a stół C obraca detal. Wrzeciono zostaje pionowe. Inne układy to głowica–głowica i głowica–stół.",
+    "see": [
+      "osie-abc"
     ]
   },
   {
@@ -688,6 +725,20 @@
     "see": [
       "g96-g97",
       "g50"
+    ]
+  },
+  {
+    "term": "TCP (sterowanie wierzchołkiem narzędzia)",
+    "aliases": [
+      "TCP",
+      "TCPM",
+      "RTCP",
+      "Tool Center Point"
+    ],
+    "def": "Tryb, w którym sterownik pilnuje położenia wierzchołka narzędzia na detalu, a osie obrotowe zmieniają tylko jego pochylenie. Potrzebny w obróbce 5-osiowej jednoczesnej. Fanuc: G43.4, Sinumerik: TRAORI.",
+    "see": [
+      "g43-4",
+      "traori"
     ]
   },
   {

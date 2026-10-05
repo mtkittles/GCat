@@ -15,6 +15,10 @@ export interface GCode {
   simulate?: boolean;
   /** Tryb symulatora dla przykładu, gdy karta dotyczy obu maszyn, a przykład jest tokarski. */
   exampleMode?: "mill" | "lathe";
+  /** Półfabrykat przykładu (frezarka: prostopadłościan z zerem) — gdy automatyczny nie pasuje, np. przy 4/5 osiach. */
+  exampleStock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
+  /** Sterownik, w którego języku zapisano przykład (brak = Fanuc). */
+  exampleDialect?: "fanuc" | "sinumerik";
 }
 
 export const gcodes = data as GCode[];
