@@ -110,6 +110,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [full, setFull] = useState(false);
   const [tall, setTall] = useState(false);
   const [showStock, setShowStock] = useState(true);
+  // tor narzędzia na podglądzie — przy gęstych programach z CAM zasłania powierzchnię detalu
+  const [showPath, setShowPath] = useState(true);
   const [fs, setFs] = useState(false);
   // telefon: podgląd u góry, program pod spodem
   const [split, setSplit] = useState(false);
@@ -644,13 +646,15 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
     // ścieżka
     const bare = compact || showcase;
+    // gęsty program (z CAM): tor przygaszony, żeby było widać materiał
+    const dense = segments.length > 2500;
     let acc = 0;
-    segments.forEach((sg, i) => {
+    if (showPath) segments.forEach((sg, i) => {
       const len = lengths[i];
       const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
       if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-      drawSeg(ctx, sg, P, 1, showcase ? 0.32 : 0.34, showcase);
-      if (done > 0) drawSeg(ctx, sg, P, done, 1, showcase);
+      drawSeg(ctx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
+      if (done > 0) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
       acc += len;
     });
 
@@ -781,7 +785,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -822,6 +826,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
         ))}
         <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
+        <label><input type="checkbox" checked={showPath} onChange={(e) => setShowPath(e.target.checked)} />Tor narzędzia na podglądzie</label>
         <label className="lay-units"><span>Jednostki</span>
           <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
             <option value="auto">auto (G20/G21)</option><option value="mm">milimetry</option><option value="inch">cale</option>
@@ -1115,7 +1120,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -1157,6 +1162,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               <span>Warstwa materiału</span>
               <button type="button" className="m-toggle" aria-label="Warstwa materiału" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)}><i /></button>
             </div>
+            <div className="m-set-row">
+              <span>Tor narzędzia</span>
+              <button type="button" className="m-toggle" aria-label="Tor narzędzia" aria-pressed={showPath} onClick={() => setShowPath((v) => !v)}><i /></button>
+            </div>
             {comp.active && (
               <div className="m-set-row">
                 <span>{mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor z korekcją G41/G42"}</span>
@@ -1190,7 +1199,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
             toolbar={viewSwitch}
             view={show3d
-              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} /></Sim3DBoundary>
+              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary>
               : <canvas ref={fsCanvasRef} className="fs-canvas" style={{ touchAction: "none" }} />}
             status={statusStrip}
             transport={transportBar}

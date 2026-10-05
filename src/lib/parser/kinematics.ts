@@ -111,7 +111,8 @@ export function axisByAxis(mode: number, ang: { x: number; y: number; z: number 
  * (G68.2 / CYCLE800) → A/C; sama oś A → 4. oś A. Bez osi obrotowych — A/C (bez znaczenia).
  */
 export function detectKin(source: string): Kin {
-  const clean = source.replace(/;[^\n]*/g, " ").replace(/CYCLE800\s*\([^)]*\)/gi, " CYCLE800 ").replace(/\([^)]*\)/g, " ").toUpperCase();
+  const clean = source.replace(/;[^\n]*/g, " ").replace(/CYCLE800\s*\([^)]*\)/gi, " CYCLE800 ").replace(/\([^)]*\)/g, " ").toUpperCase()
+    .replace(/\b[A-Z_][A-Z_0-9]*\s*=\s*(?:"[^"]*"|\S+)/g, " ");   // przypisania (A3=0.7 — wektor, nie oś)
   const word = (l: string) => new RegExp(`(^|[^A-Z_])${l}\\s*=?\\s*[-+]?\\.?\\d`, "m").test(clean);
   if (word("B")) return "BC";
   if (word("C") || /G0*68\.2|CYCLE800|G0*43\.4|TRAORI/.test(clean)) return "AC";

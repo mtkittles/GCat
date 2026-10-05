@@ -16,7 +16,7 @@ import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean; /** Kinematyka stołu 4/5 osi — do widoku ruchu stołu. */ kin?: Kin }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean; /** Kinematyka stołu 4/5 osi — do widoku ruchu stołu. */ kin?: Kin; /** Tor narzędzia widoczny. */ showPath?: boolean; onTogglePath?: () => void }
 
 
 /**
@@ -35,9 +35,10 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true, kin = "AC" }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true, kin = "AC", showPath = true, onTogglePath }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const showStockRef = useRef(showStock);
+  const showPathRef = useRef(showPath);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
   const program = useMemo(() => {
     if (!segs) return parsed;
@@ -81,6 +82,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const gridRef = useRef<THREE.GridHelper | null>(null);
   const frameRef = useRef<((bb: THREE.Box3) => void) | null>(null);
   const lastFrameKey = useRef("");
+  const voxMeshT = useRef(0);
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
   const toolRef = useRef<Tool>(tool);
   const programRef = useRef(program);
@@ -247,7 +249,9 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     if (!pts.length) return;
     const lg = new THREE.BufferGeometry().setFromPoints(pts);
     lg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-    const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
+    // gęsty program z CAM: tor przygaszony, żeby było widać powierzchnię detalu
+    const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: program.segments.length > 2500 ? 0.22 : 0.6 }));
+    line.visible = showPathRef.current;
     st.path = line;
     st.part.add(line);
     st.render();
@@ -373,7 +377,15 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
         }
         v.group = g; obj = g;
       } else fresh = false;
-      if (progress > v.progress) { voxCarve(v.f, v.meta, program.segments as PartSeg[], lengths, program, setup, v.progress, progress, v.dirty); v.progress = progress; }
+      if (progress > v.progress) {
+        // porcja ~25 ms na klatkę — skok na koniec długiego programu nie zamraża strony
+        v.progress = voxCarve(v.f, v.meta, program.segments as PartSeg[], lengths, program, setup, v.progress, progress, v.dirty, performance.now() + 25);
+        if (v.progress < progress && !trailT.current) trailT.current = setTimeout(() => { trailT.current = null; lastMeshT.current = 0; setMeshTick((t) => t + 1); }, 0);
+      }
+      // w trakcie liczenia porcjami siatka odświeża się co ~200 ms, na końcu — zawsze
+      const carving = v.progress < progress;
+      if (carving && v.meshes.size && performance.now() - voxMeshT.current < 200) { voxRef.current = v; st.render(); return; }
+      voxMeshT.current = performance.now();
       for (const k of v.dirty) {
         const old = v.meshes.get(k);
         if (old) { v.group!.remove(old); old.geometry.dispose(); v.meshes.delete(k); }
@@ -398,8 +410,11 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
           buf = { key, parts, progress: 0 };
         }
         if (progress > buf.progress) {
-          for (const p of buf.parts) carve(p.h, p.meta, program, lengths, setup, mode, buf.progress, progress);
-          buf.progress = progress;
+          // porcja ~25 ms na klatkę (pierwszy detal wyznacza, dokąd doszło; reszta dociąga do tego miejsca)
+          let reach = progress;
+          buf.parts.forEach((p, k) => { reach = carve(p.h, p.meta, program, lengths, setup, mode, buf!.progress, reach, k === 0 ? performance.now() + 25 : Infinity); });
+          buf.progress = reach;
+          if (reach < progress && !trailT.current) trailT.current = setTimeout(() => { trailT.current = null; lastMeshT.current = 0; setMeshTick((t) => t + 1); }, 0);
         }
         hmRef.current = buf;
         const mr = meshRef.current;
@@ -473,6 +488,13 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     st.stockMat.visible = showStock;
     st.render();
   }, [showStock]);
+
+  useEffect(() => {
+    showPathRef.current = showPath;
+    const st = sceneRef.current; if (!st) return;
+    if (st.path) st.path.visible = showPath;
+    st.render();
+  }, [showPath]);
 
   const toggleGhost = () => {
     const st = sceneRef.current; if (!st) return;
@@ -580,6 +602,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
             ))}
             <button onClick={toggleGhost} aria-pressed={ghost}>{ghost ? "Materiał pełny" : "Materiał przezroczysty"}</button>
             {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView}>{machineView ? "Detal nieruchomy, narzędzie pochylone" : "Ruch stołu (jak na maszynie)"}</button>}
+            {onTogglePath && <button onClick={onTogglePath} aria-pressed={!showPath}>{showPath ? "Ukryj tor narzędzia" : "Pokaż tor narzędzia"}</button>}
           </div>
         </details>
         <div className="view3d-bar">
@@ -591,6 +614,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
             {ghost ? "PEŁNY" : "PRZEZR."}
           </button>
           {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView} title="Widok maszyny stół–stół: obraca się detal, wrzeciono stoi pionowo">STÓŁ</button>}
+          {onTogglePath && <button onClick={onTogglePath} aria-pressed={showPath} title="Tor narzędzia na podglądzie">TOR</button>}
         </div>
       </div>
       {!fill && <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>}
@@ -878,7 +902,7 @@ function voxBudget() {
   if (typeof window === "undefined") return 300_000;
   const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
   if (window.innerWidth < 900) return mem <= 4 ? 220_000 : 380_000;
-  return mem < 8 ? 650_000 : 1_000_000;
+  return mem < 8 ? 500_000 : 750_000;
 }
 
 /** G-kod: X w prawo, Y od siebie, Z w górę → three: X, Y(up)=Z, Z=-Y. Tokarka: Z wzdłuż osi obrotu → three X, X promień → three Y. */

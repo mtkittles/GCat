@@ -88,4 +88,22 @@ M30`, { dialect: "sinumerik" });
     near(cut.to, { x: 10, y: -2, z: 0 });
     near(axisAt(cut, 1), { x: 0, y: 1, z: 0 });
   });
+
+  it("Sinumerik TRAORI z wektorem A3= B3= C3=: oś narzędzia z wektora, A3 nie jest osią A", () => {
+    const p = parseProgram("G17 G90 G54\nTRAORI\nG1 X0 Y0 Z0 A3=0 B3=-1 C3=0 F1000\nTRAFOOF\nM30", { dialect: "sinumerik" });
+    expect(p.lines[2].errors).toEqual([]);
+    near(toolAxis("AC", p.lines[2].state.rotary), { x: 0, y: -1, z: 0 });
+    expect(p.lines[2].state.rotary?.a).toBeCloseTo(-90);
+  });
+
+  it("Fanuc G43.5: I J K w G01 to wektor osi narzędzia", () => {
+    const p = parseProgram("G90 G54\nG43.5 H1\nG01 X0 Y0 Z0 I0.7071 J0 K0.7071 F1000\nG49\nM30");
+    near(toolAxis("AC", p.lines[2].state.rotary), { x: Math.SQRT1_2, y: 0, z: Math.SQRT1_2 });
+  });
+
+  it("przypisania Sinumerika (CR=, R1=) nie zmieniają osi obrotowych", () => {
+    const p = parseProgram("G17 G90\nR1=30\nG0 X0 Y0 Z5\nG2 X10 Y0 CR=5 F100\nM30", { dialect: "sinumerik" });
+    expect(p.lines.every((l) => !l.state.rotary)).toBe(true);
+  });
 });
+

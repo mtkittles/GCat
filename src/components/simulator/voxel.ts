@@ -87,8 +87,13 @@ function stamp(f: Float32Array, m: VoxMeta, px: number, py: number, pz: number, 
       for (let ci = c(i0 - 2, m.cx); ci <= c(i1 + 1, m.cx); ci++) dirty.add(chunkKey(m, ci, cj, ck));
 }
 
-/** Nanosi ubytek z zakresu postępu [from, to]; `dirty` dostaje numery kawałków do przebudowy. */
-export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: number[], program: Program, setup: Setup, from: number, to: number, dirty: Set<number>) {
+/**
+ * Nanosi ubytek z zakresu postępu [from, to]; `dirty` dostaje numery kawałków do przebudowy.
+ * `deadline` (performance.now()) — długie programy z CAM liczone porcjami: zwraca postęp,
+ * do którego zdążyło (resztę dolicza się w następnych klatkach).
+ */
+export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: number[], program: Program, setup: Setup, from: number, to: number, dirty: Set<number>, deadline = Infinity): number {
+  let stamps = 0;
   let acc = 0;
   for (let i = 0; i < segs.length; i++) {
     const sg = segs[i], len = lengths[i];
@@ -109,8 +114,10 @@ export function voxCarve(f: Float32Array, m: VoxMeta, segs: PartSeg[], lengths: 
       const t = t0 + ((t1 - t0) * k) / steps;
       const p = pointAt(sg, t), n = axisAt(sg, t);
       stamp(f, m, p.x, p.y, p.z, n.x, n.y, n.z, r, L, prof, dirty);
+      if ((++stamps & 31) === 0 && deadline !== Infinity && performance.now() > deadline && k < steps) return s0 + t * len;
     }
   }
+  return to;
 }
 
 /** Wszystkie kawałki (pierwsza budowa siatki). */
@@ -243,8 +250,8 @@ export function voxTopImage(f: Float32Array, m: VoxMeta, top: number, bottom: nu
     if (Number.isNaN(v)) continue;
     const dx = (at(i + 1, j, v) - at(i - 1, j, v)) / (2 * m.h), dy = (at(i, j + 1, v) - at(i, j - 1, v)) / (2 * m.h);
     const lam = Math.max(0, (-dx * L.x - dy * L.y + L.z) / Math.hypot(dx, dy, 1));
-    const t = Math.max(0, Math.min(1, (0.3 + 0.7 * lam) * (1 - 0.5 * Math.min(1, (top - v) / depth))));
-    data[o] = 70 + 150 * t; data[o + 1] = 78 + 152 * t; data[o + 2] = 92 + 150 * t; data[o + 3] = 200;
+    const t = Math.max(0, Math.min(1, (0.3 + 0.7 * lam) * (1 - 0.65 * Math.min(1, (top - v) / depth))));
+    data[o] = 50 + 170 * t; data[o + 1] = 58 + 172 * t; data[o + 2] = 72 + 170 * t; data[o + 3] = 225;
   }
   return { w: nx, h: ny, data };
 }
