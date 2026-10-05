@@ -215,6 +215,8 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .gcode-editor .cm-activeLineGutter { color: var(--accent); font-weight: 700; }
 .caret-pos { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
 .caret-pos b { color: var(--accent); font-weight: 600; }
+.jump-opt { display: inline-flex; align-items: center; gap: .35rem; font-family: var(--font-mono); font-size: 12px; color: var(--muted); cursor: pointer; }
+.jump-opt input { accent-color: var(--accent); }
 
 /* ---------- klawiatura G-kodu ---------- */
 .pad { display: grid; gap: .4rem; }
@@ -1067,6 +1069,11 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 /* pomiar 3D: lista wymiarów w lewym dolnym rogu sceny */
 .m3d { position: absolute; z-index: 3; left: .5rem; bottom: .5rem; display: grid; gap: .2rem; max-width: min(420px, calc(100% - 1rem)); padding: .45rem .6rem; border-radius: var(--radius-sm); background: rgba(8,10,13,.85); border: 1px solid rgba(250,204,21,.45); font: 500 12px/1.4 var(--font-mono); color: #CBD5E1; backdrop-filter: blur(3px); }
 .m3d-row b { color: #94A3B8; font-weight: 700; }
+.m3d-tools { display: flex; gap: .25rem; flex-wrap: wrap; }
+.m3d-tools button { padding: .2rem .5rem; border-radius: 5px; border: 1px solid rgba(148,163,184,.3); background: transparent; color: #CBD5E1; font: 600 12px/1.2 var(--font-mono); }
+.m3d-tools button[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.m3d-hint { color: #FACC15; }
+@media (pointer: coarse) { .m3d-tools button { min-height: 34px; } }
 .m3d-l { color: #FACC15; font-weight: 700; }
 .m3d-act { display: flex; gap: .3rem; justify-content: flex-end; }
 .m3d-act button { padding: .2rem .55rem; border-radius: 5px; border: 1px solid rgba(148,163,184,.3); background: transparent; color: #E2E8F0; font: 600 12px/1.2 var(--font-mono); }
@@ -2082,6 +2089,9 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .z2d button:hover { background: rgba(249,115,22,.22); color: #fff; }
 .z2d button[aria-pressed="true"] { background: var(--accent); color: #fff; }
 .z2d-hint { padding: 0 .35rem; font: 500 11px/1 var(--font-mono); color: #FACC15; white-space: nowrap; }
+.z2d { flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 1rem); }
+.z2d-sep { width: 1px; height: 22px; margin: 0 .15rem; background: rgba(148,163,184,.3); }
+.z2d .z2d-tool { font-size: 15px; }
 @media (pointer: coarse) { .z2d button { min-width: 36px; height: 36px; } }
 .only-split { display: none; }
 .sim-bar { display: none; }

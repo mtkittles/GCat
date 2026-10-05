@@ -83,10 +83,14 @@ export interface EditorHandle {
   goToLine: (line: number) => void;
 }
 
-interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; follow?: boolean; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void }
+interface Props { value: string; onChange: (v: string) => void; activeLine?: number | null; follow?: boolean; errorLines?: number[]; warnLines?: number[]; onReady?: (h: EditorHandle) => void; onCaret?: (p: { line: number; col: number }) => void;
+  /** Kliknięcie (mysz / palec) w linię programu — numer linii od 0. */
+  onLineClick?: (line: number) => void }
 
-export default function GcodeEditor({ value, onChange, activeLine, follow = false, errorLines = [], warnLines = [], onReady, onCaret }: Props) {
+export default function GcodeEditor({ value, onChange, activeLine, follow = false, errorLines = [], warnLines = [], onReady, onCaret, onLineClick }: Props) {
   const host = useRef<HTMLDivElement>(null);
+  const lineClick = useRef(onLineClick);
+  useEffect(() => { lineClick.current = onLineClick; }, [onLineClick]);
   const viewRef = useRef<EditorView | null>(null);
   const marks = useRef({ activeLine, errorLines, warnLines });
   useEffect(() => { marks.current = { activeLine, errorLines, warnLines }; viewRef.current?.dispatch({}); }, [activeLine, errorLines, warnLines]);
@@ -134,6 +138,7 @@ export default function GcodeEditor({ value, onChange, activeLine, follow = fals
               const pos = u.state.selection.main.head;
               const line = u.state.doc.lineAt(pos);
               onCaret?.({ line: line.number, col: pos - line.from + 1 });
+              if (!u.docChanged && u.transactions.some((t) => t.isUserEvent("select.pointer"))) lineClick.current?.(line.number - 1);
             }
           }),
           EditorView.theme({ "&": { fontSize: "13px" }, ".cm-content": { fontFamily: "var(--font-mono)" }, ".cm-gutters": { background: "transparent", border: "none" } }),
