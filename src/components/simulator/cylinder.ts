@@ -271,3 +271,18 @@ export function contactAngle(y: number, aDeg: number, R: number): number {
   const phi = (Math.atan2(Math.sqrt(Math.max(0, R * R - y * y)), y) * 180) / Math.PI;
   return (((phi - aDeg) % 360) + 360) % 360;
 }
+
+/** Pole odległości walca po obróbce (dodatnie — materiał) w układzie detalu, do obrazów bez WebGL. */
+export function cylSdf(h: Float32Array, m: CylMeta) {
+  return (x: number, y: number, z: number): number => {
+    const ex = Math.min(x - m.x0, m.x1 - x);
+    if (ex < -1) return ex;
+    const zz = z - m.axisZ, rho = Math.hypot(y, zz);
+    const th = Math.atan2(zz, y);
+    const gi = th / m.ct, gj = clamp((x - m.x0) / m.cx, 0, m.nx);
+    const i = Math.floor(gi), j = Math.min(m.nx - 1, Math.floor(gj)), ti = gi - i, tj = gj - j;
+    const r = (h[cylIndex(m, j, i)] * (1 - ti) + h[cylIndex(m, j, i + 1)] * ti) * (1 - tj)
+      + (h[cylIndex(m, j + 1, i)] * (1 - ti) + h[cylIndex(m, j + 1, i + 1)] * ti) * tj;
+    return Math.min(ex, r - rho);
+  };
+}

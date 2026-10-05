@@ -59,6 +59,14 @@ const GROUPS: { name: string; keys: { l: string; ins: string; hint?: string }[] 
     ],
   },
   {
+    name: "4 i 5 osi",
+    keys: [
+      { l: "A", ins: "A", hint: "obrót wokół X" }, { l: "B", ins: "B", hint: "obrót wokół Y" }, { l: "C", ins: "C", hint: "obrót wokół Z" },
+      { l: "G68.2", ins: "G68.2 X0 Y0 Z0 I0 J0 K0\n", hint: "płaszczyzna pochylona" }, { l: "G53.1", ins: "G53.1\n", hint: "obrót stołu do płaszczyzny" },
+      { l: "G69", ins: "G69\n" }, { l: "G43.4", ins: "G43.4 H1\n", hint: "TCP" },
+    ],
+  },
+  {
     name: "Funkcje M",
     keys: [
       { l: "M03", ins: "M03\n" }, { l: "M04", ins: "M04\n" }, { l: "M05", ins: "M05\n" },
@@ -73,6 +81,7 @@ const SNIPPETS: { l: string; ins: string }[] = [
   { l: "Nowe narzędzie", ins: "T01 M06\nG43 H01 Z50\nS2000 M03\nM08\n" },
   { l: "Zakończenie", ins: "G00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30\n" },
   { l: "Komentarz", ins: "( )\n" },
+  { l: "Płaszczyzna 3+2", ins: "G00 Z100\nG68.2 X0 Y0 Z0 I0 J90 K0\nG53.1\nG43 H1 Z50\n" },
 ];
 
 export default function GcodePad({ onInsert }: { onInsert: (text: string) => void }) {

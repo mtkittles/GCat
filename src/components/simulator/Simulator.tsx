@@ -20,15 +20,18 @@ import { can } from "@/lib/entitlements";
 import Sim3DBoundary from "./Sim3DBoundary";
 import { TOOL_LABEL, cuttingRadius, defaultSetup, isLatheTool, toolOf, withProgramTools, type Setup, type Stock, type Tool } from "./setup";
 import {
+  detectKin,
   frameShift,
   inverseFrames,
   parseProgram,
   pointAt,
   playLength,
   wcsLabel,
+  type Kin,
   type Segment,
   type Vec3,
 } from "@/lib/parser";
+import { isMultiAxis, toPartFrame } from "./multiaxis";
 
 export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
@@ -87,7 +90,11 @@ const COLORS = {
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
-  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units, dialect }), [source, mode, units, dialect]);
+  // Kinematyka frezarki 4/5-osiowej: „auto” — z liter osi w programie (B → B/C, inaczej A/C).
+  const [kinSel, setKinSel] = useState<Kin | "auto">("auto");
+  const kinAuto = useMemo(() => detectKin(source), [source]);
+  const kin: Kin = kinSel === "auto" ? kinAuto : kinSel;
+  const program = useMemo(() => parseProgram(source, { diameterX: mode === "lathe", units, dialect, kin }), [source, mode, units, dialect, kin]);
   // Układ podglądu: na komputerze z ustawień zapamiętanych w przeglądarce, w trybie osadzonym — lokalnie.
   const layout = useSimLayout();
   const [localView, setLocalView] = useState<SimView>("2d");
@@ -135,10 +142,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setPrevStockKey(stockKey);
     setSetup((s2) => ({ ...s2, stock: stockProp ? { ...s2.stock, ...stockProp, auto: false } : { ...s2.stock, auto: true } }));
   }
+  // 4/5 osi (obrót stołu, TCP, płaszczyzna pochylona): podgląd i ubytek liczone w układzie detalu.
+  const multi = useMemo(() => mode === "mill" && !isCyl(setup, mode) && isMultiAxis(program), [mode, setup, program]);
+  const partSegs = useMemo(() => (multi ? toPartFrame(program.segments, kin) : null), [multi, program, kin]);
   const stockBox = useMemo<StockBox[] | undefined>(() => {
-    if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode)) return undefined;
+    if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode) || multi) return undefined;
     return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
-  }, [mode, setup, program]);
+  }, [mode, setup, program, multi]);
   const compR = useMemo(() => {
     const nums = Object.keys(setup.tools).map(Number);
     const t = setup.tools[nums[0]];
@@ -208,7 +218,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const plan = account.profile?.plan ?? "free";
   const proExports = can(plan, "exports");
   const comp = useMemo(() => applyCompensation(program, setup, mode), [program, setup, mode]);
-  const segments = showComp && comp.active ? comp.segments : program.segments;
+  const segments: Segment[] = partSegs ?? (showComp && comp.active ? comp.segments : program.segments);
+  // kadr 2D: przy 4/5 osiach z toru w układzie detalu, nie z osi maszyny
+  const viewBounds = useMemo(() => {
+    if (!partSegs) return program.bounds;
+    const min = { x: 0, y: 0, z: 0 }, max = { x: 0, y: 0, z: 0 };
+    for (const sg of partSegs) for (const p of [sg.from, sg.to]) for (const k of ["x", "y", "z"] as const) { min[k] = Math.min(min[k], p[k]); max[k] = Math.max(max[k], p[k]); }
+    return { min, max };
+  }, [partSegs, program]);
   const lengths = useMemo(() => segments.map(playLength), [segments]);
   // wymiary pręta na tokarce — widok musi objąć cały przekrój, nie tylko tor
   const latheStockBox = useMemo(() => {
@@ -342,7 +359,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     const [ha, va] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
-    const { min: bmin0, max: bmax0 } = program.bounds;
+    const { min: bmin0, max: bmax0 } = viewBounds;
     const sb = showStock && !compact ? latheStockBox : null;
     const bmin = sb ? { ...bmin0, z: Math.min(bmin0.z, sb.z0) } : bmin0;
     const bmax = sb ? { ...bmax0, x: Math.max(bmax0.x, sb.R0), z: Math.max(bmax0.z, sb.z1) } : bmax0;
@@ -467,7 +484,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // Warstwa materiału: prostokąt półfabrykatu, z którego ODEJMUJEMY ślad
     // narzędzia. Dzięki temu widać, co zostało, a nie gdzie przejechał frez —
     // tak jak w symulatorach z podglądem ubytku.
-    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode)) {
+    // (4/5 osi: ślad z góry nie oddaje obróbki z boku — materiał pokazuje widok 3D)
+    if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode) && !multi) {
       const boxes = stockBoxes(program, segments, setup);
       if (boxes.length) {
         const layer = document.createElement("canvas");
@@ -577,7 +595,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // przy podglądzie korekcji: kontur z programu jako cienka linia przerywana
-    if (showComp && comp.active && !compact) {
+    if (showComp && comp.active && !compact && !multi) {
       ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "rgba(248,250,252,0.5)"; ctx.lineWidth = 1.2;
       program.segments.forEach((sg) => {
         if (sg.kind === "rapid" || sg.kind === "dwell") return;
@@ -734,7 +752,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -854,6 +872,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}</span>
         {mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}
         <span>Z {fmt(currentPos.z)}</span>
+        {st?.rotary && (["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <span key={k}>{k.toUpperCase()} {fmt(st.rotary![k]!)}°</span>)}
         {offsetActive && <span title="W układzie programu">prog X {fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}{mode === "mill" ? ` Y ${fmt(progPos.y)}` : ""} Z {fmt(progPos.z)}</span>}
         <span>{st?.feed != null ? `F ${st.feed}` : "F --"}</span>
         <span>{st?.spindle != null ? `S ${st.spindle}` : "S --"}</span>
@@ -1067,7 +1086,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           onPointerMove={(e) => { if (compact || e.buttons === 0 && e.pointerType !== "mouse") return; if (e.pointerType === "mouse" && e.buttons === 0) { readProbe(e); return; } readProbe(e); }}
           onPointerUp={() => setProbe(null)}
           onPointerLeave={() => setProbe(null)} />
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -1093,7 +1112,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           </div>
         )}
 
-        {!compact && <div className="wb-aside-inline m-tools"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} defaultOpen={appLayout} /></div>}
+        {!compact && <div className="wb-aside-inline m-tools"><SetupPanel mode={mode} setup={setup} onChange={setSetup} activeTool={activeToolNo} defaultOpen={appLayout} kin={kinSel} kinAuto={kinAuto} onKin={setKinSel} /></div>}
         {!compact && <div className="wb-aside-inline m-sim"><StatsPanel program={program} setup={setup} mode={mode} /></div>}
         {appLayout && !compact && (
           <div className="m-settings m-set m-only">
@@ -1142,7 +1161,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
             toolbar={viewSwitch}
             view={show3d
-              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} /></Sim3DBoundary>
+              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} /></Sim3DBoundary>
               : <canvas ref={fsCanvasRef} className="fs-canvas" style={{ touchAction: "none" }} />}
             status={statusStrip}
             transport={transportBar}

@@ -6,7 +6,9 @@ import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfil
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
-import { parseProgram, playLength, pointAt, type Segment, type Vec3 } from "@/lib/parser";
+import { parseProgram, playLength, pointAt, tableMat, type Kin, type Segment, type Vec3 } from "@/lib/parser";
+import { axisAt, rotAt, type PartSeg } from "./multiaxis";
+import { allChunks, voxCarve, voxChunkMesh, voxInit, voxMeta, type VoxMeta } from "./voxel";
 import { stockBoxes } from "./pieces";
 import { carve, millMeta, type MillMeta } from "./heightmap";
 import { angleAt, carveCyl, cylInit, cylMesh, cylMeta, cylUpdate, fixtureOf, isCyl, type CylMeta } from "./cylinder";
@@ -14,7 +16,7 @@ import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean; /** Kinematyka stołu 4/5 osi — do widoku ruchu stołu. */ kin?: Kin }
 
 
 /**
@@ -33,11 +35,21 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true, kin = "AC" }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const showStockRef = useRef(showStock);
   const parsed = useMemo(() => parseProgram(source, { diameterX: mode === "lathe" }), [source, mode]);
-  const program = useMemo(() => (segs ? { ...parsed, segments: segs } : parsed), [parsed, segs]);
+  const program = useMemo(() => {
+    if (!segs) return parsed;
+    // 4/5 osi: tor w układzie detalu — kadr z jego obrysu, nie z osi maszyny
+    if (!segs.some((sg) => (sg as PartSeg).tax)) return { ...parsed, segments: segs };
+    const min = { x: 0, y: 0, z: 0 }, max = { x: 0, y: 0, z: 0 };
+    for (const sg of segs) for (const p of [sg.from, sg.to]) for (const k of ["x", "y", "z"] as const) { min[k] = Math.min(min[k], p[k]); max[k] = Math.max(max[k], p[k]); }
+    return { ...parsed, segments: segs, bounds: { min, max } };
+  }, [parsed, segs]);
+  // Frezowanie 4/5-osiowe na prostopadłościanie: ubytek objętościowy, narzędzie pochylone, stół obrotowy.
+  const multi = mode === "mill" && !isCyl(setup, mode) && program.segments.some((sg) => !!(sg as PartSeg).tax);
+  const [machineView, setMachineView] = useState(false);
   const lengths = useMemo(() => program.segments.map(playLength), [program]);
   // narzędzie aktywne w bieżącym miejscu programu
   const activeToolNo = useMemo(() => {
@@ -59,6 +71,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   // siatka półfabrykatu frezarki używana ponownie między klatkami + dławienie odświeżania w trakcie animacji
   const meshRef = useRef<{ parts: { h: Float32Array; meta: MillMeta }[]; geos: THREE.BufferGeometry[] } | null>(null);
   // Walec na 4. osi: mapa promienia i siatka (grupa obracana o kąt A).
+  const voxRef = useRef<{ key: string; f: Float32Array; meta: VoxMeta; progress: number; dirty: Set<number>; meshes: Map<number, THREE.Mesh>; group: THREE.Group | null } | null>(null);
   const cylRef = useRef<{ key: string; h: Float32Array; meta: CylMeta; progress: number; geo: THREE.BufferGeometry | null; group: THREE.Group | null } | null>(null);
   const lastMeshT = useRef(0);
   const trailT = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,7 +82,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const toolRef = useRef<Tool>(tool);
   const programRef = useRef(program);
   useEffect(() => { toolRef.current = tool; programRef.current = program; }, [tool, program]);
-  const sceneRef = useRef<{ scene: THREE.Scene; stock: THREE.Object3D | null; threads: THREE.Group | null; path: THREE.LineSegments | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
+  const sceneRef = useRef<{ scene: THREE.Scene; part: THREE.Group; stock: THREE.Object3D | null; threads: THREE.Group | null; path: THREE.LineSegments | null; tool: THREE.Mesh; render: () => void; stockMat: THREE.MeshStandardMaterial } | null>(null);
   useEffect(() => {
     const el = mountRef.current; if (!el) return;
     if (!webglAvailable()) { queueMicrotask(() => setFailed("no-webgl")); return; }
@@ -96,8 +109,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     scene.add(new THREE.AxesHelper(30));
     for (const [label, pos, color] of axisLabels(mode)) scene.add(makeLabel(label, pos, color));
     // znacznik zera detalu
+    // detal (półfabrykat, tor, znacznik zera) w jednej grupie — w widoku maszyny 5-osiowej obraca się ze stołem
+    const part = new THREE.Group(); scene.add(part);
     const om = new THREE.Mesh(new THREE.SphereGeometry(1.6, 16, 12), new THREE.MeshBasicMaterial({ color: 0xF97316 }));
-    scene.add(om);
+    part.add(om);
 
     // narzędzie
     const toolLen = 30;
@@ -122,7 +137,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     // Renderowanie na żądanie: klatka powstaje tylko po zmianie (ruch kamery, postęp, widok).
     // Bezczynna scena nie obciąża karty graficznej ani wątku strony.
     let dirty = true;
-    const st = { scene, stock: null as THREE.Object3D | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { dirty = true; }, stockMat };
+    const st = { scene, part, stock: null as THREE.Object3D | null, threads: null as THREE.Group | null, path: null as THREE.LineSegments | null, tool: toolMesh, render: () => { dirty = true; }, stockMat };
     sceneRef.current = st;
 
     // kamera na obszar + gotowe ustawienia widoku
@@ -208,7 +223,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   // Przebudowa toru narzędzia po zmianie programu.
   useEffect(() => {
     const st = sceneRef.current; if (!st || failed) return;
-    if (st.path) { st.scene.remove(st.path); st.path.geometry.dispose(); st.path = null; }
+    if (st.path) { st.part.remove(st.path); st.path.geometry.dispose(); st.path = null; }
     const pts: THREE.Vector3[] = []; const cols: number[] = [];
     const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
     for (const sg of program.segments) {
@@ -225,7 +240,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     lg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
     const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.6 }));
     st.path = line;
-    st.scene.add(line);
+    st.part.add(line);
     st.render();
   }, [program, mode, failed]);
 
@@ -237,13 +252,32 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const cut = program.segments.filter((s) => s.kind !== "rapid" && s.kind !== "dwell");
     // pozycja
     let acc = 0; let pos: Vec3 = program.segments[0]?.from ?? { x: 0, y: 0, z: 0 };
-    program.segments.forEach((sg, i) => { const len = lengths[i]; const d = Math.min(1, Math.max(0, (progress - acc) / (len || 1))); if (d > 0) pos = d < 1 ? pointAt(sg, d) : sg.to; acc += len; });
-    st.tool.position.copy(toW(pos, mode));
+    let curSeg: Segment | null = program.segments[0] ?? null, curT = 0;
+    program.segments.forEach((sg, i) => { const len = lengths[i]; const d = Math.min(1, Math.max(0, (progress - acc) / (len || 1))); if (d > 0) { pos = d < 1 ? pointAt(sg, d) : sg.to; curSeg = sg; curT = d; } acc += len; });
+    if (multi && curSeg) {
+      // 5 osi: oś narzędzia z kątów stołu. Widok detalu — pochylone narzędzie; widok maszyny — obraca się stół.
+      const seg: Segment = curSeg;
+      if (machineView) {
+        const R = tableMat(kin, rotAt(seg, curT));
+        st.part.quaternion.copy(machineQuat(R));
+        st.tool.quaternion.identity();
+        st.tool.position.copy(toW({ x: R[0] * pos.x + R[1] * pos.y + R[2] * pos.z, y: R[3] * pos.x + R[4] * pos.y + R[5] * pos.z, z: R[6] * pos.x + R[7] * pos.y + R[8] * pos.z }, mode));
+      } else {
+        const ax = axisAt(seg as PartSeg, curT);
+        st.part.quaternion.identity();
+        st.tool.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), toW(ax, mode).normalize());
+        st.tool.position.copy(toW(pos, mode));
+      }
+    } else {
+      st.part.quaternion.identity();
+      if (mode === "mill") st.tool.rotation.set((safe(tool.tiltA, 0, -90, 90) * Math.PI) / 180, 0, -(safe(tool.tiltB, 0, -90, 90) * Math.PI) / 180);
+      st.tool.position.copy(toW(pos, mode));
+    }
 
     // Dławienie: w trakcie animacji bryła odświeża się co ~70 ms (pozycja narzędzia — co klatkę).
     // Ostatni stan zawsze się dorysuje (zegar końcowy), więc po pauzie widok jest aktualny.
     const now = performance.now();
-    const sameRun = hmRef.current && progress >= hmRef.current.progress;
+    const sameRun = multi ? voxRef.current && progress >= voxRef.current.progress : hmRef.current && progress >= hmRef.current.progress;
     if (sameRun && now - lastMeshT.current < 70) {
       if (!trailT.current) trailT.current = setTimeout(() => { trailT.current = null; lastMeshT.current = 0; setMeshTick((t) => t + 1); }, 80);
       st.render();
@@ -299,6 +333,48 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       }
       // obrót stołu A (prawoskrętnie wokół +X maszyny = wokół +X świata)
       const grp = c.group; if (grp) grp.rotation.x = (angleAt(program, lengths, progress) * Math.PI) / 180;
+    } else if (multi) {
+      const key = JSON.stringify([source, kin, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner, t.len, t.angle])]);
+      let v = voxRef.current;
+      if (!v || v.key !== key || progress < v.progress) {
+        const boxes = stockBoxes(program, cut.length ? cut : program.segments, setup);
+        const box = boxes.length ? boxes.reduce((a, b) => ({ ...a, x0: Math.min(a.x0, b.x0), x1: Math.max(a.x1, b.x1), y0: Math.min(a.y0, b.y0), y1: Math.max(a.y1, b.y1), top: Math.max(a.top, b.top), bottom: Math.min(a.bottom, b.bottom) }))
+          : { x0: -25, x1: 25, y0: -25, y1: 25, top: 0, bottom: -25, origin: { x: 0, y: 0, z: 0 } };
+        const meta = voxMeta(box, voxBudget());
+        if (v?.group) for (const m of v.meshes.values()) m.geometry.dispose();
+        v = { key, f: voxInit(meta, box), meta, progress: 0, dirty: allChunks(meta), meshes: new Map(), group: null };
+        // mocowanie (obraca się razem z detalem w widoku maszyny): 4. oś A — tarcza na lewym czole,
+        // stół A/C i B/C — stół obrotowy pod detalem
+        const g = new THREE.Group();
+        const fixMat = new THREE.MeshStandardMaterial({ color: 0x3f4855, metalness: 0.45, roughness: 0.5 });
+        if (kin === "A") {
+          const R = 0.6 * Math.hypot(box.y1 - box.y0, box.top - box.bottom) + 6;
+          const plate = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 10, 64), fixMat);
+          plate.rotation.z = Math.PI / 2; plate.position.set(box.x0 - 5.05, 0, 0);
+          g.add(plate);
+        } else {
+          const R = 0.55 * Math.hypot(box.x1 - box.x0, box.y1 - box.y0) + 8;
+          const table = new THREE.Mesh(new THREE.CylinderGeometry(R, R, 8, 64), fixMat);
+          table.position.set((box.x0 + box.x1) / 2, box.bottom - 4.05, -(box.y0 + box.y1) / 2);
+          g.add(table);
+        }
+        v.group = g; obj = g;
+      } else fresh = false;
+      if (progress > v.progress) { voxCarve(v.f, v.meta, program.segments as PartSeg[], lengths, program, setup, v.progress, progress, v.dirty); v.progress = progress; }
+      for (const k of v.dirty) {
+        const old = v.meshes.get(k);
+        if (old) { v.group!.remove(old); old.geometry.dispose(); v.meshes.delete(k); }
+        const cm = voxChunkMesh(v.f, v.meta, k);
+        if (!cm) continue;
+        const geo = new THREE.BufferGeometry();
+        geo.setAttribute("position", new THREE.BufferAttribute(cm.pos, 3));
+        geo.setAttribute("normal", new THREE.BufferAttribute(cm.nrm, 3));
+        geo.setIndex(new THREE.BufferAttribute(cm.idx, 1));
+        const mesh = new THREE.Mesh(geo, st.stockMat);
+        v.group!.add(mesh); v.meshes.set(k, mesh);
+      }
+      v.dirty.clear();
+      voxRef.current = v;
     } else if (mode === "mill") {
       if (cut.length) {
         const key = JSON.stringify([source, setup.stock, Object.entries(setup.tools).map(([n, t]) => [n, t.kind, t.d, t.corner])]);
@@ -330,10 +406,10 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       obj = geo ? new THREE.Mesh(geo, st.stockMat) : null;
     }
     if (fresh) {
-      if (st.stock) { st.scene.remove(st.stock); disposeTree(st.stock); st.stock = null; }
+      if (st.stock) { st.part.remove(st.stock); disposeTree(st.stock); st.stock = null; }
       if (obj) {
         st.stock = obj;
-        st.scene.add(obj);
+        st.part.add(obj);
         // siatka zawsze pod detalem — czytelne odniesienie do podłoża
         if (gridRef.current) {
           const bb = new THREE.Box3().setFromObject(obj);
@@ -343,20 +419,20 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
 
     // zarys gwintu w otworach — przebudowa tylko, gdy zmienił się zestaw lub głębokość otworów
-    if (mode === "mill") {
+    if (mode === "mill" && !multi) {
       const holes = threadHoles(program, lengths, progress, setup, mode);
       const hk = JSON.stringify(holes.map((h) => [h.x.toFixed(2), h.y.toFixed(2), h.bottom.toFixed(1)]));
       if (hk !== threadKey.current || !st.threads !== !holes.length) {
         threadKey.current = hk;
-        if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; }
+        if (st.threads) { st.part.remove(st.threads); disposeTree(st.threads); st.threads = null; }
         const tg = holes.length ? threadGroup(holes) : null;
-        if (tg) { st.threads = tg; st.scene.add(tg); }
+        if (tg) { st.threads = tg; st.part.add(tg); }
       }
-    } else if (st.threads) { st.scene.remove(st.threads); disposeTree(st.threads); st.threads = null; threadKey.current = ""; }
+    } else if (st.threads) { st.part.remove(st.threads); disposeTree(st.threads); st.threads = null; threadKey.current = ""; }
     st.render();
     } catch { broke = true; }
     if (broke) queueMicrotask(() => setFailed("error"));
-  }, [program, lengths, progress, mode, toolD, setup, tool, failed, source, meshTick]);
+  }, [program, lengths, progress, mode, toolD, setup, tool, failed, source, meshTick, multi, machineView, kin]);
   useEffect(() => () => { if (trailT.current) clearTimeout(trailT.current); }, []);
 
   // Eksport bryły półfabrykatu po obróbce (mapa wysokości / profil) do STL w milimetrach.
@@ -488,6 +564,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
               <button key={k} onClick={(e) => { setView(k); (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); }}>{l}</button>
             ))}
             <button onClick={toggleGhost} aria-pressed={ghost}>{ghost ? "Materiał pełny" : "Materiał przezroczysty"}</button>
+            {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView}>{machineView ? "Detal nieruchomy, narzędzie pochylone" : "Ruch stołu (jak na maszynie)"}</button>}
           </div>
         </details>
         <div className="view3d-bar">
@@ -498,6 +575,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
           <button onClick={toggleGhost} aria-pressed={ghost} title="Półfabrykat półprzezroczysty — widać gotowy detal w jego wnętrzu">
             {ghost ? "PEŁNY" : "PRZEZR."}
           </button>
+          {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView} title="Widok maszyny stół–stół: obraca się detal, wrzeciono stoi pionowo">STÓŁ</button>}
         </div>
       </div>
       {!fill && <p className="text-xs text-muted">Obracaj palcem lub myszą, przybliżaj szczypcami. Widok jest zsynchronizowany z symulacją 2D — sterowanie znajdziesz powyżej.</p>}
@@ -690,6 +768,24 @@ function latheToolGeo(tool: Tool): THREE.BufferGeometry {
   const hold = extrude(o.holder, 7);
   hold.translate(0, 0, -6);
   return mergeGeo(ins, hold);
+}
+
+/** Obrót stołu (macierz w osiach maszyny) jako kwaternion sceny: świat = T·R·Tᵀ, T: (x, y, z) → (x, z, −y). */
+function machineQuat(R: number[]): THREE.Quaternion {
+  // kolumny R w osiach maszyny → kolumny w świecie
+  const col = (j: number) => new THREE.Vector3(R[j], R[6 + j], -R[3 + j]);
+  const ex = col(0), ey = col(1), ez = col(2);           // obraz osi X, Y, Z maszyny
+  // oś świata X = maszyna X, oś świata Y = maszyna Z, oś świata Z = −maszyna Y
+  const m = new THREE.Matrix4().makeBasis(ex, ez, ey.clone().negate());
+  return new THREE.Quaternion().setFromRotationMatrix(m);
+}
+
+/** Budżet punktów siatki objętościowej — telefon oszczędnie, komputer gęściej. */
+function voxBudget() {
+  if (typeof window === "undefined") return 300_000;
+  const mem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 8;
+  if (window.innerWidth < 900) return mem <= 4 ? 220_000 : 380_000;
+  return mem < 8 ? 650_000 : 1_000_000;
 }
 
 /** G-kod: X w prawo, Y od siebie, Z w górę → three: X, Y(up)=Z, Z=-Y. Tokarka: Z wzdłuż osi obrotu → three X, X promień → three Y. */

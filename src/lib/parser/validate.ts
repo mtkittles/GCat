@@ -17,6 +17,7 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
   const L = program.lines;
   let sawToolChange = false, sawG43 = false, sawM30 = false, sawSpindle = false, sawMotion = false;
   let firstCutLine: number | null = null;
+  let pendingTilt: number | null = null;   // G68.2 bez G53.1 przed pierwszym ruchem
 
   L.forEach((l) => {
     for (const e of l.errors) out.push({ line: l.index, level: "error", msg: e });
@@ -38,12 +39,17 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
       if (gs.includes(54.1)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G54.1 P_ dodatkowe układy to G505–G599." });
       if (gs.includes(10)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: nie ma G10 — przesunięcia zapisuje się przez $P_UIFR[n], dane narzędzi przez $TC_DP…" });
       if (gs.includes(52)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: zamiast G52 przesunięcie programowalne to TRANS / ATRANS." });
+      if (gs.includes(68.2) || gs.includes(53.1)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: płaszczyznę pochyloną ustawia CYCLE800 (z _DIR ≠ 0 obraca też stół), nie G68.2 / G53.1." });
+      if (gs.includes(43.4)) out.push({ line: l.index, level: "warn", msg: "Sinumerik: sterowanie wierzchołkiem narzędzia (TCP) włącza TRAORI, wyłącza TRAFOOF — nie G43.4." });
     } else {
       if (gs.includes(70) || gs.includes(71)) if (l.state.plane === 17) out.push({ line: l.index, level: "warn", msg: "G70/G71 na frezarce Fanuc to nie jednostki (to cykle tokarskie). Jednostki: G20/G21." });
       const bare = l.raw.replace(/\([^)]*\)/g, "").replace(/;.*$/, "").toUpperCase();
       const kw = bare.match(/(^|[^A-Z])(ATRANS|TRANS|AROT|ROT|SUPA)(?![A-Z])/)?.[2];
       if (kw) out.push({ line: l.index, level: "warn", msg: `${kw} to składnia Sinumerika. Fanuc: ${kw === "SUPA" ? "G53" : kw.endsWith("ROT") ? "G68/G69" : "G52 (lokalnie) albo G92"}.` });
       if (gs.some((g) => g === 500 || (g >= 505 && g <= 599))) out.push({ line: l.index, level: "warn", msg: "G500/G505… to układy Sinumerika. Fanuc: G54–G59 i G54.1 P_." });
+      if (/CYCLE800/.test(bare)) out.push({ line: l.index, level: "warn", msg: "CYCLE800 to cykl Sinumerika. Fanuc: płaszczyzna pochylona G68.2 X_ Y_ Z_ I_ J_ K_, potem G53.1 (obrót stołu)." });
+      const tra = bare.match(/(^|[^A-Z])(TRAORI|TRAFOOF)(?![A-Z])/)?.[2];
+      if (tra) out.push({ line: l.index, level: "warn", msg: `${tra} to składnia Sinumerika. Fanuc: ${tra === "TRAORI" ? "G43.4 H_ (TCP)" : "G49"}.` });
     }
 
     // G04 — postój
@@ -62,7 +68,14 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
     }
 
     if (ms.includes(6)) { sawToolChange = true; sawG43 = false; }
-    if (gs.includes(43)) sawG43 = true;
+    if (gs.includes(43) || gs.includes(43.4)) sawG43 = true;
+    // G68.2 ustawia tylko układ — bez G53.1 narzędzie zostaje pionowe, choć współrzędne są już pochylone
+    if (gs.includes(68.2)) pendingTilt = l.index;
+    if (gs.includes(53.1) || gs.includes(69)) pendingTilt = null;
+    if (pendingTilt !== null && !gs.includes(68.2) && l.segments.some((sg) => sg.kind !== "dwell")) {
+      out.push({ line: pendingTilt, level: "warn", msg: "Po G68.2 brak G53.1 — stół się nie obrócił, narzędzie stoi pionowo, a X Y Z są już w pochylonym układzie." });
+      pendingTilt = null;
+    }
     if (ms.includes(3) || ms.includes(4)) sawSpindle = true;
     if (ms.includes(5)) sawSpindle = false;
     if (ms.includes(30) || ms.includes(2)) sawM30 = true;

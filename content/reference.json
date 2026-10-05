@@ -190,6 +190,13 @@
       0
     ],
     [
+      "G43.4",
+      "TCP — sterowanie wierzchołkiem narzędzia (5 osi)",
+      "g43-4",
+      1,
+      0
+    ],
+    [
       "G44",
       "Korekcja długości narzędzia (−)",
       "g43-g49",
@@ -223,6 +230,13 @@
       "g52-g53",
       1,
       1
+    ],
+    [
+      "G53.1",
+      "Obrót stołu prostopadle do płaszczyzny G68.2",
+      "g68-2-g53-1",
+      1,
+      0
     ],
     [
       "G54–G59",
@@ -263,6 +277,13 @@
       "G68",
       "Obrót układu współrzędnych — włącz",
       "g68-g69",
+      1,
+      0
+    ],
+    [
+      "G68.2",
+      "Płaszczyzna pochylona (obróbka 3+2)",
+      "g68-2-g53-1",
       1,
       0
     ],
