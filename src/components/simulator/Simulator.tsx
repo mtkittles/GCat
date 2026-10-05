@@ -33,7 +33,7 @@ import {
 } from "@/lib/parser";
 import { isMultiAxis, toPartFrame } from "./multiaxis";
 import { unionBox, voxCarve, voxInit, voxMeta, voxTopImage, type VoxMeta } from "./voxel";
-import { arcNear, measLabel, nearestSnap, snapPoints, type Meas2, type Pt2 } from "./measure2d";
+import { buildGeo, drawEnt, drawMeas, measOf, pickEnt, placeLin, radOf, type Ent, type Meas2, type MeasTool, type Pt2 } from "./measure2d";
 
 export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
@@ -116,6 +116,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [showStock, setShowStock] = useState(true);
   // tor narzędzia na podglądzie — przy gęstych programach z CAM zasłania powierzchnię detalu
   const [showPath, setShowPath] = useState(true);
+  // poza stroną symulatora (lekcje): opcja „klik w linię” bez zapisu w przeglądarce
+  const [jumpLocal, setJumpLocal] = useState(false);
   const [fs, setFs] = useState(false);
   // telefon: podgląd u góry, program pod spodem
   const [split, setSplit] = useState(false);
@@ -129,9 +131,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // 2D: powiększenie/przesunięcie widoku i pomiary (wymiar między punktami, promień łuku)
   const [zoom, setZoom] = useState(Z0);
   const [measure, setMeasure] = useState(false);
+  const [mTool, setMTool] = useState<MeasTool>("dist");
   const [meas, setMeas] = useState<Meas2[]>([]);
-  const [pending, setPending] = useState<Pt2 | null>(null);
-  const [hover, setHover] = useState<{ p: Pt2; snap: boolean; arc: { c: Pt2; r: number; p: Pt2 } | null } | null>(null);
+  // wskazane elementy (pierwszy z dwóch) i — dla wymiaru punkt–punkt — punkty czekające na położenie linii wymiarowej
+  const [picks, setPicks] = useState<Ent[]>([]);
+  const [placing, setPlacing] = useState<[Pt2, Pt2] | null>(null);
+  const [hover, setHover] = useState<{ e: Ent | null; cur: Pt2 } | null>(null);
+  const pending = picks.length > 0 || !!placing;
   const gest = useRef<{ pts: Map<number, { x: number; y: number }>; pinch: { d0: number; mx: number; my: number; z: typeof Z0 } | null; pan: { x: number; y: number; z: typeof Z0 } | null; panning: boolean; down: { x: number; y: number; id: number } | null }>({ pts: new Map(), pinch: null, pan: null, panning: false, down: null });
   const unrollRef = useRef<UnrollCache | null>(null);
   // 2D przy 4/5 osiach: model objętościowy (rzadszy niż w 3D) i jego obraz z góry
@@ -150,7 +156,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setSetup((s2) => ({ ...s2, tools: toolsProp ? { ...toolsProp } : defaultSetup(mode).tools }));
   }
   const [prevMode, setPrevMode] = useState(mode);
-  if (prevMode !== mode) { setPrevMode(mode); setZoom(Z0); setMeas([]); setPending(null); setSetup({ ...defaultSetup(mode), ...(toolsProp ? { tools: { ...toolsProp } } : {}), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
+  if (prevMode !== mode) { setPrevMode(mode); setZoom(Z0); setMeas([]); setPicks([]); setPlacing(null); setSetup({ ...defaultSetup(mode), ...(toolsProp ? { tools: { ...toolsProp } } : {}), stock: stockProp ? { ...defaultSetup(mode).stock, ...stockProp, auto: false } : defaultSetup(mode).stock }); }
 
   const stockKey = stockProp ? JSON.stringify(stockProp) : "";
   const [prevStockKey, setPrevStockKey] = useState(stockKey);
@@ -161,7 +167,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const base = { ...defaultSetup(mode).stock, perWcs: s2.stock.perWcs };
       return { ...s2, stock: stockProp ? { ...base, ...stockProp, auto: false } : base };
     });
-    setZoom(Z0); setMeas([]); setPending(null);
+    setZoom(Z0); setMeas([]); setPicks([]); setPlacing(null);
   }
   // 4/5 osi (obrót stołu, TCP, płaszczyzna pochylona): podgląd i ubytek liczone w układzie detalu.
   const multi = useMemo(() => mode === "mill" && !isCyl(setup, mode) && isMultiAxis(program), [mode, setup, program]);
@@ -764,62 +770,18 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.restore();
     ctx.beginPath(); ctx.moveTo(tx - 10, ty); ctx.lineTo(tx + 10, ty); ctx.moveTo(tx, ty - 10); ctx.lineTo(tx, ty + 10); ctx.stroke();
 
-    // pomiary: wymiary jak na rysunku (żółte), punkt w toku i przyciąganie pod kursorem
+    // pomiary: wymiary jak na rysunku (żółte); ostatni z opisem szczegółów, podgląd pod kursorem
     if (!bare && (meas.length || pending || (measure && hover))) {
       const Q = (p: Pt2) => P({ x: 0, y: 0, z: 0, [ha]: p[0], [va]: p[1] } as Vec3);
-      const YEL = "#FACC15";
-      const arrow = (x: number, y: number, ang: number) => {
-        ctx.beginPath(); ctx.moveTo(x, y);
-        ctx.lineTo(x - 9 * Math.cos(ang - 0.35), y - 9 * Math.sin(ang - 0.35));
-        ctx.lineTo(x - 9 * Math.cos(ang + 0.35), y - 9 * Math.sin(ang + 0.35));
-        ctx.closePath(); ctx.fill();
-      };
-      const tag = (x: number, y: number, main: string, sub: string, alpha = 1) => {
-        ctx.save(); ctx.globalAlpha = alpha;
-        ctx.font = "600 12px ui-monospace, monospace"; const w1 = ctx.measureText(main).width;
-        ctx.font = "10.5px ui-monospace, monospace"; const w2 = ctx.measureText(sub).width;
-        const w = Math.max(w1, w2) + 14, h = sub ? 34 : 20;
-        const bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = Math.max(4, Math.min(H - h - 4, y - h - 8));
-        ctx.fillStyle = "rgba(5,7,10,0.88)"; ctx.strokeStyle = "rgba(250,204,21,0.7)"; ctx.lineWidth = 1;
-        ctx.fillRect(bx, by, w, h); ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
-        ctx.fillStyle = YEL; ctx.font = "600 12px ui-monospace, monospace"; ctx.fillText(main, bx + 7, by + 14);
-        if (sub) { ctx.fillStyle = "#CBD5E1"; ctx.font = "10.5px ui-monospace, monospace"; ctx.fillText(sub, bx + 7, by + 28); }
-        ctx.restore();
-      };
-      const dim = (m: Meas2, alpha = 1) => {
-        ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = YEL; ctx.fillStyle = YEL; ctx.lineWidth = 1.5;
-        const lb = measLabel(m, mode);
-        if (m.kind === "d") {
-          const [ax, ay] = Q(m.a), [bx, by] = Q(m.b);
-          // przyrosty w osiach — cienkie linie pomocnicze
-          ctx.save(); ctx.setLineDash([3, 4]); ctx.globalAlpha = alpha * 0.45; ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
-          ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-          const ang = Math.atan2(by - ay, bx - ax);
-          if (Math.hypot(bx - ax, by - ay) > 24) { arrow(bx, by, ang); arrow(ax, ay, ang + Math.PI); }
-          for (const [x, y] of [[ax, ay], [bx, by]]) { ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill(); }
-          tag((ax + bx) / 2, (ay + by) / 2, lb.main, lb.sub, alpha);
-        } else {
-          const [cx, cy] = Q(m.c), [px, py] = Q(m.p);
-          ctx.beginPath(); ctx.moveTo(cx - 6, cy); ctx.lineTo(cx + 6, cy); ctx.moveTo(cx, cy - 6); ctx.lineTo(cx, cy + 6); ctx.stroke();
-          ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
-          arrow(px, py, Math.atan2(py - cy, px - cx));
-          tag(px, py, lb.main, lb.sub, alpha);
-        }
-        ctx.restore();
-      };
-      for (const m of meas) dim(m);
-      if (pending) {
-        const tgt = hover?.p;
-        if (tgt) dim({ kind: "d", a: pending, b: tgt }, 0.7);
-        else { const [x, y] = Q(pending); ctx.save(); ctx.fillStyle = YEL; ctx.beginPath(); ctx.arc(x, y, 3.5, 0, Math.PI * 2); ctx.fill(); ctx.restore(); }
-      } else if (hover?.arc) dim({ kind: "r", ...hover.arc }, 0.55);
+      meas.forEach((m, i) => drawMeas(ctx, m, Q, W, H, mode, 1, i === meas.length - 1 && !pending));
+      for (const e of picks) drawEnt(ctx, e, Q);
       if (measure && hover) {
-        const [x, y] = Q(hover.p);
-        ctx.save(); ctx.strokeStyle = YEL; ctx.lineWidth = 1.5;
-        if (hover.snap) ctx.strokeRect(x - 5, y - 5, 10, 10);
-        else { ctx.beginPath(); ctx.moveTo(x - 6, y); ctx.lineTo(x + 6, y); ctx.moveTo(x, y - 6); ctx.lineTo(x, y + 6); ctx.stroke(); }
-        ctx.restore();
+        if (placing) drawMeas(ctx, placeLin(placing[0], placing[1], hover.cur), Q, W, H, mode, 0.8);
+        else if (hover.e) {
+          drawEnt(ctx, hover.e, Q, 0.65);
+          if (picks.length === 1) { const r = measOf(mTool, picks[0], hover.e); if (r && !("place" in r)) drawMeas(ctx, r, Q, W, H, mode, 0.6); }
+          else if (mTool === "dia" && hover.e.t === "c") drawMeas(ctx, radOf(hover.e), Q, W, H, mode, 0.55, false);
+        }
       }
     }
 
@@ -864,7 +826,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, zoom, meas, pending, hover, measure]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -879,14 +841,28 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     setProbe({ h, v, px, py });
   };
 
+  /** Opcja „klik w linię”: symulacja staje po wykonaniu klikniętej linii (narzędzie w jej punkcie końcowym). */
+  const jumpToLine = (idx: number) => {
+    let acc = 0, hit = -1;
+    for (let i = 0; i < segments.length; i++) {
+      if (segments[i].line > idx) break;
+      acc += lengths[i];
+      if (segments[i].line === idx) hit = i;
+    }
+    setPlaying(false);
+    setProgress(hit >= 0 ? Math.max(0, acc - 1e-3) : acc);
+  };
+  const jumpOn = appLayout ? layout.jump : jumpLocal;
+  const setJump = (v: boolean) => (appLayout ? setLayout({ jump: v }) : setJumpLocal(v));
+  const onLineClick = jumpOn ? jumpToLine : undefined;
+
   // ---- widok 2D: powiększanie, przesuwanie, pomiary ----
   const zoomable = !compact && !showcase && !isCyl(setup, mode);
   const [ha2, va2] = mode === "mill" ? (["x", "y"] as const) : (["z", "x"] as const);
-  const snaps = useMemo(() => {
+  const geo = useMemo(() => {
     if (!measure || !zoomable) return null;
-    const extra: Pt2[] = [];
-    if (mode === "mill" && !setup.stock.auto) for (const b of stockBoxes(program, segments, setup)) extra.push([b.x0, b.y0], [b.x1, b.y0], [b.x1, b.y1], [b.x0, b.y1]);
-    return snapPoints(segments, ha2, va2, extra);
+    const boxes = mode === "mill" && !setup.stock.auto ? stockBoxes(program, segments, setup) : [];
+    return buildGeo(segments, ha2, va2, boxes);
   }, [measure, zoomable, segments, ha2, va2, mode, program, setup]);
   const zoomAt = useCallback((sx: number, sy: number, f: number) => {
     setZoom((z) => {
@@ -911,21 +887,34 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     for (const el of els) el.addEventListener("wheel", onWheel, { passive: false });
     return () => { for (const el of els) el.removeEventListener("wheel", onWheel); };
   }, [zoomable, appLayout, fs, view, zoomAt]);
-  /** Punkt pomiaru pod kursorem: przyciągnięty do końca ruchu / środka łuku / naroża albo wolny; łuk — do wymiaru R. */
+  /** Element pod kursorem (punkt, linia, okrąg — zależnie od narzędzia) i położenie kursora w mm. */
   const measAt = (x: number, y: number) => {
     const m = mapRef.current; if (!m?.s) return null;
     const [h, v] = m.inv(x, y);
-    const tol = 12 / m.s;
-    const sn = snaps ? nearestSnap(snaps, h, v, tol) : null;
-    const arc = sn || pending ? null : arcNear(segments, ha2, va2, h, v, 8 / m.s);
-    return { p: sn ?? ([h, v] as Pt2), snap: !!sn, arc };
+    return { e: geo && !placing ? pickEnt(geo, mTool, h, v, 10 / m.s) : null, cur: [h, v] as Pt2 };
   };
+  const pushMeas = (m: Meas2) => setMeas((ms) => [...ms.slice(-7), m]);
   const pickMeas = (x: number, y: number) => {
     const hit = measAt(x, y); if (!hit) return;
-    if (pending) { const a = pending; setMeas((ms) => [...ms.slice(-5), { kind: "d", a, b: hit.p }]); setPending(null); return; }
-    if (hit.arc) { const arc = hit.arc; setMeas((ms) => [...ms.slice(-5), { kind: "r", ...arc }]); return; }
-    setPending(hit.p);
+    if (placing) { pushMeas(placeLin(placing[0], placing[1], hit.cur)); setPlacing(null); return; }
+    const e = hit.e; if (!e) return;
+    if (mTool === "dia") { if (e.t === "c") pushMeas(radOf(e)); return; }
+    if (mTool === "ang" && e.t !== "l") return;
+    if (!picks.length) { setPicks([e]); return; }
+    const r = measOf(mTool, picks[0], e);
+    setPicks([]);
+    if (!r) return;
+    if ("place" in r) { setPlacing(r.place); setHover({ e: null, cur: hit.cur }); return; }
+    pushMeas(r);
   };
+  const cancelMeas = () => { setPicks([]); setPlacing(null); };
+  // Esc przerywa wskazywanie
+  useEffect(() => {
+    if (!measure) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") { setPicks([]); setPlacing(null); } };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [measure]);
   const local = (e: React.PointerEvent<HTMLCanvasElement>) => { const r = e.currentTarget.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   // Mysz: przeciąganie przesuwa, najechanie pokazuje współrzędne. Palec: dwa palce — szczypanie i przesuwanie;
   // jeden — współrzędne pod palcem, a po powiększeniu albo w trybie pomiaru przesuwa widok. Stuknięcie w trybie pomiaru — punkt.
@@ -961,7 +950,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         if (!g.panning && Math.hypot(p.x - g.down.x, p.y - g.down.y) > 5) { g.panning = true; setProbe(null); }
         if (g.panning) { const z = g.pan.z; setZoom({ k: z.k, tx: z.tx + p.x - g.pan.x, ty: z.ty + p.y - g.pan.y }); return; }
       }
-      if (measure && zoomable) { if (e.pointerType === "mouse" || !e.buttons) setHover(measAt(p.x, p.y)); return; }
+      if (measure && zoomable) { if (e.pointerType === "mouse" || !e.buttons || placing) setHover(measAt(p.x, p.y)); return; }
       if (e.pointerType === "mouse" ? true : e.buttons !== 0 && !g.pan) readProbe(e);
     },
     onPointerUp: (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -986,14 +975,20 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       {(zoom.k !== 1 || zoom.tx !== 0 || zoom.ty !== 0) && <button type="button" onClick={() => setZoom(Z0)} title="Cały program w kadrze (dwuklik)" aria-label="Dopasuj widok">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 9V3h6M21 15v6h-6M21 9V3h-6M3 15v6h6" /></svg>
       </button>}
-      <button type="button" aria-pressed={measure} onClick={() => { setMeasure((v) => !v); setPending(null); setHover(null); }}
-        title="Pomiar: kliknij dwa punkty (przyciągają się do końców ruchów, środków łuków i naroży półfabrykatu) albo łuk — promień" aria-label="Pomiar">
+      <button type="button" aria-pressed={measure} onClick={() => { setMeasure((v) => !v); cancelMeas(); setHover(null); }}
+        title="Wymiarowanie jak w CAD: odległość (poziomo / pionowo / wyrównany / prostopadle do linii), kąt, średnica i promień" aria-label="Pomiar">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M3 17 17 3l4 4L7 21z" /><path d="m7 13 2 2M10 10l2 2M13 7l2 2" /></svg>
       </button>
-      {measure && (meas.length > 0 || pending) && <button type="button" onClick={() => { setMeas([]); setPending(null); }} title="Usuń wymiary" aria-label="Usuń wymiary">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
-      </button>}
-      {measure && <span className="z2d-hint">{pending ? "drugi punkt" : "punkt lub łuk"}</span>}
+      {measure && <>
+        <span className="z2d-sep" aria-hidden />
+        {([["dist", "Odległość: punkt–punkt (poziomo / pionowo / wyrównany — gdzie położysz linię wymiarową), punkt–linia, linia–linia równoległe; okrąg = jego środek", "↔"], ["ang", "Kąt między dwiema liniami", "∠"], ["dia", "Średnica okręgu / promień łuku", "⌀"]] as const).map(([k, t, l]) => (
+          <button key={k} type="button" className="z2d-tool" aria-pressed={mTool === k} title={t} aria-label={t} onClick={() => { setMTool(k); cancelMeas(); }}>{l}</button>
+        ))}
+        {(meas.length > 0 || pending) && <button type="button" onClick={() => { setMeas([]); cancelMeas(); }} title="Usuń wymiary" aria-label="Usuń wymiary">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3" /></svg>
+        </button>}
+        <span className="z2d-hint">{placing ? "połóż linię wymiarową" : mTool === "dia" ? "wskaż okrąg lub łuk" : mTool === "ang" ? (picks.length ? "druga linia" : "pierwsza linia") : picks.length ? "drugi element" : "punkt, linia lub okrąg"}</span>
+      </>}
     </div>
   );
 
@@ -1024,6 +1019,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         ))}
         <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
         <label><input type="checkbox" checked={showPath} onChange={(e) => setShowPath(e.target.checked)} />Tor narzędzia na podglądzie</label>
+        <label><input type="checkbox" checked={layout.jump} onChange={(e) => setLayout({ jump: e.target.checked })} />Klik w linię programu ustawia narzędzie</label>
         <label className="lay-units"><span>Jednostki</span>
           <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
             <option value="auto">auto (G20/G21)</option><option value="mm">milimetry</option><option value="inch">cale</option>
@@ -1172,9 +1168,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
-                follow={appLayout ? layout.follow : playing} onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
+                follow={appLayout ? layout.follow : playing} onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} onLineClick={onLineClick} />
               <div className="editor-status">
                 <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
+                <label className="jump-opt" title="Kliknięcie w linię programu przestawia symulację na koniec tej linii: położenie narzędzia, stan maszyny, ubytek materiału">
+                  <input type="checkbox" checked={jumpOn} onChange={(e) => setJump(e.target.checked)} />klik → narzędzie
+                </label>
                 <form className="goto" onSubmit={(e) => {
                   e.preventDefault();
                   const q = gotoN.trim().replace(/^n/i, "");
@@ -1362,6 +1361,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               <span>Tor narzędzia</span>
               <button type="button" className="m-toggle" aria-label="Tor narzędzia" aria-pressed={showPath} onClick={() => setShowPath((v) => !v)}><i /></button>
             </div>
+            <div className="m-set-row">
+              <span>Klik w linię programu ustawia narzędzie</span>
+              <button type="button" className="m-toggle" aria-label="Klik w linię programu ustawia narzędzie" aria-pressed={jumpOn} onClick={() => setJump(!jumpOn)}><i /></button>
+            </div>
             {comp.active && (
               <div className="m-set-row">
                 <span>{mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor z korekcją G41/G42"}</span>
@@ -1404,7 +1407,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             console={
               <div className="grid gap-2">
                 <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
-                  onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} />
+                  onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} onLineClick={onLineClick} />
                 <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
                 {issues.length > 0 && (
                   <ul className="sim-issues">

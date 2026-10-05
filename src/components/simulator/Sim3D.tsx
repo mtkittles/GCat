@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile, latheChuck } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { circleOf, distOf, m3Text, snapAxis, v3, type M3, type P3, type Pick3, type Tool3 } from "./measure3d";
 import { STLExporter } from "three/examples/jsm/exporters/STLExporter.js";
 import { parseProgram, playLength, pointAt, tableMat, type Kin, type Rot3, type Segment, type Vec3 } from "@/lib/parser";
 import { axisAt, rotAt, type PartSeg } from "./multiaxis";
@@ -86,20 +87,28 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
   const viewApi = useRef<((v: "iso" | "top" | "front" | "side" | "fit") => void) | null>(null);
   // pomiar w 3D: kliknięcia na powierzchni detalu (współrzędne w grupie detalu — obracają się razem ze stołem)
   const [measure, setMeasure] = useState(false);
-  const [meas, setMeas] = useState<{ a: P3; b: P3 | null }[]>([]);
+  const [tool3, setTool3] = useState<Tool3>("dist");
+  const [meas, setMeas] = useState<M3[]>([]);
+  const [picks, setPicks] = useState<Pick3[]>([]);
   const measureRef = useRef(false);
-  const pickRef = useRef<((p: P3) => void) | null>(null);
+  const pickRef = useRef<((p: Pick3) => void) | null>(null);
+  // środki zmierzonych okręgów — do wymiaru „od środka otworu” (wskazanie blisko środka na ekranie)
+  const centersRef = useRef<{ c: P3; ax: P3 }[]>([]);
   const measGrp = useRef<THREE.Group | null>(null);
   const [prevSrc, setPrevSrc] = useState(source);
-  if (prevSrc !== source) { setPrevSrc(source); setMeas([]); }
+  if (prevSrc !== source) { setPrevSrc(source); setMeas([]); setPicks([]); }
   useEffect(() => {
     measureRef.current = measure;
-    pickRef.current = (p) => setMeas((ms) => {
-      const last = ms.at(-1);
-      if (last && !last.b) return [...ms.slice(0, -1), { a: last.a, b: p }];
-      return [...ms.slice(-5), { a: p, b: null }];
-    });
-  }, [measure]);
+    centersRef.current = meas.filter((m): m is Extract<M3, { kind: "circ" }> => m.kind === "circ").map((m) => ({ c: m.c, ax: m.ax }));
+    pickRef.current = (p) => {
+      const need = tool3 === "circ" ? 3 : 2;
+      const next = [...picks, p];
+      if (next.length < need) { setPicks(next); return; }
+      setPicks([]);
+      const m: M3 | null = tool3 === "circ" ? circleOf(next) : tool3 === "ang" ? { kind: "ang", a: next[0], b: next[1] } : { kind: "dist", a: next[0], b: next[1] };
+      if (m) setMeas((ms) => [...ms.slice(-7), m]);
+    };
+  }, [measure, tool3, picks, meas]);
   const toolRef = useRef<Tool>(tool);
   const programRef = useRef(program);
   useEffect(() => { toolRef.current = tool; programRef.current = program; }, [tool, program]);
@@ -194,17 +203,39 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
     let downAt: { x: number; y: number; t: number } | null = null;
     const onDown = (e: PointerEvent) => { downAt = e.isPrimary ? { x: e.clientX, y: e.clientY, t: performance.now() } : null; };
+    const toPart = new THREE.Matrix4();
+    const castAt = (cx: number, cy: number, r: DOMRect) => {
+      ndc.set(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1);
+      ray.setFromCamera(ndc, camera);
+      return ray.intersectObject(part, true).find((h) => (h.object as THREE.Mesh).material === stockMat && !!h.face);
+    };
     const onUp = (e: PointerEvent) => {
       const d = downAt; downAt = null;
       if (!measureRef.current || !d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6 || performance.now() - d.t > 700) return;
       const r = renderer.domElement.getBoundingClientRect();
-      ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-      ray.setFromCamera(ndc, camera);
+      // środek zmierzonego okręgu pod kursorem (14 px) — punkt „od środka otworu”
+      for (const k of centersRef.current) {
+        const w = part.localToWorld(new THREE.Vector3(k.c.x, k.c.y, k.c.z)).project(camera);
+        const sx = r.left + (w.x + 1) / 2 * r.width, sy = r.top + (1 - w.y) / 2 * r.height;
+        if (Math.hypot(sx - e.clientX, sy - e.clientY) < 14) { pickRef.current?.({ p: k.c, n: k.ax, center: true }); return; }
+      }
       if (!stockMat.visible) return;
-      const hit = ray.intersectObject(part, true).find((h) => (h.object as THREE.Mesh).material === stockMat);
+      const hit = castAt(e.clientX, e.clientY, r);
       if (!hit) return;
+      // normalna ściany: średnia z kilku promieni wokół wskazania (siatka z wokseli jest schodkowa)
+      toPart.copy(part.matrixWorld).invert();
+      const n = new THREE.Vector3();
+      const tol = 1.5 + hit.distance * 0.01;
+      for (const [ox, oy] of [[0, 0], [5, 0], [-5, 0], [0, 5], [0, -5]]) {
+        const h = ox || oy ? castAt(e.clientX + ox, e.clientY + oy, r) : hit;
+        if (!h?.face || h.point.distanceTo(hit.point) > tol) continue;
+        const nw = h.face.normal.clone().transformDirection(h.object.matrixWorld);
+        if (nw.dot(ray.ray.direction) > 0) nw.negate();     // normalna w stronę patrzącego
+        n.add(nw);
+      }
+      n.transformDirection(toPart);
       const lp = part.worldToLocal(hit.point.clone());
-      pickRef.current?.({ x: lp.x, y: lp.y, z: lp.z });
+      pickRef.current?.({ p: { x: lp.x, y: lp.y, z: lp.z }, n: snapAxis({ x: n.x, y: n.y, z: n.z }) });
     };
     renderer.domElement.addEventListener("pointerdown", onDown);
     renderer.domElement.addEventListener("pointerup", onUp);
@@ -624,27 +655,57 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       });
       measGrp.current = null;
     }
-    if (!meas.length) { st.render(); return; }
+    if (!meas.length && !picks.length) { st.render(); return; }
     const g = new THREE.Group(); g.renderOrder = 999;
     const YEL = 0xfacc15;
-    const pts: number[] = [];
+    const V = (p: P3) => new THREE.Vector3(p.x, p.y, p.z);
+    const lineMat = new THREE.LineBasicMaterial({ color: YEL, depthTest: false, transparent: true });
+    const dashMat = new THREE.LineDashedMaterial({ color: YEL, depthTest: false, transparent: true, dashSize: 1.5, gapSize: 1.2, opacity: 0.8 });
+    const line = (pts: P3[], dashed = false, loop = false) => {
+      const lg = new THREE.BufferGeometry().setFromPoints(pts.map(V));
+      const o = loop ? new THREE.LineLoop(lg, lineMat) : new THREE.Line(lg, dashed ? dashMat : lineMat);
+      if (dashed) o.computeLineDistances();
+      o.renderOrder = 999; g.add(o);
+    };
+    const dots: number[] = [];
+    const dot = (p: P3) => dots.push(p.x, p.y, p.z);
+    const lathe = mode === "lathe";
     for (const m of meas) {
-      pts.push(m.a.x, m.a.y, m.a.z);
-      if (!m.b) continue;
-      pts.push(m.b.x, m.b.y, m.b.z);
-      const lg = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(m.a.x, m.a.y, m.a.z), new THREE.Vector3(m.b.x, m.b.y, m.b.z)]);
-      const line = new THREE.Line(lg, new THREE.LineBasicMaterial({ color: YEL, depthTest: false, transparent: true }));
-      line.renderOrder = 999; g.add(line);
-      const lb = measText3(m.a, m.b, mode);
-      const sp = screenLabel(lb.main, new THREE.Vector3((m.a.x + m.b.x) / 2, (m.a.y + m.b.y) / 2, (m.a.z + m.b.z) / 2));
-      g.add(sp);
+      const t = m3Text(m, lathe);
+      let at: P3;
+      if (m.kind === "dist") {
+        const r = distOf(m.a, m.b);
+        dot(m.a.p); dot(m.b.p);
+        if (r.par) { line([m.a.p, r.foot]); if (v3.len(v3.sub(r.foot, m.b.p)) > 1e-3) line([r.foot, m.b.p], true); at = v3.mul(v3.add(m.a.p, r.foot), 0.5); }
+        else { line([m.a.p, m.b.p]); at = v3.mul(v3.add(m.a.p, m.b.p), 0.5); }
+      } else if (m.kind === "ang") {
+        const L = Math.max(4, v3.len(v3.sub(m.b.p, m.a.p)) * 0.35);
+        dot(m.a.p); dot(m.b.p);
+        line([m.a.p, v3.add(m.a.p, v3.mul(m.a.n, L))]); line([m.b.p, v3.add(m.b.p, v3.mul(m.b.n, L))]);
+        line([m.a.p, m.b.p], true);
+        at = v3.mul(v3.add(v3.add(m.a.p, v3.mul(m.a.n, L)), v3.add(m.b.p, v3.mul(m.b.n, L))), 0.5);
+      } else {
+        // okrąg w płaszczyźnie prostopadłej do osi + krzyż w środku
+        const u = v3.unit(Math.abs(m.ax.y) < 0.9 ? v3.cross(m.ax, { x: 0, y: 1, z: 0 }) : v3.cross(m.ax, { x: 1, y: 0, z: 0 }));
+        const w = v3.cross(m.ax, u);
+        const ring: P3[] = [];
+        for (let i = 0; i < 64; i++) { const a = (i / 64) * Math.PI * 2; ring.push(v3.add(m.c, v3.add(v3.mul(u, m.r * Math.cos(a)), v3.mul(w, m.r * Math.sin(a))))); }
+        line(ring, false, true);
+        const k = Math.max(1, m.r * 0.25);
+        line([v3.add(m.c, v3.mul(u, -k)), v3.add(m.c, v3.mul(u, k))]); line([v3.add(m.c, v3.mul(w, -k)), v3.add(m.c, v3.mul(w, k))]);
+        line([v3.add(m.c, v3.mul(u, -m.r)), v3.add(m.c, v3.mul(u, m.r))], true);
+        for (const p of m.pts) dot(p);
+        at = v3.add(m.c, v3.mul(u, m.r));
+      }
+      g.add(screenLabel(t.main, V(at)));
     }
-    const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(pts, 3));
-    const dots = new THREE.Points(pg, new THREE.PointsMaterial({ color: YEL, size: 8, sizeAttenuation: false, depthTest: false, transparent: true }));
-    dots.renderOrder = 1000; g.add(dots);
+    for (const p of picks) dot(p.p);
+    const pg = new THREE.BufferGeometry(); pg.setAttribute("position", new THREE.Float32BufferAttribute(dots, 3));
+    const pts = new THREE.Points(pg, new THREE.PointsMaterial({ color: YEL, size: 8, sizeAttenuation: false, depthTest: false, transparent: true }));
+    pts.renderOrder = 1000; g.add(pts);
     st.part.add(g); measGrp.current = g;
     st.render();
-  }, [meas, mode, failed]);
+  }, [meas, picks, mode, failed]);
 
   if (failed) {
     return (
@@ -673,7 +734,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
             <button onClick={toggleGhost} aria-pressed={ghost}>{ghost ? "Materiał pełny" : "Materiał przezroczysty"}</button>
             {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView}>{machineView ? "Detal nieruchomy, narzędzie pochylone" : "Ruch stołu (jak na maszynie)"}</button>}
             {onTogglePath && <button onClick={onTogglePath} aria-pressed={!showPath}>{showPath ? "Ukryj tor narzędzia" : "Pokaż tor narzędzia"}</button>}
-            <button onClick={(e) => { setMeasure((v) => !v); (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); }} aria-pressed={measure}>{measure ? "Zakończ pomiar" : "Pomiar odległości"}</button>
+            <button onClick={(e) => { setMeasure((v) => !v); (e.currentTarget.closest("details") as HTMLDetailsElement | null)?.removeAttribute("open"); }} aria-pressed={measure}>{measure ? "Zakończ pomiar" : "Pomiar (odległość, kąt, ⌀)"}</button>
           </div>
         </details>
         <div className="view3d-bar">
@@ -686,19 +747,28 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
           </button>
           {multi && <button onClick={() => setMachineView((v) => !v)} aria-pressed={machineView} title="Widok maszyny stół–stół: obraca się detal, wrzeciono stoi pionowo">STÓŁ</button>}
           {onTogglePath && <button onClick={onTogglePath} aria-pressed={showPath} title="Tor narzędzia na podglądzie">TOR</button>}
-          <button onClick={() => setMeasure((v) => !v)} aria-pressed={measure} title="Pomiar: kliknij dwa punkty na powierzchni detalu (obracanie widoku działa dalej)">MIARA</button>
+          <button onClick={() => setMeasure((v) => !v)} aria-pressed={measure} title="Pomiar jak w CAD: odległość ścian (prostopadle), kąt między ścianami, średnica z 3 punktów; obracanie widoku działa dalej">MIARA</button>
         </div>
         {(measure || meas.length > 0) && (
           <div className="m3d" aria-live="polite">
+            {measure && (
+              <div className="m3d-tools" role="tablist" aria-label="Rodzaj pomiaru">
+                {([["dist", "Odległość"], ["ang", "Kąt ścian"], ["circ", "⌀ z 3 pkt"]] as const).map(([k, l]) => (
+                  <button key={k} type="button" role="tab" aria-selected={tool3 === k} onClick={() => { setTool3(k); setPicks([]); }}>{l}</button>
+                ))}
+              </div>
+            )}
             {meas.map((m, i) => {
-              if (!m.b) return <div key={i} className="m3d-row"><b>{i + 1}.</b> {measText3(m.a, m.a, mode).at} — kliknij drugi punkt</div>;
-              const t = measText3(m.a, m.b, mode);
+              const t = m3Text(m, mode === "lathe");
               return <div key={i} className="m3d-row"><b>{i + 1}.</b> <span className="m3d-l">{t.main}</span> <span>{t.sub}</span></div>;
             })}
-            {measure && !meas.length && <div className="m3d-row">Kliknij punkt na powierzchni detalu</div>}
+            {measure && <div className="m3d-row m3d-hint">{tool3 === "circ"
+              ? `Wskaż 3 punkty na krawędzi albo ściance otworu (${picks.length}/3)`
+              : tool3 === "ang" ? (picks.length ? "Druga ściana" : "Pierwsza ściana")
+              : picks.length ? "Drugi punkt / ściana (równoległa — wymiar prostopadły)" : "Punkt na ścianie albo środek zmierzonego okręgu"}</div>}
             <div className="m3d-act">
-              {meas.length > 0 && <button type="button" onClick={() => setMeas([])}>Wyczyść</button>}
-              {measure && <button type="button" onClick={() => setMeasure(false)}>Zakończ</button>}
+              {(meas.length > 0 || picks.length > 0) && <button type="button" onClick={() => { setMeas([]); setPicks([]); }}>Wyczyść</button>}
+              {measure && <button type="button" onClick={() => { setMeasure(false); setPicks([]); }}>Zakończ</button>}
             </div>
           </div>
         )}
@@ -748,17 +818,19 @@ function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimM
   const shankLen = 26;
   const k = tool.kind;
 
+  // stożek wierzchołkiem w dół: czubek w punkcie narzędzia (y = 0), podstawa o promieniu rr na wysokości h
+  const tipCone = (rr: number, h: number, seg = 24, rTip = 0) => { const g = new THREE.CylinderGeometry(rr, rTip, h, seg); g.translate(0, h / 2, 0); return g; };
   const shank = (rr: number, from: number, len = shankLen) => {
     const g = new THREE.CylinderGeometry(rr, rr, len, 20); g.translate(0, from + len / 2, 0); return g;
   };
-  const helix = (g: THREE.BufferGeometry, rr: number, height: number, z: number, thick: number) => {
+  const helix = (g: THREE.BufferGeometry, rr: number, height: number, z: number, thick: number, y0 = 0) => {
     const n = Math.max(1, Math.min(8, Math.round(z)));
     for (let i = 0; i < n; i++) {
       const a0 = (i / n) * Math.PI * 2;
       const pts: THREE.Vector3[] = [];
       for (let t = 0; t <= 1.0001; t += 0.08) {
         const th = a0 + t * 1.5;
-        pts.push(new THREE.Vector3(Math.cos(th) * rr, t * height, Math.sin(th) * rr));
+        pts.push(new THREE.Vector3(Math.cos(th) * rr, y0 + t * height, Math.sin(th) * rr));
       }
       g = mergeGeo(g, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 18, thick, 4, false));
     }
@@ -794,8 +866,7 @@ function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimM
     case "vbit": {
       const ang = safe(tool.angle, 60, 10, 179) * Math.PI / 180;
       const h = r / Math.tan(ang / 2);
-      const cone = new THREE.ConeGeometry(r, h, 24); cone.translate(0, h / 2, 0);
-      return mergeGeo(cone, shank(r, h));
+      return mergeGeo(tipCone(r, h), shank(r, h));
     }
     case "facemill": {
       const body = new THREE.CylinderGeometry(r, r * 0.92, 12, 28); body.translate(0, 6, 0);
@@ -816,24 +887,30 @@ function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimM
     }
     case "drill": case "spotdrill": {
       const angDeg = Math.min(179, Math.max(30, safe(tool.angle, k === "drill" ? 118 : 90, 30, 179)));
+      // ostrze stożkowe (118° wiertło, 90° nawiertak) wierzchołkiem w dół, dwie krawędzie skrawające
       const tip = Math.max(0.2, r / Math.tan((angDeg * Math.PI / 180) / 2));
-      const cone = new THREE.ConeGeometry(r, tip, 24); cone.translate(0, tip / 2, 0);
-      let g: THREE.BufferGeometry = cone;
-      const bodyLen = k === "drill" ? cut : 8;
+      let g: THREE.BufferGeometry = tipCone(r, tip, 28);
+      for (const a of [0, Math.PI]) {
+        const edge = new THREE.LineCurve3(new THREE.Vector3(0, 0.02, 0), new THREE.Vector3(r * 1.01 * Math.cos(a), tip + 0.02, r * 1.01 * Math.sin(a)));
+        g = mergeGeo(g, new THREE.TubeGeometry(edge, 1, Math.max(0.05, r * 0.06), 4, false));
+      }
+      const bodyLen = k === "drill" ? Math.max(cut - tip, r) : Math.max(4, r);
       g = mergeGeo(g, shank(r, tip, bodyLen));
-      if (k === "drill") g = helix(g, r, bodyLen, 2, r * 0.13);
+      if (k === "drill") g = helix(g, r, bodyLen, 2, r * 0.13, tip);
       return mergeGeo(g, shank(r * 0.95, tip + bodyLen));
     }
     case "reamer": {
-      const lead = new THREE.ConeGeometry(r, r * 0.8, 20); lead.translate(0, r * 0.4, 0);
-      let g: THREE.BufferGeometry = mergeGeo(lead, shank(r, r * 0.8, cut));
-      g = helix(g, r, cut, Math.min(8, tool.flutes), r * 0.05);
+      // stożek wejściowy rozwiertaka: ścięty, 45°
+      const lead = tipCone(r, r * 0.25, 20, r * 0.75);
+      let g: THREE.BufferGeometry = mergeGeo(lead, shank(r, r * 0.25, cut));
+      g = helix(g, r, cut, Math.min(8, tool.flutes), r * 0.05, r * 0.25);
       return mergeGeo(g, shank(r * 0.9, cut + r * 0.8));
     }
     case "tap": case "threadmill": {
       const pitch = Math.max(0.3, safe(tool.flutes, 1.5, 0.2, 12));
       const coreR = k === "tap" ? r * 0.78 : r * 0.8;
-      let g: THREE.BufferGeometry = shank(coreR, 0, cut);
+      const leadH = k === "tap" ? r * 1.3 : 0;
+      let g: THREE.BufferGeometry = shank(coreR, leadH, Math.max(1, cut - leadH));
       const turns = Math.max(2, Math.min(16, Math.floor(cut / pitch)));
       const path: THREE.Vector3[] = [];
       for (let i = 0; i <= turns * 14; i++) {
@@ -841,10 +918,8 @@ function buildToolGeometry(tool: Tool, toolD: number, defLen: number, mode: SimM
         path.push(new THREE.Vector3(Math.cos(t * Math.PI * 2) * r * 0.95, t * pitch, Math.sin(t * Math.PI * 2) * r * 0.95));
       }
       g = mergeGeo(g, new THREE.TubeGeometry(new THREE.CatmullRomCurve3(path), Math.min(240, turns * 10), r * 0.15, 5, false));
-      if (k === "tap") {
-        const lead = new THREE.ConeGeometry(coreR, r * 1.3, 18); lead.translate(0, r * 0.65, 0); lead.rotateX(Math.PI);
-        g = mergeGeo(g, lead);
-      }
+      // gwintownik: nakrój stożkowy u dołu (ścięty czubek)
+      if (k === "tap") g = mergeGeo(g, tipCone(coreR, leadH, 18, coreR * 0.55));
       return mergeGeo(g, shank(coreR, cut));
     }
     default: {
@@ -1155,18 +1230,6 @@ function latheGeometryFrom(pr: LatheProfile | null) {
   }
   if (!parts.length) return null;
   return parts.reduce((a, b) => mergeGeo(a, b));
-}
-
-type P3 = { x: number; y: number; z: number };
-const f3 = (v: number) => (Math.abs(v) < 5e-4 ? 0 : v).toFixed(3);
-/** Opis wymiaru 3D w osiach programu (scena: X, Y w górę = Z, Z = −Y; tokarka: X sceny = Z, promień = odległość od osi). */
-function measText3(a: P3, b: P3, mode: SimMode) {
-  const L = Math.hypot(b.x - a.x, b.y - a.y, b.z - a.z);
-  if (mode === "lathe") {
-    const ra = Math.hypot(a.y, a.z), rb = Math.hypot(b.y, b.z);
-    return { main: `${f3(L)} mm`, sub: `ΔZ ${f3(b.x - a.x)}  ΔX⌀ ${f3(2 * (rb - ra))}`, at: `Z${f3(a.x)} X${f3(2 * ra)}` };
-  }
-  return { main: `${f3(L)} mm`, sub: `ΔX ${f3(b.x - a.x)}  ΔY ${f3(-(b.z - a.z))}  ΔZ ${f3(b.y - a.y)}`, at: `X${f3(a.x)} Y${f3(-a.z)} Z${f3(a.y)}` };
 }
 
 /** Napis o stałym rozmiarze na ekranie (nie maleje przy oddalaniu), zawsze na wierzchu. */
