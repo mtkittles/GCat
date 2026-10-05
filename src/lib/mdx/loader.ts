@@ -65,7 +65,7 @@ function parseYaml<S extends z.ZodType>(yaml: string, schema: S, yamlLine: numbe
       // pozycja: najgłębszy istniejący węzeł na ścieżce błędu
       let line: number | undefined;
       for (let k = i.path.length; k >= 0 && line === undefined; k--) {
-        const node = k === 0 ? doc.contents : doc.getIn(i.path.slice(0, k) as (string | number)[], true);
+        const node = doc.getIn(i.path.slice(0, k) as (string | number)[], true); // [] = korzeń dokumentu
         const range = (node as { range?: [number, number, number] } | undefined)?.range;
         if (range) line = lc.linePos(range[0]).line + yamlLine - 1;
       }
