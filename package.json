@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
     "tokeny": "npx --yes tsx scripts/tokeny.ts",
-    "tresci": "tsx scripts/sprawdz-tresci.ts"
+    "tresci": "tsx scripts/sprawdz-tresci.ts",
+    "eksport": "tsx scripts/eksport-tresci.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",

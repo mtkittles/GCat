@@ -1,5 +1,5 @@
-import type { Heading, InlineCode, PhrasingContent, Root, Text } from "mdast";
-import type { MdxJsxAttribute, MdxJsxTextElement } from "mdast-util-mdx-jsx";
+import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
+import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
 import { resolveKey, type TermSources } from "./resolve";
 import { anchorRe } from "./schema";
@@ -13,7 +13,28 @@ import { anchorRe } from "./schema";
   • `kod` → <code class="inline-code"> jak rich().
   • ## Nagłówek {#kotwica} → <h2 id="kotwica">; kotwica musi być jawna i unikalna.
   • Dozwolone tylko znane komponenty (np. <Diagram id="…" />), bez wyrażeń {…} i import/export.
+  • <Code>/<Sim>/<Demo> zawierają jeden blok ``` — jego treść staje się atrybutem `src`.
+  • Tabela GFM → <Table> (figure + klasy + data-label z nagłówka) jak blok `table` w Article.tsx.
+  • file.data.gcat = { headings, diagrams } — spis treści strony i „czy jest rysunek”.
 */
+
+/** Wartości atrybutów komponentów (jak typy bloków w src/lib/article.ts). */
+const ENUMS: Record<string, Record<string, string[]>> = {
+  Note: { kind: ["tip", "warn", "info"] },
+  Sim: { mode: ["mill", "lathe"] },
+  Demo: { mode: ["mill", "lathe"] },
+  Widget: { id: ["rij", "arc", "jog"] },
+};
+const WITH_SRC = new Set(["Code", "Sim", "Demo"]);
+
+export interface GcatMeta { headings: { id: string; label: string }[]; diagrams: number }
+
+/** Sam tekst węzła (etykieta nagłówka do spisu treści). */
+const plain = (n: Nodes): string => ("value" in n && typeof n.value === "string" ? n.value : "children" in n ? (n.children as Nodes[]).map(plain).join("") : "");
+const strAttr = (el: MdxJsxFlowElement | MdxJsxTextElement, name: string) => {
+  const a = el.attributes.find((x): x is MdxJsxAttribute => x.type === "mdxJsxAttribute" && x.name === name);
+  return a ? a.value : undefined;
+};
 
 /** Ten sam regex markera co w rich() (Rich.tsx) i CodeText.tsx. */
 export const MARKER_RE = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
@@ -85,7 +106,7 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     return out;
   }
 
-  return (tree: Root, file: { path?: string }) => {
+  return (tree: Root, file: { path?: string; value?: unknown; data: Record<string, unknown> }) => {
     const issues: ContentIssue[] = [];
     const at = (n: { position?: { start: { line: number; column: number } } } | undefined, message: string) =>
       issues.push({ line: n?.position?.start.line, column: n?.position?.start.column, message });
@@ -96,6 +117,9 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       const before = t.value.slice(0, i).split("\n");
       issues.push({ line: p.line + before.length - 1, column: before.length > 1 ? before[before.length - 1].length + 1 : p.column + i, message });
     };
+
+    const meta: GcatMeta = { headings: [], diagrams: 0 };
+    const source = String(file.value ?? "");
 
     // 1. Nagłówki: jawna, unikalna kotwica {#id}.
     const ids = new Set<string>();
@@ -112,6 +136,7 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       if (ids.has(id)) at(h, `kotwica {#${id}} powtarza się w pliku`);
       ids.add(id);
       h.data = { ...h.data, hProperties: { ...(h.data?.hProperties ?? {}), id } };
+      meta.headings.push({ id, label: plain(h).trim() });
     });
 
     // 2. Komponenty i wyrażenia.
@@ -121,12 +146,46 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       else if (n.type === "mdxJsxFlowElement" || n.type === "mdxJsxTextElement") {
         const el = n as MdxJsxTextElement;
         if (!el.name || !allowed.has(el.name)) { at(n, `nieznany komponent <${el.name ?? ""}> (dozwolone: ${[...allowed].join(", ")})`); return; }
+        for (const a of el.attributes) if (a.type !== "mdxJsxAttribute" || (a.value !== null && typeof a.value !== "string")) at(n, `<${el.name}>: atrybuty tylko jako tekst w cudzysłowie`);
         if (el.name === "Diagram") {
-          const id = el.attributes.find((a): a is MdxJsxAttribute => a.type === "mdxJsxAttribute" && a.name === "id")?.value;
+          meta.diagrams++;
+          const id = strAttr(el, "id");
           if (typeof id !== "string") at(n, `<Diagram> wymaga id="…" (tekst)`);
           else if (!opts.diagramIds.has(id)) at(n, `<Diagram id="${id}" /> — nie ma takiego rysunku w diagrams.tsx`);
         }
-      }
+        for (const [name, values] of Object.entries(ENUMS[el.name] ?? {})) {
+          const v = strAttr(el, name);
+          if (v !== undefined && !values.includes(String(v))) at(n, `<${el.name} ${name}="${v}">: dozwolone ${values.join(" | ")}`);
+          if (v === undefined && (el.name === "Note" || el.name === "Widget") ) at(n, `<${el.name}> wymaga ${name}="…" (${values.join(" | ")})`);
+        }
+        // markery w podpisach i tytułach (renderowane przez rich() w komponencie)
+        for (const name of ["caption", "title"]) {
+          const v = strAttr(el, name);
+          if (typeof v === "string") for (const m of v.matchAll(MARKER_RE)) if (!resolveKey(m[1], opts.sources)) at(n, `${name}: marker [[${m[0].slice(2, -2)}]] — klucz „${m[1]}” nie pasuje do żadnej karty ani hasła słownika`);
+        }
+        if (WITH_SRC.has(el.name)) {
+          const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
+          if (kids.length !== 1 || kids[0].type !== "code") { at(n, `<${el.name}> musi zawierać dokładnie jeden blok kodu \`\`\` (program)`); return; }
+          el.attributes.push(attr("src", (kids[0] as { value: string }).value));
+          el.children = [];
+        }
+      } else if (n.type === "code") at(n, "blok kodu ``` tylko wewnątrz <Code>, <Sim> albo <Demo>");
+    });
+
+    // 2b. Tabele: <Table> (figure), klasy i data-label jak w Article.tsx.
+    visit(tree, "table", (t: Table, index, parent) => {
+      t.data = { ...t.data, hProperties: { ...(t.data?.hProperties ?? {}), className: ["code-table", "tbl-stack"] } };
+      // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`)
+      const head = t.children[0]?.children.map((c) => {
+        const a = c.position?.start.offset, b = c.position?.end.offset;
+        const raw = a !== undefined && b !== undefined ? source.slice(a, b) : plain(c);
+        return raw.trim().replace(/^\|/, "").replace(/\|$/, "").trim().replace(/\\\|/g, "|").replace(/\*\*|`/g, "");
+      }) ?? [];
+      for (const row of t.children.slice(1)) row.children.forEach((c, k) => { c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), dataLabel: head[k] ?? "" } }; });
+      const p = parent as unknown as MdxJsxFlowElement | undefined;
+      if (!p || index === undefined || (p.type === "mdxJsxFlowElement" && p.name === "Table")) return;
+      const wrap: MdxJsxFlowElement = { type: "mdxJsxFlowElement", name: "Table", attributes: [], children: [t] };
+      (p.children as unknown[]).splice(index, 1, wrap);
     });
 
     // 3. Markery [[…]] i auto-linki kodów w tekście.
@@ -155,5 +214,6 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     });
 
     if (issues.length) throw new ContentError(file.path ?? "(treść)", issues);
+    file.data.gcat = meta;
   };
 }
