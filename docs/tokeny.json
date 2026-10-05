@@ -1,0 +1,653 @@
+{
+  "kolory": {
+    "tlo": {
+      "bg": {
+        "$type": "color",
+        "$value": "#F8FAFC",
+        "$extensions": {
+          "gcat.dark": "#111214"
+        },
+        "$description": "tło strony (html), pola formularzy w symulatorze"
+      }
+    },
+    "powierzchnie": {
+      "surface": {
+        "$type": "color",
+        "$value": "#FFFFFF",
+        "$extensions": {
+          "gcat.dark": "#17181B"
+        },
+        "$description": "paski, panele boczne"
+      },
+      "surface-2": {
+        "$type": "color",
+        "$value": "#F1F5F9",
+        "$extensions": {
+          "gcat.dark": "#202125"
+        },
+        "$description": "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)"
+      },
+      "surface-3": {
+        "$type": "color",
+        "$value": "#E9EEF5",
+        "$extensions": {
+          "gcat.dark": "#292A2F"
+        },
+        "$description": "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)"
+      },
+      "card": {
+        "$type": "color",
+        "$value": "#FFFFFF",
+        "$extensions": {
+          "gcat.dark": "#1A1B1F"
+        },
+        "$description": "karty, ramka rysunku (.fig), kod inline"
+      },
+      "panel": {
+        "$type": "color",
+        "$value": "#0F172A",
+        "$extensions": {
+          "gcat.dark": "#141518"
+        },
+        "$description": "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach"
+      },
+      "panel-ink": {
+        "$type": "color",
+        "$value": "#F8FAFC",
+        "$extensions": {
+          "gcat.dark": "#F5F5F4"
+        },
+        "$description": "tekst na panelu"
+      }
+    },
+    "tekst": {
+      "ink": {
+        "$type": "color",
+        "$value": "#0F172A",
+        "$extensions": {
+          "gcat.dark": "#F5F5F4"
+        },
+        "$description": "tekst główny; kontur detalu w rysunkach (.p-con)"
+      },
+      "ink-2": {
+        "$type": "color",
+        "$value": "#475569",
+        "$extensions": {
+          "gcat.dark": "#C8C9CC"
+        },
+        "$description": "tekst drugorzędny, nawigacja; linie wymiarowe (.p-dim, .p-ext), napisy w rysunkach"
+      },
+      "muted": {
+        "$type": "color",
+        "$value": "#64748B",
+        "$extensions": {
+          "gcat.dark": "#8B8D93"
+        },
+        "$description": "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)"
+      },
+      "brand-ink": {
+        "$type": "color",
+        "$value": "#0F172A",
+        "$extensions": {
+          "gcat.dark": "#F5F5F4"
+        },
+        "$description": "kolor znaku marki (logo, wordmark)"
+      }
+    },
+    "akcent": {
+      "brand-accent": {
+        "$type": "color",
+        "$value": "#F97316",
+        "$description": "pomarańcz marki"
+      },
+      "accent": {
+        "$type": "color",
+        "$value": "#F97316",
+        "$extensions": {
+          "gcat.dark": "#F97316"
+        },
+        "$description": "przyciski główne, aktywna zakładka, kod inline, parametr w rysunkach (.p-acc)"
+      },
+      "accent-hover": {
+        "$type": "color",
+        "$value": "#EA580C",
+        "$extensions": {
+          "gcat.dark": "#FB923C"
+        },
+        "$description": "akcent po najechaniu"
+      },
+      "accent-soft": {
+        "$type": "color",
+        "$value": "#FFF7ED",
+        "$extensions": {
+          "gcat.dark": "#2B1C12"
+        },
+        "$description": "tło etykiet akcentu (.fig-code, nazwa pliku)"
+      }
+    },
+    "stany": {
+      "green": {
+        "$type": "color",
+        "$value": "#22C55E",
+        "$description": "sukces, zaliczone; G01 w rysunkach"
+      },
+      "amber": {
+        "$type": "color",
+        "$value": "#F59E0B",
+        "$description": "ostrzeżenie; G00 w rysunkach"
+      },
+      "red": {
+        "$type": "color",
+        "$value": "#EF4444",
+        "$description": "błąd, kolizja (.p-bad)"
+      },
+      "blue": {
+        "$type": "color",
+        "$value": "#38BDF8",
+        "$description": "informacja; G02/G03 w rysunkach"
+      },
+      "warn-bg": {
+        "$type": "color",
+        "$value": "#FFF7ED",
+        "$extensions": {
+          "gcat.dark": "#2A1A10"
+        },
+        "$description": "tło ostrzeżeń"
+      }
+    },
+    "linie": {
+      "line": {
+        "$type": "color",
+        "$value": "#E2E8F0",
+        "$extensions": {
+          "gcat.dark": "#2A2B30"
+        },
+        "$description": "obramowania, separatory; drobna siatka rysunków (.gr-min)"
+      },
+      "line-strong": {
+        "$type": "color",
+        "$value": "#CBD5E1",
+        "$extensions": {
+          "gcat.dark": "#3A3B41"
+        },
+        "$description": "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)"
+      }
+    },
+    "tor": {
+      "path-g00": {
+        "$type": "color",
+        "$value": "#F59E0B",
+        "$description": "G00 — ruch szybki, linia przerywana (rysunki, legenda; w symulatorze osobno — patrz docs/tokeny.md)"
+      },
+      "path-g01": {
+        "$type": "color",
+        "$value": "#22C55E",
+        "$description": "G01 — ruch roboczy, linia ciągła"
+      },
+      "path-g02": {
+        "$type": "color",
+        "$value": "#38BDF8",
+        "$description": "G02/G03 — łuk"
+      }
+    },
+    "skladnia": {
+      "cm-comment": {
+        "$type": "color",
+        "$value": "#94A3B8",
+        "$extensions": {
+          "gcat.dark": "#64748B"
+        },
+        "$description": "komentarz ( … )"
+      },
+      "cm-g": {
+        "$type": "color",
+        "$value": "#B45309",
+        "$extensions": {
+          "gcat.dark": "#FBBF24"
+        },
+        "$description": "słowa G"
+      },
+      "cm-m": {
+        "$type": "color",
+        "$value": "#7C3AED",
+        "$extensions": {
+          "gcat.dark": "#C4B5FD"
+        },
+        "$description": "słowa M"
+      },
+      "cm-n": {
+        "$type": "color",
+        "$value": "#94A3B8",
+        "$extensions": {
+          "gcat.dark": "#64748B"
+        },
+        "$description": "numery bloków N"
+      },
+      "cm-g00": {
+        "$type": "color",
+        "$value": "#D97706",
+        "$extensions": {
+          "gcat.dark": "#F59E0B"
+        },
+        "$description": "G00 w edytorze"
+      },
+      "cm-g01": {
+        "$type": "color",
+        "$value": "#15803D",
+        "$extensions": {
+          "gcat.dark": "#4ADE80"
+        },
+        "$description": "G01 w edytorze"
+      },
+      "cm-g02": {
+        "$type": "color",
+        "$value": "#0369A1",
+        "$extensions": {
+          "gcat.dark": "#38BDF8"
+        },
+        "$description": "G02/G03 w edytorze"
+      },
+      "cm-axis": {
+        "$type": "color",
+        "$value": "#0F172A",
+        "$extensions": {
+          "gcat.dark": "#E2E8F0"
+        },
+        "$description": "adresy osi X Y Z"
+      },
+      "cm-ijk": {
+        "$type": "color",
+        "$value": "#0891B2",
+        "$extensions": {
+          "gcat.dark": "#67E8F9"
+        },
+        "$description": "I J K R"
+      },
+      "cm-fs": {
+        "$type": "color",
+        "$value": "#16A34A",
+        "$extensions": {
+          "gcat.dark": "#86EFAC"
+        },
+        "$description": "F i S"
+      },
+      "cm-t": {
+        "$type": "color",
+        "$value": "#DB2777",
+        "$extensions": {
+          "gcat.dark": "#F9A8D4"
+        },
+        "$description": "T, H, D"
+      }
+    }
+  },
+  "fonty": {
+    "kroje": {
+      "font-sans": {
+        "$type": "other",
+        "$value": "var(--font-inter), Inter, system-ui, -apple-system, \"Segoe UI\", sans-serif",
+        "$description": "interfejs i tekst (Inter)"
+      },
+      "font-display": {
+        "$type": "other",
+        "$value": "var(--font-sora), Sora, Inter, system-ui, sans-serif",
+        "$description": "nagłówki h1–h3, tytuły rysunków (Sora)"
+      },
+      "font-mono": {
+        "$type": "other",
+        "$value": "var(--font-jetbrains), \"JetBrains Mono\", ui-monospace, Menlo, Consolas, monospace",
+        "$description": "G-kod, kod inline, liczby w rysunkach (JetBrains Mono)"
+      }
+    },
+    "wagi": {
+      "font-weights-sans": {
+        "$type": "other",
+        "$value": "400 500 600",
+        "$description": "Inter"
+      },
+      "font-weights-display": {
+        "$type": "other",
+        "$value": "600 700 800",
+        "$description": "Sora"
+      },
+      "font-weights-mono": {
+        "$type": "other",
+        "$value": "400 500 700",
+        "$description": "JetBrains Mono"
+      }
+    },
+    "tekst-rysunkow": {
+      "fig-text": {
+        "$type": "dimension",
+        "$value": "11px",
+        "$description": "napisy w rysunkach"
+      },
+      "fig-text-mono": {
+        "$type": "dimension",
+        "$value": "10.5px",
+        "$description": "liczby i kod w rysunkach (.t-mono)"
+      },
+      "fig-text-big": {
+        "$type": "dimension",
+        "$value": "14px",
+        "$description": ".t-big"
+      },
+      "fig-text-sm": {
+        "$type": "dimension",
+        "$value": "9.5px",
+        "$description": ".t-sm"
+      },
+      "fig-text-axis": {
+        "$type": "dimension",
+        "$value": "11.5px",
+        "$description": "opisy osi (.t-ax)"
+      },
+      "fig-text-tick": {
+        "$type": "dimension",
+        "$value": "8.5px",
+        "$description": "podziałka (.t-tick)"
+      },
+      "fig-text-halo": {
+        "$type": "dimension",
+        "$value": "3.2px",
+        "$description": "obwódka napisu w kolorze panelu (czytelność na liniach)"
+      },
+      "fig-text-halo-tick": {
+        "$type": "dimension",
+        "$value": "2.4px",
+        "$description": "obwódka napisów podziałki"
+      }
+    }
+  },
+  "linie": {
+    "grubosci": {
+      "stroke-grid-minor": {
+        "$type": "dimension",
+        "$value": ".5",
+        "$description": "siatka drobna (.gr-min)"
+      },
+      "stroke-grid-major": {
+        "$type": "dimension",
+        "$value": ".7",
+        "$description": "siatka główna (.gr-maj)"
+      },
+      "stroke-axis": {
+        "$type": "dimension",
+        "$value": "1.2",
+        "$description": "osie układu (.ax)"
+      },
+      "stroke-axis-center": {
+        "$type": "dimension",
+        "$value": "1",
+        "$description": "oś symetrii / obrotu (.axis-c)"
+      },
+      "stroke-g00": {
+        "$type": "dimension",
+        "$value": "1.8",
+        "$description": "G00 (.p-rap)"
+      },
+      "stroke-g01": {
+        "$type": "dimension",
+        "$value": "2",
+        "$description": "G01 (.p-cut)"
+      },
+      "stroke-g02": {
+        "$type": "dimension",
+        "$value": "2",
+        "$description": "G02/G03 (.p-arc)"
+      },
+      "stroke-contour": {
+        "$type": "dimension",
+        "$value": "1.6",
+        "$description": "kontur detalu (.p-con)"
+      },
+      "stroke-accent": {
+        "$type": "dimension",
+        "$value": "1.6",
+        "$description": "parametr cyklu (.p-acc)"
+      },
+      "stroke-bad": {
+        "$type": "dimension",
+        "$value": "1.6",
+        "$description": "błąd / kolizja (.p-bad)"
+      },
+      "stroke-dim": {
+        "$type": "dimension",
+        "$value": ".9",
+        "$description": "linia wymiarowa (.p-dim)"
+      },
+      "stroke-ext": {
+        "$type": "dimension",
+        "$value": ".6",
+        "$description": "linia pomocnicza wymiaru (.p-ext)"
+      },
+      "stroke-cons": {
+        "$type": "dimension",
+        "$value": ".9",
+        "$description": "linia konstrukcyjna (.p-cons)"
+      },
+      "stroke-thick": {
+        "$type": "dimension",
+        "$value": "2.8",
+        "$description": "pogrubienie (.thick)"
+      },
+      "stroke-hatch": {
+        "$type": "dimension",
+        "$value": "1.2",
+        "$description": "kreskowanie materiału (.hatch-line)"
+      },
+      "stroke-point": {
+        "$type": "dimension",
+        "$value": "1.5",
+        "$description": "obwódka punktu (.pt)"
+      },
+      "stroke-tool": {
+        "$type": "dimension",
+        "$value": "1",
+        "$description": "narzędzie (.tool)"
+      },
+      "stroke-hole": {
+        "$type": "dimension",
+        "$value": "1.2",
+        "$description": "otwór w przekroju (.hole)"
+      },
+      "stroke-hole-top": {
+        "$type": "dimension",
+        "$value": "1.6",
+        "$description": "otwór z góry (.hole-top)"
+      },
+      "stroke-legend": {
+        "$type": "dimension",
+        "$value": "2.5px",
+        "$description": "kreska w legendzie rysunku"
+      }
+    },
+    "kreskowanie": {
+      "dash-g00": {
+        "$type": "other",
+        "$value": "6 4",
+        "$description": "G00"
+      },
+      "dash-bad": {
+        "$type": "other",
+        "$value": "5 4",
+        "$description": "błąd"
+      },
+      "dash-cons": {
+        "$type": "other",
+        "$value": "3 3",
+        "$description": "linia konstrukcyjna"
+      },
+      "dash-axis-center": {
+        "$type": "other",
+        "$value": "10 3 2 3",
+        "$description": "oś symetrii (kreska-kropka)"
+      },
+      "dash-default": {
+        "$type": "other",
+        "$value": "7 4",
+        "$description": "klasa .dashed"
+      },
+      "dash-tool": {
+        "$type": "other",
+        "$value": "3 2",
+        "$description": "obrys narzędzia"
+      },
+      "dash-stock": {
+        "$type": "other",
+        "$value": "4 3",
+        "$description": "obrys półfabrykatu (.stock-out)"
+      }
+    }
+  },
+  "rysunki": {
+    "rysunek": {
+      "fig-width": {
+        "$type": "dimension",
+        "$value": "360",
+        "$description": "szerokość viewBox (format pod telefon)"
+      },
+      "fig-height": {
+        "$type": "dimension",
+        "$value": "250",
+        "$description": "domyślna wysokość viewBox"
+      },
+      "fig-radius": {
+        "$type": "dimension",
+        "$value": "16px",
+        "$description": "zaokrąglenie ramki .fig"
+      },
+      "fig-svg-radius": {
+        "$type": "dimension",
+        "$value": "10px",
+        "$description": "zaokrąglenie panelu SVG"
+      },
+      "fig-padding": {
+        "$type": "other",
+        "$value": ".75rem",
+        "$description": "wewnętrzny odstęp ramki"
+      }
+    },
+    "strzalki": {
+      "fig-arrow-box": {
+        "$type": "dimension",
+        "$value": "10",
+        "$description": "rozmiar markera strzałki (markerWidth / markerHeight)"
+      },
+      "fig-arrow-ref-x": {
+        "$type": "dimension",
+        "$value": "8",
+        "$description": "punkt zaczepienia strzałki (refX)"
+      },
+      "fig-arrow-path": {
+        "$type": "other",
+        "$value": "M0 1.2 L9 5 L0 8.8 z",
+        "$description": "grot: długość 9, szerokość 7.6"
+      },
+      "fig-point-r": {
+        "$type": "dimension",
+        "$value": "3.6",
+        "$description": "promień punktu (Pt)"
+      },
+      "fig-step-r": {
+        "$type": "dimension",
+        "$value": "7.5",
+        "$description": "promień kółka z numerem kroku (Step)"
+      },
+      "fig-dim-label-gap": {
+        "$type": "dimension",
+        "$value": "9",
+        "$description": "odsunięcie opisu od linii wymiarowej (Dim)"
+      },
+      "fig-dim-ext-over": {
+        "$type": "dimension",
+        "$value": "3",
+        "$description": "wysunięcie linii pomocniczej poza wymiarową"
+      },
+      "fig-legend-line": {
+        "$type": "dimension",
+        "$value": "16px",
+        "$description": "długość kreski w legendzie"
+      }
+    }
+  },
+  "ksztalt": {
+    "promienie": {
+      "radius-sm": {
+        "$type": "dimension",
+        "$value": "8px",
+        "$description": "małe przyciski, pola"
+      },
+      "radius": {
+        "$type": "dimension",
+        "$value": "10px",
+        "$description": "karty, panele"
+      },
+      "radius-lg": {
+        "$type": "dimension",
+        "$value": "14px",
+        "$description": "duże karty, banery"
+      },
+      "radius-pill": {
+        "$type": "dimension",
+        "$value": "999px",
+        "$description": "chipy, pigułki (używany wprost w regułach)"
+      }
+    },
+    "cienie": {
+      "shadow-sm": {
+        "$type": "other",
+        "$value": "0 1px 2px rgba(15, 23, 42, .06)",
+        "$extensions": {
+          "gcat.dark": "0 1px 2px rgba(0, 0, 0, .5)"
+        },
+        "$description": "lekkie uniesienie"
+      },
+      "shadow": {
+        "$type": "other",
+        "$value": "0 6px 20px rgba(15, 23, 42, .08)",
+        "$extensions": {
+          "gcat.dark": "0 10px 30px rgba(0, 0, 0, .55)"
+        },
+        "$description": "karty pływające, menu"
+      }
+    },
+    "odstepy": {
+      "space-1": {
+        "$type": "other",
+        "$value": ".25rem",
+        "$description": "gap ikon, drobne odstępy"
+      },
+      "space-2": {
+        "$type": "other",
+        "$value": ".3rem",
+        "$description": "gap chipów"
+      },
+      "space-3": {
+        "$type": "other",
+        "$value": ".4rem",
+        "$description": "gap list"
+      },
+      "space-4": {
+        "$type": "other",
+        "$value": ".5rem",
+        "$description": "gap domyślny (najczęstszy)"
+      },
+      "space-5": {
+        "$type": "other",
+        "$value": ".6rem",
+        "$description": "padding pól i przycisków"
+      },
+      "space-6": {
+        "$type": "other",
+        "$value": ".8rem",
+        "$description": "padding kart"
+      },
+      "space-7": {
+        "$type": "other",
+        "$value": "1rem",
+        "$description": "padding sekcji, gap układu"
+      }
+    }
+  }
+}

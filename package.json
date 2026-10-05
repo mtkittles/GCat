@@ -11,7 +11,8 @@
     "test:calc": "npx --yes tsx scripts/test-calc.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "audit:programy": "npx --yes tsx scripts/audit-programy.ts"
+    "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
+    "tokeny": "npx --yes tsx scripts/tokeny.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",
