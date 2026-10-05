@@ -614,7 +614,35 @@ Każdy krok to osobny PR na zielonym CI, możliwy do cofnięcia jednym revertem.
 | „Narzędzia” rozumiane inaczej niż w 1.5 | zły zakres | decyzja przed krokiem 5 |
 | Treść edytowana równolegle przez Ciebie podczas kroków 4–6 | konflikty skryptu eksportu | eksport generowany z aktualnego `main` tuż przed PR; krótkie okna migracji |
 
-### Pytania do Ciebie przed krokiem 1
+### Decyzje (5.10.2026)
+
+| # | Pytanie | Decyzja | Skutek w planie |
+|---|---|---|---|
+| 1 | Czym są „Narzędzia”? | Przyszły dział **„Narzędzia skrawające”**: poradnik o geometrii, wzorach i parametrach. **Teraz nie migrujemy.** | Zarezerwowany katalog `content/narzedzia/` (bez plików). Kolekcja `materialy/` z 5.5 wypada z planu; dane kalkulatora zostają w `src/lib/machining.ts`. |
+| 2 | Słownik: jeden plik czy plik na hasło? | **Jeden plik YAML na hasło** z jawnym polem kotwicy. | `content/slownik/<kotwica>.yaml` z polem `anchor` = dzisiejsza kotwica `/slownik#…` (wyliczona przy eksporcie z `term`). Odtąd zmiana `term` nie zmienia adresu. Dymki szukają po `term` i `aliases` jak dziś. |
+| 3 | Gdzie edytować przez Keystatic? | **Tryb GitHub (produkcja).** | Konfiguracja w kroku 7: GitHub App, zmienne `KEYSTATIC_GITHUB_CLIENT_ID`, `KEYSTATIC_GITHUB_CLIENT_SECRET`, `KEYSTATIC_SECRET` (server-side), `NEXT_PUBLIC_KEYSTATIC_GITHUB_APP_SLUG`. Tryb `local` tylko do pilota w kroku 3. |
+
+Drzewo z 5.1 po decyzjach:
+```
+content/
+  karty/<slug>.mdx
+  nauka/{frezowanie,toczenie}/…
+  slownik/<kotwica>.yaml        # term, anchor, aliases[], def, see[]
+  programy/<slug>.mdx + .nc
+  zadania/<slug>.yaml
+  narzedzia/                    # zarezerwowane: „Narzędzia skrawające” (później)
+```
+
+Schemat hasła słownika:
+```yaml
+term: Frezowanie współbieżne
+anchor: frezowanie-współbieżne   # = nazwa pliku; NIE zmieniać (adres /slownik#…)
+aliases: [współbieżne, climb milling]
+def: …
+see: [g40-g42]
+```
+
+### Pytania do Ciebie przed krokiem 1 (rozstrzygnięte powyżej)
 
 1. „Narzędzia”: czy chodzi o dane kalkulatora (materiały, Vc, fz) czy o osobny katalog narzędzi do opisu?
 2. Słownik: plik na hasło (wygodne w Keystatic) czy jeden plik (wygodny do przeglądania)?
