@@ -1935,6 +1935,11 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .pg-jump a { padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 14px; }
 .pg-jump a b { color: var(--accent); margin-left: .25rem; }
 .pg-h { font-size: 1.25rem; font-weight: 700; }
+.pg-count { margin-left: .35rem; font-size: .9rem; color: var(--muted); font-weight: 600; }
+.pg-cat { font-size: 1.02rem; font-weight: 700; color: var(--muted); letter-spacing: .01em; }
+.pg-ops { display: grid; gap: .75rem; }
+.pg-ops .tbl td { vertical-align: top; }
+.pg-ops .pg-how { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); }
 .pg-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
 .pg-card { display: grid; grid-template-rows: auto 1fr; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--card); transition: border-color .15s, transform .15s; }
 .pg-card:hover { border-color: var(--accent); transform: translateY(-2px); }

@@ -9,7 +9,7 @@ export interface Issue { line: number; level: "error" | "warn"; msg: string; }
 /** Komunikaty zgłaszane najwyżej raz na program — nie ma sensu powtarzać ich przy każdej linii. */
 const ONCE = /wrzecion|G43|posuw F/i;
 
-export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stockIn?: StockBox | StockBox[], toolLen?: number, compRadius?: number): Issue[] {
+export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fanuc", stockIn?: StockBox | StockBox[], toolLen?: number, compRadius?: number | ((tool: number | null) => number | undefined)): Issue[] {
   const out: Issue[] = [];
   // Kilka detali (G54 i G55…): kolizję sprawdzamy z każdym półfabrykatem; głębokość — względem najwyższego.
   const stocks = stockIn === undefined ? [] : Array.isArray(stockIn) ? stockIn : [stockIn];
@@ -155,10 +155,12 @@ export function validate(program: Program, dialect: "fanuc" | "sinumerik" = "fan
           out.push({ line: l.index, level: "warn", msg: "Kompensacja włączona w bloku szybkiego przejazdu. Blok dojazdowy powinien być ruchem G01 — na części sterowników G00 z G41/G42 kończy się alarmem." });
         }
         const move = l.segments.find((sg) => sg.kind !== "rapid") ?? l.segments[0];
-        if (move && compRadius) {
+        // promień narzędzia aktywnego w tym bloku (program z kilkoma frezami), albo jeden dla całego programu
+        const rC = typeof compRadius === "function" ? compRadius(l.state.tool ?? null) : compRadius;
+        if (move && rC) {
           const len = Math.hypot(move.to.x - move.from.x, move.to.y - move.from.y);
-          if (len > 0 && len < compRadius * 1.05) {
-            out.push({ line: l.index, level: "error", msg: `Blok dojazdowy ma ${fmt(len)} mm, a promień narzędzia to ${fmt(compRadius)} mm. Dojazd musi być dłuższy niż promień, inaczej sterownik zgłosi przecięcie toru.` });
+          if (len > 0 && len < rC * 1.05) {
+            out.push({ line: l.index, level: "error", msg: `Blok dojazdowy ma ${fmt(len)} mm, a promień narzędzia to ${fmt(rC)} mm. Dojazd musi być dłuższy niż promień, inaczej sterownik zgłosi przecięcie toru.` });
           }
         }
         if (l.words.some((w) => w.letter === "Z") && !l.words.some((w) => w.letter === "X" || w.letter === "Y")) {

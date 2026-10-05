@@ -20,7 +20,7 @@ function Card({ p }: { p: LibProgram }) {
         <p>{p.summary}</p>
         <div className="pg-chips">{p.features.slice(0, 5).map((f) => <Chip key={f}>{f}</Chip>)}</div>
         <div className="pg-foot">
-          <span className="pg-stat">{Object.keys(p.tools).length} narz. · {blocks} bloków</span>
+          <span className="pg-stat">{p.ops ? `${p.ops.length} zabiegów · ` : ""}{Object.keys(p.tools).length} narz. · {blocks} bloków</span>
           <Link href={`/symulator?program=${p.slug}`} className="btn">Otwórz w symulatorze</Link>
         </div>
       </div>
@@ -29,21 +29,31 @@ function Card({ p }: { p: LibProgram }) {
 }
 
 export default function ProgramsPage() {
-  const groups = [
-    { key: "frezowanie", title: "Frezowanie", items: PROGRAMS.filter((p) => p.mode === "mill") },
-    { key: "toczenie", title: "Toczenie", items: PROGRAMS.filter((p) => p.mode === "lathe") },
-  ];
+  // działy: frezowanie / toczenie, w nich kategorie w kolejności z biblioteki
+  const groups = (["mill", "lathe"] as const).map((mode) => {
+    const items = PROGRAMS.filter((p) => p.mode === mode);
+    const cats = [...new Set(items.map((p) => p.category))];
+    return {
+      key: mode === "mill" ? "frezowanie" : "toczenie", title: mode === "mill" ? "Frezowanie" : "Toczenie", count: items.length,
+      cats: cats.map((c) => ({ c, id: `${mode}-${c.toLowerCase().replace(/[^a-z0-9ąćęłńóśźż]+/g, "-")}`, items: items.filter((p) => p.category === c) })),
+    };
+  });
   return (
     <div className="grid gap-6">
       <PageBanner src="/img/banner-simulator.jpg" kicker="Biblioteka" title="Gotowe programy"
-        subtitle={`${PROGRAMS.length} kompletnych programów z przypisanymi narzędziami — otwórz dowolny w symulatorze i zobacz, jak powstaje detal.`} priority />
+        subtitle={`${PROGRAMS.length} kompletnych detali — każdy z kilkoma narzędziami, kartą technologiczną i opisem zabiegów. Otwórz dowolny w symulatorze i zobacz, jak powstaje detal.`} priority />
       <nav className="pg-jump" aria-label="Działy">
-        {groups.map((g) => <a key={g.key} href={`#${g.key}`}>{g.title} <b>{g.items.length}</b></a>)}
+        {groups.flatMap((g) => g.cats.map((c) => <a key={c.id} href={`#${c.id}`}>{g.title}: {c.c} <b>{c.items.length}</b></a>))}
       </nav>
       {groups.map((g) => (
-        <section key={g.key} id={g.key} className="grid gap-4">
-          <h2 className="pg-h">{g.title}</h2>
-          <ul className="pg-grid">{g.items.map((p) => <Card key={p.slug} p={p} />)}</ul>
+        <section key={g.key} id={g.key} className="grid gap-5">
+          <h2 className="pg-h">{g.title} <span className="pg-count">{g.count}</span></h2>
+          {g.cats.map((c) => (
+            <div key={c.id} id={c.id} className="grid gap-3">
+              <h3 className="pg-cat">{c.c}</h3>
+              <ul className="pg-grid">{c.items.map((p) => <Card key={p.slug} p={p} />)}</ul>
+            </div>
+          ))}
         </section>
       ))}
     </div>

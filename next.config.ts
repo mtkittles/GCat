@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { PROGRAM_REDIRECTS } from "./src/content/programy/redirects";
 
 /* Stare adresy archiwalnego kursu (12 lekcji sprzed podziału na ścieżki) prowadzą do odpowiedników w ścieżkach. */
 const ARCHIVE_REDIRECTS: Record<string, string> = {
@@ -18,7 +19,10 @@ const ARCHIVE_REDIRECTS: Record<string, string> = {
 
 const nextConfig: NextConfig = {
   async redirects() {
-    return Object.entries(ARCHIVE_REDIRECTS).map(([from, to]) => ({ source: `/nauka/${from}`, destination: to, permanent: true }));
+    return [
+      ...Object.entries(ARCHIVE_REDIRECTS).map(([from, to]) => ({ source: `/nauka/${from}`, destination: to, permanent: true })),
+      ...Object.entries(PROGRAM_REDIRECTS).map(([from, to]) => ({ source: `/programy/${from}`, destination: `/programy/${to}`, permanent: true })),
+    ];
   },
 };
 

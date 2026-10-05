@@ -176,11 +176,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode) || multi) return undefined;
     return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
   }, [mode, setup, program, multi]);
-  const compR = useMemo(() => {
-    const nums = Object.keys(setup.tools).map(Number);
-    const t = setup.tools[nums[0]];
-    return t ? cuttingRadius(t) : undefined;
-  }, [setup]);
+  // promień narzędzia aktywnego w bloku z G41/G42 (dojazd sprawdzany względem właściwego freza)
+  const compR = useMemo(() => (tool: number | null) => cuttingRadius(toolOf(setup, tool, mode)), [setup, mode]);
   const issues = useMemo(() => {
     const base = validate(program, dialect, stockBox, undefined, compR);
     // 4. oś: kolizje z uchwytem i konikiem; tokarka: kolizje ze szczękami uchwytu

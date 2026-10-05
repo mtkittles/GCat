@@ -20,7 +20,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
   const prog = parseProgram(p.src, { diameterX: p.mode === "lathe" });
   const mins = Math.max(1, Math.round(prog.seconds / 60));
   const lines = p.src.split("\n");
-  const same = PROGRAMS.filter((x) => x.mode === p.mode && x.slug !== p.slug).slice(0, 4);
+  const same = PROGRAMS.filter((x) => x.mode === p.mode && x.category === p.category && x.slug !== p.slug).slice(0, 4);
   return (
     <div className="grid gap-6 pg-detail">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/programy", label: "Gotowe programy" }, { label: p.title }]} />
@@ -35,6 +35,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
             <div><dt>Czas obróbki</dt><dd>ok. {mins} min</dd></div>
             <div><dt>Bloki</dt><dd>{lines.filter((l) => l.trim()).length}</dd></div>
             <div><dt>Narzędzia</dt><dd>{Object.keys(p.tools).length}</dd></div>
+            {p.ops && <div><dt>Zabiegi</dt><dd>{p.ops.length}</dd></div>}
           </dl>
           <div className="pg-actions">
             <Link href={`/symulator?program=${p.slug}`} className="btn">Otwórz w symulatorze</Link>
@@ -42,6 +43,21 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </div>
+      {p.ops && p.ops.length > 0 && (
+        <section className="pg-ops">
+          <h2 className="pg-h">Karta technologiczna</h2>
+          <table className="tbl">
+            <thead><tr><th>Nr</th><th>Zabieg</th><th>Narzędzie</th><th>Kody i parametry</th></tr></thead>
+            <tbody>
+              {p.ops.map((o, k) => {
+                const tool = p.tools[o.t];
+                const tn = p.mode === "lathe" && o.t >= 100 ? `T${String(o.t).padStart(4, "0")}` : `T${o.t}`;
+                return <tr key={k}><td className="font-mono">{k + 1}</td><td>{o.op}</td><td><span className="font-mono">{tn}</span> {tool?.name}</td><td className="pg-how">{o.how}</td></tr>;
+              })}
+            </tbody>
+          </table>
+        </section>
+      )}
       <div className="pg-cols">
         <section className="pg-tools">
           <h2 className="pg-h">Narzędzia</h2>
@@ -62,7 +78,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
       </div>
       {same.length > 0 && (
         <section className="grid gap-3">
-          <h2 className="pg-h">Inne programy — {p.mode === "mill" ? "frezowanie" : "toczenie"}</h2>
+          <h2 className="pg-h">Inne programy — {p.category}</h2>
           <ul className="pg-mini">
             {same.map((x) => <li key={x.slug}><Link href={`/programy/${x.slug}`}><ProgramPreview p={x} id={`pv-o-${x.slug}`} /><span>{x.title}</span></Link></li>)}
           </ul>
