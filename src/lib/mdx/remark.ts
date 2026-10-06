@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
@@ -180,6 +182,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           const id = strAttr(el, "id");
           if (typeof id !== "string") at(n, `<Diagram> wymaga id="…" (tekst)`);
           else if (!opts.diagramIds.has(id)) at(n, `<Diagram id="${id}" /> — nie ma takiego rysunku w diagrams.tsx`);
+        }
+        if (el.name === "Obraz") {
+          const src = strAttr(el, "src");
+          if (typeof src !== "string" || !src.startsWith("/rysunki/") || src.includes("..")) at(n, `<Obraz> wymaga src="/rysunki/…" (plik w public/rysunki/)`);
+          else if (!existsSync(path.join(process.cwd(), "public", src))) at(n, `<Obraz src="${src}" /> — nie ma pliku public${src}`);
         }
         for (const [name, values] of Object.entries(ENUMS[el.name] ?? {})) {
           const v = strAttr(el, name);

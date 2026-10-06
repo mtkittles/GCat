@@ -22,6 +22,12 @@ export function Diagram({ id }: { id: string }) {
   return <div>{diagrams[id]?.()}</div>;
 }
 
+/** <Obraz src="/rysunki/plik.png" alt="…" caption="…" /> — obraz wgrany przez Keystatic do public/rysunki/. */
+export function Obraz({ src, alt, caption }: { src: string; alt?: string; caption?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element -- plik statyczny o nieznanych wymiarach, bez optymalizacji
+  return <figure className="grid gap-1"><img src={src} alt={alt ?? ""} />{caption && <figcaption className="cap">{rich(caption)}</figcaption>}</figure>;
+}
+
 /** <Note kind="tip|warn|info">tekst</Note> (blok `note`). */
 export function Note({ kind, children }: { kind: "tip" | "warn" | "info"; children?: ReactNode }) {
   return <aside className={`note note-${kind}`}>{children}</aside>;
@@ -58,6 +64,6 @@ export function Table({ caption, children }: { caption?: string; children?: Reac
   return <figure className="grid gap-1"><div className="overflow-x-auto">{children}</div>{caption && <figcaption className="cap">{rich(caption)}</figcaption>}</figure>;
 }
 
-export const mdxComponents = { Term, Diagram, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;
+export const mdxComponents = { Term, Diagram, Obraz, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;
 
 export { componentNames, diagramIds } from "./names";

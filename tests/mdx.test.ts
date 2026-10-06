@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createElement as h, Fragment } from "react";
@@ -171,6 +171,21 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
   it("tabela: data-label bez escape'ów Markdown (zapis Keystatic \\[mm] = [mm])", async () => {
     const out = await html(await md("| Otwór \\[mm] | A \\| B |\n| - | - |\n| 4,2 | 1 |\n"));
     expect(out).toContain('<td data-label="Otwór [mm]">4,2</td><td data-label="A | B">1</td>');
+  });
+
+  it("<Obraz>: plik z public/rysunki/ → figure z img i podpisem; brak pliku lub zła ścieżka = błąd", async () => {
+    const dir = "public/rysunki/test-mdx";
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(`${dir}/a.png`, "PNG");
+    try {
+      const out = await html(await md('<Obraz src="/rysunki/test-mdx/a.png" alt="Opis" caption="Zob. [[G01]]" />\n'));
+      expect(out).toContain('<figure class="grid gap-1"><img src="/rysunki/test-mdx/a.png" alt="Opis"/><figcaption class="cap">Zob. ');
+      await expect(md('<Obraz src="/rysunki/test-mdx/brak.png" />\n')).rejects.toThrow("nie ma pliku public/rysunki/test-mdx/brak.png");
+      await expect(md('<Obraz src="/inne/a.png" />\n')).rejects.toThrow('<Obraz> wymaga src="/rysunki/…"');
+      await expect(md('<Obraz src="/rysunki/../favicon.ico" />\n')).rejects.toThrow('<Obraz> wymaga src="/rysunki/…"');
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 
   it("zły typ pola wskazuje linię w pliku", async () => {

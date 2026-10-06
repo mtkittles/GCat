@@ -2,13 +2,15 @@
    i zapisuje content/.generated/*.json (poza gitem), które importują @/lib/gcodes, @/lib/content i wyszukiwarka:
    • kody.json    — karty (kolejność wg `order`), z polami star i hasArticle,
    • slownik.json — hasła (kolejność wg `order`), z jawną kotwicą,
-   • szukaj.json  — tekst artykułów kart do wyszukiwarki.
+   • szukaj.json  — tekst artykułów kart do wyszukiwarki,
+   • diagramy.json — id rysunków z diagrams.tsx (lista wyboru w panelu Keystatic).
    Uruchamiane automatycznie: postinstall, predev, pretest, prebuild; ręcznie: npm run tresci.
    Błąd treści = lista „plik:linia — opis” i kod wyjścia 1. Argument: katalog treści (domyślnie content). */
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { hasloToEntry, kodToGcode } from "../src/lib/mdx/gcode";
 import { ContentErrors, loadContent } from "../src/lib/mdx/loader";
+import { diagramIds } from "../src/lib/mdx/names";
 
 const root = process.argv[2] ?? "content";
 loadContent(root)
@@ -19,6 +21,7 @@ loadContent(root)
     write("kody.json", c.kody.map((k) => kodToGcode(k.data, k.meta.headings.length > 0 || k.meta.text.trim() !== "")));
     write("slownik.json", c.slownik.map((h) => hasloToEntry(h.data)));
     write("szukaj.json", Object.fromEntries(c.kody.map((k) => [k.data.slug, k.meta.text])));
+    write("diagramy.json", [...diagramIds].sort());
     const n = { karty: c.kody.length, hasła: c.slownik.length, lekcje: c.lekcje.length, programy: c.programy.length, zadania: c.zadania.length };
     console.log(`treści (${root}): ${Object.entries(n).map(([k, v]) => `${k} ${v}`).join(" · ")} — OK → ${out}`);
   })
