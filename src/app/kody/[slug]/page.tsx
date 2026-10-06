@@ -12,11 +12,13 @@ import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
 import { articles } from "@/content/articles";
 import { bannerFor, bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
+import { kodMdx } from "@/lib/mdx/kody";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const g = bySlug((await params).slug);
+  const slug = (await params).slug;
+  const g = (await kodMdx(slug))?.g ?? bySlug(slug);
   return g ? { title: `${g.code} — ${g.name} — GCat`, description: g.short } : { title: "Kod — GCat" };
 }
 
@@ -37,14 +39,17 @@ function relatedOf(g: GCode): GCode[] {
   opisowych mają artykuł, ale początek i koniec zostają takie same.
 */
 export default async function CodePage({ params }: { params: Promise<{ slug: string }> }) {
-  const g = bySlug((await params).slug);
+  const slug = (await params).slug;
+  // przełącznik per slug (MDX_KODY w src/lib/mdx/kody.ts): karta z content/kody/<slug>.mdx albo ze starych plików
+  const mdx = await kodMdx(slug);
+  const g = mdx?.g ?? bySlug(slug);
   if (!g) notFound();
   const i = gcodes.findIndex((x) => x.slug === g.slug);
   const prev = gcodes[i - 1], next = gcodes[i + 1];
   const mode = g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill");
-  const art = articles[g.slug];
+  const art = mdx ? undefined : articles[g.slug];
   const self = g.code.toUpperCase().split(/[\s/–-]+/).filter((c) => /^[GM]\d/.test(c));
-  const artHasFig = !!art?.some((b) => b.t === "diagram");
+  const artHasFig = mdx ? mdx.hasDiagram : !!art?.some((b) => b.t === "diagram");
   const fig = diagrams[g.slug] && !artHasFig ? diagrams[g.slug] : null;
   const rel = relatedOf(g);
   const inLessons = lessonsForCodes(cardCodes(g.code), [...(g.milling ? ["frezowanie" as const] : []), ...(g.turning ? ["toczenie" as const] : [])]);
@@ -118,8 +123,10 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     </>
   );
 
-  if (art) {
-    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(art), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
+  if (art || mdx) {
+    // spis treści artykułu: z bloków albo z nagłówków MDX (kotwice jawne w pliku)
+    const tocBlocks = mdx ? mdx.headings.map((h) => ({ t: "h" as const, x: h.label, id: h.id })) : art!;
+    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
     return (
       <div className="article-layout cc">
         <aside className="cc-left"><LeftToc items={toc} /></aside>
@@ -127,8 +134,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {head}
           {syntax}
           {figure}
-          <details className="toc-mobile toc-fold"><summary>W tej karcie</summary><Toc blocks={art} /></details>
-          <Article blocks={art} />
+          <details className="toc-mobile toc-fold"><summary>W tej karcie</summary><Toc blocks={tocBlocks} /></details>
+          {mdx ? <div className="article grid gap-4">{await mdx.render()}</div> : <Article blocks={art!} />}
           {lessonsSec}
           {related}
           {footerNav}

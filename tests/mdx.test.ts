@@ -15,6 +15,7 @@ import { componentNames, diagramIds, mdxComponents } from "@/lib/mdx/components"
 import { ContentErrors, loadContent } from "@/lib/mdx/loader";
 import { MARKER_RE } from "@/lib/mdx/remark";
 import { knownCodes, resolveKey, selfCodes } from "@/lib/mdx/resolve";
+import { applyApproved, ZATWIERDZONE } from "./zatwierdzone";
 
 /*
   Szkielet MDX (krok 2): fixture → loader → plugin remark → render.
@@ -70,7 +71,8 @@ describe("loader: fixture content/", () => {
     }
     expect(out).not.toMatch(/\[\[|\]\]/);
     // marker w komórce tabeli z | nie dzieli komórki
-    expect(out).toMatch(/<td>łuki z <span class="term-wrap">.*?G02\/G03<\/button><\/span> i I, J<\/td>/);
+    expect(out).toMatch(/<td data-label="Uwagi">łuki z <span class="term-wrap">.*?G02\/G03<\/button><\/span> i I, J<\/td>/);
+    expect(out).toContain('<figure class="grid gap-1"><div class="overflow-x-auto"><table class="code-table tbl-stack"><thead><tr><th>Płaszczyzna</th>');
     // <Diagram> = ten sam rysunek co blok `diagram` w Article.tsx
     expect(out).toContain(renderToStaticMarkup(h("div", null, diagrams["g17-g19"]())));
     expect(out).toContain('<code class="inline-code">G17</code>');
@@ -88,23 +90,17 @@ describe("loader: fixture content/", () => {
 });
 
 describe("zgodność z dzisiejszym renderem (1:1)", () => {
-  /*
-    Znane różnice (3 akapity): dziś rich() pokazuje w nich surową składnię — link Markdown „[kalkulatorze](/kalkulator)”
-    i `kod` wewnątrz **…** (widoczne backticki). MDX renderuje to, co autor miał na myśli. Decyzja przy eksporcie (krok 3/4):
-    ucieczkować, żeby było 1:1, albo przyjąć poprawkę. Każda nowa różnica = błąd testu.
-  */
-  const KNOWN_DIFF = [/\[kalkulatorze\]\(\/kalkulator\)/, /\*\*`ROT RPL=30`\*\*/, /\*\*`CYCLE84`\*\*/];
-
-  it("akapity artykułów: MDX == rich() (poza 3 znanymi różnicami)", async () => {
+  it("akapity artykułów: MDX == rich() (poza zatwierdzonymi wyjątkami z tests/zatwierdzone.ts)", async () => {
     const ps = Object.values(articles).flat().filter((b): b is { t: "p"; x: string } => b.t === "p").map((b) => b.x);
     expect(ps.length).toBeGreaterThan(100);
-    const diff: string[] = [];
+    const used = new Set<string>();
     for (const x of ps) {
-      const want = N(renderToStaticMarkup(h("p", null, rich(x))));
-      if ((await html(await md(x))) !== want) diff.push(x);
+      const want = applyApproved(N(renderToStaticMarkup(h("p", null, rich(x)))));
+      want.used.forEach((u) => used.add(u));
+      expect(await html(await md(x)), x).toBe(want.html);
     }
-    expect(diff.length).toBe(KNOWN_DIFF.length);
-    for (const re of KNOWN_DIFF) expect(diff.some((x) => re.test(x)), String(re)).toBe(true);
+    // w akapitach: link (g01) i `kod` w pogrubieniu (g68-g69, g84); markery w pogrubieniu są w listach i tabelach (tests/pilot.test.ts)
+    expect([...used].sort()).toEqual(ZATWIERDZONE.filter((a) => !a.where.includes("[[")).map((a) => a.where).sort());
   });
 
   it("pola wszystkich 56 kart: MDX z auto-linkami == CodeText", async () => {

@@ -2,9 +2,9 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { LineCounter, parseDocument, YAMLParseError } from "yaml";
 import type { z } from "zod";
-import { compileContent } from "./compile";
-import { componentNames, diagramIds as liveDiagramIds } from "./components";
-import { ContentError, MARKER_RE, type ContentIssue } from "./remark";
+import { compileContentMeta } from "./compile";
+import { componentNames, diagramIds as liveDiagramIds } from "./names";
+import { ContentError, MARKER_RE, type ContentIssue, type GcatMeta } from "./remark";
 import { knownCodes, liveSources, resolveKey, selfCodes, type TermSources } from "./resolve";
 import {
   cwiczeniaSchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, zadanieSchema,
@@ -25,7 +25,7 @@ export interface LoadOptions {
   components?: string[];
 }
 
-export interface KodEntry { file: string; data: Kod; self: string[]; body: string; fields: Record<string, string> }
+export interface KodEntry { file: string; data: Kod; self: string[]; body: string; meta: GcatMeta; fields: Record<string, string> }
 export interface HasloEntry { file: string; data: Haslo }
 export interface LekcjaEntry { file: string; tor: "frezowanie" | "toczenie"; data: Lekcja; body: string; cwiczenia: Cwiczenia }
 export interface ProgramEntry { file: string; data: Program; body: string; nc: string | null }
@@ -85,12 +85,13 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   const errors: ContentError[] = [];
   const fail = (file: string, issues: ContentIssue[]) => { if (issues.length) errors.push(new ContentError(rel(file), issues)); };
   const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds });
-  const tryCompile = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => {
-    try { return await compileContent(src, { ...compileOpts(file), ...extra }); } catch (e) {
+  const tryCompileMeta = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => {
+    try { return await compileContentMeta(src, { ...compileOpts(file), ...extra }); } catch (e) {
       if (e instanceof ContentError) errors.push(e); else throw e;
-      return "";
+      return { code: "", meta: { headings: [], diagrams: 0 } };
     }
   };
+  const tryCompile = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => (await tryCompileMeta(file, src, extra)).code;
   const readMdx = <S extends z.ZodType>(file: string, schema: S) => {
     const src = readFileSync(file, "utf8");
     const fm = splitFrontmatter(src);
@@ -130,7 +131,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     if (!r) continue;
     if (r.data.slug !== f.slice(0, -4)) fail(file, [{ message: `slug „${r.data.slug}” ≠ nazwa pliku „${f}”` }]);
     const self = selfCodes(r.data.code);
-    const body = await tryCompile(file, r.body);
+    const { code: body, meta } = await tryCompileMeta(file, r.body);
     // pola karty: auto-linki gołych kodów G/M jak CodeText
     const fields: Record<string, string> = {};
     const fieldTexts: [string, string][] = [
@@ -139,7 +140,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
       ...r.data.pitfalls.map((p, i): [string, string] => [`pitfalls.${i}`, p]),
     ];
     for (const [k, v] of fieldTexts) fields[k] = await tryCompile(`${file} (pole ${k})`, v, { autoCodes: { known, self } });
-    out.kody.push({ file: rel(file), data: r.data, self, body, fields });
+    out.kody.push({ file: rel(file), data: r.data, self, body, meta, fields });
   }
 
   // ── słownik

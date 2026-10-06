@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source not "../../content";
+@source not "../../docs";
 
 /* ==========================================================================
    GCat — system wizualny
