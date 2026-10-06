@@ -1,0 +1,9 @@
+term: Korekcja długości
+anchor: korekcja-długości
+order: 310
+aliases:
+  - korektor długości
+  - H
+def: Wartość dodawana do współrzędnej Z, uwzględniająca długość aktualnego narzędzia. Aktywowana przez G43 z numerem rejestru H. Bez niej sterownik liczy pozycję od czoła wrzeciona.
+see:
+  - g43-g49

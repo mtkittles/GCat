@@ -15,7 +15,7 @@ import { anchorRe } from "./schema";
   • Dozwolone tylko znane komponenty (np. <Diagram id="…" />), bez wyrażeń {…} i import/export.
   • <Code>/<Sim>/<Demo> zawierają jeden blok ``` — jego treść staje się atrybutem `src`.
   • Tabela GFM → <Table> (figure + klasy + data-label z nagłówka) jak blok `table` w Article.tsx.
-  • file.data.gcat = { headings, diagrams } — spis treści strony i „czy jest rysunek”.
+  • file.data.gcat = { headings, diagrams, text, programs } — spis treści, „czy jest rysunek”, tekst do wyszukiwarki, programy.
 */
 
 /** Wartości atrybutów komponentów (jak typy bloków w src/lib/article.ts). */
@@ -27,7 +27,14 @@ const ENUMS: Record<string, Record<string, string[]>> = {
 };
 const WITH_SRC = new Set(["Code", "Sim", "Demo"]);
 
-export interface GcatMeta { headings: { id: string; label: string }[]; diagrams: number }
+export interface GcatMeta {
+  headings: { id: string; label: string }[];
+  diagrams: number;
+  /** tekst do wyszukiwarki: surowy tekst bloków bez ** i ` (jak dawne blockText w searchIndex.ts) */
+  text: string;
+  /** programy z <Sim> i <Demo> (dla audit:programy) */
+  programs: { kind: "sim" | "demo"; src: string; mode: "mill" | "lathe" }[];
+}
 
 /** Sam tekst węzła (etykieta nagłówka do spisu treści). */
 const plain = (n: Nodes): string => ("value" in n && typeof n.value === "string" ? n.value : "children" in n ? (n.children as Nodes[]).map(plain).join("") : "");
@@ -42,8 +49,8 @@ const CODE_RE = /\b([GM]\d{1,3}(?:\.\d)?)\b/g;
 const HEADING_ID_RE = /\s*\{#([^\s{}]+)\}\s*$/;
 
 export interface GcatRemarkOptions {
-  /** Źródła do sprawdzania kluczy markerów (domyślnie: dzisiejsze gcodes.json + glossary.json). */
-  sources?: TermSources;
+  /** Źródła do sprawdzania kluczy markerów (karty i hasła z content/). */
+  sources: TermSources;
   /** Auto-linki gołych kodów G/M (jak CodeText w kartach). */
   autoCodes?: { known: Set<string>; self: string[] };
   /** Nazwy komponentów dozwolonych w treści. */
@@ -118,8 +125,29 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       issues.push({ line: p.line + before.length - 1, column: before.length > 1 ? before[before.length - 1].length + 1 : p.column + i, message });
     };
 
-    const meta: GcatMeta = { headings: [], diagrams: 0 };
+    const meta: GcatMeta = { headings: [], diagrams: 0, text: "", programs: [] };
     const source = String(file.value ?? "");
+
+    // 0. Tekst do wyszukiwarki — z surowego źródła, przed przekształceniami (jeden wpis na blok najwyższego poziomu).
+    const raw = (n: { position?: { start: { offset?: number }; end: { offset?: number } } } | undefined) =>
+      n?.position?.start.offset !== undefined && n.position.end.offset !== undefined ? source.slice(n.position.start.offset, n.position.end.offset) : "";
+    const unesc = (x: string) => x.replace(/\\([!-/:-@[-`{-~])/g, "$1");
+    const cells = (t: Table) => t.children.flatMap((r) => r.children.map((c) => unesc(raw(c).trim().replace(/^\|/, "").replace(/\|$/, "").trim())));
+    meta.text = tree.children.map((n): string => {
+      switch (n.type) {
+        case "heading": return unesc(raw(n).replace(/^#+\s*/, "").replace(/\s*\\?\{#[^\s{}]+\}\s*$/, ""));
+        case "paragraph": return unesc(raw(n));
+        case "list": return n.children.map((li) => unesc(raw(li.children[0]))).join(" ");
+        case "table": return cells(n).join(" ");
+        case "mdxJsxFlowElement": {
+          if (n.name === "Note") return unesc(n.children.length ? source.slice(n.children[0].position!.start.offset!, n.children[n.children.length - 1].position!.end.offset!) : "");
+          if (n.name === "Code" || n.name === "Sim") return String(strAttr(n, "caption") ?? "");
+          if (n.name === "Table") { const t = n.children.find((c): c is Table => c.type === "table"); return t ? cells(t).join(" ") : ""; }
+          return "";
+        }
+        default: return "";
+      }
+    }).join(" ").replace(/\*\*|`/g, "");
 
     // 1. Nagłówki: jawna, unikalna kotwica {#id}.
     const ids = new Set<string>();
@@ -166,8 +194,10 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         if (WITH_SRC.has(el.name)) {
           const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
           if (kids.length !== 1 || kids[0].type !== "code") { at(n, `<${el.name}> musi zawierać dokładnie jeden blok kodu \`\`\` (program)`); return; }
-          el.attributes.push(attr("src", (kids[0] as { value: string }).value));
+          const src = (kids[0] as { value: string }).value;
+          el.attributes.push(attr("src", src));
           el.children = [];
+          if (el.name !== "Code") meta.programs.push({ kind: el.name === "Sim" ? "sim" : "demo", src, mode: strAttr(el, "mode") === "lathe" ? "lathe" : "mill" });
         }
       } else if (n.type === "code") at(n, "blok kodu ``` tylko wewnątrz <Code>, <Sim> albo <Demo>");
     });

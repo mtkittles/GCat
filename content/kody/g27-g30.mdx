@@ -1,0 +1,51 @@
+---
+code: G27 G29 G30
+slug: g27-g30
+name: "Punkty referencyjne: sprawdzenie, powrót, drugi punkt"
+order: 120
+group: Pomocnicze
+level: 3
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g28
+  - m06
+variesBy: null
+short: G30 jedzie do drugiego punktu referencyjnego (np. wymiany narzędzia), G27 sprawdza powrót do bazy, G29 wraca z bazy do wskazanego punktu.
+desc: |-
+  Działają jak **G28**: najpierw ruch szybki do punktu pośredniego z bloku, potem do punktu referencyjnego.
+
+  **G30 P2** jedzie do drugiego punktu (P2 można pominąć), **P3** i **P4** do trzeciego i czwartego. Ich położenie ustawia producent w parametrach — często to pozycja wymiany narzędzia albo zmiany palety.
+
+  **G27** jedzie do podanej pozycji i sprawdza, czy to punkt referencyjny; jeśli nie — alarm. **G29** wraca z punktu referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji z bloku.
+syntax:
+  fanuc: |-
+    G91 G30 P2 Z0
+    G27 X_ Y_ Z_
+    G29 X_ Y_ Z_
+  sinumerik: |-
+    G75 FP=2 X=0 Z=0   ; punkt stały 2 (wartości osi wymagane, ale ignorowane)
+    G74 X=0 Z=0        ; najazd na punkt referencyjny
+sinumerik: Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi — **G74**.
+params:
+  - key: P
+    desc: numer punktu referencyjnego (2–4)
+  - key: X Y Z
+    desc: punkt pośredni (G30) albo pozycja docelowa (G27, G29)
+pitfalls:
+  - "Jak przy G28: w G90 punkt pośredni Z0 to zero detalu — jeśli leży poniżej narzędzia, pierwszy etap schodzi na detal. G91 … Z0 pomija ten etap."
+  - Położenie drugiego punktu ustawia producent maszyny. Sprawdź je, zanim użyjesz G30 w programie.
+example:
+  src: |-
+    G91 G30 P2 Z0 (os Z do punktu wymiany)
+    G30 P2 X0 Y0
+    T05 M06
+    G90 G54 G00 X50.0 Y30.0
+    M30
+  simulate: false
+  stock: null
+---
+

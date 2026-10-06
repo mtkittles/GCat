@@ -1,0 +1,41 @@
+---
+code: M19
+slug: m19
+name: Orientacja wrzeciona
+order: 460
+group: Funkcje M
+level: 2
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g76-g89
+  - m06
+  - m03-m05
+variesBy: null
+short: Zatrzymuje wrzeciono w stałej pozycji kątowej. Potrzebne przy wymianie narzędzia i w cyklach wytaczania G76 i G87.
+desc: |-
+  Wrzeciono obraca się do pozycji ustawionej w parametrach i zostaje w niej zablokowane. Zabierak oprawki trafia wtedy w rowek przy wymianie, a ostrze wytaka stoi w znanym kierunku, więc cykl może je odsunąć od ścianki.
+
+  Na części maszyn kąt orientacji podaje się w bloku z M19 — sposób zależy od producenta.
+syntax:
+  fanuc: M19
+  sinumerik: |-
+    SPOS=_   ; kąt w stopniach
+    M19      ; jeśli skonfigurowane
+sinumerik: Pozycjonowanie wrzeciona to **SPOS=kąt**. M19 działa, jeśli producent je skonfigurował.
+params: []
+pitfalls:
+  - Kąt orientacji z parametrów nie musi odpowiadać kierunkowi ostrza. Ustaw wytak w oprawce tak, żeby cykl G76 odsuwał ostrze od ścianki, a nie w nią.
+example:
+  src: |-
+    G00 Z100.0
+    M19
+    M00 (sprawdz polozenie ostrza wytaka)
+    M30
+  simulate: false
+  stock: null
+---
+

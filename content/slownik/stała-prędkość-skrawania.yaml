@@ -1,0 +1,11 @@
+term: Stała prędkość skrawania
+anchor: stała-prędkość-skrawania
+order: 640
+aliases:
+  - CSS
+  - G96
+  - stała Vc
+def: "Tryb, w którym sterowanie zmienia obroty wraz ze średnicą tak, by prędkość skrawania była stała: n = 1000 · Vc / (π · D). Daje równą chropowatość i trwałość płytki na całym profilu; przy wierceniu w osi i gwintowaniu używa się stałych obrotów G97."
+see:
+  - g96-g97
+  - g50

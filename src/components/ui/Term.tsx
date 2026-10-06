@@ -25,10 +25,7 @@ function lookup(key: string): Found | null {
     g.term.toLowerCase() === k ||
     g.term.toLowerCase().startsWith(k + " ") ||
     g.aliases.some((a) => a.toLowerCase() === k));
-  if (term) {
-    const slug = term.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-");
-    return { title: term.term, text: term.def, href: `/slownik#${slug}`, kind: "pojęcie" };
-  }
+  if (term) return { title: term.term, text: term.def, href: `/slownik#${term.anchor}`, kind: "pojęcie" };
   return null;
 }
 

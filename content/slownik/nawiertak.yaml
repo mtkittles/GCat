@@ -1,0 +1,11 @@
+term: Nawiertak
+anchor: nawiertak
+order: 370
+aliases:
+  - nawiercak
+  - spot drill
+  - wiertło do nakiełków
+def: Krótkie, sztywne narzędzie o kącie wierzchołkowym 90° lub 120°, którym wykonuje się wgłębienie prowadzące wiertło i fazę otworu. Programuje się je cyklem G81 lub G82 (postój wyrównuje fazę).
+see:
+  - g82
+  - g81-g83

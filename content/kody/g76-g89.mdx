@@ -1,0 +1,62 @@
+---
+code: G76 G87 G88 G89
+slug: g76-g89
+name: Wytaczanie dokładne i specjalne (frezarka)
+order: 290
+group: Cykle
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g85-g86
+  - m19
+  - g81-g83
+variesBy: null
+short: "Cykle wytaczania: G76 z orientacją wrzeciona i odsunięciem ostrza, G87 wytaczanie wsteczne, G88 z ręcznym wycofaniem, G89 z postojem w dnie."
+desc: |-
+  **G76.** W dnie otworu wrzeciono zatrzymuje się w stałej pozycji (orientacja, jak **M19**), ostrze odsuwa się o **Q** od ścianki i narzędzie wyjeżdża szybko, nie rysując powierzchni.
+
+  **G87.** Wytaczanie od spodu: narzędzie wchodzi zorientowane i odsunięte, na dole wraca na oś i skrawa w górę.
+
+  **G88.** Postój w dnie i zatrzymanie wrzeciona, wycofanie ręczne. **G89.** Jak **G85** (wyjazd na posuwie), ale z postojem **P** w dnie — czyste dno i czoło pogłębienia.
+
+  Na tokarce Fanuc G76 to cykl gwintowania.
+syntax:
+  fanuc: |-
+    G98/G99 G76 X_ Y_ Z_ R_ Q_ P_ F_
+    G87 X_ Y_ Z_ R_ Q_ P_ F_
+    G88 X_ Y_ Z_ R_ P_ F_
+    G89 X_ Y_ Z_ R_ P_ F_
+  sinumerik: |-
+    CYCLE86   ; orientacja i odsunięcie
+    CYCLE87 / CYCLE88   ; zatrzymanie, wyjazd ręczny
+    CYCLE89   ; postój, wyjazd na posuwie
+sinumerik: Odpowiedniki to **CYCLE86** (orientacja i odsunięcie), **CYCLE87** i **CYCLE88** (zatrzymanie, wyjazd ręczny) oraz **CYCLE89** (postój, wyjazd na posuwie).
+params:
+  - key: Q
+    desc: odsunięcie ostrza w dnie (G76, G87) — kierunek ustawia parametr
+  - key: P
+    desc: postój w dnie w milisekundach, bez kropki
+  - key: Z
+    desc: dno otworu
+  - key: R
+    desc: płaszczyzna startu
+pitfalls:
+  - Kierunek odsunięcia Q w G76 ustawia parametr maszyny. Źle ustawiony wbije ostrze w ściankę zamiast je odsunąć — sprawdź na pierwszym otworze przy zmniejszonym posuwie szybkim.
+  - Q w G76 to odsunięcie, a Q w G83 to głębokość kroku. Te same litery, inne znaczenie.
+example:
+  src: |-
+    G21 G90 G17 G54
+    T10 M06 (wytak dokladny)
+    S900 M03
+    G00 X40 Y30 Z20
+    G98 G76 Z-25 R2 Q0.2 P500 F60
+    G80
+    G00 Z100
+    M30
+  simulate: false
+  stock: null
+---
+

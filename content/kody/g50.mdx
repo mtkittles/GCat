@@ -1,0 +1,53 @@
+---
+code: G50
+slug: g50
+name: Ograniczenie obrotów i ustawienie układu (tokarka)
+order: 190
+group: Wrzeciono
+level: 2
+modal: false
+machines:
+  - toczenie
+star: false
+related:
+  - g96-g97
+  - g92
+  - g71-g70
+variesBy: null
+short: G50 S_ ogranicza maksymalne obroty przy stałej prędkości skrawania G96. G50 X_ Z_ w starszych programach ustawia układ współrzędnych.
+desc: |-
+  Przy **G96** obroty rosną, gdy nóż zbliża się do osi: n = 1000 · Vc / (π · D). Na średnicy 2 mm przy Vc = 200 m/min wyszłoby około 32 000 obr/min. **G50 S2500** ogranicza je do 2500.
+
+  Blok z G50 S musi stać przed G96. W systemie A **G50 X_ Z_** ustawia też układ współrzędnych od bieżącej pozycji noża (jak G92 na frezarce). Dziś zastępują to korekcje narzędzi i G54.
+syntax:
+  fanuc: |-
+    G50 S_
+    G50 X_ Z_
+  sinumerik: |-
+    LIMS=_   ; limit obrotów przy G96
+    G26 S_   ; górna granica obrotów
+sinumerik: Limit obrotów przy stałej prędkości skrawania to **LIMS=**. Ogólną górną granicę obrotów ustawia **G26 S_**.
+params:
+  - key: S
+    desc: maksymalne obroty wrzeciona [obr/min]
+  - key: X Z
+    desc: pozycja noża w nowym układzie (tryb ustawiania układu)
+pitfalls:
+  - "G96 bez G50 S: przy planowaniu do osi wrzeciono rozpędzi się do maksimum maszyny. Przy niewyważonym detalu to realne zagrożenie."
+  - Literówka G50 X_ zamiast G50 S_ przestawi układ współrzędnych.
+example:
+  src: |-
+    G21 G18 G54
+    T0101
+    G50 S2500
+    G96 S200 M03
+    G00 X60.0 Z2.0
+    G01 X0.0 F0.15
+    G00 Z5.0
+    G97 S800
+    G00 X100.0 Z100.0
+    M30
+  simulate: false
+  stock: null
+---
+

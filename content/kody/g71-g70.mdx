@@ -1,0 +1,129 @@
+---
+code: G71 G70
+slug: g71-g70
+name: Cykl zgrubnego i wykańczającego toczenia
+order: 240
+group: Cykle
+level: 3
+modal: false
+machines:
+  - toczenie
+star: false
+related: []
+variesBy: null
+short: G71 zdejmuje naddatek warstwami wzdłuż konturu, G70 wykonuje przejście wykańczające po tym samym konturze.
+desc: Podajesz kontur gotowy (bloki P–Q), a G71 sam generuje przejścia zgrubne o głębokości U z naddatkiem U/W na wykańczanie. G70 P_ Q_ potem jedzie po konturze na czysto.
+syntax:
+  fanuc: |-
+    G71 U2 R1
+    G71 P10 Q20 U0.5 W0.1 F0.3
+    N10 ...kontur...
+    N20 ...
+    G70 P10 Q20 F0.15
+  sinumerik: CYCLE95("KONTUR", 2, 0.5, 0.1, ...)
+sinumerik: "Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to milimetry!"
+params:
+  - key: U (1. blok)
+    desc: Głębokość jednego przejścia
+  - key: R
+    desc: Wycofanie po przejściu
+  - key: P Q
+    desc: Numery bloków początku i końca konturu
+  - key: U W (2. blok)
+    desc: Naddatek na X (średnicowo) i Z
+pitfalls:
+  - Kontur musi być monotoniczny w obu osiach (Fanuc typ I).
+  - Pierwszy blok konturu (N P) może zawierać tylko ruch w X.
+example:
+  src: |-
+    G18 G21 G40 G99
+    T0101
+    G97 S1200 M03
+    G00 X62 Z2
+    G01 X40 F0.3
+    G01 Z-20
+    G01 X50
+    G01 Z-40
+    G01 X62
+    G00 Z2
+    M30
+  simulate: true
+  stock: null
+---
+
+**G71** to cykl **zgrubnego toczenia wzdłużnego**. Podajesz kontur gotowego detalu i głębokość jednego przejścia, a sterownik sam generuje wszystkie przejścia zdejmujące naddatek, zostawiając zadany naddatek na wykańczanie. **G70** wykonuje potem jedno przejście po tym samym konturze na gotowo.
+
+## Dlaczego warto {#dlaczego-warto}
+
+Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości 2 mm to około 40 bloków, z których każdy trzeba przeliczyć. W cyklu G71 to cztery linie plus opis konturu. Zmiana naddatku albo głębokości przejścia sprowadza się do poprawienia jednej liczby.
+
+## Składnia Fanuc {#składnia-fanuc}
+
+<Code>
+```
+G71 U2.0 R1.0                    ; głębokość przejścia i wycofanie
+G71 P100 Q200 U0.5 W0.1 F0.3     ; zakres bloków konturu i naddatki
+N100 G00 X30                     ; pierwszy blok konturu — tylko ruch w X
+G01 Z-25 F0.2
+X40 Z-35
+Z-55
+X50
+N200 X62                         ; ostatni blok konturu
+G70 P100 Q200 F0.15              ; przejście wykańczające
+```
+</Code>
+
+| Adres | Znaczenie |
+|---|---|
+| **U** (blok 1) | Głębokość skrawania jednego przejścia, promieniowo |
+| **R** (blok 1) | Wycofanie narzędzia po każdym przejściu |
+| **P, Q** | Numery pierwszego i ostatniego bloku opisu konturu |
+| **U** (blok 2) | Naddatek na wykańczanie w osi X, **średnicowo** |
+| **W** (blok 2) | Naddatek na wykańczanie w osi Z |
+| **F** | Posuw zgrubny; w bloku G70 — posuw wykańczający |
+
+<Note kind="warn">Blok wskazany przez **P musi zawierać wyłącznie ruch w osi X** — bez współrzędnej Z. Naruszenie tej zasady to najczęstsza przyczyna alarmu przy G71. Kontur musi też być **monotoniczny**: średnica może tylko rosnąć albo tylko maleć wzdłuż Z (typ I). Kontury z podcięciami wymagają typu II lub cyklu G73.</Note>
+
+<Sim caption="Rozpisane ręcznie przejścia zgrubne — dokładnie to, co cykl G71 generuje wewnętrznie. Widać, jak kolejne przejścia stopniowo odsłaniają zarys stopnia.">
+```
+G18 G21 G40 G99
+G50 S2500
+G96 S200 M03
+G00 X62 Z2
+G01 X56 F0.3
+G01 Z-55
+G00 X64
+G00 Z2
+G01 X50
+G01 Z-55
+G00 X64
+G00 Z2
+G01 X44
+G01 Z-35
+G01 X50 Z-45
+G00 X64
+G00 Z2
+G01 X38
+G01 Z-25
+G01 X44 Z-30
+G00 X64
+G00 Z2
+M30
+```
+</Sim>
+
+## Pozostałe cykle tokarskie {#pozostałe-cykle-tokarskie}
+
+| Kod | Cykl | Zastosowanie |
+|---|---|---|
+| **G70** | Wykańczanie po konturze P–Q | Ostatnie przejście na wymiar |
+| **G71** | Zgrubne toczenie wzdłużne | Wałki, zdejmowanie naddatku wzdłuż osi |
+| **G72** | Zgrubne toczenie poprzeczne | Tarcze, planowanie dużych czół |
+| **G73** | Powtarzanie konturu z przesunięciem | Odkuwki i odlewy o kształcie zbliżonym do gotowego |
+| **G74** | Wiercenie z przerwami (wzdłuż Z) | Otwory głębokie w osi |
+| **G75** | Rowkowanie (wzdłuż X) | Rowki na pierścienie osadcze, podcięcia |
+| **G76** | Gwintowanie wieloprzejściowe | Gwinty zewnętrzne i wewnętrzne |
+
+## Sinumerik {#sinumerik}
+
+Odpowiednikiem G71/G70 jest **CYCLE95**, w którym kontur zapisuje się w osobnym podprogramie, a parametry (naddatki, głębokość, rodzaj obróbki) przekazuje w wywołaniu. Rowkowanie realizują CYCLE93–95, gwintowanie — CYCLE97 i CYCLE99.

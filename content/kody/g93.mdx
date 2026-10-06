@@ -1,0 +1,42 @@
+---
+code: G93
+slug: g93
+name: Posuw w odwrotności czasu
+order: 380
+group: Ustawienia
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g94-g95
+  - g01
+variesBy: null
+short: "F oznacza, ile razy na minutę blok może się wykonać: czas bloku = 1/F minuty. Stosowany przy osiach obrotowych."
+desc: |-
+  W **G93** posuw nie jest prędkością, tylko odwrotnością czasu: **F2** oznacza, że blok ma trwać pół minuty, niezależnie od długości ruchu.
+
+  Przy jednoczesnym ruchu osi liniowych i obrotowej (A, B, C) sterowanie nie musi wtedy przeliczać stopni na minutę na prędkość na ostrzu — robi to CAM. **F** trzeba podać w każdym bloku ruchu roboczego. Wraca się przez **G94**.
+syntax:
+  fanuc: G93 G01 X_ A_ F_
+  sinumerik: G93 G1 X_ A_ F_
+sinumerik: "Te same kody: **G93** odwrotność czasu, **G94** posuw na minutę, **G95** na obrót."
+params:
+  - key: F
+    desc: "odwrotność czasu bloku [1/min]: F4 = blok trwa 15 s"
+pitfalls:
+  - W G93 F nie jest modalne. Blok ruchu roboczego bez F daje alarm.
+  - Po G93 wróć do G94, zanim użyjesz zwykłego F w mm/min.
+example:
+  src: |-
+    G21 G90 G54
+    G00 X0 A0
+    G93 G01 X20.0 A90.0 F4.0 (blok trwa 15 s)
+    X40.0 A180.0 F4.0
+    G94 F300
+    M30
+  simulate: false
+  stock: null
+---
+

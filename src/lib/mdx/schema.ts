@@ -31,11 +31,13 @@ export const kodSchema = z.strictObject({
   slug,
   /** tytuł karty */
   name: text,
+  /** kolejność na listach i w nawigacji (dziś kolejność w gcodes.json); wolne odstępy ułatwiają wstawianie */
+  order: z.number().int().positive(),
   group: text,
   level: level123,
   modal: z.boolean(),
   machines: z.array(z.enum(["frezowanie", "toczenie"])).min(1),
-  /** ★ — dziś zbiór CURATED w articles.ts */
+  /** ★ — karta opracowana w pełnym układzie (lista /kody, tabela na stronie głównej) */
   star: z.boolean().default(false),
   /** slugi kart powiązanych */
   related: z.array(slug).default([]),
@@ -64,6 +66,8 @@ export const hasloSchema = z.strictObject({
   term: text,
   /** = nazwa pliku; adres /slownik#<anchor>. Zmiana `term` nie zmienia kotwicy. */
   anchor,
+  /** kolejność (dziś kolejność w glossary.json) — przy kilku pasujących hasłach dymek bierze pierwsze */
+  order: z.number().int().positive(),
   aliases: z.array(text).default([]),
   def: text,
   /** slugi kart kodów */

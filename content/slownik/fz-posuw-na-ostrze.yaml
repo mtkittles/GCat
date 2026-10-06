@@ -1,0 +1,10 @@
+term: fz — posuw na ostrze
+anchor: fz-posuw-na-ostrze
+order: 150
+aliases:
+  - fz
+  - posuw na ząb
+def: "Grubość warstwy zbieranej przez jedno ostrze freza w jednym obrocie. Podstawowy parametr doboru posuwu przy frezowaniu: Vf = n × z × fz."
+see:
+  - g94-g95
+diagram: apae

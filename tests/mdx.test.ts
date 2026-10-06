@@ -5,7 +5,7 @@ import path from "node:path";
 import { createElement as h, Fragment } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { articles } from "@/content/articles";
+import { flat } from "@/lib/course";
 import { diagrams } from "@/components/diagrams";
 import CodeText from "@/components/CodeText";
 import { rich } from "@/components/Rich";
@@ -14,12 +14,12 @@ import { compileContent, renderContent } from "@/lib/mdx/compile";
 import { componentNames, diagramIds, mdxComponents } from "@/lib/mdx/components";
 import { ContentErrors, loadContent } from "@/lib/mdx/loader";
 import { MARKER_RE } from "@/lib/mdx/remark";
+import { liveSources } from "@/lib/mdx/live";
 import { knownCodes, resolveKey, selfCodes } from "@/lib/mdx/resolve";
-import { applyApproved, ZATWIERDZONE } from "./zatwierdzone";
 
 /*
-  Szkielet MDX (krok 2): fixture → loader → plugin remark → render.
-  Fixture leży w tests/fixtures/tresci i nie jest czytany przez żadną stronę.
+  Silnik MDX: fixture → loader → plugin remark → render; zgodność pluginu z rich() i CodeText; komunikaty błędów.
+  Fixture leży w tests/fixtures/tresci i nie jest czytany przez żadną stronę. Karty i słownik: tests/kody.test.ts.
 */
 
 const FIX = "tests/fixtures/tresci";
@@ -27,7 +27,7 @@ const CARD = `${FIX}/kody/g17-g19.mdx`;
 /** id z useId() (aria-controls) zależy od kolejności renderu — pomijany w porównaniach */
 const N = (s: string) => s.replace(/ aria-controls="[^"]*"/g, "");
 const html = async (code: string, components = {}) => N(renderToStaticMarkup(await renderContent(code, { ...mdxComponents, ...components })));
-const opts = { file: "test.mdx", components: componentNames, diagramIds };
+const opts = { file: "test.mdx", components: componentNames, diagramIds, sources: liveSources };
 const md = (src: string, extra: Partial<Parameters<typeof compileContent>[1]> = {}) => compileContent(src, { ...opts, ...extra });
 const hashDir = (dir: string): string => {
   const hsh = createHash("sha1");
@@ -39,7 +39,7 @@ const hashDir = (dir: string): string => {
 describe("loader: fixture content/", () => {
   it("czyta wszystkie typy plików, slugi i kotwice = nazwy plików, pliki bez zmian", async () => {
     const before = hashDir(FIX);
-    const c = await loadContent(FIX);
+    const c = await loadContent(FIX, { sources: liveSources });
     expect(hashDir(FIX)).toBe(before);
 
     expect(c.kody.map((k) => k.data.slug)).toEqual(["g17-g19"]);
@@ -60,7 +60,7 @@ describe("loader: fixture content/", () => {
   });
 
   it("render karty: Term (karta, potem słownik), jawne kotwice, <Diagram>, tabela, `kod`", async () => {
-    const c = await loadContent(FIX);
+    const c = await loadContent(FIX, { sources: liveSources });
     const out = await html(c.kody[0].body);
     // kotwice jawne, bez {#…} w tekście
     expect([...out.matchAll(/<h2 id="([^"]+)">([^<]*)<\/h2>/g)].map((m) => [m[1], m[2]])).toEqual([["trzy-plaszczyzny", "Trzy płaszczyzny"], ["fanuc-i-sinumerik", "Fanuc i Sinumerik"]]);
@@ -80,7 +80,7 @@ describe("loader: fixture content/", () => {
   });
 
   it("pola karty: auto-linki gołych kodów G/M (G02, G41 → Term; G17 bieżącej karty — tylko wyróżniony)", async () => {
-    const c = await loadContent(FIX);
+    const c = await loadContent(FIX, { sources: liveSources });
     const out = await html(c.kody[0].fields.desc);
     expect(out).toContain('<code class="inline-code is-link">G02</code>');
     expect(out).toContain('<code class="inline-code is-link">G41</code>');
@@ -90,21 +90,17 @@ describe("loader: fixture content/", () => {
 });
 
 describe("zgodność z dzisiejszym renderem (1:1)", () => {
-  it("akapity artykułów: MDX == rich() (poza zatwierdzonymi wyjątkami z tests/zatwierdzone.ts)", async () => {
-    const ps = Object.values(articles).flat().filter((b): b is { t: "p"; x: string } => b.t === "p").map((b) => b.x);
+  it("akapity lekcji (rich() w TS, przed migracją lekcji): MDX == rich()", async () => {
+    const ps = (["frezowanie", "toczenie"] as const).flatMap((t) => flat(t)).flatMap((l) => l.doc?.theory ?? [])
+      .filter((b): b is { t: "p"; x: string } => b.t === "p").map((b) => b.x);
     expect(ps.length).toBeGreaterThan(100);
-    const used = new Set<string>();
-    for (const x of ps) {
-      const want = applyApproved(N(renderToStaticMarkup(h("p", null, rich(x)))));
-      want.used.forEach((u) => used.add(u));
-      expect(await html(await md(x)), x).toBe(want.html);
-    }
-    // w akapitach: link (g01) i `kod` w pogrubieniu (g68-g69, g84); markery w pogrubieniu są w listach i tabelach (tests/pilot.test.ts)
-    expect([...used].sort()).toEqual(ZATWIERDZONE.filter((a) => !a.where.includes("[[")).map((a) => a.where).sort());
+    const diff: string[] = [];
+    for (const x of ps) if ((await html(await md(x))) !== N(renderToStaticMarkup(h("p", null, rich(x))))) diff.push(x);
+    expect(diff).toEqual([]);
   });
 
   it("pola wszystkich 56 kart: MDX z auto-linkami == CodeText", async () => {
-    const known = knownCodes();
+    const known = knownCodes(liveSources);
     expect(gcodes.length).toBe(56);
     let n = 0;
     for (const g of gcodes) {
@@ -119,11 +115,14 @@ describe("zgodność z dzisiejszym renderem (1:1)", () => {
     expect(n).toBeGreaterThan(200);
   });
 
-  it("wszystkie dzisiejsze markery rozwiązują się (karta albo słownik)", () => {
-    const files = [...readdirSync("src/content", { recursive: true, withFileTypes: true })].filter((f) => f.isFile() && f.name.endsWith(".ts")).map((f) => path.join(f.parentPath, f.name));
+  it("wszystkie markery w treści rozwiązują się (karta albo słownik z content/)", () => {
+    // treść w użyciu: content/kody, content/slownik, lekcje i programy w TS (do kroków 5–6), zadania
+    const ts = [...readdirSync("src/content", { recursive: true, withFileTypes: true })]
+      .filter((f) => f.isFile() && f.name.endsWith(".ts") && !f.name.startsWith("articles")).map((f) => path.join(f.parentPath, f.name));
+    const mdx = ["content/kody", "content/slownik"].flatMap((d) => readdirSync(d).filter((f) => /\.(mdx|yaml)$/.test(f)).map((f) => `${d}/${f}`));
     const keys = new Set<string>();
-    for (const f of [...files, "content/gcodes.json"]) for (const m of readFileSync(f, "utf8").matchAll(MARKER_RE)) if (m[0] !== "[[...]]" && !/^["\d-]/.test(m[1])) keys.add(m[1]); // pomija tablice JSON odpowiedzi [["26"]]
-    const missing = [...keys].filter((k) => !resolveKey(k));
+    for (const f of [...ts, ...mdx, "content/exercises.json"]) for (const m of readFileSync(f, "utf8").matchAll(MARKER_RE)) if (m[0] !== "[[...]]" && !/^["\d-]/.test(m[1])) keys.add(m[1]); // pomija tablice JSON odpowiedzi [["26"]]
+    const missing = [...keys].filter((k) => !resolveKey(k, liveSources));
     expect(keys.size).toBeGreaterThanOrEqual(60);
     expect(missing).toEqual([]);
   });
@@ -137,7 +136,7 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
   const tmp = () => mkdtempSync(path.join(tmpdir(), "gcat-tresci-"));
   const put = (root: string, rel: string, s: string) => { mkdirSync(path.dirname(path.join(root, rel)), { recursive: true }); writeFileSync(path.join(root, rel), s); };
   const card = readFileSync(CARD, "utf8");
-  const errs = async (root: string) => { try { await loadContent(root); } catch (e) { expect(e).toBeInstanceOf(ContentErrors); return (e as Error).message; } throw new Error("oczekiwano błędu"); };
+  const errs = async (root: string) => { try { await loadContent(root, { sources: liveSources }); } catch (e) { expect(e).toBeInstanceOf(ContentErrors); return (e as Error).message; } throw new Error("oczekiwano błędu"); };
 
   it("nierozpoznany marker, nagłówek bez kotwicy, zły <Diagram>, nieznany komponent, wyrażenie {…}", async () => {
     const r = tmp();
@@ -155,7 +154,7 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
   it("slug ≠ nazwa pliku, kotwica ≠ nazwa pliku, brak pola, błąd YAML z linią, zła lekcja", async () => {
     const r = tmp();
     put(r, "kody/inna.mdx", card);
-    put(r, "slownik/zla.yaml", "term: X\nanchor: inna\ndef: Y\n");
+    put(r, "slownik/zla.yaml", "term: X\nanchor: inna\norder: 10\ndef: Y\n");
     put(r, "zadania/z.yaml", "slug: z\ntitle: [niedomknięte\n");
     put(r, "programy/p.mdx", "---\nslug: p\ntitle: P\nmode: mill\ncategory: K\nlevel: podstawowy\ntools: {}\n---\nOpis.\n");
     put(r, "nauka/frezowanie/f1-1-x/index.mdx", "---\nid: F1.1\nslug: f1-1-x\ntitle: T\nminutes: 1\ngoal: G\n---\n");
@@ -170,31 +169,21 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
   it("zły typ pola wskazuje linię w pliku", async () => {
     const r = tmp();
     put(r, "kody/g17-g19.mdx", card.replace("level: 2", "level: 7"));
-    expect(await errs(r)).toMatch(/kody\/g17-g19\.mdx:6:1 — pole „level”: poziom: 1, 2 albo 3/);
+    expect(await errs(r)).toMatch(/kody\/g17-g19\.mdx:7:1 — pole „level”: poziom: 1, 2 albo 3/);
   });
 });
 
-describe("schematy pasują do dzisiejszych danych (eksport w pamięci, bez plików)", () => {
-  it("56 kart, słownik, lekcje, programy, zadania", async () => {
-    const { CURATED } = await import("@/content/articles");
-    const { glossary, exercises } = await import("@/lib/content");
+describe("schematy pasują do danych jeszcze w TS (lekcje, programy, zadania — kroki 5, 6, 8)", () => {
+  it("lekcje, programy, zadania", async () => {
+    const { exercises } = await import("@/lib/content");
     const { flat } = await import("@/lib/course");
     const { PROGRAMS } = await import("@/content/programy");
-    const { kodSchema, hasloSchema, lekcjaSchema, cwiczeniaSchema, programSchema, zadanieSchema } = await import("@/lib/mdx/schema");
-    const { glossaryAnchor } = await import("@/lib/mdx/resolve");
+    const { lekcjaSchema, cwiczeniaSchema, programSchema, zadanieSchema } = await import("@/lib/mdx/schema");
     const bad: string[] = [];
     const check = (what: string, s: { safeParse: (x: unknown) => { success: boolean; error?: { issues: { path: PropertyKey[]; message: string }[] } } }, x: unknown) => {
       const r = s.safeParse(x);
       if (!r.success) bad.push(`${what}: ${r.error!.issues.map((i) => `${i.path.join(".")} ${i.message}`).join("; ")}`);
     };
-    for (const g of gcodes) check(`karta ${g.slug}`, kodSchema, {
-      code: g.code, slug: g.slug, name: g.name, group: g.group, level: g.level, modal: g.modal,
-      machines: [...(g.milling ? ["frezowanie"] : []), ...(g.turning ? ["toczenie"] : [])],
-      star: CURATED.has(g.slug), related: g.related ?? [], variesBy: g.variesBy ?? null,
-      short: g.short, desc: g.desc, syntax: g.syntax, sinumerik: g.sinumerik, params: g.params, pitfalls: g.pitfalls,
-      example: { src: g.example, simulate: g.simulate ?? true, mode: g.exampleMode, dialect: g.exampleDialect, stock: g.exampleStock ?? null },
-    });
-    for (const t of glossary) check(`hasło ${t.term}`, hasloSchema, { ...t, anchor: glossaryAnchor(t.term) });
     let lessons = 0;
     for (const tor of ["frezowanie", "toczenie"] as const) for (const l of flat(tor)) {
       if (!l.doc) continue;
@@ -211,6 +200,6 @@ describe("schematy pasują do dzisiejszych danych (eksport w pamięci, bez plik�
     }
     for (const e of exercises) check(`zadanie ${e.slug}`, zadanieSchema, e);
     expect(bad).toEqual([]);
-    expect([gcodes.length, glossary.length >= 77, lessons, PROGRAMS.length, exercises.length]).toEqual([56, true, 51, 22, 16]);
+    expect([lessons, PROGRAMS.length, exercises.length]).toEqual([51, 22, 16]);
   });
 });

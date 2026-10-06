@@ -1,0 +1,9 @@
+term: Kąt przystawienia
+anchor: kąt-przystawienia
+order: 210
+aliases:
+  - kappa
+  - κ
+  - kąt ustawienia krawędzi
+def: "Kąt między główną krawędzią skrawającą noża a kierunkiem posuwu. Wpływa na kształt przekroju wióra i siły: przy 90–95° siła działa głównie wzdłuż osi detalu, przy 45° rośnie składowa promieniowa, ale wiór jest cieńszy i można zwiększyć posuw."
+see: []

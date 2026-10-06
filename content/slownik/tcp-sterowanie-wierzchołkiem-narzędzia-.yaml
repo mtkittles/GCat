@@ -1,0 +1,12 @@
+term: TCP (sterowanie wierzchołkiem narzędzia)
+anchor: tcp-sterowanie-wierzchołkiem-narzędzia-
+order: 650
+aliases:
+  - TCP
+  - TCPM
+  - RTCP
+  - Tool Center Point
+def: "Tryb, w którym sterownik pilnuje położenia wierzchołka narzędzia na detalu, a osie obrotowe zmieniają tylko jego pochylenie. Potrzebny w obróbce 5-osiowej jednoczesnej. Fanuc: G43.4, Sinumerik: TRAORI."
+see:
+  - g43-4
+  - traori

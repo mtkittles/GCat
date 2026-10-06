@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { reference } from "@/lib/content";
-import { CURATED } from "@/content/articles";
+import { bySlug } from "@/lib/gcodes";
 
 function Code({ code, slug }: { code: string; slug: string | null }) {
   if (!slug) return <span className="font-mono font-bold text-muted">{code}</span>;
   return (
     <span className="code-cell">
       <Link href={`/kody/${slug}`} className="font-mono font-bold underline">{code}</Link>
-      {CURATED.has(slug) && <span className="star" title="Karta opracowana w pełnym układzie">★</span>}
+      {bySlug(slug)?.star && <span className="star" title="Karta opracowana w pełnym układzie">★</span>}
     </span>
   );
 }

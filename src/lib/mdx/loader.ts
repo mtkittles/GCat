@@ -5,21 +5,21 @@ import type { z } from "zod";
 import { compileContentMeta } from "./compile";
 import { componentNames, diagramIds as liveDiagramIds } from "./names";
 import { ContentError, MARKER_RE, type ContentIssue, type GcatMeta } from "./remark";
-import { knownCodes, liveSources, resolveKey, selfCodes, type TermSources } from "./resolve";
+import { knownCodes, resolveKey, selfCodes, sourcesFrom, type TermSources } from "./resolve";
 import {
   cwiczeniaSchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, zadanieSchema,
   type Cwiczenia, type Haslo, type Kod, type Lekcja, type Program, type Zadanie,
 } from "./schema";
 
 /*
-  Loader treści z content/ (krok 2 — nie jest jeszcze podpięty do żadnej strony).
+  Loader treści z content/ — używany przez npm run tresci (walidacja + dane strony) i testy.
   Czyta pliki, waliduje schematem (zod), sprawdza slugi/kotwice = nazwy plików, odwołania między plikami
   i kompiluje MDX (markery [[…]], kotwice {#id}, <Diagram>). Zbiera wszystkie błędy i rzuca jeden
   ContentErrors z listą „plik:linia:kolumna — opis”.
 */
 
 export interface LoadOptions {
-  /** źródła kluczy markerów (domyślnie dzisiejsze gcodes.json + glossary.json) */
+  /** źródła kluczy markerów (domyślnie: karty i hasła wczytane z tego samego katalogu treści) */
   sources?: TermSources;
   diagramIds?: Set<string>;
   components?: string[];
@@ -79,16 +79,16 @@ const rel = (f: string) => path.relative(process.cwd(), f) || f;
 const list = (dir: string) => (existsSync(dir) ? readdirSync(dir).filter((f) => !IGNORED.has(f)).sort() : []);
 
 export async function loadContent(root = "content", o: LoadOptions = {}): Promise<Content> {
-  const sources = o.sources ?? liveSources;
   const diagramIds = o.diagramIds ?? liveDiagramIds;
   const components = o.components ?? componentNames;
   const errors: ContentError[] = [];
   const fail = (file: string, issues: ContentIssue[]) => { if (issues.length) errors.push(new ContentError(rel(file), issues)); };
+  let sources: TermSources = { gcodes: [], glossary: [] };
   const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds });
   const tryCompileMeta = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => {
     try { return await compileContentMeta(src, { ...compileOpts(file), ...extra }); } catch (e) {
       if (e instanceof ContentError) errors.push(e); else throw e;
-      return { code: "", meta: { headings: [], diagrams: 0 } };
+      return { code: "", meta: { headings: [], diagrams: 0, text: "", programs: [] } };
     }
   };
   const tryCompile = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => (await tryCompileMeta(file, src, extra)).code;
@@ -121,29 +121,19 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
 
   const out: Content = { kody: [], slownik: [], lekcje: [], programy: [], zadania: [] };
 
-  // ── karty kodów
+  // ── faza 1: frontmatter kart i hasła słownika (z nich powstają źródła markerów [[…]])
   const kodyDir = path.join(root, "kody");
-  const known = knownCodes(sources);
+  const kodyRaw: { file: string; data: Kod; body: string }[] = [];
   for (const f of list(kodyDir)) {
     if (!f.endsWith(".mdx")) { unexpected(kodyDir, f, "<slug>.mdx"); continue; }
     const file = path.join(kodyDir, f);
     const r = readMdx(file, kodSchema);
     if (!r) continue;
     if (r.data.slug !== f.slice(0, -4)) fail(file, [{ message: `slug „${r.data.slug}” ≠ nazwa pliku „${f}”` }]);
-    const self = selfCodes(r.data.code);
-    const { code: body, meta } = await tryCompileMeta(file, r.body);
-    // pola karty: auto-linki gołych kodów G/M jak CodeText
-    const fields: Record<string, string> = {};
-    const fieldTexts: [string, string][] = [
-      ["short", r.data.short], ["desc", r.data.desc], ["sinumerik", r.data.sinumerik],
-      ...r.data.params.map((p, i): [string, string] => [`params.${i}`, p.desc]),
-      ...r.data.pitfalls.map((p, i): [string, string] => [`pitfalls.${i}`, p]),
-    ];
-    for (const [k, v] of fieldTexts) fields[k] = await tryCompile(`${file} (pole ${k})`, v, { autoCodes: { known, self } });
-    out.kody.push({ file: rel(file), data: r.data, self, body, meta, fields });
+    kodyRaw.push({ file, data: r.data, body: r.body });
   }
+  kodyRaw.sort((x, y) => x.data.order - y.data.order);
 
-  // ── słownik
   const slownikDir = path.join(root, "slownik");
   for (const f of list(slownikDir)) {
     if (!f.endsWith(".yaml")) { unexpected(slownikDir, f, "<kotwica>.yaml"); continue; }
@@ -152,8 +142,26 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     if (!data) continue;
     if (data.anchor !== f.slice(0, -5)) fail(file, [{ message: `anchor „${data.anchor}” ≠ nazwa pliku „${f}”` }]);
     if (data.diagram && !diagramIds.has(data.diagram)) fail(file, [{ message: `diagram „${data.diagram}” — nie ma takiego rysunku w diagrams.tsx` }]);
-    checkMarkers(file, data);
     out.slownik.push({ file: rel(file), data });
+  }
+  out.slownik.sort((x, y) => x.data.order - y.data.order);
+
+  sources = o.sources ?? sourcesFrom(kodyRaw.map((k) => k.data), out.slownik.map((h) => h.data));
+  const known = knownCodes(sources);
+  for (const h of out.slownik) checkMarkers(h.file, h.data);
+
+  // ── faza 2: treść kart (MDX) i pola z auto-linkami gołych kodów G/M jak CodeText
+  for (const { file, data, body: src } of kodyRaw) {
+    const self = selfCodes(data.code);
+    const { code: body, meta } = await tryCompileMeta(file, src);
+    const fields: Record<string, string> = {};
+    const fieldTexts: [string, string][] = [
+      ["short", data.short], ["desc", data.desc], ["sinumerik", data.sinumerik],
+      ...data.params.map((p, i): [string, string] => [`params.${i}`, p.desc]),
+      ...data.pitfalls.map((p, i): [string, string] => [`pitfalls.${i}`, p]),
+    ];
+    for (const [k, v] of fieldTexts) fields[k] = await tryCompile(`${file} (pole ${k})`, v, { autoCodes: { known, self } });
+    out.kody.push({ file: rel(file), data, self, body, meta, fields });
   }
 
   // ── lekcje: nauka/<tor>/<slug>/{index.mdx, cwiczenia.yaml}
@@ -216,12 +224,16 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     out.zadania.push({ file: rel(file), data });
   }
 
-  // ── odwołania między plikami (karty: nowe ∪ dzisiejsze, bo migracja idzie partiami)
-  const kodSlugs = new Set([...sources.gcodes.map((g) => g.slug), ...out.kody.map((k) => k.data.slug)]);
+  // ── odwołania między plikami
   const dup = <T,>(items: T[], key: (t: T) => string, file: (t: T) => string, what: string) => {
     const seen = new Map<string, string>();
     for (const t of items) { const k = key(t); if (seen.has(k)) fail(file(t), [{ message: `${what} „${k}” powtarza się (także w ${seen.get(k)})` }]); else seen.set(k, file(t)); }
   };
+  const kodSlugs = new Set([...sources.gcodes.map((g) => g.slug), ...out.kody.map((k) => k.data.slug)]);
+  dup(out.kody, (k) => k.data.slug, (k) => k.file, "slug karty");
+  dup(out.kody, (k) => String(k.data.order), (k) => k.file, "order karty");
+  dup(out.slownik, (h) => String(h.data.order), (h) => h.file, "order hasła");
+  dup(out.slownik, (h) => h.data.term.toLowerCase(), (h) => h.file, "hasło");
   dup(out.lekcje, (l) => l.data.slug, (l) => l.file, "slug lekcji");
   dup(out.lekcje, (l) => l.data.id, (l) => l.file, "id lekcji");
   dup(out.programy.flatMap((p) => [p.data.slug, ...p.data.redirectsFrom].map((s) => ({ s, file: p.file }))), (x) => x.s, (x) => x.file, "adres programu");

@@ -1,0 +1,78 @@
+---
+code: M03 M04 M05
+slug: m03-m05
+name: Wrzeciono
+order: 430
+group: Funkcje M
+level: 1
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - m19
+  - m41-m44
+  - g96-g97
+  - m06
+variesBy: null
+short: M03 obroty w prawo, M04 w lewo, M05 stop.
+desc: M03 uruchamia wrzeciono zgodnie z ruchem wskazówek zegara (patrząc od góry na frezarce) z obrotami S. M04 przeciwnie — do gwintowników lewych, narzędzi tokarskich lewych. M05 zatrzymuje.
+syntax:
+  fanuc: S1200 M03
+  sinumerik: S1200 M3
+sinumerik: M3/M4/M5 — zera wiodące opcjonalne.
+params:
+  - key: S
+    desc: Obroty (obr/min) lub prędkość skrawania przy G96
+pitfalls:
+  - Tylko jedna funkcja M w bloku (Fanuc). M03 M08 w jednej linii → alarm lub zignorowanie.
+example:
+  src: |-
+    G21 G90 G17
+    S1200 M03
+    G00 X0 Y0 Z5
+    G01 Z-1 F100
+    G01 X30 F200
+    G00 Z5
+    M05
+    M30
+  simulate: true
+  stock: null
+---
+
+**M03** uruchamia wrzeciono w prawo, **M04** w lewo, **M05** je zatrzymuje. Prędkość obrotowa wynika z adresu **S** — obowiązującego modalnie, więc raz podana obowiązuje aż do zmiany.
+
+## Który kierunek {#który-kierunek}
+
+Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M03 to obrót zgodny z ruchem wskazówek zegara — kierunek właściwy dla zdecydowanej większości narzędzi prawotnących: frezów, wierteł, gwintowników prawych i standardowych noży tokarskich.
+
+- **M04 na frezarce** — gwintowniki lewe, frezy lewotnące, wykręcanie gwintownika w cyklu G84.
+- **M04 na tokarce** — noże lewe, obróbka od strony wrzeciona, narzędzia napędzane w konfiguracji odwrotnej.
+
+<Note kind="warn">Zły kierunek obrotów oznacza, że ostrze pracuje powierzchnią przyłożenia zamiast natarcia. Narzędzie nie skrawa — gniecie materiał, grzeje się i najczęściej wykrusza w ciągu kilku sekund.</Note>
+
+## Kolejność w bloku {#kolejność-w-bloku}
+
+Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obroty były zadane **przed** pierwszym ruchem roboczym. Wiele sterowników czeka na osiągnięcie zadanych obrotów przed wykonaniem następnego bloku, ale nie wszystkie — przy dużych wrzecionach warto dodać krótki postój `G04 P500`.
+
+<Sim caption="Standardowa sekwencja: narzędzie, obroty, korekcja długości, dojazd, chłodziwo, obróbka, odjazd, wyłączenie.">
+```
+G21 G90 G17 G54
+T1 M06
+S2400 M03
+G43 H1 Z50
+G00 X10 Y10
+G00 Z2
+M08
+G01 Z-3 F120
+G01 X70 F400
+G01 Y40
+G00 Z50
+M09
+M05
+M30
+```
+</Sim>
+
+<Note kind="info">**Tylko jedna funkcja M w bloku** — to ograniczenie większości sterowników Fanuc. Zapis `M03 M08` w jednej linii kończy się alarmem albo wykonaniem tylko jednej z funkcji. Sinumerik dopuszcza kilka M w bloku, ale trzymanie się reguły „jedno M na linię” zapewnia przenośność programu.</Note>

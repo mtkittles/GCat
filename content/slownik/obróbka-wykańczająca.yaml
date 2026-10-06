@@ -1,0 +1,9 @@
+term: Obróbka wykańczająca
+anchor: obróbka-wykańczająca
+order: 390
+aliases:
+  - wykańczanie
+  - finishing
+def: Ostatnie przejście po konturze, zbierające naddatek i nadające wymiar oraz chropowatość. Mniejszy posuw, często osobne narzędzie i wyższa prędkość skrawania. Na tokarce wykonuje je cykl G70 po G71/G72.
+see:
+  - g71-g70

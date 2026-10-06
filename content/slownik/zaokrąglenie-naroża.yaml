@@ -1,0 +1,11 @@
+term: Zaokrąglenie naroża
+anchor: zaokrąglenie-naroża
+order: 750
+aliases:
+  - zaokrąglenie
+  - promień naroża detalu
+  - RND
+def: Łuk łączący dwie krawędzie detalu. Programuje się go łukiem G02/G03 o promieniu R (frez jedzie po łuku R ± promień freza) albo, na części sterowań, adresem ,R (Fanuc) lub RND= (Sinumerik) w bloku ruchu liniowego.
+see:
+  - g02
+  - g03

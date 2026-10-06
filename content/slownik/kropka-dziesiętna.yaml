@@ -1,0 +1,9 @@
+term: Kropka dziesiętna
+anchor: kropka-dziesiętna
+order: 320
+aliases:
+  - zapis z kropką
+  - X60.
+def: "Na Fanucu wartość bez kropki może zostać odczytana w najmniejszych przyrostach (X60 = 0,060 mm) — zależy to od parametru. Dlatego wymiary, promienie i I/J/K pisze się z kropką: X60. Na Sinumeriku X60 znaczy 60 mm."
+see:
+  - g00

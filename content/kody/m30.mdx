@@ -1,0 +1,68 @@
+---
+code: M30 M02
+slug: m30
+name: Koniec programu
+order: 480
+group: Funkcje M
+level: 1
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - m00-m01
+  - m98-m99
+variesBy: null
+short: M30 kończy program i przewija do początku. M02 tylko kończy.
+desc: M30 wyłącza wrzeciono i chłodziwo, resetuje funkcje modalne i ustawia kursor na początku programu. Standardowe zakończenie każdego programu.
+syntax:
+  fanuc: M30
+  sinumerik: M30  (M2 / M17 w podprogramie)
+sinumerik: M30 lub M2 kończy program główny, M17 kończy podprogram (jak M99 w Fanuc).
+params: []
+pitfalls:
+  - M99 zamiast M30 w programie głównym → program zapętla się w nieskończoność.
+example:
+  src: |-
+    G21 G90 G17
+    G00 X0 Y0
+    M30
+  simulate: true
+  stock: null
+---
+
+**M30** kończy program, zatrzymuje wrzeciono i chłodziwo, kasuje funkcje modalne i przewija program na początek. **M02** kończy program bez przewijania.
+
+## Co dokładnie robi M30 {#co-dokładnie-robi-m30}
+
+- zatrzymuje wrzeciono (jak M05),
+- wyłącza chłodziwo (jak M09),
+- kasuje funkcje modalne do stanu domyślnego sterownika,
+- ustawia kursor na pierwszym bloku, gotowy do kolejnej sztuki,
+- zwiększa licznik wykonanych detali.
+
+## Zakończenie programu w praktyce {#zakończenie-programu-w-praktyce}
+
+Samo M30 nie odsuwa narzędzia. Pełne, bezpieczne zakończenie wygląda tak:
+
+<Code caption="Kolejność ma znaczenie: najpierw wyjdź z materiału, potem wyłączaj.">
+```
+G00 Z50          ; odjazd na wysokość bezpieczną
+M09              ; chłodziwo wyłączone
+M05              ; wrzeciono zatrzymane
+G91 G28 Z0       ; oś Z do bazy
+G90              ; powrót do trybu absolutnego
+M30              ; koniec programu
+```
+</Code>
+
+| Kod | Działanie |
+|---|---|
+| **M00** | Zatrzymanie bezwarunkowe w środku programu — do pomiaru albo obrócenia detalu. Wznowienie przyciskiem Start |
+| **M01** | Zatrzymanie warunkowe — działa tylko, gdy operator włączył Optional Stop na pulpicie |
+| **M02** | Koniec programu bez przewijania |
+| **M30** | Koniec programu z przewijaniem — standard |
+| **M99** | Koniec podprogramu; w programie głównym powoduje pętlę nieskończoną |
+
+<Note kind="tip">**M01** to bardzo przydatne narzędzie przy uruchamianiu nowego programu. Wstaw je po każdym narzędziu — przy włączonym Optional Stop maszyna zatrzyma się po każdym zabiegu, żebyś mógł zmierzyć detal. Po zatwierdzeniu programu wyłączasz Optional Stop i te same bloki są ignorowane.</Note>

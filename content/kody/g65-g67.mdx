@@ -1,0 +1,64 @@
+---
+code: G65 G66 G67
+slug: g65-g67
+name: Wywołanie makra
+order: 220
+group: Podprogramy
+level: 3
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - m98-m99
+  - g31
+  - g81-g83
+variesBy: null
+short: G65 wywołuje makro i przekazuje mu argumenty. G66 wywołuje je po każdym ruchu, aż do G67.
+desc: |-
+  **G65 P9010 A1.0 B2.0** uruchamia program O9010. Argumenty trafiają do zmiennych lokalnych: A → **#1**, B → **#2**, C → **#3**, I → **#4**, X → **#24**, Y → **#25**, Z → **#26**.
+
+  W odróżnieniu od **M98** makro dostaje parametry i ma własne zmienne #1–#33, czyszczone przy każdym wywołaniu. **L** podaje liczbę powtórzeń.
+
+  **G66** działa modalnie: makro wykonuje się po każdym bloku z ruchem, więc można nim napisać własny cykl otworów. **G67** kończy wywołanie modalne.
+syntax:
+  fanuc: |-
+    G65 P_ L_ A_ B_ …
+    G66 P_ A_ B_ …
+    G67
+  sinumerik: |-
+    NAZWA(par1, par2)
+    MCALL NAZWA(par1, par2)
+    MCALL   ; koniec
+sinumerik: Podprogram z parametrami deklaruje się jako **PROC NAZWA(REAL A, REAL B)** i wywołuje nazwą. Wywołanie modalne po każdym ruchu to **MCALL**.
+params:
+  - key: P
+    desc: numer programu makra
+  - key: L
+    desc: liczba powtórzeń
+  - key: A B C
+    desc: "argumenty → #1 #2 #3"
+  - key: X Y Z
+    desc: "argumenty → #24 #25 #26"
+pitfalls:
+  - "Zmienne #1–#33 znikają po wyjściu z makra. Wyniki do zapamiętania zapisuj w #100+ albo #500+."
+  - Programy O9000–O9999 bywają zablokowane parametrem przed edycją — to nie błąd programu.
+example:
+  src: |-
+    O1000
+    G90 G54 G00 X0 Y0 Z20
+    G65 P9100 X20.0 Y15.0 R4.0 Z-3.0 (kieszen okragla)
+    M30
+
+    O9100 (#24=X #25=Y #18=R #26=Z)
+    G00 X#24 Y#25
+    G01 Z#26 F100
+    G01 X[#24+#18] F300
+    G02 I-#18
+    G00 Z20.0
+    M99
+  simulate: false
+  stock: null
+---
+

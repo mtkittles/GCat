@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { levelName, type GCode } from "@/lib/gcodes";
-import { CURATED } from "@/content/articles";
 
 type Filter = "all" | "mill" | "lathe" | "curated";
 
@@ -34,7 +33,7 @@ export default function CodeTable({ items }: { items: GCode[] }) {
   const list = useMemo(() => items.filter((g) => {
     if (filter === "mill" && !g.milling) return false;
     if (filter === "lathe" && !g.turning) return false;
-    if (filter === "curated" && !CURATED.has(g.slug)) return false;
+    if (filter === "curated" && !g.star) return false;
     if (group && g.group !== group) return false;
     const s = q.trim().toLowerCase();
     return !s || [g.code, g.name, g.short, g.group].join(" ").toLowerCase().includes(s);
@@ -45,7 +44,7 @@ export default function CodeTable({ items }: { items: GCode[] }) {
       <div className="filters">
         {(["all", "mill", "lathe", "curated"] as Filter[]).map((f) => (
           <button key={f} aria-pressed={filter === f} onClick={() => { setFilter(f); remember({ filter: f }); }}>
-            {f === "all" ? "Wszystkie" : f === "mill" ? "Frezowanie" : f === "lathe" ? "Toczenie" : `★ Opracowane (${CURATED.size})`}
+            {f === "all" ? "Wszystkie" : f === "mill" ? "Frezowanie" : f === "lathe" ? "Toczenie" : `★ Opracowane (${items.filter((g) => g.star).length})`}
           </button>
         ))}
         <select aria-label="Grupa kodów" value={group} onChange={(e) => { setGroup(e.target.value); remember({ group: e.target.value }); }}>
@@ -62,7 +61,7 @@ export default function CodeTable({ items }: { items: GCode[] }) {
             <tr key={g.slug}>
               <td>
                 <Link href={`/kody/${g.slug}`} onClick={rememberScroll}>{g.code}</Link>
-                {CURATED.has(g.slug) && <span className="star" title="Karta opracowana w pełnym układzie: schematy, animacje, sterowniki, błędy">★</span>}
+                {g.star && <span className="star" title="Karta opracowana w pełnym układzie: schematy, animacje, sterowniki, błędy">★</span>}
               </td>
               <td><Link href={`/kody/${g.slug}`} className="font-semibold" onClick={rememberScroll}>{g.name}</Link><div className="text-muted text-[13px]">{g.short}</div>
                 <div className="mt-1"><span className={`tag ${g.milling ? "on" : ""}`}>frez</span><span className={`tag ${g.turning ? "on" : ""}`}>tok</span>{g.modal && <span className="tag">modalny</span>}{g.variesBy && <span className="tag tag-var" title={`Znaczenie zależy od: ${g.variesBy}`}>zależy od: {g.variesBy}</span>}</div></td>

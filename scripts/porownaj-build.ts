@@ -1,13 +1,17 @@
 /* Porównanie dwóch buildów strona po stronie (np. main vs gałąź migracji).
-   Użycie: npm run porownaj -- <kopia .next/server/app z A> <kopia z B> [--bez-css]
+   Użycie: npm run porownaj -- <kopia .next/server/app z A> <kopia z B> [--bez-css] [--zatwierdzone]
    --bez-css: pomija też nazwy plików CSS (gdy zmiana CSS jest zamierzona i sprawdzona osobno hashem).
+   --zatwierdzone: w HTML z A nanosi zmiany z listy ZATWIERDZONE (tests/zatwierdzone.ts) przed porównaniem;
+     wtedy różnica w HTML = zmiana spoza listy. Dane RSC tych stron różnią się z tych samych powodów (wypisane osobno).
    Normalizuje: ID builda, nazwy plików JS (/_next/static/chunks/*.js), id z useId() (aria-controls).
    Wypisuje pliki HTML/RSC, które się różnią, i dla HTML — zmienione fragmenty widocznej treści. */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
+import { applyApproved } from "../tests/zatwierdzone";
 
 const args = process.argv.slice(2);
 const bezCss = args.includes("--bez-css");
+const zatw = args.includes("--zatwierdzone");
 const [a, b] = args.filter((x) => !x.startsWith("--"));
 if (!a || !b) { console.error("użycie: npm run porownaj -- <katalog A> <katalog B>"); process.exit(2); }
 
@@ -35,11 +39,26 @@ const visible = (s: string) => norm(s).replace(/<script>self\.__next_f[\s\S]*$/,
 const fa = files(a).sort(), fb = new Set(files(b));
 const bidA = buildId(a, fa), bidB = buildId(b, [...fb]);
 const nA = (s: string) => { bid = bidA; return norm(s); }, nB = (s: string) => { bid = bidB; return norm(s); };
-let diff = 0;
+let diff = 0, payloadOnly = 0;
+const approvedPages = new Map<string, string[]>();
+const pendingPages = new Map<string, string[]>();
 for (const f of fa) {
   if (!fb.has(f)) { console.log(`tylko w A: ${f}`); diff++; continue; }
-  const x = readFileSync(path.join(a, f), "utf8"), y = readFileSync(path.join(b, f), "utf8");
+  let x = readFileSync(path.join(a, f), "utf8");
+  const y = readFileSync(path.join(b, f), "utf8");
+  if (zatw && f.endsWith(".html")) {
+    const r = applyApproved(x.replace(/ aria-controls="[^"]*"/g, ""));
+    if (r.used.length) approvedPages.set(f, r.used);
+    if (r.pending.length) pendingPages.set(f, r.pending);
+    x = r.html;
+  }
   if (nA(x) === nB(y)) continue;
+  // HTML: widoczna treść identyczna, różnią się tylko dane RSC w <script> (np. klucze React, pola danych)
+  if (f.endsWith(".html")) {
+    bid = bidA; const va = visible(x).join(""); bid = bidB; const vb = visible(y).join("");
+    if (va === vb) { payloadOnly++; continue; }
+  }
+  if (f.endsWith(".rsc")) { payloadOnly++; continue; }
   diff++;
   console.log(`RÓŻNI SIĘ: ${f}`);
   if (f.endsWith(".html")) {
@@ -50,4 +69,11 @@ for (const f of fa) {
   }
 }
 for (const f of fb) if (!fa.includes(f)) { console.log(`tylko w B: ${f}`); diff++; }
-console.log(`plików: ${fa.length}, różnych: ${diff}`);
+if (zatw) {
+  console.log(`zatwierdzone zmiany naniesione na ${approvedPages.size} stron(y):`);
+  for (const [f, u] of approvedPages) console.log(`  ${f}: ${u.join("; ")}`);
+  console.log(`DO ZATWIERDZENIA (DO_ZATWIERDZENIA, czeka na decyzję) — ${pendingPages.size} stron(y):`);
+  for (const [f, u] of pendingPages) console.log(`  ${f}: ${u.join("; ")}`);
+}
+console.log(`tylko dane RSC (widoczny HTML identyczny; pliki .rsc i <script> w .html): ${payloadOnly}`);
+console.log(`plików: ${fa.length}, z różnicą widocznej treści${zatw ? " poza zatwierdzonymi" : ""}: ${diff}`);

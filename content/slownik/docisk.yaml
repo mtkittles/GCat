@@ -1,0 +1,10 @@
+term: Docisk
+anchor: docisk
+order: 100
+aliases:
+  - zacisk
+  - łapa dociskowa
+  - mocowanie
+def: "Element mocujący detal na stole. Wystaje ponad powierzchnię, więc program musi go omijać: przejazdy nad dociskiem na bezpiecznej wysokości, w cyklach wiercenia powrót G98 zamiast G99. Symulator GCat nie zna docisków — ich położenie trzeba sprawdzić samemu."
+see:
+  - g98-g99

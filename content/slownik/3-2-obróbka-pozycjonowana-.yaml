@@ -1,0 +1,11 @@
+term: 3+2 (obróbka pozycjonowana)
+anchor: 3-2-obróbka-pozycjonowana-
+order: 10
+aliases:
+  - 3+2
+  - obróbka 3+2
+  - 5 osi pozycjonowane
+def: "Dwie osie obrotowe ustawiają detal pod kątem i stoją, a skrawa się trzema osiami liniowymi. Tak obrabia się pochylone ściany, otwory pod kątem i boki detalu z jednego zamocowania. Fanuc: G68.2 + G53.1, Sinumerik: CYCLE800."
+see:
+  - g68-2-g53-1
+  - cycle800

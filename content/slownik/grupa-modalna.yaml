@@ -1,0 +1,10 @@
+term: Grupa modalna
+anchor: grupa-modalna
+order: 170
+aliases:
+  - grupa G
+  - grupa funkcji
+def: Zbiór funkcji G, które wzajemnie się wykluczają — w danej chwili aktywna jest tylko jedna z grupy (np. G00/G01/G02/G03 albo G90/G91). Nowa funkcja z grupy zastępuje poprzednią; funkcje z różnych grup mogą stać w jednym bloku.
+see:
+  - g90-g91
+  - g00

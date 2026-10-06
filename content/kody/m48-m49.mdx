@@ -1,0 +1,40 @@
+---
+code: M48 M49
+slug: m48-m49
+name: Blokada potencjometrów korekcji
+order: 500
+group: Funkcje M
+level: 2
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g84
+  - g31
+variesBy: null
+short: M49 blokuje potencjometry posuwu i obrotów na pulpicie, M48 je odblokowuje. Kody zależne od producenta.
+desc: |-
+  Przy gwintowaniu zmiana posuwu potencjometrem rozjechałaby synchronizację osi z wrzecionem, dlatego cykle gwintowania ignorują korekcję same.
+
+  **M49** pozwala zablokować korekcję na wybranym fragmencie programu, np. przy pomiarze sondą albo operacji, która wymaga dokładnie zaprogramowanego posuwu. **M48** przywraca działanie potencjometrów.
+syntax:
+  fanuc: |-
+    M48
+    M49
+  sinumerik: zależnie od konfiguracji producenta
+sinumerik: Standardowego odpowiednika nie ma — blokadę korekcji realizuje producent maszyny w PLC.
+params: []
+pitfalls:
+  - Po M49 potencjometr na pulpicie nic nie zmienia. Jeśli zapomnisz o M48, operator straci możliwość zwolnienia maszyny w reszcie programu.
+example:
+  src: |-
+    M49 (korekcja zablokowana)
+    G31 Z-5.0 F150
+    M48
+    M30
+  simulate: false
+  stock: null
+---
+

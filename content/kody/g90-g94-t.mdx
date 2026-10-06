@@ -1,0 +1,67 @@
+---
+code: G90 G92 G94 (tokarka)
+slug: g90-g94-t
+name: Proste cykle tokarskie (system A)
+order: 360
+group: Cykle
+level: 3
+modal: true
+machines:
+  - toczenie
+star: false
+related:
+  - g90-g91
+  - g92
+  - g94-g95
+  - g71-g70
+  - g76
+variesBy: system kodów
+short: "Na tokarce Fanuc w systemie A: G90 toczy wzdłużnie jednym przejściem, G92 nacina gwint jednym przejściem, G94 planuje czoło."
+desc: |-
+  Każdy blok to cztery ruchy: dojazd na średnicę, skrawanie, wyjście i powrót szybki do punktu startu.
+
+  **G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_** robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość. **G94 X_ Z_ F_** planuje czoło do Z.
+
+  W systemie A wymiary przyrostowe pisze się adresami **U** i **W**, nie G91. Na frezarce te same numery znaczą co innego: G90 to wymiarowanie absolutne, G92 ustawienie układu, G94 posuw na minutę.
+
+  W systemie B te same cykle mają numery **G77** (toczenie), **G78** (gwint) i **G79** (planowanie), a w systemie C — **G20**, **G21** i **G24**. Numer systemu ustala parametr sterowania; sprawdź go w instrukcji konkretnej serii, zanim przeniesiesz program między maszynami.
+syntax:
+  fanuc: |-
+    G90 X_ Z_ (R_) F_
+    G92 X_ Z_ (R_) F_
+    G94 X_ Z_ (R_) F_
+  sinumerik: |-
+    brak bezpośrednich odpowiedników:
+    CYCLE95 (toczenie), CYCLE97 (gwint)
+sinumerik: "Sinumerik nie ma prostych cykli jednoprzejściowych. Toczenie wykonuje **CYCLE95**, gwintowanie **CYCLE97** (nowsze: CYCLE99), albo programuje się przejścia ręcznie G1."
+params:
+  - key: X
+    desc: średnica końcowa przejścia
+  - key: Z
+    desc: koniec przejścia w osi Z
+  - key: R
+    desc: "stożek: różnica promieni między początkiem a końcem przejścia"
+  - key: F
+    desc: posuw [mm/obr]; w G92 — skok gwintu
+pitfalls:
+  - Program z tokarki w systemie A przeniesiony na frezarkę albo tokarkę w systemie B/C zrobi coś zupełnie innego.
+  - W G92 obroty muszą być stałe (G97). Przy G96 skok gwintu się rozjedzie.
+example:
+  src: |-
+    G18 G21 G40 G99
+    G54
+    T0101
+    G97 S1200 M03
+    G00 X52. Z2.
+    G90 X46. Z-40. F0.25
+    X42.
+    X38.
+    G00 X54. Z2.
+    G94 X20. Z-1. F0.2
+    Z-2.
+    G00 X100. Z100.
+    M30
+  simulate: true
+  stock: null
+---
+

@@ -21,11 +21,31 @@ export const ZATWIERDZONE: Approved[] = [
   { where: "g02/g03 — [[G41]] i [[G42]] w pogrubieniu", old: "<strong>Włączenie [[G41]] lub [[G42]] w bloku z łukiem</strong>", new: `<strong>Włączenie ${term("G41")} lub ${term("G42")} w bloku z łukiem</strong>` },
 ];
 
-/** Stary HTML z naniesionymi zatwierdzonymi zmianami + lista użytych wyjątków. */
-export function applyApproved(html: string): { html: string; used: string[] } {
-  const used: string[] = [];
+/** `kod` w pogrubieniu: dziś <strong>`X`</strong> (widać backticki), w MDX <strong><code class="inline-code">X</code></strong>. */
+const boldCode = (where: string, old: string): Approved => ({
+  where, old, new: old.replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>'),
+});
+
+/*
+  DO ZATWIERDZENIA (krok 4, czeka na decyzję właściciela — NIE są zatwierdzone):
+  ta sama kategoria co zatwierdzone ROT RPL=30 i CYCLE84 (`kod` w **…**), ale w listach innych kart —
+  ujawnione dopiero porównaniem całego buildu (wcześniejszy test obejmował tylko akapity).
+*/
+export const DO_ZATWIERDZENIA: Approved[] = [
+  boldCode("g00 — `G90 G28 Z0` / `G91 G28 Z0` w pogrubieniu", "<strong>`G90 G28 Z0` zamiast `G91 G28 Z0`.</strong>"),
+  boldCode("g04 — `G04 P1` w pogrubieniu (1)", "<strong>`G04 P1` na Fanucu to jedna milisekunda</strong>"),
+  boldCode("g04 — `G04 P1` / `P1000` w pogrubieniu", "<strong>`G04 P1` zamiast `P1000`.</strong>"),
+  boldCode("g04 — `G04 X1` w pogrubieniu", "<strong>`G04 X1` bez kropki na Fanucu.</strong>"),
+  boldCode("g04 — `G04 P0.5` w pogrubieniu", "<strong>`G04 P0.5` na Fanucu.</strong>"),
+  boldCode("g90-g91 — `G90 G28 Z0.` w pogrubieniu", "<strong>`G90 G28 Z0.`</strong>"),
+];
+
+/** Stary HTML z naniesionymi zmianami: zatwierdzonymi (used) i czekającymi na decyzję (pending). */
+export function applyApproved(html: string): { html: string; used: string[]; pending: string[] } {
+  const used: string[] = [], pending: string[] = [];
   for (const a of ZATWIERDZONE) if (html.includes(a.old)) { html = html.split(a.old).join(a.new); used.push(a.where); }
-  return { html, used };
+  for (const a of DO_ZATWIERDZENIA) if (html.includes(a.old)) { html = html.split(a.old).join(a.new); pending.push(a.where); }
+  return { html, used, pending };
 }
 
 /** id z useId() (aria-controls) zależy od kolejności renderu — pomijany w porównaniach. */

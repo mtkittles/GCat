@@ -1,0 +1,44 @@
+---
+code: M41 M42 M43 M44
+slug: m41-m44
+name: Zakresy przełożeń wrzeciona
+order: 490
+group: Funkcje M
+level: 2
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - m03-m05
+  - g96-g97
+  - g50
+variesBy: null
+short: "Wybierają bieg przekładni wrzeciona: niski daje duży moment, wysoki — duże obroty. Liczba zakresów zależy od maszyny."
+desc: |-
+  Maszyny z przekładnią mają kilka zakresów obrotów. Niski bieg (**M41**) daje duży moment przy małych obrotach — do dużych średnic, dużych wierteł, gwintowania. Wysokie biegi pozwalają osiągnąć maksymalne obroty.
+
+  Wiele sterowań wybiera zakres samo, na podstawie wartości S. Ręczne M41–M44 wymusza konkretny bieg. Przy **G96** na tokarce zmiana biegu w trakcie przejścia jest niemożliwa, więc wybiera się go przed skrawaniem.
+syntax:
+  fanuc: M41 | M42 | M43 | M44
+  sinumerik: |-
+    M40   ; automatyczny wybór
+    M41 … M45
+sinumerik: "**M40** włącza automatyczny wybór zakresu, **M41–M45** wymuszają konkretny."
+params: []
+pitfalls:
+  - S większe niż maksimum wybranego zakresu zostanie obcięte albo da alarm.
+  - Znaczenie i liczbę kodów M41–M44 ustala producent maszyny — sprawdź dokumentację.
+example:
+  src: |-
+    M41 (niski zakres)
+    G97 S300 M03
+    (... wiercenie D30 ...)
+    M42
+    G97 S2500 M03
+    M30
+  simulate: false
+  stock: null
+---
+

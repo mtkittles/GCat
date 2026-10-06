@@ -1,0 +1,74 @@
+---
+code: G43.4
+slug: g43-4
+name: TCP — sterowanie wierzchołkiem narzędzia
+order: 540
+group: Wieloosiowe
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - traori
+  - osie-abc
+  - g43-g49
+  - g68-2-g53-1
+variesBy: null
+short: Przy G43.4 X Y Z to wierzchołek narzędzia w układzie detalu, a osie obrotowe tylko ustawiają jego oś. G49 wyłącza.
+desc: |-
+  **TCP** (Tool Center Point, w Fanucu G43.4) to podstawa obróbki 5-osiowej jednoczesnej. Sterownik sam liczy ruchy X Y Z maszyny tak, żeby wierzchołek narzędzia był w zaprogramowanym punkcie detalu, niezależnie od kątów stołu.
+
+  Skutek widać przy samym obrocie: blok **G01 C90.** przy TCP obraca stół, a osie liniowe jadą tak, że wierzchołek narzędzia stoi w miejscu. Bez TCP ten sam blok przesunąłby punkt styku po detalu.
+
+  G43.4 bierze też długość narzędzia z rejestru H (jak G43). **G49** wyłącza TCP i korekcję długości.
+
+  W symulatorze kąty A i C (albo B i C) podaje się wprost; wektor osi narzędzia (G43.5 I J K) nie jest obsługiwany.
+syntax:
+  fanuc: |-
+    G43.4 H_
+    G01 X_ Y_ Z_ A_ C_ F_
+    G49
+  sinumerik: |-
+    TRAORI
+    G1 X_ Y_ Z_ A_ C_ F_
+    TRAFOOF
+sinumerik: TRAORI włącza transformację 5-osiową, TRAFOOF ją wyłącza. Długość narzędzia aktywuje T_ D_.
+params:
+  - key: H
+    desc: Rejestr długości narzędzia
+  - key: X Y Z
+    desc: Wierzchołek narzędzia w układzie detalu
+  - key: A B C
+    desc: Kąty osi obrotowych — orientacja narzędzia
+pitfalls:
+  - Program 5-osiowy z TCP zależy od długości narzędzia — zły rejestr H przesuwa cały tor wzdłuż osi narzędzia.
+  - Środek obrotu stołu musi być zmierzony w maszynie. W symulatorze leży w zerze G54.
+  - Duża zmiana kąta w jednym bloku przy TCP to duży ruch osi liniowych — sprawdź przejazdy.
+example:
+  src: |-
+    G21 G90 G17 G40 G49 G80
+    G54
+    T1 M06 (FREZ FI10)
+    S4500 M03
+    G00 A45. C0
+    G43.4 H1
+    G00 X-40. Y28. Z50.
+    G00 Z-2.
+    G01 X28. F600
+    G01 C90. (WIERZCHOLEK STOI)
+    G01 Y-28.
+    G00 Z50.
+    G49
+    G00 A0 C0
+    M30
+  simulate: true
+  stock:
+    x: 60
+    y: 60
+    z: 40
+    ox: 30
+    oy: 30
+    oz: 40
+---
+

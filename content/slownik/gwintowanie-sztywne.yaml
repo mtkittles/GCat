@@ -1,0 +1,9 @@
+term: Gwintowanie sztywne
+anchor: gwintowanie-sztywne
+order: 180
+aliases:
+  - rigid tapping
+  - M29
+def: Gwintowanie z elektroniczną synchronizacją obrotu wrzeciona i posuwu osi, bez uchwytu kompensacyjnego. Pozwala na wyższe obroty i daje dokładniejszy gwint. W Fanuc aktywowane przez M29 przed cyklem G84.
+see:
+  - g84

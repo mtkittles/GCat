@@ -1,0 +1,96 @@
+---
+code: G68 G69
+slug: g68-g69
+name: Obrót układu współrzędnych
+order: 230
+group: Ustawienia
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related: []
+variesBy: null
+short: Obraca cały układ o kąt R wokół punktu X Y. G69 wyłącza.
+desc: Po G68 X_ Y_ R_ wszystkie kolejne współrzędne są interpretowane w układzie obróconym o R stopni wokół punktu (X, Y). Idealne do detali zamocowanych pod kątem i do powtarzania kieszeni co 60°.
+syntax:
+  fanuc: |-
+    G68 X0 Y0 R30
+    ...program...
+    G69
+  sinumerik: |-
+    ROT RPL=30
+    ...
+    ROT
+sinumerik: ROT / AROT (przyrostowo). Samo ROT bez parametrów kasuje obrót. Podobnie TRANS (przesunięcie) i SCALE.
+params:
+  - key: X Y
+    desc: Środek obrotu
+  - key: R
+    desc: Kąt (dodatni = przeciwnie do wskazówek zegara)
+pitfalls:
+  - Zapomniane G69 → następne narzędzie pracuje w obróconym układzie.
+  - Symulator nie obsługuje jeszcze G68 — przykład pokazuje kontur bazowy.
+example:
+  src: |-
+    G21 G90 G17 G54
+    T01 M06
+    G43 H01 Z50.
+    S2000 M03
+    G00 X0 Y0 Z5
+    G01 Z-1 F100
+    G01 X30 F200
+    G01 Y15
+    G01 X0
+    G01 Y0
+    G00 Z5
+    M30
+  simulate: true
+  stock: null
+---
+
+**G68** obraca układ współrzędnych o zadany kąt wokół wskazanego punktu. Wszystkie kolejne współrzędne są interpretowane w układzie obróconym, aż do **G69**.
+
+## Do czego to służy {#do-czego-to-służy}
+
+- **Detale zamocowane pod kątem** — zamiast przeliczać cały kontur, obracasz układ o kąt zamocowania.
+- **Elementy powtarzane po okręgu** — sześć kieszeni co 60° to jeden podprogram wywołany sześć razy z różnym kątem.
+- **Rysunki wymiarowane pod kątem** — przepisujesz wymiary wprost, bez trygonometrii.
+
+## Składnia {#składnia}
+
+<Code>
+```
+G68 X0 Y0 R30      ; obrót o 30° wokół punktu (0,0)
+M98 P1002          ; obrabiany element
+G69                ; kasowanie obrotu
+```
+</Code>
+
+| Adres | Znaczenie |
+|---|---|
+| X, Y | Środek obrotu, w aktywnej płaszczyźnie |
+| R | Kąt w stopniach; wartość dodatnia oznacza obrót przeciwnie do wskazówek zegara |
+
+<Code caption="Trzy identyczne elementy rozmieszczone co 60° wokół środka detalu.">
+```
+G54
+G68 X0 Y0 R0
+M98 P1002
+G69
+G68 X0 Y0 R60
+M98 P1002
+G69
+G68 X0 Y0 R120
+M98 P1002
+G69
+```
+</Code>
+
+<Note kind="warn">Zapomniane **G69** zostaje aktywne dla kolejnych narzędzi — cała reszta programu wykona się w obróconym układzie. Dlatego G69 warto umieścić także w bloku bezpiecznego startu po każdej wymianie narzędzia.</Note>
+
+<Note kind="info">Symulator nie interpretuje jeszcze G68 — pokazuje kontur bazowy, bez obrotu. Na maszynie obrót zadziała normalnie.</Note>
+
+## Sinumerik {#sinumerik}
+
+Odpowiedniki to **`ROT RPL=30`** (obrót bezwzględny w płaszczyźnie) i **`AROT RPL=30`** (obrót dodawany do już aktywnego). Samo `ROT` bez parametrów kasuje obrót, tak jak G69.

@@ -1,0 +1,10 @@
+term: Wejście po rampie
+anchor: wejście-po-rampie
+order: 690
+aliases:
+  - ramping
+  - zagłębianie skośne
+  - rampa
+def: Zejście freza w materiał ruchem jednocześnie w Z i w płaszczyźnie (G01 X… Z…), pod małym kątem (zwykle 2–5°). Pozwala wejść w pełny materiał frezom, które nie skrawają przez środek, bez nawiercania.
+see:
+  - g01

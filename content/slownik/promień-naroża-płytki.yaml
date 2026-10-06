@@ -1,0 +1,10 @@
+term: Promień naroża płytki
+anchor: promień-naroża-płytki
+order: 560
+aliases:
+  - promień naroża
+  - rε
+  - R naroża
+def: Zaokrąglenie wierzchołka płytki tokarskiej, zapisane w dwóch ostatnich cyfrach kodu ISO (CNMG 120408 → 0,8 mm). Bez kompensacji promienia stożki i łuki wychodzą z błędem rzędu tego promienia; większy promień daje gładszą powierzchnię, ale większe siły promieniowe.
+see:
+  - g40-g42
