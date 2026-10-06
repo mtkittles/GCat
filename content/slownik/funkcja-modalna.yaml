@@ -4,7 +4,12 @@ order: 140
 aliases:
   - modalność
   - modalny
-def: Funkcja, która pozostaje aktywna po bloku, w którym ją wywołano, aż do odwołania przez inną funkcję z tej samej grupy. G01 jest modalne — kolejne bloki z samymi współrzędnymi też będą ruchami liniowymi. Przeciwieństwem są funkcje jednorazowe (G04, G28, G53), działające tylko w swoim bloku.
+def: >-
+  Funkcja, która pozostaje aktywna po bloku, w którym ją wywołano, aż do
+  odwołania przez inną funkcję z tej samej grupy. G01 jest modalne — kolejne
+  bloki z samymi współrzędnymi też będą ruchami liniowymi. Przeciwieństwem są
+  funkcje jednorazowe (G04, G28, G53), działające tylko w swoim bloku.
 see:
   - g01
   - g52-g53
+diagram: ''

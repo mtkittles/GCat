@@ -10,9 +10,14 @@ machines:
   - frezowanie
 star: false
 related: []
-variesBy: null
-short: G85 wytacza i wychodzi na posuwie (gładka ściana), G86 zatrzymuje wrzeciono i wychodzi szybko.
-desc: "Cykle wytaczania różnią się sposobem wyjścia z otworu. G85: wyjście na posuwie — brak śladu, ale podwójne czas. G86: stop wrzeciona, szybkie wyjście — może zostawić rysę od ostrza. G76 (frezarka): orientacja wrzeciona i odsunięcie ostrza od ściany przed wyjściem."
+short: >-
+  G85 wytacza i wychodzi na posuwie (gładka ściana), G86 zatrzymuje wrzeciono i
+  wychodzi szybko.
+desc: >-
+  Cykle wytaczania różnią się sposobem wyjścia z otworu. G85: wyjście na posuwie
+  — brak śladu, ale podwójne czas. G86: stop wrzeciona, szybkie wyjście — może
+  zostawić rysę od ostrza. G76 (frezarka): orientacja wrzeciona i odsunięcie
+  ostrza od ściany przed wyjściem.
 syntax:
   fanuc: |-
     G99 G85 X_ Y_ Z_ R_ F_
@@ -38,51 +43,55 @@ example:
     G01 Z5 F60
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 Cykle wytaczania różnią się sposobem **wyjścia narzędzia z otworu** — i właśnie ta różnica decyduje o jakości powierzchni.
 
-| Kod | Wyjście z otworu | Efekt |
-|---|---|---|
-| **G85** | Na posuwie roboczym, wrzeciono pracuje | Brak śladu; wytaczak przechodzi drugi raz, powierzchnia gładsza |
-| **G86** | Stop wrzeciona, wyjście szybkie | Szybko, ale ostrze może zostawić rysę wzdłuż ściany |
-| **G89** | Postój na dnie, potem wyjście na posuwie | Jak G85 plus wyrównanie dna |
-| **G76** | Orientacja wrzeciona, odsunięcie ostrza, wyjście szybkie | Najlepszy — ostrze nie dotyka ściany przy wyjściu |
-| **G87** | Wytaczanie wsteczne, od dołu otworu | Podtoczenia i powierzchnie niedostępne od góry |
+| Kod     | Wyjście z otworu                                         | Efekt                                                           |
+| ------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| **G85** | Na posuwie roboczym, wrzeciono pracuje                   | Brak śladu; wytaczak przechodzi drugi raz, powierzchnia gładsza |
+| **G86** | Stop wrzeciona, wyjście szybkie                          | Szybko, ale ostrze może zostawić rysę wzdłuż ściany             |
+| **G89** | Postój na dnie, potem wyjście na posuwie                 | Jak G85 plus wyrównanie dna                                     |
+| **G76** | Orientacja wrzeciona, odsunięcie ostrza, wyjście szybkie | Najlepszy — ostrze nie dotyka ściany przy wyjściu               |
+| **G87** | Wytaczanie wsteczne, od dołu otworu                      | Podtoczenia i powierzchnie niedostępne od góry                  |
 
-## Kiedy który {#kiedy-który}
+## Kiedy który \{#kiedy-który}
 
-- **Otwór na wymiar tolerowany (H7)** — G85 albo G76. Rysa od G86 potrafi zepsuć powierzchnię obrobioną na gotowo.
-- **Otwór zgrubny, bez wymagań** — G86 jest po prostu szybszy.
-- **Dno płaskie na wymiar** — G89 z postojem.
-- **Wytaczak z płytką jednostronną** — G76, jeśli maszyna obsługuje orientację wrzeciona.
+* **Otwór na wymiar tolerowany (H7)** — G85 albo G76. Rysa od G86 potrafi zepsuć powierzchnię obrobioną na gotowo.
+* **Otwór zgrubny, bez wymagań** — G86 jest po prostu szybszy.
+* **Dno płaskie na wymiar** — G89 z postojem.
+* **Wytaczak z płytką jednostronną** — G76, jeśli maszyna obsługuje orientację wrzeciona.
 
-## Składnia {#składnia}
+## Składnia \{#składnia}
 
 <Code>
-```
-G99 G85 X30 Y30 Z-25 R2 F80      ; wytaczanie, wyjście na posuwie
-G80
-G99 G86 X70 Y30 Z-25 R2 F120     ; wytaczanie, wyjście szybkie
-G80
-```
+  ```
+  G99 G85 X30 Y30 Z-25 R2 F80      ; wytaczanie, wyjście na posuwie
+  G80
+  G99 G86 X70 Y30 Z-25 R2 F120     ; wytaczanie, wyjście szybkie
+  G80
+  ```
 </Code>
 
-<Sim caption="Cykl G85 — zwróć uwagę, że wyjście z otworu jest ruchem roboczym (zielona linia), a nie szybkim przejazdem.">
-```
-G21 G90 G17 G54 G80
-T01 M06
-S900 M03
-G00 X30 Y30
-G43 Z10 H01
-M08
-G99 G85 X30 Y30 Z-25 R2 F80
-G80
-G00 Z50
-M09
-M30
-```
+<Sim mode="mill" caption="Cykl G85 — zwróć uwagę, że wyjście z otworu jest ruchem roboczym (zielona linia), a nie szybkim przejazdem.">
+  ```
+  G21 G90 G17 G54 G80
+  T01 M06
+  S900 M03
+  G00 X30 Y30
+  G43 Z10 H01
+  M08
+  G99 G85 X30 Y30 Z-25 R2 F80
+  G80
+  G00 Z50
+  M09
+  M30
+  ```
 </Sim>
 
-<Note kind="tip">Przy wytaczaniu na wymiar warto zostawić 0,2–0,4 mm naddatku po wierceniu i pracować z posuwem 0,05–0,12 mm/obr. Wytaczak jest długi i podatny na drgania — mniejszy naddatek daje lepszą powierzchnię niż większy posuw.</Note>
+<Note kind="tip">
+  Przy wytaczaniu na wymiar warto zostawić 0,2–0,4 mm naddatku po wierceniu i pracować z posuwem 0,05–0,12 mm/obr. Wytaczak jest długi i podatny na drgania — mniejszy naddatek daje lepszą powierzchnię niż większy posuw.
+</Note>

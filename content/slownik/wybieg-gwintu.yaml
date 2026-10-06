@@ -4,7 +4,10 @@ order: 730
 aliases:
   - wybieg
   - rozbieg
-def: "Odcinek przed gwintem i za nim, potrzebny osiom na rozpędzenie się i wyhamowanie przy ruchu zsynchronizowanym z wrzecionem. Zasada: co najmniej dwa skoki przed początkiem gwintu. Bez rozbiegu pierwsze zwoje mają zaniżony skok."
+def: >-
+  Odcinek przed gwintem i za nim, potrzebny osiom na rozpędzenie się i
+  wyhamowanie przy ruchu zsynchronizowanym z wrzecionem. Zasada: co najmniej dwa
+  skoki przed początkiem gwintu. Bez rozbiegu pierwsze zwoje mają zaniżony skok.
 see:
   - g76
   - g33

@@ -3,5 +3,10 @@ anchor: adres
 order: 30
 aliases:
   - słowo
-def: "Litera określająca znaczenie liczby, która po niej następuje. X to współrzędna, F posuw, S obroty, T narzędzie. Ten sam adres może znaczyć różne rzeczy zależnie od kontekstu: P to raz czas postoju, raz numer podprogramu, raz parametr cyklu."
+def: >-
+  Litera określająca znaczenie liczby, która po niej następuje. X to
+  współrzędna, F posuw, S obroty, T narzędzie. Ten sam adres może znaczyć różne
+  rzeczy zależnie od kontekstu: P to raz czas postoju, raz numer podprogramu,
+  raz parametr cyklu.
 see: []
+diagram: ''

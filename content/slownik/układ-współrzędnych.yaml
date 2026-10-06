@@ -4,6 +4,10 @@ order: 670
 aliases:
   - układ osi
   - osie maszyny
-def: Trzy prostopadłe osie X, Y i Z, względem których podaje się położenie narzędzia. Na obrabiarkach CNC jest prawoskrętny, a ruch w +Z zawsze oddala narzędzie od detalu.
+def: >-
+  Trzy prostopadłe osie X, Y i Z, względem których podaje się położenie
+  narzędzia. Na obrabiarkach CNC jest prawoskrętny, a ruch w +Z zawsze oddala
+  narzędzie od detalu.
 see:
   - g54-g59
+diagram: ''

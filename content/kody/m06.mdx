@@ -14,24 +14,37 @@ related:
   - g28
   - m03-m05
   - m19
-variesBy: null
-short: T_ M06 wymienia narzędzie we wrzecionie na wskazane. Samo T tylko przygotowuje narzędzie w magazynie.
-desc: |-
-  **T05** wybiera narzędzie — magazyn może je przygotować, zanim skończy się poprzednia operacja. **M06** wykonuje wymianę.
+short: >-
+  T_ M06 wymienia narzędzie we wrzecionie na wskazane. Samo T tylko przygotowuje
+  narzędzie w magazynie.
+desc: >-
+  **T05** wybiera narzędzie — magazyn może je przygotować, zanim skończy się
+  poprzednia operacja. **M06** wykonuje wymianę.
 
-  Przed M06 wiele maszyn wymaga odjazdu Z do punktu wymiany (**G91 G28 Z0** albo **G30**); często robi to makro producenta. Po wymianie trzeba włączyć korekcję długości **G43 H_** i uruchomić wrzeciono.
 
-  Na tokarce M06 zwykle nie występuje: **T0101** obraca głowicę na narzędzie 1 i włącza korekcję 01.
+  Przed M06 wiele maszyn wymaga odjazdu Z do punktu wymiany (**G91 G28 Z0** albo
+  **G30**); często robi to makro producenta. Po wymianie trzeba włączyć korekcję
+  długości **G43 H_** i uruchomić wrzeciono.
+
+
+  Na tokarce M06 zwykle nie występuje: **T0101** obraca głowicę na narzędzie 1 i
+  włącza korekcję 01.
 syntax:
   fanuc: T_ M06
   sinumerik: |-
     T="NAZWA" M6   ; z zarządzaniem narzędziami
     T_ M6
-sinumerik: 'Wymianę wykonuje **M6**. Przy zarządzaniu narzędziami wywołuje się je nazwą: T="FREZ_D10". Korekcję aktywuje numer ostrza **D**.'
+sinumerik: >-
+  Wymianę wykonuje **M6**. Przy zarządzaniu narzędziami wywołuje się je nazwą:
+  T="FREZ_D10". Korekcję aktywuje numer ostrza **D**.
 params: []
 pitfalls:
-  - Po M06 bez G43 H_ narzędzie pracuje z długością poprzedniego albo bez korekcji — ryzyko kolizji.
-  - Numer H inny niż T (T05 z H04) to częsty błąd przy kopiowaniu fragmentów programu.
+  - >-
+    Po M06 bez G43 H_ narzędzie pracuje z długością poprzedniego albo bez
+    korekcji — ryzyko kolizji.
+  - >-
+    Numer H inny niż T (T05 z H04) to częsty błąd przy kopiowaniu fragmentów
+    programu.
 example:
   src: |-
     G21 G90 G17 G54
@@ -42,6 +55,8 @@ example:
     S2500 M03
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

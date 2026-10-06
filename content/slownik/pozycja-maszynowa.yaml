@@ -5,7 +5,11 @@ aliases:
   - współrzędne maszynowe
   - układ maszyny
   - MCS
-def: Położenie osi liczone od zera maszyny (punktu referencyjnego), niezależne od przesunięć G54–G59. Widać je na ekranie sterowania jako pozycję MACHINE; blok G53 wykonuje ruch bezpośrednio w tym układzie.
+def: >-
+  Położenie osi liczone od zera maszyny (punktu referencyjnego), niezależne od
+  przesunięć G54–G59. Widać je na ekranie sterowania jako pozycję MACHINE; blok
+  G53 wykonuje ruch bezpośrednio w tym układzie.
 see:
   - g52-g53
   - g28
+diagram: ''

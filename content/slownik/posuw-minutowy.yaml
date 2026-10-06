@@ -4,6 +4,9 @@ order: 500
 aliases:
   - mm/min
   - posuw na minutę
-def: "Jednostka posuwu typowa dla frezowania: droga narzędzia na minutę (G94; na tokarce Fanuc w systemie A — G98). Liczy się ją jako fz · z · n."
+def: >-
+  Jednostka posuwu typowa dla frezowania: droga narzędzia na minutę (G94; na
+  tokarce Fanuc w systemie A — G98). Liczy się ją jako fz · z · n.
 see:
   - g94-g95
+diagram: ''

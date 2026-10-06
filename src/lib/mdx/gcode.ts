@@ -10,10 +10,10 @@ export function kodToGcode(k: Kod, hasArticle: boolean): GCode {
     short: k.short, desc: k.desc, syntax: k.syntax, params: k.params, example: k.example.src,
     sinumerik: k.sinumerik, pitfalls: k.pitfalls,
     ...(k.related.length ? { related: k.related } : {}),
-    ...(k.variesBy !== null ? { variesBy: k.variesBy } : {}),
+    ...(k.variesBy ? { variesBy: k.variesBy } : {}),
     ...(k.example.simulate === false ? { simulate: false } : {}),
     ...(k.example.mode ? { exampleMode: k.example.mode } : {}),
-    ...(k.example.stock ? { exampleStock: k.example.stock } : {}),
+    ...(k.example.stock.discriminant ? { exampleStock: k.example.stock.value } : {}),
     ...(k.example.dialect ? { exampleDialect: k.example.dialect } : {}),
     star: k.star, hasArticle,
   };

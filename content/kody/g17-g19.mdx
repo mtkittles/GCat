@@ -11,9 +11,10 @@ machines:
   - toczenie
 star: true
 related: []
-variesBy: null
-short: "Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19)."
-desc: "Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18."
+short: 'Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19).'
+desc: >-
+  Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja
+  promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18.
 syntax:
   fanuc: G17 | G18 | G19
   sinumerik: G17 | G18 | G19
@@ -34,71 +35,74 @@ example:
     M30
   simulate: true
   mode: lathe
-  stock: null
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G17, G18 i G19** wybierają **płaszczyznę pracy**. Od niej zależą trzy rzeczy: w której płaszczyźnie idą łuki G02/G03, w której działa korekcja promienia G41/G42 i wzdłuż której osi pracują cykle wiertarskie.
 
 <Diagram id="g17-g19" />
 
-| Kod | Płaszczyzna | Środek łuku | Oś cykli wiertarskich | Gdzie domyślnie |
-|---|---|---|---|---|
-| `G17` | XY | I, J | Z | frezarka |
-| `G18` | ZX | I, K | Y | tokarka |
-| `G19` | YZ | J, K | X | — |
+| Kod   | Płaszczyzna | Środek łuku | Oś cykli wiertarskich | Gdzie domyślnie |
+| ----- | ----------- | ----------- | --------------------- | --------------- |
+| `G17` | XY          | I, J        | Z                     | frezarka        |
+| `G18` | ZX          | I, K        | Y                     | tokarka         |
+| `G19` | YZ          | J, K        | X                     | —               |
 
-## Co dokładnie robi sterownik {#co-dokładnie-robi-sterownik}
+## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
 Płaszczyzna to modalny wybór, który sterownik stosuje do każdego łuku i do korekcji. Kierunek G02 (zgodnie z zegarem) ocenia się, **patrząc z dodatniej strony osi prostopadłej do płaszczyzny**: w G17 — z góry (+Z), w G18 — od strony +Y, w G19 — od strony +X.
 
-<Note kind="info">Dlatego na tokarce kierunek łuku odczytuje się z rysunku z osią X w górę i Z w prawo, a nie z tego, co widać przez szybę. Przy głowicy przedniej łuk G02 wygląda z miejsca operatora na przeciwny — program jest ten sam.</Note>
+<Note kind="info">
+  Dlatego na tokarce kierunek łuku odczytuje się z rysunku z osią X w górę i Z w prawo, a nie z tego, co widać przez szybę. Przy głowicy przedniej łuk G02 wygląda z miejsca operatora na przeciwny — program jest ten sam.
+</Note>
 
-## Kiedy inna płaszczyzna niż domyślna {#kiedy-inna-płaszczyzna-niż-domyślna}
+## Kiedy inna płaszczyzna niż domyślna \{#kiedy-inna-płaszczyzna-niż-domyślna}
 
-- **frezarka, łuk w ścianie bocznej** — G18 lub G19, np. zaokrąglenie krawędzi frezem kulistym w przekroju,
-- **głowica kątowa, obróbka z boku** — cykle wiertarskie wzdłuż X lub Y,
-- **interpolacja śrubowa** — płaszczyzna określa, która oś jest osią spirali (w G17 to Z).
+* **frezarka, łuk w ścianie bocznej** — G18 lub G19, np. zaokrąglenie krawędzi frezem kulistym w przekroju,
+* **głowica kątowa, obróbka z boku** — cykle wiertarskie wzdłuż X lub Y,
+* **interpolacja śrubowa** — płaszczyzna określa, która oś jest osią spirali (w G17 to Z).
 
-<Sim caption="Łuk w płaszczyźnie XZ na frezarce: po `G18` blok G02 łączy ruch w X i Z, a środek łuku leży w tej płaszczyźnie.">
-```
-G21 G90 G17 G54
-T1 M06 (FREZ KULISTY FI6)
-G43 H1 Z50.
-S3000 M03
-G00 X0. Y10. Z5.
-G01 Z0. F200
-G18
-G02 X10. Z-10. R10. F300
-G01 X40.
-G17
-G00 Z5.
-M30
-```
+<Sim mode="mill" caption="Łuk w płaszczyźnie XZ na frezarce: po `G18` blok G02 łączy ruch w X i Z, a środek łuku leży w tej płaszczyźnie.">
+  ```
+  G21 G90 G17 G54
+  T1 M06 (FREZ KULISTY FI6)
+  G43 H1 Z50.
+  S3000 M03
+  G00 X0. Y10. Z5.
+  G01 Z0. F200
+  G18
+  G02 X10. Z-10. R10. F300
+  G01 X40.
+  G17
+  G00 Z5.
+  M30
+  ```
 </Sim>
 
 <Sim mode="lathe" caption="Na tokarce G18 jest domyślne. Przy zapisie środka łuku używa się I (w X) i K (w Z) — nie I i J.">
-```
-G18 G21 G40 G99
-G97 S1000 M03
-G00 X52. Z2.
-G01 X40. F0.25
-Z-20.
-G02 X50. Z-25. R5.
-G01 Z-40.
-X52.
-G00 Z2.
-M30
-```
+  ```
+  G18 G21 G40 G99
+  G97 S1000 M03
+  G00 X52. Z2.
+  G01 X40. F0.25
+  Z-20.
+  G02 X50. Z-25. R5.
+  G01 Z-40.
+  X52.
+  G00 Z2.
+  M30
+  ```
 </Sim>
 
-## Fanuc kontra Sinumerik {#fanuc-kontra-sinumerik}
+## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
 
 Kody są takie same na obu sterowaniach. Różnice dotyczą zapisu łuku: Sinumerik przyjmuje promień jako `CR=`, a pełne zwoje spirali jako `TURN=`.
 
-## Typowe błędy {#typowe-błędy}
+## Typowe błędy \{#typowe-błędy}
 
-- **J w płaszczyźnie G18** — alarm albo łuk w innym miejscu niż zamierzony.
-- **Korekcja promienia w złej płaszczyźnie** — odsunięcie w innej osi niż kontur.
-- **Cykl wiertarski po G18 na frezarce** — wiercenie w osi Y, prosto w bok detalu.
-- **G17 przepisane do programu tokarskiego** — łuki i korekcja ostrza w złej płaszczyźnie.
-- **Brak powrotu do G17** po fragmencie w G18 — kolejne łuki idą w płaszczyźnie XZ.
+* **J w płaszczyźnie G18** — alarm albo łuk w innym miejscu niż zamierzony.
+* **Korekcja promienia w złej płaszczyźnie** — odsunięcie w innej osi niż kontur.
+* **Cykl wiertarski po G18 na frezarce** — wiercenie w osi Y, prosto w bok detalu.
+* **G17 przepisane do programu tokarskiego** — łuki i korekcja ostrza w złej płaszczyźnie.
+* **Brak powrotu do G17** po fragmencie w G18 — kolejne łuki idą w płaszczyźnie XZ.

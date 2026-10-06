@@ -4,7 +4,11 @@ order: 410
 aliases:
   - oprawka wyrównawcza
   - floating tap holder
-def: Uchwyt gwintownika z luzem osiowym, który wyrównuje różnicę między posuwem programu a rzeczywistym skokiem. Konieczna bez gwintowania sztywnego (M29); przy gwintowaniu sztywnym gwintownik mocuje się w oprawce sztywnej.
+def: >-
+  Uchwyt gwintownika z luzem osiowym, który wyrównuje różnicę między posuwem
+  programu a rzeczywistym skokiem. Konieczna bez gwintowania sztywnego (M29);
+  przy gwintowaniu sztywnym gwintownik mocuje się w oprawce sztywnej.
 see:
   - m29
   - g84
+diagram: ''

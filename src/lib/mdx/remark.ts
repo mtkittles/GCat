@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import path from "node:path";
 import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
@@ -181,6 +183,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           if (typeof id !== "string") at(n, `<Diagram> wymaga id="…" (tekst)`);
           else if (!opts.diagramIds.has(id)) at(n, `<Diagram id="${id}" /> — nie ma takiego rysunku w diagrams.tsx`);
         }
+        if (el.name === "Obraz") {
+          const src = strAttr(el, "src");
+          if (typeof src !== "string" || !src.startsWith("/rysunki/") || src.includes("..")) at(n, `<Obraz> wymaga src="/rysunki/…" (plik w public/rysunki/)`);
+          else if (!existsSync(path.join(process.cwd(), "public", src))) at(n, `<Obraz src="${src}" /> — nie ma pliku public${src}`);
+        }
         for (const [name, values] of Object.entries(ENUMS[el.name] ?? {})) {
           const v = strAttr(el, name);
           if (v !== undefined && !values.includes(String(v))) at(n, `<${el.name} ${name}="${v}">: dozwolone ${values.join(" | ")}`);
@@ -190,6 +197,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         for (const name of ["caption", "title"]) {
           const v = strAttr(el, name);
           if (typeof v === "string") for (const m of v.matchAll(MARKER_RE)) if (!resolveKey(m[1], opts.sources)) at(n, `${name}: marker [[${m[0].slice(2, -2)}]] — klucz „${m[1]}” nie pasuje do żadnej karty ani hasła słownika`);
+        }
+        // <Note> z treścią w osobnych liniach (format Keystatic) → jeden akapit; renderujemy samą treść jak blok `note` w Article.tsx
+        if (el.name === "Note") {
+          const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
+          if (kids.length === 1 && kids[0].type === "paragraph") el.children = kids[0].children as typeof el.children;
         }
         if (WITH_SRC.has(el.name)) {
           const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
@@ -205,11 +217,12 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     // 2b. Tabele: <Table> (figure), klasy i data-label jak w Article.tsx.
     visit(tree, "table", (t: Table, index, parent) => {
       t.data = { ...t.data, hProperties: { ...(t.data?.hProperties ?? {}), className: ["code-table", "tbl-stack"] } };
-      // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`)
+      // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`); escape'y Markdown (\[ \| …,
+      // zapis Keystatic) zdjęte jak w treści komórki
       const head = t.children[0]?.children.map((c) => {
         const a = c.position?.start.offset, b = c.position?.end.offset;
         const raw = a !== undefined && b !== undefined ? source.slice(a, b) : plain(c);
-        return raw.trim().replace(/^\|/, "").replace(/\|$/, "").trim().replace(/\\\|/g, "|").replace(/\*\*|`/g, "");
+        return raw.trim().replace(/^\|/, "").replace(/\|$/, "").trim().replace(/\\([!-/:-@[-`{-~])/g, "$1").replace(/\*\*|`/g, "");
       }) ?? [];
       for (const row of t.children.slice(1)) row.children.forEach((c, k) => { c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), dataLabel: head[k] ?? "" } }; });
       const p = parent as unknown as MdxJsxFlowElement | undefined;

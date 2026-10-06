@@ -11,9 +11,12 @@ machines:
   - toczenie
 star: false
 related: []
-variesBy: null
 short: M98 P_ wywołuje podprogram (z powtórzeniami), M99 wraca.
-desc: "Fragment powtarzany w kilku miejscach (np. kieszeń) zapisujesz raz jako osobny program O1001, a wywołujesz M98 P1001. Fanuc: liczba powtórzeń przed numerem — M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór przesuwany w każdym wywołaniu."
+desc: >-
+  Fragment powtarzany w kilku miejscach (np. kieszeń) zapisujesz raz jako osobny
+  program O1001, a wywołujesz M98 P1001. Fanuc: liczba powtórzeń przed numerem —
+  M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór przesuwany w
+  każdym wywołaniu.
 syntax:
   fanuc: |-
     M98 P1001      (raz)
@@ -29,7 +32,9 @@ params:
     desc: Numer podprogramu (+ liczba powtórzeń z przodu w Fanuc)
 pitfalls:
   - M99 w programie głównym = pętla nieskończona.
-  - Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór „ucieka”.
+  - >-
+    Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór
+    „ucieka”.
 example:
   src: |-
     G21 G90 G17 G54
@@ -54,82 +59,88 @@ example:
     G90
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **M98** wywołuje podprogram, **M99** kończy go i zwraca sterowanie do miejsca wywołania. Podprogramy pozwalają zapisać powtarzalny fragment raz i wywołać go wielokrotnie — z różnymi układami współrzędnych, kątami czy przesunięciami.
 
-## Struktura {#struktura}
+## Struktura \{#struktura}
 
 <Code>
-```
-O0100 (PROGRAM GLOWNY)
-G21 G90 G17 G54 G40 G49 G80
-T01 M06
-G43 H01 Z50
-S2000 M03
-M98 P1001          ; wywołanie podprogramu O1001
-G55
-M98 P1001          ; ten sam kształt w drugim zamocowaniu
-G91 G28 Z0
-G90
-M30
+  ```
+  O0100 (PROGRAM GLOWNY)
+  G21 G90 G17 G54 G40 G49 G80
+  T01 M06
+  G43 H01 Z50
+  S2000 M03
+  M98 P1001          ; wywołanie podprogramu O1001
+  G55
+  M98 P1001          ; ten sam kształt w drugim zamocowaniu
+  G91 G28 Z0
+  G90
+  M30
 
-O1001 (PODPROGRAM — KIESZEN)
-G00 X10 Y10
-G00 Z2
-G01 Z-3 F120
-G01 X50 F400
-G01 Y30
-G01 X10
-G01 Y10
-G00 Z50
-M99                ; powrót do programu głównego
-```
+  O1001 (PODPROGRAM — KIESZEN)
+  G00 X10 Y10
+  G00 Z2
+  G01 Z-3 F120
+  G01 X50 F400
+  G01 Y30
+  G01 X10
+  G01 Y10
+  G00 Z50
+  M99                ; powrót do programu głównego
+  ```
 </Code>
 
-## Powtórzenia {#powtórzenia}
+## Powtórzenia \{#powtórzenia}
 
-| Zapis | Znaczenie |
-|---|---|
-| `M98 P1001` | Jedno wywołanie podprogramu numer 1001 |
-| `M98 P51001` | **Pięć** wywołań podprogramu 1001 — liczba powtórzeń stoi z przodu |
-| `M98 P1001 L5` | To samo, składnia z osobnym adresem L (nie wszystkie sterowniki) |
+| Zapis          | Znaczenie                                                          |
+| -------------- | ------------------------------------------------------------------ |
+| `M98 P1001`    | Jedno wywołanie podprogramu numer 1001                             |
+| `M98 P51001`   | **Pięć** wywołań podprogramu 1001 — liczba powtórzeń stoi z przodu |
+| `M98 P1001 L5` | To samo, składnia z osobnym adresem L (nie wszystkie sterowniki)   |
 
-<Note kind="warn">Zapis `P51001` bywa mylący, bo wygląda jak numer programu 51001. Sterownik czyta ostatnie cztery cyfry jako numer, a to, co przed nimi, jako liczbę powtórzeń.</Note>
+<Note kind="warn">
+  Zapis `P51001` bywa mylący, bo wygląda jak numer programu 51001. Sterownik czyta ostatnie cztery cyfry jako numer, a to, co przed nimi, jako liczbę powtórzeń.
+</Note>
 
-## Podprogramy przyrostowe {#podprogramy-przyrostowe}
+## Podprogramy przyrostowe \{#podprogramy-przyrostowe}
 
 Największą siłę podprogramy pokazują w połączeniu z G91. Podprogram wykonujący jeden element, zakończony powrotem do punktu startu i przesunięciem o krok, powtórzony pięć razy daje rząd pięciu identycznych elementów — bez liczenia współrzędnych.
 
 <Code caption="Podprogram kończy się dokładnie o jeden krok dalej niż zaczął — to warunek poprawnego powtarzania.">
-```
-O0200
-G21 G90 G17 G54
-S2200 M03
-G00 X10 Y10 Z5
-G91
-M98 P51002        ; pięć rowków co 15 mm
-G90
-G00 Z50
-M30
+  ```
+  O0200
+  G21 G90 G17 G54
+  S2200 M03
+  G00 X10 Y10 Z5
+  G91
+  M98 P51002        ; pięć rowków co 15 mm
+  G90
+  G00 Z50
+  M30
 
-O1002
-G01 Z-7 F120
-G01 X20 F400
-G00 Z7
-G00 X-20 Y15     ; powrót i przesunięcie o krok
-M99
-```
+  O1002
+  G01 Z-7 F120
+  G01 X20 F400
+  G00 Z7
+  G00 X-20 Y15     ; powrót i przesunięcie o krok
+  M99
+  ```
 </Code>
 
-<Note kind="warn">**M99 w programie głównym tworzy pętlę nieskończoną.** Program wraca na początek i wykonuje się od nowa, aż do zatrzymania przez operatora. To bywa używane celowo (praca ciągła z podajnikiem), ale przypadkowo jest bardzo nieprzyjemne.</Note>
+<Note kind="warn">
+  **M99 w programie głównym tworzy pętlę nieskończoną.** Program wraca na początek i wykonuje się od nowa, aż do zatrzymania przez operatora. To bywa używane celowo (praca ciągła z podajnikiem), ale przypadkowo jest bardzo nieprzyjemne.
+</Note>
 
-## Sinumerik {#sinumerik}
+## Sinumerik \{#sinumerik}
 
-| Funkcja | Fanuc | Sinumerik |
-|---|---|---|
-| Wywołanie | `M98 P1001` | `L1001` albo nazwa: `KIESZEN` |
-| Powtórzenia | `M98 P51001` | `L1001 P5` |
-| Koniec podprogramu | `M99` | `M17` albo `RET` |
-| Przekazywanie parametrów | makra G65 ze zmiennymi # | parametry w definicji `PROC` |
+| Funkcja                  | Fanuc                    | Sinumerik                     |
+| ------------------------ | ------------------------ | ----------------------------- |
+| Wywołanie                | `M98 P1001`              | `L1001` albo nazwa: `KIESZEN` |
+| Powtórzenia              | `M98 P51001`             | `L1001 P5`                    |
+| Koniec podprogramu       | `M99`                    | `M17` albo `RET`              |
+| Przekazywanie parametrów | makra G65 ze zmiennymi # | parametry w definicji `PROC`  |

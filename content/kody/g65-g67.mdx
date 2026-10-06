@@ -14,14 +14,21 @@ related:
   - m98-m99
   - g31
   - g81-g83
-variesBy: null
-short: G65 wywołuje makro i przekazuje mu argumenty. G66 wywołuje je po każdym ruchu, aż do G67.
-desc: |-
-  **G65 P9010 A1.0 B2.0** uruchamia program O9010. Argumenty trafiają do zmiennych lokalnych: A → **#1**, B → **#2**, C → **#3**, I → **#4**, X → **#24**, Y → **#25**, Z → **#26**.
+short: >-
+  G65 wywołuje makro i przekazuje mu argumenty. G66 wywołuje je po każdym ruchu,
+  aż do G67.
+desc: >-
+  **G65 P9010 A1.0 B2.0** uruchamia program O9010. Argumenty trafiają do
+  zmiennych lokalnych: A → **#1**, B → **#2**, C → **#3**, I → **#4**, X →
+  **#24**, Y → **#25**, Z → **#26**.
 
-  W odróżnieniu od **M98** makro dostaje parametry i ma własne zmienne #1–#33, czyszczone przy każdym wywołaniu. **L** podaje liczbę powtórzeń.
 
-  **G66** działa modalnie: makro wykonuje się po każdym bloku z ruchem, więc można nim napisać własny cykl otworów. **G67** kończy wywołanie modalne.
+  W odróżnieniu od **M98** makro dostaje parametry i ma własne zmienne #1–#33,
+  czyszczone przy każdym wywołaniu. **L** podaje liczbę powtórzeń.
+
+
+  **G66** działa modalnie: makro wykonuje się po każdym bloku z ruchem, więc
+  można nim napisać własny cykl otworów. **G67** kończy wywołanie modalne.
 syntax:
   fanuc: |-
     G65 P_ L_ A_ B_ …
@@ -31,19 +38,25 @@ syntax:
     NAZWA(par1, par2)
     MCALL NAZWA(par1, par2)
     MCALL   ; koniec
-sinumerik: Podprogram z parametrami deklaruje się jako **PROC NAZWA(REAL A, REAL B)** i wywołuje nazwą. Wywołanie modalne po każdym ruchu to **MCALL**.
+sinumerik: >-
+  Podprogram z parametrami deklaruje się jako **PROC NAZWA(REAL A, REAL B)** i
+  wywołuje nazwą. Wywołanie modalne po każdym ruchu to **MCALL**.
 params:
   - key: P
     desc: numer programu makra
   - key: L
     desc: liczba powtórzeń
   - key: A B C
-    desc: "argumenty → #1 #2 #3"
+    desc: 'argumenty → #1 #2 #3'
   - key: X Y Z
-    desc: "argumenty → #24 #25 #26"
+    desc: 'argumenty → #24 #25 #26'
 pitfalls:
-  - "Zmienne #1–#33 znikają po wyjściu z makra. Wyniki do zapamiętania zapisuj w #100+ albo #500+."
-  - Programy O9000–O9999 bywają zablokowane parametrem przed edycją — to nie błąd programu.
+  - >-
+    Zmienne #1–#33 znikają po wyjściu z makra. Wyniki do zapamiętania zapisuj w
+    #100+ albo #500+.
+  - >-
+    Programy O9000–O9999 bywają zablokowane parametrem przed edycją — to nie
+    błąd programu.
 example:
   src: |-
     O1000
@@ -59,6 +72,8 @@ example:
     G00 Z20.0
     M99
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

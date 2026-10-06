@@ -16,11 +16,19 @@ related:
   - g82
   - g73
 variesBy: system kodów
-short: "Frezarka: po otworze G98 wraca do poziomu początkowego, G99 do płaszczyzny R. Tokarka w systemie A: G98 to posuw mm/min, G99 mm/obr."
-desc: |-
-  **Frezarka.** Wysokość, na której stało narzędzie przed wejściem w cykl, to **poziom początkowy**. **R** to płaszczyzna, od której zaczyna się posuw roboczy. Z **G99** narzędzie przejeżdża między otworami na wysokości R — szybciej. Z **G98** podnosi się do poziomu początkowego — bezpieczniej, gdy między otworami stoi zacisk albo wyższy fragment detalu.
+short: >-
+  Frezarka: po otworze G98 wraca do poziomu początkowego, G99 do płaszczyzny R.
+  Tokarka w systemie A: G98 to posuw mm/min, G99 mm/obr.
+desc: >-
+  **Frezarka.** Wysokość, na której stało narzędzie przed wejściem w cykl, to
+  **poziom początkowy**. **R** to płaszczyzna, od której zaczyna się posuw
+  roboczy. Z **G99** narzędzie przejeżdża między otworami na wysokości R —
+  szybciej. Z **G98** podnosi się do poziomu początkowego — bezpieczniej, gdy
+  między otworami stoi zacisk albo wyższy fragment detalu.
 
-  **Tokarka (system A).** Te same kody wybierają jednostkę posuwu: **G99** mm/obr (domyślnie), **G98** mm/min. Odpowiadają frezarkowym G95 i G94.
+
+  **Tokarka (system A).** Te same kody wybierają jednostkę posuwu: **G99**
+  mm/obr (domyślnie), **G98** mm/min. Odpowiadają frezarkowym G95 i G94.
 syntax:
   fanuc: |-
     G98 G81 X_ Y_ Z_ R_ F_
@@ -28,14 +36,18 @@ syntax:
   sinumerik: |-
     CYCLE81(RTP, RFP, SDIS, DP)   ; RTP = poziom powrotu
     G94 / G95   ; jednostka posuwu
-sinumerik: Cykle Sinumerik nie mają G98/G99 — płaszczyznę powrotu podaje parametr **RTP**. Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.
+sinumerik: >-
+  Cykle Sinumerik nie mają G98/G99 — płaszczyznę powrotu podaje parametr
+  **RTP**. Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.
 params:
   - key: G98
     desc: powrót do poziomu początkowego
   - key: G99
     desc: powrót do płaszczyzny R
 pitfalls:
-  - "G99 przy zaciskach między otworami: narzędzie przejedzie na wysokości R i uderzy w zacisk."
+  - >-
+    G99 przy zaciskach między otworami: narzędzie przejedzie na wysokości R i
+    uderzy w zacisk.
   - Na tokarce w systemie A F0.2 z G98 to 0,2 mm/min, a nie 0,2 mm/obr.
 example:
   src: |-
@@ -51,6 +63,8 @@ example:
     G00 Z50
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

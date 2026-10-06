@@ -16,26 +16,38 @@ related:
   - g50
   - g90-g94-t
 variesBy: system kodów
-short: "Frezarka: „tu jest teraz X_ Y_ Z_” (ustawienie układu). Tokarka Fanuc: znaczenie zależy od systemu kodów."
-desc: |-
-  **Frezarka.** G92 X0 Y0 nie rusza maszyną — mówi sterowaniu, że bieżące miejsce ma od teraz podane współrzędne. To starszy sposób ustawiania zera sprzed G54; spotykany w programach z konwerterów i na starszych maszynach.
+short: >-
+  Frezarka: „tu jest teraz X_ Y_ Z_” (ustawienie układu). Tokarka Fanuc:
+  znaczenie zależy od systemu kodów.
+desc: >-
+  **Frezarka.** G92 X0 Y0 nie rusza maszyną — mówi sterowaniu, że bieżące
+  miejsce ma od teraz podane współrzędne. To starszy sposób ustawiania zera
+  sprzed G54; spotykany w programach z konwerterów i na starszych maszynach.
 
-  **Tokarka Fanuc.** Znaczenie zależy od systemu kodów G: w systemie A G92 to cykl gwintowania, a ustawienie układu i limit obrotów przy G96 realizuje G50; w systemach B i C rolę G50 przejmuje G92. Przed użyciem sprawdź system kodów swojej maszyny.
+
+  **Tokarka Fanuc.** Znaczenie zależy od systemu kodów G: w systemie A G92 to
+  cykl gwintowania, a ustawienie układu i limit obrotów przy G96 realizuje G50;
+  w systemach B i C rolę G50 przejmuje G92. Przed użyciem sprawdź system kodów
+  swojej maszyny.
 syntax:
   fanuc: |-
     G92 X0 Y0 Z100
     G92 S2500 (tokarka, limit)
   sinumerik: brak (TRANS / LIMS=)
-sinumerik: "Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=."
+sinumerik: 'Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.'
 params:
   - key: X Y Z
     desc: Współrzędne przypisane aktualnej pozycji
   - key: S
     desc: Limit obrotów (tokarka)
 pitfalls:
-  - G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z innego miejsca przesuwa cały detal.
+  - >-
+    G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z
+    innego miejsca przesuwa cały detal.
   - Po G92 nie ufaj wartościom G54 na ekranie, dopóki nie zresetujesz.
-  - Na tokarce w systemie A G92 to cykl gwintowania jednym przejściem, a nie ustawienie układu.
+  - >-
+    Na tokarce w systemie A G92 to cykl gwintowania jednym przejściem, a nie
+    ustawienie układu.
 example:
   src: |-
     G21 G90 G17 G54
@@ -48,25 +60,31 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G92** przypisuje aktualnemu położeniu narzędzia zadane współrzędne. Maszyna się nie porusza — zmienia się tylko sposób liczenia. To metoda ustawiania zera sprzed epoki rejestrów G54, dziś spotykana głównie w starszych programach i na prostych sterownikach.
 
-## Jak to działa {#jak-to-działa}
+## Jak to działa \{#jak-to-działa}
 
 Ustawiasz narzędzie w narożniku detalu i piszesz `G92 X0 Y0 Z0`. Od tej chwili sterownik uznaje to miejsce za zero. Efekt jest podobny do G54, ale z istotną różnicą: **przesunięcie jest liczone od miejsca, w którym maszyna aktualnie stoi**, a nie zapisane na stałe w rejestrze.
 
-<Note kind="warn">Stąd bierze się główne niebezpieczeństwo. Jeżeli program z G92 zostanie uruchomiony, gdy narzędzie stoi gdzie indziej niż za pierwszym razem, **cała obróbka przesunie się o tę różnicę**. Program z G54 jest w tej sytuacji odporny, bo rejestr pamięta położenie bezwzględne.</Note>
+<Note kind="warn">
+  Stąd bierze się główne niebezpieczeństwo. Jeżeli program z G92 zostanie uruchomiony, gdy narzędzie stoi gdzie indziej niż za pierwszym razem, **cała obróbka przesunie się o tę różnicę**. Program z G54 jest w tej sytuacji odporny, bo rejestr pamięta położenie bezwzględne.
+</Note>
 
-## G92 na tokarce {#g92-na-tokarce}
+## G92 na tokarce \{#g92-na-tokarce}
 
 Na tokarkach Fanuc starszych serii `G92 S2500` pełni zupełnie inną funkcję: **ogranicza maksymalne obroty** przy stałej prędkości skrawania G96. W nowszych sterownikach ten sam limit zapisuje się jako `G50 S2500`. Ten sam kod, dwa różne znaczenia zależnie od typu maszyny — kolejna pułapka przy przenoszeniu programów.
 
-## Kiedy jeszcze się przydaje {#kiedy-jeszcze-się-przydaje}
+## Kiedy jeszcze się przydaje \{#kiedy-jeszcze-się-przydaje}
 
-- Maszyny bez rejestrów układów współrzędnych (proste sterowniki, obrabiarki hobbystyczne, GRBL).
-- Tymczasowe przesunięcie zera wewnątrz programu przy pracy z podprogramami.
-- Programy generowane przez starsze postprocesory.
+* Maszyny bez rejestrów układów współrzędnych (proste sterowniki, obrabiarki hobbystyczne, GRBL).
+* Tymczasowe przesunięcie zera wewnątrz programu przy pracy z podprogramami.
+* Programy generowane przez starsze postprocesory.
 
-<Note kind="tip">Jeżeli maszyna ma G54–G59, używaj ich. Są bezpieczniejsze, czytelniejsze i nie giną po restarcie sterownika.</Note>
+<Note kind="tip">
+  Jeżeli maszyna ma G54–G59, używaj ich. Są bezpieczniejsze, czytelniejsze i nie giną po restarcie sterownika.
+</Note>

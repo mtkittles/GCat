@@ -4,6 +4,10 @@ order: 490
 aliases:
   - dwell
   - postój czasowy
-def: Zaprogramowana przerwa w ruchu osi przy pracującym wrzecionie. Na dnie rowka czy otworu wystarczą jeden–dwa obroty wrzeciona; dłuższy postój tylko grzeje i wyciera ostrze.
+def: >-
+  Zaprogramowana przerwa w ruchu osi przy pracującym wrzecionie. Na dnie rowka
+  czy otworu wystarczą jeden–dwa obroty wrzeciona; dłuższy postój tylko grzeje i
+  wyciera ostrze.
 see:
   - g04
+diagram: ''

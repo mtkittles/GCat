@@ -13,19 +13,23 @@ related:
   - g81-g83
   - g73
   - g04
-variesBy: null
-short: Jak G81, ale z postojem P w dnie otworu. Do pogłębień, nakiełków i fazowania otworów.
-desc: |-
-  Narzędzie schodzi na posuwie do **Z**, czeka **P** milisekund i wraca szybko do płaszczyzny **R** (**G99**) albo poziomu początkowego (**G98**).
+short: >-
+  Jak G81, ale z postojem P w dnie otworu. Do pogłębień, nakiełków i fazowania
+  otworów.
+desc: >-
+  Narzędzie schodzi na posuwie do **Z**, czeka **P** milisekund i wraca szybko
+  do płaszczyzny **R** (**G99**) albo poziomu początkowego (**G98**).
 
-  Postój pozwala ostrzu zebrać materiał na pełnym obwodzie, więc dno i faza są równe. Bez niego nawiertak zostawia ślad spirali.
+
+  Postój pozwala ostrzu zebrać materiał na pełnym obwodzie, więc dno i faza są
+  równe. Bez niego nawiertak zostawia ślad spirali.
 syntax:
   fanuc: G98/G99 G82 X_ Y_ Z_ R_ P_ F_
   sinumerik: CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)
-sinumerik: "**CYCLE82** — postój w dnie to parametr **DTB** w sekundach."
+sinumerik: '**CYCLE82** — postój w dnie to parametr **DTB** w sekundach.'
 params:
   - key: P
-    desc: "postój w dnie w milisekundach: P300 = 0,3 s"
+    desc: 'postój w dnie w milisekundach: P300 = 0,3 s'
   - key: Z
     desc: dno otworu
   - key: R
@@ -33,8 +37,12 @@ params:
   - key: F
     desc: posuw [mm/min]
 pitfalls:
-  - P w cyklu to milisekundy bez kropki. P0.3 zostanie odczytane inaczej albo da alarm — zależnie od sterowania.
-  - Długi postój przy dużych obrotach i słabym chłodzeniu przegrzewa ostrze. Wystarczy kilka obrotów wrzeciona.
+  - >-
+    P w cyklu to milisekundy bez kropki. P0.3 zostanie odczytane inaczej albo da
+    alarm — zależnie od sterowania.
+  - >-
+    Długi postój przy dużych obrotach i słabym chłodzeniu przegrzewa ostrze.
+    Wystarczy kilka obrotów wrzeciona.
 example:
   src: |-
     G21 G90 G17 G54
@@ -49,6 +57,8 @@ example:
     G00 Z50
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

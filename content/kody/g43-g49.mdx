@@ -14,12 +14,15 @@ related:
   - g10
   - g40-g42
   - g28
-variesBy: null
 short: Uwzględnia długość narzędzia z rejestru H (G43), G49 wyłącza.
-desc: |-
-  Po wymianie narzędzia trzeba powiedzieć sterownikowi, jak długie jest nowe narzędzie. G43 H_ dodaje wartość z rejestru H do pozycji Z. Włącza się w pierwszym ruchu Z po wymianie.
+desc: >-
+  Po wymianie narzędzia trzeba powiedzieć sterownikowi, jak długie jest nowe
+  narzędzie. G43 H_ dodaje wartość z rejestru H do pozycji Z. Włącza się w
+  pierwszym ruchu Z po wymianie.
 
-  **G44** odejmuje wartość korekcji zamiast ją dodawać. Dziś używa się go rzadko; standardem jest G43.
+
+  **G44** odejmuje wartość korekcji zamiast ją dodawać. Dziś używa się go
+  rzadko; standardem jest G43.
 syntax:
   fanuc: G43 H_ Z_
   sinumerik: (automatycznie z T_ D_)
@@ -28,8 +31,12 @@ params:
   - key: H
     desc: Numer rejestru długości
 pitfalls:
-  - Zły numer H (np. H2 przy T1) to najczęstsza przyczyna wbicia narzędzia w stół.
-  - G43 bez ruchu Z w tym samym bloku — na części sterowników nic się nie stanie aż do następnego Z.
+  - >-
+    Zły numer H (np. H2 przy T1) to najczęstsza przyczyna wbicia narzędzia w
+    stół.
+  - >-
+    G43 bez ruchu Z w tym samym bloku — na części sterowników nic się nie stanie
+    aż do następnego Z.
 example:
   src: |-
     G21 G90 G17 G54
@@ -39,109 +46,111 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G43** włącza **korekcję długości narzędzia**: sterownik dodaje do Z długość zapisaną w rejestrze **H**. Program pisze się wtedy względem zera detalu, a to, jak długo wystaje narzędzie z oprawki, załatwia tabela korekcji.
 
-## Co dokładnie robi sterownik {#co-dokładnie-robi-sterownik}
+## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
 Pozycja maszynowa końca narzędzia to suma trzech składników: przesunięcia zera detalu w Z, współrzędnej Z z programu i długości narzędzia z rejestru H. Po G43 sterownik przelicza wszystkie kolejne ruchy w Z tak, żeby **koniec narzędzia** — a nie czoło wrzeciona — trafiał w zaprogramowane Z.
 
 <Diagram id="f41-length" />
 
 <Code caption="Dłuższe narzędzie (większe H) zatrzymuje wrzeciono wyżej — koniec narzędzia i tak trafia w Z−5.">
-```
-Z maszynowe = Z przesunięcia (G54) + Z z programu + H
-przykład:    −400,000     +   (−5,000)    + 150,000 = −255,000
-```
+  ```
+  Z maszynowe = Z przesunięcia (G54) + Z z programu + H
+  przykład:    −400,000     +   (−5,000)    + 150,000 = −255,000
+  ```
 </Code>
 
-## Skąd bierze się wartość H {#skąd-bierze-się-wartość-h}
+## Skąd bierze się wartość H \{#skąd-bierze-się-wartość-h}
 
-| Metoda | Jak | Kiedy |
-|---|---|---|
-| dotyk na detalu | koniec narzędzia sprowadzony na powierzchnię (papier, czujnik), pozycja zapisana do rejestru | pojedyncze sztuki, brak przedustawiacza |
-| przedustawiacz | pomiar poza maszyną, wynik wpisany do rejestru | narzędzia używane wielokrotnie w tych samych oprawkach |
-| sonda narzędziowa | maszyna sama mierzy długość na stole | produkcja, pomiar po każdej wymianie lub kontrola zużycia |
+| Metoda            | Jak                                                                                          | Kiedy                                                     |
+| ----------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| dotyk na detalu   | koniec narzędzia sprowadzony na powierzchnię (papier, czujnik), pozycja zapisana do rejestru | pojedyncze sztuki, brak przedustawiacza                   |
+| przedustawiacz    | pomiar poza maszyną, wynik wpisany do rejestru                                               | narzędzia używane wielokrotnie w tych samych oprawkach    |
+| sonda narzędziowa | maszyna sama mierzy długość na stole                                                         | produkcja, pomiar po każdej wymianie lub kontrola zużycia |
 
-<Note kind="warn">**Numer H = numer narzędzia.** Aktywne H3 przy narzędziu T5 znaczy, że maszyna liczy Z dla innej długości. Jeśli T5 jest dłuższe, wchodzi w detal albo w stół ruchem szybkim.</Note>
+<Note kind="warn">
+  **Numer H = numer narzędzia.** Aktywne H3 przy narzędziu T5 znaczy, że maszyna liczy Z dla innej długości. Jeśli T5 jest dłuższe, wchodzi w detal albo w stół ruchem szybkim.
+</Note>
 
-## Składnia i kody {#składnia-i-kody}
+## Składnia i kody \{#składnia-i-kody}
 
-| Kod | Działanie |
-|---|---|
-| `G43` | dodaje długość z rejestru H — standard |
+| Kod   | Działanie                                                |
+| ----- | -------------------------------------------------------- |
+| `G43` | dodaje długość z rejestru H — standard                   |
 | `G44` | odejmuje długość — rzadkie, zależne od konwencji pomiaru |
-| `G49` | wyłącza korekcję długości |
-| `H` | numer rejestru długości |
+| `G49` | wyłącza korekcję długości                                |
+| `H`   | numer rejestru długości                                  |
 
 <Code>
-```
-T2 M06
-G43 H2 Z50.       (korekcja razem z ruchem na wysokość bezpieczną)
-S2000 M03
-…
-G49               (wyłączenie — w bloku startowym i przed powrotem na referencję)
-```
+  ```
+  T2 M06
+  G43 H2 Z50.       (korekcja razem z ruchem na wysokość bezpieczną)
+  S2000 M03
+  …
+  G49               (wyłączenie — w bloku startowym i przed powrotem na referencję)
+  ```
 </Code>
 
-## Włączenie razem z ruchem w Z {#włączenie-razem-z-ruchem-w-z}
+## Włączenie razem z ruchem w Z \{#włączenie-razem-z-ruchem-w-z}
 
 Samo `G43 H2` bez Z na wielu sterownikach nic nie zmienia aż do następnego ruchu w Z — a wtedy narzędzie przeskakuje o całą różnicę długości. Dlatego G43 pisze się **w bloku z dojazdem na wysokość bezpieczną**, np. `G43 H2 Z50.`. Ten ruch idzie z prędkością szybką, więc wysokość musi być naprawdę bezpieczna — także dla najdłuższego narzędzia w magazynie.
 
-<Sim caption="Szkielet obróbki jednym narzędziem: wymiana, korekcja długości z ruchem na Z50, obróbka i odjazd na referencję.">
-```
-G21 G90 G17 G54 G40 G49 G80
-T2 M06 (FREZ FI10)
-G43 H2 Z50.
-S2000 M03
-G00 X20. Y20.
-G00 Z2.
-M08
-G01 Z-4. F120
-G01 X70. F400
-G01 Y50.
-G00 Z50.
-M09
-M05
-G91 G28 Z0.
-G90
-M30
-```
+<Sim mode="mill" caption="Szkielet obróbki jednym narzędziem: wymiana, korekcja długości z ruchem na Z50, obróbka i odjazd na referencję.">
+  ```
+  G21 G90 G17 G54 G40 G49 G80
+  T2 M06 (FREZ FI10)
+  G43 H2 Z50.
+  S2000 M03
+  G00 X20. Y20.
+  G00 Z2.
+  M08
+  G01 Z-4. F120
+  G01 X70. F400
+  G01 Y50.
+  G00 Z50.
+  M09
+  M05
+  G91 G28 Z0.
+  G90
+  M30
+  ```
 </Sim>
 
-## Zużycie długości {#zużycie-długości}
+## Zużycie długości \{#zużycie-długości}
 
 Tak jak przy promieniu, rejestr H ma **geometrię** i **zużycie**. Głębokość wyszła 5,03 zamiast 5,00? Frez wszedł za głęboko — zużycie długości zmieniasz o **+0,03**, a program zostaje bez zmian.
 
-## Na tokarce {#na-tokarce}
+## Na tokarce \{#na-tokarce}
 
 Tokarki nie używają G43. Długość noża w Z i jego położenie w X zapisane są w **korekcji geometrii**, którą włącza słowo T: `T0101` — nóż z pozycji 1 z korekcją 1. `T0100` wyłącza korekcję. Zasada jest ta sama: program pisze się względem zera detalu, różnice między nożami bierze na siebie tabela.
 
-## Fanuc kontra Sinumerik {#fanuc-kontra-sinumerik}
+## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
 
 <Table caption="Sinumerik nie ma G43 — długość jest częścią danych ostrza D i działa od chwili jego wybrania.">
-
-| Zagadnienie | Fanuc | Sinumerik |
-|---|---|---|
-| Włączenie | `G43 H_` z ruchem w Z | samo wywołanie `T_ D_` (po wymianie) |
-| Wyłączenie | `G49` | `D0` |
-| Rejestr | tabela: długość (geometria + zużycie) | dane ostrza: długości L1–L3 i zużycie |
-
+  | Zagadnienie | Fanuc                                 | Sinumerik                             |
+  | ----------- | ------------------------------------- | ------------------------------------- |
+  | Włączenie   | `G43 H_` z ruchem w Z                 | samo wywołanie `T_ D_` (po wymianie)  |
+  | Wyłączenie  | `G49`                                 | `D0`                                  |
+  | Rejestr     | tabela: długość (geometria + zużycie) | dane ostrza: długości L1–L3 i zużycie |
 </Table>
 
-## Dobre praktyki {#dobre-praktyki}
+## Dobre praktyki \{#dobre-praktyki}
 
-- `G49` w bloku bezpiecznego startu — żadna korekcja nie zostaje z poprzedniego programu.
-- `G43 H_` zawsze w pierwszym ruchu w Z po wymianie, na wysokość bezpieczną.
-- Po przełożeniu narzędzia w oprawce — nowy pomiar długości.
-- Przy pierwszym przebiegu zmniejsz korektor ruchu szybkiego i sprawdź odczyt „pozostało do przejechania” przed zejściem w Z.
+* `G49` w bloku bezpiecznego startu — żadna korekcja nie zostaje z poprzedniego programu.
+* `G43 H_` zawsze w pierwszym ruchu w Z po wymianie, na wysokość bezpieczną.
+* Po przełożeniu narzędzia w oprawce — nowy pomiar długości.
+* Przy pierwszym przebiegu zmniejsz korektor ruchu szybkiego i sprawdź odczyt „pozostało do przejechania” przed zejściem w Z.
 
-## Typowe błędy {#typowe-błędy}
+## Typowe błędy \{#typowe-błędy}
 
-- **H niezgodne z T** — najczęstsza przyczyna uderzenia narzędzia w stół.
-- **Brak G43 po wymianie** — maszyna liczy Z od czoła wrzeciona; koniec narzędzia jest o całą jego długość niżej, niż myślisz.
-- **G43 bez ruchu w Z** — skok o różnicę długości przy pierwszym ruchu w Z, często już blisko detalu.
-- **Pomiar przy innym wysięgu** — narzędzie przełożone w oprawce, rejestr stary.
-- **Korekta głębokości w programie zamiast w zużyciu** — każda wymiana narzędzia wymaga wtedy poprawiania programu.
+* **H niezgodne z T** — najczęstsza przyczyna uderzenia narzędzia w stół.
+* **Brak G43 po wymianie** — maszyna liczy Z od czoła wrzeciona; koniec narzędzia jest o całą jego długość niżej, niż myślisz.
+* **G43 bez ruchu w Z** — skok o różnicę długości przy pierwszym ruchu w Z, często już blisko detalu.
+* **Pomiar przy innym wysięgu** — narzędzie przełożone w oprawce, rejestr stary.
+* **Korekta głębokości w programie zamiast w zużyciu** — każda wymiana narzędzia wymaga wtedy poprawiania programu.

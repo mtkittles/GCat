@@ -5,6 +5,10 @@ aliases:
   - komentarz
   - nawias
   - średnik
-def: Tekst dla człowieka, pomijany przez sterowanie. Na Fanucu w nawiasach (FREZ FI10), na Sinumeriku po średniku ; FREZ FI10. Komentarze z nazwą narzędzia przy T…M06 czyta też symulator GCat, dobierając narzędzie.
+def: >-
+  Tekst dla człowieka, pomijany przez sterowanie. Na Fanucu w nawiasach (FREZ
+  FI10), na Sinumeriku po średniku ; FREZ FI10. Komentarze z nazwą narzędzia
+  przy T…M06 czyta też symulator GCat, dobierając narzędzie.
 see:
   - m06
+diagram: ''

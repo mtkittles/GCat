@@ -5,6 +5,10 @@ aliases:
   - block skip
   - ukośnik
   - /
-def: "Ukośnik na początku bloku oznacza blok warunkowy: przy włączonym przełączniku BLOCK SKIP na pulpicie sterowanie go pomija, przy wyłączonym — wykonuje. Używany np. do pomiarów, które wykonuje się tylko przy pierwszej sztuce."
+def: >-
+  Ukośnik na początku bloku oznacza blok warunkowy: przy włączonym przełączniku
+  BLOCK SKIP na pulpicie sterowanie go pomija, przy wyłączonym — wykonuje.
+  Używany np. do pomiarów, które wykonuje się tylko przy pierwszej sztuce.
 see:
   - m00-m01
+diagram: ''

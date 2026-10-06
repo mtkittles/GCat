@@ -23,6 +23,11 @@ const level123 = z.union([z.literal(1), z.literal(2), z.literal(3)], { error: "p
 // ───────────── karta kodu: content/kody/<slug>.mdx ─────────────
 
 const stock = z.strictObject({ x: z.number(), y: z.number(), z: z.number(), ox: z.number(), oy: z.number(), oz: z.number() });
+/** Półfabrykat przykładu w formacie pola warunkowego Keystatic: { discriminant: false } albo { discriminant: true, value }. */
+const stockField = z.discriminatedUnion("discriminant", [
+  z.strictObject({ discriminant: z.literal(false), value: z.null().optional() }),
+  z.strictObject({ discriminant: z.literal(true), value: stock }),
+]);
 
 export const kodSchema = z.strictObject({
   /** tekst wyświetlany; słowa z pola służą też do [[G01]] i auto-linków */
@@ -41,7 +46,8 @@ export const kodSchema = z.strictObject({
   star: z.boolean().default(false),
   /** slugi kart powiązanych */
   related: z.array(slug).default([]),
-  variesBy: z.string().nullable().default(null),
+  /** puste = brak (Keystatic zapisuje pusty tekst) */
+  variesBy: z.string().default(""),
   short: text,
   /** akapity rozdzielone pustą linią; auto-linki G/M jak dziś */
   desc: text,
@@ -53,9 +59,11 @@ export const kodSchema = z.strictObject({
   example: z.strictObject({
     src: text,
     simulate: z.boolean().default(true),
-    mode: z.enum(["mill", "lathe"]).optional(),
-    dialect: z.enum(["fanuc", "sinumerik"]).optional(),
-    stock: stock.nullable().default(null),
+    /** "" = automatycznie (z maszyn karty) */
+    mode: z.enum(["", "mill", "lathe"]).default(""),
+    /** "" = Fanuc */
+    dialect: z.enum(["", "fanuc", "sinumerik"]).default(""),
+    stock: stockField.default({ discriminant: false }),
   }),
 });
 export type Kod = z.infer<typeof kodSchema>;
@@ -72,8 +80,8 @@ export const hasloSchema = z.strictObject({
   def: text,
   /** slugi kart kodów */
   see: z.array(slug).default([]),
-  /** id rysunku z rejestru diagrams.tsx */
-  diagram: z.string().optional(),
+  /** id rysunku z rejestru diagrams.tsx; "" = brak */
+  diagram: z.string().default(""),
 });
 export type Haslo = z.infer<typeof hasloSchema>;
 

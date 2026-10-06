@@ -11,9 +11,14 @@ machines:
   - toczenie
 star: false
 related: []
-variesBy: null
-short: G52 przesuwa zero tymczasowo względem G54. G53 jedzie w układzie maszyny (jednorazowo).
-desc: G52 X_ Y_ ustawia lokalne zero przesunięte o podane wartości od aktualnego G54–G59 — wygodne dla kilku identycznych kieszeni. G52 X0 Y0 kasuje. G53 działa tylko w bloku, w którym jest, i interpretuje współrzędne jako maszynowe — do dojazdu do pozycji wymiany narzędzia lub wyładunku.
+short: >-
+  G52 przesuwa zero tymczasowo względem G54. G53 jedzie w układzie maszyny
+  (jednorazowo).
+desc: >-
+  G52 X_ Y_ ustawia lokalne zero przesunięte o podane wartości od aktualnego
+  G54–G59 — wygodne dla kilku identycznych kieszeni. G52 X0 Y0 kasuje. G53
+  działa tylko w bloku, w którym jest, i interpretuje współrzędne jako maszynowe
+  — do dojazdu do pozycji wymiany narzędzia lub wyładunku.
 syntax:
   fanuc: |-
     G52 X50 Y0
@@ -48,50 +53,54 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G52** ustawia **układ lokalny** — dodatkowe przesunięcie nakładane na aktywny G54–G59. **G53** działa odwrotnie: na jeden blok wyłącza wszystkie przesunięcia i każe interpretować współrzędne jako **maszynowe**.
 
-## G52 — układ lokalny {#g52-układ-lokalny}
+## G52 — układ lokalny \{#g52-układ-lokalny}
 
 Przydaje się, gdy detal ma kilka identycznych elementów rozmieszczonych w znanych odległościach. Zamiast przeliczać współrzędne każdego, przesuwasz zero i wywołujesz ten sam fragment programu.
 
 <Code>
-```
-G54
-G52 X0 Y0        ; pierwszy element — bez przesunięcia
-M98 P1001
-G52 X60 Y0       ; drugi element, 60 mm dalej w X
-M98 P1001
-G52 X60 Y40      ; trzeci
-M98 P1001
-G52 X0 Y0        ; skasowanie układu lokalnego
-```
+  ```
+  G54
+  G52 X0 Y0        ; pierwszy element — bez przesunięcia
+  M98 P1001
+  G52 X60 Y0       ; drugi element, 60 mm dalej w X
+  M98 P1001
+  G52 X60 Y40      ; trzeci
+  M98 P1001
+  G52 X0 Y0        ; skasowanie układu lokalnego
+  ```
 </Code>
 
-<Note kind="warn">G52 **nie kasuje się samo** po zakończeniu programu na części sterowników. Zapomniane `G52 X60` zostaje aktywne i przesuwa obróbkę następnego detalu. Zawsze kończ blokiem `G52 X0 Y0 Z0`.</Note>
+<Note kind="warn">
+  G52 **nie kasuje się samo** po zakończeniu programu na części sterowników. Zapomniane `G52 X60` zostaje aktywne i przesuwa obróbkę następnego detalu. Zawsze kończ blokiem `G52 X0 Y0 Z0`.
+</Note>
 
-## G53 — współrzędne maszynowe {#g53-współrzędne-maszynowe}
+## G53 — współrzędne maszynowe \{#g53-współrzędne-maszynowe}
 
 G53 obowiązuje **wyłącznie w bloku, w którym stoi**. Współrzędne odnoszą się do zera maszyny, więc pozycja jest niezależna od tego, jak ustawione są rejestry detalu. Stosuje się to do:
 
-- dojazdu do pozycji wymiany narzędzia,
-- odjazdu na pozycję załadunku i wyładunku detalu,
-- przejazdu ponad przeszkodami o znanym położeniu na stole.
+* dojazdu do pozycji wymiany narzędzia,
+* odjazdu na pozycję załadunku i wyładunku detalu,
+* przejazdu ponad przeszkodami o znanym położeniu na stole.
 
 <Code caption="G53 wymaga trybu G90 i działa tylko z G00 lub G01.">
-```
-G53 G00 Z0          ; oś Z do samej góry, niezależnie od G54
-G53 G00 X-500 Y0    ; stół wysunięty do operatora
-```
+  ```
+  G53 G00 Z0          ; oś Z do samej góry, niezależnie od G54
+  G53 G00 X-500 Y0    ; stół wysunięty do operatora
+  ```
 </Code>
 
-## Sinumerik {#sinumerik}
+## Sinumerik \{#sinumerik}
 
-| Funkcja | Fanuc | Sinumerik |
-|---|---|---|
-| Układ lokalny | G52 | `TRANS` (bezwzględnie), `ATRANS` (przyrostowo) |
-| Współrzędne maszynowe | G53 | `SUPA` (dawniej `G153`) |
-| Skalowanie | G50/G51 | `SCALE`, `ASCALE` |
-| Odbicie lustrzane | G50.1/G51.1 | `MIRROR`, `AMIRROR` |
+| Funkcja               | Fanuc       | Sinumerik                                      |
+| --------------------- | ----------- | ---------------------------------------------- |
+| Układ lokalny         | G52         | `TRANS` (bezwzględnie), `ATRANS` (przyrostowo) |
+| Współrzędne maszynowe | G53         | `SUPA` (dawniej `G153`)                        |
+| Skalowanie            | G50/G51     | `SCALE`, `ASCALE`                              |
+| Odbicie lustrzane     | G50.1/G51.1 | `MIRROR`, `AMIRROR`                            |

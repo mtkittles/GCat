@@ -14,9 +14,11 @@ related:
   - g92
   - g90-g94-t
   - g76-g89
-variesBy: null
 short: Wielokrotne przejścia gwintu w jednym cyklu.
-desc: "G76 nacina gwint w kilku przejściach o malejącej głębokości. W dwóch blokach podaje się: liczbę przejść wykańczających, kąt zarysu, głębokość całkowitą, głębokość pierwszego przejścia i skok."
+desc: >-
+  G76 nacina gwint w kilku przejściach o malejącej głębokości. W dwóch blokach
+  podaje się: liczbę przejść wykańczających, kąt zarysu, głębokość całkowitą,
+  głębokość pierwszego przejścia i skok.
 syntax:
   fanuc: |-
     G76 P010060 Q100 R0.05
@@ -31,7 +33,9 @@ params:
   - key: Q
     desc: Głębokość pierwszego przejścia (μm)
 pitfalls:
-  - "P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60° kąt."
+  - >-
+    P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60°
+    kąt.
   - Skok F musi zgadzać się z obrotami — gwint zaczynaj z rozbiegiem Z ≥ 2×skok.
   - Na frezarce G76 to cykl wytaczania dokładnego z orientacją wrzeciona.
 example:
@@ -44,67 +48,73 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G76** wykonuje **kompletny gwint w jednym cyklu**: sterownik sam dzieli głębokość gwintu na kolejne przejścia o malejącym przyroście, prowadzi narzędzie zsynchronizowane z obrotami wrzeciona i wykonuje przejścia wykańczające.
 
-## Dlaczego przejścia mają malejącą głębokość {#dlaczego-przejścia-mają-malejącą-głębokość}
+## Dlaczego przejścia mają malejącą głębokość \{#dlaczego-przejścia-mają-malejącą-głębokość}
 
 Gdyby każde przejście schodziło o tyle samo, przekrój wióra rósłby z każdym przejściem — bo trójkątny zarys gwintu jest coraz szerszy przy większej głębokości. Cykl dobiera przyrosty tak, aby **pole przekroju wióra pozostawało w przybliżeniu stałe**: pierwsze przejście jest najgłębsze, kolejne coraz płytsze.
 
-## Składnia Fanuc (dwa bloki) {#składnia-fanuc-dwa-bloki}
+## Składnia Fanuc (dwa bloki) \{#składnia-fanuc-dwa-bloki}
 
 <Code>
-```
-G76 P010060 Q100 R0.05
-G76 X_ Z_ P_ Q_ F_
-```
+  ```
+  G76 P010060 Q100 R0.05
+  G76 X_ Z_ P_ Q_ F_
+  ```
 </Code>
 
-| Adres | Znaczenie |
-|---|---|
-| **P** (blok 1) | Sześć cyfr w trzech parach: liczba przejść wykańczających (01), długość wybiegu w dziesiątych skoku (00), kąt zarysu w stopniach (60) |
-| **Q** (blok 1) | Minimalna głębokość przejścia w mikrometrach |
-| **R** (blok 1) | Naddatek na przejścia wykańczające |
-| **X, Z** (blok 2) | Średnica dna gwintu i koniec gwintu |
-| **P** (blok 2) | Wysokość gwintu w mikrometrach, promieniowo |
-| **Q** (blok 2) | Głębokość pierwszego przejścia w mikrometrach |
-| **F** | Skok gwintu |
+| Adres             | Znaczenie                                                                                                                             |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **P** (blok 1)    | Sześć cyfr w trzech parach: liczba przejść wykańczających (01), długość wybiegu w dziesiątych skoku (00), kąt zarysu w stopniach (60) |
+| **Q** (blok 1)    | Minimalna głębokość przejścia w mikrometrach                                                                                          |
+| **R** (blok 1)    | Naddatek na przejścia wykańczające                                                                                                    |
+| **X, Z** (blok 2) | Średnica dna gwintu i koniec gwintu                                                                                                   |
+| **P** (blok 2)    | Wysokość gwintu w mikrometrach, promieniowo                                                                                           |
+| **Q** (blok 2)    | Głębokość pierwszego przejścia w mikrometrach                                                                                         |
+| **F**             | Skok gwintu                                                                                                                           |
 
-<Note kind="info">Zapis `P010060` bywa mylący, bo wygląda jak jedna liczba. To skleja trzy niezależne parametry — jeden z najbardziej nieintuicyjnych fragmentów składni Fanuc.</Note>
+<Note kind="info">
+  Zapis `P010060` bywa mylący, bo wygląda jak jedna liczba. To skleja trzy niezależne parametry — jeden z najbardziej nieintuicyjnych fragmentów składni Fanuc.
+</Note>
 
-## Obliczenia dla gwintu metrycznego {#obliczenia-dla-gwintu-metrycznego}
+## Obliczenia dla gwintu metrycznego \{#obliczenia-dla-gwintu-metrycznego}
 
 Dla gwintu zewnętrznego o skoku P wysokość zarysu wynosi w praktyce **h ≈ 0,613 × P**, a średnica dna **d₃ ≈ d − 1,227 × P**. Dla M24×3: h ≈ 1,84 mm (czyli P1840 w składni cyklu), średnica dna ≈ 20,3 mm. Średnicę zewnętrzną przed gwintowaniem toczy się zwykle o 0,1–0,2 mm mniejszą od nominalnej, żeby wierzchołki nie wychodziły ostre.
 
-## Rozbieg i wybieg {#rozbieg-i-wybieg}
+## Rozbieg i wybieg \{#rozbieg-i-wybieg}
 
 Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**; przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku.
 
 <Sim mode="lathe" caption="Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76.">
-```
-G18 G21 G40 G99
-G97 S700 M03
-G00 X26 Z5
-G00 X23.2
-G01 Z-25 F1.5
-G00 X30
-G00 Z5
-G00 X22.6
-G01 Z-25 F1.5
-G00 X30
-G00 Z5
-G00 X22.1
-G01 Z-25 F1.5
-G00 X30
-G00 Z5
-M30
-```
+  ```
+  G18 G21 G40 G99
+  G97 S700 M03
+  G00 X26 Z5
+  G00 X23.2
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z5
+  G00 X22.6
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z5
+  G00 X22.1
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z5
+  M30
+  ```
 </Sim>
 
-<Note kind="warn">Gwintowanie zawsze przy **G97** (stałe obroty). Przy G96 obroty zmieniałyby się wraz ze średnicą, a razem z nimi rzeczywisty skok gwintu.</Note>
+<Note kind="warn">
+  Gwintowanie zawsze przy **G97** (stałe obroty). Przy G96 obroty zmieniałyby się wraz ze średnicą, a razem z nimi rzeczywisty skok gwintu.
+</Note>
 
-## Sinumerik {#sinumerik}
+## Sinumerik \{#sinumerik}
 
 Odpowiednikiem jest **CYCLE97** z parametrami podawanymi opisowo (skok, głębokość, liczba przejść, kąt, wybieg). Pojedyncze przejście gwintu realizuje **G33** z adresem `K` określającym skok.

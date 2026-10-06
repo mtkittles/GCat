@@ -4,6 +4,10 @@ order: 770
 aliases:
   - punkt referencyjny
   - baza
-def: Stały punkt wyznaczony przy bazowaniu osi, niezależny od detalu. Wszystkie przesunięcia układów współrzędnych liczone są od niego. Dojazd do niego realizuje G28.
+def: >-
+  Stały punkt wyznaczony przy bazowaniu osi, niezależny od detalu. Wszystkie
+  przesunięcia układów współrzędnych liczone są od niego. Dojazd do niego
+  realizuje G28.
 see:
   - g28
+diagram: ''

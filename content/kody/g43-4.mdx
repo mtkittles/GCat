@@ -14,16 +14,26 @@ related:
   - osie-abc
   - g43-g49
   - g68-2-g53-1
-variesBy: null
-short: Przy G43.4 X Y Z to wierzchołek narzędzia w układzie detalu, a osie obrotowe tylko ustawiają jego oś. G49 wyłącza.
-desc: |-
-  **TCP** (Tool Center Point, w Fanucu G43.4) to podstawa obróbki 5-osiowej jednoczesnej. Sterownik sam liczy ruchy X Y Z maszyny tak, żeby wierzchołek narzędzia był w zaprogramowanym punkcie detalu, niezależnie od kątów stołu.
+short: >-
+  Przy G43.4 X Y Z to wierzchołek narzędzia w układzie detalu, a osie obrotowe
+  tylko ustawiają jego oś. G49 wyłącza.
+desc: >-
+  **TCP** (Tool Center Point, w Fanucu G43.4) to podstawa obróbki 5-osiowej
+  jednoczesnej. Sterownik sam liczy ruchy X Y Z maszyny tak, żeby wierzchołek
+  narzędzia był w zaprogramowanym punkcie detalu, niezależnie od kątów stołu.
 
-  Skutek widać przy samym obrocie: blok **G01 C90.** przy TCP obraca stół, a osie liniowe jadą tak, że wierzchołek narzędzia stoi w miejscu. Bez TCP ten sam blok przesunąłby punkt styku po detalu.
 
-  G43.4 bierze też długość narzędzia z rejestru H (jak G43). **G49** wyłącza TCP i korekcję długości.
+  Skutek widać przy samym obrocie: blok **G01 C90.** przy TCP obraca stół, a
+  osie liniowe jadą tak, że wierzchołek narzędzia stoi w miejscu. Bez TCP ten
+  sam blok przesunąłby punkt styku po detalu.
 
-  W symulatorze kąty A i C (albo B i C) podaje się wprost; wektor osi narzędzia (G43.5 I J K) nie jest obsługiwany.
+
+  G43.4 bierze też długość narzędzia z rejestru H (jak G43). **G49** wyłącza TCP
+  i korekcję długości.
+
+
+  W symulatorze kąty A i C (albo B i C) podaje się wprost; wektor osi narzędzia
+  (G43.5 I J K) nie jest obsługiwany.
 syntax:
   fanuc: |-
     G43.4 H_
@@ -33,7 +43,9 @@ syntax:
     TRAORI
     G1 X_ Y_ Z_ A_ C_ F_
     TRAFOOF
-sinumerik: TRAORI włącza transformację 5-osiową, TRAFOOF ją wyłącza. Długość narzędzia aktywuje T_ D_.
+sinumerik: >-
+  TRAORI włącza transformację 5-osiową, TRAFOOF ją wyłącza. Długość narzędzia
+  aktywuje T_ D_.
 params:
   - key: H
     desc: Rejestr długości narzędzia
@@ -42,9 +54,15 @@ params:
   - key: A B C
     desc: Kąty osi obrotowych — orientacja narzędzia
 pitfalls:
-  - Program 5-osiowy z TCP zależy od długości narzędzia — zły rejestr H przesuwa cały tor wzdłuż osi narzędzia.
-  - Środek obrotu stołu musi być zmierzony w maszynie. W symulatorze leży w zerze G54.
-  - Duża zmiana kąta w jednym bloku przy TCP to duży ruch osi liniowych — sprawdź przejazdy.
+  - >-
+    Program 5-osiowy z TCP zależy od długości narzędzia — zły rejestr H przesuwa
+    cały tor wzdłuż osi narzędzia.
+  - >-
+    Środek obrotu stołu musi być zmierzony w maszynie. W symulatorze leży w
+    zerze G54.
+  - >-
+    Duża zmiana kąta w jednym bloku przy TCP to duży ruch osi liniowych —
+    sprawdź przejazdy.
 example:
   src: |-
     G21 G90 G17 G40 G49 G80
@@ -63,12 +81,15 @@ example:
     G00 A0 C0
     M30
   simulate: true
+  mode: ''
+  dialect: ''
   stock:
-    x: 60
-    y: 60
-    z: 40
-    ox: 30
-    oy: 30
-    oz: 40
+    discriminant: true
+    value:
+      x: 60
+      'y': 60
+      z: 40
+      ox: 30
+      oy: 30
+      oz: 40
 ---
-

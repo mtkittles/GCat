@@ -4,7 +4,11 @@ order: 510
 aliases:
   - mm/obr
   - posuw obrotowy
-def: "Jednostka posuwu typowa dla toczenia: droga narzędzia na jeden obrót wrzeciona (G95; na tokarce Fanuc w systemie A — G99). Przy tych samych obrotach F0,3 mm/obr daje 0,3 · n mm/min."
+def: >-
+  Jednostka posuwu typowa dla toczenia: droga narzędzia na jeden obrót wrzeciona
+  (G95; na tokarce Fanuc w systemie A — G99). Przy tych samych obrotach F0,3
+  mm/obr daje 0,3 · n mm/min.
 see:
   - g94-g95
   - g98-g99
+diagram: ''

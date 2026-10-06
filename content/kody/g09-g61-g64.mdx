@@ -14,14 +14,21 @@ related:
   - g01
   - g04
   - g40-g42
-variesBy: null
-short: G09 i G61 każą osiom wyhamować do zera na końcu bloku, więc naroża wychodzą ostre. G64 pozwala przejść płynnie do następnego ruchu.
-desc: |-
-  W trybie **G64** (domyślnym) sterowanie nie zatrzymuje osi między blokami. Obróbka jest szybsza, ale naroża toru są lekko zaokrąglone.
+short: >-
+  G09 i G61 każą osiom wyhamować do zera na końcu bloku, więc naroża wychodzą
+  ostre. G64 pozwala przejść płynnie do następnego ruchu.
+desc: >-
+  W trybie **G64** (domyślnym) sterowanie nie zatrzymuje osi między blokami.
+  Obróbka jest szybsza, ale naroża toru są lekko zaokrąglone.
 
-  **G61** włącza dokładne zatrzymanie modalnie: każdy blok kończy się pełnym wyhamowaniem i sprawdzeniem pozycji. **G09** robi to samo tylko w bloku, w którym stoi — wstawia się go w blok kończący się w narożu, które ma być ostre.
 
-  **G62** automatycznie zmniejsza posuw w narożach wewnętrznych przy włączonej kompensacji promienia, żeby frez nie wbijał się w materiał.
+  **G61** włącza dokładne zatrzymanie modalnie: każdy blok kończy się pełnym
+  wyhamowaniem i sprawdzeniem pozycji. **G09** robi to samo tylko w bloku, w
+  którym stoi — wstawia się go w blok kończący się w narożu, które ma być ostre.
+
+
+  **G62** automatycznie zmniejsza posuw w narożach wewnętrznych przy włączonej
+  kompensacji promienia, żeby frez nie wbijał się w materiał.
 syntax:
   fanuc: |-
     G09 G01 X_ Y_ F_
@@ -31,11 +38,18 @@ syntax:
     G9 G1 X_ Y_ F_
     G60
     G64
-sinumerik: G9 działa w jednym bloku, **G60** włącza dokładne zatrzymanie modalnie, **G64** tryb ciągły. Kryterium zatrzymania wybiera G601 (dokładne) albo G602 (zgrubne).
+sinumerik: >-
+  G9 działa w jednym bloku, **G60** włącza dokładne zatrzymanie modalnie,
+  **G64** tryb ciągły. Kryterium zatrzymania wybiera G601 (dokładne) albo G602
+  (zgrubne).
 params: []
 pitfalls:
-  - G61 zostawione na cały program wydłuża obróbkę konturów z wieloma krótkimi odcinkami — oś hamuje w każdym punkcie.
-  - Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku kończącym się w tym narożu.
+  - >-
+    G61 zostawione na cały program wydłuża obróbkę konturów z wieloma krótkimi
+    odcinkami — oś hamuje w każdym punkcie.
+  - >-
+    Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku
+    kończącym się w tym narożu.
 example:
   src: |-
     G21 G90 G17 G54
@@ -51,6 +65,8 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

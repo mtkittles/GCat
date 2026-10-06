@@ -13,18 +13,30 @@ related:
   - g68-2-g53-1
   - traori
   - osie-abc
-variesBy: null
-short: "Cykl Sinumerika do obróbki 3+2: obraca układ współrzędnych i ustawia stół prostopadle do nowej płaszczyzny."
-desc: |-
-  **CYCLE800(_FR, _TC, _ST, _MODE, _X0, _Y0, _Z0, _A, _B, _C, _X1, _Y1, _Z1, _DIR, _FR_I, _DMODE)**.
+short: >-
+  Cykl Sinumerika do obróbki 3+2: obraca układ współrzędnych i ustawia stół
+  prostopadle do nowej płaszczyzny.
+desc: >-
+  **CYCLE800(_FR, _TC, _ST, _MODE, _X0, _Y0, _Z0, _A, _B, _C, _X1, _Y1, _Z1,
+  _DIR, _FR_I, _DMODE)**.
 
-  _MODE mówi, jak czytać kąty. Najczęściej 57 — obrót osiowo: najpierw wokół X o _A, potem wokół nowej Y o _B, potem wokół nowej Z o _C. _X0 _Y0 _Z0 to punkt odniesienia obrotu, _X1 _Y1 _Z1 — przesunięcie zera po obrocie.
 
-  _DIR wybiera kierunek obrotu osi (−1 / +1). Przy _DIR = 0 obraca się tylko układ, a stół stoi. _TC to nazwa zestawu danych kinematyki, _FR — sposób odjazdu przed obrotem.
+  _MODE mówi, jak czytać kąty. Najczęściej 57 — obrót osiowo: najpierw wokół X o
+  _A, potem wokół nowej Y o _B, potem wokół nowej Z o _C. _X0 _Y0 _Z0 to punkt
+  odniesienia obrotu, _X1 _Y1 _Z1 — przesunięcie zera po obrocie.
+
+
+  _DIR wybiera kierunek obrotu osi (−1 / +1). Przy _DIR = 0 obraca się tylko
+  układ, a stół stoi. _TC to nazwa zestawu danych kinematyki, _FR — sposób
+  odjazdu przed obrotem.
+
 
   **CYCLE800()** bez parametrów wraca do położenia podstawowego.
 
-  Symulator obsługuje tryb osiowy i „osie wprost” (_MODE z bitami 6–7 = 11). Kąty rzutowania i kąt przestrzenny liczy jak tryb osiowy. Odjazdu _FR nie wykonuje — odjedź w programie.
+
+  Symulator obsługuje tryb osiowy i „osie wprost” (_MODE z bitami 6–7 = 11).
+  Kąty rzutowania i kąt przestrzenny liczy jak tryb osiowy. Odjazdu _FR nie
+  wykonuje — odjedź w programie.
 syntax:
   fanuc: |-
     G68.2 X_ Y_ Z_ I_ J_ K_
@@ -33,7 +45,9 @@ syntax:
     CYCLE800(1,"TABLE",100000,57,X0,Y0,Z0,A,B,C,X1,Y1,Z1,-1,100,1)
     ...
     CYCLE800()
-sinumerik: To jest składnia Sinumerika. W Fanucu ten sam efekt daje G68.2 X_ Y_ Z_ I_ J_ K_ i G53.1.
+sinumerik: >-
+  To jest składnia Sinumerika. W Fanucu ten sam efekt daje G68.2 X_ Y_ Z_ I_ J_
+  K_ i G53.1.
 params:
   - key: _MODE
     desc: 57 — obrót osiowo X→Y→Z
@@ -44,10 +58,12 @@ params:
   - key: _X1 _Y1 _Z1
     desc: Zero po obrocie
   - key: _DIR
-    desc: "Kierunek obrotu stołu: −1 / +1; 0 — bez obrotu stołu"
+    desc: 'Kierunek obrotu stołu: −1 / +1; 0 — bez obrotu stołu'
 pitfalls:
-  - Parametry są pozycyjne — przecinki muszą się zgadzać, nawet gdy część jest pusta.
-  - "_DIR = 0 obraca tylko układ: narzędzie zostaje pionowe."
+  - >-
+    Parametry są pozycyjne — przecinki muszą się zgadzać, nawet gdy część jest
+    pusta.
+  - '_DIR = 0 obraca tylko układ: narzędzie zostaje pionowe.'
   - Bez CYCLE800() na końcu kolejny program zaczyna w pochylonym układzie.
 example:
   src: |-
@@ -67,13 +83,15 @@ example:
     CYCLE800()
     M30
   simulate: true
+  mode: ''
   dialect: sinumerik
   stock:
-    x: 60
-    y: 60
-    z: 40
-    ox: 30
-    oy: 30
-    oz: 40
+    discriminant: true
+    value:
+      x: 60
+      'y': 60
+      z: 40
+      ox: 30
+      oy: 30
+      oz: 40
 ---
-

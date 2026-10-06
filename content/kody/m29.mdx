@@ -14,12 +14,18 @@ related:
   - g84
   - g74
   - m03-m05
-variesBy: null
-short: "Włącza gwintowanie sztywne: wrzeciono pracuje jak oś i obraca się dokładnie w takt posuwu, więc gwintownik nie potrzebuje oprawki kompensacyjnej."
-desc: |-
-  Przy gwintowaniu sztywnym sterowanie synchronizuje obrót wrzeciona z ruchem osi Z: na każdy obrót oś przesuwa się dokładnie o skok. Gwintownik mocuje się w sztywnej oprawce, a cykl może pracować szybciej i dokładniej niż z oprawką kompensacyjną.
+short: >-
+  Włącza gwintowanie sztywne: wrzeciono pracuje jak oś i obraca się dokładnie w
+  takt posuwu, więc gwintownik nie potrzebuje oprawki kompensacyjnej.
+desc: >-
+  Przy gwintowaniu sztywnym sterowanie synchronizuje obrót wrzeciona z ruchem
+  osi Z: na każdy obrót oś przesuwa się dokładnie o skok. Gwintownik mocuje się
+  w sztywnej oprawce, a cykl może pracować szybciej i dokładniej niż z oprawką
+  kompensacyjną.
 
-  Na Fanucu M29 z obrotami S stoi w bloku przed cyklem G84 (albo G74 dla gwintu lewego). Bez M29 cykl zakłada oprawkę kompensacyjną.
+
+  Na Fanucu M29 z obrotami S stoi w bloku przed cyklem G84 (albo G74 dla gwintu
+  lewego). Bez M29 cykl zakłada oprawkę kompensacyjną.
 syntax:
   fanuc: |-
     M29 S_
@@ -27,13 +33,19 @@ syntax:
   sinumerik: |-
     ; gwintowanie sztywne to CYCLE84
     CYCLE84(…)
-sinumerik: Sinumerik nie używa M29 — gwintowanie sztywne to cykl **CYCLE84**, a z oprawką kompensacyjną **CYCLE840**.
+sinumerik: >-
+  Sinumerik nie używa M29 — gwintowanie sztywne to cykl **CYCLE84**, a z oprawką
+  kompensacyjną **CYCLE840**.
 params:
   - key: S
     desc: obroty gwintowania — w tym samym bloku co M29
 pitfalls:
-  - Posuw przy G94 musi być równy S · skok (tu 500 · 1 = 500), przy G95 — skokowi. Inaczej gwintownik pęknie albo zerwie gwint.
-  - M29 stoi w bloku przed cyklem; wpisane za G84 nie zadziała na większości sterowań.
+  - >-
+    Posuw przy G94 musi być równy S · skok (tu 500 · 1 = 500), przy G95 —
+    skokowi. Inaczej gwintownik pęknie albo zerwie gwint.
+  - >-
+    M29 stoi w bloku przed cyklem; wpisane za G84 nie zadziała na większości
+    sterowań.
 example:
   src: |-
     G21 G90 G17 G54
@@ -46,6 +58,8 @@ example:
     G00 Z50.
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
