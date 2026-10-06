@@ -1,11 +1,14 @@
 /* Porównanie dwóch buildów strona po stronie (np. main vs gałąź migracji).
-   Użycie: npm run porownaj -- <kopia .next/server/app z A> <kopia z B>
+   Użycie: npm run porownaj -- <kopia .next/server/app z A> <kopia z B> [--bez-css]
+   --bez-css: pomija też nazwy plików CSS (gdy zmiana CSS jest zamierzona i sprawdzona osobno hashem).
    Normalizuje: ID builda, nazwy plików JS (/_next/static/chunks/*.js), id z useId() (aria-controls).
    Wypisuje pliki HTML/RSC, które się różnią, i dla HTML — zmienione fragmenty widocznej treści. */
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-const [a, b] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const bezCss = args.includes("--bez-css");
+const [a, b] = args.filter((x) => !x.startsWith("--"));
 if (!a || !b) { console.error("użycie: npm run porownaj -- <katalog A> <katalog B>"); process.exit(2); }
 
 const files = (root: string, d = ""): string[] => readdirSync(path.join(root, d)).flatMap((f) => {
@@ -24,6 +27,7 @@ let bid = "";
 const norm = (s: string) => s
   .split(bid).join("BID")
   .replace(/\/_next\/static\/chunks\/[\w~.-]+\.js/g, "CHUNK.js")
+  .replace(bezCss ? /\/_next\/static\/chunks\/[\w~.-]+\.css/g : /$^/g, "CHUNK.css")
   .replace(/ aria-controls="[^"]*"/g, "")
   .replace(/_R_[0-9a-z]+_/g, "_R_");
 const visible = (s: string) => norm(s).replace(/<script>self\.__next_f[\s\S]*$/, "").split(/(?=<)/);

@@ -99,8 +99,8 @@ describe("zgodność z dzisiejszym renderem (1:1)", () => {
       want.used.forEach((u) => used.add(u));
       expect(await html(await md(x)), x).toBe(want.html);
     }
-    // wszystkie 5 zatwierdzonych zmian dotyczy akapitów (3 akapity: g01, g68-g69, g84)
-    expect([...used].sort()).toEqual(ZATWIERDZONE.map((a) => a.where).sort());
+    // w akapitach: link (g01) i `kod` w pogrubieniu (g68-g69, g84); markery w pogrubieniu są w listach i tabelach (tests/pilot.test.ts)
+    expect([...used].sort()).toEqual(ZATWIERDZONE.filter((a) => !a.where.includes("[[")).map((a) => a.where).sort());
   });
 
   it("pola wszystkich 56 kart: MDX z auto-linkami == CodeText", async () => {

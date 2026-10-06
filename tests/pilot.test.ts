@@ -8,7 +8,7 @@ import { bySlug, gcodes } from "@/lib/gcodes";
 import { componentNames, mdxComponents } from "@/lib/mdx/components";
 import { exportKod } from "@/lib/mdx/export";
 import { kodMdx, MDX_KODY, tresci } from "@/lib/mdx/kody";
-import { applyApproved, DO_ZATWIERDZENIA, normIds } from "./zatwierdzone";
+import { applyApproved, normIds } from "./zatwierdzone";
 
 /*
   Pilot (krok 3): karty z MDX_KODY strona czyta z content/kody/*.mdx.
@@ -53,14 +53,17 @@ describe("pilot: karty z MDX", () => {
         expect(explicit).toEqual(today.map((t) => t.id));
       });
 
-      it("HTML artykułu = Article.tsx (różnice tylko z list ZATWIERDZONE i DO_ZATWIERDZENIA)", async () => {
+      it("HTML artykułu = Article.tsx (jedyne różnice: zatwierdzone wyjątki)", async () => {
         const m = (await kodMdx(slug))!;
         const now = normIds(renderToStaticMarkup(h("div", { className: "article grid gap-4" }, await m.render())));
         const old = applyApproved(normIds(renderToStaticMarkup(h(Article, { blocks: articles[slug] }))));
         expect(now).toBe(old.html);
-        expect(old.used).toEqual(slug === "g84" ? ["g84 — `CYCLE84` w pogrubieniu", "g84 — `CYCLE840` w pogrubieniu"] : slug === "g01" ? ["g01 — link do kalkulatora"] : []);
-        // czekające na decyzję: marker w **…** (patrz DO_ZATWIERDZENIA)
-        expect(old.pending).toEqual(slug === "g01" ? ["g01 — [[G90]] w pogrubieniu"] : slug === "g84" ? [] : DO_ZATWIERDZENIA.slice(1).map((a) => a.where));
+        const expected: Record<string, string[]> = {
+          g01: ["g01 — link do kalkulatora", "g01 — [[G90]] w pogrubieniu"],
+          g02: ["g02/g03 — [[G17]] w pogrubieniu", "g02/g03 — [[G18]] w pogrubieniu", "g02/g03 — [[G19]] w pogrubieniu", "g02/g03 — [[G41]] i [[G42]] w pogrubieniu"],
+          g84: ["g84 — `CYCLE84` w pogrubieniu", "g84 — `CYCLE840` w pogrubieniu"],
+        };
+        expect(old.used).toEqual(expected[slug === "g03" ? "g02" : slug]);
       });
     });
   }
