@@ -14,16 +14,28 @@ related:
   - cycle800
   - g43-4
   - g68-g69
-variesBy: null
-short: G68.2 ustawia pochylony układ współrzędnych, G53.1 obraca stół tak, by narzędzie stało prostopadle do tej płaszczyzny.
-desc: |-
-  Obróbka **3+2**: dwie osie obrotowe ustawiają detal pod kątem i stoją, a skrawa się trzema osiami liniowymi — jak na zwykłej frezarce, tylko na pochylonej ścianie.
+short: >-
+  G68.2 ustawia pochylony układ współrzędnych, G53.1 obraca stół tak, by
+  narzędzie stało prostopadle do tej płaszczyzny.
+desc: >-
+  Obróbka **3+2**: dwie osie obrotowe ustawiają detal pod kątem i stoją, a
+  skrawa się trzema osiami liniowymi — jak na zwykłej frezarce, tylko na
+  pochylonej ścianie.
 
-  **G68.2 X_ Y_ Z_ I_ J_ K_** definiuje płaszczyznę: X Y Z to jej początek w układzie detalu, I J K to kąty Eulera — obrót wokół Z, potem wokół nowej osi X, potem wokół nowej Z. Od tego bloku X Y Z programu są w pochylonym układzie, a Z jest prostopadłe do płaszczyzny.
 
-  **G53.1** obraca osie stołu tak, żeby oś narzędzia pokryła się z osią Z płaszczyzny. Bez G53.1 współrzędne są już pochylone, a narzędzie dalej stoi pionowo.
+  **G68.2 X_ Y_ Z_ I_ J_ K_** definiuje płaszczyznę: X Y Z to jej początek w
+  układzie detalu, I J K to kąty Eulera — obrót wokół Z, potem wokół nowej osi
+  X, potem wokół nowej Z. Od tego bloku X Y Z programu są w pochylonym układzie,
+  a Z jest prostopadłe do płaszczyzny.
 
-  Cykle wiercenia (G81–G83) wiercą wzdłuż osi Z płaszczyzny. **G69** kasuje płaszczyznę; stół zostaje w obecnym położeniu.
+
+  **G53.1** obraca osie stołu tak, żeby oś narzędzia pokryła się z osią Z
+  płaszczyzny. Bez G53.1 współrzędne są już pochylone, a narzędzie dalej stoi
+  pionowo.
+
+
+  Cykle wiercenia (G81–G83) wiercą wzdłuż osi Z płaszczyzny. **G69** kasuje
+  płaszczyznę; stół zostaje w obecnym położeniu.
 syntax:
   fanuc: |-
     G68.2 X_ Y_ Z_ I_ J_ K_
@@ -34,17 +46,26 @@ syntax:
     CYCLE800(...)
     ...
     CYCLE800()
-sinumerik: "Odpowiednik to CYCLE800: obraca układ (osiowo, kątami rzutowania, przestrzennie albo bezpośrednio osiami) i — przy _DIR ≠ 0 — ustawia stół. CYCLE800() wraca do położenia podstawowego."
+sinumerik: >-
+  Odpowiednik to CYCLE800: obraca układ (osiowo, kątami rzutowania,
+  przestrzennie albo bezpośrednio osiami) i — przy _DIR ≠ 0 — ustawia stół.
+  CYCLE800() wraca do położenia podstawowego.
 params:
   - key: X Y Z
     desc: Początek płaszczyzny w układzie detalu
   - key: I J K
-    desc: "Kąty Eulera: Z, nowa X, nowa Z [°] (I90 J30 K-90 = 30° wokół Y)"
+    desc: 'Kąty Eulera: Z, nowa X, nowa Z [°] (I90 J30 K-90 = 30° wokół Y)'
 pitfalls:
   - G68.2 bez G53.1 — współrzędne są pochylone, a narzędzie stoi pionowo.
-  - G53.1 obraca tylko osie obrotowe — X Y Z maszyny stoją. Odjedź w Z, zanim stół się obróci.
-  - "Kolejność kątów Eulera ma znaczenie: I to obrót wokół Z, J wokół nowej X, K wokół nowej Z."
-  - Kierunek obrotu wybiera sterownik (parametry maszyny). Symulator wybiera krótszy ruch osi.
+  - >-
+    G53.1 obraca tylko osie obrotowe — X Y Z maszyny stoją. Odjedź w Z, zanim
+    stół się obróci.
+  - >-
+    Kolejność kątów Eulera ma znaczenie: I to obrót wokół Z, J wokół nowej X, K
+    wokół nowej Z.
+  - >-
+    Kierunek obrotu wybiera sterownik (parametry maszyny). Symulator wybiera
+    krótszy ruch osi.
 example:
   src: |-
     G21 G90 G17 G40 G49 G80
@@ -67,12 +88,15 @@ example:
     G00 A0 C0
     M30
   simulate: true
+  mode: ''
+  dialect: ''
   stock:
-    x: 60
-    y: 60
-    z: 40
-    ox: 30
-    oy: 30
-    oz: 40
+    discriminant: true
+    value:
+      x: 60
+      'y': 60
+      z: 40
+      ox: 30
+      oy: 30
+      oz: 40
 ---
-

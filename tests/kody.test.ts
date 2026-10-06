@@ -41,7 +41,7 @@ describe("karty i słownik z content/", () => {
     expect(now).toEqual(kotwice.kody);
     for (const k of c.kody) {
       const src = readFileSync(k.file, "utf8");
-      const explicit = [...src.matchAll(/^#{2,6} .* \{#([^}]+)\}$/gm)].map((m) => m[1]);
+      const explicit = [...src.matchAll(/^#{2,6} .* \\?\{#([^}]+)\}$/gm)].map((m) => m[1]);
       const all = [...src.matchAll(/^#{2,6} /gm)].length;
       expect(explicit.length, k.file).toBe(all);
     }

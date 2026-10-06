@@ -5,7 +5,12 @@ aliases:
   - kieszeń prostokątna
   - kieszeń okrągła
   - pocket
-def: Wgłębienie w detalu otoczone materiałem ze wszystkich stron. Frez musi wejść w pełny materiał (po spirali, po rampie albo w nawiercony otwór), a potem usuwać materiał przejściami przesuniętymi o ae, kończąc obiegiem ścianki z kompensacją promienia.
+def: >-
+  Wgłębienie w detalu otoczone materiałem ze wszystkich stron. Frez musi wejść w
+  pełny materiał (po spirali, po rampie albo w nawiercony otwór), a potem usuwać
+  materiał przejściami przesuniętymi o ae, kończąc obiegiem ścianki z
+  kompensacją promienia.
 see:
   - g02
   - g40-g42
+diagram: ''

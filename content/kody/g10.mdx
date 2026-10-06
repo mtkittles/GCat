@@ -15,14 +15,22 @@ related:
   - g43-g49
   - g40-g42
   - g52-g53
-variesBy: null
-short: "Zapisuje z programu wartości do tabel sterowania: przesunięcia baz G54–G59 i korekcje narzędzi."
-desc: |-
-  **G10 L2 P1** wpisuje przesunięcie bazy G54 (P1 = G54 … P6 = G59). Na frezarce **G10 L10** i **L11** zapisują długość narzędzia (geometria i zużycie), a **L12** i **L13** promień.
+short: >-
+  Zapisuje z programu wartości do tabel sterowania: przesunięcia baz G54–G59 i
+  korekcje narzędzi.
+desc: >-
+  **G10 L2 P1** wpisuje przesunięcie bazy G54 (P1 = G54 … P6 = G59). Na frezarce
+  **G10 L10** i **L11** zapisują długość narzędzia (geometria i zużycie), a
+  **L12** i **L13** promień.
 
-  Z **G90** wartość jest nadpisywana, z **G91** dodawana do obecnej. Na tokarce składnia to G10 P_ X_ Z_ R_ Q_: numer korekcji, wartości w X i Z, promień ostrza i jego położenie.
 
-  Przydaje się przy kilku detalach na jednej płycie i w programach pomiarowych, które same korygują bazę.
+  Z **G90** wartość jest nadpisywana, z **G91** dodawana do obecnej. Na tokarce
+  składnia to G10 P_ X_ Z_ R_ Q_: numer korekcji, wartości w X i Z, promień
+  ostrza i jego położenie.
+
+
+  Przydaje się przy kilku detalach na jednej płycie i w programach pomiarowych,
+  które same korygują bazę.
 syntax:
   fanuc: |-
     G10 L2 P_ X_ Y_ Z_
@@ -31,7 +39,10 @@ syntax:
   sinumerik: |-
     $P_UIFR[1]=CTRANS(X,_,Y,_,Z,_)
     $TC_DP3[1,1]=_
-sinumerik: Sinumerik nie ma G10. Bazy zapisuje się przez **$P_UIFR[n]**, dane narzędzia przez **$TC_DP…**. Po zmianie bazy, która jest aktywna, trzeba ją wywołać ponownie (np. G54).
+sinumerik: >-
+  Sinumerik nie ma G10. Bazy zapisuje się przez **$P_UIFR[n]**, dane narzędzia
+  przez **$TC_DP…**. Po zmianie bazy, która jest aktywna, trzeba ją wywołać
+  ponownie (np. G54).
 params:
   - key: L2
     desc: przesunięcie bazy
@@ -42,11 +53,13 @@ params:
   - key: R
     desc: wartość korekcji (w L10–L13)
   - key: L10 / L11
-    desc: "długość: geometria / zużycie"
+    desc: 'długość: geometria / zużycie'
   - key: L12 / L13
-    desc: "promień: geometria / zużycie"
+    desc: 'promień: geometria / zużycie'
 pitfalls:
-  - "Pomyłka G90/G91 przy G10: zamiast dodać −0,02 do zużycia nadpiszesz je wartością −0,02."
+  - >-
+    Pomyłka G90/G91 przy G10: zamiast dodać −0,02 do zużycia nadpiszesz je
+    wartością −0,02.
   - P w G10 L2 to numer bazy, nie numer narzędzia.
 example:
   src: |-
@@ -57,6 +70,8 @@ example:
     G90
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

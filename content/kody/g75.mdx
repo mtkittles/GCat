@@ -13,14 +13,21 @@ related:
   - g74
   - g71-g70
   - g96-g97
-variesBy: null
-short: Rowek promieniowy wykonany krokami z łamaniem wióra. Z adresami Z i Q robi szerszy rowek kilkoma wgłębieniami.
-desc: |-
-  Pierwszy blok **G75 R_** ustala cofnięcie po każdym kroku. Drugi **G75 X_ Z_ P_ Q_ F_** wcina się w osi X do średnicy X krokami **P**, cofając się o R.
+short: >-
+  Rowek promieniowy wykonany krokami z łamaniem wióra. Z adresami Z i Q robi
+  szerszy rowek kilkoma wgłębieniami.
+desc: >-
+  Pierwszy blok **G75 R_** ustala cofnięcie po każdym kroku. Drugi **G75 X_ Z_
+  P_ Q_ F_** wcina się w osi X do średnicy X krokami **P**, cofając się o R.
 
-  Po dojściu do dna wraca na średnicę startową, przesuwa się w Z o **Q** i powtarza aż do Z. Q musi być mniejsze od szerokości płytki, żeby dno rowka było ciągłe.
 
-  Cykl zostawia ścianki surowe. Dokładne rowki kończy się przejściem wykańczającym po konturze.
+  Po dojściu do dna wraca na średnicę startową, przesuwa się w Z o **Q** i
+  powtarza aż do Z. Q musi być mniejsze od szerokości płytki, żeby dno rowka
+  było ciągłe.
+
+
+  Cykl zostawia ścianki surowe. Dokładne rowki kończy się przejściem
+  wykańczającym po konturze.
 syntax:
   fanuc: |-
     G75 R_
@@ -43,8 +50,11 @@ params:
   - key: F
     desc: posuw [mm/obr]
 pitfalls:
-  - Pozycja startowa w Z odnosi się do lewej albo prawej krawędzi płytki — zależnie od punktu odniesienia noża. Pomyłka poszerza rowek o szerokość płytki.
-  - "P i Q bez kropki, w mikrometrach: P2000 = 2 mm."
+  - >-
+    Pozycja startowa w Z odnosi się do lewej albo prawej krawędzi płytki —
+    zależnie od punktu odniesienia noża. Pomyłka poszerza rowek o szerokość
+    płytki.
+  - 'P i Q bez kropki, w mikrometrach: P2000 = 2 mm.'
 example:
   src: |-
     G21 G18 G54
@@ -56,6 +66,8 @@ example:
     G00 X100.0 Z100.0
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

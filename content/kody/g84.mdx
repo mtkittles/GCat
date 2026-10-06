@@ -10,12 +10,19 @@ machines:
   - frezowanie
 star: false
 related: []
-variesBy: null
-short: "Gwintowanie gwintownikiem: posuw sprzężony z obrotami, na dnie zmiana kierunku i wyjście."
-desc: |-
-  G84 prowadzi gwintownik w dół z posuwem zsynchronizowanym z obrotami, na dnie odwraca kierunek obrotów i wycofuje narzędzie. Jednostkę posuwu wyznacza aktywny tryb: w **G94** F = obroty × skok (mm/min), w **G95** F = skok (mm/obr).
+short: >-
+  Gwintowanie gwintownikiem: posuw sprzężony z obrotami, na dnie zmiana kierunku
+  i wyjście.
+desc: >-
+  G84 prowadzi gwintownik w dół z posuwem zsynchronizowanym z obrotami, na dnie
+  odwraca kierunek obrotów i wycofuje narzędzie. Jednostkę posuwu wyznacza
+  aktywny tryb: w **G94** F = obroty × skok (mm/min), w **G95** F = skok
+  (mm/obr).
 
-  Na wielu sterowaniach Fanuc gwintowanie sztywne (bez uchwytu kompensacyjnego) włącza **M29 S_** przed cyklem; to zależy od parametrów maszyny. Opis dotyczy frezarki — na tokarce Fanuc numery cykli gwintowania są inne.
+
+  Na wielu sterowaniach Fanuc gwintowanie sztywne (bez uchwytu kompensacyjnego)
+  włącza **M29 S_** przed cyklem; to zależy od parametrów maszyny. Opis dotyczy
+  frezarki — na tokarce Fanuc numery cykli gwintowania są inne.
 syntax:
   fanuc: |-
     ; frezarka, mm — F zależy od trybu posuwu
@@ -29,20 +36,37 @@ syntax:
     CYCLE84(…)    ; gwintowanie sztywne
     CYCLE840(…)   ; z uchwytem kompensacyjnym
     ; parametry wg wydania cykli — sprawdź dokumentację sterowania
-sinumerik: W Sinumeriku gwintowanie wykonują cykle **CYCLE84** (sztywne) i **CYCLE840** (z uchwytem kompensacyjnym). Nazwy i kolejność parametrów zależą od wydania cykli — przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
+sinumerik: >-
+  W Sinumeriku gwintowanie wykonują cykle **CYCLE84** (sztywne) i **CYCLE840**
+  (z uchwytem kompensacyjnym). Nazwy i kolejność parametrów zależą od wydania
+  cykli — przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z
+  dokumentacji „Cykle” dla swojej wersji.
 params:
   - key: Z
-    desc: Położenie końca gwintownika na dnie cyklu [mm] — nie długość pełnego gwintu i nie głębokość otworu
+    desc: >-
+      Położenie końca gwintownika na dnie cyklu [mm] — nie długość pełnego
+      gwintu i nie głębokość otworu
   - key: R
-    desc: Płaszczyzna startu posuwu [mm] (zapas na rozbieg, zwykle kilka skoków nad powierzchnią)
+    desc: >-
+      Płaszczyzna startu posuwu [mm] (zapas na rozbieg, zwykle kilka skoków nad
+      powierzchnią)
   - key: F
-    desc: "G94: obroty × skok [mm/min]; G95: skok [mm/obr]"
+    desc: 'G94: obroty × skok [mm/min]; G95: skok [mm/obr]'
   - key: G98/G99
-    desc: "Na frezarce: powrót do poziomu początkowego / do R — nie jednostka posuwu"
+    desc: 'Na frezarce: powrót do poziomu początkowego / do R — nie jednostka posuwu'
 pitfalls:
-  - Posuw niezgodny ze skokiem (przyczyna) → gwintownik pęka albo zrywa zwoje (skutek) → w G94 F = S × skok, w G95 F = skok, a tryb posuwu ustaw jawnie przed cyklem (poprawka).
-  - Z wzięte z długości gwintu (przyczyna) → za krótki pełny gwint, bo nakrój nie tnie pełnego zarysu (skutek) → Z = −(pełny gwint + nakrój), otwór jeszcze głębiej (poprawka).
-  - Otwór „D − skok” pod wygniatak (przyczyna) → za mały otwór, wygniatak się zatrze (skutek) → reguła D − P dotyczy gwintowników skrawających; dla wygniataków średnica z katalogu (poprawka).
+  - >-
+    Posuw niezgodny ze skokiem (przyczyna) → gwintownik pęka albo zrywa zwoje
+    (skutek) → w G94 F = S × skok, w G95 F = skok, a tryb posuwu ustaw jawnie
+    przed cyklem (poprawka).
+  - >-
+    Z wzięte z długości gwintu (przyczyna) → za krótki pełny gwint, bo nakrój
+    nie tnie pełnego zarysu (skutek) → Z = −(pełny gwint + nakrój), otwór
+    jeszcze głębiej (poprawka).
+  - >-
+    Otwór „D − skok” pod wygniatak (przyczyna) → za mały otwór, wygniatak się
+    zatrze (skutek) → reguła D − P dotyczy gwintowników skrawających; dla
+    wygniataków średnica z katalogu (poprawka).
 example:
   src: |-
     G21 G90 G17 G54
@@ -53,107 +77,111 @@ example:
     G01 Z10 F500
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G84** wykonuje gwint gwintownikiem. Cykl wkręca narzędzie na zadaną głębokość, zatrzymuje wrzeciono, odwraca kierunek obrotów i wykręca gwintownik — wszystko w jednym bloku.
 
-## Warunek podstawowy: posuw musi wynikać ze skoku {#warunek-podstawowy-posuw-musi-wynikać-ze-skoku}
+## Warunek podstawowy: posuw musi wynikać ze skoku \{#warunek-podstawowy-posuw-musi-wynikać-ze-skoku}
 
 Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jednostkę F wyznacza aktywny tryb posuwu, dlatego w niezależnym przykładzie trzeba go ustawić jawnie:
 
 <Table caption="Na frezarce G98/G99 wybierają poziom powrotu w cyklu — nie jednostkę posuwu (to znaczenie mają na tokarkach Fanuc w systemie A).">
-
-| Tryb (frezarka, mm) | F | M10×1,5 przy 400 obr/min |
-|---|---|---|
-| **G94** — mm/min | obroty × skok | F600 |
-| **G95** — mm/obr | skok | F1.5 |
-
+  | Tryb (frezarka, mm) | F             | M10×1,5 przy 400 obr/min |
+  | ------------------- | ------------- | ------------------------ |
+  | **G94** — mm/min    | obroty × skok | F600                     |
+  | **G95** — mm/obr    | skok          | F1.5                     |
 </Table>
 
-<Note kind="warn">Błąd w tym obliczeniu prowadzi do złamania gwintownika w otworze — jednej z najbardziej uciążliwych awarii, bo hartowanego gwintownika nie da się wywiercić.</Note>
+<Note kind="warn">
+  Błąd w tym obliczeniu prowadzi do złamania gwintownika w otworze — jednej z najbardziej uciążliwych awarii, bo hartowanego gwintownika nie da się wywiercić.
+</Note>
 
-## Gwintowanie sztywne kontra z kompensacją {#gwintowanie-sztywne-kontra-z-kompensacją}
+## Gwintowanie sztywne kontra z kompensacją \{#gwintowanie-sztywne-kontra-z-kompensacją}
 
-- **Gwintowanie sztywne** — sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.
-- **Gwintowanie z uchwytem kompensacyjnym** — uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.
+* **Gwintowanie sztywne** — sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.
+* **Gwintowanie z uchwytem kompensacyjnym** — uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.
 
-## Składnia {#składnia}
+## Składnia \{#składnia}
 
 <Code caption="Fragment ilustrujący. Z−18 to położenie końca gwintownika, nie długość gwintu.">
-```
-; założenia: frezarka, Fanuc z gwintowaniem sztywnym przez M29, G21, G17, G90, G54,
-; narzędzie nad otworem na wysokości bezpiecznej, M10x1,5, 400 obr/min
-G94                               ; posuw mm/min
-M29 S400
-G99 G84 X20 Y20 Z-18 R5 F600      ; F = 400 x 1,5
-X60
-G80
+  ```
+  ; założenia: frezarka, Fanuc z gwintowaniem sztywnym przez M29, G21, G17, G90, G54,
+  ; narzędzie nad otworem na wysokości bezpiecznej, M10x1,5, 400 obr/min
+  G94                               ; posuw mm/min
+  M29 S400
+  G99 G84 X20 Y20 Z-18 R5 F600      ; F = 400 x 1,5
+  X60
+  G80
 
-; ten sam cykl w G95 (jeśli maszyna obsługuje posuw na obrót przy gwintowaniu)
-G95                               ; posuw mm/obr
-M29 S400
-G99 G84 X20 Y20 Z-18 R5 F1.5      ; F = skok
-G80
-G94
-```
+  ; ten sam cykl w G95 (jeśli maszyna obsługuje posuw na obrót przy gwintowaniu)
+  G95                               ; posuw mm/obr
+  M29 S400
+  G99 G84 X20 Y20 Z-18 R5 F1.5      ; F = skok
+  G80
+  G94
+  ```
 </Code>
 
-| Adres | Znaczenie |
-|---|---|
-| Z | Położenie końca gwintownika na dnie cyklu [mm] |
-| R | Płaszczyzna startu posuwu [mm]; zapas na rozbieg |
-| F | G94: obroty × skok [mm/min]; G95: skok [mm/obr] |
-| P | Postój na dnie przed zmianą kierunku [ms] — jeśli sterowanie go obsługuje |
+| Adres | Znaczenie                                                                  |
+| ----- | -------------------------------------------------------------------------- |
+| Z     | Położenie końca gwintownika na dnie cyklu \[mm]                            |
+| R     | Płaszczyzna startu posuwu \[mm]; zapas na rozbieg                          |
+| F     | G94: obroty × skok \[mm/min]; G95: skok \[mm/obr]                          |
+| P     | Postój na dnie przed zmianą kierunku \[ms] — jeśli sterowanie go obsługuje |
 
-## Cztery różne głębokości {#cztery-różne-głębokości}
+## Cztery różne głębokości \{#cztery-różne-głębokości}
 
 Pełny gwint, nakrój gwintownika, położenie końca narzędzia i głębokość otworu to cztery różne wartości. Nakrój (zbieżna część gwintownika) nie tnie pełnego zarysu, więc koniec narzędzia musi zejść głębiej niż żądany pełny gwint, a otwór — jeszcze głębiej.
 
 <Diagram id="g84-depths" />
 
 <Code caption="Długość nakroju zależy od formy gwintownika — wartość z katalogu narzędzia.">
-```
-pełny gwint L = 15 mm, nakrój ≈ 3 zwoje × 1,5 = 4,5 mm (założenie dla danego gwintownika)
-Z końca gwintownika = −(15 + 4,5) = −19,5
-otwór ≥ 19,5 + zapas (np. 2,5) = 22 mm, plus stożek wiertła
-```
+  ```
+  pełny gwint L = 15 mm, nakrój ≈ 3 zwoje × 1,5 = 4,5 mm (założenie dla danego gwintownika)
+  Z końca gwintownika = −(15 + 4,5) = −19,5
+  otwór ≥ 19,5 + zapas (np. 2,5) = 22 mm, plus stożek wiertła
+  ```
 </Code>
 
-## Otwór wstępny {#otwór-wstępny}
+## Otwór wstępny \{#otwór-wstępny}
 
 Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę otworu przyjmuje się w przybliżeniu jako **średnica nominalna minus skok**. Wygniataki (gwintowniki bezwiórowe) potrzebują większego otworu — jego średnica pochodzi z katalogu producenta narzędzia.
 
-| Gwint | Skok [mm] | Otwór [mm] |
-|---|---|---|
-| M5 | 0,8 | 4,2 |
-| M6 | 1,0 | 5,0 |
-| M8 | 1,25 | 6,8 |
-| M10 | 1,5 | 8,5 |
-| M12 | 1,75 | 10,2 |
-| M16 | 2,0 | 14,0 |
-| M20 | 2,5 | 17,5 |
+| Gwint | Skok \[mm] | Otwór \[mm] |
+| ----- | ---------- | ----------- |
+| M5    | 0,8        | 4,2         |
+| M6    | 1,0        | 5,0         |
+| M8    | 1,25       | 6,8         |
+| M10   | 1,5        | 8,5         |
+| M12   | 1,75       | 10,2        |
+| M16   | 2,0        | 14,0        |
+| M20   | 2,5        | 17,5        |
 
-<Sim caption="Cztery gwinty M10 cyklem G84. Symulator rozwija cykl na ruchy elementarne — wejście i wyjście odbywają się na posuwie roboczym.">
-```
-G21 G90 G17 G54 G80
-T01 M06
-S400 M03
-G00 X20 Y20
-G43 Z10 H01
-G99 G84 X20 Y20 Z-18 R5 F600
-X60
-Y45
-X20
-G80
-G00 Z50
-M05
-M30
-```
+<Sim mode="mill" caption="Cztery gwinty M10 cyklem G84. Symulator rozwija cykl na ruchy elementarne — wejście i wyjście odbywają się na posuwie roboczym.">
+  ```
+  G21 G90 G17 G54 G80
+  T01 M06
+  S400 M03
+  G00 X20 Y20
+  G43 Z10 H01
+  G99 G84 X20 Y20 Z-18 R5 F600
+  X60
+  Y45
+  X20
+  G80
+  G00 Z50
+  M05
+  M30
+  ```
 </Sim>
 
-## Sinumerik {#sinumerik}
+## Sinumerik \{#sinumerik}
 
 **`CYCLE84`** — gwintowanie sztywne, **`CYCLE840`** — z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
 
-<Note kind="info">Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas; na innych sterowaniach potwierdź w ich dokumentacji.</Note>
+<Note kind="info">
+  Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas; na innych sterowaniach potwierdź w ich dokumentacji.
+</Note>

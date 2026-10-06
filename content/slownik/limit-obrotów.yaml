@@ -5,7 +5,11 @@ aliases:
   - ograniczenie obrotów
   - G50 S
   - LIMS
-def: Maksymalne obroty wrzeciona przy stałej prędkości skrawania G96. Bez limitu obroty przy osi rosłyby bez końca; G50 S3000 (Fanuc, system A) lub LIMS=3000 (Sinumerik) trzyma je na wartości bezpiecznej dla uchwytu i detalu.
+def: >-
+  Maksymalne obroty wrzeciona przy stałej prędkości skrawania G96. Bez limitu
+  obroty przy osi rosłyby bez końca; G50 S3000 (Fanuc, system A) lub LIMS=3000
+  (Sinumerik) trzyma je na wartości bezpiecznej dla uchwytu i detalu.
 see:
   - g50
   - g96-g97
+diagram: ''

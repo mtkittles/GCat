@@ -3,6 +3,10 @@ anchor: pocienianie-wióra
 order: 460
 aliases:
   - chip thinning
-def: "Zjawisko występujące przy małym zaangażowaniu bocznym narzędzia (ae mniejsze niż połowa średnicy): rzeczywista grubość wióra jest mniejsza niż zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie pracuje zbyt lekko, tarcie rośnie kosztem skrawania, a ostrze szybciej się tępi."
+def: >-
+  Zjawisko występujące przy małym zaangażowaniu bocznym narzędzia (ae mniejsze
+  niż połowa średnicy): rzeczywista grubość wióra jest mniejsza niż
+  zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie pracuje zbyt
+  lekko, tarcie rośnie kosztem skrawania, a ostrze szybciej się tępi.
 see: []
 diagram: thinning

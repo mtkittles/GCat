@@ -13,15 +13,24 @@ related:
   - g33
   - g76
   - g96-g97
-variesBy: null
-short: Jak G32, ale skok zmienia się o stałą wartość K na każdym obrocie — do ślimaków i gwintów o narastającym skoku.
-desc: G34 prowadzi nóż ze skokiem F na początku przejścia i zmienia go o K na każdy obrót wrzeciona (K dodatnie — skok rośnie, ujemne — maleje). Tak jak przy G32, każde przejście startuje od tego samego położenia kątowego wrzeciona, więc kolejne przejścia trafiają w ten sam zwój. Głębokość przejść programuje się ręcznie.
+short: >-
+  Jak G32, ale skok zmienia się o stałą wartość K na każdym obrocie — do
+  ślimaków i gwintów o narastającym skoku.
+desc: >-
+  G34 prowadzi nóż ze skokiem F na początku przejścia i zmienia go o K na każdy
+  obrót wrzeciona (K dodatnie — skok rośnie, ujemne — maleje). Tak jak przy G32,
+  każde przejście startuje od tego samego położenia kątowego wrzeciona, więc
+  kolejne przejścia trafiają w ten sam zwój. Głębokość przejść programuje się
+  ręcznie.
 syntax:
   fanuc: G34 Z_ F_ K_
   sinumerik: |-
     G34 Z_ K_ F_   ; F — zmiana skoku na obrót
     G35 …          ; skok malejący
-sinumerik: "Sinumerik rozdziela kierunki: **G34** — skok rosnący, **G35** — skok malejący. Przyrost skoku podaje się adresem **F** (mm/obr²), a skok początkowy adresem **K** (dla gwintu w osi Z)."
+sinumerik: >-
+  Sinumerik rozdziela kierunki: **G34** — skok rosnący, **G35** — skok malejący.
+  Przyrost skoku podaje się adresem **F** (mm/obr²), a skok początkowy adresem
+  **K** (dla gwintu w osi Z).
 params:
   - key: Z (W)
     desc: koniec gwintu
@@ -30,7 +39,9 @@ params:
   - key: K
     desc: przyrost skoku na każdy obrót (mm/obr²), ze znakiem
 pitfalls:
-  - "Skok końcowy nie może przekroczyć możliwości osi przy danych obrotach — licz go przed programowaniem: F + K·(liczba obrotów)."
+  - >-
+    Skok końcowy nie może przekroczyć możliwości osi przy danych obrotach — licz
+    go przed programowaniem: F + K·(liczba obrotów).
   - Zmiana obrotów między przejściami przesuwa zwój — jak przy G32 zawsze G97.
 example:
   src: |-
@@ -43,6 +54,8 @@ example:
     Z5.
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

@@ -4,7 +4,10 @@ order: 680
 aliases:
   - Vc
   - prędkość skrawania
-def: "Prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w metrach na minutę. Zależy od średnicy i obrotów: Vc = π × D × n / 1000. To Vc, a nie obroty, dobiera się z katalogu narzędzia dla danego materiału."
+def: >-
+  Prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w
+  metrach na minutę. Zależy od średnicy i obrotów: Vc = π × D × n / 1000. To Vc,
+  a nie obroty, dobiera się z katalogu narzędzia dla danego materiału.
 see:
   - g96-g97
 diagram: vc

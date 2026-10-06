@@ -4,7 +4,10 @@ order: 120
 aliases:
   - przeciwbieżne
   - conventional milling
-def: Kierunek obrotu w miejscu styku przeciwny do posuwu. Wiór zaczyna się od zera grubości, przez co ostrze na początku gniecie materiał. Stosowane na starszych maszynach z luzem w śrubie pociągowej i przy naskórku odlewniczym.
+def: >-
+  Kierunek obrotu w miejscu styku przeciwny do posuwu. Wiór zaczyna się od zera
+  grubości, przez co ostrze na początku gniecie materiał. Stosowane na starszych
+  maszynach z luzem w śrubie pociągowej i przy naskórku odlewniczym.
 see:
   - g40-g42
 diagram: climb

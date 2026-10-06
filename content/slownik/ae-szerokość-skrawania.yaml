@@ -5,6 +5,9 @@ aliases:
   - ae
   - przekrycie boczne
   - stepover
-def: Szerokość zaangażowania narzędzia w materiał, mierzona prostopadle do kierunku posuwu. Przy ae mniejszym niż połowa średnicy freza występuje pocienianie wióra i posuw można zwiększyć.
+def: >-
+  Szerokość zaangażowania narzędzia w materiał, mierzona prostopadle do kierunku
+  posuwu. Przy ae mniejszym niż połowa średnicy freza występuje pocienianie
+  wióra i posuw można zwiększyć.
 see: []
 diagram: apae

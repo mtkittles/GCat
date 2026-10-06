@@ -4,8 +4,13 @@ order: 340
 aliases:
   - makroprogram
   - makro użytkownika
-  - "zmienne #"
-def: "Program z parametrami i zmiennymi (#1…#33 lokalne, #100+ wspólne, #500+ trwałe), wywoływany przez G65 (jednorazowo) lub G66 (modalnie). W makrach pisze się własne cykle, pomiary sondą i obliczenia; na Sinumeriku odpowiada im podprogram z parametrami i zmienne R."
+  - 'zmienne #'
+def: >-
+  Program z parametrami i zmiennymi (#1…#33 lokalne, #100+ wspólne, #500+
+  trwałe), wywoływany przez G65 (jednorazowo) lub G66 (modalnie). W makrach
+  pisze się własne cykle, pomiary sondą i obliczenia; na Sinumeriku odpowiada im
+  podprogram z parametrami i zmienne R.
 see:
   - g65-g67
   - g31
+diagram: ''

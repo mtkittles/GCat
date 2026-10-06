@@ -4,5 +4,9 @@ order: 220
 aliases:
   - kc
   - opór skrawania
-def: "Siła potrzebna do zebrania wióra o przekroju 1 mm², w N/mm². Zależy od materiału: aluminium około 600, stal konstrukcyjna 1500, Inconel 2600. Służy do obliczenia mocy skrawania."
+def: >-
+  Siła potrzebna do zebrania wióra o przekroju 1 mm², w N/mm². Zależy od
+  materiału: aluminium około 600, stal konstrukcyjna 1500, Inconel 2600. Służy
+  do obliczenia mocy skrawania.
 see: []
+diagram: ''

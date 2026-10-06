@@ -3,7 +3,10 @@ anchor: naddatek
 order: 350
 aliases:
   - naddatek na obróbkę
-def: Warstwa materiału pozostawiona celowo do zdjęcia w kolejnej operacji. Typowo 0,2–0,5 mm na wykańczanie przy frezowaniu, 0,3–0,5 mm na średnicy przy toczeniu. W cyklu G71 określają go adresy U i W.
+def: >-
+  Warstwa materiału pozostawiona celowo do zdjęcia w kolejnej operacji. Typowo
+  0,2–0,5 mm na wykańczanie przy frezowaniu, 0,3–0,5 mm na średnicy przy
+  toczeniu. W cyklu G71 określają go adresy U i W.
 see:
   - g71-g70
 diagram: allowance

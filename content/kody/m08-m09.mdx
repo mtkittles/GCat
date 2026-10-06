@@ -11,12 +11,13 @@ machines:
   - toczenie
 star: false
 related: []
-variesBy: null
 short: M08 włącza chłodziwo, M09 wyłącza.
-desc: |-
+desc: >-
   M08 — chłodziwo zalewowe. M07 — mgła (na części maszyn). M09 wyłącza oba.
 
-  **M07** włącza chłodzenie mgłą (jeśli maszyna je ma), **M09** wyłącza każdy rodzaj chłodziwa.
+
+  **M07** włącza chłodzenie mgłą (jeśli maszyna je ma), **M09** wyłącza każdy
+  rodzaj chłodziwa.
 syntax:
   fanuc: M08 / M09
   sinumerik: M8 / M9
@@ -35,26 +36,32 @@ example:
     M09
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **M08** włącza chłodziwo zalewowe, **M07** mgłę olejową, **M09** wyłącza oba. Funkcje modalne — raz włączone działają aż do wyłączenia albo do końca programu (M30 wyłącza chłodziwo automatycznie).
 
-## Rodzaje chłodzenia {#rodzaje-chłodzenia}
+## Rodzaje chłodzenia \{#rodzaje-chłodzenia}
 
-| Kod | Rodzaj | Zastosowanie |
-|---|---|---|
-| **M07** | Mgła olejowa | Aluminium, obróbka wykańczająca, maszyny bez wanny |
-| **M08** | Zalewowe (emulsja) | Standard: stal, żeliwo, obróbka zgrubna |
-| **M09** | Wyłączenie | Obie postacie naraz |
-| **M88 / M89** | Chłodzenie przez narzędzie (na części maszyn) | Wiercenie głębokie, otwory powyżej 5× średnicy |
+| Kod           | Rodzaj                                        | Zastosowanie                                       |
+| ------------- | --------------------------------------------- | -------------------------------------------------- |
+| **M07**       | Mgła olejowa                                  | Aluminium, obróbka wykańczająca, maszyny bez wanny |
+| **M08**       | Zalewowe (emulsja)                            | Standard: stal, żeliwo, obróbka zgrubna            |
+| **M09**       | Wyłączenie                                    | Obie postacie naraz                                |
+| **M88 / M89** | Chłodzenie przez narzędzie (na części maszyn) | Wiercenie głębokie, otwory powyżej 5× średnicy     |
 
-## Po co w ogóle chłodziwo {#po-co-w-ogóle-chłodziwo}
+## Po co w ogóle chłodziwo \{#po-co-w-ogóle-chłodziwo}
 
-- **Odprowadzenie ciepła** — najważniejsze przy materiałach o niskiej przewodności, takich jak stal nierdzewna i tytan.
-- **Wypłukiwanie wióra** — kluczowe przy wierceniu i frezowaniu rowków, gdzie wiór nie ma jak wyjść.
-- **Smarowanie** — zmniejsza tarcie i narost na ostrzu, poprawia powierzchnię.
+* **Odprowadzenie ciepła** — najważniejsze przy materiałach o niskiej przewodności, takich jak stal nierdzewna i tytan.
+* **Wypłukiwanie wióra** — kluczowe przy wierceniu i frezowaniu rowków, gdzie wiór nie ma jak wyjść.
+* **Smarowanie** — zmniejsza tarcie i narost na ostrzu, poprawia powierzchnię.
 
-<Note kind="warn">Przy obróbce **żeliwa** i przy frezowaniu **węglikiem na sucho** chłodziwo bywa szkodliwe. Węglik źle znosi szok termiczny: przerywany strumień chłodziwa na gorące ostrze powoduje mikropęknięcia i wykruszanie. Jeżeli chłodzisz węglik, chłodź obficie i bez przerw.</Note>
+<Note kind="warn">
+  Przy obróbce **żeliwa** i przy frezowaniu **węglikiem na sucho** chłodziwo bywa szkodliwe. Węglik źle znosi szok termiczny: przerywany strumień chłodziwa na gorące ostrze powoduje mikropęknięcia i wykruszanie. Jeżeli chłodzisz węglik, chłodź obficie i bez przerw.
+</Note>
 
-<Note kind="info">**Tylko jedna funkcja M w bloku** na sterownikach Fanuc. Dlatego `S2000 M03` i `M08` to dwie osobne linie.</Note>
+<Note kind="info">
+  **Tylko jedna funkcja M w bloku** na sterownikach Fanuc. Dlatego `S2000 M03` i `M08` to dwie osobne linie.
+</Note>

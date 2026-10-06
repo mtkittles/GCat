@@ -4,7 +4,11 @@ order: 300
 aliases:
   - profil
   - obrys
-def: Linia ograniczająca kształt detalu w płaszczyźnie obróbki, złożona z odcinków i łuków. Program prowadzi po niej środek narzędzia (tor odsunięty o promień) albo samą krawędź przy włączonej kompensacji G41/G42.
+def: >-
+  Linia ograniczająca kształt detalu w płaszczyźnie obróbki, złożona z odcinków
+  i łuków. Program prowadzi po niej środek narzędzia (tor odsunięty o promień)
+  albo samą krawędź przy włączonej kompensacji G41/G42.
 see:
   - g40-g42
   - g01
+diagram: ''

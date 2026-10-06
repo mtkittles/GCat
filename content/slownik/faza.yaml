@@ -5,6 +5,11 @@ aliases:
   - fazowanie
   - C
   - CHF
-def: Ścięcie krawędzi pod kątem, zwykle 45°. Na frezarce programuje się ją ruchem G01 po przekątnej albo frezem do faz; na tokarce — blokiem G01 z jednoczesną zmianą X i Z, a na części sterowań adresem ,C (Fanuc) lub CHF=/CHR= (Sinumerik).
+def: >-
+  Ścięcie krawędzi pod kątem, zwykle 45°. Na frezarce programuje się ją ruchem
+  G01 po przekątnej albo frezem do faz; na tokarce — blokiem G01 z jednoczesną
+  zmianą X i Z, a na części sterowań adresem ,C (Fanuc) lub CHF=/CHR=
+  (Sinumerik).
 see:
   - g01
+diagram: ''

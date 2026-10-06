@@ -4,6 +4,11 @@ order: 360
 aliases:
   - nakrój
   - część stożkowa gwintownika
-def: Stożkowy początek gwintownika, który stopniowo wcina pełny zarys gwintu. Ma zwykle 2–5 zwojów długości (zależnie od formy A, B, C). Dlatego otwór musi być głębszy niż gwint o długość nakroju — pełny zarys kończy się wyżej, niż stoi czubek narzędzia.
+def: >-
+  Stożkowy początek gwintownika, który stopniowo wcina pełny zarys gwintu. Ma
+  zwykle 2–5 zwojów długości (zależnie od formy A, B, C). Dlatego otwór musi być
+  głębszy niż gwint o długość nakroju — pełny zarys kończy się wyżej, niż stoi
+  czubek narzędzia.
 see:
   - g84
+diagram: ''

@@ -191,6 +191,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           const v = strAttr(el, name);
           if (typeof v === "string") for (const m of v.matchAll(MARKER_RE)) if (!resolveKey(m[1], opts.sources)) at(n, `${name}: marker [[${m[0].slice(2, -2)}]] — klucz „${m[1]}” nie pasuje do żadnej karty ani hasła słownika`);
         }
+        // <Note> z treścią w osobnych liniach (format Keystatic) → jeden akapit; renderujemy samą treść jak blok `note` w Article.tsx
+        if (el.name === "Note") {
+          const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
+          if (kids.length === 1 && kids[0].type === "paragraph") el.children = kids[0].children as typeof el.children;
+        }
         if (WITH_SRC.has(el.name)) {
           const kids = (el.children as Nodes[]).filter((c) => !(c.type === "text" && !c.value.trim()));
           if (kids.length !== 1 || kids[0].type !== "code") { at(n, `<${el.name}> musi zawierać dokładnie jeden blok kodu \`\`\` (program)`); return; }
@@ -205,11 +210,12 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     // 2b. Tabele: <Table> (figure), klasy i data-label jak w Article.tsx.
     visit(tree, "table", (t: Table, index, parent) => {
       t.data = { ...t.data, hProperties: { ...(t.data?.hProperties ?? {}), className: ["code-table", "tbl-stack"] } };
-      // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`)
+      // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`); escape'y Markdown (\[ \| …,
+      // zapis Keystatic) zdjęte jak w treści komórki
       const head = t.children[0]?.children.map((c) => {
         const a = c.position?.start.offset, b = c.position?.end.offset;
         const raw = a !== undefined && b !== undefined ? source.slice(a, b) : plain(c);
-        return raw.trim().replace(/^\|/, "").replace(/\|$/, "").trim().replace(/\\\|/g, "|").replace(/\*\*|`/g, "");
+        return raw.trim().replace(/^\|/, "").replace(/\|$/, "").trim().replace(/\\([!-/:-@[-`{-~])/g, "$1").replace(/\*\*|`/g, "");
       }) ?? [];
       for (const row of t.children.slice(1)) row.children.forEach((c, k) => { c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), dataLabel: head[k] ?? "" } }; });
       const p = parent as unknown as MdxJsxFlowElement | undefined;

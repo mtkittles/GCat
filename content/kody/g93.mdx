@@ -12,19 +12,26 @@ star: false
 related:
   - g94-g95
   - g01
-variesBy: null
-short: "F oznacza, ile razy na minutę blok może się wykonać: czas bloku = 1/F minuty. Stosowany przy osiach obrotowych."
-desc: |-
-  W **G93** posuw nie jest prędkością, tylko odwrotnością czasu: **F2** oznacza, że blok ma trwać pół minuty, niezależnie od długości ruchu.
+short: >-
+  F oznacza, ile razy na minutę blok może się wykonać: czas bloku = 1/F minuty.
+  Stosowany przy osiach obrotowych.
+desc: >-
+  W **G93** posuw nie jest prędkością, tylko odwrotnością czasu: **F2** oznacza,
+  że blok ma trwać pół minuty, niezależnie od długości ruchu.
 
-  Przy jednoczesnym ruchu osi liniowych i obrotowej (A, B, C) sterowanie nie musi wtedy przeliczać stopni na minutę na prędkość na ostrzu — robi to CAM. **F** trzeba podać w każdym bloku ruchu roboczego. Wraca się przez **G94**.
+
+  Przy jednoczesnym ruchu osi liniowych i obrotowej (A, B, C) sterowanie nie
+  musi wtedy przeliczać stopni na minutę na prędkość na ostrzu — robi to CAM.
+  **F** trzeba podać w każdym bloku ruchu roboczego. Wraca się przez **G94**.
 syntax:
   fanuc: G93 G01 X_ A_ F_
   sinumerik: G93 G1 X_ A_ F_
-sinumerik: "Te same kody: **G93** odwrotność czasu, **G94** posuw na minutę, **G95** na obrót."
+sinumerik: >-
+  Te same kody: **G93** odwrotność czasu, **G94** posuw na minutę, **G95** na
+  obrót.
 params:
   - key: F
-    desc: "odwrotność czasu bloku [1/min]: F4 = blok trwa 15 s"
+    desc: 'odwrotność czasu bloku [1/min]: F4 = blok trwa 15 s'
 pitfalls:
   - W G93 F nie jest modalne. Blok ruchu roboczego bez F daje alarm.
   - Po G93 wróć do G94, zanim użyjesz zwykłego F w mm/min.
@@ -37,6 +44,8 @@ example:
     G94 F300
     M30
   simulate: false
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

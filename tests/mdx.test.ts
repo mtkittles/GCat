@@ -121,7 +121,9 @@ describe("zgodność z dzisiejszym renderem (1:1)", () => {
       .filter((f) => f.isFile() && f.name.endsWith(".ts") && !f.name.startsWith("articles")).map((f) => path.join(f.parentPath, f.name));
     const mdx = ["content/kody", "content/slownik"].flatMap((d) => readdirSync(d).filter((f) => /\.(mdx|yaml)$/.test(f)).map((f) => `${d}/${f}`));
     const keys = new Set<string>();
-    for (const f of [...ts, ...mdx, "content/exercises.json"]) for (const m of readFileSync(f, "utf8").matchAll(MARKER_RE)) if (m[0] !== "[[...]]" && !/^["\d-]/.test(m[1])) keys.add(m[1]); // pomija tablice JSON odpowiedzi [["26"]]
+    // w plikach MDX edytor zapisuje markery z ucieczką: \[\[G17]] — znaczenie to samo
+    const tekst = (f: string) => readFileSync(f, "utf8").replace(/\\([[\]|])/g, "$1");
+    for (const f of [...ts, ...mdx, "content/exercises.json"]) for (const m of tekst(f).matchAll(MARKER_RE)) if (m[0] !== "[[...]]" && !/^["\d-]/.test(m[1])) keys.add(m[1]); // pomija tablice JSON odpowiedzi [["26"]]
     const missing = [...keys].filter((k) => !resolveKey(k, liveSources));
     expect(keys.size).toBeGreaterThanOrEqual(60);
     expect(missing).toEqual([]);
@@ -164,6 +166,11 @@ describe("błędy: czytelny komunikat z nazwą pliku", () => {
     expect(m).toMatch(/zadania\/z\.yaml:\d+:\d+ — błąd YAML/);
     expect(m).toMatch(/programy\/p\.mdx:\d+:\d+ — pole „src”: program potrzebuje dokładnie jednego/);
     expect(m).toContain("nauka/frezowanie/f1-1-x — brak cwiczenia.yaml");
+  });
+
+  it("tabela: data-label bez escape'ów Markdown (zapis Keystatic \\[mm] = [mm])", async () => {
+    const out = await html(await md("| Otwór \\[mm] | A \\| B |\n| - | - |\n| 4,2 | 1 |\n"));
+    expect(out).toContain('<td data-label="Otwór [mm]">4,2</td><td data-label="A | B">1</td>');
   });
 
   it("zły typ pola wskazuje linię w pliku", async () => {

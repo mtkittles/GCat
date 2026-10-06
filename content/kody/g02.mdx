@@ -11,9 +11,11 @@ machines:
   - toczenie
 star: true
 related: []
-variesBy: null
 short: Łuk zgodnie z ruchem wskazówek zegara.
-desc: G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara (patrząc od strony dodatniej osi prostopadłej do płaszczyzny). Środek łuku podaje się przyrostowo od punktu startu przez I, J, K albo promieniem R.
+desc: >-
+  G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara (patrząc od
+  strony dodatniej osi prostopadłej do płaszczyzny). Środek łuku podaje się
+  przyrostowo od punktu startu przez I, J, K albo promieniem R.
 syntax:
   fanuc: |-
     G02 X_ Y_ I_ J_ F_
@@ -21,7 +23,9 @@ syntax:
   sinumerik: |-
     G2 X_ Y_ I_ J_ F_
     G2 X_ Y_ CR=_ F_
-sinumerik: G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.
+sinumerik: >-
+  G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można
+  przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.
 params:
   - key: X Y
     desc: Punkt końcowy łuku
@@ -31,7 +35,9 @@ params:
     desc: Promień; R ujemne = łuk > 180°
 pitfalls:
   - Pełne koło (start = koniec) nie zadziała z R — użyj I/J.
-  - Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz bywa odwrócony.
+  - >-
+    Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz
+    bywa odwrócony.
   - I/J są od punktu STARTU, nie od zera detalu.
 example:
   src: |-
@@ -49,126 +55,132 @@ example:
     G00 Z5
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G02** prowadzi narzędzie po **łuku okręgu** z aktualnego położenia do zadanego punktu, **zgodnie z ruchem wskazówek zegara**, z prędkością zadaną adresem F. Razem z **G03** tworzy parę funkcji nazywaną interpolacją kołową — to nią wykonuje się wszystkie zaokrąglenia, promienie i otwory frezowane z ruchu obrotowego.
 
-<Note kind="info">Ta karta opisuje obie funkcje. G02 i G03 działają identycznie i mają tę samą składnię — różni je wyłącznie kierunek obiegu łuku.</Note>
+<Note kind="info">
+  Ta karta opisuje obie funkcje. G02 i G03 działają identycznie i mają tę samą składnię — różni je wyłącznie kierunek obiegu łuku.
+</Note>
 
-## Jak sterownik ustala kierunek {#jak-sterownik-ustala-kierunek}
+## Jak sterownik ustala kierunek \{#jak-sterownik-ustala-kierunek}
 
-Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej osi do niej prostopadłej**. Dla płaszczyzny XY ([[G17]]) patrzysz z góry, wzdłuż osi Z w kierunku ujemnym — tak, jak stoisz przy frezarce i patrzysz na stół. Dla płaszczyzny ZX ([[G18]]), typowej dla tokarki, patrzysz od strony dodatniej osi Y, czyli od operatora.
+Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej osi do niej prostopadłej**. Dla płaszczyzny XY (\[\[G17]]) patrzysz z góry, wzdłuż osi Z w kierunku ujemnym — tak, jak stoisz przy frezarce i patrzysz na stół. Dla płaszczyzny ZX (\[\[G18]]), typowej dla tokarki, patrzysz od strony dodatniej osi Y, czyli od operatora.
 
-<Note kind="warn">Na tokarce nie ma reguły „wklęsłe = G02, wypukłe = G03”. Kierunek wynika z czterech rzeczy: **płaszczyzny** (tokarka — ZX, G18), **kierunku patrzenia** (od strony dodatniej osi Y — w praktyce rysunek programu z osią X w górę i Z w prawo, niezależnie od tego, czy głowica stoi przed osią, czy za nią), **punktu początkowego i końcowego** oraz **kierunku przejścia po konturze**. Ten sam łuk przejechany w drugą stronę zmienia G02 na G03. Przykład: zaokrąglenie R1 w narożu stopnia z Ø30 na Ø32, przechodzone od czoła w stronę uchwytu (od Z−39 do Z−40), to łuk zgodny z ruchem wskazówek zegara — G02. Przejście tego samego łuku od uchwytu w stronę czoła to G03.</Note>
+<Note kind="warn">
+  Na tokarce nie ma reguły „wklęsłe = G02, wypukłe = G03”. Kierunek wynika z czterech rzeczy: **płaszczyzny** (tokarka — ZX, G18), **kierunku patrzenia** (od strony dodatniej osi Y — w praktyce rysunek programu z osią X w górę i Z w prawo, niezależnie od tego, czy głowica stoi przed osią, czy za nią), **punktu początkowego i końcowego** oraz **kierunku przejścia po konturze**. Ten sam łuk przejechany w drugą stronę zmienia G02 na G03. Przykład: zaokrąglenie R1 w narożu stopnia z Ø30 na Ø32, przechodzone od czoła w stronę uchwytu (od Z−39 do Z−40), to łuk zgodny z ruchem wskazówek zegara — G02. Przejście tego samego łuku od uchwytu w stronę czoła to G03.
+</Note>
 
-## Trzy rzeczy, które trzeba podać {#trzy-rzeczy-które-trzeba-podać}
+## Trzy rzeczy, które trzeba podać \{#trzy-rzeczy-które-trzeba-podać}
 
 Łuk jest jednoznacznie opisany przez kierunek, punkt końcowy i środek. Punkt początkowy sterownik już zna — to miejsce, w którym narzędzie stoi. Środek podaje się na dwa sposoby: wektorem **I, J, K** albo promieniem **R**.
 
 <Code caption="Obie postacie są równoważne dla łuków do 180°; powyżej różnią się jednoznacznością.">
-```
-G02 X_ Y_ I_ J_ F_      (zapis wektorowy — środek względem punktu startu)
-G02 X_ Y_ R_ F_          (zapis promieniowy)
-```
+  ```
+  G02 X_ Y_ I_ J_ F_      (zapis wektorowy — środek względem punktu startu)
+  G02 X_ Y_ R_ F_          (zapis promieniowy)
+  ```
 </Code>
 
-| Adres | Znaczenie |
-|---|---|
-| X, Y, Z | Punkt końcowy łuku ([[G90]] — bezwzględnie, [[G91]] — przyrostowo) |
+| Adres   | Znaczenie                                                                                                                                   |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| X, Y, Z | Punkt końcowy łuku (\[\[G90]] — bezwzględnie, \[\[G91]] — przyrostowo)                                                                      |
 | I, J, K | Składowe **wektora od punktu początkowego łuku do jego środka**, odpowiednio wzdłuż X, Y i Z. Prawie zawsze przyrostowe, nawet w trybie G90 |
-| R | Promień łuku. Wartość dodatnia wybiera łuk krótszy (≤180°), ujemna — dłuższy (>180°) |
-| F | Posuw mierzony wzdłuż łuku |
+| R       | Promień łuku. Wartość dodatnia wybiera łuk krótszy (≤180°), ujemna — dłuższy (>180°)                                                        |
+| F       | Posuw mierzony wzdłuż łuku                                                                                                                  |
 
-<Note kind="warn">Adresy I, J, K liczy się od **punktu startu łuku**, a nie od zera detalu. To najczęstsza pomyłka u osób przepisujących wymiary wprost z rysunku, gdzie środek okręgu podany jest bezwzględnie.</Note>
+<Note kind="warn">
+  Adresy I, J, K liczy się od **punktu startu łuku**, a nie od zera detalu. To najczęstsza pomyłka u osób przepisujących wymiary wprost z rysunku, gdzie środek okręgu podany jest bezwzględnie.
+</Note>
 
-## Które litery w której płaszczyźnie {#które-litery-w-której-płaszczyźnie}
+## Które litery w której płaszczyźnie \{#które-litery-w-której-płaszczyźnie}
 
 <Table caption="Użycie litery spoza aktywnej płaszczyzny — na przykład J przy G18 — kończy się alarmem albo torem zupełnie innym niż zamierzony.">
-
-| Płaszczyzna | Osie ruchu | Adresy środka |
-|---|---|---|
-| **[[G17]]** — XY (frezowanie) | X, Y | I, J |
-| **[[G18]]** — ZX (toczenie) | X, Z | I, K |
-| **[[G19]]** — YZ | Y, Z | J, K |
-
+  | Płaszczyzna                     | Osie ruchu | Adresy środka |
+  | ------------------------------- | ---------- | ------------- |
+  | **\[\[G17]]** — XY (frezowanie) | X, Y       | I, J          |
+  | **\[\[G18]]** — ZX (toczenie)   | X, Z       | I, K          |
+  | **\[\[G19]]** — YZ              | Y, Z       | J, K          |
 </Table>
 
 <Diagram id="g02" />
 
-## Przykład 1 — zapis wektorowy I/J {#przykład-1-zapis-wektorowy-i-j}
+## Przykład 1 — zapis wektorowy I/J \{#przykład-1-zapis-wektorowy-i-j}
 
-<Demo title="G02 z wektorem I, J" caption="Narzędzie startuje w punkcie (20, 20) i kończy w (50, 50). Wektor I30 J0 prowadzi do środka w punkcie (50, 20) — stąd promień 30 mm. Zwróć uwagę na podpisy współrzędnych pojawiające się na torze.">
-```
-G21 G90 G17 G54
-S2200 M03
-G00 X20 Y20 Z2
-G01 Z-2 F120
-G02 X50 Y50 I30 J0 F350
-G00 Z10
-M30
-```
+<Demo mode="mill" title="G02 z wektorem I, J" caption="Narzędzie startuje w punkcie (20, 20) i kończy w (50, 50). Wektor I30 J0 prowadzi do środka w punkcie (50, 20) — stąd promień 30 mm. Zwróć uwagę na podpisy współrzędnych pojawiające się na torze.">
+  ```
+  G21 G90 G17 G54
+  S2200 M03
+  G00 X20 Y20 Z2
+  G01 Z-2 F120
+  G02 X50 Y50 I30 J0 F350
+  G00 Z10
+  M30
+  ```
 </Demo>
 
-## Przykład 2 — zapis promieniowy R {#przykład-2-zapis-promieniowy-r}
+## Przykład 2 — zapis promieniowy R \{#przykład-2-zapis-promieniowy-r}
 
-<Demo title="G02 z promieniem R" caption="Ten sam łuk zapisany krócej. Sterownik sam liczy środek, wybierając wariant krótszy niż półokrąg. Zapis czytelniejszy, ale ograniczony — dlaczego, wyjaśnia następny przykład.">
-```
-G21 G90 G17 G54
-S2200 M03
-G00 X20 Y20 Z2
-G01 Z-2 F120
-G02 X50 Y50 R30 F350
-G00 Z10
-M30
-```
+<Demo mode="mill" title="G02 z promieniem R" caption="Ten sam łuk zapisany krócej. Sterownik sam liczy środek, wybierając wariant krótszy niż półokrąg. Zapis czytelniejszy, ale ograniczony — dlaczego, wyjaśnia następny przykład.">
+  ```
+  G21 G90 G17 G54
+  S2200 M03
+  G00 X20 Y20 Z2
+  G01 Z-2 F120
+  G02 X50 Y50 R30 F350
+  G00 Z10
+  M30
+  ```
 </Demo>
 
-## Przykład 3 — łuk dłuższy niż 180° {#przykład-3-łuk-dłuższy-niż-180}
+## Przykład 3 — łuk dłuższy niż 180° \{#przykład-3-łuk-dłuższy-niż-180}
 
 Przez dwa punkty i zadany promień przechodzą **dwa różne łuki** w tym samym kierunku obiegu: krótszy i dłuższy. Znak przy R decyduje, który wybierze sterownik. W konwencji Fanuca i Sinumerika (programowanie promieniem: R, na Sinumeriku CR=) **dodatnie R** wybiera łuk do 180°, a **ujemne R** — **łuk większy niż 180°**.
 
-<Demo title="G02 z promieniem ujemnym" caption="Te same punkty, ten sam promień, znak przy R zmieniony na ujemny — narzędzie obiega detal drugą stroną. Porównaj z poprzednią animacją.">
-```
-G21 G90 G17 G54
-S2200 M03
-G00 X20 Y20 Z2
-G01 Z-2 F120
-G02 X50 Y50 R-30 F350
-G00 Z10
-M30
-```
+<Demo mode="mill" title="G02 z promieniem ujemnym" caption="Te same punkty, ten sam promień, znak przy R zmieniony na ujemny — narzędzie obiega detal drugą stroną. Porównaj z poprzednią animacją.">
+  ```
+  G21 G90 G17 G54
+  S2200 M03
+  G00 X20 Y20 Z2
+  G01 Z-2 F120
+  G02 X50 Y50 R-30 F350
+  G00 Z10
+  M30
+  ```
 </Demo>
 
-## Przykład 4 — pełny okrąg {#przykład-4-pełny-okrąg}
+## Przykład 4 — pełny okrąg \{#przykład-4-pełny-okrąg}
 
 Gdy punkt początkowy pokrywa się z końcowym, promień przestaje wystarczać: takich okręgów jest nieskończenie wiele. Dlatego **pełnego okręgu nie definiuje się samym R** — przy programowaniu promieniem trzeba przejść na zapis środka I/J/K, pomijając współrzędne końcowe.
 
-<Demo title="Pełny okrąg jednym blokiem" caption="Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś. Pierwsze dwa okręgi o promieniu 20 mm wykonują dwa przejścia na różnych głębokościach, trzeci o promieniu 12 mm pokazuje ten sam zapis w innym miejscu detalu.">
-```
-G21 G90 G17 G54
-S2400 M03
-G00 X30 Y30 Z5
-G01 Z-2 F120
-G02 I20 J0 F320
-G01 Z-4 F120
-G02 I20 J0 F320
-G00 X30 Y30 Z5
-G00 X70 Y30
-G01 Z-2 F120
-G02 I12 J0 F320
-G00 Z10
-M30
-```
+<Demo mode="mill" title="Pełny okrąg jednym blokiem" caption="Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś. Pierwsze dwa okręgi o promieniu 20 mm wykonują dwa przejścia na różnych głębokościach, trzeci o promieniu 12 mm pokazuje ten sam zapis w innym miejscu detalu.">
+  ```
+  G21 G90 G17 G54
+  S2400 M03
+  G00 X30 Y30 Z5
+  G01 Z-2 F120
+  G02 I20 J0 F320
+  G01 Z-4 F120
+  G02 I20 J0 F320
+  G00 X30 Y30 Z5
+  G00 X70 Y30
+  G01 Z-2 F120
+  G02 I12 J0 F320
+  G00 Z10
+  M30
+  ```
 </Demo>
 
-## Kalkulator zamiany R ↔ I, J {#kalkulator-zamiany-r-i-j}
+## Kalkulator zamiany R ↔ I, J \{#kalkulator-zamiany-r-i-j}
 
 Wpisz punkty i promień, a zobaczysz gotowe I, J wraz z geometrią łuku: położenie środka, kąt rozwarcia, długość łuku, cięciwę i strzałkę. Kalkulator ostrzega też, gdy zadany promień jest za mały, żeby łuk w ogóle istniał.
 
 <Widget id="arc" />
 
-## Skąd biorą się te wzory {#skąd-biorą-się-te-wzory}
+## Skąd biorą się te wzory \{#skąd-biorą-się-te-wzory}
 
 Mając punkt startu (X₁, Y₁), punkt końcowy (X₂, Y₂) i promień R, środek wyznacza się w trzech krokach:
 
@@ -180,58 +192,60 @@ Mając punkt startu (X₁, Y₁), punkt końcowy (X₂, Y₂) i promień R, śro
 
 Warto znać jeszcze dwie wielkości, bo pojawiają się przy dobieraniu narzędzia: **kąt rozwarcia** łuku i **strzałkę**, czyli największą odległość łuku od cięciwy. Strzałka mówi, ile materiału zostaje w narożniku, jeśli zamiast łuku wykonasz prosty odcinek.
 
-## Interpolacja śrubowa {#interpolacja-śrubowa}
+## Interpolacja śrubowa \{#interpolacja-śrubowa}
 
 Jeżeli oprócz łuku w płaszczyźnie roboczej podasz również przesunięcie w osi prostopadłej, sterownik wykona **ruch po helisie** — łuk z jednoczesnym zagłębianiem. Technika stosowana przy:
 
-- **łagodnym wejściu w materiał** zamiast zagłębiania pionowego — narzędzie stopniowo nabiera głębokości po okręgu,
-- **frezowaniu gwintów** frezem do gwintów: jeden pełny obrót z przesunięciem w Z równym skokowi,
-- **wytaczaniu otworów** frezem o średnicy mniejszej niż otwór.
+* **łagodnym wejściu w materiał** zamiast zagłębiania pionowego — narzędzie stopniowo nabiera głębokości po okręgu,
+* **frezowaniu gwintów** frezem do gwintów: jeden pełny obrót z przesunięciem w Z równym skokowi,
+* **wytaczaniu otworów** frezem o średnicy mniejszej niż otwór.
 
 <Diagram id="helix-z" />
 
-<Demo title="Wejście po helisie" caption="Trzy pełne obroty, każdy o 2 mm głębiej. W rzucie z góry widać okrąg — włącz widok 3D w symulatorze, żeby zobaczyć powstający rowek kołowy.">
-```
-G21 G90 G17 G54
-S3000 M03
-G00 X10 Y30 Z2
-G01 Z0 F150
-G02 X10 Y30 Z-2 I20 J0 F300
-G02 X10 Y30 Z-4 I20 J0
-G02 X10 Y30 Z-6 I20 J0
-G00 Z10
-M30
-```
+<Demo mode="mill" title="Wejście po helisie" caption="Trzy pełne obroty, każdy o 2 mm głębiej. W rzucie z góry widać okrąg — włącz widok 3D w symulatorze, żeby zobaczyć powstający rowek kołowy.">
+  ```
+  G21 G90 G17 G54
+  S3000 M03
+  G00 X10 Y30 Z2
+  G01 Z0 F150
+  G02 X10 Y30 Z-2 I20 J0 F300
+  G02 X10 Y30 Z-4 I20 J0
+  G02 X10 Y30 Z-6 I20 J0
+  G00 Z10
+  M30
+  ```
 </Demo>
 
-## Wskazówki technologiczne {#wskazówki-technologiczne}
+## Wskazówki technologiczne \{#wskazówki-technologiczne}
 
-- **Zaokrąglaj naroża konturu.** Ostry zwrot o 90° oznacza chwilowe zatrzymanie osi i skok obciążenia. Łuk o promieniu choćby 2 mm daje płynny ruch, lepszą powierzchnię i dłuższą żywotność ostrza.
-- **Wchodź w materiał po łuku.** Wejście styczne zamiast prostopadłego dojazdu eliminuje ślad na powierzchni obrobionej.
-- **Uważaj na luzy przy ćwiartkach.** Pełny okrąg wymaga czterech zmian kierunku osi; każdy luz w śrubie odwzorowuje się jako widoczny uskok. To klasyczny test dokładności maszyny.
-- **Sprawdź promień narzędzia przy łukach wewnętrznych.** Łuk wklęsły o promieniu mniejszym niż promień freza jest fizycznie niewykonalny — z aktywną [[kompensacja promienia|kompensacją]] skończy się alarmem, bez niej podcięciem konturu.
-- **Posuw na łuku wewnętrznym jest efektywnie większy.** Przy zaokrągleniu wklęsłym środek narzędzia pokonuje krótszą drogę niż jego krawędź, więc rzeczywista grubość wióra rośnie. Przy małych promieniach warto zejść z posuwem.
+* **Zaokrąglaj naroża konturu.** Ostry zwrot o 90° oznacza chwilowe zatrzymanie osi i skok obciążenia. Łuk o promieniu choćby 2 mm daje płynny ruch, lepszą powierzchnię i dłuższą żywotność ostrza.
+* **Wchodź w materiał po łuku.** Wejście styczne zamiast prostopadłego dojazdu eliminuje ślad na powierzchni obrobionej.
+* **Uważaj na luzy przy ćwiartkach.** Pełny okrąg wymaga czterech zmian kierunku osi; każdy luz w śrubie odwzorowuje się jako widoczny uskok. To klasyczny test dokładności maszyny.
+* **Sprawdź promień narzędzia przy łukach wewnętrznych.** Łuk wklęsły o promieniu mniejszym niż promień freza jest fizycznie niewykonalny — z aktywną \[\[kompensacja promienia|kompensacją]] skończy się alarmem, bez niej podcięciem konturu.
+* **Posuw na łuku wewnętrznym jest efektywnie większy.** Przy zaokrągleniu wklęsłym środek narzędzia pokonuje krótszą drogę niż jego krawędź, więc rzeczywista grubość wióra rośnie. Przy małych promieniach warto zejść z posuwem.
 
-## Różnice między sterownikami {#różnice-między-sterownikami}
+## Różnice między sterownikami \{#różnice-między-sterownikami}
 
-| Zagadnienie | Fanuc | Sinumerik | Heidenhain |
-|---|---|---|---|
-| Kod | `G02` / `G03` | `G2` / `G3` | `C` z `DR+` albo `DR-` |
-| Promień | `R` | `CR=` | `CR` |
-| Środek | I, J, K przyrostowo | I, J, K przyrostowo; `AC()` wymusza bezwzględnie | `CC X.. Y..` jako osobny blok |
-| Pełny okrąg | tylko I/J/K | tylko I/J/K | `CC` + `C` z tym samym punktem |
-| Łuk przez punkt pośredni | brak | `CIP` z `I1= J1=` | brak |
-| Łuk przez kąt rozwarcia | brak | `AR=` | brak |
-| Zaokrąglenie naroża | `R` w bloku G01 (część sterowników) | `RND=` | `RND` |
+| Zagadnienie              | Fanuc                               | Sinumerik                                        | Heidenhain                     |
+| ------------------------ | ----------------------------------- | ------------------------------------------------ | ------------------------------ |
+| Kod                      | `G02` / `G03`                       | `G2` / `G3`                                      | `C` z `DR+` albo `DR-`         |
+| Promień                  | `R`                                 | `CR=`                                            | `CR`                           |
+| Środek                   | I, J, K przyrostowo                 | I, J, K przyrostowo; `AC()` wymusza bezwzględnie | `CC X.. Y..` jako osobny blok  |
+| Pełny okrąg              | tylko I/J/K                         | tylko I/J/K                                      | `CC` + `C` z tym samym punktem |
+| Łuk przez punkt pośredni | brak                                | `CIP` z `I1= J1=`                                | brak                           |
+| Łuk przez kąt rozwarcia  | brak                                | `AR=`                                            | brak                           |
+| Zaokrąglenie naroża      | `R` w bloku G01 (część sterowników) | `RND=`                                           | `RND`                          |
 
-<Note kind="warn">Jeżeli w jednym bloku podasz **jednocześnie R oraz I/J**, większość sterowników przyjmie R i po cichu zignoruje I/J. To bywa powodem zagadkowych rozbieżności między symulacją a maszyną.</Note>
+<Note kind="warn">
+  Jeżeli w jednym bloku podasz **jednocześnie R oraz I/J**, większość sterowników przyjmie R i po cichu zignoruje I/J. To bywa powodem zagadkowych rozbieżności między symulacją a maszyną.
+</Note>
 
-## Typowe błędy {#typowe-błędy}
+## Typowe błędy \{#typowe-błędy}
 
-- **I/J liczone od zera detalu zamiast od startu łuku** — tor odjeżdża w zupełnie inne miejsce.
-- **Próba pełnego okręgu przez R** — alarm albo brak ruchu.
-- **Zły znak przy R** — zamiast małego zaokrąglenia powstaje prawie pełne koło.
-- **Litera środka niezgodna z płaszczyzną** — J przy G18 albo K przy G17.
-- **Włączenie [[G41]] lub [[G42]] w bloku z łukiem** — kompensację można uruchomić tylko w ruchu prostoliniowym.
-- **Promień mniejszy niż połowa cięciwy** — łuk geometrycznie nie istnieje, sterownik zgłasza błąd.
-- **Zaokrąglenie wewnętrzne mniejsze od promienia freza** — narzędzie fizycznie nie wejdzie w naroże.
+* **I/J liczone od zera detalu zamiast od startu łuku** — tor odjeżdża w zupełnie inne miejsce.
+* **Próba pełnego okręgu przez R** — alarm albo brak ruchu.
+* **Zły znak przy R** — zamiast małego zaokrąglenia powstaje prawie pełne koło.
+* **Litera środka niezgodna z płaszczyzną** — J przy G18 albo K przy G17.
+* **Włączenie \[\[G41]] lub \[\[G42]] w bloku z łukiem** — kompensację można uruchomić tylko w ruchu prostoliniowym.
+* **Promień mniejszy niż połowa cięciwy** — łuk geometrycznie nie istnieje, sterownik zgłasza błąd.
+* **Zaokrąglenie wewnętrzne mniejsze od promienia freza** — narzędzie fizycznie nie wejdzie w naroże.

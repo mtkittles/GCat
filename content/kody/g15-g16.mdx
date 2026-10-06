@@ -13,14 +13,20 @@ related:
   - g81-g83
   - g68-g69
   - g17-g19
-variesBy: null
-short: Po G16 pierwsza oś płaszczyzny to promień, druga to kąt. G15 wraca do zwykłych współrzędnych.
-desc: |-
-  W **G17** po **G16** adres **X** oznacza promień, a **Y** kąt w stopniach, liczony od osi +X przeciwnie do ruchu wskazówek zegara.
+short: >-
+  Po G16 pierwsza oś płaszczyzny to promień, druga to kąt. G15 wraca do zwykłych
+  współrzędnych.
+desc: >-
+  W **G17** po **G16** adres **X** oznacza promień, a **Y** kąt w stopniach,
+  liczony od osi +X przeciwnie do ruchu wskazówek zegara.
 
-  Biegunem jest zero układu współrzędnych, jeśli G16 stoi w bloku z **G90**, albo bieżąca pozycja narzędzia przy **G91**.
 
-  Najczęstsze zastosowanie to otwory na okręgu podziałowym: cykl **G81** i kolejne bloki z samym kątem Y.
+  Biegunem jest zero układu współrzędnych, jeśli G16 stoi w bloku z **G90**,
+  albo bieżąca pozycja narzędzia przy **G91**.
+
+
+  Najczęstsze zastosowanie to otwory na okręgu podziałowym: cykl **G81** i
+  kolejne bloki z samym kątem Y.
 syntax:
   fanuc: |-
     G17 G90 G16
@@ -29,15 +35,22 @@ syntax:
   sinumerik: |-
     G111 X_ Y_   ; biegun
     G1 RP=_ AP=_
-sinumerik: Biegun ustawia **G110** (względem ostatniej pozycji), **G111** (względem zera) albo **G112** (względem poprzedniego bieguna). Promień to **RP=**, kąt **AP=**.
+sinumerik: >-
+  Biegun ustawia **G110** (względem ostatniej pozycji), **G111** (względem zera)
+  albo **G112** (względem poprzedniego bieguna). Promień to **RP=**, kąt
+  **AP=**.
 params:
   - key: X
     desc: promień (w G17)
-  - key: Y
+  - key: 'Y'
     desc: kąt [°] od osi +X, dodatni przeciwnie do ruchu wskazówek zegara
 pitfalls:
-  - "Brak G15 po cyklu: następny blok X50 Y0 zostanie odczytany jako promień i kąt."
-  - Biegun zależy od G90/G91 w bloku z G16 — sprawdź, gdzie stoi narzędzie przed włączeniem.
+  - >-
+    Brak G15 po cyklu: następny blok X50 Y0 zostanie odczytany jako promień i
+    kąt.
+  - >-
+    Biegun zależy od G90/G91 w bloku z G16 — sprawdź, gdzie stoi narzędzie przed
+    włączeniem.
 example:
   src: |-
     G21 G90 G17 G54
@@ -56,6 +69,8 @@ example:
     G00 Z50
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-

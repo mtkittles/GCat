@@ -10,9 +10,14 @@ machines:
   - toczenie
 star: false
 related: []
-variesBy: null
-short: "Ruch zsynchronizowany z obrotami: jedna nitka gwintu na przejście. G76 robi to samo wielokrotnie."
-desc: G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na obrót, startując zawsze od tego samego położenia kątowego wrzeciona — dzięki temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz sam w każdym przejściu.
+short: >-
+  Ruch zsynchronizowany z obrotami: jedna nitka gwintu na przejście. G76 robi to
+  samo wielokrotnie.
+desc: >-
+  G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na
+  obrót, startując zawsze od tego samego położenia kątowego wrzeciona — dzięki
+  temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz sam w
+  każdym przejściu.
 syntax:
   fanuc: |-
     G00 X23.2
@@ -22,7 +27,7 @@ syntax:
     G00 X22.8
     G32 Z-25 F1.5 ...
   sinumerik: G33 Z-25 K1.5
-sinumerik: "G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97."
+sinumerik: 'G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97.'
 params:
   - key: F / K
     desc: Skok gwintu
@@ -50,69 +55,73 @@ example:
     Z3.
     M30
   simulate: true
-  stock: null
+  mode: ''
+  dialect: ''
+  stock:
+    discriminant: false
 ---
-
 **G33** (na części sterowników Fanuc **G32**) wykonuje **jedno przejście gwintu**, prowadząc narzędzie ze skokiem zsynchronizowanym z obrotami wrzeciona. Podział na przejścia i dobór głębokości należą do programisty — w odróżnieniu od cyklu G76, który robi to sam.
 
-## Na czym polega synchronizacja {#na-czym-polega-synchronizacja}
+## Na czym polega synchronizacja \{#na-czym-polega-synchronizacja}
 
 Sterownik odczytuje sygnał z enkodera wrzeciona i startuje ruch osi zawsze **w tym samym położeniu kątowym**. Dzięki temu kolejne przejścia trafiają dokładnie w tę samą nitkę. Gdyby start nie był zsynchronizowany, każde przejście nacinałoby gwint w innym miejscu obwodu.
 
-<Note kind="warn">Z tego samego powodu gwintowanie musi odbywać się przy **G97** — stałych obrotach. Przy G96 obroty zmieniają się wraz ze średnicą, a wraz z nimi rzeczywisty skok.</Note>
+<Note kind="warn">
+  Z tego samego powodu gwintowanie musi odbywać się przy **G97** — stałych obrotach. Przy G96 obroty zmieniają się wraz ze średnicą, a wraz z nimi rzeczywisty skok.
+</Note>
 
-## Rozbieg i wybieg {#rozbieg-i-wybieg}
+## Rozbieg i wybieg \{#rozbieg-i-wybieg}
 
 Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Zasada: **rozbieg ≥ 2 × skok**, przy dużych skokach i obrotach nawet 4 × skok. Bez tego pierwsze zwoje mają zaniżony skok i są zniekształcone. Analogicznie na końcu potrzebny jest wybieg albo rowek podcięcia.
 
-## Składnia {#składnia}
+## Składnia \{#składnia}
 
 <Code caption="Jedno przejście. Pełny gwint wymaga powtórzenia tego bloku z coraz mniejszą średnicą X.">
-```
-; Fanuc
-G00 X23.2 Z5
-G32 Z-25 F1.5
-G00 X30
-G00 Z5
+  ```
+  ; Fanuc
+  G00 X23.2 Z5
+  G32 Z-25 F1.5
+  G00 X30
+  G00 Z5
 
-; Sinumerik
-G0 X23.2 Z5
-G33 Z-25 K1.5
-G0 X30
-G0 Z5
-```
+  ; Sinumerik
+  G0 X23.2 Z5
+  G33 Z-25 K1.5
+  G0 X30
+  G0 Z5
+  ```
 </Code>
 
 <Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm.">
-```
-G18 G21 G40 G99
-G97 S700 M03
-G00 X26 Z6
-G00 X23.2
-G01 Z-25 F1.5
-G00 X30
-G00 Z6
-G00 X22.6
-G01 Z-25 F1.5
-G00 X30
-G00 Z6
-G00 X22.1
-G01 Z-25 F1.5
-G00 X30
-G00 Z6
-G00 X21.8
-G01 Z-25 F1.5
-G00 X30
-G00 Z6
-M30
-```
+  ```
+  G18 G21 G40 G99
+  G97 S700 M03
+  G00 X26 Z6
+  G00 X23.2
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z6
+  G00 X22.6
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z6
+  G00 X22.1
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z6
+  G00 X21.8
+  G01 Z-25 F1.5
+  G00 X30
+  G00 Z6
+  M30
+  ```
 </Sim>
 
-## G33 kontra G76 {#g33-kontra-g76}
+## G33 kontra G76 \{#g33-kontra-g76}
 
-|  | G33 / G32 | G76 |
-|---|---|---|
-| Podział na przejścia | Ręczny | Automatyczny |
-| Kontrola nad każdym przejściem | Pełna | Ograniczona parametrami |
-| Długość zapisu | Kilka bloków na przejście | Dwa bloki na cały gwint |
-| Zastosowanie | Gwinty nietypowe, wielozwojne, naprawcze | Standardowe gwinty produkcyjne |
+|                                | G33 / G32                                | G76                            |
+| ------------------------------ | ---------------------------------------- | ------------------------------ |
+| Podział na przejścia           | Ręczny                                   | Automatyczny                   |
+| Kontrola nad każdym przejściem | Pełna                                    | Ograniczona parametrami        |
+| Długość zapisu                 | Kilka bloków na przejście                | Dwa bloki na cały gwint        |
+| Zastosowanie                   | Gwinty nietypowe, wielozwojne, naprawcze | Standardowe gwinty produkcyjne |

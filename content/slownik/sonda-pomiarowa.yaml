@@ -5,6 +5,10 @@ aliases:
   - sonda
   - probe
   - sonda dotykowa
-def: Narzędzie z przełącznikiem, które wysyła sygnał w chwili dotknięcia detalu. Ruch pomiarowy G31 zatrzymuje się na tym sygnale i zapisuje pozycję w zmiennych systemowych, z których makro liczy przesunięcie bazy albo wymiar.
+def: >-
+  Narzędzie z przełącznikiem, które wysyła sygnał w chwili dotknięcia detalu.
+  Ruch pomiarowy G31 zatrzymuje się na tym sygnale i zapisuje pozycję w
+  zmiennych systemowych, z których makro liczy przesunięcie bazy albo wymiar.
 see:
   - g31
+diagram: ''

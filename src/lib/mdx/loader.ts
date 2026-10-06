@@ -141,7 +141,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     const data = readYaml(file, hasloSchema);
     if (!data) continue;
     if (data.anchor !== f.slice(0, -5)) fail(file, [{ message: `anchor „${data.anchor}” ≠ nazwa pliku „${f}”` }]);
-    if (data.diagram && !diagramIds.has(data.diagram)) fail(file, [{ message: `diagram „${data.diagram}” — nie ma takiego rysunku w diagrams.tsx` }]);
+    if (data.diagram !== "" && !diagramIds.has(data.diagram)) fail(file, [{ message: `diagram „${data.diagram}” — nie ma takiego rysunku w diagrams.tsx` }]);
     out.slownik.push({ file: rel(file), data });
   }
   out.slownik.sort((x, y) => x.data.order - y.data.order);

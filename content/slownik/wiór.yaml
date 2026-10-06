@@ -4,6 +4,10 @@ order: 720
 aliases:
   - odprowadzenie wióra
   - łamanie wióra
-def: "Materiał usunięty przez ostrze. Jego kształt i odprowadzenie decydują o powodzeniu obróbki: wiór długi owija się wokół narzędzia, wiór zakleszczony w otworze łamie wiertło. Stąd cykle G83 i G73 z wycofaniem."
+def: >-
+  Materiał usunięty przez ostrze. Jego kształt i odprowadzenie decydują o
+  powodzeniu obróbki: wiór długi owija się wokół narzędzia, wiór zakleszczony w
+  otworze łamie wiertło. Stąd cykle G83 i G73 z wycofaniem.
 see:
   - g81-g83
+diagram: ''

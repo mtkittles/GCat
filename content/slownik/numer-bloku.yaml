@@ -2,8 +2,12 @@ term: Numer bloku
 anchor: numer-bloku
 order: 380
 aliases:
-  - N
+  - 'N'
   - numeracja bloków
-def: Opcjonalny adres N na początku bloku. Nie wpływa na wykonanie — służy do szukania miejsca w programie, wznawiania pracy i jako odniesienie w cyklach (P i Q w G71/G70 wskazują numery N początku i końca konturu).
+def: >-
+  Opcjonalny adres N na początku bloku. Nie wpływa na wykonanie — służy do
+  szukania miejsca w programie, wznawiania pracy i jako odniesienie w cyklach (P
+  i Q w G71/G70 wskazują numery N początku i końca konturu).
 see:
   - g71-g70
+diagram: ''
