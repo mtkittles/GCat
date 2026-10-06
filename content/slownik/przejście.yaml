@@ -1,0 +1,10 @@
+term: Przejście
+anchor: przejście
+order: 570
+aliases:
+  - przejazd roboczy
+  - pass
+def: Jeden ruch narzędzia przez materiał, np. jedna warstwa kieszeni albo jedno zagłębienie gwintu w G76. Liczba przejść wynika z naddatku podzielonego przez głębokość skrawania ap.
+see:
+  - g76
+  - g71-g70

@@ -1,0 +1,49 @@
+---
+code: G22 G23
+slug: g22-g23
+name: Strefy zabronione
+order: 110
+group: Pomocnicze
+level: 3
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g52-g53
+  - g28
+  - g27-g30
+variesBy: null
+short: G22 włącza obszar zapisany w programie, do którego narzędzie nie może wjechać. G23 wyłącza tę kontrolę.
+desc: |-
+  **G22 X_ Y_ Z_ I_ J_ K_** definiuje prostopadłościan przez dwa przeciwległe naroża. Sterowanie zatrzymuje ruch z alarmem, zanim punkt narzędzia wejdzie do środka (albo wyjdzie na zewnątrz — zależnie od parametru).
+
+  Chroni uchwyt, konik, podzielnicę. Współrzędne podaje się w układzie maszyny. **G23** wyłącza kontrolę tej strefy; granice programowe ustawione w parametrach działają zawsze.
+syntax:
+  fanuc: |-
+    G22 X_ Y_ Z_ I_ J_ K_
+    G23
+  sinumerik: |-
+    G25 X_ Y_ Z_   ; dolna granica
+    G26 X_ Y_ Z_   ; górna granica
+    WALIMON / WALIMOF
+sinumerik: "Obszar roboczy ograniczają **G25** (dolna granica) i **G26** (górna), kontrolę włącza **WALIMON**, wyłącza **WALIMOF**. Uwaga: G25/G26 z adresem S ograniczają obroty wrzeciona."
+params:
+  - key: X Y Z
+    desc: pierwsze naroże strefy (układ maszyny)
+  - key: I J K
+    desc: drugie naroże strefy
+pitfalls:
+  - Współrzędne strefy są w układzie maszyny, nie w G54.
+  - Sprawdzany jest punkt odniesienia narzędzia, nie jego obrys. Zostaw zapas na średnicę i wysięg.
+example:
+  src: |-
+    G22 X-400.0 Y-300.0 Z-200.0 I-250.0 J-150.0 K0 (uchwyt)
+    (... obrobka ...)
+    G23
+    M30
+  simulate: false
+  stock: null
+---
+

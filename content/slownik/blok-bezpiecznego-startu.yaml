@@ -1,0 +1,10 @@
+term: Blok bezpiecznego startu
+anchor: blok-bezpiecznego-startu
+order: 70
+aliases:
+  - safe start
+  - bezpieczny start
+def: "Blok kasujący wszystkie funkcje modalne pozostawione przez poprzednią pracę: G00 G90 G17 G54 G40 G49 G80. Powtarzany po każdej wymianie narzędzia. Bez niego program dziedziczy stan, którego nie kontrolujesz."
+see:
+  - g40-g42
+  - g81-g83

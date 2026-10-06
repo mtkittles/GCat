@@ -1,25 +1,26 @@
-import { glossary, type GlossaryEntry } from "@/lib/content";
-import { gcodes, type GCode } from "@/lib/gcodes";
-
 /*
   Rozwiązywanie markerów [[klucz]] przy kompilacji MDX — ta sama kolejność co lookup() w ui/Term.tsx:
-  najpierw karta kodu, potem hasło słownika. Term.tsx (komponent współdzielony) zostaje bez zmian
-  i sam rozwiązuje klucz w przeglądarce; tutaj sprawdzamy tylko, że klucz istnieje (inaczej błąd builda).
+  najpierw karta kodu, potem hasło słownika (w kolejności `order`). Źródła pochodzą z content/
+  (loader buduje je z wczytanych plików), więc moduł nie importuje danych strony.
 */
 
 export type Resolved = { kind: "kod"; slug: string } | { kind: "pojęcie"; anchor: string };
 
 export interface TermSources {
-  gcodes: Pick<GCode, "code" | "slug">[];
-  glossary: Pick<GlossaryEntry, "term" | "aliases">[];
+  gcodes: { code: string; slug: string }[];
+  glossary: { term: string; aliases: string[] }[];
 }
 
-export const liveSources: TermSources = { gcodes, glossary };
+/** Źródła z treści (karty i hasła posortowane po `order`). */
+export function sourcesFrom(kody: { code: string; slug: string; order: number }[], slownik: { term: string; aliases: string[]; order: number }[]): TermSources {
+  const byOrder = <T extends { order: number }>(a: T[]) => [...a].sort((x, y) => x.order - y.order);
+  return { gcodes: byOrder(kody), glossary: byOrder(slownik) };
+}
 
 /** Kotwica hasła liczona dziś z tekstu (`/slownik#…`). W content/slownik jest zapisana jawnie w polu `anchor`. */
 export const glossaryAnchor = (term: string) => term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-");
 
-export function resolveKey(key: string, src: TermSources = liveSources): Resolved | null {
+export function resolveKey(key: string, src: TermSources): Resolved | null {
   const k = key.trim().toLowerCase();
   const code = src.gcodes.find((g) =>
     g.code.toLowerCase() === k ||
@@ -35,7 +36,7 @@ export function resolveKey(key: string, src: TermSources = liveSources): Resolve
 }
 
 /** Kody G/M, które mają kartę — jak KNOWN w CodeText.tsx (auto-linki w kartach). */
-export function knownCodes(src: Pick<TermSources, "gcodes"> = liveSources): Set<string> {
+export function knownCodes(src: Pick<TermSources, "gcodes">): Set<string> {
   const out = new Set<string>();
   for (const g of src.gcodes) for (const c of g.code.toUpperCase().split(/[\s/–-]+/)) if (/^[GM]\d/.test(c)) out.add(c);
   return out;

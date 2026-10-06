@@ -1,0 +1,73 @@
+---
+code: G72
+slug: g72
+name: Cykl zgrubny planowania (tokarka)
+order: 250
+group: Cykle
+level: 3
+modal: false
+machines:
+  - toczenie
+star: false
+related:
+  - g71-g70
+  - g50
+  - g96-g97
+variesBy: null
+short: Zgrubne toczenie konturu przejściami poprzecznymi, wzdłuż osi X. Jak G71, ale dla detali krótkich i szerokich.
+desc: |-
+  **G72 W_ R_** ustala głębokość skrawania w Z i cofnięcie. Drugi blok **G72 P_ Q_ U_ W_ F_** wskazuje numery bloków N początku (P) i końca (Q) konturu oraz naddatki na wykończenie w X (U, na średnicy) i Z (W).
+
+  Nóż zbiera materiał warstwami równoległymi do czoła. Po zgrubieniu kontur wykańcza **G70 P_ Q_**.
+
+  Wybierz G72, gdy materiału jest więcej w osi Z niż w X — tarcze, kołnierze, krótkie czopy.
+syntax:
+  fanuc: |-
+    G72 W_ R_
+    G72 P_ Q_ U_ W_ F_
+    N_ G00 Z_ …
+    …
+    N_ …
+    G70 P_ Q_
+  sinumerik: |-
+    CYCLE95(…)    ; obróbka poprzeczna
+    CYCLE952(…)   ; nowsze sterowania
+sinumerik: Toczenie zgrubne konturu wykonuje **CYCLE95** (starsze) albo **CYCLE952** (nowsze) z wyborem obróbki poprzecznej.
+params:
+  - key: W (1. blok)
+    desc: głębokość skrawania w Z
+  - key: R
+    desc: cofnięcie po przejściu
+  - key: P / Q
+    desc: numery N pierwszego i ostatniego bloku konturu
+  - key: U
+    desc: naddatek w X (na średnicy)
+  - key: W (2. blok)
+    desc: naddatek w Z
+  - key: F
+    desc: posuw zgrubny
+pitfalls:
+  - Pierwszy blok konturu (N z adresu P) może mieć ruch tylko w osi Z — dopisane X daje alarm.
+  - "Kontur musi być monotoniczny: bez podcięć i zmian kierunku w osi Z."
+example:
+  src: |-
+    G21 G18 G54
+    T0101
+    G50 S2500
+    G96 S180 M03
+    G00 X82.0 Z2.0
+    G72 W2.0 R0.5
+    G72 P10 Q20 U0.4 W0.2 F0.25
+    N10 G00 Z-12.0
+    G01 X60.0 F0.12
+    Z-8.0
+    X30.0 Z-4.0
+    Z0.0
+    N20 X0.0
+    G70 P10 Q20
+    G00 X100.0 Z100.0
+    M30
+  simulate: false
+  stock: null
+---
+

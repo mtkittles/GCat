@@ -1,0 +1,160 @@
+---
+code: G80 G81 G83
+slug: g81-g83
+name: Cykle wiercenia
+order: 310
+group: Cykle
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g73
+  - g82
+  - g98-g99
+  - g84
+  - g85-g86
+variesBy: null
+short: G81 wiercenie proste, G83 wiercenie z wycofaniem wiórów, G80 anuluje.
+desc: "Cykl stały wykonuje w jednym bloku: dojazd, wiercenie na Z, wycofanie do R (G99) lub do punktu początkowego (G98). Kolejne bloki z samymi X Y powtarzają cykl w nowych punktach. G83 dodatkowo wycofuje wiertło co Q milimetrów, żeby wyrzucić wióry."
+syntax:
+  fanuc: |-
+    G99 G81 X_ Y_ Z_ R_ F_
+    G99 G83 X_ Y_ Z_ R_ Q_ F_
+    G80
+  sinumerik: |-
+    CYCLE81(RTP, RFP, SDIS, DP)
+    CYCLE83(...)
+sinumerik: Zamiast G81/G83 są cykle CYCLE81, CYCLE83 z parametrami w nawiasie i MCALL do powtarzania w kolejnych punktach.
+params:
+  - key: Z
+    desc: Dno otworu
+  - key: R
+    desc: Płaszczyzna bezpieczna (start posuwu)
+  - key: Q
+    desc: Głębokość jednego zagłębienia (G83)
+  - key: F
+    desc: Posuw
+pitfalls:
+  - Zapomniane G80 → następny ruch X Y też wywierci otwór.
+  - "G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w zacisk."
+example:
+  src: |-
+    G21 G90 G17 G54
+    T01 M06
+    G43 H01 Z50.
+    S2000 M03
+    G00 X10 Y10 Z10
+    G99 G81 X10 Y10 Z-15 R2 F100
+    X40
+    Y30
+    G80
+    G00 Z10
+    M30
+  simulate: true
+  stock: null
+---
+
+**Cykle stałe** zastępują kilkanaście bloków jednym. Zamiast pisać dojazd, zagłębienie, wycofanie i przejazd dla każdego otworu z osobna, definiujesz cykl raz, a potem podajesz same współrzędne kolejnych otworów. Sterownik powtarza w nich całą sekwencję.
+
+## Anatomia cyklu wiercenia {#anatomia-cyklu-wiercenia}
+
+1. Szybki przejazd do punktu X, Y.
+2. Szybki zjazd do **płaszczyzny R** — poziomu, od którego zaczyna się posuw roboczy, typowo 2–5 mm nad materiałem.
+3. Wiercenie z posuwem F do współrzędnej **Z** (dno otworu).
+4. Ewentualny postój na dnie albo wycofania z odprowadzeniem wióra.
+5. Powrót do płaszczyzny R (**G99**) albo do punktu początkowego (**G98**).
+
+<Diagram id="g81-g83" />
+
+## Najważniejsze cykle {#najważniejsze-cykle}
+
+| Kod | Cykl | Kiedy stosować |
+|---|---|---|
+| **G81** | Wiercenie proste — w dół i z powrotem | Otwory płytkie, do 3× średnicy |
+| **G82** | Wiercenie z postojem na dnie (adres P) | Nawiercanie, pogłębianie czołowe — postój wygładza dno |
+| **G83** | Wiercenie głębokie z **pełnym wycofaniem** co Q | Otwory powyżej 3× średnicy, materiały z długim wiórem |
+| **G73** | Wiercenie głębokie z **krótkim wycofaniem** | Szybsze niż G83, ale gorzej usuwa wiór |
+| **G84** | Gwintowanie gwintownikiem | Posuw sprzężony z obrotami |
+| **G85** | Wytaczanie z wyjściem na posuwie | Otwory dokładne — brak śladu przy wyjściu |
+| **G80** | Anulowanie cyklu | Obowiązkowe po ostatnim otworze |
+
+## Składnia {#składnia}
+
+<Code caption="Cztery otwory w pięciu blokach. Bez cyklu wymagałoby to około dwudziestu.">
+```
+G99 G81 X20 Y20 Z-15 R2 F120     (pierwszy otwór — cykl zdefiniowany i wykonany)
+X50                              (drugi otwór, te same parametry)
+X50 Y50                          (trzeci)
+X20 Y50                          (czwarty)
+G80                              (koniec cyklu)
+G00 Z50
+```
+</Code>
+
+| Adres | Znaczenie |
+|---|---|
+| X, Y | Położenie otworu |
+| Z | Współrzędna dna otworu (wartość ujemna względem zera detalu) |
+| R | Płaszczyzna początku posuwu roboczego |
+| Q | Głębokość jednego zagłębienia w G83 i G73 |
+| P | Czas postoju na dnie w milisekundach (G82, G89) |
+| F | Posuw wiercenia |
+| K lub L | Liczba powtórzeń — używane głównie z G91 |
+
+## G98 kontra G99 {#g98-kontra-g99}
+
+Te dwie funkcje decydują, dokąd narzędzie wraca po każdym otworze. **G99** wraca tylko do płaszczyzny R — to szybsze, więc stosuje się je domyślnie. **G98** wraca do wysokości, na której narzędzie było przed rozpoczęciem cyklu — potrzebne, gdy między otworami znajduje się przeszkoda: zacisk, żebro odlewu, wcześniej obrobiony stopień.
+
+<Note kind="tip">Częsta praktyka: pracuj w G99, a przed otworem za przeszkodą wstaw pojedynczy blok z G98. Tryb jest modalny, więc pamiętaj o powrocie do G99 dla kolejnych otworów.</Note>
+
+## Wiercenie głębokie {#wiercenie-głębokie}
+
+Powyżej trzech średnic wiór przestaje samodzielnie wychodzić z otworu — zaczyna się zakleszczać, rosną opory i temperatura. **G83** wycofuje wiertło **całkowicie do płaszczyzny R** po każdym zagłębieniu o Q, dzięki czemu wiór jest łamany i usuwany, a chłodziwo dociera do dna. Kosztem jest czas. **G73** wycofuje tylko o niewielką wartość (parametr maszynowy, zwykle 0,5–1 mm) — szybciej, ale wiór zostaje w otworze.
+
+<Sim caption="Ręcznie rozpisany odpowiednik cyklu G83 z Q6 dla dwóch otworów — dokładnie to, co sterownik robi wewnętrznie. Symulator nie interpretuje jeszcze cykli stałych, więc przykłady rozpisujemy jawnie.">
+```
+G21 G90 G17 G54
+S1200 M03
+G00 X20 Y20 Z10
+M08
+G01 Z-6 F100
+G00 Z2
+G01 Z-12 F100
+G00 Z2
+G01 Z-18 F100
+G00 Z10
+G00 X50 Y20
+G01 Z-6 F100
+G00 Z2
+G01 Z-12 F100
+G00 Z2
+G01 Z-18 F100
+G00 Z10
+M09
+M30
+```
+</Sim>
+
+## Sinumerik: cykle parametryczne {#sinumerik-cykle-parametryczne}
+
+Sinumerik nie używa G81–G89, tylko wywołań z listą parametrów: `CYCLE81`, `CYCLE82`, `CYCLE83`, `CYCLE84` (gwintowanie), `CYCLE85`. Powtarzanie w kolejnych punktach realizuje modalne wywołanie `MCALL`:
+
+<Code caption="Odpowiednik cyklu G81 z czterema otworami w składni Sinumerik.">
+```
+MCALL CYCLE81(10, 0, 2, -15)   ; RTP, RFP, SDIS, DP
+X20 Y20
+X50 Y20
+X50 Y50
+MCALL                          ; wyłączenie wywołania modalnego
+```
+</Code>
+
+## Typowe błędy {#typowe-błędy}
+
+- **Brak G80 na końcu.** Kolejny blok ze współrzędnymi X Y — na przykład dojazd do frezowania — wykona jeszcze jeden otwór.
+- **Płaszczyzna R poniżej powierzchni materiału.** Szybki zjazd do R oznacza wtedy wjazd wiertła w detal z prędkością szybką.
+- **G99 przy zaciskach między otworami.** Klasyczna kolizja: narzędzie wraca tylko 2 mm nad materiał i uderza w zacisk.
+- **Q większe od pozostałej głębokości** w ostatnim zagłębieniu — na części sterowników powoduje przekroczenie zadanego Z.
+- **Cykl w trybie G91 bez przemyślenia** — Z i R liczone są wtedy przyrostowo, co daje zupełnie inne głębokości.

@@ -1,0 +1,77 @@
+---
+code: A B C
+slug: osie-abc
+name: Osie obrotowe A, B, C (4. i 5. oś)
+order: 520
+group: Wieloosiowe
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g68-2-g53-1
+  - g43-4
+  - cycle800
+  - traori
+variesBy: null
+short: A obraca wokół X, B wokół Y, C wokół Z. Na frezarce stół–stół obraca się detal, a wrzeciono stoi pionowo.
+desc: |-
+  Osie obrotowe nazywa się od osi liniowej, wokół której obracają: **A** wokół X, **B** wokół Y, **C** wokół Z. Kąt podaje się w stopniach; G90 — bezwzględnie, G91 — przyrostowo.
+
+  **4. oś (indeksowanie):** detal na stole obrotowym A. Obrót o 90° wystawia narzędziu kolejną ścianę, a obróbka idzie jak na zwykłej frezarce 3-osiowej. Przed każdym obrotem odjedź w Z — narożniki detalu zataczają okrąg.
+
+  **5 osi stół–stół:** kołyska A (albo B) pochyla stół, stół C obraca detal. Bez TCP (G43.4) współrzędne X Y Z idą wprost na osie maszyny, więc po obrocie stołu ten sam punkt programu trafia w inne miejsce detalu.
+
+  W symulatorze środek obrotu stołu leży w zerze G54 — ustaw zero detalu na osi obrotu.
+syntax:
+  fanuc: |-
+    G00 A90.
+    G00 A45. C90.
+    G01 X80. A360. F300
+  sinumerik: |-
+    G0 A90
+    G0 A45 C90
+    G1 X80 A360 F300
+sinumerik: Nazwy osi są takie same (A, B, C), ale producent może je zmienić w danych maszynowych. Kierunek dodatni i zakres obrotu zależą od maszyny.
+params:
+  - key: A
+    desc: Obrót wokół X [°]
+  - key: B
+    desc: Obrót wokół Y [°]
+  - key: C
+    desc: Obrót wokół Z (stół) [°]
+pitfalls:
+  - Obrót stołu przy narzędziu blisko detalu — narożnik detalu zatoczy okrąg i trafi w narzędzie. Najpierw odjazd w Z.
+  - Bez TCP po obrocie stołu X Y Z dalej opisują położenie osi maszyny, nie punkt na detalu.
+  - Kierunek dodatni osi obrotowej zależy od maszyny — sprawdź w dokumentacji, zanim napiszesz A-90.
+example:
+  src: |-
+    G21 G90 G17 G40 G49 G80
+    G54
+    T1 M06 (FREZ FI8)
+    G43 H1 Z60.
+    S3500 M03
+    G00 A0
+    G00 X6. Y0 Z25.
+    G01 Z18. F200
+    G01 X54. F450
+    G00 Z40. (ODJAZD PRZED OBROTEM)
+    G00 A90.
+    G00 X6. Y0 Z25.
+    G01 Z18. F200
+    G01 X54. F450
+    G00 Z40.
+    G00 A0
+    M05
+    M30
+  simulate: true
+  stock:
+    x: 60
+    y: 40
+    z: 40
+    ox: 0
+    oy: 20
+    oz: 20
+---
+

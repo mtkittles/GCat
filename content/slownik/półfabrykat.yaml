@@ -1,0 +1,9 @@
+term: Półfabrykat
+anchor: półfabrykat
+order: 540
+aliases:
+  - surówka
+  - stock
+  - materiał wyjściowy
+def: "Materiał, z którego powstaje detal: płyta, pręt, odlew. Jego wymiary i położenie zera decydują o bezpiecznych wysokościach i o tym, ile naddatku trzeba zebrać. W symulatorze GCat półfabrykat ustawia się w zakładce Narzędzia."
+see: []

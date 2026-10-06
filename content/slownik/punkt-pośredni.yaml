@@ -1,0 +1,9 @@
+term: Punkt pośredni
+anchor: punkt-pośredni
+order: 580
+aliases:
+  - intermediate point
+def: Punkt podany w bloku G28/G30, przez który narzędzie przejeżdża w drodze do punktu referencyjnego. W G91 współrzędne są przyrostami od bieżącej pozycji (G91 G28 Z0 — od razu do bazy w Z), w G90 — pozycją w układzie detalu.
+see:
+  - g28
+  - g27-g30

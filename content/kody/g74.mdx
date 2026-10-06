@@ -1,0 +1,61 @@
+---
+code: G74
+slug: g74
+name: Gwintowanie lewe (frezarka) / cykl czołowy (tokarka)
+order: 270
+group: Cykle
+level: 3
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g84
+  - g75
+  - g81-g83
+variesBy: system kodów
+short: "Na frezarce: cykl gwintowania gwintu lewego. Na tokarce: wiercenie albo rowkowanie wzdłuż osi Z z łamaniem wióra."
+desc: |-
+  **Frezarka.** G74 to lustrzane odbicie **G84**: wrzeciono kręci w lewo (M04) podczas wejścia, w dnie zmienia kierunek i wyjeżdża. Posuw musi odpowiadać skokowi: F = S × skok (przy G94). Gwintowanie sztywne poprzedza się zwykle M29 S_.
+
+  **Tokarka.** **G74 R_** ustala cofnięcie, a **G74 Z_ Q_ F_** wierci wzdłuż osi Z krokami Q. Z adresami X i P robi rowek czołowy kilkoma wgłębieniami.
+syntax:
+  fanuc: |-
+    frezarka:
+    G98/G99 G74 X_ Y_ Z_ R_ F_
+    tokarka:
+    G74 R_
+    G74 X_ Z_ P_ Q_ F_
+  sinumerik: |-
+    CYCLE84   ; kierunek gwintu w parametrach
+    CYCLE83 / CYCLE93   ; tokarka
+sinumerik: Gwintowanie wykonuje **CYCLE84**; kierunek gwintu (lewy/prawy) wybiera się w parametrach cyklu. Na tokarce wiercenie osiowe to **CYCLE83**, rowki — **CYCLE93**.
+params:
+  - key: Z
+    desc: dno otworu (frezarka) / koniec wiercenia (tokarka)
+  - key: R
+    desc: płaszczyzna startu (frezarka) / cofnięcie po kroku (tokarka, 1. blok)
+  - key: F
+    desc: posuw — przy gwintowaniu F = S × skok
+  - key: Q
+    desc: "tokarka: krok w Z, w mikrometrach, bez kropki"
+  - key: P
+    desc: "tokarka: przesunięcie w X, w mikrometrach, bez kropki"
+pitfalls:
+  - Gwintownik lewy z M03 zamiast M04 zniszczy gwint i narzędzie. Kierunek obrotów musi pasować do cyklu.
+  - "Na tokarce P i Q w G74 wpisuje się bez kropki, w mikrometrach: Q5000 = 5 mm."
+example:
+  src: |-
+    G21 G90 G17 G54
+    T07 M06 (gwintownik M10x1.5 lewy)
+    S400 M04
+    G00 X30 Y20 Z20
+    G99 G74 Z-15 R3 F600
+    G80
+    G00 Z50
+    M30
+  simulate: false
+  stock: null
+---
+

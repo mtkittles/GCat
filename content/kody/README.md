@@ -1,6 +1,6 @@
 # content/kody — karty kodów G/M
 
-> Krok 2 (szkielet): katalog jest pusty i **żadna strona go jeszcze nie czyta**. Dziś karty są w `content/gcodes.json` i `src/content/articles*.ts`.
+> **Jedyne źródło prawdy dla kart** (od kroku 4). Strona karty, lista `/kody`, wyszukiwarka, dymki `[[…]]`, tabela na stronie głównej i ★ czytają te pliki (przez `npm run tresci`, które uruchamia się samo przy instalacji, `dev`, testach i buildzie). Stare `content/gcodes.json` i `src/content/articles*.ts` są nieużywane i zostaną usunięte w kroku 9.
 
 **Plik:** `<slug>.mdx`. Slug = nazwa pliku = adres `/kody/<slug>`. Nie zmieniać.
 **Schemat:** `kodSchema` w `src/lib/mdx/schema.ts`.
@@ -10,11 +10,12 @@
 code: G17 G18 G19            # tekst wyświetlany; słowa służą też do [[G17]] i auto-linków
 slug: g17-g19                # = nazwa pliku
 name: Wybór płaszczyzny      # tytuł karty
+order: 120                   # kolejność na listach i w nawigacji ‹ › (odstępy co 10 — łatwo wstawić kartę między)
 group: Ustawienia
 level: 2                     # 1 podstawy · 2 średni · 3 zaawansowany
 modal: true
 machines: [frezowanie, toczenie]
-star: false                  # ★ (dziś CURATED w articles.ts)
+star: false                  # ★ — karta opracowana w pełnym układzie
 related: [g02, g40-g42]      # slugi kart, sprawdzane przy buildzie
 variesBy: null
 short: Płaszczyzna dla łuków i kompensacji…

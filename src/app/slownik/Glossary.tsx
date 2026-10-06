@@ -31,7 +31,7 @@ export default function Glossary() {
       </nav>
       <dl className="glossary">
         {list.map((e, k) => (
-          <div key={e.term} id={e.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-")} className={e.diagram ? "has-fig" : undefined}>
+          <div key={e.term} id={e.anchor} className={e.diagram ? "has-fig" : undefined}>
             {(k === 0 || first(list[k - 1].term) !== first(e.term)) && <span className="gl-letter" id={`litera-${first(e.term)}`}>{first(e.term)}</span>}
             <dt>{e.term}</dt>
             <dd>

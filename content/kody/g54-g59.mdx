@@ -1,0 +1,150 @@
+---
+code: G54–G59
+slug: g54-g59
+name: Układy współrzędnych detalu
+order: 210
+group: Ustawienia
+level: 1
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: true
+related: []
+variesBy: null
+short: Wybór przesunięcia zera detalu (6 układów).
+desc: Sterownik pamięta odległość między zerem maszyny a zerem detalu w rejestrach G54–G59. W programie wybierasz, którego użyć. Kilka zamocowań na stole = kilka układów.
+syntax:
+  fanuc: |-
+    G54 ... G59
+    G54.1 P1 (dodatkowe)
+  sinumerik: G54 ... G57, G505 ... G599
+sinumerik: Standardowo G54–G57, dalej G505–G599. Dodatkowo TRANS/ATRANS jako programowalne przesunięcia.
+params: []
+pitfalls:
+  - Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00.
+example:
+  src: |-
+    G21 G90 G17 G54
+    T01 M06
+    G43 H01 Z50.
+    S2000 M03
+    G00 X0 Y0 Z5
+    G01 Z-1 F100
+    G01 X20 F200
+    G00 Z5
+    G55
+    G00 X0 Y0
+    G01 Z-1 F100
+    G01 X20 F200
+    G00 Z5
+    M30
+  simulate: true
+  stock: null
+---
+
+**G54–G59** wybierają jeden z sześciu **układów współrzędnych detalu**. W każdym rejestrze sterownik trzyma przesunięcie od zera maszyny do zera detalu. Program pisze się względem detalu, a to, gdzie detal leży na stole, załatwia rejestr.
+
+## Co dokładnie robi sterownik {#co-dokładnie-robi-sterownik}
+
+Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i współrzędnej z programu. Zmiana `G54` na `G55` nie zmienia ani jednego bloku programu — zmienia tylko to, do którego przesunięcia sterownik go dolicza.
+
+<Diagram id="f02-points" />
+
+<Code caption="Ekran pozycji pokazuje obie wartości: „Maszynowe” i „Absolutne” (w układzie detalu).">
+```
+X maszynowe = X z rejestru G54 + X z programu
+              −320,000       +   40,000   = −280,000
+```
+</Code>
+
+| Punkt | Kto go ustala | Zmienia się? |
+|---|---|---|
+| **M** — zero maszyny | producent, przy bazowaniu osi | nigdy |
+| **W** — zero detalu | programista / operator, w rejestrze G54–G59 | przy każdym nowym zamocowaniu |
+| zero programu | zwykle równe W | — |
+
+## Ustawianie zera {#ustawianie-zera}
+
+Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sondą i zapisuje pozycję do rejestru, uwzględniając promień końcówki. Z ustala się na górnej powierzchni — dotykiem narzędzia wzorcowego albo sondą.
+
+<Diagram id="f03-edge" />
+
+<Code caption="Końcówka dotyka krawędzi bokiem, więc do odczytu dodaje się jej promień (w stronę materiału).">
+```
+czujnik ⌀10 dotyka lewej krawędzi w X maszynowym −325,000
+krawędź = −325,000 + 5,000 = −320,000   → G54 X = −320,000
+```
+</Code>
+
+Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem noża na splanowanym czole.
+
+<Diagram id="t03-zero" />
+
+## Gdzie postawić zero detalu {#gdzie-postawić-zero-detalu}
+
+- **Detal prostokątny** — narożnik, od którego wymiarowany jest rysunek; Z na górnej powierzchni. Współrzędne w XY dodatnie, głębokości ujemne.
+- **Detal symetryczny** — środek, jeśli rysunek wymiaruje od osi symetrii.
+- **Toczenie** — oś obrotu i czoło gotowego detalu.
+- **Zasada ogólna** — tam, skąd wymiaruje rysunek. Każde przeliczenie wymiaru to miejsce na błąd.
+
+## Kilka detali, jeden program {#kilka-detali-jeden-program}
+
+<Diagram id="f03-two" />
+
+<Code caption="Trzy imadła, trzy rejestry, jeden podprogram. Zmienia się tylko aktywny układ.">
+```
+G54
+M98 P1001     (DETAL 1)
+G55
+M98 P1001     (DETAL 2)
+G56
+M98 P1001     (DETAL 3)
+M30
+```
+</Code>
+
+<Sim caption="Kontur względem zera detalu. Ten sam program z G55 zamiast G54 frezuje w innym miejscu stołu, bez zmiany żadnej współrzędnej.">
+```
+G21 G90 G17 G54
+T1 M06 (FREZ FI10)
+G43 H1 Z50.
+S2000 M03
+G00 X0. Y0. Z5.
+G01 Z-2. F120
+G01 X30. F350
+Y20.
+X0.
+Y0.
+G00 Z5.
+M30
+```
+</Sim>
+
+<Note kind="info">Sześciu układów za mało? Fanuc ma rozszerzenie **G54.1 P1…P48** (w nowszych seriach do P300), Sinumerik — **G505…G599** obok G54–G57.</Note>
+
+## Powiązane funkcje {#powiązane-funkcje}
+
+| Kod | Działanie |
+|---|---|
+| `G52` | układ lokalny — dodatkowe przesunięcie względem aktywnego G54–G59 |
+| `G53` | jednorazowy ruch we współrzędnych maszynowych (np. do wymiany) |
+| `G92` | przypisanie bieżącej pozycji zadanych współrzędnych — metoda sprzed G54 |
+| `G10 L2 P_` | wpis przesunięcia do rejestru z programu |
+
+## Fanuc kontra Sinumerik {#fanuc-kontra-sinumerik}
+
+| Zagadnienie | Fanuc | Sinumerik |
+|---|---|---|
+| Podstawowe układy | `G54`–`G59` | `G54`–`G57` |
+| Rozszerzone | `G54.1 P_` | `G505`–`G599` |
+| Wyłączenie | — | `G500` (przesunięcie zerowe) |
+| Przesunięcie dodatkowe | `G52` | `TRANS` / `ATRANS` |
+
+## Typowe błędy {#typowe-błędy}
+
+- **Pusty rejestr** — układ pokrywa się z zerem maszyny; pierwszy dojazd kończy się kolizją albo alarmem krańcówki.
+- **Brak G54 w programie** — obowiązuje układ zostawiony przez poprzednią pracę.
+- **Zero na surowej powierzchni** — nierówny naddatek: pierwsze przejście miejscami nie dotyka materiału, miejscami bierze podwójnie.
+- **Promień czujnika dodany w złą stronę** — cały detal przesunięty o średnicę końcówki.
+- **Przełożony detal, stare zero** — nawet w tym samym imadle przesunięcie o dziesiąte części milimetra.

@@ -1,0 +1,118 @@
+---
+code: G96 G97
+slug: g96-g97
+name: Stała prędkość skrawania
+order: 400
+group: Wrzeciono
+level: 2
+modal: true
+machines:
+  - toczenie
+star: false
+related: []
+variesBy: null
+short: "G96: sterownik dobiera obroty tak, by prędkość skrawania (m/min) była stała. G97: stałe obroty."
+desc: Przy toczeniu czołowym średnica maleje w trakcie cięcia — przy stałych obrotach prędkość skrawania spada do zera w osi. G96 S200 utrzymuje 200 m/min zwiększając obroty. G50 S_ (Fanuc) lub LIMS= (Sinumerik) ogranicza maksymalne obroty.
+syntax:
+  fanuc: |-
+    G50 S3000
+    G96 S200 M03
+    G97 S1500
+  sinumerik: |-
+    LIMS=3000
+    G96 S200 M3
+    G97 S1500
+sinumerik: Identycznie G96/G97, limit obrotów przez LIMS=.
+params:
+  - key: S
+    desc: "Przy G96: m/min. Przy G97: obr/min"
+pitfalls:
+  - G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do maksimum.
+  - Wiercenie w osi zawsze na G97.
+example:
+  src: |-
+    G18 G21 G40 G99
+    G97 S1500 M03
+    G00 X62 Z2
+    G96 S200
+    G01 Z-30 F0.2
+    G01 X70
+    G00 Z2
+    G97 S1500
+    M30
+  simulate: true
+  stock: null
+---
+
+**G96** i **G97** decydują, co oznacza liczba przy adresie **S**. Przy **G97** jest to bezpośrednio prędkość obrotowa wrzeciona w obr/min. Przy **G96** — **prędkość skrawania w m/min**, a obroty sterownik przelicza sam, na bieżąco, w zależności od aktualnej średnicy toczenia.
+
+## Dlaczego to ma znaczenie {#dlaczego-to-ma-znaczenie}
+
+Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się względem ostrza — zależy od średnicy: **Vc = π · D · n / 1000**. Podczas toczenia poprzecznego (planowania czoła) średnica maleje od zewnątrz do osi. Przy stałych obrotach prędkość skrawania spada wtedy proporcjonalnie i w pobliżu osi dochodzi do zera: ostrze przestaje skrawać, zaczyna gnieść materiał, powierzchnia się psuje, a płytka wykrusza.
+
+**G96 utrzymuje Vc na stałym poziomie**, podnosząc obroty w miarę zmniejszania średnicy. Efekt: równa chropowatość na całej powierzchni czoła i przewidywalna trwałość ostrza.
+
+<Diagram id="g96-g97" />
+
+## Składnia {#składnia}
+
+<Code caption="W Sinumerik ograniczenie zapisuje się jako `LIMS=3000`.">
+```
+G50 S3000          (Fanuc: ograniczenie obrotów — obowiązkowe przed G96)
+G96 S220 M03       (stała prędkość skrawania 220 m/min)
+...toczenie...
+G97 S1500          (powrót do stałych obrotów)
+```
+</Code>
+
+<Note kind="warn">**G96 bez ograniczenia obrotów jest niebezpieczne.** Gdy narzędzie zbliża się do osi obrotu, wyliczone obroty rosną do nieskończoności — sterownik podnosi je aż do maksimum maszyny. Przy niewyważonym detalu albo uchwycie szczękowym pracującym poza zakresem kończy się to wyrwaniem detalu z uchwytu.</Note>
+
+## Kiedy G97 jest konieczne {#kiedy-g97-jest-konieczne}
+
+- **Gwintowanie** (G32, G33, G76) — skok gwintu wynika ze sprzężenia posuwu z obrotami; zmienne obroty zniekształciłyby gwint.
+- **Wiercenie w osi** — wiertło pracuje na stałej średnicy niezależnie od pozycji Z, a przy G96 sterownik liczyłby obroty ze współrzędnej X równej zeru.
+- **Rowkowanie i przecinanie w pobliżu osi** — obroty rosłyby lawinowo.
+- **Detale niewyważone, mimośrodowe, w uchwycie szczękowym** — bezpieczniej trzymać stałe, umiarkowane obroty.
+
+## Przykład {#przykład}
+
+<Sim caption="Planowanie czoła do osi przy stałej Vc, następnie toczenie wzdłużne, na końcu powrót do stałych obrotów przed odjazdem. Panel stanu pokazuje aktualną pozycję średnicową.">
+```
+G18 G21 G40 G99
+G50 S3000
+G97 S1500 M03
+G00 X62 Z2
+G96 S220
+G01 X0 Z0 F0.15
+G00 X60 Z2
+G01 X40 F0.3
+G01 Z-30
+G01 X62
+G00 Z2
+G97 S1500
+M30
+```
+</Sim>
+
+## Dobór prędkości skrawania {#dobór-prędkości-skrawania}
+
+<Table caption="Wartości orientacyjne dla płytek z węglika z powłoką. Zawsze weryfikuj z katalogiem producenta narzędzia dla konkretnego gatunku i geometrii.">
+
+| Materiał | Vc dla węglika [m/min] | Uwagi |
+|---|---|---|
+| Aluminium | 300–1000 | Ograniczeniem są zwykle obroty maszyny, nie materiał |
+| Stal konstrukcyjna (S235, C45) | 150–300 | Najszerszy zakres zastosowań |
+| Stal stopowa ulepszana | 100–200 | Niższe wartości przy większej twardości |
+| Stal nierdzewna austenityczna | 80–160 | Skłonność do umocnienia — nie schodź poniżej zakresu |
+| Żeliwo szare | 150–350 | Wiór kruchy, mała siła skrawania |
+| Tytan | 30–70 | Niska przewodność cieplna, ciepło zostaje w ostrzu |
+| Stopy niklu (Inconel) | 20–50 | Wymaga obfitego chłodzenia |
+
+</Table>
+
+## Typowe błędy {#typowe-błędy}
+
+- **Brak G50 / LIMS** przed G96.
+- **Pozostawienie G96 przed wierceniem w osi** — alarm albo maksymalne obroty.
+- **Wpisanie obrotów zamiast Vc** — `G96 S1500` to polecenie utrzymania 1500 m/min, czyli zawsze maksymalne obroty maszyny.
+- **Brak powrotu do G97** przed odjazdem i zatrzymaniem — kolejna operacja startuje w nieoczekiwanym trybie.

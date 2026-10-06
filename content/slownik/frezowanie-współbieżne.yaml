@@ -1,0 +1,10 @@
+term: Frezowanie współbieżne
+anchor: frezowanie-współbieżne
+order: 130
+aliases:
+  - współbieżne
+  - climb milling
+def: Frezowanie, w którym kierunek obrotu narzędzia w miejscu styku zgadza się z kierunkiem posuwu. Wiór jest gruby na początku i cienki na końcu. Daje lepszą powierzchnię i mniejsze zużycie ostrza, ale wymaga maszyny bez luzów w napędzie.
+see:
+  - g40-g42
+diagram: climb

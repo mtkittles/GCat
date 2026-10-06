@@ -1,0 +1,9 @@
+term: Podprogram
+anchor: podprogram
+order: 470
+aliases:
+  - subprogram
+  - M98
+def: Osobny program wywoływany z programu głównego, zwykle zawierający powtarzalny fragment obróbki. Wywołanie M98 P_, powrót M99. W połączeniu z G91 pozwala powtórzyć ten sam kształt w wielu miejscach.
+see:
+  - m98-m99

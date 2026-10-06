@@ -1,0 +1,133 @@
+---
+code: G90 G91
+slug: g90-g91
+name: Wymiarowanie absolutne / przyrostowe
+order: 350
+group: Ustawienia
+level: 1
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: true
+related:
+  - g90-g94-t
+  - g54-g59
+  - g52-g53
+variesBy: system kodów
+short: "G90: współrzędne od zera detalu. G91: od aktualnej pozycji."
+desc: W G90 „X50” znaczy „jedź do X=50”. W G91 „X50” znaczy „przesuń się o 50 w X od miejsca, w którym jesteś”. G91 przydaje się do powtarzalnych wzorów i podprogramów.
+syntax:
+  fanuc: G90 | G91
+  sinumerik: G90 | G91  (albo X=IC(50) w jednym słowie)
+sinumerik: "G90/G91 działają tak samo. Dodatkowo można mieszać w jednym bloku: X=AC(10) Y=IC(5)."
+params: []
+pitfalls:
+  - Uruchomienie programu przyrostowego od złego punktu startowego → cały detal przesunięty.
+  - Na tokarce Fanuc zamiast G91 często używa się U/W (przyrost X/Z).
+  - Na tokarce Fanuc w systemie A G90 to cykl toczenia, a wymiary przyrostowe pisze się adresami U i W. Zobacz [[G90 G92 G94 (tokarka)|proste cykle tokarskie]].
+example:
+  src: |-
+    G21 G90 G17 G54
+    T01 M06
+    G43 H01 Z50.
+    S2000 M03
+    G00 X0 Y0 Z5
+    G01 Z-1 F100
+    G91
+    G01 X20 F200
+    G01 Y20
+    G01 X-20
+    G01 Y-20
+    G90
+    G00 Z5
+    M30
+  simulate: true
+  stock: null
+---
+
+**G90** i **G91** mówią sterownikowi, jak czytać liczby przy osiach. **G90 (absolutnie)** — współrzędna to punkt względem zera detalu. **G91 (przyrostowo)** — przesunięcie od miejsca, w którym narzędzie teraz stoi.
+
+<Diagram id="f13-absinc" />
+
+## Ten sam blok, dwa różne miejsca {#ten-sam-blok-dwa-różne-miejsca}
+
+Narzędzie stoi w X20 Y10. Blok `G01 X30. Y20.` znaczy:
+
+- w **G90** — jedź do punktu X30 Y20,
+- w **G91** — przesuń się o 30 w X i 20 w Y, czyli do X50 Y30.
+
+<Code caption="Kontrola: suma przyrostów zamkniętego konturu w każdej osi musi dać zero.">
+```
+wymiar przyrostowy = cel − bieżące położenie
+X: 50 − 20 = 30,   Y: 30 − 10 = 20
+```
+</Code>
+
+## Kiedy który tryb {#kiedy-który-tryb}
+
+| Zastosowanie | Tryb | Dlaczego |
+|---|---|---|
+| kontur z rysunku wymiarowany od bazy | G90 | liczby przepisuje się wprost z rysunku |
+| program główny | G90 | można go wznowić od dowolnego bloku |
+| powtarzalny wzór w podprogramie | G91 | ten sam fragment działa z dowolnego punktu startu |
+| odjazd na punkt referencyjny | G91 | `G91 G28 Z0.` — w górę bez punktu pośredniego |
+| wymiarowanie łańcuchowe na rysunku | G91 | odległości między elementami są podane wprost |
+
+<Sim caption="Ten sam prostokąt dwa razy: zmienia się tylko punkt startu, fragment przyrostowy jest identyczny.">
+```
+G21 G90 G17 G54
+T1 M06 (FREZ FI10)
+G43 H1 Z50.
+S2000 M03
+G00 X10. Y10. Z5.
+G01 Z-2. F120
+G91
+G01 X30. F350
+Y20.
+X-30.
+Y-20.
+G90
+G00 Z5.
+G00 X60. Y10.
+G01 Z-2. F120
+G91
+G01 X30. F350
+Y20.
+X-30.
+Y-20.
+G90
+G00 Z5.
+M30
+```
+</Sim>
+
+<Note kind="warn">Program w całości przyrostowy **nie da się bezpiecznie wznowić od środka**: po przerwaniu każdy kolejny ruch liczy się od miejsca, w którym maszyna akurat stoi. Dlatego program główny pisze się w G90, a G91 zostawia na krótkie, zamknięte fragmenty.</Note>
+
+## Tokarki Fanuc: U i W {#tokarki-fanuc-u-i-w}
+
+Na tokarkach Fanuc w systemie A nie ma przełączania trybu — przyrost daje sam adres: **U** dla X i **W** dla Z. Można je mieszać z X i Z w jednym bloku: `G01 X40. W-10.` — na średnicę 40 i 10 mm w stronę uchwytu. **U jest w średnicy**, tak jak X: `U-2.` to 1 mm w stronę osi.
+
+<Diagram id="t12-uw" />
+
+<Note kind="warn">W systemie A tokarki Fanuc **G90 to cykl toczenia wzdłużnego**, a nie wymiary absolutne. `G90` przepisane z programu frezarskiego uruchomi cykl.</Note>
+
+## Sinumerik: tryb dla jednej osi {#sinumerik-tryb-dla-jednej-osi}
+
+Sinumerik pozwala zmienić tryb dla pojedynczej współrzędnej: `X=IC(10)` — przyrostowo, `X=AC(50)` — absolutnie, niezależnie od aktywnego G90/G91. `G1 X=AC(50) Y=IC(10)` — do X50 i 10 mm dalej w Y.
+
+## Fanuc kontra Sinumerik {#fanuc-kontra-sinumerik}
+
+| Zagadnienie | Fanuc frezarka | Fanuc tokarka (A) | Sinumerik |
+|---|---|---|---|
+| Absolutnie | `G90` | X, Z | `G90` / `AC()` |
+| Przyrostowo | `G91` | U, W | `G91` / `IC()` |
+| G90 znaczy | wymiary absolutne | cykl toczenia | wymiary absolutne |
+
+## Typowe błędy {#typowe-błędy}
+
+- **Brak powrotu do G90** po fragmencie przyrostowym — kolejne bloki jadą w zupełnie inne miejsca.
+- **`G90 G28 Z0.`** — maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Poprawnie: `G91 G28 Z0.`.
+- **Podprogram przyrostowy bez domknięcia** — każde powtórzenie przesuwa wzór o nadmiar.
+- **U liczone w promieniu** na tokarce — zejście o połowę mniejsze niż planowane.
+- **Tryb zakładany domyślnie** — blok startowy powinien go ustawiać jawnie.

@@ -1,6 +1,7 @@
 import { gcodes } from "./gcodes";
 import { exercises, glossary } from "./content";
-import { articles } from "@/content/articles";
+// tekst artykułów kart (content/kody/*.mdx), wygenerowany przez npm run tresci
+import articleText from "../../content/.generated/szukaj.json";
 import { readyLessons, lessonHref, tracks } from "./course";
 import type { Block } from "./article";
 
@@ -24,7 +25,7 @@ const blockText = (bs: Block[] | undefined) =>
 export const searchDocs: SearchDoc[] = [
   ...gcodes.map((g) => ({
     kind: "kod" as const, title: `${g.code} — ${g.name}`, subtitle: `${g.group} · ${g.milling ? "frezowanie" : ""}${g.milling && g.turning ? " / " : ""}${g.turning ? "toczenie" : ""}`,
-    href: `/kody/${g.slug}`, body: [g.code, g.name, g.short, g.desc, g.sinumerik, ...g.pitfalls, blockText(articles[g.slug])].join(" "),
+    href: `/kody/${g.slug}`, body: [g.code, g.name, g.short, g.desc, g.sinumerik, ...g.pitfalls, (articleText as Record<string, string>)[g.slug] ?? ""].join(" "),
   })),
   ...(["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({
     kind: "lekcja" as const, title: `${l.id} ${l.title}`, subtitle: `${tracks[t].title} · ${l.doc!.minutes} min`,
@@ -36,7 +37,7 @@ export const searchDocs: SearchDoc[] = [
   })),
   ...glossary.map((g) => ({
     kind: "pojęcie" as const, title: g.term, subtitle: "słownik",
-    href: `/slownik#${g.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-")}`, body: [g.term, ...g.aliases, g.def].join(" "),
+    href: `/slownik#${g.anchor}`, body: [g.term, ...g.aliases, g.def].join(" "),
   })),
 ];
 

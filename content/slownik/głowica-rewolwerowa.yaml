@@ -1,0 +1,8 @@
+term: Głowica rewolwerowa
+anchor: głowica-rewolwerowa
+order: 160
+aliases:
+  - rewolwer
+  - głowica narzędziowa
+def: Obrotowy magazyn narzędzi na tokarce. Mieści zwykle od 8 do 16 pozycji, a zmiana narzędzia polega na obróceniu głowicy. Przed obrotem narzędzie musi znaleźć się w bezpiecznym miejscu, poza detalem i konikiem.
+see: []

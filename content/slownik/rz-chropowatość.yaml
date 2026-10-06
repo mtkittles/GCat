@@ -1,0 +1,11 @@
+term: Rz — chropowatość
+anchor: rz-chropowatość
+order: 610
+aliases:
+  - chropowatość
+  - Rz
+  - Ra
+def: "Miara nierówności powierzchni. Przy toczeniu chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża płytki: Rz ≈ f² / (8 × rε). Zwiększanie obrotów jej nie poprawia."
+see:
+  - g94-g95
+diagram: rz

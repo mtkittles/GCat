@@ -1,4 +1,5 @@
-import data from "../../content/gcodes.json";
+/* Karty kodów z content/kody/*.mdx — przez content/.generated/kody.json (npm run tresci; postinstall/predev/pretest/prebuild). */
+import data from "../../content/.generated/kody.json";
 
 export interface GCode {
   code: string; slug: string; name: string; group: string; modal: boolean;
@@ -19,6 +20,10 @@ export interface GCode {
   exampleStock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
   /** Sterownik, w którego języku zapisano przykład (brak = Fanuc). */
   exampleDialect?: "fanuc" | "sinumerik";
+  /** ★ — karta opracowana w pełnym układzie (pole `star` w pliku karty) */
+  star: boolean;
+  /** karta ma artykuł (treść MDX pod frontmatterem) */
+  hasArticle: boolean;
 }
 
 export const gcodes = data as GCode[];

@@ -1,7 +1,7 @@
 /* Audyt programów osadzonych w treści: każdy przez parser + walidator (Fanuc).
    Błędy parsera/walidatora kończą się kodem 1 (poza starterami, które z założenia są niekompletne).
    Uruchom: npm run audit:programy */
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { parseProgram } from "@/lib/parser";
 import { validate } from "@/lib/parser/validate";
 import { checkExercise } from "@/lib/checker";
@@ -9,9 +9,8 @@ import { runTaskChecks } from "@/lib/taskCheck";
 import { gcodes } from "@/lib/gcodes";
 import { exercises } from "@/lib/content";
 import { flat, type Track } from "@/lib/course";
-import { articles } from "@/content/articles";
+import { mdxPrograms } from "@/lib/mdx/programs";
 import { PROGRAMS } from "@/content/programy";
-import type { Block } from "@/lib/article";
 
 type Mode = "mill" | "lathe";
 type Item = { where: string; src: string; mode: Mode; starter?: boolean; dialect?: "fanuc" | "sinumerik" };
@@ -20,7 +19,7 @@ const add = (where: string, src: string | undefined, mode: Mode = "mill", starte
 
 for (const g of gcodes) if (g.simulate !== false) items.push({ where: `kody/${g.slug}`, src: g.example, mode: g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill"), dialect: g.exampleDialect });
 for (const e of exercises) { add(`zadania/${e.slug} starter`, e.starter, e.mode, true); add(`zadania/${e.slug} wzorzec`, e.reference, e.mode); }
-for (const [slug, blocks] of Object.entries(articles)) (blocks as Block[]).forEach((b, i) => { if (b.t === "sim" || b.t === "demo") add(`artykuł ${slug} blok ${i}`, b.src, b.mode ?? "mill"); });
+for (const f of readdirSync("content/kody").filter((x) => x.endsWith(".mdx")).sort()) mdxPrograms(readFileSync(`content/kody/${f}`, "utf8")).forEach((p, i) => add(`artykuł ${f.slice(0, -4)} program ${i}`, p.src, p.mode));
 for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) {
   const d = l.doc; if (!d) continue; const mode: Mode = t === "frezowanie" ? "mill" : "lathe";
   d.theory.forEach((b, i) => { if (b.t === "sim" || b.t === "demo") add(`${d.id} teoria blok ${i}`, b.src, b.mode ?? mode); });

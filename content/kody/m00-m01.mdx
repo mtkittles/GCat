@@ -1,0 +1,50 @@
+---
+code: M00 M01
+slug: m00-m01
+name: Zatrzymanie programu i zatrzymanie warunkowe
+order: 420
+group: Funkcje M
+level: 1
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - m30
+  - m03-m05
+  - m06
+variesBy: null
+short: M00 zatrzymuje program zawsze, M01 tylko przy włączonym przełączniku OPTIONAL STOP na pulpicie. CYCLE START wznawia.
+desc: |-
+  Po **M00** sterowanie czeka na **CYCLE START**. Na większości maszyn zatrzymuje też wrzeciono i chłodziwo; stany modalne zostają. Używa się go do przełożenia detalu, pomiaru, usunięcia wiórów.
+
+  **M01** działa tak samo, ale tylko przy włączonym przełączniku zatrzymania warunkowego. Wstawia się je np. po każdym narzędziu: przy pierwszej sztuce można sprawdzić wynik, a w serii puścić program bez przerw.
+syntax:
+  fanuc: |-
+    M00
+    M01
+  sinumerik: |-
+    M0
+    M1
+sinumerik: "Te same funkcje: **M0** i **M1**."
+params: []
+pitfalls:
+  - Po M00 i ręcznym przesunięciu osi program wznowi się z miejsca, w którym stoi narzędzie. Pierwszy ruch może pójść inną drogą niż zwykle.
+  - M01 przy wyłączonym przełączniku na pulpicie nic nie robi.
+example:
+  src: |-
+    G21 G90 G17 G54
+    T01 M06
+    S2000 M03
+    G00 X0 Y0 Z5
+    G01 Z-2 F100
+    G01 X40 F400
+    G00 Z20
+    M01 (sprawdz pierwsza sztuke)
+    T02 M06
+    M30
+  simulate: false
+  stock: null
+---
+

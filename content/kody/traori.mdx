@@ -1,0 +1,66 @@
+---
+code: TRAORI TRAFOOF
+slug: traori
+name: Transformacja 5-osiowa (Sinumerik)
+order: 560
+group: Wieloosiowe
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g43-4
+  - cycle800
+  - osie-abc
+variesBy: null
+short: TRAORI włącza sterowanie wierzchołkiem narzędzia (TCP) na Sinumeriku, TRAFOOF je wyłącza.
+desc: |-
+  Po **TRAORI** współrzędne X Y Z opisują wierzchołek narzędzia w układzie detalu, a osie obrotowe ustawiają jego oś. Sterownik sam przelicza ruchy osi maszyny, więc przy obrocie stołu wierzchołek zostaje na torze. To odpowiednik G43.4 w Fanucu.
+
+  **TRAFOOF** wyłącza transformację. Po niej X Y Z znowu idą wprost na osie maszyny.
+
+  Sinumerik pozwala też podać orientację wektorem (A3= B3= C3=) albo kątami Eulera — symulator obsługuje kąty osi (A, B, C).
+syntax:
+  fanuc: |-
+    G43.4 H_
+    ...
+    G49
+  sinumerik: |-
+    TRAORI
+    G1 X_ Y_ Z_ A_ C_ F_
+    TRAFOOF
+sinumerik: "To jest składnia Sinumerika. W Fanucu: G43.4 H_ (włącz), G49 (wyłącz)."
+params: []
+pitfalls:
+  - TRAORI wymaga skonfigurowanej kinematyki maszyny (dane transformacji) — inaczej alarm.
+  - Zapomniane TRAFOOF — kolejne programy dalej liczą wierzchołek narzędzia.
+example:
+  src: |-
+    ; FAZA 4X45 NA KRAWEDZI +Y, TRANSFORMACJA 5-OSIOWA
+    G17 G90 G54
+    T1 D1 ; FREZ FI10
+    M6
+    S4500 M3
+    G0 A45 C0
+    TRAORI
+    G0 X-40 Y28 Z50
+    G0 Z-2
+    G1 X28 F600
+    G1 C90
+    G1 Y-28
+    G0 Z50
+    TRAFOOF
+    G0 A0 C0
+    M30
+  simulate: true
+  dialect: sinumerik
+  stock:
+    x: 60
+    y: 60
+    z: 40
+    ox: 30
+    oy: 30
+    oz: 40
+---
+

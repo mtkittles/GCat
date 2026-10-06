@@ -1,0 +1,9 @@
+term: Wysokość bezpieczna
+anchor: wysokość-bezpieczna
+order: 740
+aliases:
+  - płaszczyzna bezpieczna
+  - safe Z
+def: Poziom w osi Z, powyżej którego narzędzie może swobodnie przejeżdżać nad całym stołem — ponad zaciskami, detalem i konikiem. Wszystkie szybkie przejazdy w płaszczyźnie XY wykonuje się na tej wysokości.
+see:
+  - g00

@@ -1,0 +1,52 @@
+---
+code: G31
+slug: g31
+name: Pomiar sondą (skip)
+order: 140
+group: Pomocnicze
+level: 3
+modal: false
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related:
+  - g65-g67
+  - g10
+  - g54-g59
+variesBy: null
+short: "Ruch roboczy przerywany sygnałem z sondy. Pozycja w chwili styku trafia do zmiennych #5061–#5066."
+desc: |-
+  **G31** porusza osią jak G01 z posuwem **F**. Gdy sonda dotknie detalu, sterowanie przerywa ruch, zapisuje pozycję w zmiennych systemowych (**#5061** X, **#5062** Y, **#5063** Z…) i przechodzi do następnego bloku.
+
+  Na tej podstawie makro liczy przesunięcie bazy albo wymiar. Jeśli styku nie było, blok kończy się normalnie w punkcie docelowym — makro musi to sprawdzić.
+
+  Gotowe cykle pomiarowe dostarczają producenci sond jako makra wywoływane przez G65.
+syntax:
+  fanuc: |-
+    G31 X_ Y_ Z_ F_
+    #100=#5063
+  sinumerik: |-
+    MEAS=1 G1 Z_ F_
+    R1=$AA_MW[Z]
+sinumerik: "Pomiar z przerwaniem ruchu: **MEAS=1**, bez przerwania: **MEAW=1**. Zmierzona pozycja w układzie detalu to **$AA_MW[oś]**, w układzie maszyny **$AA_MM[oś]**."
+params:
+  - key: F
+    desc: posuw pomiaru — mały, zwykle 50–300 mm/min
+  - key: X Y Z
+    desc: punkt, do którego sonda najdalej dojedzie
+pitfalls:
+  - Za duży posuw G31 zwiększa błąd pomiaru i może uszkodzić końcówkę sondy.
+  - Bez sprawdzenia, czy był styk, makro przyjmie punkt docelowy jako wynik pomiaru.
+example:
+  src: |-
+    G90 G54 G00 X0 Y0
+    G00 Z10.0
+    G31 Z-5.0 F150 (szukaj powierzchni)
+    #100=#5063 (Z w chwili styku)
+    G00 Z10.0
+    M30
+  simulate: false
+  stock: null
+---
+

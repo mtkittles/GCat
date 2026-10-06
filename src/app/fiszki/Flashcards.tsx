@@ -18,7 +18,7 @@ const FREE_LIMIT = 15;
 
 type Card = { id: string; front: string; back: string; href: string; kind: "pojęcie" | "kod" };
 const ALL: Card[] = [
-  ...glossary.map((g) => ({ id: `t:${g.term}`, front: g.term, back: g.def, href: `/slownik#${g.term.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-")}`, kind: "pojęcie" as const })),
+  ...glossary.map((g) => ({ id: `t:${g.term}`, front: g.term, back: g.def, href: `/slownik#${g.anchor}`, kind: "pojęcie" as const })),
   ...gcodes.map((g) => ({ id: `g:${g.slug}`, front: `${g.code} — ${g.name}`, back: g.short, href: `/kody/${g.slug}`, kind: "kod" as const })),
 ];
 

@@ -1,0 +1,10 @@
+term: Zero detalu
+anchor: zero-detalu
+order: 760
+aliases:
+  - punkt zerowy
+  - zero programu
+  - WCS
+def: Punkt, względem którego liczone są wszystkie współrzędne w programie. Jego położenie względem zera maszyny zapisuje się w rejestrach G54–G59. Wybór miejsca zera wpływa na czytelność programu i łatwość ustawienia detalu.
+see:
+  - g54-g59

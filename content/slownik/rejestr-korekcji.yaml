@@ -1,0 +1,11 @@
+term: Rejestr korekcji
+anchor: rejestr-korekcji
+order: 600
+aliases:
+  - korektor
+  - offset
+  - wear
+def: "Miejsce w pamięci sterownika przechowujące dane narzędzia: długość, promień i osobne kolumny zużycia. Zmiana zużycia pozwala dostroić wymiar detalu bez ingerencji w program."
+see:
+  - g43-g49
+  - g40-g42

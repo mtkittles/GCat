@@ -1,0 +1,7 @@
+term: Blok
+anchor: blok
+order: 60
+aliases:
+  - linia programu
+def: "Jedna linia programu, wykonywana jako całość. Składa się ze słów: litery (adresu) i liczby. Blok N30 G01 X40 F200 zawiera cztery słowa."
+see: []

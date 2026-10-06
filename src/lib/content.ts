@@ -17,7 +17,13 @@ export interface Exercise {
 export const exercises = exData as unknown as Exercise[];
 export const exerciseBySlug = (s: string) => exercises.find((e) => e.slug === s);
 
-import glossaryData from "../../content/glossary.json";
+/* Słownik z content/slownik/*.yaml — przez content/.generated/slownik.json (npm run tresci). */
+import glossaryData from "../../content/.generated/slownik.json";
 
-export interface GlossaryEntry { term: string; aliases: string[]; def: string; see: string[]; diagram?: string }
+export interface GlossaryEntry {
+  term: string;
+  /** kotwica /slownik#… — jawna, zapisana w pliku hasła (zmiana `term` jej nie zmienia) */
+  anchor: string;
+  aliases: string[]; def: string; see: string[]; diagram?: string;
+}
 export const glossary = glossaryData as GlossaryEntry[];

@@ -1,0 +1,9 @@
+term: ap — głębokość skrawania
+anchor: ap-głębokość-skrawania
+order: 50
+aliases:
+  - ap
+  - głębokość skrawania
+def: Głębokość, na jaką narzędzie wchodzi w materiał, mierzona wzdłuż osi narzędzia przy frezowaniu i promieniowo przy toczeniu. Wraz z ae i posuwem decyduje o objętości zbieranego materiału i o obciążeniu narzędzia.
+see: []
+diagram: apae

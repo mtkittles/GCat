@@ -1,0 +1,9 @@
+term: Optional Stop
+anchor: optional-stop
+order: 420
+aliases:
+  - M01
+  - stop warunkowy
+def: Zatrzymanie programu działające tylko przy włączonym przełączniku na pulpicie. Pozwala wstawić punkty kontrolne do pomiaru detalu podczas uruchamiania programu i ignorować je w produkcji.
+see:
+  - m00-m01

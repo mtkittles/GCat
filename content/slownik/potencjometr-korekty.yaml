@@ -1,0 +1,10 @@
+term: Potencjometr korekty
+anchor: potencjometr-korekty
+order: 520
+aliases:
+  - override
+  - korekta posuwu
+  - korekta obrotów
+def: Pokrętło na pulpicie zmieniające zaprogramowany posuw lub obroty w procentach (zwykle 0–150 %). Przy gwintowaniu sterowanie ignoruje korektę posuwu; M49 blokuje potencjometry z programu, M48 je odblokowuje.
+see:
+  - m48-m49

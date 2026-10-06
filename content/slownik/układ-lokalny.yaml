@@ -1,0 +1,9 @@
+term: Układ lokalny
+anchor: układ-lokalny
+order: 660
+aliases:
+  - przesunięcie lokalne
+  - G52
+def: Dodatkowe przesunięcie zera nałożone na aktywny układ G54–G59 (G52 X_ Y_ Z_). Przydatne, gdy ten sam fragment programu ma się powtórzyć w kilku miejscach detalu. G52 X0 Y0 Z0 wraca do zera układu.
+see:
+  - g52-g53

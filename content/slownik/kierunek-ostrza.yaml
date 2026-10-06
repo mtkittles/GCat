@@ -1,0 +1,10 @@
+term: Kierunek ostrza
+anchor: kierunek-ostrza
+order: 230
+aliases:
+  - numer kierunku ostrza
+  - tip number
+  - T w tabeli korekcji
+def: "Liczba 0–9 w tabeli korekcji tokarki opisująca, po której stronie środka naroża płytki leży teoretyczny punkt ostrza P. Sterowanie potrzebuje jej do kompensacji promienia naroża (G41/G42): nóż zewnętrzny toczący w stronę uchwytu ma zwykle 3, wytaczak 2, nóż do czoła 8 lub 9."
+see:
+  - g40-g42

@@ -1,5 +1,6 @@
 term: Frezowanie współbieżne
 anchor: frezowanie-współbieżne
+order: 10
 aliases: [współbieżne, climb milling]
 def: Frezowanie, w którym kierunek obrotu narzędzia w miejscu styku zgadza się z kierunkiem posuwu.
 see: [g40-g42]

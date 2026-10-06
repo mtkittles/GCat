@@ -1,0 +1,11 @@
+term: Wiercenie z wycofaniem
+anchor: wiercenie-z-wycofaniem
+order: 710
+aliases:
+  - peck drilling
+  - wiercenie głębokie
+  - G83
+def: Cykl, w którym wiertło schodzi krokami Q, a między krokami wyjeżdża — do płaszczyzny R (G83, usuwa wiór) albo tylko o niewielką wartość (G73, łamie wiór). Potrzebne w otworach głębszych niż 3–4 średnice.
+see:
+  - g81-g83
+  - g73

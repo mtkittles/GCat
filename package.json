@@ -3,20 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "tsx scripts/tresci.ts",
     "dev": "next dev",
-    "prebuild": "tsx scripts/sprawdz-tresci.ts",
+    "prebuild": "tsx scripts/tresci.ts",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "audit:nauka": "npx --yes tsx scripts/audit-nauka.ts",
     "test:calc": "npx --yes tsx scripts/test-calc.ts",
+    "pretest": "tsx scripts/tresci.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
     "tokeny": "npx --yes tsx scripts/tokeny.ts",
-    "tresci": "tsx scripts/sprawdz-tresci.ts",
-    "eksport": "tsx scripts/eksport-tresci.ts",
-    "porownaj": "tsx scripts/porownaj-build.ts"
+    "tresci": "tsx scripts/tresci.ts",
+    "porownaj": "tsx scripts/porownaj-build.ts",
+    "postinstall": "tsx scripts/tresci.ts"
   },
   "dependencies": {
     "@codemirror/autocomplete": "^6.20.3",

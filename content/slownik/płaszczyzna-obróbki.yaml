@@ -1,0 +1,12 @@
+term: Płaszczyzna obróbki
+anchor: płaszczyzna-obróbki
+order: 430
+aliases:
+  - płaszczyzna robocza
+  - G17
+  - G18
+  - G19
+def: Para osi, w której sterowanie wykonuje łuki G02/G03, kompensację promienia i cykle stałe. G17 wybiera XY (frezarka pionowa), G18 — ZX (tokarka), G19 — YZ. Oś prostopadła do płaszczyzny jest osią cyklu wiercenia.
+see:
+  - g17-g19
+  - g02

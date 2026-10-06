@@ -1,0 +1,9 @@
+term: Płaszczyzna R
+anchor: płaszczyzna-r
+order: 440
+aliases:
+  - R plane
+def: Poziom w cyklach wiertarskich, od którego zaczyna się posuw roboczy. Szybki zjazd odbywa się do R, dalej narzędzie idzie z posuwem F. Typowo 2–5 mm nad powierzchnią materiału.
+see:
+  - g81-g83
+diagram: g81-g83

@@ -42,3 +42,6 @@ next-env.d.ts
 
 # przykład konfiguracji (bez sekretów) wersjonujemy
 !.env.example
+
+# dane generowane z content/ (npm run tresci)
+/content/.generated/

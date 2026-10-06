@@ -1,0 +1,78 @@
+---
+code: G68.2 G53.1
+slug: g68-2-g53-1
+name: Płaszczyzna pochylona (3+2)
+order: 530
+group: Wieloosiowe
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - osie-abc
+  - cycle800
+  - g43-4
+  - g68-g69
+variesBy: null
+short: G68.2 ustawia pochylony układ współrzędnych, G53.1 obraca stół tak, by narzędzie stało prostopadle do tej płaszczyzny.
+desc: |-
+  Obróbka **3+2**: dwie osie obrotowe ustawiają detal pod kątem i stoją, a skrawa się trzema osiami liniowymi — jak na zwykłej frezarce, tylko na pochylonej ścianie.
+
+  **G68.2 X_ Y_ Z_ I_ J_ K_** definiuje płaszczyznę: X Y Z to jej początek w układzie detalu, I J K to kąty Eulera — obrót wokół Z, potem wokół nowej osi X, potem wokół nowej Z. Od tego bloku X Y Z programu są w pochylonym układzie, a Z jest prostopadłe do płaszczyzny.
+
+  **G53.1** obraca osie stołu tak, żeby oś narzędzia pokryła się z osią Z płaszczyzny. Bez G53.1 współrzędne są już pochylone, a narzędzie dalej stoi pionowo.
+
+  Cykle wiercenia (G81–G83) wiercą wzdłuż osi Z płaszczyzny. **G69** kasuje płaszczyznę; stół zostaje w obecnym położeniu.
+syntax:
+  fanuc: |-
+    G68.2 X_ Y_ Z_ I_ J_ K_
+    G53.1
+    ...
+    G69
+  sinumerik: |-
+    CYCLE800(...)
+    ...
+    CYCLE800()
+sinumerik: "Odpowiednik to CYCLE800: obraca układ (osiowo, kątami rzutowania, przestrzennie albo bezpośrednio osiami) i — przy _DIR ≠ 0 — ustawia stół. CYCLE800() wraca do położenia podstawowego."
+params:
+  - key: X Y Z
+    desc: Początek płaszczyzny w układzie detalu
+  - key: I J K
+    desc: "Kąty Eulera: Z, nowa X, nowa Z [°] (I90 J30 K-90 = 30° wokół Y)"
+pitfalls:
+  - G68.2 bez G53.1 — współrzędne są pochylone, a narzędzie stoi pionowo.
+  - G53.1 obraca tylko osie obrotowe — X Y Z maszyny stoją. Odjedź w Z, zanim stół się obróci.
+  - "Kolejność kątów Eulera ma znaczenie: I to obrót wokół Z, J wokół nowej X, K wokół nowej Z."
+  - Kierunek obrotu wybiera sterownik (parametry maszyny). Symulator wybiera krótszy ruch osi.
+example:
+  src: |-
+    G21 G90 G17 G40 G49 G80
+    G54
+    T1 M06 (FREZ FI16)
+    S2500 M03
+    (SKOS 30ST NA PRAWEJ KRAWEDZI)
+    G68.2 X15. Y0 Z0 I90. J30. K-90.
+    G53.1
+    G43 H1 Z60.
+    G00 X4. Y-40.
+    G00 Z2.
+    G01 Z0 F300
+    G01 Y40. F700
+    G00 X13.
+    G01 Y-40.
+    G00 Z60.
+    G69
+    G49 G53 Z0
+    G00 A0 C0
+    M30
+  simulate: true
+  stock:
+    x: 60
+    y: 60
+    z: 40
+    ox: 30
+    oy: 30
+    oz: 40
+---
+

@@ -1,0 +1,58 @@
+---
+code: G73
+slug: g73
+name: Wiercenie z łamaniem wióra
+order: 260
+group: Cykle
+level: 3
+modal: true
+machines:
+  - frezowanie
+star: false
+related:
+  - g81-g83
+  - g82
+  - g98-g99
+variesBy: null
+short: Cykl wiercenia krokami Q. Po każdym kroku wiertło cofa się tylko o małą wartość d, żeby złamać wiór.
+desc: |-
+  Wiertło schodzi krokami **Q**, a po każdym cofa się o **d** — parametr sterowania, zwykle 0,1–1 mm. Wiór się łamie, ale narzędzie nie wychodzi z otworu.
+
+  To szybsze niż **G83**, gdzie wiertło po każdym kroku wraca do płaszczyzny R i wyrzuca wiór. G73 wybieraj do materiałów dających długi wiór i otworów do 3–4 średnic. Głębsze wierć G83.
+
+  Na tokarce Fanuc G73 to inny cykl: toczenie równoległe do konturu (dla odlewów i odkuwek).
+syntax:
+  fanuc: G98/G99 G73 X_ Y_ Z_ R_ Q_ F_
+  sinumerik: CYCLE83(…, VARI=0)   ; łamanie wióra
+sinumerik: "**CYCLE83** z parametrem VARI = 0 łamie wiór, z VARI = 1 wycofuje wiertło do usunięcia wióra (jak G83)."
+params:
+  - key: X Y
+    desc: pozycja otworu
+  - key: Z
+    desc: dno otworu
+  - key: R
+    desc: płaszczyzna, od której zaczyna się posuw
+  - key: Q
+    desc: głębokość kroku, bez znaku
+  - key: F
+    desc: posuw [mm/min]
+pitfalls:
+  - Q to wartość bez znaku. Q−4 da alarm albo zostanie odczytane inaczej — zależnie od sterowania.
+  - W głębokim otworze G73 nie wyrzuca wióra i wiertło może się zakleszczyć. Wtedy G83.
+example:
+  src: |-
+    G21 G90 G17 G54
+    T03 M06
+    S1500 M03
+    G00 X20 Y20
+    G43 Z20 H03
+    G99 G73 Z-24 R2 Q4 F120
+    X50
+    X80
+    G80
+    G00 Z50
+    M30
+  simulate: true
+  stock: null
+---
+

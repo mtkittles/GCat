@@ -1,0 +1,60 @@
+---
+code: M07 M08 M09
+slug: m08-m09
+name: Chłodziwo
+order: 450
+group: Funkcje M
+level: 1
+modal: true
+machines:
+  - frezowanie
+  - toczenie
+star: false
+related: []
+variesBy: null
+short: M08 włącza chłodziwo, M09 wyłącza.
+desc: |-
+  M08 — chłodziwo zalewowe. M07 — mgła (na części maszyn). M09 wyłącza oba.
+
+  **M07** włącza chłodzenie mgłą (jeśli maszyna je ma), **M09** wyłącza każdy rodzaj chłodziwa.
+syntax:
+  fanuc: M08 / M09
+  sinumerik: M8 / M9
+sinumerik: M7/M8/M9 identycznie.
+params: []
+pitfalls: []
+example:
+  src: |-
+    G21 G90 G17
+    S1500 M03
+    G00 X0 Y0 Z5
+    M08
+    G01 Z-2 F100
+    G01 X40 F200
+    G00 Z5
+    M09
+    M30
+  simulate: true
+  stock: null
+---
+
+**M08** włącza chłodziwo zalewowe, **M07** mgłę olejową, **M09** wyłącza oba. Funkcje modalne — raz włączone działają aż do wyłączenia albo do końca programu (M30 wyłącza chłodziwo automatycznie).
+
+## Rodzaje chłodzenia {#rodzaje-chłodzenia}
+
+| Kod | Rodzaj | Zastosowanie |
+|---|---|---|
+| **M07** | Mgła olejowa | Aluminium, obróbka wykańczająca, maszyny bez wanny |
+| **M08** | Zalewowe (emulsja) | Standard: stal, żeliwo, obróbka zgrubna |
+| **M09** | Wyłączenie | Obie postacie naraz |
+| **M88 / M89** | Chłodzenie przez narzędzie (na części maszyn) | Wiercenie głębokie, otwory powyżej 5× średnicy |
+
+## Po co w ogóle chłodziwo {#po-co-w-ogóle-chłodziwo}
+
+- **Odprowadzenie ciepła** — najważniejsze przy materiałach o niskiej przewodności, takich jak stal nierdzewna i tytan.
+- **Wypłukiwanie wióra** — kluczowe przy wierceniu i frezowaniu rowków, gdzie wiór nie ma jak wyjść.
+- **Smarowanie** — zmniejsza tarcie i narost na ostrzu, poprawia powierzchnię.
+
+<Note kind="warn">Przy obróbce **żeliwa** i przy frezowaniu **węglikiem na sucho** chłodziwo bywa szkodliwe. Węglik źle znosi szok termiczny: przerywany strumień chłodziwa na gorące ostrze powoduje mikropęknięcia i wykruszanie. Jeżeli chłodzisz węglik, chłodź obficie i bez przerw.</Note>
+
+<Note kind="info">**Tylko jedna funkcja M w bloku** na sterownikach Fanuc. Dlatego `S2000 M03` i `M08` to dwie osobne linie.</Note>
