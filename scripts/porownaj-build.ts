@@ -41,7 +41,6 @@ const bidA = buildId(a, fa), bidB = buildId(b, [...fb]);
 const nA = (s: string) => { bid = bidA; return norm(s); }, nB = (s: string) => { bid = bidB; return norm(s); };
 let diff = 0, payloadOnly = 0;
 const approvedPages = new Map<string, string[]>();
-const pendingPages = new Map<string, string[]>();
 for (const f of fa) {
   if (!fb.has(f)) { console.log(`tylko w A: ${f}`); diff++; continue; }
   let x = readFileSync(path.join(a, f), "utf8");
@@ -49,7 +48,6 @@ for (const f of fa) {
   if (zatw && f.endsWith(".html")) {
     const r = applyApproved(x.replace(/ aria-controls="[^"]*"/g, ""));
     if (r.used.length) approvedPages.set(f, r.used);
-    if (r.pending.length) pendingPages.set(f, r.pending);
     x = r.html;
   }
   if (nA(x) === nB(y)) continue;
@@ -72,8 +70,6 @@ for (const f of fb) if (!fa.includes(f)) { console.log(`tylko w B: ${f}`); diff+
 if (zatw) {
   console.log(`zatwierdzone zmiany naniesione na ${approvedPages.size} stron(y):`);
   for (const [f, u] of approvedPages) console.log(`  ${f}: ${u.join("; ")}`);
-  console.log(`DO ZATWIERDZENIA (DO_ZATWIERDZENIA, czeka na decyzję) — ${pendingPages.size} stron(y):`);
-  for (const [f, u] of pendingPages) console.log(`  ${f}: ${u.join("; ")}`);
 }
 console.log(`tylko dane RSC (widoczny HTML identyczny; pliki .rsc i <script> w .html): ${payloadOnly}`);
 console.log(`plików: ${fa.length}, z różnicą widocznej treści${zatw ? " poza zatwierdzonymi" : ""}: ${diff}`);
