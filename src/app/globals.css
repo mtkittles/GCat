@@ -2290,7 +2290,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 /* --- nagłówek na telefonie: niższy na podstronach, logo i szukanie bez zmian funkcji --- */
 @media (max-width: 767px) {
   body:not(:has(.sim-page)) .header-bar { min-height: 52px; gap: .6rem; }
-  body:not(:has(.sim-page)) .header-bar .brand-logo { height: 32px !important; }
+  body:not(:has(.sim-page)) .header-bar .brand-logo { height: 40px !important; }
   body:not(:has(.sim-page)) .header-tools button, body:not(:has(.sim-page)) .header-tools a { min-width: 44px; min-height: 44px; }
 }
 /* orientacja pozioma na telefonie: niższy pasek dolny, treść nadal nad paskiem */
@@ -2705,7 +2705,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 @media (max-width: 767px) {
   .site-footer { margin-top: 1.2rem; }
   .site-footer > div:first-child { padding-top: .7rem; padding-bottom: .3rem; column-gap: .75rem; row-gap: .15rem; }
-  .site-footer .brand-logo { height: 18px !important; width: auto !important; }
+  .site-footer .brand-logo { height: 40px !important; width: auto !important; }
   .site-footer .footer-tag { font-size: 9.5px; letter-spacing: .1em; opacity: .7; }
   .site-footer .footer-tag.ml-auto { margin-left: 0; }
   .site-footer .footer-ver { font-size: 10px; }

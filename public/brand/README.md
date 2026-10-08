@@ -4,9 +4,10 @@ Wszystkie pliki są generowane z jednej geometrii (wektory, tekst zamieniony na 
 
 | Plik | Do czego |
 |---|---|
-| `gcat-znak-{dark,light}.svg` | sam znak bez wąsów — nagłówek mobilny, małe rozmiary (od 16 px) |
-| `gcat-znak-wasy-{dark,light}.svg` | znak z wąsami — duże formaty |
-| `gcat-poziomy-{dark,light}.svg` | znak + napis GCAT — nagłówek, stopka (`BrandLogo`) |
+| `gcat-znak-{dark,light}.svg` | sam znak z wąsami (`BrandLogo variant="mark"`) |
+| `gcat-znak-maly-{dark,light}.svg` | znak bez wąsów — ikony, favicon, rozmiary poniżej ~40 px |
+| `gcat-poziomy-{dark,light}.svg` | znak + GCAT — nagłówek (`variant="horizontal"`) |
+| `gcat-poziomy-pelny-{dark,light}.svg/.png` | znak + GCAT + linia + hasło — strona główna, stopka (`variant="lockup"`) |
 | `gcat-pionowy-{dark,light}.svg/.png` | pełny znak: wąsy, linia, GCAT, hasło |
 | `gcat-baner-*-{dark,light}.svg/.png` | baner 1920×600: pełne tło / transparent z siatką / transparent czysty |
 
