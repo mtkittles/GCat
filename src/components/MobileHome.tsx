@@ -1,34 +1,8 @@
 import Tagline from "@/components/Tagline";
 import Link from "next/link";
 import Image from "next/image";
+import HubTiles from "./HubTiles";
 import HomeResume, { type ResumeLesson } from "./HomeResume";
-
-// accent: ikona pomarańczowa (jak w mockupie część kafli), reszta biała
-// Nauka, Symulator i Kalkulatory są stale w dolnym pasku — tu tylko działy, których tam nie ma.
-const TILES = [
-  { href: "/kody", label: ["Kody", "G i M"], icon: "code", accent: true },
-  { href: "/programy", label: ["Gotowe", "programy"], icon: "play", accent: false },
-  { href: "/zadania", label: ["Zadania", "i ćwiczenia"], icon: "task", accent: false },
-  { href: "/slownik", label: ["Słownik", "pojęć"], icon: "doc", accent: false },
-] as const;
-
-const ICONS: Record<string, string[]> = {
-  screen: ["M3 4h18v12H3z", "M8 20h8", "M12 16v4", "M7 8h10", "M7 12h6"],
-  cube: ["M12 2 3 7l9 5 9-5-9-5Z", "M3 7v10l9 5 9-5V7", "M12 12v10"],
-  calc: ["M5 2h14v20H5z", "M8 6h8", "M8 11h.01", "M12 11h.01", "M16 11h.01", "M8 15h.01", "M12 15h.01", "M16 15h.01", "M8 19h.01", "M12 19h.01", "M16 19h.01"],
-  doc: ["M14 2H6v20h12V6z", "M14 2v4h4", "M9 12h6", "M9 16h6"],
-  task: ["M15 3H5v18h7", "M15 3l4 4v5", "M8 9h6", "M8 13h4", "M14 18l2 2 4-4"],
-  code: ["M9 8l-5 4 5 4", "M15 8l5 4-5 4"],
-  play: ["M4 4h16v16H4z", "M10 8.5v7l6-3.5z"],
-};
-
-function Ico({ name }: { name: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
-      {ICONS[name].map((d) => <path key={d} d={d} />)}
-    </svg>
-  );
-}
 
 function SectionHead({ title }: { title: string }) {
   return (
@@ -57,14 +31,7 @@ export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
       {/* 2. szybki dostęp — te same nazwy co w menu na komputerze */}
       <div>
         <SectionHead title="Szybki dostęp" />
-        <div className="dash-grid dash-grid-4">
-          {TILES.map((t) => (
-            <Link key={t.href} href={t.href} className={`dash-tile${t.accent ? " is-accent" : ""}`}>
-              <Ico name={t.icon} />
-              <span>{t.label.map((l) => <span key={l} className="block">{l}</span>)}</span>
-            </Link>
-          ))}
-        </div>
+        <HubTiles compact />
       </div>
 
       {/* 3. powrót do nauki — tylko gdy jest zapisany postęp w tej przeglądarce */}
