@@ -40,7 +40,7 @@ export default function ProgramsPage() {
   });
   return (
     <div className="grid gap-6">
-      <PageBanner src="/img/banner-simulator.jpg" kicker="Biblioteka" title="Gotowe programy"
+      <PageBanner src="/img/banner-programy.jpg" kicker="Biblioteka" title="Gotowe programy"
         subtitle={`${PROGRAMS.length} kompletnych detali — każdy z kilkoma narzędziami, kartą technologiczną i opisem zabiegów. Otwórz dowolny w symulatorze i zobacz, jak powstaje detal.`} priority />
       <nav className="pg-jump" aria-label="Działy">
         {groups.flatMap((g) => g.cats.map((c) => <a key={c.id} href={`#${c.id}`}>{g.title}: {c.c} <b>{c.items.length}</b></a>))}
