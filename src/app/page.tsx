@@ -4,13 +4,10 @@ import BrandLogo from "@/components/BrandLogo";
 import HomeResume from "@/components/HomeResume";
 import TrackPicker from "@/components/lesson/TrackPicker";
 import { pl } from "@/lib/plural";
-import { PROGRAMS } from "@/content/programy";
 import SimClient from "@/components/simulator/SimClient";
-import RefTables from "@/components/RefTables";
+import HubTiles from "@/components/HubTiles";
 import SectionHeader from "@/components/ui/SectionHeader";
-import { exercises } from "@/lib/content";
 import { flat, lessonHref, readyLessons } from "@/lib/course";
-import { gcodes } from "@/lib/gcodes";
 
 const DEMO = `(PLYTKA MOCUJACA 80 x 50)
 G21 G90 G17 G54 G40 G80
@@ -60,27 +57,12 @@ G80
 G00 Z50
 M30`;
 
-const I = {
-  book: "M4 5.5A1.5 1.5 0 0 1 5.5 4H19v16H5.5A1.5 1.5 0 0 1 4 18.5zM9 4v16",
-  play: "M8 5l11 7-11 7z",
-  code: "M9 8l-5 4 5 4M15 8l5 4-5 4",
-  calc: "M6 3h12v18H6zM9 7h6M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h5",
-  check: "M4 12l5 5L20 6",
-};
-
-
 const NAUKA_TOTAL = flat("frezowanie").length + flat("toczenie").length;
 const QUICK_LESSONS = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({ track: t, id: l.id, title: l.title, href: lessonHref(t, l.slug!) })));
 
 // „G‑kod” z twardym łącznikiem — nie rozdziela się między wierszami
 const GK = "G\u2011kod";
 
-const ACCESS = [
-  { href: "/kody", ico: I.code, t: "Kody G i M", d: "Karty funkcji: składnia Fanuc i Sinumerik, przykłady, typowe błędy.", m: pl(gcodes.length, "karta", "karty", "kart") },
-  { href: "/kalkulator", ico: I.calc, t: "Kalkulatory", d: "Obroty, posuw, wydajność i szacowana moc — frezowanie, toczenie, wiercenie, gwinty.", m: "4 moduły" },
-  { href: "/programy", ico: I.play, t: "Gotowe programy", d: "Kompletne programy z narzędziami, do otwarcia w symulatorze.", m: pl(PROGRAMS.length, "detal", "detale", "detali") },
-  { href: "/zadania", ico: I.check, t: "Zadania", d: "Napisz program — symulator porówna tor z rozwiązaniem.", m: pl(exercises.length, "zadanie", "zadania", "zadań") },
-];
 
 export default function Home() {
   return (
@@ -113,24 +95,12 @@ export default function Home() {
         <TrackPicker />
       </section>
 
-      {/* 5: baza wiedzy i narzędzia — na telefonie te działy są w „Szybkim dostępie” i dolnym pasku */}
+      {/* 5: baza wiedzy i narzędzia — kafelki ze zdjęciem; na telefonie ta sama siatka jest w MobileHome */}
       <section className="grid gap-4 home-access">
-        <SectionHeader eyebrow="Baza wiedzy i narzędzia" title="Kody, kalkulatory, programy, zadania" />
-        <div className="pillars">
-          {ACCESS.map((p) => (
-            <Link key={p.href} href={p.href} className="pillar">
-              <span className="pillar-ico">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={p.ico} /></svg>
-              </span>
-              <b>{p.t}</b>
-              <span>{p.d}</span>
-              <span className="pillar-meta">{p.m}</span>
-            </Link>
-          ))}
-        </div>
+        <SectionHeader eyebrow="Baza wiedzy i narzędzia" title="Kody, programy, kalkulatory, zadania"
+          lead="Pełna lista funkcji G i M z filtrami jest w katalogu kodów." action={<Link className="btn ghost" href="/kody">Katalog kodów</Link>} />
+        <HubTiles />
       </section>
-
-      <RefTables />
     </div>
   );
 }
