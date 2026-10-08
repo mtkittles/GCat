@@ -71,7 +71,7 @@ export default function Home() {
 
       {/* 1–2: czym jest GCat i dwie główne akcje — statyczny pierwszy ekran */}
       <section className="home-intro" aria-labelledby="hi-title">
-        <div className="hi-brand"><BrandLogo height={96} variant="lockup" forceDark /></div>
+        <div className="hi-brand"><BrandLogo height={76} variant="lockup" forceDark /></div>
         <h1 id="hi-title" className="hi-title">Naucz się czytać i pisać {GK}.</h1>
         <p className="hi-lead">GCat to nauka programowania CNC po polsku: {pl(NAUKA_TOTAL, "lekcja", "lekcje", "lekcji")} frezowania i toczenia z testami, symulator toru narzędzia w 2D i 3D oraz karty kodów ze składnią Fanuc i Sinumerik.</p>
         <div className="hi-actions">
@@ -81,15 +81,15 @@ export default function Home() {
         <HomeResume lessons={QUICK_LESSONS} />
       </section>
 
-      <section className="grid gap-4">
+      <section className="grid gap-4 home-sim">
         <SectionHeader eyebrow="Symulator" title="Zobacz, co robi Twój program"
           lead="Kontur, kieszeń, rowki i cztery otwory cyklem G81. Dwa narzędzia, jeden program."
           action={<Link className="btn ghost" href="/symulator">Otwórz pełny symulator</Link>} />
         <div className="reveal reveal-1"><SimClient initial={DEMO} mode="mill" showcase autoplay editable={false} /></div>
       </section>
 
-      {/* 4: wybór ścieżki */}
-      <section className="grid gap-4">
+      {/* 4: wybór ścieżki — na telefonie przesunięty nad symulację (CSS order), bo „Rozpocznij naukę” prowadzi do wyboru ścieżki */}
+      <section className="grid gap-4 home-paths">
         <SectionHeader eyebrow="Nauka" title="Frezowanie czy toczenie?"
           lead="Każda ścieżka prowadzi od osi maszyny do kompletnego programu detalu." />
         <TrackPicker />

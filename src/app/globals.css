@@ -2741,3 +2741,14 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* przełącznik motywu: ikony SVG w kolorze tekstu (znak ☀ telefony renderowały jako żółte emoji) */
 .theme-toggle svg { width: 18px; height: 18px; display: block; }
+
+/* ===== Główna: kolejność i wysokość pierwszego ekranu ===== */
+/* telefon: baner + szybki dostęp → wybór ścieżki → symulacja */
+@media (max-width: 767px) {
+  .mobile-dash { order: -2; }
+  .home-paths { order: -1; }
+}
+/* PC: niższy baner otwierający, żeby symulacja zaczynała się na pierwszym ekranie */
+@media (min-width: 768px) {
+  .home-intro { min-height: clamp(260px, 34vh, 360px); gap: .75rem; padding: clamp(1.4rem, 3.2vw, 2.6rem); }
+}
