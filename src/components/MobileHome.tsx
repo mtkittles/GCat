@@ -18,7 +18,7 @@ export default function MobileHome({ lessons }: { lessons: ResumeLesson[] }) {
     <section className="mobile-dash">
       {/* 1. obietnica wartości i start — jeden statyczny baner zamiast karuzeli */}
       <div className="m-hero">
-        <Image src="/img/hero-cnc.jpg" alt="" fill sizes="100vw" className="m-hero-photo" priority />
+        <Image src="/img/hero-cnc-mobile.jpg" alt="" fill sizes="100vw" className="m-hero-photo" priority />
         <div className="m-hero-scrim" />
         <div className="m-hero-body">
           <span className="m-hero-k"><Tagline /></span>

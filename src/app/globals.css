@@ -2338,7 +2338,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* --- statyczny baner na telefonie --- */
 .m-hero { position: relative; overflow: hidden; border-radius: 18px; min-height: 300px; display: grid; align-content: end; border: 1px solid var(--line); color: #fff; isolation: isolate; }
-.m-hero-photo { object-fit: cover; object-position: 65% 50%; z-index: 0; }
+.m-hero-photo { object-fit: cover; object-position: 60% 28%; z-index: 0; }
 .m-hero-scrim { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(9,11,15,.05) 0%, rgba(9,11,15,.55) 45%, rgba(9,11,15,.94) 100%); }
 .m-hero-body { position: relative; z-index: 2; display: grid; gap: .5rem; padding: 1.1rem 1rem 1.1rem; justify-items: start; }
 .m-hero-k { font: 700 12px/1 var(--font-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--accent); }
