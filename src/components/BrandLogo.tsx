@@ -3,9 +3,10 @@ import Image from "next/image";
 import { useSyncExternalStore } from "react";
 
 /*
-  Znak marki GCat — pliki z /public/brand, ciasno przycięte SVG (bez marginesów).
-  "mark"       → sam znak (głowa kota / G)
-  "horizontal" → znak + sygnatura GCat w poziomie (nagłówek)
+  Znak marki GCat (v3: głowa kota z frezem w oprawce, napis GCAT) — pliki z /public/brand,
+  ciasno przycięte SVG. Źródło: public/brand/README.md.
+  "mark"       → sam znak, bez wąsów (czytelny od 16 px)
+  "horizontal" → znak + napis GCAT w poziomie (nagłówek, stopka)
   "lockup"     → alias "horizontal" (zgodność wsteczna); hasło renderuje <Tagline /> jako tekst
 */
 const subscribe = (cb: () => void) => {
@@ -15,7 +16,7 @@ const subscribe = (cb: () => void) => {
 };
 const isDark = () => document.documentElement.dataset.theme === "dark";
 
-const RATIO = { mark: 0.824, horizontal: 2.752 } as const;
+const RATIO = { mark: 0.768, horizontal: 2.595 } as const;
 
 export default function BrandLogo({
   height = 34,
