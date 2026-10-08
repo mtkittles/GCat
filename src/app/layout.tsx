@@ -5,7 +5,6 @@ import { SITE_URL } from "@/lib/site";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
-import Tagline from "@/components/Tagline";
 import "./globals.css";
 
 // Czcionki serwowane z własnej domeny (bez żądań do Google Fonts), nazwy jak w globals.css.
@@ -40,8 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
         <footer className="site-footer">
           <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <BrandLogo height={26} variant="lockup" />
-            <span className="footer-tag"><Tagline /></span>
+            <BrandLogo height={56} variant="lockup" />
             <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
             <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
           </div>

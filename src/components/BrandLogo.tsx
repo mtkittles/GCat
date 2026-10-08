@@ -3,10 +3,10 @@ import Image from "next/image";
 import { useSyncExternalStore } from "react";
 
 /*
-  Znak marki GCat — pliki z /public/brand, ciasno przycięte SVG (bez marginesów).
-  "mark"       → sam znak (głowa kota / G)
-  "horizontal" → znak + sygnatura GCat w poziomie (nagłówek)
-  "lockup"     → alias "horizontal" (zgodność wsteczna); hasło renderuje <Tagline /> jako tekst
+  Znak marki GCat (v3) — pliki z /public/brand, ciasno przycięte SVG. Opis: public/brand/README.md.
+  "mark"       → sam znak z wąsami
+  "horizontal" → znak + GCAT (nagłówek)
+  "lockup"     → znak + GCAT + linia + hasło (strona główna, stopka)
 */
 const subscribe = (cb: () => void) => {
   const o = new MutationObserver(cb);
@@ -15,7 +15,7 @@ const subscribe = (cb: () => void) => {
 };
 const isDark = () => document.documentElement.dataset.theme === "dark";
 
-const RATIO = { mark: 0.824, horizontal: 2.752 } as const;
+const RATIO = { mark: 1.062, horizontal: 2.809, lockup: 2.610 } as const;
 
 export default function BrandLogo({
   height = 34,
@@ -24,13 +24,14 @@ export default function BrandLogo({
 }: { height?: number; variant?: "horizontal" | "lockup" | "mark"; forceDark?: boolean }) {
   const dark = useSyncExternalStore(subscribe, isDark, () => false);
   const theme = (forceDark ?? dark) ? "dark" : "light";
-  const kind = variant === "mark" ? "mark" : "horizontal";
-  const src = kind === "mark" ? `/brand/gcat-znak-${theme}.svg` : `/brand/gcat-poziomy-${theme}.svg`;
+  const kind = variant;
+  const file = { mark: "gcat-znak", horizontal: "gcat-poziomy", lockup: "gcat-poziomy-pelny" }[kind];
+  const src = `/brand/${file}-${theme}.svg`;
 
   return (
     <Image
       src={src}
-      alt="GCat"
+      alt={kind === "lockup" ? "GCat — ucz się, programuj, skrawaj" : "GCat"}
       height={height}
       width={Math.round(height * RATIO[kind])}
       className="brand-logo"

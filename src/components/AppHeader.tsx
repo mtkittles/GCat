@@ -25,7 +25,7 @@ export default function AppHeader() {
   return (
     <header className="site-header">
       <div className="wrap header-bar">
-        <Link href="/" aria-label="GCat — strona główna" className="brand"><BrandLogo height={38} /></Link>
+        <Link href="/" aria-label="GCat — strona główna" className="brand"><BrandLogo height={48} /></Link>
 
         <nav className="desktop-nav" aria-label="Nawigacja główna">
           {NAV.map((n) => (
