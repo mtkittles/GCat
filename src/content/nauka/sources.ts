@@ -27,4 +27,12 @@ export const sources: Record<string, Source> = {
     id: "sandvik", short: "Sandvik Coromant — poradnik",
     full: "Sandvik Coromant, poradnik techniczny obróbki skrawaniem (toczenie, frezowanie, wiercenie).",
   },
+  haas: {
+    id: "haas", short: "Haas — kody G frezarki",
+    full: "Haas Automation, Mill Operator's Manual — G-codes (G83: Q jako przyrost, start posuwu od R, ustawienia wycofania). haascnc.com, dostęp 10/2026.",
+  },
+  vergnano: {
+    id: "vergnano", short: "Vergnano — geometria gwintowników",
+    full: "Vergnano, Technical information — opis oznaczeń geometrii gwintowników (formy nakroju: C 2–3 zwoje, E 1,5–2 zwoje). vergnano.com, dostęp 10/2026.",
+  },
 };

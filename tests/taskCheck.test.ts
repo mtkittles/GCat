@@ -3,6 +3,7 @@ import { runTaskChecks } from "@/lib/taskCheck";
 import type { LessonDoc, Practice } from "@/lib/lesson";
 import { f2_3 } from "@/content/nauka/f2-3";
 import { f2_4 } from "@/content/nauka/f2-4";
+import { f5_2 } from "@/content/nauka/f5-2";
 import { f5_3 } from "@/content/nauka/f5-3";
 import { f5_4 } from "@/content/nauka/f5-4";
 
@@ -47,7 +48,7 @@ describe("zadania Nauki — inne poprawne zapisy też przechodzą", () => {
     expect(r.checks.filter((c) => !c.ok)).toEqual([]);
   });
   it("F5.3: G95 z F1. (posuw na obrót = skok)", () => {
-    const s = sub(task(f5_3).solution, "G84 X10. Y10. Z-12. R5. F500", "G95\nG84 X10. Y10. Z-12. R5. F1.");
+    const s = sub(task(f5_3).solution, "G84 X10. Y10. Z-15. R5. F500", "G95\nG84 X10. Y10. Z-15. R5. F1.");
     expect(run(f5_3, s).passed).toBe(true);
   });
   it("F5.4: jawne G99 X75. po przejeździe nad dociskiem", () => {
@@ -75,7 +76,7 @@ describe("zadania Nauki — kontrprzykłady z audytu są odrzucane", () => {
     expect(run(f2_4, s).passed).toBe(false);
   });
   it("F5.3: G84 z F100 przy S500 i skoku 1, F500 dopisane po G80", () => {
-    let s = sub(task(f5_3).solution, "G84 X10. Y10. Z-12. R5. F500", "G84 X10. Y10. Z-12. R5. F100");
+    let s = sub(task(f5_3).solution, "G84 X10. Y10. Z-15. R5. F500", "G84 X10. Y10. Z-15. R5. F100");
     s = sub(s, "G80", "G80\nF500");
     const r = run(f5_3, s);
     expect(r.passed).toBe(false);
@@ -87,5 +88,23 @@ describe("zadania Nauki — kontrprzykłady z audytu są odrzucane", () => {
     const r = run(f5_4, s);
     expect(r.passed).toBe(false);
     expect(r.checks.find((c) => c.label.startsWith("Przejazd nad dociskiem"))?.ok).toBe(false);
+  });
+});
+
+describe("F5.2/F5.3 — bilans głębokości otworu gwintowanego (audyt #29, A02/A06)", () => {
+  it("G83 R2 Z−18 Q4: pięć zagłębień liczonych od R", async () => {
+    const { parseProgram } = await import("@/lib/parser");
+    const sol = task(f5_2).solution;
+    const first = sol.split("\n").slice(0, sol.split("\n").findIndex((l) => l.startsWith("X70.")));
+    const p = parseProgram(first.join("\n"), {});
+    const bottoms = p.segments.filter((s) => s.kind === "linear" && s.to.z < s.from.z).map((s) => +s.to.z.toFixed(3));
+    expect(bottoms).toEqual([-2, -6, -10, -14, -18]);
+  });
+  it("koniec gwintownika (Z w G84) leży powyżej końca pełnej średnicy otworu", () => {
+    const zOf = (src: string, code: string) => Number(src.match(new RegExp(`${code}[^\\n]*Z(-?[\\d.]+)`))![1]);
+    const zTip = zOf(task(f5_2).solution, "G83"), zTap = zOf(task(f5_3).solution, "G84");
+    const full = zTip + 0.18 * 5; // wiertło Ø5, 140°
+    expect(zTap).toBe(-15);       // 12 mm pełnego gwintu + 3 mm nakroju
+    expect(zTap - full).toBeGreaterThanOrEqual(2);
   });
 });
