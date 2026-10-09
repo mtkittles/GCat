@@ -64,11 +64,12 @@ export const f5_3: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Dopisz gwintowanie sztywne czterech otworów. Sprawdzane: tor roboczy, G84, G80, M29 i poprawny posuw.",
+      intro: "Dopisz gwintowanie sztywne czterech otworów. Sprawdzane: tor roboczy, G84, G80, M29 i posuw aktywny w cyklu.",
       starter,
       checks: [
         { t: "cut", reference: `G90\nG00 Z50.\n${cycle}`, tolerance: 0.05 },
-        { t: "require", codes: ["G84", "G80", "M29", "F500"] },
+        { t: "require", codes: ["G84", "G80", "M29"] },
+        { t: "tapFeed", pitch: 1, label: "Posuw w cyklu G84 zgodny ze skokiem M6×1 (G94: F = S · P)" },
       ],
       hints: ["M29 S500, potem G84 X10. Y10. Z-12. R5. F500.", "Pozostałe otwory: X70., Y40., X10. Na koniec G80."],
       solution: starter.replace("(DOPISZ: M29 S500, CYKL G84 DLA CZTERECH OTWOROW,\n Z-12. R5. F500, NA KONIEC G80)\n", cycle),

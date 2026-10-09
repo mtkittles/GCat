@@ -29,6 +29,7 @@ export default function ProgramTask({ starter, checks, hints = [], solution, mod
         <div className={`result ${res.passed ? "ok" : "bad"}`}>
           <div className="result-head">{res.passed ? "Zaliczone" : "Jeszcze nie"}</div>
           <ul>{res.checks.map((c, i) => <li key={i} className={c.ok ? "ok" : "bad"}><span aria-hidden>{c.ok ? "✓" : "✗"}</span> {c.label}{c.detail ? ` — ${c.detail}` : ""}</li>)}</ul>
+          {res.passed && <p className="text-sm text-muted mt-2">Zaliczenie obejmuje tylko warunki z listy. Nie zastępuje sprawdzenia programu na konkretnej obrabiarce.</p>}
         </div>
       )}
       {showSol && (

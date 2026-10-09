@@ -39,7 +39,7 @@ export const f2_3: LessonDoc = {
       kind: "task", mode: "mill",
       intro: "Program ma ruchy robocze bez posuwu. Oblicz posuw konturowy z fz i wpisz osobny posuw zejścia.",
       starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. (DOPISZ POSUW ZEJSCIA)\nG01 X-5. (DOPISZ POSUW KONTUROWY)\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
-      checks: [{"t":"require","codes":["F150","F400"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
+      checks: [{"t":"feed","on":"plunge","f":150,"label":"Zejście w Z z aktywnym F150"},{"t":"feed","on":"xy","f":400,"label":"Kontur z aktywnym F400"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["Posuw konturowy: fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.","Zejście w Z: ok. 40 % z 400, zaokrąglone — `F150` w bloku `G01 Z-5.`; `F400` w pierwszym bloku konturu."],
       solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
     },
