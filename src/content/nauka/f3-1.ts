@@ -36,7 +36,7 @@ export const f3_1: LessonDoc = {
       "**Odjazd:** najpierw sam Z w górę, dopiero potem XY.",
       "Ostatnie milimetry przed materiałem pokonuje G01 z posuwem (lekcja F3.2).",
     ] },
-    { t: "note", kind: "warn", x: "Ruch szybki prowadzący przez materiał może uszkodzić narzędzie, przesunąć detal lub przeciążyć maszynę. Przed uruchomieniem sprawdź cały tor względem półfabrykatu i mocowania — sama bezpieczna pozycja końcowa nie zapewnia bezpiecznego przejazdu." },
+    { t: "note", kind: "warn", x: "Ruch szybki prowadzący przez materiał może uszkodzić narzędzie, przesunąć detal lub przeciążyć maszynę. Przed uruchomieniem sprawdź cały tor względem [[półfabrykat|półfabrykatu]] i mocowania — sama bezpieczna pozycja końcowa nie zapewnia bezpiecznego przejazdu." },
   ],
 
   worked: {

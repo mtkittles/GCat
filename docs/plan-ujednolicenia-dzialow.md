@@ -23,7 +23,7 @@ Pełna lista kart i haseł — wynik `npm run audit:dzialy`.
 
 Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i liczby odbiorców.
 
-### Paczka A — Zadania i Kalkulator (małe, mechaniczne, z kontrolą kontekstu)
+### Paczka A — Zadania i Kalkulator (małe, mechaniczne, z kontrolą kontekstu) — **zrobione** (#66 i jedna paczka sprint 20)
 1. Zadania: `G94` w bloku startowym wzorców i starterów frezarskich; `G43 H` po wymianie narzędzia w 3 wzorcach — każde zadanie osobno, sprawdzenie, że tor wzorca się nie zmienia.
 2. Zadania: linia profilu nad treścią (jak w lekcjach) i odnośnik „Powtórz: lekcja …”.
 3. Kalkulator: źródło wzorów (Kuryjański, wydanie, rozdział, strony) i odnośniki do lekcji.
@@ -39,6 +39,13 @@ Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i 
 ### Paczka C — Kody: język i warunki
 1–3. 10 kart ze „zawsze” i 3 z językiem „złamane narzędzie” — przeredagowanie według zasad z audytu Nauki (sytuacja → przyczyna → blok → rezultat).
 4–5. Karty bez ★ w kolejności z `docs/karty-kodow.md` §6.
+
+### Stan po paczce A (sprint 20)
+
+- Zadania: 0 ostrzeżeń, 0 bez G94, 0 bez lekcji do powtórki; profil nad treścią. Przy okazji poprawione błędy merytoryczne: faza w `toczenie-czolo` skrawała w powietrzu, „przekrycie 50%” w `planowanie`.
+- Kalkulator: źródła (Kuryjański, Storch), Rt zamiast Rz, odnośniki do lekcji. Wzory na Q, P, Rt i otwór pod gwint — źródło do uzupełnienia.
+- Słownik: 0 haseł ze słowami bezwarunkowymi; 27 haseł z odnośnikiem z lekcji (liczone z `[[…]]`); bez karty i lekcji zostało `kc` (używane w kalkulatorze).
+- Programy: profil zapisu i zastrzeżenie o parametrach na stronie programu.
 
 ## Zasady (bez zmian)
 

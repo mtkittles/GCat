@@ -8,7 +8,9 @@ import { diagrams } from "@/components/diagrams";
 
 const first = (t: string) => t.trim().charAt(0).toLocaleUpperCase("pl");
 
-export default function Glossary() {
+type LessonLink = { id: string; title: string; href: string };
+
+export default function Glossary({ lessons = {} }: { lessons?: Record<string, LessonLink[]> }) {
   const [q, setQ] = useState("");
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -37,6 +39,11 @@ export default function Glossary() {
             <dd>
               <p>{e.def}</p>
               {e.diagram && diagrams[e.diagram] && <div className="glossary-fig">{diagrams[e.diagram]()}</div>}
+              {lessons[e.anchor]?.length > 0 && (
+                <p className="text-sm text-muted gl-lessons">
+                  W lekcjach: {lessons[e.anchor].map((l, i) => <span key={l.href}>{i > 0 && " · "}<Link href={l.href} title={l.title} className="underline">{l.id}</Link></span>)}
+                </p>
+              )}
               {e.see.length > 0 && (
                 <p className="text-sm text-muted">
                   Zobacz: {e.see.map((s, i) => { const g = bySlug(s); return g ? <span key={s}>{i > 0 && ", "}<Link href={`/kody/${s}`} className="underline">{g.code}</Link></span> : null; })}
