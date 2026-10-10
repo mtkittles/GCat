@@ -1,4 +1,4 @@
-import { Code, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu T5 — cykle zgrubne. Z w prawo, X (promień) w górę. */
 
@@ -15,7 +15,7 @@ export function G71Passes() {
   return (
     <Fig id="t51gp" code="G71" title="G71: przejścia wzdłużne aż do konturu z naddatkiem" h={232} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="acc">G71 U2. R0.5</Code><Code k="acc">G71 P10 Q20 U0.4 W0.1 F0.3</Code></>}
-      caption={<>Z punktu startowego A cykl schodzi warstwami po U = 2 mm, każdą warstwę toczy do konturu przesuniętego o naddatek, wycofuje się pod kątem 45° o R = 0,5 i wraca ruchem szybkim. Na końcu przechodzi raz po konturze z naddatkiem i wraca do A.</>}>
+      caption={<>Z punktu startowego A cykl schodzi warstwami po U = 2 mm, każdą warstwę toczy do konturu przesuniętego o naddatek, wycofuje się pod kątem 45° o R = 0,5 i wraca ruchem szybkim. Na końcu przechodzi raz po konturze z naddatkiem (pomarańczowy) i wraca do A. Biały kontur to wymiar gotowy — wykona go G70 nożem wykańczającym. Numery odpowiadają krokom przykładu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-58)} y={m.Y(20)} width={58 * m.u} height={20 * m.u} className="panel-bg" />
@@ -34,6 +34,11 @@ export function G71Passes() {
           <polyline points={PROF.map(([z, r]) => P(m, z + 0.1, r + 0.2)).join(" ")} className="p-acc" style={{ fill: "none" }} />
           <Pt x={m.X(2)} y={m.Y(21)} label="A" pos="ne" cls="t-mono t-b" dot="pt-rap" />
           <T x={m.X(-57)} y={m.Y(21.4)} cls="t-mut t-sm">pręt Ø40</T>
+          <Step x={m.X(5)} y={m.Y(23)} n={1} />
+          <Step x={m.X(5)} y={m.Y(18.6)} n={2} />
+          <Step x={m.X(-30)} y={m.Y(12.6)} n={3} />
+          <Step x={m.X(-10)} y={m.Y(6.5)} n={4} />
+          <T x={m.X(-7.5)} y={m.Y(6.5) + 4} cls="t-mono t-sm">G70</T>
         </g>
       )}
     </Fig>
@@ -101,6 +106,37 @@ export function G72Passes() {
   );
 }
 
+
+/* ================= T5.2: przykład — kontur G72 i warstwy ================= */
+export function G72Layers() {
+  const R: [number, number, number, number] = [-20, 6, -1, 34];
+  const m = mapper(R, [30, 6, 300, 214]);
+  const layers = [0, -2, -4, -6, -8, -10, -12, -14];
+  return (
+    <Fig id="t52ly" code="G72" title="Kołnierz: kontur od głębi do czoła i warstwy w Z" h={236} legend={["rap", "cut", "acc", "stock"]}
+      notes={<><Code k="rap">1  N10 G00 Z-15.</Code><Code k="cut">2  G01 X30. F0.1 → Z-1.</Code><Code k="cut">3  N20 X28. Z0.</Code><Code k="acc">4  G72 W2. R0.5 / G72 P10 Q20 U0.4 W0.1 F0.25</Code></>}
+      caption={<>Pręt Ø60, czoło na Z0. Kontur biegnie od głębi kołnierza do czoła. Zielone pasy to materiał zdejmowany kolejnymi warstwami po 2 mm w Z; pomarańczowa linia — kontur z naddatkiem, który zostaje po G72 na nóż wykańczający. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <polygon points={`${P(m, 0, 0)} ${P(m, 0, 14)} ${P(m, -1, 15)} ${P(m, -15, 15)} ${P(m, -15, 30)} ${P(m, -18, 30)} ${P(m, -18, 0)}`} fill={c.hatch} className="p-con" />
+          {layers.map((z, i) => <rect key={z} x={m.X(Math.max(z - 2, -14.9))} y={m.Y(30)} width={(Math.min(2, z + 14.9)) * m.u} height={(30 - 15.2) * m.u} className="p-fill-cut" opacity={i % 2 ? 0.35 : 0.7} />)}
+          <line x1={m.X(-20)} y1={m.Y(0)} x2={m.X(6)} y2={m.Y(0)} className="p-cons" />
+          <polyline points={`${P(m, -14.9, 30)} ${P(m, -14.9, 15.2)} ${P(m, -0.9, 15.2)} ${P(m, 0.1, 14.2)}`} className="p-acc thick" style={{ fill: "none" }} />
+          <line x1={m.X(2)} y1={m.Y(32)} x2={m.X(-15) + 3} y2={m.Y(32)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={m.X(-3)} y={m.Y(32) + 13} n={1} />
+          <line x1={m.X(-15)} y1={m.Y(32)} x2={m.X(-15)} y2={m.Y(15) + 3} className="p-cut" markerEnd={c.a("cut")} />
+          <Step x={m.X(-17.4)} y={m.Y(22)} n={2} />
+          <Step x={m.X(-1.8)} y={m.Y(11.5)} n={3} />
+          <Step x={m.X(-7)} y={m.Y(26)} n={4} />
+          <Pt x={m.X(2)} y={m.Y(32)} label="A — X64 Z2" pos="e" cls="t-mono t-sm" dot="pt-rap" />
+          <Pt x={m.X(0)} y={m.Y(14)} label="X28 Z0" pos="e" cls="t-mono t-sm" />
+          <T x={m.X(-8)} y={m.Y(7) + 4} anchor="middle" cls="t-mut t-sm">piasta Ø30</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T5.3: CYCLE95 ================= */
 export function Cycle95Layout() {
   return (
@@ -123,9 +159,48 @@ export function Cycle95Layout() {
   );
 }
 
+
+/* ================= T5.3: przykład — G71 → CYCLE95 ================= */
+export function ParamMap() {
+  const rows: [string, string, string][] = [
+    ["U0.4 (średnica)", "÷ 2", "FALX = 0.2"],
+    ["W0.1", "bez zmian", "FALZ = 0.1"],
+    ["F0.3", "bez zmian", "FF1 = 0.3"],
+    ["G71 U2. (1. blok)", "głębokość", "MID = 2"],
+  ];
+  return (
+    <Fig id="t53pm" code="FALX" title="Przeniesienie wartości z G71 do CYCLE95" h={214} legend={["acc"]}
+      notes={<><Code k="con">CYCLE95(NPP, MID, FALZ, FALX, FAL, FF1, FF2, FF3, VARI, DT, DAM, _VRT)</Code></>}
+      caption={<>Lewa kolumna — Fanuc, prawa — parametr cyklu Sinumerika w starszej składni CYCLE95. Przeliczenie FALX zakłada, że cykl przyjmuje naddatek w X w promieniu — sprawdź to w instrukcji cykli swojej wersji sterowania. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <T x={70} y={22} anchor="middle" cls="t-mut t-sm">Fanuc G71</T>
+          <T x={290} y={22} anchor="middle" cls="t-mut t-sm">CYCLE95</T>
+          {rows.map(([a, op, b], i) => {
+            const y = 36 + i * 44;
+            return (
+              <g key={b}>
+                <rect x={8} y={y} width={136} height={30} rx={6} className="panel-bg" />
+                <T x={76} y={y + 19} anchor="middle" cls="t-mono t-sm">{a}</T>
+                <line x1={146} y1={y + 15} x2={222} y2={y + 15} className="p-acc" markerEnd={c.a("acc")} />
+                <T x={184} y={y + 9} anchor="middle" cls="t-acc t-sm t-b">{op}</T>
+                <rect x={224} y={y} width={128} height={30} rx={6} className="panel-bg" style={{ stroke: "var(--accent)" }} />
+                <T x={288} y={y + 19} anchor="middle" cls="t-mono t-acc t-b t-sm">{b}</T>
+                <Step x={184} y={y + 26} n={i + 1} />
+              </g>
+            );
+          })}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const t5Figs = {
   "t51-g71": () => <G71Passes />,
   "t51-layout": () => <CycleLayout />,
   "t52-g72": () => <G72Passes />,
+  "t52-layers": () => <G72Layers />,
   "t53-cycle95": () => <Cycle95Layout />,
+  "t53-map": () => <ParamMap />,
 };

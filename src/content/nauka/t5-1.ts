@@ -57,7 +57,6 @@ export const t5_1: LessonDoc = {
   theory: [
     { t: "h", x: "Po co cykl", id: "po-co" },
     { t: "p", x: "W T3.2 pięć przejść zgrubnych zajęło 20 bloków, a każde przejście trzeba było policzyć ręcznie. Zmiana naddatku albo głębokości skrawania oznaczała przeliczenie wszystkiego. [[G71]] liczy przejścia sam: wystarczy mu kontur gotowego detalu, głębokość skrawania i naddatki." },
-    { t: "diagram", id: "t51-g71" },
 
     { t: "h", x: "Zapis — dwa bloki", id: "zapis" },
     { t: "code", x: "G71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.3" },
@@ -68,13 +67,13 @@ export const t5_1: LessonDoc = {
       ["**U**", "drugi", "naddatek na wykończenie w X — w średnicy"],
       ["**W**", "drugi", "naddatek na wykończenie w Z"],
       ["**F**", "drugi", "posuw obróbki zgrubnej"],
-    ], caption: "Ta sama litera U znaczy w dwóch blokach co innego: w pierwszym głębokość (promień), w drugim naddatek (średnica). Starsze sterowania Fanuc używają zapisu jednoblokowego z adresem D." },
+    ], caption: "Ta sama litera U znaczy w dwóch blokach co innego: w pierwszym głębokość (promień), w drugim naddatek (średnica). Ten zapis dwublokowy to wariant z instrukcji Fanuc dla tokarek w systemie A. Część starszych sterowań Fanuc i tokarki Haas używają zapisu jednoblokowego z głębokością w adresie D — składni z kursu nie przenosi się na nie wprost." },
 
     { t: "h", x: "Wymagania dla konturu", id: "kontur" },
     { t: "ul", items: [
       "**Punkt startowy A** — przed wywołaniem cyklu nóż stoi ponad surówką i przed czołem, np. X42 Z2. Z niego cykl zaczyna i do niego wraca.",
-      "**Pierwszy blok konturu (N10)** — ruch tylko w X, z A do początku konturu. Tak cykl rozpoznaje kierunek.",
-      "**Kontur monotoniczny** — w podstawowym wariancie X nie może maleć w stronę uchwytu. Podcięcia i kieszenie wymagają innego wariantu cyklu.",
+      "**Pierwszy blok konturu (N10)** — w typie I ruch tylko w X, z A do początku konturu. Wałek z kursu ma kontur typu I.",
+      "**Kontur monotoniczny** — w podstawowym wariancie (typ I według instrukcji Fanuc) kontur musi zmieniać się monotonicznie w obu osiach: X nie maleje, a Z nie wraca w stronę czoła. Kieszenie w X dopuszcza typ II, który na części sterowań jest opcją i rozpoznaje się go po tym, że pierwszy blok konturu ma ruch w obu osiach. Szczegóły i dostępność typów sprawdź w instrukcji swojego sterowania.",
       "**F, S, T w konturze** działają dopiero w G70. G71 używa F z własnego bloku.",
     ] },
 
@@ -85,12 +84,13 @@ export const t5_1: LessonDoc = {
 
   worked: {
     title: "Wałek cyklem G71 i G70",
-    intro: "Kontur z T3.3, pręt Ø40, nóż zgrubny T0101 i wykańczający T0202. Naddatek jak w ręcznej wersji: 0,4 na średnicy, 0,1 w Z.",
+    intro: "Sytuacja: kontur wałka z T3.3, pręt Ø40, nóż zgrubny T0101 i wykańczający T0202. Zamiast pięciu ręcznych przejść z T3.2 — jeden cykl. Naddatek jak w wersji ręcznej: 0,4 na średnicy, 0,1 w Z. Numery na rysunku to numery kroków.",
+    fig: "t51-g71",
     steps: [
-      { x: "Punkt startowy ponad prętem, przed czołem.", code: "G00 X42. Z2." },
-      { x: "Głębokość 2 mm na stronę, wycofanie 0,5.", code: "G71 U2. R0.5" },
-      { x: "Kontur N10–N20, naddatki, posuw zgrubny.", code: "G71 P10 Q20 U0.4 W0.1 F0.3" },
-      { x: "Po zmianie noża: dojazd z G42 i wykończenie.", code: "G70 P10 Q20" },
+      { x: "Punkt startowy A ponad prętem, przed czołem — z niego cykl rusza i do niego wraca.", code: "G00 X42. Z2." },
+      { x: "Głębokość 2 mm na stronę, wycofanie 0,5. Pierwsza warstwa: 42 − 2 · 2 = Ø38.", code: "G71 U2. R0.5" },
+      { x: "Kontur N10–N20, naddatki, posuw zgrubny. Ostatnie przejście cyklu idzie po konturze z naddatkiem.", code: "G71 P10 Q20 U0.4 W0.1 F0.3" },
+      { x: "Po zmianie noża: dojazd z G42 i wykończenie na wymiar z rysunku.", code: "G70 P10 Q20" },
     ],
     result: "Program skrócił się o ponad 20 bloków. Zmiana naddatku albo głębokości to teraz jedna liczba, a nie przeliczanie pięciu przejść.",
   },
@@ -114,8 +114,9 @@ export const t5_1: LessonDoc = {
       kind: "drill",
       intro: "Adresy G71 i wymagania konturu.",
       questions: [
-    {"kind":"bughunt","q":"Kontur dla G71. Który blok sprawi, że cykl zgłosi alarm?","program":"N10 G00 X14.\nG01 X20. Z-1. F0.1\nZ-20.\nX28.\nX26. Z-25.\nZ-40.\nN20 X42.","answer":4,"why":"W podstawowym G71 średnica w konturze nie może maleć — X26 po X28 to podcięcie. Rowek pod gwint robi się osobnym nożem."},
+    {"kind":"bughunt","q":"Kontur dla G71. Który blok sprawi, że cykl zgłosi alarm?","program":"N10 G00 X14.\nG01 X20. Z-1. F0.1\nZ-20.\nX28.\nX26. Z-25.\nZ-40.\nN20 X42.","answer":4,"why":"W typie I G71 średnica w konturze nie może maleć — X26 po X28 to podcięcie. Rowek pod gwint robi się osobnym nożem albo, jeśli sterowanie ma tę opcję, cyklem typu II."},
 
+        { kind: "choice", q: "W przykładzie w drugim bloku wpisano `U4.` zamiast `U0.4`. Co się stanie?", options: ["zgrubnie zostanie 2 mm na stronę, a G70 nożem R0,4 zbierze je jednym przejściem z F0.1", "nic — U w drugim bloku jest ignorowane", "cykl zrobi warstwy po 4 mm", "kontur wyjdzie o 4 mm za mały"], answer: 0, why: "U w drugim bloku to naddatek w średnicy: 4 mm to 2 mm na stronę. G71 zostawi go w całości, a G70 przechodzi kontur tylko raz — nóż wykańczający dostanie dziesięć razy więcej materiału, niż zakładano." },
         { kind: "token", q: "W drugim bloku wskaż **naddatek w X**.", block: "G71 P10 Q20 U0.4 W0.1 F0.3", answer: 3, why: "U0.4 — naddatek w średnicy." },
         { kind: "choice", q: "Pręt Ø40, U2. w pierwszym bloku G71. Średnica pierwszego przejścia przy starcie z X42?", options: ["Ø38", "Ø40", "Ø36", "Ø41"], answer: 0, why: "Cykl schodzi z X42 o 2 mm na stronę: 42 − 4 = 38." },
         { kind: "choice", q: "Pierwszy blok konturu to `N10 G01 X14. Z0.`. Co jest nie tak?", options: ["pierwszy blok G71 może mieć ruch tylko w X", "brak F", "N10 musi być G00", "nic"], answer: 0, why: "Blok ns wyznacza dojście z A do konturu w jednej osi." },
@@ -126,7 +127,7 @@ export const t5_1: LessonDoc = {
   pitfalls: [
     { title: "Punkt startowy w materiale", x: "Cykl wywołany z X38 Z2 przy pręcie Ø40. Pierwsza warstwa zaczyna się ruchem szybkim w X na średnicę mniejszą niż pręt, a start leży w materiale — cykl nie ma skąd bezpiecznie ruszyć." },
     { title: "Pomylone znaczenia U", x: "`G71 U0.4 R0.5` — w pierwszym bloku U to głębokość. Cykl robi przejścia po 0,4 mm i trwa pięć razy dłużej." },
-    { title: "Kontur z podcięciem", x: "Rowek pod gwint wpisany do konturu G71. W podstawowym wariancie X nie może maleć — cykl zgłosi alarm. Rowek robi się osobnym nożem (moduł T6)." },
+    { title: "Kontur z podcięciem", x: "Rowek pod gwint wpisany do konturu G71 typu I. X nie może tam maleć — cykl zgłosi alarm. Rowek robi się osobnym nożem (moduł T6)." },
     { title: "Brak N w konturze", x: "`P10 Q20`, a w programie nie ma bloku N20 — alarm. Numery N w konturze to jedyne, po czym cykl go znajduje." },
   ],
 
@@ -150,13 +151,13 @@ export const t5_1: LessonDoc = {
 
   summary: [
     "G71 U(głębokość) R(wycofanie) / G71 P Q U(naddatek Ø) W F — przejścia liczy sterowanie.",
-    "Kontur N10–N20: pierwszy blok tylko w X, X nie maleje w stronę uchwytu.",
+    "Kontur typu I: pierwszy blok tylko w X, kontur monotoniczny w X i w Z.",
     "G70 P Q wykonuje kontur na gotowo i wraca do punktu startowego.",
     "Kontur zapisany raz służy obróbce zgrubnej i wykańczającej.",
   ],
 
   sources: [
-    { id: "fanuc", where: "cykle wielokrotne G71 i G70 na tokarce" },
+    { id: "fanuc", where: "cykle wielokrotne G71 i G70 na tokarce, typy I i II konturu" },
     { id: "sinumerik", where: "CYCLE95, CYCLE952 — porównanie" },
   ],
 };
