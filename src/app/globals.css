@@ -2749,3 +2749,34 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* przełącznik motywu: ikony SVG w kolorze tekstu (znak ☀ telefony renderowały jako żółte emoji) */
 .theme-toggle svg { width: 18px; height: 18px; display: block; }
+
+/* ===== Nauka — czytelność lekcji (audyt #29, etap 3, rozdz. 8) =====
+   Tylko widok lekcji (.ls); karty kodów zostają bez zmian. */
+.ls .article p, .ls .article ul, .ls .article ol, .ls .ls-p { font-size: 16.5px; line-height: 1.7; max-width: 70ch; }
+.ls .article pre, .ls pre.syntax { font-size: 14px; line-height: 1.6; }
+.ls .cap { font-size: 14px; line-height: 1.55; }
+.ls .ls-steps li { font-size: 15.5px; line-height: 1.55; }
+.ls .ls-steps li code { line-height: 1.35; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ls .ls-result, .ls .ls-sum li { font-size: 16px; }
+.ls .ls-pit p { font-size: 15.5px; line-height: 1.65; }
+.ls .fb { font-size: 15.5px; line-height: 1.6; }
+.ls .ls-ctl th, .ls .ls-ctl td { font-size: 14.5px; }
+.ls .ls-src ul { font-size: 14px; gap: .55rem; }
+.ls .ls-src small { display: block; font-size: 13px; line-height: 1.45; color: var(--muted); margin-top: .1rem; }
+/* Telefon: opis kroku nad kodem — długi blok nie zabiera szerokości opisowi. */
+@media (max-width: 699px) {
+  .ls .ls-steps li { grid-template-columns: 1.7rem minmax(0, 1fr); align-items: start; }
+  .ls .ls-steps li code { grid-column: 2; justify-self: start; max-width: 100%; }
+}
+@media (min-width: 1100px) {
+  .ls .ls-main .article p, .ls .ls-main .article ul, .ls .ls-main .article ol, .ls .ls-main .ls-p { font-size: 17px; max-width: 72ch; }
+}
+/* Pasek sterowania pokazu w lekcji — ciemne tło pokazu w obu motywach */
+.showcase-ctrl .sim-controls button:not(:first-child), .showcase-ctrl .speed-chip { background: rgba(148,163,184,.12); border-color: rgba(148,163,184,.28); color: #E2E8F0; }
+/* Demonstracje w treści: jedna kolumna (rysunek → sterowanie → kod). Kolumna treści ma ok. 700 px,
+   a dwie kolumny ściskały płótno i legendę poza kartę. */
+.demo-fig .showcase { grid-template-columns: minmax(0, 1fr); }
+.demo-fig .showcase-view > * { min-width: 0; }
+.demo-fig .showcase-legend li { white-space: normal; }
+.demo-fig .showcase-code { border-left: none; border-top: 1px solid rgba(148,163,184,.16); }
+.demo-fig .showcase-lines { max-height: 240px; }

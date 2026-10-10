@@ -172,7 +172,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         <ul>
           {doc.sources.map((s) => {
             const src = sources[s.id];
-            return <li key={s.id}><b title={src?.full}>{src?.short ?? s.id}</b> — {s.where}</li>;
+            return <li key={s.id}><b>{src?.short ?? s.id}</b> — {s.where}{src?.full && <small>{src.full}</small>}</li>;
           })}
         </ul>
       </section>
