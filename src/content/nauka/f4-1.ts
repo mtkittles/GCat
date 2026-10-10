@@ -29,14 +29,15 @@ export const f4_1: LessonDoc = {
 
   worked: {
     title: "Pozycja wrzeciona dla dwóch narzędzi",
-    intro: "G54 Z = −400,0. Frez T1: H1 = 85,2. Wiertło T2: H2 = 102,7. Program każe obu stanąć czubkiem na Z5.",
+    intro: "Sytuacja: na jednej płytce pracują frez T1 i wiertło T2. Długości zmierzono na presetterze od bazy N do czubka: H1 = 85,2, H2 = 102,7. W kolumnie Z rejestru G54 stoi −400,0 — pozycja maszynowa N przy dotyku górnej powierzchni detalu. Program każe każdemu narzędziu stanąć czubkiem na Z5. Gdzie stanie wrzeciono?",
+    fig: "f41-two",
     steps: [
-      { x: "T1: −400 + 5 + 85,2.", code: "N w Z−309,8" },
-      { x: "T2: −400 + 5 + 102,7.", code: "N w Z−292,3" },
-      { x: "Różnica pozycji wrzeciona to różnica długości: 102,7 − 85,2.", code: "17,5 mm" },
-      { x: "W obu programach zapis jest identyczny, zmienia się tylko numer H.", code: "G43 H2 Z5." },
+      { x: "Lewa strona rysunku, frez. Sterowanie dodaje do Z z G54 wartość z programu i długość z rejestru H1: −400 + 5 + 85,2.", code: "G43 H1 Z5.   (N −309,8)" },
+      { x: "Prawa strona, wiertło. Ten sam Z5, inny rejestr: −400 + 5 + 102,7.", code: "G43 H2 Z5.   (N −292,3)" },
+      { x: "Oba czubki leżą na przerywanej linii Z5, a czoła wrzeciona są na różnych wysokościach. Różnica pozycji N to różnica długości: 102,7 − 85,2.", code: "17,5 mm" },
+      { x: "Skutek pomyłki: we wrzecionie T2, a w programie H1. N staje na −309,8 jak dla frezu, czubek wiertła jest 102,7 niżej: −412,5 maszynowo, czyli 12,5 mm pod Z0 detalu.", code: "G43 H1 Z5.  z T2 → czubek Z−12,5" },
     ],
-    result: "Dłuższe wiertło ustawia wrzeciono 17,5 mm wyżej. Program o tym nie wie — liczy się tylko to, że H odpowiada narzędziu we wrzecionie.",
+    result: "Program różni się tylko numerem H — resztę liczy sterowanie. Dłuższe wiertło ustawia wrzeciono 17,5 mm wyżej. Rejestr innego narzędzia przesuwa czubek dokładnie o różnicę długości: tu 17,5 mm poniżej Z5, w materiale.",
   },
 
   practice: [
@@ -54,7 +55,8 @@ export const f4_1: LessonDoc = {
       questions: [
         { kind: "gap", q: "G54 Z = −380, H3 = 92,5, program: `G43 H3 Z10.`. Gdzie stanie N (pozycja maszynowa Z)?", template: "Z{0}", answers: [["-277.5", "-277,5"]], why: "−380 + 10 + 92,5 = −277,5." },
         { kind: "token", q: "Wskaż słowo, które wskazuje **rejestr długości**.", block: "G43 H1 Z50.", answer: 1, why: "H1 — rejestr korekcji długości nr 1." },
-        { kind: "choice", q: "We wrzecionie jest T2, a program ma `G43 H1`. Co się stanie?", options: ["sterowanie użyje długości T1 — czubek trafi w złe miejsce", "sterowanie samo weźmie H2", "alarm", "nic, H nie ma znaczenia"], answer: 0, why: "Sterowanie nie sprawdza, czy H pasuje do narzędzia." },
+        { kind: "choice", q: "We wrzecionie jest T2, a program ma `G43 H1`. Co się stanie?", options: ["sterowanie użyje długości T1 — czubek trafi w złe miejsce", "sterowanie samo weźmie H2", "sterowanie zmierzy narzędzie przed ruchem", "nic, H nie ma znaczenia"], answer: 0, why: "W podstawowej konfiguracji sterowanie nie porównuje H z numerem narzędzia — kontrola zgodności bywa opcją maszyny." },
+        { kind: "choice", q: "We wrzecionie jest T1 (H1 = 85,2), a program po wymianie ma `G43 H2 Z5.` (H2 = 102,7). Gdzie stanie czubek frezu względem detalu?", options: ["na Z22,5 — 17,5 mm wyżej niż w programie", "na Z−12,5 — w materiale", "na Z5 — G43 dobiera długość do narzędzia we wrzecionie", "na Z−80,2"], answer: 0, why: "N staje na −400 + 5 + 102,7 = −292,3. Frez ma 85,2, więc czubek jest na −292,3 − 85,2 = −377,5, czyli Z22,5. Rejestr za długi podnosi czubek — frez nie dojdzie do zaplanowanej głębokości. Rejestr za krótki (pomyłka z przykładu) wbija narzędzie w materiał." },
         { kind: "order", q: "Ułóż początek pracy narzędzia.", items: ["S2500 M03", "G43 H1 Z50.", "T1 M06", "G00 X-20. Y10."], answer: [2, 1, 0, 3], why: "Wymiana, korekcja z ruchem na bezpieczną wysokość, obroty, najazd." },
       ],
     },
