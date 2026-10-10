@@ -79,9 +79,9 @@ export const t3_3: LessonDoc = {
       kind: "drill",
       intro: "Kierunek i punkty łuków.",
       questions: [
-        { kind: "choice", q: "Nóż jedzie od czoła w stronę uchwytu. Promień wklęsły między Ø24 a czołem stopnia Ø30:", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Wklęsły w kierunku uchwytu przy X w górę — zgodnie z zegarem." },
-        { kind: "gap", q: "Ø24, łuk wklęsły R2 do czoła stopnia w Z−30. Punkt końca łuku:", template: "X{0} Z{1}", answers: [["28"], ["-30"]], why: "24 + 2 · 2 = 28, na czole stopnia." },
-        { kind: "choice", q: "Tokarka z głowicą przednią. Czy trzeba zamienić G02 na G03?", options: ["nie, program jest ten sam", "tak, zawsze", "tylko przy R", "tylko przy G96"], answer: 0, why: "Zmienia się tylko widok z miejsca operatora." },
+        { kind: "choice", q: "Nóż jedzie od czoła w stronę uchwytu (głowica za osią). Którym kodem zaprogramujesz promień wklęsły między Ø24 a czołem stopnia Ø30?", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Wklęsły w kierunku uchwytu przy X w górę — zgodnie z zegarem." },
+        { kind: "gap", q: "Czop Ø24 przechodzi łukiem wklęsłym R2 w czoło stopnia w Z−30. W jakim punkcie kończy się łuk?", template: "X{0} Z{1}", answers: [["28"], ["-30"]], why: "24 + 2 · 2 = 28, na czole stopnia." },
+        { kind: "choice", q: "Tokarka z głowicą przednią. Czy trzeba zamienić G02 na G03?", options: ["zwykle nie, program jest ten sam", "tak, zawsze", "tylko przy R", "tylko przy G96"], answer: 0, why: "Na typowych tokarkach zmienia się tylko widok z miejsca operatora — kierunki osi ustawia konfiguracja maszyny." },
       ],
     },
   ],
@@ -103,10 +103,10 @@ export const t3_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "T3.2", q: "Z Ø40 na Ø35 w jednym przejściu. ap:", template: "{0} mm", answers: [["2.5", "2,5"]], why: "(40 − 35) / 2." },
+    { kind: "gap", review: "T3.2", q: "Toczysz z Ø40 na Ø35 jednym przejściem. Ile wynosi ap?", template: "{0} mm", answers: [["2.5", "2,5"]], why: "(40 − 35) / 2." },
     { kind: "choice", q: "W której płaszczyźnie pracują łuki na tokarce?", options: ["G18 — ZX", "G17 — XY", "G19 — YZ", "dowolnej"], answer: 0, why: "Tokarka pracuje w ZX." },
-    { kind: "choice", q: "Zaokrąglenie krawędzi wypukłej przy ruchu od czoła w stronę uchwytu:", options: ["G03", "G02", "G01", "zależy od głowicy"], answer: 0, why: "Przy X w górę — przeciwnie do zegara." },
-    { kind: "gap", q: "Łuk R0,5 kończy się na Ø36. Średnica na początku łuku (czoło stopnia):", template: "X{0}", answers: [["35"]], why: "36 − 2 · 0,5." },
+    { kind: "choice", q: "Którym kodem zaokrąglisz krawędź wypukłą, jadąc od czoła w stronę uchwytu (głowica za osią)?", options: ["G03", "G02", "G01", "zależy od głowicy"], answer: 0, why: "Przy X w górę — przeciwnie do zegara." },
+    { kind: "gap", q: "Łuk R0,5 kończy się na Ø36. Na jakiej średnicy zaczyna się na czole stopnia?", template: "X{0}", answers: [["35"]], why: "36 − 2 · 0,5." },
     { kind: "choice", q: "Którymi adresami podaje się środek łuku na tokarce?", options: ["I i K", "I i J", "J i K", "tylko R"], answer: 0, why: "W G18: I dla X, K dla Z." },
     { kind: "choice", q: "Po `G03 X36. Z-40.5 R0.5` następny blok toczy Ø36 do Z−55. Jak go zapisać?", options: ["`G01 Z-55.`", "`Z-55.`", "`G03 Z-55.`", "`G00 Z-55.`"], answer: 0, why: "Trzeba jawnie wrócić do G01." },
   ],

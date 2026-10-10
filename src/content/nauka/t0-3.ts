@@ -11,7 +11,7 @@ export const t0_3: LessonDoc = {
     { t: "h", x: "M i W na tokarce", id: "punkty" },
     { t: "p", x: "Zero maszyny M leży zwykle na osi wrzeciona, na czole jego końcówki — tam, gdzie mocuje się uchwyt. Zero detalu W leży na tej samej osi, na czole detalu. Oba punkty są na osi obrotu, więc różnią się tylko w Z." },
     { t: "diagram", id: "t03-zero" },
-    { t: "p", x: "X0 jest zawsze na osi, niezależnie od detalu — dlatego na tokarce ustala się tylko zero w Z. Przesunięcie Z zależy od tego, jak daleko pręt wystaje z uchwytu, i zmienia się po każdym przełożeniu materiału." },
+    { t: "p", x: "X0 leży na osi obrotu, niezależnie od detalu — dlatego w tej metodzie zero detalu ustala się tylko w Z. Każdy nóż trzeba jednak zmierzyć także w X — to jego korekcja geometrii (lekcja T2.1). Przesunięcie Z zależy od tego, jak daleko pręt wystaje z uchwytu, i zmienia się po każdym przełożeniu materiału." },
 
     { t: "h", x: "Pomiar Z0", id: "pomiar" },
     { t: "ul", items: [
@@ -24,7 +24,7 @@ export const t0_3: LessonDoc = {
     { t: "h", x: "Głowica przednia i tylna", id: "glowica" },
     { t: "p", x: "+X zawsze prowadzi od osi w stronę noża. W tokarkach ze skośnym łożem głowica stoi za osią (tylna), więc +X biegnie od operatora. W tokarkach z głowicą przednią nóż jest po stronie operatora i +X biegnie w jego stronę." },
     { t: "diagram", id: "t03-turret" },
-    { t: "p", x: "Program dla obu maszyn jest taki sam — sterowanie zna położenie głowicy. Różni się tylko to, jak ruch wygląda z miejsca operatora, i to ma znaczenie przy łukach: lekcja T3.3 pokazuje, jak nie pomylić G02 z G03." },
+    { t: "p", x: "Na typowych tokarkach program dla obu maszyn jest taki sam — kierunki osi ustawia konfiguracja maszyny (szczegóły w dokumentacji producenta). Różni się tylko to, jak ruch wygląda z miejsca operatora, i to ma znaczenie przy łukach: lekcja T3.3 pokazuje, jak nie pomylić G02 z G03." },
   ],
 
   worked: {
@@ -55,7 +55,7 @@ export const t0_3: LessonDoc = {
       intro: "Zero detalu i głowica.",
       questions: [
         { kind: "order", q: "Ułóż ustawianie Z0.", items: ["zapis pozycji jako Z0", "planowanie czoła", "kolejne noże dotykają czoła", "bez odjazdu w Z"], answer: [1, 3, 0, 2], why: "Czyste czoło, nóż zostaje na miejscu, zapis, potem kolejne narzędzia." },
-        { kind: "choice", q: "Tokarka ze skośnym łożem, głowica za osią. +X prowadzi:", options: ["od operatora", "do operatora", "w stronę uchwytu", "w górę zawsze"], answer: 0, why: "+X od osi w stronę noża, a nóż jest za osią." },
+        { kind: "choice", q: "Tokarka ze skośnym łożem, głowica za osią. Dokąd prowadzi +X?", options: ["od operatora", "do operatora", "w stronę uchwytu", "w górę zawsze"], answer: 0, why: "+X od osi w stronę noża, a nóż jest za osią." },
       ],
     },
   ],
@@ -76,11 +76,11 @@ export const t0_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "T0.2", q: "Z Ø40 na Ø34. ap:", template: "{0} mm", answers: [["3"]], why: "(40 − 34) / 2 = 3." },
-    { kind: "choice", q: "Dlaczego na tokarce ustala się zero tylko w Z?", options: ["X0 jest zawsze na osi obrotu", "bo X nie ma zera", "bo G54 nie ma X", "bo tak wymaga G18"], answer: 0, why: "Oś obrotu wyznacza X0 jednoznacznie." },
+    { kind: "gap", review: "T0.2", q: "Toczysz z Ø40 na Ø34 jednym przejściem. Ile wynosi ap?", template: "{0} mm", answers: [["3"]], why: "(40 − 34) / 2 = 3." },
+    { kind: "choice", q: "Dlaczego zero detalu na tokarce ustala się zwykle tylko w Z?", options: ["X0 leży na osi obrotu", "bo X nie ma zera", "bo G54 nie ma X", "bo tak wymaga G18"], answer: 0, why: "Oś obrotu wyznacza X0 jednoznacznie. Każdy nóż i tak trzeba zmierzyć w X — to jego korekcja geometrii (lekcja T2.1)." },
     { kind: "choice", q: "Co trzeba zrobić przed pomiarem Z0 na surowym pręcie?", options: ["splanować czoło", "stoczyć średnicę", "wywiercić nakiełek", "nic"], answer: 0, why: "Pomiar na surowym czole przenosi jego nierówności na cały program." },
     { kind: "choice", q: "Pręt wysunięto dalej z uchwytu. Co z Z0?", options: ["zmierzyć ponownie", "zostawić", "zmienić X0", "zmienić program"], answer: 0, why: "Czoło jest w innym miejscu." },
-    { kind: "choice", q: "Czy program dla tokarki z głowicą przednią różni się od programu dla tylnej?", options: ["nie, sterowanie zna położenie głowicy", "tak, trzeba odwrócić X", "tak, trzeba odwrócić Z", "tak, zamienić G02 i G03"], answer: 0, why: "Różni się tylko to, jak ruch wygląda z miejsca operatora." },
+    { kind: "choice", q: "Czy program dla tokarki z głowicą przednią różni się od programu dla tylnej?", options: ["zwykle nie — kierunki osi ustawia konfiguracja maszyny", "tak, trzeba odwrócić X", "tak, trzeba odwrócić Z", "tak, zamienić G02 i G03"], answer: 0, why: "Na typowych tokarkach różni się tylko to, jak ruch wygląda z miejsca operatora. Szczegóły kinematyki podaje dokumentacja producenta maszyny." },
     { kind: "choice", q: "Gdzie leży zero maszyny M na typowej tokarce?", options: ["na osi, na czole końcówki wrzeciona", "na czole detalu", "na koniku", "na narzędziu"], answer: 0, why: "Tam mocuje się uchwyt." },
   ],
 

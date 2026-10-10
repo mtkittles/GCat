@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1003 (NAWIERCENIE PLYTKI)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T2 M06 (NAWIERTAK FI10 90ST)
@@ -54,6 +54,8 @@ export const f5_1: LessonDoc = {
     { t: "h", x: "Nawiercenie przed wierceniem", id: "nawiercanie" },
     { t: "p", x: "Nawiertak robi krótki stożek, w który trafia potem wiertło. Wiertło nie ucieka na boki przy wejściu, a otwór ma właściwe położenie. Stożek zostaje jako fazka — pod gwint robi się ją nieco większą niż średnica gwintu." },
     { t: "diagram", id: "f51-spot" },
+    { t: "p", x: "W programie płytki jedno przejście nawiertakiem 90° robi dwie rzeczy: fazkę Ø6 pod gwint M6 i miejsce startu dla wiertła Ø5. To założenie przykładu, a nie jedyna technologia." },
+    { t: "note", kind: "warn", x: "Uwaga na kąty. Stożek 90° jest bardziej stromy niż wierzchołek wiertła 140° z lekcji F5.2. Wiertło wchodzące w taki stożek dotyka najpierw narożami, a nie środkiem — przy węgliku grozi to wykruszeniem naroży. Dlatego przy wiertłach VHM często nawierca się kątem równym albo większym niż kąt wiertła albo wierci bez nawiercania, a fazkę robi się osobno. Rozstrzyga zalecenie producenta wybranego wiertła." },
     { t: "diagram", id: "f51-holes" },
   ],
 
@@ -87,8 +89,8 @@ export const f5_1: LessonDoc = {
       questions: [
     {"kind":"bughunt","q":"Cykl wiercenia. Który blok jest błędny?","program":"G00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z3. R2. F120\nX45.\nX75.\nG80","answer":1,"why":"Z3. to dno otworu 3 mm NAD powierzchnią — wiertło niczego nie wywierci albo sterowanie zgłosi alarm. Dno musi być ujemne: Z-7."},
 
-        { kind: "token", q: "Tapnij słowo, które podaje **płaszczyznę R**.", block: "G81 X20. Y15. Z-8. R3. F100", answer: 4, why: "R3. — posuw zaczyna się 3 mm nad Z0." },
-        { kind: "gap", q: "Nawiertak 90°, fazka Ø8. Podaj Z dna.", template: "Z{0}", answers: [["-4"]], why: "8 / 2 = 4." },
+        { kind: "token", q: "Wskaż słowo, które podaje **płaszczyznę R**.", block: "G81 X20. Y15. Z-8. R3. F100", answer: 4, why: "R3. — posuw zaczyna się 3 mm nad Z0." },
+        { kind: "gap", q: "Nawiertak 90°, fazka Ø8. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-4"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 8 / 2 = 4, więc Z−4." },
         { kind: "choice", q: "Czym G82 różni się od G81?", options: ["postojem na dnie przez czas P", "wycofaniem co Q", "gwintowaniem", "niczym"], answer: 0, why: "G82 = G81 + postój P." },
       ],
     },
@@ -112,12 +114,12 @@ export const f5_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F4.3", q: "Czym włącza się korekcję przy najeździe po łuku?", options: ["odcinkiem przed łukiem", "samym łukiem", "G43", "G80"], answer: 0, why: "Korekcję promienia włącza ruch liniowy." },
+    { kind: "choice", review: "F4.1", q: "Po `T2 M06` program ma `G43 H2 Z50.`. Co robi ten blok przed cyklem wiercenia?", options: ["włącza korekcję długości z rejestru 2 i ustawia czubek nawiertaka na Z50", "włącza korekcję promienia", "wybiera układ G54", "kasuje cykl"], answer: 0, why: "G43 z H2 dolicza długość narzędzia z rejestru 2 — dzięki temu Z50, R2 i Z−3 w cyklu dotyczą czubka narzędzia." },
     { kind: "choice", q: "Od jakiej wysokości cykl G81 jedzie posuwem?", options: ["od płaszczyzny R", "od poziomu początkowego", "od Z0", "od dna"], answer: 0, why: "Do R ruch szybki, dalej posuw." },
     { kind: "order", q: "Ułóż ruchy cyklu G81.", items: ["posuw do Z", "ruch szybki nad otwór", "ruch szybki w górę", "ruch szybki do R"], answer: [1, 3, 0, 2], why: "XY, R, dno, powrót." },
     { kind: "choice", q: "Po `G81 X10. Y10. Z-10. R2. F120` stoi blok `X40.`. Co się stanie?", options: ["kolejny otwór w X40 Y10", "ruch szybki bez wiercenia", "alarm", "ruch G01"], answer: 0, why: "Cykl jest modalny." },
-    { kind: "gap", q: "Nawiertak 90°, fazka Ø10. Z dna:", template: "Z{0}", answers: [["-5"]], why: "10 / 2 = 5." },
-    { kind: "token", q: "Tapnij słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 6, why: "P300 — 0,3 s." },
+    { kind: "gap", q: "Nawiertak 90°, fazka Ø10. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-5"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 10 / 2 = 5, więc Z−5." },
+    { kind: "token", q: "Wskaż słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 6, why: "P300 — 0,3 s." },
     { kind: "choice", q: "Po co nawiercać przed wierceniem?", options: ["wiertło nie ucieka i otwór ma właściwe położenie", "żeby otwór był głębszy", "bo wymaga tego G81", "żeby ominąć G80"], answer: 0, why: "Stożek prowadzi wiertło przy wejściu." },
   ],
 
@@ -129,6 +131,7 @@ export const f5_1: LessonDoc = {
   ],
 
   sources: [
+    { id: "harvey", where: "kąt nawiertaka a kąt wiertła — kontakt naroży przy kącie mniejszym niż kąt wiertła" },
     { id: "fanuc", where: "cykle stałe G81 i G82, płaszczyzna R, poziom początkowy, G80" },
     { id: "sinumerik", where: "CYCLE81, CYCLE82, MCALL" },
     { id: "sandvik", where: "nawiercanie i dobór parametrów wiercenia" },

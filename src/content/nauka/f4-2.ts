@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1000 (PLYTKA)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06 (FREZ FI10)
@@ -121,11 +121,11 @@ export const f4_2: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F4.1", q: "Co włącza `G43 H1`?", options: ["korekcję długości z rejestru 1", "korekcję promienia", "G54", "narzędzie nr 1"], answer: 0, why: "G43 — długość." },
     { kind: "choice", q: "Co opisuje program z G41?", options: ["kontur detalu z rysunku", "tor środka freza", "zero maszyny", "długość narzędzia"], answer: 0, why: "Przesunięcie o promień robi sterowanie." },
-    { kind: "choice", q: "G41 oznacza frez:", options: ["po lewej stronie konturu, patrząc w kierunku ruchu", "po prawej stronie", "nad konturem", "po lewej stronie maszyny"], answer: 0, why: "Stronę ocenia się względem kierunku ruchu." },
+    { kind: "choice", q: "Gdzie jest frez przy G41?", options: ["po lewej stronie konturu, patrząc w kierunku ruchu", "po prawej stronie", "nad konturem", "po lewej stronie maszyny"], answer: 0, why: "Stronę ocenia się względem kierunku ruchu." },
     { kind: "gap", q: "Wymiar zewnętrzny wyszedł 79,96 zamiast 80,00. O ile zmienić D?", template: "{0}", answers: [["+0.02", "0.02", "+0,02", "0,02"]], why: "Za mało o 0,04 — frez dalej o 0,02 z każdej strony." },
     { kind: "choice", q: "Dlaczego korekcję włącza się ruchem w powietrzu, dłuższym niż promień?", options: ["na tym ruchu sterowanie odsuwa środek freza", "bo G41 działa wolniej", "bo tak wymaga G43", "bez powodu"], answer: 0, why: "Przesunięcie musi się zmieścić przed dojściem do konturu." },
     { kind: "choice", q: "Obróbka zewnętrzna zgodnie z zegarem przy M03 — który kod daje frezowanie współbieżne?", options: ["G41", "G42", "G40", "oba"], answer: 0, why: "Materiał po prawej, frez po lewej." },
-    { kind: "token", q: "Tapnij słowo, które podaje **rejestr promienia**.", block: "G41 D1 G01 X0. F400", answer: 1, why: "D1 — rejestr korekcji promienia." },
+    { kind: "token", q: "Wskaż słowo, które podaje **rejestr promienia**.", block: "G41 D1 G01 X0. F400", answer: 1, why: "D1 — rejestr korekcji promienia." },
   ],
 
   summary: [

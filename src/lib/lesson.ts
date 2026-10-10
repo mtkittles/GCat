@@ -16,7 +16,7 @@ export type Question =
   | { kind: "bughunt"; q: string; program: string; answer: number; why: string; review?: string }
   /** Zaznacz punkt na siatce (widok z góry, X w prawo, Y w górę). */
   | { kind: "point"; q: string; target: [number, number]; why: string; review?: string }
-  /** Tapnij właściwe słowo w bloku. `block` dzielony po spacjach, `answer` = indeks słowa. */
+  /** Wskaż właściwe słowo w bloku. `block` dzielony po spacjach, `answer` = indeks słowa. */
   | { kind: "token"; q: string; block: string; answer: number; why: string; review?: string }
   /** Ułóż elementy w kolejności. `items` w kolejności wyświetlania, `answer` = indeksy items w poprawnej kolejności. */
   | { kind: "order"; q: string; items: string[]; answer: number[]; why: string; review?: string };
@@ -36,7 +36,18 @@ export type TaskCheck =
   /** Tor roboczy zgodny z wzorcem (bez ruchów szybkich). */
   | { t: "cut"; reference: string; tolerance?: number }
   | { t: "require"; codes: string[] }
-  | { t: "forbid"; codes: string[] };
+  | { t: "forbid"; codes: string[] }
+  /**
+   * Aktywny posuw F na ruchach roboczych danego rodzaju (sprawdzany stan wykonania, nie tekst):
+   * "plunge" — G01 tylko w osi Z w dół, "xy" — ruchy robocze ze zmianą X/Y (G01/G02/G03).
+   */
+  | { t: "feed"; on: "plunge" | "xy"; f: number; label: string }
+  /** Chłodziwo aktywne na każdym ruchu roboczym; opcjonalnie wyłączone (M09) przed M05. */
+  | { t: "coolant"; label: string; offBeforeStop?: boolean }
+  /** G84: posuw zgodny ze skokiem — G94: F = S·P, G95: F = P — na każdym ruchu cyklu. */
+  | { t: "tapFeed"; pitch: number; label: string }
+  /** Ruchy szybkie przecinające pas X0–X1 (np. nad dociskiem) muszą przebiegać wyżej niż z. */
+  | { t: "rapidAbove"; x0: number; x1: number; z: number; label: string };
 
 export type LatheGoal =
   | { kind: "move"; x: number; z: number; label: string }

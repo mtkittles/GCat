@@ -12,7 +12,7 @@ M05
 M30`;
 
 const starter = `O1009 (KIESZEN FI20 Z PODPROGRAMEM)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06 (FREZ FI10)
@@ -128,8 +128,8 @@ export const f7_1: LessonDoc = {
     { kind: "gap", q: "Zapisz 5 wywołań podprogramu O1002 w formie z adresem L.", template: "M98 P{0} L{1}", answers: [["1002"], ["5"]], why: "P — numer, L — liczba powtórzeń." },
     { kind: "choice", q: "Dlaczego powtarzany podprogram zwykle pracuje w G91?", options: ["każdy przebieg zaczyna się tam, gdzie skończył poprzedni", "G91 jest szybsze", "M98 tego wymaga", "bez powodu"], answer: 0, why: "Tylko wtedy kolejne przebiegi robią coś nowego." },
     { kind: "choice", q: "Podprogram włącza G91. Co przed M99?", options: ["G90", "G80", "M30", "nic"], answer: 0, why: "Stan modalny wraca do programu głównego." },
-    { kind: "choice", q: "Co się stanie z `M99` zamiast `M30` na końcu programu głównego (Fanuc)?", options: ["program zacznie się od nowa — pętla", "program się zakończy", "alarm", "wrzeciono się zatrzyma"], answer: 0, why: "M99 w programie głównym wraca na jego początek." },
-    { kind: "token", q: "Tapnij słowo, które podaje **numer podprogramu**.", block: "M98 P2000 L4", answer: 1, why: "P2000 — podprogram O2000." },
+    { kind: "choice", q: "Co się stanie z `M99` zamiast `M30` na końcu programu głównego (Fanuc)?", options: ["program zacznie się od nowa — pętla", "program się zakończy", "alarm", "wrzeciono się zatrzyma"], answer: 0, why: "Na Fanucu M99 w programie głównym zwykle wraca na jego początek. Dokładne zachowanie zależy od ustawień maszyny." },
+    { kind: "token", q: "Wskaż słowo, które podaje **numer podprogramu**.", block: "M98 P2000 L4", answer: 1, why: "P2000 — podprogram O2000." },
   ],
 
   summary: [

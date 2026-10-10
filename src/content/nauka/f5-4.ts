@@ -22,7 +22,7 @@ export const f5_4: LessonDoc = {
     { t: "code", x: "G00 Z30.                        (POZIOM POCZATKOWY NAD DOCISKIEM)\nG99 G81 X15. Y20. Z-7. R2. F120 (POWROT DO R2)\nG98 X45.                        (PO TYM OTWORZE DO Z30)\nG99 X75.\nG80", caption: "Otwór przed dociskiem wiercony z G98 — przejazd nad dociskiem idzie na Z30." },
 
     { t: "h", x: "Czas cyklu", id: "czas" },
-    { t: "p", x: "Płytka: cztery otwory, R2, poziom początkowy Z50. Z G98 każdy otwór to dodatkowe 2 × 48 = 96 mm ruchu szybkiego w Z. Przy trzech operacjach i czterech otworach to ponad metr drogi na każdej sztuce. W programie płytki nic nie wystaje nad detal, więc wszystkie cykle dostają G99." },
+    { t: "p", x: "Płytka: cztery otwory, R2, poziom początkowy Z50. Z G98 każdy przejazd między otworami to dodatkowe 2 × 48 = 96 mm ruchu szybkiego w Z — w górę do Z50 i z powrotem do R2. Cztery otwory to trzy przejazdy, czyli 288 mm na operację, a przy trzech operacjach (nawiercanie, wiercenie, gwintowanie) 864 mm na każdej sztuce. W programie płytki nic nie wystaje nad detal, więc wszystkie cykle dostają G99." },
 
     { t: "h", x: "G80 i koniec cyklu", id: "g80" },
     { t: "p", x: "[[G80]] kasuje cykl. Na Fanucu robią to też kody ruchu G00–G03, ale jawne G80 po ostatnim otworze to zasada: program jest czytelny, a następny blok na pewno nie wierci. Blok startowy z lekcji F1.5 zawiera G80 na wypadek cyklu zostawionego przez inny program." },
@@ -35,19 +35,20 @@ export const f5_4: LessonDoc = {
       { x: "Poziom początkowy nad dociskiem, z zapasem.", code: "G00 Z30." },
       { x: "Pierwszy otwór z G99 — do następnego nie ma przeszkody.", code: "G99 G81 X15. Y20. Z-7. R2. F120" },
       { x: "Drugi otwór z G98 — potem przejazd nad dociskiem.", code: "G98 X45." },
-      { x: "Trzeci otwór i koniec cyklu.", code: "X75. → G80" },
+      { x: "Trzeci otwór z G99. G98 z poprzedniego bloku jest modalne — bez jawnego G99 narzędzie po trzecim otworze też wróciłoby na Z30.", code: "G99 X75." },
+      { x: "Koniec cyklu.", code: "G80" },
     ],
-    result: "Tylko jeden powrót na Z30 — dokładnie tam, gdzie jest potrzebny. Pozostałe przejazdy idą na R2.",
+    result: "Tylko jeden powrót na Z30 — po drugim otworze, przed przejazdem nad dociskiem. Po pierwszym i trzecim otworze narzędzie wraca do R2. O wysokości powrotu decyduje kod aktywny w bloku danego otworu.",
   },
 
   practice: [
     {
       kind: "task", mode: "mill",
       intro: "Trzy otwory z przykładu rozwiązanego: X15, X45, X75 w Y20, R2, dno Z−7. Między X45 a X75 stoi docisk. Dopisz cykl z właściwymi poziomami powrotu.",
-      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\n(DOPISZ CYKL G81 NA TRZY OTWORY: PO PIERWSZYM POWROT DO R, PO DRUGIM DO POZIOMU POCZATKOWEGO (DOCISK), POTEM TRZECI I KASOWANIE CYKLU; F120)\nG00 Z50.\nM09\nM05\nM30",
-      checks: [{"t":"require","codes":["G81","G98","G99","G80"]},{"t":"cut","reference":"G90\nG00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nX75.\nG80\nG00 Z50.","tolerance":0.05}],
-      hints: ["Pierwszy otwór: `G99 G81 X15. Y20. Z-7. R2. F120` — do następnego nie ma przeszkody.","Drugi otwór z `G98 X45.`, bo po nim przejazd nad dociskiem; trzeci `X75.`; na końcu `G80`."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nX75.\nG80\nG00 Z50.\nM09\nM05\nM30",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\n(DOPISZ CYKL G81 NA TRZY OTWORY: PO PIERWSZYM POWROT DO R, PO DRUGIM DO POZIOMU POCZATKOWEGO (DOCISK), POTEM TRZECI Z POWROTEM DO R I KASOWANIE CYKLU; F120)\nG00 Z50.\nM09\nM05\nM30",
+      checks: [{"t":"require","codes":["G81","G98","G99","G80"]},{"t":"rapidAbove","x0":45,"x1":75,"z":25,"label":"Przejazd nad dociskiem (między X45 a X75) wyżej niż Z25"},{"t":"cut","reference":"G90\nG00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nG99 X75.\nG80\nG00 Z50.","tolerance":0.05}],
+      hints: ["Pierwszy otwór: `G99 G81 X15. Y20. Z-7. R2. F120` — do następnego nie ma przeszkody.","Drugi otwór z `G98 X45.`, bo po nim przejazd nad dociskiem; trzeci `G99 X75.` — bez G99 zostałoby aktywne G98; na końcu `G80`."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nG99 X75.\nG80\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",
@@ -57,8 +58,8 @@ export const f5_4: LessonDoc = {
 
         { kind: "choice", q: "Cztery otwory na płaskiej płycie, nic nie wystaje. Który kod powrotu?", options: ["G99", "G98", "bez znaczenia", "G80"], answer: 0, why: "G99 skraca drogę — nie ma nad czym przeskakiwać." },
         { kind: "choice", q: "Po którym otworze trzeba wrócić wyżej, jeśli docisk stoi między otworem 2 a 3?", options: ["po otworze 2", "po otworze 3", "po otworze 1", "po każdym"], answer: 0, why: "Wysokość powrotu po otworze 2 decyduje o przejeździe nad dociskiem." },
-        { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99 (dla wszystkich otworów)?", template: "{0} mm", answers: [["444"]], why: "Na każdy otwór 2 × (40 − 3) = 74 mm, razy 6 = 444 mm." },
-        { kind: "order", q: "Ułóż wiercenie z przeskokiem nad dociskiem po drugim otworze.", items: ["G80", "G98 X45.", "G00 Z30.", "G99 G81 X15. Y20. Z-7. R2. F120", "G99 X75."], answer: [2, 3, 1, 4, 0], why: "Poziom początkowy, otwór 1 z G99, otwór 2 z G98, otwór 3, G80." },
+        { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. W obu wariantach narzędzie startuje z Z40 i po ostatnim otworze wraca na Z40. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99?", template: "{0} mm", answers: [["370"]], why: "Różnica powstaje tylko na przejazdach między otworami: z G98 narzędzie wraca z R3 na Z40 i zjeżdża z powrotem, czyli 2 × 37 = 74 mm więcej. Przejazdów między 6 otworami jest 5: 5 × 74 = 370 mm. Start i koniec są w obu wariantach takie same." },
+        { kind: "order", q: "Ułóż wiercenie z przeskokiem nad dociskiem po drugim otworze.", items: ["G80", "G98 X45.", "G00 Z30.", "G99 G81 X15. Y20. Z-7. R2. F120", "G99 X75."], answer: [2, 3, 1, 4, 0], why: "Poziom początkowy, otwór 1 z G99, otwór 2 z G98, otwór 3 znów z G99, na końcu G80." },
       ],
     },
   ],
@@ -76,16 +77,16 @@ export const f5_4: LessonDoc = {
       ["Powrót do R", "`G99`", "RTP ustawione na RFP + SDIS"],
       ["Kasowanie cyklu", "`G80` albo kod ruchu G00–G03", "`MCALL` bez nazwy"],
     ],
-    note: "Sinumerik nie ma G98/G99 — wysokość powrotu podaje się parametrem cyklu RTP. Przeskok nad przeszkodą programuje się ruchem między wywołaniami cyklu.",
+    note: "W natywnym języku Siemensa nie ma G98/G99 — wysokość powrotu podaje się parametrem cyklu RTP. W trybie ISO SINUMERIK obsługuje cykle G81–G89 z G98/G99 — zależnie od wersji i opcji sterowania. Przeskok nad przeszkodą programuje się ruchem między wywołaniami cyklu.",
   },
 
   quiz: [
-    { kind: "gap", review: "F5.3", q: "M8×1,25 przy S400. F:", template: "F{0}", answers: [["500"]], why: "400 · 1,25 = 500." },
+    { kind: "gap", review: "F5.1", q: "Nawiertak 90° ma zrobić fazkę Ø6 pod gwint M6. Na jakie Z zaprogramujesz dno w G82?", template: "Z{0}", answers: [["-3", "-3."]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 6 / 2 = 3, więc Z−3 — tak jak w programie płytki." },
     { kind: "choice", q: "Dokąd wraca narzędzie po otworze z G98?", options: ["do poziomu początkowego", "do płaszczyzny R", "do Z0", "do punktu referencyjnego"], answer: 0, why: "G98 — poziom sprzed cyklu." },
     { kind: "choice", q: "Co wyznacza poziom początkowy?", options: ["ostatnie Z przed cyklem", "adres R", "G54", "parametr maszyny"], answer: 0, why: "To wysokość, na której narzędzie stało przed cyklem." },
     { kind: "choice", q: "Czy G98/G99 można zmieniać między otworami w trakcie cyklu?", options: ["tak, oba są modalne", "nie, tylko przed cyklem", "tylko na Sinumeriku", "tylko z G80"], answer: 0, why: "Wystarczy dopisać G98 lub G99 do bloku z pozycją otworu." },
     { kind: "choice", q: "Które kody na Fanucu też kasują cykl?", options: ["G00–G03", "G98 i G99", "M08", "G54"], answer: 0, why: "Kody grupy ruchu kasują cykl, ale jawne G80 jest czytelniejsze." },
-    { kind: "token", q: "Tapnij blok, po którym narzędzie **przeskoczy nad dociskiem**.", block: "G99 G81 X15. Y20. Z-7. R2. F120 | G98 X45. | G99 X75.", answer: 1, why: "G98 po otworze w X45 wraca na poziom początkowy." },
+    { kind: "token", q: "Wskaż blok, po którym narzędzie **przeskoczy nad dociskiem**.", block: "G99 G81 X15. Y20. Z-7. R2. F120 | G98 X45. | G99 X75.", answer: 1, why: "G98 po otworze w X45 wraca na poziom początkowy." },
   ],
 
   summary: [

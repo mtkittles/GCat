@@ -98,71 +98,85 @@ export function PlateHoles() {
   );
 }
 
-/* ================= F5.2: G83 i G73 ================= */
-/* Przebieg ruchu w czasie: poziomo kolejne ruchy, pionowo głębokość. */
-function Peck({ x0, deep }: { x0: number; deep: boolean }) {
-  const zR = 2, depth = 16, q = 4, back = deep ? 1 : 0.6;
-  const Y = (z: number) => 58 - z * 8.4;              // z w mm, dodatnie w górę
-  const pts: { z: number; kind: "cut" | "rap" }[] = [{ z: zR, kind: "rap" }];
-  let d = 0;
-  while (d > -depth) {
-    const next = Math.max(-depth, d - q);
-    pts.push({ z: next, kind: "cut" });
-    d = next;
-    if (d > -depth) {
-      if (deep) { pts.push({ z: zR, kind: "rap" }); pts.push({ z: d + back, kind: "rap" }); }
-      else pts.push({ z: d + back, kind: "rap" });
-    }
-  }
-  pts.push({ z: zR, kind: "rap" });
-  let x = x0 + 22;
-  const segs = pts.slice(1).map((p, i) => {
-    const a = pts[i], len = Math.abs(p.z - a.z);
-    const dx = p.kind === "cut" ? len * 3.2 : Math.max(3, len * 0.55);
-    const s = { x1: x, y1: Y(a.z), x2: x + dx, y2: Y(p.z), kind: p.kind };
-    x += dx;
-    return s;
-  });
-  return (
-    <g>
-      <rect x={x0 + 8} y={Y(0)} width={160} height={Y(-depth - 1.5) - Y(0)} className="solid-hatch" />
-      <line x1={x0 + 8} y1={Y(zR)} x2={x0 + 168} y2={Y(zR)} className="p-cons" />
-      <T x={x0 + 10} y={Y(zR) - 4} cls="t-acc t-sm t-b">R</T>
-      <T x={x0 + 166} y={Y(-depth) + 12} anchor="end" cls="t-mono t-sm">Z−16</T>
-      {[-4, -8, -12].map((z) => <line key={z} x1={x0 + 8} y1={Y(z)} x2={x0 + 168} y2={Y(z)} className="p-ext" />)}
-      {segs.map((sg, i) => <line key={i} x1={sg.x1} y1={sg.y1} x2={sg.x2} y2={sg.y2} className={sg.kind === "cut" ? "p-cut thick" : "p-rap"} />)}
-      <T x={x0 + 88} y={24} anchor="middle" cls="t-b t-mono t-big">{deep ? "G83" : "G73"}</T>
-      <T x={x0 + 88} y={Y(-depth - 1.5) + 16} anchor="middle" cls="t-mut">{deep ? "wyjazd do R po każdym Q" : "krótkie cofnięcie po każdym Q"}</T>
-    </g>
-  );
-}
+/* ================= F5.2: G83 krok po kroku ================= */
+/* Pięć przekrojów tego samego otworu — po jednym na każde zagłębienie.
+   Zagłębienia liczone od płaszczyzny R (jak w parserze GCat i opisie G83 Haas):
+   R2, Z−18, Q4 → dna Z−2, −6, −10, −14, −18. Odstęp ponownego najazdu (1 mm) jest
+   przykładowy — w sterowaniu ustawia go parametr. Tory w osi otworu rozsunięte w bok
+   tylko po to, żeby ruch w dół i w górę nie nakładały się na siebie. */
+const PK = { zR: 2, depth: 18, q: 4, gap: 1 };
+const peckBottoms = () => {
+  const out: number[] = [];
+  for (let d = PK.zR; d > -PK.depth + 1e-9;) { d = Math.max(-PK.depth, d - PK.q); out.push(d); }
+  return out;
+};
 
 export function PeckCompare() {
+  const bottoms = peckBottoms();
+  const top = 40, k = 10.5;                      // y dla Z=+2 … skala px/mm
+  const Y = (z: number) => top + (PK.zR - z) * k;
+  const x0 = 70, col = 57, hw = 7;               // pierwsza kolumna, odstęp kolumn, pół szerokości otworu
+  const zBot = -PK.depth - 2;
+  const fmtZ = (z: number) => (z < 0 ? `−${Math.abs(z)}` : `${z}`);
   return (
-    <Fig id="f52pk" code="Q" title="Przebieg wiercenia z wycofaniem, Q4 na Z−16" h={236} legend={["cut", "rap"]}
-      caption={<>Poziomo kolejne ruchy, pionowo głębokość. <b>G83</b> po każdym zagłębieniu Q wyjeżdża do płaszczyzny R — wiór wychodzi z otworu. <b>G73</b> cofa się tylko o ułamek milimetra, żeby złamać wiór — jest szybszy, ale wiór zostaje w otworze.</>}>
-      {() => <g><Peck x0={2} deep /><Peck x0={184} deep={false} /></g>}
+    <Fig id="f52pk" code="G83" title="G83 krok po kroku: R2, Q4, Z−18" h={300} legend={["cut", "rap", "stock"]}
+      notes={<Code k="acc">G83 X… Y… Z-18. R2. Q4. F380</Code>}
+      caption={<>Pięć kolejnych wejść w ten sam otwór. Zagłębienia liczy się od <b>R2</b>: dna w Z−2, −6, −10, −14 i −18. Pierwsze wejście zaczyna 2 mm nad materiałem, więc w metalu zbiera tylko 2 mm. Po każdym dnie <b>G83</b> wyjeżdża szybko do R — wiór wychodzi z otworu — i wraca szybko tuż nad poprzednie dno; ten odstęp ustawia parametr sterowania. Ruch w dół i w górę idzie w osi otworu, na rysunku rozsunięto je dla czytelności.</>}>
+      {(c) => (
+        <g>
+          {/* oś głębokości */}
+          {[PK.zR, 0, ...bottoms].map((z) => (
+            <g key={z}>
+              <line x1={x0 - 22} y1={Y(z)} x2={x0 + col * 4 + 26} y2={Y(z)} className="p-ext" />
+              <T x={x0 - 24} y={Y(z) + 3.5} anchor="end" cls={z === PK.zR ? "t-acc t-b" : "t-mono t-mut"}>{z === PK.zR ? "R2" : `Z${fmtZ(z)}`}</T>
+            </g>
+          ))}
+          {bottoms.map((d, i) => {
+            const xc = x0 + i * col;
+            const prev = i === 0 ? null : bottoms[i - 1];
+            const start = prev === null ? PK.zR : prev + PK.gap;   // gdzie zaczyna się posuw
+            const xd = xc - 3.5, xu = xc + 3.5;
+            return (
+              <g key={d}>
+                {/* materiał i otwór wywiercony do bieżącego dna */}
+                <rect x={xc - 23} y={Y(0)} width={46} height={Y(zBot) - Y(0)} fill={c.hatch} className="p-con" />
+                <polygon points={`${xc - hw},${Y(0)} ${xc + hw},${Y(0)} ${xc + hw},${Y(d) - 2} ${xc},${Y(d) + 2} ${xc - hw},${Y(d) - 2}`} style={{ fill: "var(--bg)", stroke: "var(--ink-2)" }} />
+                {/* dojazd szybki nad poprzednie dno */}
+                {prev !== null && <line x1={xd} y1={Y(PK.zR)} x2={xd} y2={Y(start) - 3} className="p-rap" markerEnd={c.a("rap")} />}
+                {/* posuw do nowego dna */}
+                <line x1={xd} y1={Y(start)} x2={xd} y2={Y(d) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
+                {/* wyjazd szybki do R */}
+                <line x1={xu} y1={Y(d)} x2={xu} y2={Y(PK.zR) + 3} className="p-rap" markerEnd={c.a("rap")} />
+                <Num x={xc} y={top - 22} n={i + 1} />
+                <T x={xc} y={Y(zBot) + 14} anchor="middle" cls="t-mono t-sm">{`do Z${fmtZ(d)}`}</T>
+              </g>
+            );
+          })}
+        </g>
+      )}
     </Fig>
   );
 }
 
 /* ================= F5.2: stożek wiertła ================= */
+/* Wiertło Ø5, 140° z przykładu F5.2: stożek 2,5 / tan 70° ≈ 0,9 mm. */
 export function DrillTip() {
-  const R: [number, number, number, number] = [-10, 12, -18, 3];
+  const R: [number, number, number, number] = [-10, 12, -20, 3];
   const m = mapper(R, [14, 6, 332, 214]);
   const P = (x: number, z: number) => `${m.X(x)},${m.Y(z)}`;
+  const tip = -18, full = -17.1;
   return (
-    <Fig id="f52tp" code="118°" title="Z w programie to czubek wiertła" h={236} legend={["dim", "stock"]}
+    <Fig id="f52tp" code="140°" title="Z w programie to czubek wiertła" h={236} legend={["dim", "stock"]}
       notes={<><Code k="acc">118°: stożek ≈ 0,3 · D</Code><Code k="acc">140°: stożek ≈ 0,18 · D</Code></>}
-      caption={<>Wiertło Ø5 o kącie 118°: czubek w Z−16, pełna średnica kończy się 1,5 mm wyżej, w Z−14,5. Przy otworze pod gwint liczy się właśnie ta głębokość.</>}>
+      caption={<>Wiertło Ø5 o kącie 140° z lekcji: czubek w Z−18, pełna średnica kończy się 0,9 mm wyżej, w Z−17,1. Przy otworze pod gwint liczy się właśnie ta głębokość. Wiertło 118° tej samej średnicy miałoby stożek 1,5 mm.</>}>
       {(c) => (
         <g>
-          <polygon points={`${P(-10, 0)} ${P(-2.5, 0)} ${P(-2.5, -14.5)} ${P(0, -16)} ${P(2.5, -14.5)} ${P(2.5, 0)} ${P(12, 0)} ${P(12, -18)} ${P(-10, -18)}`} fill={c.hatch} className="p-con" />
-          <line x1={m.X(-4)} y1={m.Y(-14.5)} x2={m.X(12)} y2={m.Y(-14.5)} className="p-cons" />
-          <line x1={m.X(0)} y1={m.Y(-16)} x2={m.X(12)} y2={m.Y(-16)} className="p-cons" />
-          <Dim x1={m.X(-6)} y1={m.Y(0)} x2={m.X(-6)} y2={m.Y(-14.5)} label="14,5" c={c} lside={-1} cls="t-mono" />
-          <Dim x1={m.X(9)} y1={m.Y(0)} x2={m.X(9)} y2={m.Y(-16)} label="Z−16" c={c} lside={1} cls="t-mono t-acc t-b" />
-          <T x={m.X(3.5)} y={m.Y(-15.3)} cls="t-acc t-sm">1,5</T>
+          <polygon points={`${P(-10, 0)} ${P(-2.5, 0)} ${P(-2.5, full)} ${P(0, tip)} ${P(2.5, full)} ${P(2.5, 0)} ${P(12, 0)} ${P(12, -20)} ${P(-10, -20)}`} fill={c.hatch} className="p-con" />
+          <line x1={m.X(-4)} y1={m.Y(full)} x2={m.X(12)} y2={m.Y(full)} className="p-cons" />
+          <line x1={m.X(0)} y1={m.Y(tip)} x2={m.X(12)} y2={m.Y(tip)} className="p-cons" />
+          <Dim x1={m.X(-6)} y1={m.Y(0)} x2={m.X(-6)} y2={m.Y(full)} label="17,1" c={c} lside={-1} cls="t-mono" />
+          <Dim x1={m.X(9)} y1={m.Y(0)} x2={m.X(9)} y2={m.Y(tip)} label="Z−18" c={c} lside={1} cls="t-mono t-acc t-b" />
+          <T x={m.X(3.5)} y={m.Y(-17.4)} cls="t-acc t-sm">0,9</T>
           <Dim x1={m.X(-2.5)} y1={m.Y(0)} x2={m.X(2.5)} y2={m.Y(0)} off={-16} label="Ø5" c={c} cls="t-mono" />
         </g>
       )}
@@ -171,27 +185,81 @@ export function DrillTip() {
 }
 
 /* ================= F5.3: gwintowanie ================= */
+/* Otwór z F5.2 (pełna średnica do Z−17,1, czubek Z−18), pełny gwint do Z−12,
+   nakrój 3 mm (założenie lekcji) → koniec gwintownika Z−15. */
 export function TapCycle() {
-  const R: [number, number, number, number] = [-14, 14, -15, 9];
+  const R: [number, number, number, number] = [-14, 14, -20, 9];
   const m = mapper(R, [14, 6, 332, 214]);
-  const threads = Array.from({ length: 12 }, (_, i) => -i - 0.5);
+  const P = (x: number, z: number) => `${m.X(x)},${m.Y(z)}`;
+  const full = Array.from({ length: 12 }, (_, i) => -i - 0.5);
+  const chamf = [-12.5, -13.5, -14.5];
   return (
-    <Fig id="f53tp" code="G84" title="Gwintowanie: posuw = obroty × skok" h={238} legend={["cut", "arc", "stock"]}
+    <Fig id="f53tp" code="G84" title="Gwintowanie: posuw = obroty × skok" h={248} legend={["cut", "arc", "stock"]}
       notes={<><Code k="cut">wejście: obroty w prawo, F = S · P</Code><Code k="arc">wyjście: obroty odwrócone</Code></>}
-      caption={<>Na jeden obrót gwintownik M6 wchodzi dokładnie o skok 1 mm. Przy S500 posuw musi wynosić 500 mm/min — inaczej gwintownik zrywa zwoje albo pęka. Na dnie cykl odwraca obroty i wykręca narzędzie tym samym torem.</>}>
+      caption={<>Na jeden obrót gwintownik M6 wchodzi dokładnie o skok 1 mm. Przy S500 posuw musi wynosić 500 mm/min — inaczej gwintownik zrywa zwoje albo może pęknąć. Koniec gwintownika schodzi do Z−15: pełny gwint sięga Z−12, niżej pracuje nakrój. Na dnie cykl odwraca obroty i wykręca narzędzie tym samym torem.</>}>
       {(c) => (
         <g>
-          <rect x={m.X(-14)} y={m.Y(0)} width={28 * m.u} height={15 * m.u} fill={c.hatch} className="p-con" />
-          <rect x={m.X(-3)} y={m.Y(0)} width={6 * m.u} height={12 * m.u} className="panel-bg" />
-          {threads.map((z) => <g key={z}><line x1={m.X(-3)} y1={m.Y(z) - 4} x2={m.X(-2.5)} y2={m.Y(z) + 4} className="p-dim" /><line x1={m.X(3)} y1={m.Y(z) - 4} x2={m.X(2.5)} y2={m.Y(z) + 4} className="p-dim" /></g>)}
-          <rect x={m.X(-2.5)} y={m.Y(9)} width={5 * m.u} height={21 * m.u} className="cutter" />
+          <polygon points={`${P(-14, 0)} ${P(-2.5, 0)} ${P(-2.5, -17.1)} ${P(0, -18)} ${P(2.5, -17.1)} ${P(2.5, 0)} ${P(14, 0)} ${P(14, -20)} ${P(-14, -20)}`} fill={c.hatch} className="p-con" />
+          {full.map((z) => <g key={z}><line x1={m.X(-3)} y1={m.Y(z) - 4} x2={m.X(-2.5)} y2={m.Y(z) + 4} className="p-dim" /><line x1={m.X(3)} y1={m.Y(z) - 4} x2={m.X(2.5)} y2={m.Y(z) + 4} className="p-dim" /></g>)}
+          {chamf.map((z) => <g key={z}><line x1={m.X(-2.8)} y1={m.Y(z) - 3} x2={m.X(-2.5)} y2={m.Y(z) + 3} className="p-ext" /><line x1={m.X(2.8)} y1={m.Y(z) - 3} x2={m.X(2.5)} y2={m.Y(z) + 3} className="p-ext" /></g>)}
+          <rect x={m.X(-2.5)} y={m.Y(9)} width={5 * m.u} height={24 * m.u} className="cutter" />
           <line x1={m.X(-14)} y1={m.Y(5)} x2={m.X(14)} y2={m.Y(5)} className="p-cons" />
           <T x={m.X(13.5)} y={m.Y(5) - 5} anchor="end" cls="t-acc t-b">R5</T>
-          <line x1={m.X(-8)} y1={m.Y(5)} x2={m.X(-8)} y2={m.Y(-12) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
-          <line x1={m.X(8)} y1={m.Y(-12)} x2={m.X(8)} y2={m.Y(5) + 3} className="p-arc thick" markerEnd={c.a("arc")} />
+          <line x1={m.X(-8)} y1={m.Y(5)} x2={m.X(-8)} y2={m.Y(-15) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={m.X(8)} y1={m.Y(-15)} x2={m.X(8)} y2={m.Y(5) + 3} className="p-arc thick" markerEnd={c.a("arc")} />
           <T x={m.X(-9)} y={m.Y(-4)} anchor="end" cls="t-cut t-b">M03</T>
           <T x={m.X(9)} y={m.Y(-4)} cls="t-arc t-b">M04</T>
-          <T x={m.X(0)} y={m.Y(-12) + 22} anchor="middle" cls="t-mono t-b">Z−12</T>
+          <line x1={m.X(-5)} y1={m.Y(-15)} x2={m.X(5)} y2={m.Y(-15)} className="p-cut" />
+          <T x={m.X(-9)} y={m.Y(-15) + 4} anchor="end" cls="t-mono t-b">Z−15</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F5.3: cztery głębokości otworu gwintowanego =================
+   Założenia lekcji F5.2/F5.3: M6×1, pełny gwint 12 mm, nakrój 3 zwoje (3 mm),
+   wiertło Ø5 140°, czubek Z−18. Fazka z nawiercania pominięta. */
+export function TapDepthM6() {
+  const R: [number, number, number, number] = [-16, 22, -20.5, 3];
+  const m = mapper(R, [8, 8, 344, 226]);
+  const P = (x: number, z: number) => `${m.X(x)},${m.Y(z)}`;
+  const xs = -8, rH = 2.5, rT = 3;
+  const L = 12, zTap = -15, zFull = -17.1, zTip = -18;
+  const lv: { z: number; t: string; cls: string; dy: number }[] = [
+    { z: -L, t: "Z−12 koniec pełnego gwintu", cls: "t-acc t-b", dy: -4 },
+    { z: zTap, t: "Z−15 koniec gwintownika (G84)", cls: "t-cut t-b", dy: -4 },
+    { z: zFull, t: "Z−17,1 koniec pełnej Ø5", cls: "t-mut", dy: -4 },
+    { z: zTip, t: "Z−18 czubek wiertła (G83)", cls: "t-mut", dy: 12 },
+  ];
+  return (
+    <Fig id="f53dp" code="M6×1" title="Cztery głębokości otworu gwintowanego" h={244} legend={["acc", "dim", "stock"]}
+      notes={<><Code k="cut">G84 … Z-15. R5. F500</Code><Code k="acc">G83 … Z-18. R2. Q4.</Code></>}
+      caption={<>Wymagane 12 mm pełnego gwintu. Gwintownik z nakrojem 3 zwojów (założenie przykładu) musi zejść końcem do <b>Z−15</b>. Pełna średnica otworu sięga Z−17,1, czyli 2,1 mm niżej — to zapas na wióry i bicie osiowe. Czubek wiertła jest jeszcze o stożek 0,9 mm niżej, w Z−18. Fazka z nawiercania pominięta.</>}>
+      {(c) => (
+        <g>
+          <polygon points={`${P(-16, 0)} ${P(xs - rH, 0)} ${P(xs - rH, zFull)} ${P(xs, zTip)} ${P(xs + rH, zFull)} ${P(xs + rH, 0)} ${P(0, 0)} ${P(0, -20.5)} ${P(-16, -20.5)}`} fill={c.hatch} className="p-con" />
+          {Array.from({ length: L }, (_, i) => {
+            const z1 = -i, z2 = z1 - 0.5, z3 = z1 - 1;
+            return (
+              <g key={i}>
+                <polyline points={`${P(xs - rH, z1)} ${P(xs - rT, z2)} ${P(xs - rH, z3)}`} className="p-acc" fill="none" />
+                <polyline points={`${P(xs + rH, z1)} ${P(xs + rT, z2)} ${P(xs + rH, z3)}`} className="p-acc" fill="none" />
+              </g>
+            );
+          })}
+          <line x1={m.X(xs - rT)} y1={m.Y(-L)} x2={m.X(xs - rH)} y2={m.Y(zTap)} className="p-acc dashed" />
+          <line x1={m.X(xs + rT)} y1={m.Y(-L)} x2={m.X(xs + rH)} y2={m.Y(zTap)} className="p-acc dashed" />
+          {lv.map((l) => (
+            <g key={l.z}>
+              <line x1={m.X(xs - 4)} y1={m.Y(l.z)} x2={m.X(1)} y2={m.Y(l.z)} className={l.z === zTap ? "p-cut" : "p-cons"} />
+              <T x={m.X(1.5)} y={m.Y(l.z) + l.dy + (l.dy < 0 ? 6 : 0)} cls={l.cls}>{l.t}</T>
+            </g>
+          ))}
+          <T x={m.X(1.5)} y={m.Y(0) - 4} cls="t-mut t-sm">Z0 — powierzchnia</T>
+          <Dim c={c} x1={m.X(-14)} y1={m.Y(0)} x2={m.X(-14)} y2={m.Y(-L)} label="12" lside={-1} />
+          <Dim c={c} x1={m.X(-14)} y1={m.Y(-L)} x2={m.X(-14)} y2={m.Y(zTap)} label="3" lside={-1} />
+          <Dim c={c} x1={m.X(-14)} y1={m.Y(zTap)} x2={m.X(-14)} y2={m.Y(zFull)} label="2,1" lside={-1} />
         </g>
       )}
     </Fig>
@@ -205,13 +273,14 @@ export function RetractLevels() {
   const holes = [15, 45, 75];
   return (
     <Fig id="f54lv" code="G98 G99" title="Powrót do R albo do poziomu początkowego" h={232} legend={["rap", "bad", "stock"]}
-      notes={<><Code k="rap">G99 X15. … X45.</Code><Code k="rap">G98 X45. (przed dociskiem)</Code></>}
-      caption={<><b>G99</b> wraca do płaszczyzny R — krótko i szybko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego — tak przeskakuje się nad dociskiem.</>}>
+      notes={<><Code k="rap">G99 G81 X15. …</Code><Code k="rap">G98 X45.</Code><Code k="rap">G99 X75.</Code></>}
+      caption={<><b>G99</b> wraca do płaszczyzny R — krótko i szybko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego — tak przeskakuje się nad dociskiem 25 mm. Po trzecim otworze znów G99: bez niego aktywne G98 podniosłoby narzędzie na Z30.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={10 * m.u} fill={c.hatch} className="p-con" />
-          <rect x={m.X(56)} y={m.Y(14)} width={10 * m.u} height={14 * m.u} rx={2} className="clamp" />
-          <T x={m.X(61)} y={m.Y(14) - 5} anchor="middle" cls="t-mut">docisk</T>
+          <rect x={m.X(56)} y={m.Y(25)} width={10 * m.u} height={25 * m.u} rx={2} className="clamp" />
+          <T x={m.X(61)} y={m.Y(12)} anchor="middle" cls="t-mut t-sm">docisk</T>
+          <T x={m.X(61)} y={m.Y(12) + 13} anchor="middle" cls="t-mut t-sm">25 mm</T>
           {holes.map((h) => <rect key={h} x={m.X(h - 2)} y={m.Y(0)} width={4 * m.u} height={7 * m.u} className="panel-bg" />)}
           <line x1={m.X(-4)} y1={m.Y(30)} x2={m.X(96)} y2={m.Y(30)} className="p-cons" />
           <line x1={m.X(-4)} y1={m.Y(2)} x2={m.X(96)} y2={m.Y(2)} className="p-cons" />
@@ -221,6 +290,9 @@ export function RetractLevels() {
           <line x1={m.X(45)} y1={m.Y(-7)} x2={m.X(45)} y2={m.Y(30) + 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(45) + 3} y1={m.Y(30)} x2={m.X(75) - 3} y2={m.Y(30)} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(45) + 3} y1={m.Y(2) + 5} x2={m.X(75) - 3} y2={m.Y(2) + 5} className="p-bad" markerEnd={c.a("bad")} />
+          <line x1={m.X(75)} y1={m.Y(30)} x2={m.X(75)} y2={m.Y(2) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
+          <line x1={m.X(77.5)} y1={m.Y(-7)} x2={m.X(77.5)} y2={m.Y(2) + 3} className="p-rap" markerEnd={c.a("rap")} />
+          <T x={m.X(79)} y={m.Y(10)} cls="t-rap t-b t-sm">G99</T>
           <T x={m.X(30)} y={m.Y(2) - 6} anchor="middle" cls="t-rap t-b">G99</T>
           <T x={m.X(60)} y={m.Y(30) - 6} anchor="middle" cls="t-rap t-b">G98</T>
           <T x={m.X(50)} y={m.Y(2) + 22} cls="t-bad">G99 — kolizja</T>
@@ -237,5 +309,6 @@ export const f5Figs = {
   "f52-peck": () => <PeckCompare />,
   "f52-tip": () => <DrillTip />,
   "f53-tap": () => <TapCycle />,
+  "f53-depth": () => <TapDepthM6 />,
   "f54-levels": () => <RetractLevels />,
 };

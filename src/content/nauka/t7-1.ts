@@ -35,7 +35,7 @@ export const t7_1: LessonDoc = {
     { t: "h", x: "Gwint na tokarce", id: "gwint" },
     { t: "p", x: "Nóż do gwintów ma zarys zwoju — dla gwintu metrycznego 60°. Posuw w Z równa się skokowi gwintu i jest zsynchronizowany z obrotem wrzeciona: na każdy obrót nóż przesuwa się dokładnie o skok. Gwintu nie da się wyciąć jednym przejściem — nóż wchodzi w kilku, coraz płytszych przejściach, każde dokładnie w ten sam zwój." },
     { t: "diagram", id: "t71-profile" },
-    { t: "code", x: "h3 = 0,6134 · P = 0,6134 · 1,5 ≈ 0,92 mm\nrdzeń = 20 − 2 · 0,92 = 18,16 mm", caption: "Wysokość zwoju gwintu zewnętrznego ISO. W praktyce wymiar sprawdza się pierścieniem albo mikrometrem do gwintów i koryguje zużyciem X." },
+    { t: "code", x: "h3 = 0,6134 · P = 0,6134 · 1,5 ≈ 0,92 mm\nrdzeń = 20 − 2 · 0,92 = 18,16 mm", caption: "Wysokość zwoju gwintu zewnętrznego ISO — wymiar podstawowy. Wymiar wykonawczy z tolerancją (np. klasa 6g) bierze się z tabel; w praktyce gwint sprawdza się pierścieniem albo mikrometrem do gwintów i koryguje zużyciem X." },
 
     { t: "h", x: "Cykl G76 — dwa bloki", id: "g76" },
     { t: "code", x: "G76 P010060 Q50 R0.05\nG76 X18.16 Z-17. P920 Q300 F1.5" },
@@ -58,7 +58,7 @@ export const t7_1: LessonDoc = {
       "**Koniec w Z** w podcięciu z lekcji T6.1: gwint kończy się w Z−17, a podcięcie zaczyna w Z−16. Nóż wychodzi z materiału, zanim cofnie się w X.",
       "**Obroty stałe** — G97. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.",
     ] },
-    { t: "note", kind: "warn", x: "W trakcie gwintowania korektor posuwu i STOP posuwu nie działają do końca przejścia — zatrzymanie w połowie zniszczyłoby zwój." },
+    { t: "note", kind: "warn", x: "Na wielu sterowaniach podczas przejścia gwintu korektor posuwu nie działa, a STOP posuwu zadziała dopiero po zakończeniu przejścia — zatrzymanie w połowie zniszczyłoby zwój. Dokładne zachowanie zależy od sterowania i jego parametrów." },
   ],
 
   worked: {
@@ -70,7 +70,7 @@ export const t7_1: LessonDoc = {
       { x: "Pierwsze wejście 0,3 mm, najmniejsze 0,05, naddatek 0,05.", code: "Q300 · Q50 · R0.05" },
       { x: "Jedno przejście wykańczające, bez wyjścia skośnego, 60°.", code: "P010060" },
     ],
-    result: "Cykl wykonuje 10 przejść: od Ø19,4 do rdzenia Ø18,16. Wszystkie zaczynają się w Z5, więc nóż trafia za każdym razem w ten sam zwój.",
+    result: "W symulatorze GCat cykl wykonuje 10 przejść: od Ø19,4 do rdzenia Ø18,16. Symulator rozkłada wejścia tak jak opis G76 w instrukcji Fanuc — kolejne głębokości rosną z pierwiastkiem numeru przejścia, nie mniej niż Q. Na konkretnej maszynie liczbę przejść sprawdź w symulacji sterowania. Wszystkie przejścia zaczynają się w Z5, więc nóż trafia za każdym razem w ten sam zwój.",
   },
 
   practice: [
@@ -90,9 +90,9 @@ export const t7_1: LessonDoc = {
       kind: "drill",
       intro: "Wymiary gwintu i adresy G76.",
       questions: [
-        { kind: "gap", q: "M12×1,75. Wysokość zwoju h3 (mm, do 0,01):", template: "{0}", answers: [["1.07", "1,07"]], why: "0,6134 · 1,75 ≈ 1,07." },
-        { kind: "gap", q: "M12×1,75. Średnica rdzenia (mm, do 0,01):", template: "X{0}", answers: [["9.86", "9,86", "9.85", "9,85"]], why: "12 − 2 · 1,07 ≈ 9,86." },
-        { kind: "gap", q: "Wysokość zwoju 1,07 mm. Wartość P w drugim bloku:", template: "P{0}", answers: [["1070"]], why: "Mikrometry, bez kropki." },
+        { kind: "gap", q: "Gwint M12×1,75. Ile wynosi wysokość zwoju h3 (mm, do 0,01)?", template: "{0}", answers: [["1.07", "1,07"]], why: "0,6134 · 1,75 ≈ 1,07." },
+        { kind: "gap", q: "Gwint M12×1,75. Ile wynosi podstawowa średnica rdzenia (mm, do 0,01)?", template: "X{0}", answers: [["9.86", "9,86", "9.85", "9,85"]], why: "h3 = 0,6134 · 1,75 = 1,073 mm, więc 12 − 2 · 1,073 ≈ 9,85 mm. To wymiar podstawowy — wymiar wykonawczy z tolerancją sprawdza się sprawdzianem." },
+        { kind: "gap", q: "Wysokość zwoju 1,07 mm. Jaką wartość P wpiszesz w drugim bloku G76 (µm, bez kropki)?", template: "P{0}", answers: [["1070"]], why: "Mikrometry, bez kropki." },
         { kind: "choice", q: "Dlaczego gwintuje się przy G97?", options: ["obroty muszą być stałe, żeby nóż trafiał w ten sam zwój", "G96 nie działa na tokarce", "G97 jest szybsze", "bez powodu"], answer: 0, why: "Synchronizacja przejść." },
       ],
     },
@@ -117,7 +117,7 @@ export const t7_1: LessonDoc = {
   quiz: [
     { kind: "choice", review: "T6.2", q: "Który tryb obrotów przy wierceniu w osi?", options: ["G97", "G96", "G50", "G98"], answer: 0, why: "Stałe obroty dla średnicy wiertła." },
     { kind: "choice", q: "Czemu równa się posuw przy gwintowaniu?", options: ["skokowi gwintu na obrót", "0,1 mm/obr", "prędkości skrawania", "wysokości zwoju"], answer: 0, why: "Na każdy obrót — jeden skok." },
-    { kind: "gap", q: "M16×2. Wysokość zwoju (mm, do 0,01):", template: "{0}", answers: [["1.23", "1,23"]], why: "0,6134 · 2 ≈ 1,23." },
+    { kind: "gap", q: "Gwint M16×2. Ile wynosi wysokość zwoju h3 (mm, do 0,01)?", template: "{0}", answers: [["1.23", "1,23"]], why: "0,6134 · 2 ≈ 1,23." },
     { kind: "choice", q: "Co oznacza X w drugim bloku G76?", options: ["średnicę rdzenia", "średnicę nominalną", "przyrost X", "skok"], answer: 0, why: "Dno zwoju." },
     { kind: "choice", q: "Dlaczego kolejne wejścia G76 są coraz płytsze?", options: ["żeby przekrój wióra był podobny", "żeby skrócić program", "bo tak wymaga G97", "bez powodu"], answer: 0, why: "Wraz z głębokością rośnie szerokość styku ostrza." },
     { kind: "choice", q: "Gdzie powinien kończyć się gwint zewnętrzny przed stopniem?", options: ["w podcięciu albo z zapasem przed stopniem", "na czole stopnia", "za stopniem", "obojętnie"], answer: 0, why: "Nóż musi wyjść z materiału." },

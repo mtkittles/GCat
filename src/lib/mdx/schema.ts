@@ -121,6 +121,10 @@ const taskCheck = z.discriminatedUnion("t", [
   z.strictObject({ t: z.literal("cut"), reference: text, tolerance: z.number().optional() }),
   z.strictObject({ t: z.literal("require"), codes: z.array(text).min(1) }),
   z.strictObject({ t: z.literal("forbid"), codes: z.array(text).min(1) }),
+  z.strictObject({ t: z.literal("feed"), on: z.enum(["plunge", "xy"]), f: z.number().positive(), label: text }),
+  z.strictObject({ t: z.literal("coolant"), label: text, offBeforeStop: z.boolean().optional() }),
+  z.strictObject({ t: z.literal("tapFeed"), pitch: z.number().positive(), label: text }),
+  z.strictObject({ t: z.literal("rapidAbove"), x0: z.number(), x1: z.number(), z: z.number(), label: text }),
 ]);
 const reg = z.enum(["G54", "G55"]);
 export const practiceSchema = z.discriminatedUnion("kind", [

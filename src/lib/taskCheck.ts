@@ -10,6 +10,10 @@ import type { TaskCheck } from "@/lib/lesson";
 
 const near = (a: number, b: number) => Math.abs(a - b) < 0.011;
 const lastRapids = (segs: Segment[]) => segs.filter((s) => s.kind === "rapid");
+const fmt = (n: number) => +n.toFixed(3);
+const isFeedMove = (s: Segment) => s.kind === "linear" || s.kind === "arc";
+const isPlunge = (s: Segment) => s.kind === "linear" && near(s.from.x, s.to.x) && near(s.from.y, s.to.y) && s.to.z < s.from.z - 0.001;
+const hasXY = (s: Segment) => (s.kind === "linear" || s.kind === "arc") && (!near(s.from.x, s.to.x) || !near(s.from.y, s.to.y));
 
 export function runTaskChecks(src: string, checks: TaskCheck[], mode: "mill" | "lathe") {
   const lathe = mode === "lathe";
@@ -35,6 +39,44 @@ export function runTaskChecks(src: string, checks: TaskCheck[], mode: "mill" | "
     } else if (c.t === "cut") {
       const res = checkExercise(src, { mode, reference: c.reference, tolerance: c.tolerance ?? 0.05 });
       res.checks.slice(1).forEach((k) => out.push(k));
+    } else if (c.t === "feed") {
+      // Stan wykonania: jaki F jest aktywny na każdym ruchu danego rodzaju — dopisanie
+      // właściwej wartości w innym miejscu programu nie wystarcza.
+      const hits = prog.lines.flatMap((l) => l.segments.filter(c.on === "plunge" ? isPlunge : hasXY).map((s) => ({ l, s })));
+      const bad = hits.find(({ l }) => l.state.feed === null || Math.abs(l.state.feed - c.f) > 0.001);
+      const ok = hits.length > 0 && !bad;
+      out.push({ ok, label: c.label, detail: ok ? undefined : bad ? `linia ${bad.l.index + 1}: aktywne F${bad.l.state.feed ?? "—"}` : "brak takiego ruchu w programie" });
+    } else if (c.t === "coolant") {
+      const cuts = prog.lines.flatMap((l) => l.segments.filter(isFeedMove).map(() => l));
+      const dry = cuts.find((l) => !l.state.coolant);
+      const ok = cuts.length > 0 && !dry;
+      out.push({ ok, label: c.label, detail: ok ? undefined : dry ? `linia ${dry.index + 1}: ruch roboczy bez chłodziwa` : "brak ruchów roboczych" });
+      if (c.offBeforeStop) {
+        const stop = prog.lines.find((l, i) => i > 0 && l.state.spindleOn === "off" && prog.lines[i - 1].state.spindleOn !== "off");
+        const okStop = !!stop && !stop.state.coolant && prog.lines.some((l) => l.index < stop.index && l.state.coolant);
+        out.push({ ok: okStop, label: "Chłodziwo wyłączone (M09) przed zatrzymaniem wrzeciona", detail: okStop ? undefined : stop ? `linia ${stop.index + 1}: wrzeciono staje przy włączonym chłodziwie` : "brak zatrzymania wrzeciona" });
+      }
+    } else if (c.t === "tapFeed") {
+      const taps = prog.lines.filter((l) => l.state.cycle?.code === 84 && l.segments.some(isFeedMove));
+      const bad = taps.find((l) => {
+        const f = l.state.feed, s = l.state.spindle;
+        if (f === null) return true;
+        if (l.state.feedMode === 95) return Math.abs(f - c.pitch) > 0.001;
+        return s === null || Math.abs(f - s * c.pitch) > 0.5;
+      });
+      const ok = taps.length > 0 && !bad;
+      out.push({
+        ok, label: c.label,
+        detail: ok ? undefined : bad ? `linia ${bad.index + 1}: F${bad.state.feed ?? "—"} przy S${bad.state.spindle ?? "—"} (G${bad.state.feedMode}), skok ${c.pitch}` : "brak ruchów cyklu G84",
+      });
+    } else if (c.t === "rapidAbove") {
+      const lo = Math.min(c.x0, c.x1), hi = Math.max(c.x0, c.x1);
+      const low = prog.lines.flatMap((l) => l.segments.filter((s) => s.kind === "rapid").map((s) => ({ l, s }))).find(({ s }) => {
+        const a = Math.min(s.from.x, s.to.x), b = Math.max(s.from.x, s.to.x);
+        const crosses = b > lo + 0.001 && a < hi - 0.001;
+        return crosses && Math.min(s.from.z, s.to.z) <= c.z + 0.001;
+      });
+      out.push({ ok: !low, label: c.label, detail: low ? `linia ${low.l.index + 1}: przejazd na Z${fmt(Math.min(low.s.from.z, low.s.to.z))}` : undefined });
     } else if (c.t === "require" || c.t === "forbid") {
       const up = src.toUpperCase().replace(/\([^)]*\)/g, "");
       for (const code of c.codes) {

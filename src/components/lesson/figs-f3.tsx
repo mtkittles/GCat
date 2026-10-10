@@ -1,4 +1,4 @@
-import { Code, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Fig, mapper, Pt, T, Dim } from "@/components/fig";
 
 /* Rysunki modułu F3 — ruchy. Styl i kolory z fig.tsx. */
 
@@ -11,7 +11,7 @@ export function SafeApproach() {
   return (
     <Fig id="f31ap" code="G00" title="Najazd ruchem szybkim — widok z boku" h={250} legend={["rap", "bad", "stock"]}
       notes={<><Code k="rap">G00 X-20. Y10.</Code><Code k="rap">G00 Z5.</Code><Code k="bad">G00 X-20. Y10. Z5.</Code></>}
-      caption={<>Przy ruchu szybkim osie często jadą niezależnie, każda z pełną prędkością. Oś Z kończy wcześniej i reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół.</>}>
+      caption={<>Przy ruchu szybkim osie często jadą niezależnie, każda z pełną prędkością. Oś Z kończy wcześniej i reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół. Frez Ø10 w X−20 ma krawędzie w X−25 i X−15, więc do detalu (X0) zostaje 15 mm. Docisk i szczęki trzeba sprawdzić osobno — ich położenie wynika z ustawienia detalu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={60 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -26,7 +26,14 @@ export function SafeApproach() {
           <T x={m.X(8)} y={m.Y(S.z) - 7} anchor="middle" cls="t-rap t-b">1. XY wysoko</T>
           <T x={m.X(E.x) - 5} y={m.Y(28)} anchor="end" cls="t-rap t-b">2. Z w dół</T>
           <Pt x={m.X(S.x)} y={m.Y(S.z)} label="Z50." pos="ne" cls="t-mono t-b" />
+          {/* frez Ø10 w pozycji końcowej: krawędzie X−25 i X−15 */}
+          <rect x={m.X(-25)} y={m.Y(E.z + 14)} width={10 * m.u} height={14 * m.u} className="cutter" opacity={0.55} />
           <Pt x={m.X(E.x)} y={m.Y(E.z)} label="X−20 Z5" pos="sw" cls="t-mono t-b" dot="pt-rap" />
+          <line x1={m.X(-25)} y1={m.Y(E.z)} x2={m.X(-25)} y2={m.Y(-12)} className="p-ext" />
+          <line x1={m.X(-15)} y1={m.Y(E.z)} x2={m.X(-15)} y2={m.Y(-12)} className="p-ext" />
+          <Dim c={c} x1={m.X(-15)} y1={m.Y(-10)} x2={m.X(0)} y2={m.Y(-10)} label="15" lside={1} />
+          <T x={m.X(-25)} y={m.Y(-12) + 13} anchor="middle" cls="t-mono t-sm">X−25</T>
+          <T x={m.X(-15)} y={m.Y(-12) + 13} anchor="middle" cls="t-mono t-sm">X−15</T>
         </g>
       )}
     </Fig>

@@ -29,7 +29,7 @@ G03 X36. Y21. R6.
 G40 G01 X30. Y25.`;
 
 const starter = `O1007 (KIESZEN 26X20)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06 (FREZ FI10)
@@ -106,9 +106,9 @@ export const f6_2: LessonDoc = {
       kind: "drill",
       intro: "Geometria kieszeni.",
       questions: [
-        { kind: "gap", q: "Kieszeń X10…X50, frez Ø12, naddatek 0,5. Zakres X pętli zgrubnej:", template: "X{0}…X{1}", answers: [["16.5", "16,5"], ["43.5", "43,5"]], why: "Odsunięcie 6 + 0,5 = 6,5: 10 + 6,5 i 50 − 6,5." },
+        { kind: "gap", q: "Kieszeń od X10 do X50, frez Ø12, naddatek 0,5 mm. W jakim zakresie X jedzie środek freza w pętli zgrubnej?", template: "X{0}…X{1}", answers: [["16.5", "16,5"], ["43.5", "43,5"]], why: "Odsunięcie 6 + 0,5 = 6,5: 10 + 6,5 i 50 − 6,5." },
         { kind: "choice", q: "Kieszeń z narożami R4. Który frez wykończy naroża?", options: ["Ø6", "Ø8", "Ø10", "każdy"], answer: 0, why: "Promień freza (3) musi być mniejszy niż promień naroża (4)." },
-        { kind: "choice", q: "Wykańczanie ścian kieszeni przy M03 i G41 — kierunek obiegu:", options: ["przeciwnie do zegara", "zgodnie z zegarem", "bez znaczenia", "zygzakiem"], answer: 0, why: "Wewnątrz współbieżnie znaczy przeciwnie do zegara." },
+        { kind: "choice", q: "Wykańczasz ściany kieszeni przy M03 i G41. W którą stronę obiegasz kieszeń?", options: ["przeciwnie do zegara", "zgodnie z zegarem", "bez znaczenia", "zygzakiem"], answer: 0, why: "Wewnątrz współbieżnie znaczy przeciwnie do zegara." },
       ],
     },
   ],
@@ -130,10 +130,10 @@ export const f6_2: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F6.1", q: "Głowica Ø63, zapas 8,5 mm. X startu przed detalem zaczynającym się w X0:", template: "X{0}", answers: [["-40"]], why: "−(31,5 + 8,5)." },
+    { kind: "gap", review: "F6.1", q: "Głowica Ø63, odstęp 8,5 mm od detalu, który zaczyna się w X0. Z jakiego X startuje środek głowicy?", template: "X{0}", answers: [["-40"]], why: "−(31,5 + 8,5)." },
     { kind: "choice", q: "Po co rampa zamiast wejścia pionowego?", options: ["frez skrawa obwodem, a nie samym czołem", "rampa jest krótsza", "tak wymaga G41", "żeby zmniejszyć obroty"], answer: 0, why: "Ostrza na obwodzie są do tego przeznaczone." },
-    { kind: "gap", q: "Rampa: 1 mm w dół na 20 mm drogi. Kąt (stopnie, w przybliżeniu całkowitym):", template: "{0}°", answers: [["3", "2.9", "2,9"]], why: "atan(1/20) ≈ 2,9°." },
-    { kind: "choice", q: "Promień naroża kieszeni względem promienia freza:", options: ["większy", "równy", "mniejszy", "bez znaczenia"], answer: 0, why: "Tylko wtedy frez przejdzie naroże płynnie." },
+    { kind: "gap", q: "Rampa schodzi 1 mm na 20 mm drogi. Jaki to kąt (stopnie, w przybliżeniu)?", template: "{0}°", answers: [["3", "2.9", "2,9"]], why: "atan(1/20) ≈ 2,9°." },
+    { kind: "choice", q: "Jaki powinien być promień naroża kieszeni w porównaniu z promieniem freza?", options: ["większy", "równy", "mniejszy", "bez znaczenia"], answer: 0, why: "Przy równym promieniu frez opasa naroże całym obwodem i obciążenie gwałtownie rośnie. Mniejszy frez przechodzi naroże łukiem." },
     { kind: "choice", q: "Po co naddatek po obróbce zgrubnej?", options: ["żeby przejście wykańczające zdjęło równą, cienką warstwę", "żeby skrócić program", "bo G41 tego wymaga", "żeby oszczędzić chłodziwo"], answer: 0, why: "Małe, stałe obciążenie daje dokładną ścianę." },
     { kind: "order", q: "Ułóż etapy kieszeni.", items: ["wykończenie ścian z G41", "pętla zgrubna z naddatkiem", "rampa do głębokości", "przejście po osi"], answer: [2, 3, 1, 0], why: "Wejście, oś, pętla, wykończenie." },
   ],

@@ -58,8 +58,8 @@ export const t1_1: LessonDoc = {
       kind: "drill",
       intro: "Słowa w blokach tokarskich.",
       questions: [
-        { kind: "token", q: "Tapnij słowo, które podaje **średnicę**.", block: "N40 G01 X36. Z-55. F0.2", answer: 2, why: "X na tokarce to średnica." },
-        { kind: "token", q: "Tapnij słowo, które ustawia **posuw**.", block: "G01 Z-20. F0.15", answer: 2, why: "F0.15 — 0,15 mm na obrót przy G99." },
+        { kind: "token", q: "Wskaż słowo, które podaje **średnicę**.", block: "N40 G01 X36. Z-55. F0.2", answer: 2, why: "X na tokarce to średnica." },
+        { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "G01 Z-20. F0.15", answer: 2, why: "F0.15 — 0,15 mm na obrót przy G99." },
         { kind: "choice", q: "Po `G01 X30. F0.2` stoi blok `Z-20.`. Jakim ruchem pojedzie nóż?", options: ["G01 z F0.2", "G00", "alarm — brak G", "G01 bez posuwu"], answer: 0, why: "G01 i F są modalne." },
         { kind: "gap", q: "Zapisz blok: ruch roboczy na średnicę 30 z posuwem 0,2 mm/obr (Fanuc, z kropką).", template: "G{0} X{1} F{2}", answers: [["01", "1"], ["30.", "30"], ["0.2", ".2"]], why: "G01 X30. F0.2" },
       ],
@@ -83,10 +83,10 @@ export const t1_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T0.3", q: "Dlaczego na tokarce ustala się zero tylko w Z?", options: ["X0 jest zawsze na osi obrotu", "bo G54 nie ma X", "bo X nie ma zera", "bez powodu"], answer: 0, why: "Oś obrotu wyznacza X0." },
+    { kind: "choice", review: "T0.3", q: "Dlaczego zero detalu na tokarce ustala się zwykle tylko w Z?", options: ["X0 leży na osi obrotu", "bo G54 nie ma X", "bo X nie ma zera", "bez powodu"], answer: 0, why: "Oś obrotu wyznacza X0. Noże mierzy się w X osobno — korekcja geometrii." },
     { kind: "choice", q: "Co podaje `X` w bloku tokarskim?", options: ["średnicę", "promień", "długość", "numer narzędzia"], answer: 0, why: "Programowanie średnicowe (T0.2)." },
     { kind: "choice", q: "Które słowo **nie** jest modalne?", options: ["G04", "G01", "F0.2", "S1000"], answer: 0, why: "G04 działa tylko w swoim bloku." },
-    { kind: "token", q: "Tapnij słowo, które wybiera **narzędzie**.", block: "N10 T0101 M08", answer: 1, why: "T0101 — narzędzie 1 z korekcją 1." },
+    { kind: "token", q: "Wskaż słowo, które wybiera **narzędzie**.", block: "N10 T0101 M08", answer: 1, why: "T0101 — narzędzie 1 z korekcją 1." },
     { kind: "choice", q: "Program: `G00 X44. Z2.` → `G01 X36. F0.2` → `Z-55.` → `G00 X44.` → `Z2.`. Jakim ruchem wykona się ostatni blok?", options: ["G00", "G01 z F0.2", "alarm", "G01 bez posuwu"], answer: 0, why: "G00 z czwartego bloku obowiązuje dalej." },
     { kind: "choice", q: "Co oznacza `Z-20` bez kropki na Fanucu z najmniejszym przyrostem 0,001?", options: ["−0,020 mm", "−20 mm", "alarm", "−2 mm"], answer: 0, why: "Wartość liczona w najmniejszych przyrostach." },
   ],

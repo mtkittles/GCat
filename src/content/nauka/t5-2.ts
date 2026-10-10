@@ -96,7 +96,7 @@ export const t5_2: LessonDoc = {
       intro: "Wybór cyklu.",
       questions: [
         { kind: "choice", q: "Tarcza Ø120 grubości 20 z piastą Ø40. Który cykl zgrubny?", options: ["G72", "G71", "G70", "G76"], answer: 0, why: "Materiał krótki i głęboki — przejścia poprzeczne." },
-        { kind: "choice", q: "Pierwszy blok konturu dla G72 to:", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "Odwrotnie niż w G71." },
+        { kind: "choice", q: "Jaki ruch ma pierwszy blok konturu dla G72?", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "Odwrotnie niż w G71." },
       ],
     },
   ],

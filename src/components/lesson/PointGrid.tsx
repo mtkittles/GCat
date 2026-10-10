@@ -74,7 +74,7 @@ export function PointDrill({ tasks }: { tasks: PointTask[] }) {
   return (
     <div className="drill">
       <div className="drill-head"><span className="drill-n">{i + 1}/{tasks.length}</span><span>{t.prompt}</span></div>
-      <PointGrid id={`drill${i}`} title="Tapnij, aby zaznaczyć" picked={picked} target={t.target} guides={t.guides}
+      <PointGrid id={`drill${i}`} title="Kliknij, aby zaznaczyć" picked={picked} target={t.target} guides={t.guides}
         reveal={checked} locked={checked && !!ok} onPick={(p) => { setPicked(p); setChecked(false); }} />
       <div className="drill-foot">
         <span className="drill-pick">{picked ? <>Twój punkt: <code>{fmtP(picked)}</code></> : "Nie zaznaczono punktu"}</span>

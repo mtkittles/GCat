@@ -5,7 +5,7 @@ import { START7 } from "@/content/nauka/start7";
 import { flat, lessonHref } from "@/lib/course";
 import StartPlan from "./StartPlan";
 
-export const metadata: Metadata = { title: "7 dni do pierwszego programu — GCat", description: "Plan dzienny z lekcji frezowania: od osi maszyny do pierwszych otworów cyklem G81." };
+export const metadata: Metadata = { title: "7 dni do pierwszego programu — GCat", description: "Plan dzienny z lekcji frezowania: od osi maszyny do korekcji długości i pierwszych otworów cyklem G81." };
 
 export default function StartPage() {
   const all = flat("frezowanie");
@@ -19,7 +19,7 @@ export default function StartPage() {
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { label: "7 dni" }]} />
       <PageBanner src="/img/banner-mill.jpg" kicker="Ścieżka startowa" title="7 dni do pierwszego programu"
         subtitle={`${days.reduce((a, d) => a + d.lessons.length, 0)} lekcji frezowania, około ${Math.round(total / 60 * 10) / 10} godz. — po pół godziny dziennie.`} size="compact" priority />
-      <p className="text-muted max-w-prose">Każdy dzień to dwie–trzy lekcje z testem. Zaliczone testem oznaczamy automatycznie; po tygodniu masz program płytki z konturem, łukami i otworami, który możesz otworzyć w symulatorze.</p>
+      <p className="text-muted max-w-prose">Każdy dzień to dwie–trzy lekcje z testem. Zaliczone testem oznaczamy automatycznie. Po tygodniu napiszesz pierwszy program płytki: kontur z łukami i wiercenie otworów cyklem. Planowanie, korekcję promienia, kieszenie i gwinty dokładasz potem w pełnej ścieżce frezowania.</p>
       <StartPlan days={days} />
     </div>
   );

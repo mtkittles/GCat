@@ -37,7 +37,7 @@ export const t6_2: LessonDoc = {
     { t: "diagram", id: "t62-drill" },
 
     { t: "h", x: "Obroty — G97", id: "obroty" },
-    { t: "p", x: "W osi średnica jest równa zeru. Przy G96 sterowanie od razu podniosłoby obroty do limitu G50 (lekcja T2.2). Wiercenie w osi programuje się więc zawsze w G97, z obrotami liczonymi dla średnicy wiertła." },
+    { t: "p", x: "W osi średnica jest równa zeru. Przy G96 sterowanie od razu podniosłoby obroty do limitu G50 (lekcja T2.2). Przy klasycznym wierceniu nieruchomym wiertłem w osi programuje się więc G97, z obrotami liczonymi dla średnicy wiertła." },
     { t: "code", x: "wiertło HSS Ø8, vc ≈ 30 m/min:\nn = 1000 · 30 / (π · 8) ≈ 1194  →  G97 S1200" },
 
     { t: "h", x: "Cykl G74", id: "g74" },
@@ -81,9 +81,9 @@ export const t6_2: LessonDoc = {
       kind: "drill",
       intro: "Wiercenie w osi.",
       questions: [
-        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Obroty (pełne):", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
+        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Jakie obroty wpiszesz przy G97 (pełne obr/min)?", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
         { kind: "choice", q: "Dlaczego wiercenie w osi w G97?", options: ["przy D = 0 G96 dałby od razu limit obrotów", "G96 nie działa z G74", "bo tak jest szybciej", "bez powodu"], answer: 0, why: "Obroty z G96 dążą do nieskończoności przy osi." },
-        { kind: "gap", q: "Wejścia po 4 mm. Wartość Q:", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
+        { kind: "gap", q: "Wejścia po 4 mm. Jaką wartość Q wpiszesz w G74 (µm, bez kropki)?", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
       ],
     },
   ],
@@ -109,12 +109,12 @@ export const t6_2: LessonDoc = {
     { kind: "choice", q: "Który tryb obrotów przy wierceniu w osi?", options: ["G97", "G96", "G50", "G99"], answer: 0, why: "Stałe obroty dla średnicy wiertła." },
     { kind: "gap", q: "Głębokość Z−12, Q3000. Ile pełnych wejść po 3 mm (start Z0)?", template: "{0}", answers: [["4"]], why: "12 / 3 = 4." },
     { kind: "choice", q: "Czym jest Z w bloku G74 przy wierceniu?", options: ["położeniem czubka wiertła", "końcem pełnej średnicy", "wycofaniem", "punktem startu"], answer: 0, why: "Jak na frezarce." },
-    { kind: "token", q: "Tapnij słowo, które podaje **głębokość wejścia**.", block: "G74 Z-15. Q3000 F0.08", answer: 2, why: "Q3000 — 3 mm." },
+    { kind: "token", q: "Wskaż słowo, które podaje **głębokość wejścia**.", block: "G74 Z-15. Q3000 F0.08", answer: 2, why: "Q3000 — 3 mm." },
   ],
 
   summary: [
     "Na tokarce wiertło stoi w osi (X0), obraca się detal.",
-    "Wiercenie w osi zawsze w G97.",
+    "Wiercenie nieruchomym wiertłem w osi — G97, obroty dla średnicy wiertła.",
     "G74 R / G74 Z Q F — wejścia po Q z krótkim wycofaniem.",
     "Q w mikrometrach, bez kropki. Z to czubek wiertła.",
   ],

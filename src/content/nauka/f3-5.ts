@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1002 (NAWIERCENIE)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T2 M06 (NAWIERTAK 90ST)
@@ -34,7 +34,7 @@ export const f3_5: LessonDoc = {
       "**Łamanie wióra** przy wierceniu bez cyklu — krótkie zatrzymanie przerywa ciągły wiór.",
       "**Czekanie na maszynę** — na starszych obrabiarkach po M03 albo M08, żeby wrzeciono osiągnęło obroty, a chłodziwo doszło do ostrza.",
     ] },
-    { t: "demo", mode: "mill", title: "Nawiercenie z postojem na dnie", src: "G21 G90 G17 G54\nG00 X20. Y25. Z50.\nG00 Z5.\nG01 Z-2. F80\nG04 X0.5\nG00 Z5.\nM30", caption: "Symulator zaznacza postój pierścieniem i odlicza czas." },
+    { t: "demo", mode: "mill", title: "Nawiercenie z postojem na dnie", src: "G21 G90 G94 G17 G54\nG00 X20. Y25. Z50.\nG00 Z5.\nG01 Z-2. F80\nG04 X0.5\nG00 Z5.\nM30", caption: "Symulator zaznacza postój pierścieniem i odlicza czas." },
 
     { t: "h", x: "Ile czekać", id: "ile" },
     { t: "p", x: "Na dnie wystarczą 2–3 obroty wrzeciona. Przy S1500 jeden obrót trwa 60 / 1500 = 0,04 s, więc trzy obroty to około 0,12 s. Dłuższy postój nie poprawia dna, tylko grzeje ostrze i materiał." },
@@ -89,7 +89,7 @@ export const f3_5: LessonDoc = {
     { kind: "choice", q: "Czy `G04` jest modalne?", options: ["nie, działa tylko w swoim bloku", "tak, do G00", "tak, do końca programu", "zależy od P"], answer: 0, why: "Postój jest jednorazowy." },
     { kind: "gap", q: "S2000. Ile sekund trwają 4 obroty?", template: "{0} s", answers: [["0.12", "0,12"]], why: "60 / 2000 = 0,03 s na obrót, razy 4." },
     { kind: "choice", q: "Gdzie postój G04 szkodzi?", options: ["na ścianie konturu", "na dnie nawiercenia", "przy łamaniu wióra", "po M08 na starszej maszynie"], answer: 0, why: "Frez oparty o ścianę zostawia ślad." },
-    { kind: "token", q: "Tapnij zapis postoju **500 ms**.", block: "G04 X500 | G04 P500 | G04 X5.", answer: 1, why: "P bez kropki — milisekundy." },
+    { kind: "token", q: "Wskaż zapis postoju **500 ms**.", block: "G04 X500 | G04 P500 | G04 X5.", answer: 1, why: "P bez kropki — milisekundy." },
   ],
 
   summary: [

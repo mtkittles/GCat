@@ -9,9 +9,9 @@ export const f1_4: LessonDoc = {
 
   theory: [
     { t: "h", x: "Milimetry czy cale", id: "jednostki" },
-    { t: "p", x: "[[G21]] przełącza sterowanie na milimetry, [[G20]] na cale. Kod decyduje, jak sterowanie odczyta każdą liczbę wymiarową — X, Y, Z, I, J, K, R — oraz posuw F: w mm/min albo w calach na minutę." },
+    { t: "p", x: "[[G21]] przełącza sterowanie na milimetry, [[G20]] na cale. Kod decyduje, jak sterowanie odczyta każdą liczbę wymiarową — X, Y, Z, I, J, K, R — oraz posuw F. Przy posuwie na minutę ([[G94]]) F znaczy wtedy mm/min albo cale na minutę; przy G95 — mm albo cale na obrót." },
     { t: "diagram", id: "f14-units" },
-    { t: "code", x: "1 cal = 25,4 mm\nG20 X2.    →  2 × 25,4 = 50,8 mm\nG20 F10.   →  10 × 25,4 = 254 mm/min" },
+    { t: "code", x: "1 cal = 25,4 mm\nG20 X2.        →  2 × 25,4 = 50,8 mm\nG20 G94 F10.   →  10 × 25,4 = 254 mm/min" },
     { t: "p", x: "W Polsce rysunki są prawie zawsze w milimetrach, więc programy zaczynają się od `G21`. Cale spotkasz przy detalach z rysunków amerykańskich, np. w lotnictwie." },
     { t: "note", kind: "warn", x: "Jednostki ustawia się raz, na początku programu, zanim padnie pierwsza współrzędna. Zmiana w środku programu dotyczy wszystkich dalszych liczb, także tych w rejestrach, które program wywołuje." },
 
@@ -43,16 +43,16 @@ export const f1_4: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Program z rysunku calowego ma trafić w ten sam punkt w milimetrach. Zamień jednostki i przelicz wszystkie wartości (1″ = 25,4 mm).",
-      starter: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISZ NA MILIMETRY: G21 ZAMIAST G20, X1.5 Y0.75 -> X38.1 Y19.05, Z0.1 -> Z2.54, Z-0.1 -> Z-2.54, Z2. -> Z50.8)\nG20 G90 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG43 H2 Z2.\nS1800 M03\nG00 X1.5 Y0.75\nG00 Z0.1\nG01 Z-0.1 F6.\nG00 Z2.\nM05\nM30",
+      starter: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISZ NA MILIMETRY: G21 ZAMIAST G20, X1.5 Y0.75 -> X38.1 Y19.05, Z0.1 -> Z2.54, Z-0.1 -> Z-2.54, Z2. -> Z50.8)\nG20 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG43 H2 Z2.\nS1800 M03\nG00 X1.5 Y0.75\nG00 Z0.1\nG01 Z-0.1 F6.\nG00 Z2.\nM05\nM30",
       checks: [{"t":"require","codes":["G21"]},{"t":"forbid","codes":["G20"]},{"t":"cut","reference":"G21 G90\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F150\nG00 Z50.8","tolerance":0.05},{"t":"end","x":38.1,"y":19.05,"z":50.8,"label":"Koniec w X38,1 Y19,05 Z50,8"}],
       hints: ["Zamień `G20` na `G21` i pomnóż każdą współrzędną przez 25,4: 1,5 × 25,4 = 38,1; 0,75 × 25,4 = 19,05.","Z0.1 → Z2.54, Z-0.1 → Z-2.54, Z2. → Z50.8. Posuw F6 cali/min to ok. F150 mm/min."],
-      solution: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISANE NA MILIMETRY)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG43 H2 Z50.8\nS1800 M03\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F150\nG00 Z50.8\nM05\nM30",
+      solution: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISANE NA MILIMETRY)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG43 H2 Z50.8\nS1800 M03\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F150\nG00 Z50.8\nM05\nM30",
     },
     {
       kind: "drill",
       intro: "Przeliczenia i wybór płaszczyzny.",
       questions: [
-        { kind: "token", q: "Tapnij słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
+        { kind: "token", q: "Wskaż słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
         { kind: "gap", q: "G20 jest aktywne. Ile milimetrów to `X3.`?", template: "{0} mm", answers: [["76.2", "76,2"]], why: "3 × 25,4 = 76,2 mm." },
         { kind: "gap", q: "Rysunek w calach: 2,0″. Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
         { kind: "choice", q: "Frezarka pionowa, kontur w widoku z góry z łukami. Jaka płaszczyzna?", options: ["G17", "G18", "G19", "bez znaczenia"], answer: 0, why: "Widok z góry to płaszczyzna XY — G17." },
@@ -62,7 +62,7 @@ export const f1_4: LessonDoc = {
 
   pitfalls: [
     { title: "Program calowy bez G20", x: "Program przepisany z rysunku w calach, ale bez `G20`, a sterowanie jest w G21. `X2.` to wtedy 2 mm zamiast 50,8 mm — detal wychodzi ponad 25 razy mniejszy. Odwrotny błąd daje ruchy 25 razy dłuższe." },
-    { title: "G18 zostawione przez poprzedni program", x: "Po programie z łukami w pionie aktywne zostało `G18`. Łuk `G02 X… Y…` w nowym programie leży wtedy w złej płaszczyźnie: sterowanie zgłosi alarm albo pojedzie innym torem. Blok startowy zawsze ustawia `G17`." },
+    { title: "G18 zostawione przez poprzedni program", x: "Po programie z łukami w pionie aktywne zostało `G18`. Łuk `G02 X… Y…` w nowym programie leży wtedy w złej płaszczyźnie: sterowanie zgłosi alarm albo pojedzie innym torem. Dlatego blok startowy w kursie ustawia `G17`." },
     { title: "Posuw w calach", x: "Przy G20 `F10.` to 10 cali na minutę, czyli 254 mm/min. Posuw przepisany z tabeli metrycznej do programu calowego jest 25 razy za duży." },
   ],
 
@@ -81,8 +81,8 @@ export const f1_4: LessonDoc = {
     { kind: "choice", q: "Co ustawia `G21`?", options: ["płaszczyznę XY", "milimetry", "wymiary absolutne", "zero detalu"], answer: 1, why: "G21 — milimetry, G20 — cale." },
     { kind: "gap", q: "G20 aktywne. Ile mm to `Y0.5`?", template: "{0} mm", answers: [["12.7", "12,7"]], why: "0,5 × 25,4 = 12,7." },
     { kind: "choice", q: "Na co **nie** wpływa wybór płaszczyzny G17/G18/G19?", options: ["łuki G02/G03", "korekcję promienia", "ruch po prostej G01", "oś cyklu wiercenia"], answer: 2, why: "Ruch po prostej przebiega tak samo w każdej płaszczyźnie." },
-    { kind: "choice", q: "W G17 wiercenie cyklem odbywa się wzdłuż osi:", options: ["X", "Y", "Z", "wybranej w bloku"], answer: 2, why: "Oś wiercenia jest prostopadła do płaszczyzny, dla XY to Z." },
-    { kind: "choice", q: "Program calowy uruchomiony w G21 bez zmiany wartości. Detal wyjdzie:", options: ["25,4 razy za duży", "25,4 razy za mały", "w porządku", "sterowanie przeliczy samo"], answer: 1, why: "Wartości w calach czytane jako milimetry są 25,4 razy za małe." },
+    { kind: "choice", q: "Wzdłuż której osi wierci cykl przy aktywnym G17?", options: ["X", "Y", "Z", "wybranej w bloku"], answer: 2, why: "Oś wiercenia jest prostopadła do płaszczyzny, dla XY to Z." },
+    { kind: "choice", q: "Program calowy uruchomiono w G21 bez przeliczenia wartości. Jaki wyjdzie detal?", options: ["25,4 razy za duży", "25,4 razy za mały", "w porządku", "sterowanie przeliczy samo"], answer: 1, why: "Wartości w calach czytane jako milimetry są 25,4 razy za małe." },
     { kind: "choice", q: "Z której strony patrzy się na płaszczyznę XY, oceniając kierunek G02?", options: ["od +Z, z góry", "od −Z, z dołu", "od +X", "zależy od sterowania"], answer: 0, why: "Od strony dodatniej osi prostopadłej do płaszczyzny." },
   ],
 
@@ -90,7 +90,7 @@ export const f1_4: LessonDoc = {
     "G21 — milimetry, G20 — cale. Ustawia się je raz, na początku programu.",
     "1 cal = 25,4 mm. Jednostki zmieniają też znaczenie posuwu F.",
     "G17 (XY), G18 (ZX), G19 (YZ) decydują o łukach, korekcji promienia i osi wiercenia.",
-    "Na frezarce pionowej pracujesz w G17 — blok startowy zawsze to ustawia.",
+    "Na frezarce pionowej pracujesz zwykle w G17 — blok startowy w kursie to ustawia.",
   ],
 
   sources: [

@@ -92,7 +92,7 @@ export const t3_1: LessonDoc = {
     { kind: "choice", q: "Którym ruchem nóż wchodzi na średnicę przejścia przed czołem?", options: ["G00", "G01", "G02", "G04"], answer: 0, why: "Nóż stoi przed czołem, w powietrzu." },
     { kind: "choice", q: "Którym ruchem nóż wychodzi z materiału przy stopniu?", options: ["G01", "G00", "G28", "dowolnym"], answer: 0, why: "Ostrze styka się jeszcze z czołem stopnia." },
     { kind: "choice", q: "Czy F wpływa na G00?", options: ["nie", "tak", "tylko przy G99", "tylko przy G96"], answer: 0, why: "Prędkość ruchu szybkiego ustawiają parametry i korektor." },
-    { kind: "token", q: "Tapnij blok, który **wraca nad czoło**.", block: "G00 X36.4 | G01 Z-54.8 F0.3 | X40.5 | G00 Z2.", answer: 3, why: "G00 Z2. — po wyjściu w X." },
+    { kind: "token", q: "Wskaż blok, który **wraca nad czoło**.", block: "G00 X36.4 | G01 Z-54.8 F0.3 | X40.5 | G00 Z2.", answer: 3, why: "G00 Z2. — po wyjściu w X." },
   ],
 
   summary: [
