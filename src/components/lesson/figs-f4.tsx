@@ -1,4 +1,4 @@
-import { Code, Dim, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu F4 — korekcje. Styl i kolory z fig.tsx. */
 
@@ -59,9 +59,13 @@ export function CompPath() {
           <line x1={m.X(-20)} y1={m.Y(10)} x2={m.X(0)} y2={m.Y(10)} className="p-cut" />
           <line x1={m.X(-20)} y1={m.Y(12)} x2={m.X(-5)} y2={m.Y(12)} className="p-acc dashed" />
           <line x1={m.X(-2)} y1={m.Y(27)} x2={m.X(-2)} y2={m.Y(33)} className="p-cut thick" markerEnd={c.a("cut")} />
-          <T x={m.X(-20)} y={m.Y(10) + 14} cls="t-cut t-mono t-b">G41 D1 G01 X0.</T>
+          <T x={m.X(-23)} y={m.Y(10) + 16} cls="t-cut t-mono t-b t-sm">G41 D1 G01 X0.</T>
           <Pt x={m.X(-20)} y={m.Y(10)} dot="pt-rap" />
-          <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="ne" cls="t-b" />
+          <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-b" />
+          <Step x={m.X(-14)} y={m.Y(10) - 12} n={1} />
+          <Step x={m.X(6)} y={m.Y(25)} n={2} />
+          <Step x={m.X(9)} y={m.Y(41)} n={3} />
+          <Step x={m.X(71)} y={m.Y(41)} n={4} />
         </g>
       )}
     </Fig>

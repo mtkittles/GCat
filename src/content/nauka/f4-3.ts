@@ -44,7 +44,6 @@ export const f4_3: LessonDoc = {
 
     { t: "h", x: "Najazd po łuku", id: "luk" },
     { t: "p", x: "Rozwiązanie: wejść na kontur po łuku stycznym. Frez zaczyna skrawać płynnie, bez zatrzymania, a kierunek ruchu na końcu łuku jest już zgodny z kierunkiem konturu. Odjazd robi się symetrycznie." },
-    { t: "diagram", id: "f43-leadin" },
     { t: "ul", items: [
       "Korekcja włącza się na odcinku **przed** łukiem, w powietrzu.",
       "Promień łuku najazdu musi być większy niż promień freza — tu R10 przy frezie R5.",
@@ -58,11 +57,12 @@ export const f4_3: LessonDoc = {
 
   worked: {
     title: "Najazd i odjazd płytki",
-    intro: "Kontur zaczyna się i kończy w X0 Y10, obieg zgodnie z zegarem, G41. Frez stoi na głębokości w X−20 Y10.",
+    intro: "Sytuacja: kontur płytki zaczyna się i kończy w X0 Y10 na lewej krawędzi, obieg zgodnie z zegarem z G41. Frez stoi na głębokości w X−20 Y10. Wejście i wyjście mają być styczne, żeby na ściance nie został ślad. Rysunek pokazuje lewy dolny róg płytki.",
+    fig: "f43-leadin",
     steps: [
-      { x: "Odcinek w powietrzu z włączeniem korekcji — do początku łuku.", code: "G41 D1 G01 X-10. Y0. F400" },
+      { x: "Najazd: odcinek w powietrzu z włączeniem korekcji — do początku łuku.", code: "G41 D1 G01 X-10. Y0. F400" },
       { x: "Łuk styczny do lewej krawędzi, środek X−10 Y10. Kierunek przeciwny do zegara.", code: "G03 X0. Y10. R10." },
-      { x: "Po obiegu konturu — łuk wyjścia, dalej w górę i w lewo od krawędzi.", code: "G03 X-10. Y20. R10." },
+      { x: "Odjazd: po obiegu konturu łuk wyjścia, dalej w górę i w lewo od krawędzi.", code: "G03 X-10. Y20. R10." },
       { x: "Odcinek w powietrzu z wyłączeniem korekcji.", code: "G40 G01 X-20. Y10." },
     ],
     result: "Frez wchodzi i schodzi z konturu stycznie w tym samym punkcie X0 Y10. Program płytki ma teraz docelową postać — zobacz ją poniżej.",
@@ -87,6 +87,7 @@ export const f4_3: LessonDoc = {
       intro: "Warunki poprawnego najazdu.",
       questions: [
         { kind: "choice", q: "Frez Ø16. Który łuk najazdu jest za mały?", options: ["R6", "R10", "R12", "R20"], answer: 0, why: "Promień łuku najazdu musi być większy niż promień freza (8)." },
+        { kind: "choice", q: "Ktoś usunął łuki z przykładu: `G41 D1 G01 X0. Y10.` prosto z X−20 Y10, a po obiegu `G40 G01 X-20.`. Co zobaczysz na lewej ściance przy Y10?", options: ["ślad w miejscu wejścia i wyjścia — frez zatrzymuje się na ścianie i zmienia kierunek", "nic, ścianka będzie gładka", "alarm — korekcja wymaga łuku", "podcięcie całej lewej ściany"], answer: 0, why: "Przy wejściu prostopadłym frez dociska do ściany, zatrzymuje się i skręca o 90°. Chwilowo większe obciążenie zostawia ślad. Łuk styczny wprowadza ostrze płynnie." },
         { kind: "choice", q: "Gdzie najlepiej wejść na kontur?", options: ["na długim odcinku prostym", "w narożu wklęsłym", "na krótkim łuku", "w dowolnym miejscu"], answer: 0, why: "Tam styczne wejście ma miejsce, a ślad nie trafia w krytyczną powierzchnię." },
       ],
     },

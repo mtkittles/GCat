@@ -51,13 +51,14 @@ export const f5_2: LessonDoc = {
 
   worked: {
     title: "Otwór pod gwint M6 — 12 mm pełnego gwintu",
-    intro: "Gwint M6×1 w otworze nieprzelotowym: 12 mm pełnego zarysu od powierzchni. Gwintownik ma nakrój formy C — w tym przykładzie przyjmujemy 3 zwoje, czyli 3 mm (dla innego gwintownika sprawdź katalog). Wiertło VHM Ø5, kąt 140°, płytka grubości 20 mm.",
+    intro: "Sytuacja: w płytce grubości 20 mm ma powstać gwint M6×1 w otworze nieprzelotowym — 12 mm pełnego zarysu od powierzchni. Gwintownik ma nakrój formy C; w tym przykładzie przyjmujemy 3 zwoje, czyli 3 mm (dla innego gwintownika sprawdź katalog). Wiertło VHM Ø5, kąt 140°. Jak głęboko wiercić i jakim cyklem? Rysunek pokazuje bilans głębokości i zagłębienia.",
+    fig: "f52-plan",
     steps: [
       { x: "Koniec gwintownika musi zejść o nakrój poniżej pełnego gwintu: 12 + 3 = 15 mm.", code: "15 mm" },
       { x: "Pod końcem gwintownika zostawiamy zapas na wióry i bicie osiowe — w tym przykładzie 2 mm. Tyle dalej musi sięgać pełna średnica otworu.", code: "17 mm" },
       { x: "Stożek wiertła 140°: (D/2) / tan 70° = 2,5 / 2,75 ≈ 0,9 mm. Czubek: 17 + 0,9 = 17,9 — zaokrąglasz do Z−18. Pełna średnica sięga wtedy Z−17,1.", code: "Z-18." },
       { x: "18 / 5 = 3,6 średnicy — głęboko jak na wiertło bez chłodzenia przez wrzeciono, więc G83.", code: "G83" },
-      { x: "Od R2 do Z−18 jest 20 mm: pięć zagłębień po 4 mm, dna w Z−2, −6, −10, −14, −18.", code: "Q4." },
+      { x: "Od R2 do Z−18 jest 20 mm: pięć zagłębień po 4 mm, dna w Z−2, −6, −10, −14, −18 (prawa część rysunku).", code: "Q4." },
     ],
     result: "`G83 X10. Y10. Z-18. R2. Q4. F380`. Pod czubkiem zostają 2 mm materiału płytki. Posuw 380 mm/min przy S3800 to 0,1 mm/obr — wartość przyjęta w tym przykładzie; zakres dla konkretnego wiertła podaje producent.",
   },
@@ -80,6 +81,7 @@ export const f5_2: LessonDoc = {
       questions: [
         { kind: "gap", q: "Wiertło 118°, Ø8. Jak długi jest stożek na końcu wiertła (mm, do 0,1)?", template: "{0} mm", answers: [["2.4", "2,4"]], why: "Stożek = (D/2) / tan(118°/2) = 4 / tan 59° = 4 / 1,66 ≈ 2,4 mm. Skrót: 0,3 · D." },
         { kind: "gap", q: "Z−20, R2, Q5. Ile zagłębień wykona G83?", template: "{0}", answers: [["5"]], why: "Liczymy od R2: do Z−20 jest 22 mm. Cztery pełne zagłębienia po 5 mm (20 mm) i piąte, krótsze, na 2 mm." },
+        { kind: "choice", q: "W bloku z przykładu zmieniono `Q4.` na `Q6.` (R2, Z−18 bez zmian). Gdzie wypadną dna kolejnych zagłębień?", options: ["Z−4, −10, −16, −18 — cztery zagłębienia, ostatnie krótsze", "Z−6, −12, −18 — trzy równe", "Z−2, −8, −14, −18", "jedno zagłębienie do Z−18"], answer: 0, why: "G83 liczy zagłębienia od płaszczyzny R: 2 − 6 = −4, potem −10, −16, a ostatnie kończy się na Z−18, czyli krócej niż Q." },
         { kind: "choice", q: "Stal długowiórowa, otwór 2,5 × D, wiór owija się wokół wiertła. Który cykl?", options: ["G73", "G83", "G82", "G84"], answer: 0, why: "G73 łamie wiór krótkim cofnięciem, bez straty czasu na wyjazd do R." },
       ],
     },
