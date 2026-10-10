@@ -37,8 +37,7 @@ export const t3_3: LessonDoc = {
     { t: "p", x: "Promień R jest zawsze promieniem, a X — średnicą (T0.2). Łuk R1 kończy się w punkcie o średnicy większej o 2 × 1 = 2 mm." },
 
     { t: "h", x: "Który kierunek", id: "kierunek" },
-    { t: "p", x: "Kierunek łuku odczytuje się z rysunku ustawionego tak jak w programie: **Z w prawo, X w górę**, nóż jedzie od czoła w stronę uchwytu. W takim widoku promień wklęsły między średnicą a czołem stopnia to G02, a zaokrąglenie krawędzi wypukłej — G03." },
-    { t: "diagram", id: "t33-arcs" },
+    { t: "p", x: "Kierunek łuku określa norma: patrzy się na płaszczyznę ZX od strony dodatniej osi Y. Na rysunku ustawionym tak jak w kursie — **Z w prawo, X w górę**, głowica tylna — oś +Y wychodzi z kartki w stronę patrzącego, więc kierunek odczytuje się wprost z rysunku. Nóż jedzie od czoła w stronę uchwytu. W takim widoku promień wklęsły między średnicą a czołem stopnia to G02, a zaokrąglenie krawędzi wypukłej — G03." },
     { t: "table", head: ["Naroże", "Nóż jedzie", "Kod"], rows: [
       ["wklęsłe: średnica → czoło stopnia w górę", "od czoła w stronę uchwytu", "`G02`"],
       ["wypukłe: czoło stopnia → większa średnica", "od czoła w stronę uchwytu", "`G03`"],
@@ -46,18 +45,19 @@ export const t3_3: LessonDoc = {
 
     { t: "h", x: "Głowica przednia", id: "glowica" },
     { t: "diagram", id: "t33-views" },
-    { t: "p", x: "Na tokarce z głowicą przednią +X biegnie w stronę operatora. Ten sam blok G02 wygląda z jego miejsca jak łuk przeciwny do zegara. Program się nie zmienia — sterowanie zna położenie głowicy. Myli się tylko człowiek, który ocenia kierunek przez szybę zamiast z rysunku." },
+    { t: "p", x: "Na tokarce z głowicą przednią +X biegnie w stronę operatora. Ten sam blok G02 wygląda z jego miejsca jak łuk przeciwny do zegara. Na typowych tokarkach program się nie zmienia — kierunki osi ustawia producent w konfiguracji maszyny, więc przy nowej maszynie sprawdź to w jej dokumentacji. Myli się zwykle człowiek, który ocenia kierunek przez szybę, bez układu osi." },
     { t: "note", kind: "warn", x: "Po łuku obowiązuje G02 lub G03 aż do zmiany. Blok `Z-55.` zaraz po G03 byłby dla sterowania łukiem bez promienia — stąd `G01 Z-55.` w programie wałka." },
   ],
 
   worked: {
     title: "Promienie przy stopniu Ø30 → Ø36",
-    intro: "Na rysunku doszły promienie: R1 w narożu wklęsłym między Ø30 a czołem stopnia i R0,5 na krawędzi Ø36.",
+    intro: "Sytuacja: na rysunku doszły promienie — R1 w narożu wklęsłym między Ø30 a czołem stopnia i R0,5 na krawędzi Ø36. Rysunek w widoku z kursu: Z w prawo, X w górę, głowica tylna. Numery na rysunku to numery kroków.",
+    fig: "t33-arcs",
     steps: [
       { x: "Ø30 kończy się 1 mm przed czołem stopnia — tam zaczyna się łuk R1.", code: "Z-39." },
-      { x: "Łuk wklęsły w górę do czoła: średnica 30 + 2 · 1.", code: "G02 X32. Z-40. R1." },
+      { x: "Łuk wklęsły w górę do czoła, zgodnie z zegarem: średnica 30 + 2 · 1.", code: "G02 X32. Z-40. R1." },
       { x: "Czoło stopnia do początku zaokrąglenia: 36 − 2 · 0,5.", code: "G01 X35." },
-      { x: "Zaokrąglenie wypukłe na Ø36, 0,5 mm dalej w Z.", code: "G03 X36. Z-40.5 R0.5" },
+      { x: "Zaokrąglenie wypukłe na Ø36, przeciwnie do zegara, 0,5 mm dalej w Z.", code: "G03 X36. Z-40.5 R0.5" },
     ],
     result: "Po G03 kontur wraca do ruchu liniowego jawnym `G01 Z-55.`. Tak wygląda docelowy kontur wykańczający wałka — poniżej w programie.",
   },
@@ -80,6 +80,7 @@ export const t3_3: LessonDoc = {
       intro: "Kierunek i punkty łuków.",
       questions: [
         { kind: "choice", q: "Nóż jedzie od czoła w stronę uchwytu (głowica za osią). Którym kodem zaprogramujesz promień wklęsły między Ø24 a czołem stopnia Ø30?", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Wklęsły w kierunku uchwytu przy X w górę — zgodnie z zegarem." },
+        { kind: "choice", q: "W przykładzie zamiast `G02 X32. Z-40. R1.` wpisano `G03 X32. Z-40. R1.`. Co powstanie w narożu?", options: ["wypukły garb materiału zamiast wklęsłego promienia", "nic — punkty końcowe są te same", "alarm — zły kierunek łuku", "łuk wytnie wgłębienie w czole stopnia"], answer: 0, why: "Przy tych samych punktach i R sterowanie liczy łuk ze środkiem po drugiej stronie cięciwy — w samym narożu, w X30 Z−40. Tor wygina się na zewnątrz i zostawia w narożu ćwierćokrągły garb zamiast promienia R1." },
         { kind: "gap", q: "Czop Ø24 przechodzi łukiem wklęsłym R2 w czoło stopnia w Z−30. W jakim punkcie kończy się łuk?", template: "X{0} Z{1}", answers: [["28"], ["-30"]], why: "24 + 2 · 2 = 28, na czole stopnia." },
         { kind: "choice", q: "Tokarka z głowicą przednią. Czy trzeba zamienić G02 na G03?", options: ["zwykle nie, program jest ten sam", "tak, zawsze", "tylko przy R", "tylko przy G96"], answer: 0, why: "Na typowych tokarkach zmienia się tylko widok z miejsca operatora — kierunki osi ustawia konfiguracja maszyny." },
       ],
