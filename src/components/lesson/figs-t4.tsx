@@ -121,7 +121,7 @@ export function TipDirections() {
   return (
     <Fig id="t42td" code="T1–9" title="Kierunek ostrza: gdzie leży P względem środka naroża" h={234} legend={["acc"]}
       notes={<><Code k="acc">nóż zewnętrzny → 3</Code><Code k="acc">wytaczak → 2</Code><Code k="con">0 lub 9 — środek naroża</Code></>}
-      caption={<>Numer mówi sterowaniu, w którą stronę od środka naroża leży punkt P, do którego zmierzono nóż. Numery podaje się w układzie z rysunku: Z w prawo, X w górę.</>}>
+      caption={<>Okrąg w środku to naroże płytki, kółka z numerami — możliwe położenia punktu P, do którego zmierzono nóż. Numer mówi sterowaniu, w którą stronę od środka naroża leży P. Układ numerów jak w instrukcji Fanuc (kierunek ostrza teoretycznego), w widoku z kursu: Z w prawo, X w górę.</>}>
       {() => (
         <g>
           <circle cx={cx} cy={cy} r={34} className="p-cons" style={{ fill: "none" }} />
@@ -151,10 +151,51 @@ export function TipDirections() {
   );
 }
 
+
+/* ================= T4.2: przykład — kierunek ostrza noża T0202 ================= */
+function Nose({ ox, up, n, label, steps }: { ox: number; up: boolean; n: string; label: string; steps?: boolean }) {
+  const k = 40, cz = ox + 78, cX = 120, sx = up ? -1 : 1;
+  const pz = cz - k, pX = cX + sx * k;
+  const body = up
+    ? `M ${cz - k} ${cX} A ${k} ${k} 0 0 1 ${cz} ${cX - k} L ${cz + 82} ${cX - k + 26} L ${cz + 82} ${cX + 62} L ${cz - k} ${cX + 62} Z`
+    : `M ${cz - k} ${cX} A ${k} ${k} 0 0 0 ${cz} ${cX + k} L ${cz + 82} ${cX + k - 26} L ${cz + 82} ${cX - 62} L ${cz - k} ${cX - 62} Z`;
+  return (
+    <g>
+      <path d={body} className="p-fill-acc" style={{ stroke: "var(--accent)" }} />
+      <circle cx={cz} cy={cX} r={k} className="p-cons" style={{ fill: "none" }} />
+      <line x1={pz} y1={pX} x2={cz + 30} y2={pX} className="p-ext" />
+      <line x1={pz} y1={pX} x2={pz} y2={cX - sx * 30} className="p-ext" />
+      <line x1={cz} y1={cX} x2={cz} y2={cX + sx * k} className="p-dim" />
+      <T x={cz + 5} y={cX + sx * k * 0.55 + 4} cls="t-mono t-sm">rε</T>
+      <line x1={cz} y1={cX} x2={pz + 5} y2={pX - sx * 5} className="p-acc" markerEnd="url(#t42ns-a-acc)" />
+      <Pt x={cz} y={cX} label="środek" pos={up ? "se" : "ne"} cls="t-mut t-sm" />
+      <Pt x={pz} y={pX} label="P" pos={up ? "nw" : "sw"} cls="t-acc t-b" dot="pt-rap" />
+      <T x={cz} y={up ? 20 : 20} anchor="middle" cls="t-b">{label}</T>
+      <T x={cz} y={34} anchor="middle" cls="t-acc t-b t-mono">{n}</T>
+      {steps && <><Step x={cz + 30} y={cX + k * 0.55} n={1} /><Step x={pz - 4} y={cX + k * 0.45} n={2} /></>}
+    </g>
+  );
+}
+export function NoseChoice() {
+  return (
+    <Fig id="t42ns" code="R T" title="Gdzie leży P względem środka naroża" h={212} legend={["acc", "cons"]}
+      notes={<><Code k="acc">VBMT 160404 → rε 0,4 · P w dół i w lewo → 3</Code><Code k="con">dla porównania: wytaczak → 2</Code></>}
+      caption={<>Powiększone naroże płytki w widoku z kursu: Z w prawo, X w górę. P to przecięcie stycznych do naroża w osiach X i Z. Nóż zewnętrzny skrawa dolną częścią naroża, więc P leży w dół i w lewo od środka — kierunek 3. Wytaczak w otworze skrawa górną częścią — P w górę i w lewo, kierunek 2. Numery 1–2 odpowiadają krokom przykładu.</>}>
+      {() => (
+        <g>
+          <Nose ox={4} up={false} n="T 3" label="nóż zewnętrzny" steps />
+          <Nose ox={184} up n="T 2" label="wytaczak" />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const t4Figs = {
   "t41-point": () => <NosePoint />,
   "t41-chamfer": () => <ChamferError />,
   "t41-sides": () => <LatheSides />,
   "t41-run": () => <CompRun />,
   "t42-tips": () => <TipDirections />,
+  "t42-nose": () => <NoseChoice />,
 };
