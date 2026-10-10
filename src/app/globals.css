@@ -2313,6 +2313,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .codeout.is-stale pre { color: var(--muted-text); font-style: italic; }
 .codeout button:disabled { opacity: .45; cursor: not-allowed; }
 .calc-notes { display: grid; gap: .4rem; max-width: 75ch; font-size: 13.5px; color: var(--ink-2); line-height: 1.55; }
+.calc-notes a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 
 /* ===================================================================
    Spójność telefon / komputer (poza symulatorem — reguły z :has(.sim-page)
