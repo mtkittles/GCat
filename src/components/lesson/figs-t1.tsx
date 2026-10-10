@@ -187,8 +187,8 @@ export function LatheExit() {
   const m = amap(-70, 44, 13, 33, [10, 8, 340, 216]);
   return (
     <Fig id="t13ex" code="G28" title="Zakończenie: najpierw X, potem Z" h={234} legend={["rap", "stock"]}
-      notes={<><Code k="rap">3  G28 U0. → G28 W0.</Code><Code k="con">4  M05 · M30</Code></>}
-      caption={<>Po przejściu nóż stoi w X42 Z2, nad czołem. 3 — najpierw ruch promieniowy do punktu referencyjnego X, potem wzdłuż osi do punktu referencyjnego Z. 4 — stop wrzeciona i koniec programu. Kroki 1–2 ustawiają tryby i zero, osie się wtedy nie ruszają. Położenie punktu referencyjnego zależy od maszyny — tu umowne. Skala promieniowa powiększona.</>}>
+      notes={<><Code k="con">M05 (już przed odjazdem)</Code><Code k="rap">3  G28 U0. → G28 W0.</Code><Code k="con">4  M30</Code></>}
+      caption={<>Po przejściu nóż stoi w X42 Z2, nad czołem. 3 — najpierw ruch promieniowy do punktu referencyjnego X, potem wzdłuż osi do punktu referencyjnego Z. Wrzeciono stoi już po M05 z programu. 4 — koniec programu. Kroki 1–2 ustawiają tryby i zero, osie się wtedy nie ruszają. Położenie punktu referencyjnego zależy od maszyny — tu umowne. Skala promieniowa powiększona.</>}>
       {(c) => (
         <g>
           <Bar m={m} hatch={c.hatch} />
@@ -200,7 +200,7 @@ export function LatheExit() {
           <Pt x={m.X(2)} y={m.Y(21)} label="X42 Z2" pos="e" cls="t-mono t-sm" />
           <Pt x={m.X(32)} y={m.Y(30)} label="punkt referencyjny" pos="nw" cls="t-mut t-sm" dot="pt-rap" />
           <Step x={m.X(32)} y={m.Y(25.5)} n={4} />
-          <T x={m.X(29.5)} y={m.Y(25.5) + 4} anchor="end" cls="t-mono t-sm">M05 · M30</T>
+          <T x={m.X(29.5)} y={m.Y(25.5) + 4} anchor="end" cls="t-mono t-sm">M30</T>
           <T x={m.X(-30)} y={m.Y(15.5) + 4} anchor="middle" cls="t-mut t-sm">wałek po przejściu Ø36</T>
         </g>
       )}

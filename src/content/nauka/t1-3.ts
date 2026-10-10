@@ -54,7 +54,7 @@ export const t1_3: LessonDoc = {
       { x: "Tryby: płaszczyzna, jednostki, kasowanie korekcji i cykli, posuw na obrót.", code: "G18 G21 G40 G80 G99" },
       { x: "Zero detalu.", code: "G54" },
       { x: "Na końcu: odjazd w X, potem w Z.", code: "G28 U0. → G28 W0." },
-      { x: "Stop wrzeciona (już jest w programie) i koniec z przewinięciem.", code: "M05 · M30" },
+      { x: "Koniec z przewinięciem. `M05` stoi już w programie przed odjazdem, więc wrzeciono jest zatrzymane.", code: "M30" },
     ],
     result: "Program wałka ma komplet początku i końca. Moduł T2 doda wybór narzędzia, obroty zależne od średnicy i posuw.",
   },
