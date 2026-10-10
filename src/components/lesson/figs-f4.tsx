@@ -98,8 +98,49 @@ export function LeadInOut() {
   );
 }
 
+/* ================= F4.1: dwa narzędzia, ten sam Z5 =================
+   Współrzędne maszynowe Z (pionowo). G54 Z = −400 (pozycja N, gdy czoło wrzeciona leżałoby
+   na górnej powierzchni detalu), H1 = 85,2 (frez), H2 = 102,7 (wiertło) — długości od N do czubka,
+   zmierzone na presetterze. Program: G43 Hn Z5. dla obu narzędzi. */
+export function TwoLengths() {
+  const R: [number, number, number, number] = [0, 200, -418, -268];
+  const m = mapper(R, [8, 8, 344, 250]);
+  const g54 = -400, z5 = g54 + 5;
+  const tools = [
+    { x: 75, h: 85.2, name: "T1 frez", n: g54 + 5 + 85.2, w: 10 },
+    { x: 150, h: 102.7, name: "T2 wiertło", n: g54 + 5 + 102.7, w: 6 },
+  ];
+  const fmt = (v: number) => v.toFixed(1).replace(".", ",").replace("-", "−");
+  return (
+    <Fig id="f41tw" code="G43" title="Ten sam Z5, różne pozycje wrzeciona" h={268} legend={["dim", "stock"]}
+      notes={<><Code k="acc">N = G54 Z + Z programu + H</Code></>}
+      caption={<>Pionowo współrzędne maszynowe. Detal leży pod linią Z0, czyli pod pozycją −400 zapisaną w G54. Oba narzędzia mają czubek na Z5 programu (−395 maszynowo). Czoło wrzeciona N stoi wyżej o długość narzędzia: frez −309,8, wiertło −292,3. Różnica 17,5 mm to różnica długości H — wartość Z w G54 jest dla obu ta sama.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(0)} y={m.Y(g54)} width={200 * m.u} height={18 * m.u} fill={c.hatch} className="p-con" />
+          <line x1={m.X(0)} y1={m.Y(g54)} x2={m.X(200)} y2={m.Y(g54)} className="p-cons" />
+          <T x={m.X(198)} y={m.Y(g54) + 13} anchor="end" cls="t-acc t-b t-mono">Z0 · G54 Z −400</T>
+          <line x1={m.X(0)} y1={m.Y(z5)} x2={m.X(200)} y2={m.Y(z5)} className="p-cons" strokeDasharray="4 4" />
+          <T x={m.X(2)} y={m.Y(z5) - 4} cls="t-mono t-sm">Z5 programu = −395</T>
+          {tools.map((t) => (
+            <g key={t.name}>
+              <rect x={m.X(t.x - 9)} y={m.Y(-268)} width={18 * m.u} height={m.Y(t.n) - m.Y(-268)} rx={2} className="clamp" />
+              <rect x={m.X(t.x - t.w / 2)} y={m.Y(t.n)} width={t.w * m.u} height={(t.h) * m.u} className="cutter" />
+              <line x1={m.X(t.x - 12)} y1={m.Y(t.n)} x2={m.X(t.x + 12)} y2={m.Y(t.n)} className="p-acc thick" />
+              <T x={m.X(t.x + 13)} y={m.Y(t.n) + 4} cls="t-acc t-b t-mono">{`N ${fmt(t.n)}`}</T>
+              <Dim c={c} x1={m.X(t.x - 16)} y1={m.Y(t.n)} x2={m.X(t.x - 16)} y2={m.Y(z5)} label={`H ${fmt(t.h)}`} lside={1} />
+              <T x={m.X(t.x - 11)} y={m.Y(-268) + 14} anchor="end" cls="t-b t-sm">{t.name}</T>
+            </g>
+          ))}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const f4Figs = {
   "f41-length": () => <ToolLength />,
+  "f41-two": () => <TwoLengths />,
   "f42-comp": () => <CompPath />,
   "f43-leadin": () => <LeadInOut />,
 };
