@@ -77,7 +77,8 @@ export interface LessonDoc {
   theory: Block[];
   worked: { title: string; intro: string; fig?: string; steps: WorkedStep[]; result: string };
   practice: Practice[];
-  pitfalls: { title: string; x: string; fig?: string }[];
+  /** danger: kolizja, uszkodzenie narzędzia albo zagrożenie dla operatora — czerwona karta; reszta neutralna. */
+  pitfalls: { title: string; x: string; fig?: string; danger?: boolean }[];
   controllers?: { rows: [string, string, string][]; note?: string };
   quiz: Question[];
   summary: string[];

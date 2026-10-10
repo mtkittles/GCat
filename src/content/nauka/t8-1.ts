@@ -97,9 +97,9 @@ export const t8_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Zapomniane przesunięcie po ostatnim przebiegu", x: "Po trzecim rowku nóż stoi 10 mm dalej niż ostatni rowek. Następny blok `G00 Z-30.` myśli, że nóż jest nad trzecim rowkiem — tor odjazdu przechodzi inaczej niż zakładano." },
-    { title: "Wyjście z rowka w Z", x: "Podprogram z `W-10.` zaraz po `G01 X26.`, bez wyjścia w X. Nóż jedzie w rowku w stronę uchwytu i łamie się o ściankę." },
-    { title: "M99 w programie bez podajnika", x: "Program główny zakończony M99 na maszynie bez podajnika i bez licznika. Maszyna startuje kolejny cykl na tym samym, gotowym już detalu." },
+    { title: "Zapomniane przesunięcie po ostatnim przebiegu", danger: true, x: "Po trzecim rowku nóż stoi 10 mm dalej niż ostatni rowek. Następny blok `G00 Z-30.` myśli, że nóż jest nad trzecim rowkiem — tor odjazdu przechodzi inaczej niż zakładano." },
+    { title: "Wyjście z rowka w Z", danger: true, x: "Podprogram z `W-10.` zaraz po `G01 X26.`, bez wyjścia w X. Nóż jedzie w rowku w stronę uchwytu i łamie się o ściankę." },
+    { title: "M99 w programie bez podajnika", danger: true, x: "Program główny zakończony M99 na maszynie bez podajnika i bez licznika. Maszyna startuje kolejny cykl na tym samym, gotowym już detalu." },
   ],
 
   controllers: {

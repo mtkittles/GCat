@@ -64,8 +64,8 @@ export const f2_2: LessonDoc = {
 
   pitfalls: [
     { title: "Promień zamiast średnicy", x: "We wzorze stoi średnica D. Wstawienie promienia daje obroty dwa razy za duże — ostrza szybko się przegrzewają." },
-    { title: "M04 z narzędziem prawoskrętnym", x: "Ostrza trą grzbietem zamiast skrawać. Narzędzie się grzeje, a po chwili pęka." },
-    { title: "S bez M03", x: "Po wymianie narzędzia program ustawia `S3000`, ale bez `M03`. Wrzeciono stoi, a następny ruch roboczy wprowadza nieruchome narzędzie w materiał." },
+    { title: "M04 z narzędziem prawoskrętnym", danger: true, x: "Ostrza trą grzbietem zamiast skrawać. Narzędzie się grzeje, a po chwili pęka." },
+    { title: "S bez M03", danger: true, x: "Po wymianie narzędzia program ustawia `S3000`, ale bez `M03`. Wrzeciono stoi, a następny ruch roboczy wprowadza nieruchome narzędzie w materiał." },
     { title: "Obroty dla poprzedniego narzędzia", x: "S jest modalne. Po wymianie frezu Ø10 na wiertło Ø3 bez nowego S wiertło pracuje z obrotami frezu — ponad trzy razy za wolno." },
   ],
 

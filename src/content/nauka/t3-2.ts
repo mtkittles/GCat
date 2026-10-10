@@ -93,9 +93,9 @@ export const t3_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Za głębokie przejście", x: "Z Ø40 od razu na Ø30 — ap = 5 mm. Płytka CNMG i wałek na wysięgu 70 mm nie wytrzymają: drgania, ugięcie, wykruszenie ostrza." },
+    { title: "Za głębokie przejście", danger: true, x: "Z Ø40 od razu na Ø30 — ap = 5 mm. Płytka CNMG i wałek na wysięgu 70 mm nie wytrzymają: drgania, ugięcie, wykruszenie ostrza." },
     { title: "Brak naddatku", x: "Obróbka zgrubna na wymiar. Nóż wykańczający nie ma czego skrawać albo trze po powierzchni — wymiar i chropowatość zależą wtedy od noża zgrubnego." },
-    { title: "Wejście na fazę prostopadle", x: "`G00 X18. Z0.`, potem faza. Nóż dojeżdża ruchem szybkim prosto do czoła — lepiej wejść na przedłużeniu fazy, z posuwem." },
+    { title: "Wejście na fazę prostopadle", danger: true, x: "`G00 X18. Z0.`, potem faza. Nóż dojeżdża ruchem szybkim prosto do czoła — lepiej wejść na przedłużeniu fazy, z posuwem." },
   ],
 
   controllers: {

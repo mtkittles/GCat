@@ -93,9 +93,9 @@ export const t6_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Pomylone naroże odniesienia", x: "Nóż zmierzony na prawym narożu, a program liczony dla lewego. Rowek przesuwa się o szerokość płytki — przy stopniu nóż wcina się w czoło stopnia." },
+    { title: "Pomylone naroże odniesienia", danger: true, x: "Nóż zmierzony na prawym narożu, a program liczony dla lewego. Rowek przesuwa się o szerokość płytki — przy stopniu nóż wcina się w czoło stopnia." },
     { title: "P z kropką", x: "`P1.5` zamiast `P1500`. Zależnie od sterowania i parametru to alarm albo wartość w najmniejszych przyrostach — przy systemie 0,001 mm 0,0015 mm na wejście, czyli setki wejść." },
-    { title: "Za duży posuw", x: "F0.2 jak przy toczeniu wzdłużnym. Wiór na pełnej szerokości ostrza nie ma gdzie uciec — płytka pęka." },
+    { title: "Za duży posuw", danger: true, x: "F0.2 jak przy toczeniu wzdłużnym. Wiór na pełnej szerokości ostrza nie ma gdzie uciec — płytka pęka." },
   ],
 
   controllers: {

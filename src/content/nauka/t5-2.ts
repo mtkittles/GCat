@@ -107,7 +107,7 @@ export const t5_2: LessonDoc = {
   pitfalls: [
     { title: "Kontur G71 w G72", x: "Kontur przepisany z G71, zaczynający się ruchem w X. G72 wymaga pierwszego ruchu w Z — alarm albo przejścia w złym kierunku." },
     { title: "W pomylone w blokach", x: "Pierwszy blok: W to głębokość warstwy. Drugi blok: W to naddatek w Z. `G72 W0.1 R0.5` robi warstwy po 0,1 mm." },
-    { title: "Za mały zapas startu w X", x: "Start w X61 przy pręcie Ø60. Ruch szybki w Z na głębokość konturu przechodzi 0,5 mm od powierzchni pręta — przy biciu pręta ociera o materiał." },
+    { title: "Za mały zapas startu w X", danger: true, x: "Start w X61 przy pręcie Ø60. Ruch szybki w Z na głębokość konturu przechodzi 0,5 mm od powierzchni pręta — przy biciu pręta ociera o materiał." },
   ],
 
   controllers: {

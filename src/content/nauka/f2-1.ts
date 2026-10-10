@@ -64,9 +64,9 @@ export const f2_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "T bez M06", x: "`T2` zamiast `T2 M06`. Magazyn przygotował nawiertak, ale we wrzecionie dalej jest frez — program nawierca frezem z posuwami nawiertaka." },
-    { title: "Numer z innej tabeli", x: "Program pisany pod spis narzędzi, w którym T3 to wiertło Ø6,8, uruchomiony na maszynie, gdzie T3 to frez Ø20. Nagłówek z listą narzędzi pozwala to wychwycić przed startem." },
-    { title: "Brak obrotów po wymianie", x: "Po `M06` wrzeciono stoi. Ruch roboczy bez `M03` kończy się alarmem albo wejściem stojącego narzędzia w materiał." },
+    { title: "T bez M06", danger: true, x: "`T2` zamiast `T2 M06`. Magazyn przygotował nawiertak, ale we wrzecionie dalej jest frez — program nawierca frezem z posuwami nawiertaka." },
+    { title: "Numer z innej tabeli", danger: true, x: "Program pisany pod spis narzędzi, w którym T3 to wiertło Ø6,8, uruchomiony na maszynie, gdzie T3 to frez Ø20. Nagłówek z listą narzędzi pozwala to wychwycić przed startem." },
+    { title: "Brak obrotów po wymianie", danger: true, x: "Po `M06` wrzeciono stoi. Ruch roboczy bez `M03` kończy się alarmem albo wejściem stojącego narzędzia w materiał." },
   ],
 
   controllers: {

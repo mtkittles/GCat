@@ -102,7 +102,7 @@ export const t7_1: LessonDoc = {
 
   pitfalls: [
     { title: "Start za blisko czoła", x: "`G00 X22. Z1.` przy skoku 1,5. Oś Z nie zdąży się rozpędzić — pierwszy zwój wychodzi z innym skokiem niż reszta i sprawdzian nie wchodzi." },
-    { title: "Koniec gwintu na stopniu", x: "Z−20 zamiast Z−17: nóż dochodzi do stopnia z pełną prędkością posuwu i uderza w czoło. Koniec gwintu kładzie się w podcięciu albo przed stopniem, z zapasem." },
+    { title: "Koniec gwintu na stopniu", danger: true, x: "Z−20 zamiast Z−17: nóż dochodzi do stopnia z pełną prędkością posuwu i uderza w czoło. Koniec gwintu kładzie się w podcięciu albo przed stopniem, z zapasem." },
     { title: "Wysokość zwoju w milimetrach", x: "`P0.92` zamiast `P920`. Zależnie od parametru — alarm albo gwint głęboki na 0,00092 mm." },
     { title: "Zmiana S między przejściami", x: "Operator zmienia korektor obrotów w trakcie gwintowania. Kolejne przejście trafia obok zwoju — gwint do wyrzucenia." },
   ],

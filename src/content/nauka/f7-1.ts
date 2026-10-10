@@ -107,9 +107,9 @@ export const f7_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Brak G90 przed M99", x: "Podprogram kończy się w G91. Program główny jedzie dalej `G41 D1 G01 Y18.` — sterowanie odmierza 18 mm od bieżącego punktu zamiast jechać do Y18." },
+    { title: "Brak G90 przed M99", danger: true, x: "Podprogram kończy się w G91. Program główny jedzie dalej `G41 D1 G01 Y18.` — sterowanie odmierza 18 mm od bieżącego punktu zamiast jechać do Y18." },
     { title: "Wymiary absolutne w powtarzanym podprogramie", x: "`Z-1.` w G90 wykonane cztery razy to cztery przebiegi na tej samej głębokości. Program wygląda poprawnie, a kieszeń ma 1 mm zamiast 4." },
-    { title: "M99 w programie głównym", x: "Na Fanucu M99 w programie głównym wraca na jego początek — program kręci się w pętli, dopóki operator go nie zatrzyma. Program główny kończy M30." },
+    { title: "M99 w programie głównym", danger: true, x: "Na Fanucu M99 w programie głównym wraca na jego początek — program kręci się w pętli, dopóki operator go nie zatrzyma. Program główny kończy M30." },
     { title: "Zły zapis liczby powtórzeń", x: "`M98 P4 2000` albo `M98 P2000 4`. Sterowanie odczyta inny numer programu albo zgłosi alarm. Pisz `P2000 L4` albo `P42000` — zależnie od maszyny." },
   ],
 

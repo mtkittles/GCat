@@ -90,7 +90,7 @@ export const t7_2: LessonDoc = {
   pitfalls: [
     { title: "Inny Z startu w kolejnym przejściu", x: "Pierwsze przejście z Z5, drugie z Z3. Zwój przesuwa się o część skoku — gwint ma dwa zarysy i nie pasuje do nakrętki." },
     { title: "Powrót w Z bez wyjścia w X", x: "Po G32 od razu `Z5.`. Nóż wraca po zwoju i niszczy go — najpierw wyjście w X." },
-    { title: "Za głębokie wejścia prostopadłe", x: "Przy dosuwie prostopadłym obie krawędzie noża tną jednocześnie, więc przekrój wióra rośnie szybciej niż przy dosuwie wzdłuż boku zarysu, jak w G76. Kolejne wejścia muszą być coraz płytsze, a pierwsze — dopasowane do płytki i materiału. Za głębokie wejście grozi klinowaniem wióra i wykruszeniem płytki." },
+    { title: "Za głębokie wejścia prostopadłe", danger: true, x: "Przy dosuwie prostopadłym obie krawędzie noża tną jednocześnie, więc przekrój wióra rośnie szybciej niż przy dosuwie wzdłuż boku zarysu, jak w G76. Kolejne wejścia muszą być coraz płytsze, a pierwsze — dopasowane do płytki i materiału. Za głębokie wejście grozi klinowaniem wióra i wykruszeniem płytki." },
   ],
 
   controllers: {

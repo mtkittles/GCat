@@ -74,7 +74,7 @@ export const f1_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Brak kropki na Fanucu", x: "`G00 Z5` bez kropki na maszynie ustawionej na najmniejszy przyrost to ruch szybki 0,005 mm nad detalem. Pisz `Z5.` zawsze, także tam, gdzie wartość jest całkowita." },
+    { title: "Brak kropki na Fanucu", danger: true, x: "`G00 Z5` bez kropki na maszynie ustawionej na najmniejszy przyrost to ruch szybki 0,005 mm nad detalem. Pisz `Z5.` zawsze, także tam, gdzie wartość jest całkowita." },
     { title: "Litera O zamiast zera", x: "`G0O` albo `X1O` przy ręcznym przepisywaniu programu. Sterowanie zgłosi błąd albo przeczyta literę jako osobny adres." },
     { title: "Ten sam adres dwa razy", x: "`X10. X20.` w jednym bloku. Zależnie od sterowania to alarm albo wykonanie tylko ostatniej wartości. Jedna oś — jedno słowo w bloku." },
     { title: "Komentarz w obcym formacie", x: "Program z Fanuca z komentarzami w nawiasach uruchomiony na Sinumeriku w języku Siemensa: nawias nie jest komentarzem i daje alarm. Przy przenoszeniu programów zamień komentarze." },

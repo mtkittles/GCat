@@ -99,7 +99,7 @@ export const lekcjaSchema = z.strictObject({
   codes: z.array(slug).default([]),
   dialect: z.literal("sinumerik").optional(),
   controllers: z.strictObject({ rows: z.array(z.tuple([z.string(), z.string(), z.string()])), note: z.string().optional() }).optional(),
-  pitfalls: z.array(z.strictObject({ title: text, x: text, fig: z.string().optional() })).default([]),
+  pitfalls: z.array(z.strictObject({ title: text, x: text, fig: z.string().optional(), danger: z.boolean().optional() })).default([]),
   summary: z.array(text).default([]),
   sources: z.array(z.strictObject({ id: text, where: z.string() })).default([]),
 });

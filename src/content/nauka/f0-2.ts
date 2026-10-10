@@ -70,7 +70,7 @@ export const f0_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Program przed bazowaniem", x: "Po awarii zasilania albo wyłączeniu maszyny z enkoderami przyrostowymi pozycja maszynowa jest nieznana. Program uruchomiony w takim stanie jedzie od przypadkowego punktu, a krańcówki programowe nie chronią osi." },
+    { title: "Program przed bazowaniem", danger: true, x: "Po awarii zasilania albo wyłączeniu maszyny z enkoderami przyrostowymi pozycja maszynowa jest nieznana. Program uruchomiony w takim stanie jedzie od przypadkowego punktu, a krańcówki programowe nie chronią osi." },
     { title: "Pozycja maszynowa w programie", x: "Operator odczytuje z ekranu MACHINE `X-260` i wpisuje to do programu. Program liczy od W, więc potrzebne jest `X60`. Pozycje maszynowe pojawiają się w programie tylko wyjątkowo, z kodem `G53`." },
     { title: "Zero detalu poza bazami", x: "W postawione na środku, choć rysunek wymiarowano od krawędzi A i B. Każdy wymiar trzeba przeliczać, a wynik przeliczenia sumuje tolerancje dwóch wymiarów." },
     { title: "R to nie zawsze M", x: "R to punkt najazdu przy bazowaniu, M to początek układu maszynowego. Często leżą w tym samym miejscu, ale nie muszą — wtedy R ma w układzie maszynowym współrzędne zapisane w parametrach maszyny." },

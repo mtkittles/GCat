@@ -89,7 +89,7 @@ export const f5_2: LessonDoc = {
 
   pitfalls: [
     { title: "Q ze znakiem minus albo bez kropki", x: "`Q-4.` daje alarm, a `Q4` na Fanucu ustawionym na najmniejszy przyrost to 0,004 mm — tysiące wycofań na jeden otwór." },
-    { title: "Z na czubku zamiast pełnej średnicy", x: "Z−12 dla gwintu na 12 mm. Pełna średnica kończy się w Z−11,1, a gwintownik z nakrojem 3 mm musi zejść do Z−15. Gwintownik może dojść do dna i się złamać — bilans głębokości sprawdź przed wierceniem." },
+    { title: "Z na czubku zamiast pełnej średnicy", danger: true, x: "Z−12 dla gwintu na 12 mm. Pełna średnica kończy się w Z−11,1, a gwintownik z nakrojem 3 mm musi zejść do Z−15. Gwintownik może dojść do dna i się złamać — bilans głębokości sprawdź przed wierceniem." },
     { title: "Wycofanie przy wiertle VHM bez potrzeby", x: "Wiertło węglikowe z chłodzeniem przez wrzeciono wiercone G83 z małym Q. Każde wejście obija krawędzie na dnie — wiertło szybciej się wykrusza." },
   ],
 

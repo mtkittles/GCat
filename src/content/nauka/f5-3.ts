@@ -98,10 +98,10 @@ export const f5_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Posuw niezgodny ze skokiem", x: "Zmiana S bez przeliczenia F. Gwintownik jest ciągnięty albo pchany względem zwojów — zrywa gwint albo pęka w otworze, skąd trudno go wyjąć." },
+    { title: "Posuw niezgodny ze skokiem", danger: true, x: "Zmiana S bez przeliczenia F. Gwintownik jest ciągnięty albo pchany względem zwojów — zrywa gwint albo pęka w otworze, skąd trudno go wyjąć." },
     { title: "Z równe długości gwintu", x: "G84 z Z−12 dla 12 mm gwintu. Pełny zarys kończy się wtedy około Z−9 — o długość nakroju wyżej. Gwint wychodzi za krótki, a sprawdzian tego nie przepuści." },
-    { title: "Za płytki otwór", x: "Otwór wiercony na głębokość gwintu. Nakrój może dojść do dna, zanim gwint osiągnie pełną głębokość — ryzyko złamania gwintownika w otworze." },
-    { title: "Brak M29 na maszynie z gwintowaniem sztywnym", x: "Gwintownik w zwykłej oprawce, a G84 bez M29 pracuje jak do oprawki kompensacyjnej. Różnica między obrotami a posuwem nie ma gdzie się podziać." },
+    { title: "Za płytki otwór", danger: true, x: "Otwór wiercony na głębokość gwintu. Nakrój może dojść do dna, zanim gwint osiągnie pełną głębokość — ryzyko złamania gwintownika w otworze." },
+    { title: "Brak M29 na maszynie z gwintowaniem sztywnym", danger: true, x: "Gwintownik w zwykłej oprawce, a G84 bez M29 pracuje jak do oprawki kompensacyjnej. Różnica między obrotami a posuwem nie ma gdzie się podziać." },
     { title: "R za nisko", x: "Zbyt mały zapas między R a materiałem: wrzeciono i oś Z mogą nie zdążyć rozpędzić się razem przed pierwszym zwojem, a pierwsze zwoje wyjdą niedokładne. Zapas dobierz według instrukcji maszyny." },
   ],
 

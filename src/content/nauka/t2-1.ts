@@ -72,7 +72,7 @@ export const t2_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "T przy detalu", x: "`T0303` wpisane zaraz po przejściu, bez odjazdu. Głowica obraca się tuż przy detalu i dłuższe narzędzie — np. wiertło — zahacza o niego albo o konik." },
+    { title: "T przy detalu", danger: true, x: "`T0303` wpisane zaraz po przejściu, bez odjazdu. Głowica obraca się tuż przy detalu i dłuższe narzędzie — np. wiertło — zahacza o niego albo o konik." },
     { title: "Korekcja innego noża", x: "`T0201` — nóż 2 z korekcją noża 1. Każdy wymiar wychodzi przesunięty o różnicę geometrii obu noży. Zasada: numer korekcji = numer pozycji." },
     { title: "Korekcja zużycia dzielona na pół", x: "Średnica za duża o 0,04, operator wpisuje −0,02, bo tak robił przy frezowaniu. Przy korekcji X w średnicy wymiar poprawi się tylko o połowę." },
   ],
