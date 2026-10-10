@@ -47,14 +47,15 @@ export const f1_1: LessonDoc = {
 
   worked: {
     title: "Przeczytaj blok słowo po słowie",
-    intro: "Blok z programu płytki: `N90 G01 X-5. F400`.",
+    intro: "Sytuacja: frez Ø10 stoi obok płytki w X−20 Y10, już na głębokości Z−5. Następny blok programu to `N90 G01 X-5. F400`. Przeczytaj go słowo po słowie i powiedz, gdzie stanie frez. Numery odpowiadają numerom na rysunku.",
+    fig: "f11-read",
     steps: [
-      { x: "Numer bloku. To tylko etykieta, na ruch nie wpływa.", code: "N90" },
-      { x: "Ruch roboczy po prostej (lekcja F3.2).", code: "G01" },
-      { x: "Cel w osi X: 5 mm na lewo od zera W.", code: "X-5." },
-      { x: "Posuw 400 mm/min.", code: "F400" },
+      { x: "Krok 1: numer bloku. To tylko etykieta, na ruch nie wpływa.", code: "N90" },
+      { x: "Krok 2: ruch roboczy po prostej (lekcja F3.2).", code: "G01" },
+      { x: "Krok 3: cel w osi X — 5 mm na lewo od zera W. Y i Z nie ma w bloku, więc zostają Y10 i Z−5.", code: "X-5." },
+      { x: "Krok 4: posuw — z jaką prędkością frez pokona ten odcinek.", code: "F400" },
     ],
-    result: "Całość: jedź po prostej do X−5 z posuwem 400 mm/min. Y i Z się nie zmieniają, bo blok ich nie podaje. Dlaczego to działa, wyjaśnia lekcja F1.2.",
+    result: "Całość: frez jedzie po prostej z X−20 do X−5 z posuwem 400 mm/min i staje krawędzią przy boku płytki. Dlaczego Y i Z zostają bez zmian, wyjaśnia lekcja F1.2.",
   },
 
   practice: [
@@ -66,6 +67,7 @@ export const f1_1: LessonDoc = {
         { kind: "token", q: "Wskaż **funkcję pomocniczą**.", block: "N30 S2000 M03", answer: 2, why: "M03 włącza obroty wrzeciona w prawo — to funkcja M." },
         { kind: "token", q: "Wskaż słowo, które podaje cel w osi **Z**.", block: "N40 G00 Z5. M08", answer: 2, why: "Z5. — cel 5 mm nad zerem Z." },
         { kind: "gap", q: "Uzupełnij blok: ruch roboczy do X80 Y0 z posuwem 300 mm/min.", template: "G{0} X{1}. Y0. F{2}", answers: [["01", "1"], ["80"], ["300"]], why: "G01 to ruch roboczy, X80. to cel, F300 to posuw." },
+        { kind: "choice", q: "W bloku z przykładu zgubiła się kropka: `N90 G01 X-5 F400`. Fanuc bez zapisu kalkulatorowego (ustawienie parametru) czyta X-5 jako −0,005 mm. Co się stanie, gdy frez Ø10 stoi w X−20 Y10 na Z−5?", options: ["pojedzie do X−0,005 — krawędź freza wejdzie prawie 5 mm w płytkę", "sterowanie zgłosi alarm", "pojedzie do X−5", "nie ruszy się"], answer: 0, why: "Bez kropki wartość jest 1000 razy mniejsza: cel to X−0,005. Środek freza staje prawie w X0, a krawędź Ø10 sięga X+5 — w materiał. Brak kropki nie wywołuje alarmu." },
         { kind: "choice", q: "Który zapis na Fanucu na pewno oznacza 60 mm?", options: ["`X60`", "`X60.`", "`X0.60`", "`X6.0`"], answer: 1, why: "Kropka dziesiętna usuwa zależność od parametru." },
       ],
     },

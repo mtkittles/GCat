@@ -40,12 +40,13 @@ export const f1_3: LessonDoc = {
 
   worked: {
     title: "Zamień kontur z G90 na G91",
-    intro: "Frez stoi w X0. Y0. Kolejne cele w G90: `X20. Y0.` → `X20. Y30.` → `X50. Y30.` → `X50. Y0.`",
+    intro: "Sytuacja: frez stoi w zerze W, X0 Y0. Kontur z rysunku ma kolejne cele w G90: `X20. Y0.` → `X20. Y30.` → `X50. Y30.` → `X50. Y0.`. Zapisz go w G91 — każdy ruch jako przesunięcie od punktu, w którym frez właśnie stoi. Numery odpowiadają odcinkom na rysunku.",
+    fig: "f13-run",
     steps: [
-      { x: "Pierwszy cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian.", code: "X20." },
-      { x: "Cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30.", code: "Y30." },
-      { x: "Cel X50 Y30. Przyrost X: 50 − 20 = 30.", code: "X30." },
-      { x: "Cel X50 Y0. Przyrost Y: 0 − 30 = −30.", code: "Y-30." },
+      { x: "Odcinek 1: cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian.", code: "X20." },
+      { x: "Odcinek 2: cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30.", code: "Y30." },
+      { x: "Odcinek 3: cel X50 Y30. Przyrost X: 50 − 20 = 30.", code: "X30." },
+      { x: "Odcinek 4: cel X50 Y0. Przyrost Y: 0 − 30 = −30.", code: "Y-30." },
     ],
     result: "W G91: `X20.` → `Y30.` → `X30.` → `Y-30.`. Kontrola: suma przyrostów w X (20 + 30 = 50) daje końcowe X50, a w Y (30 − 30 = 0) końcowe Y0.",
   },
@@ -68,6 +69,7 @@ export const f1_3: LessonDoc = {
         { kind: "gap", q: "Frez w X10. Y10., cel X60. Y10. Zapisz ruch w G91.", template: "G91 X{0}", answers: [["50"]], why: "60 − 10 = 50. Y się nie zmienia, więc go pomijasz." },
         { kind: "gap", q: "Frez w X60. Y40., cel X20. Y15. Zapisz ruch w G91.", template: "G91 X{0} Y{1}", answers: [["-40"], ["-25"]], why: "20 − 60 = −40 oraz 15 − 40 = −25." },
         { kind: "gap", q: "Frez w X30. Y20. wykonuje `G91 X-15. Y25.`. Gdzie stanie w G90?", template: "X{0} Y{1}", answers: [["15"], ["45"]], why: "30 − 15 = 15 oraz 20 + 25 = 45." },
+        { kind: "choice", q: "Ktoś przepisał przyrosty z przykładu, ale zapomniał `G91` — program działa w G90: `X20.` → `Y30.` → `X30.` → `Y-30.`. Gdzie skończy frez?", options: ["X30 Y−30 — poza konturem", "X50 Y0, jak w przykładzie", "X0 Y0", "alarm — ujemne Y"], answer: 0, why: "W G90 każda liczba to cel od W: X20 Y0 → X20 Y30 → X30 Y30 → X30 Y−30. Pierwsze dwa punkty się zgadzają, więc błąd widać dopiero w trzecim odcinku." },
         { kind: "choice", q: "Start w X0. Bloki: `G91` → `X10.` → `X10.` → `X10.`. Gdzie kończy frez?", options: ["X10", "X30", "X0", "X20"], answer: 1, why: "Każdy blok dodaje 10 mm do bieżącej pozycji." },
       ],
     },
