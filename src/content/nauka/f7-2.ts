@@ -30,7 +30,7 @@ export const f7_2: LessonDoc = {
       "Komentarze w nawiasach zamieniasz na średnik (lekcja F1.1).",
       "Tryb ISO na Sinumeriku potrafi wykonać program Fanuca z M98 wprost — ale tylko wtedy, gdy maszyna ma go włączonego.",
     ] },
-    { t: "note", kind: "tip", x: "To ostatnia lekcja ścieżki frezowania. Program płytki poniżej jest kompletny: planowanie, kontur z korekcją, dwie kieszenie, trzy operacje otworów i podprogram. Rozwiń go i uruchom w symulatorze." },
+    { t: "note", kind: "tip", x: "To ostatnia lekcja z nowym materiałem. Program płytki poniżej jest kompletny: planowanie, kontur z korekcją, dwie kieszenie, trzy operacje otworów i podprogram. Rozwiń go i uruchom w symulatorze. Dalej czeka zadanie końcowe (lekcja F8.1): nowy detal od pustej strony." },
   ],
 
   worked: {
