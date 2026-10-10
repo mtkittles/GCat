@@ -35,14 +35,16 @@ export const t1_1: LessonDoc = {
 
   worked: {
     title: "Przeczytaj fragment programu wałka",
-    intro: "Fragment: (1) `G00 X44. Z2.`, (2) `G01 X36. F0.2`, (3) `Z-55.`, (4) `X42.`, (5) `G00 Z2.`",
+    intro: "Sytuacja: nóż ma przetoczyć pręt Ø40 na Ø36 do Z−55 i wrócić nad czoło. Fragment programu: (1) `G00 X44. Z2.`, (2) `G01 X36. F0.2`, (3) `Z-55.`, (4) `X42.`, (5) `G00 Z2.`. Jakim ruchem i z jakim posuwem wykona się każda linia? Numery na rysunku to numery linii.",
+    fig: "t11-run",
     steps: [
-      { x: "Linia 3 nie ma G ani F — dziedziczy G01 i F0.2 z linii 2.", code: "G01 F0.2" },
-      { x: "Linia 3: nóż jedzie wzdłuż osi na Ø36 do Z−55.", code: "X36 Z-55" },
-      { x: "Linia 4: nadal G01 — wyjście promieniowe z materiału na Ø42.", code: "X42" },
+      { x: "Linia 1: G00 — szybki najazd 2 mm nad powierzchnię pręta, 2 mm przed czoło.", code: "G00 X44 Z2" },
+      { x: "Linia 2: G01 zastępuje G00, F0.2 ustawia posuw 0,2 mm na obrót. Nóż schodzi na Ø36.", code: "G01 F0.2" },
+      { x: "Linia 3 nie ma G ani F — dziedziczy G01 i F0.2. Nóż toczy wzdłuż osi do Z−55.", code: "X36 Z-55" },
+      { x: "Linia 4: nadal G01 i F0.2 — wyjście promieniowe z materiału na Ø42.", code: "X42" },
       { x: "Linia 5: G00 zmienia ruch na szybki — powrót nad czoło.", code: "G00 Z2." },
     ],
-    result: "Cztery bloki ruchu i tylko dwa kody G. Tak wygląda każdy program: kody modalne padają raz i obowiązują, aż coś je zmieni.",
+    result: "Pięć bloków ruchu i tylko trzy kody G. Kody modalne padają raz i obowiązują, aż zastąpi je kod z tej samej grupy.",
   },
 
   practice: [
@@ -60,6 +62,7 @@ export const t1_1: LessonDoc = {
       questions: [
         { kind: "token", q: "Wskaż słowo, które podaje **średnicę**.", block: "N40 G01 X36. Z-55. F0.2", answer: 2, why: "X na tokarce to średnica." },
         { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "G01 Z-20. F0.15", answer: 2, why: "F0.15 — 0,15 mm na obrót przy G99." },
+        { kind: "choice", q: "W przykładzie w linii 5 zabrakło `G00` — zostało samo `Z2.`. Co się zmieni?", options: ["nóż wróci tą samą drogą, ale posuwem 0,2 mm/obr — dużo wolniej", "nóż wróci ruchem szybkim, bez zmian", "sterowanie zgłosi alarm braku kodu G", "nóż pojedzie do Z2 i X0"], answer: 0, why: "G01 z linii 2 wciąż działa, więc powrót jest ruchem roboczym z F0.2. Tor ten sam, nad materiałem, ale kosztuje czas — przy 1000 obr/min 57 mm zajmie ok. 17 s zamiast ułamka sekundy." },
         { kind: "choice", q: "Po `G01 X30. F0.2` stoi blok `Z-20.`. Jakim ruchem pojedzie nóż?", options: ["G01 z F0.2", "G00", "alarm — brak G", "G01 bez posuwu"], answer: 0, why: "G01 i F są modalne." },
         { kind: "gap", q: "Zapisz blok: ruch roboczy na średnicę 30 z posuwem 0,2 mm/obr (Fanuc, z kropką).", template: "G{0} X{1} F{2}", answers: [["01", "1"], ["30.", "30"], ["0.2", ".2"]], why: "G01 X30. F0.2" },
       ],
