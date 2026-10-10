@@ -19,7 +19,6 @@ export const f0_3: LessonDoc = {
 
     { t: "h", x: "Pomiar zera w X i Y", id: "pomiar" },
     { t: "p", x: "Operator dojeżdża do krawędzi detalu przyrządem o znanej średnicy — czujnikiem krawędzi, sondą albo trzpieniem — i odczytuje pozycję maszynową w chwili styku. Środek przyrządu jest wtedy o promień od krawędzi, więc promień trzeba uwzględnić." },
-    { t: "diagram", id: "f03-edge" },
     { t: "code", x: "od lewej:  X kraw. = X masz. + r\nod prawej: X kraw. = X masz. − r", caption: "Dotyk od lewej to przyrząd po stronie −X. W osi Y tak samo: od przodu dodajesz r, od tyłu odejmujesz." },
     { t: "p", x: "Sterowania mają do tego funkcję pomiaru: po dotknięciu wpisujesz, jaką współrzędną ma środek przyrządu w układzie detalu (np. `X-5` dla Ø10 stojącego z lewej), a sterowanie samo liczy i zapisuje przesunięcie." },
     { t: "note", kind: "info", x: "Wartość Z w rejestrze zależy od sposobu pomiaru długości narzędzi. Omówimy ją razem z korekcją długości w F4.1. Do tego czasu przyjmujemy Z0 na górnej powierzchni detalu." },
@@ -32,11 +31,12 @@ export const f0_3: LessonDoc = {
 
   worked: {
     title: "Ustal G54 czujnikiem krawędzi",
-    intro: "Czujnik Ø10. Dotknięcie lewej krawędzi od lewej strony: MASZYNA X−325.000. Dotknięcie przedniej krawędzi od przodu: MASZYNA Y−265.000.",
+    intro: "Sytuacja: płytka leży w imadle, a jej zero W ma być w lewym przednim narożniku. Operator dotyka krawędzi czujnikiem Ø10 i odczytuje pozycję maszynową w chwili styku: lewej krawędzi od lewej strony przy MASZYNA X−325.000, przedniej od przodu przy Y−265.000. Co wpisać do G54?",
+    fig: "f03-edge",
     steps: [
-      { x: "W chwili styku środek czujnika jest 5 mm od krawędzi, po stronie ujemnej osi." },
-      { x: "X krawędzi: −325 + 5 = −320.", code: "X−320" },
-      { x: "Y krawędzi: −265 + 5 = −260.", code: "Y−260" },
+      { x: "Na rysunku: w chwili styku środek czujnika jest o promień 5 mm od krawędzi, po stronie ujemnej osi — z lewej i z przodu detalu." },
+      { x: "X krawędzi leży o promień dalej w stronę +X: −325 + 5.", code: "X−320" },
+      { x: "Y krawędzi tak samo: −265 + 5.", code: "Y−260" },
       { x: "Wpisz obie wartości do wiersza G54 tablicy przesunięć." },
     ],
     result: "Od teraz punkt `X0 Y0` w programie z `G54` to lewy przedni narożnik płytki — dokładnie W z lekcji F0.1.",
@@ -57,6 +57,13 @@ export const f0_3: LessonDoc = {
         { kind: "move", frame: "G54", x: 80, y: 50, label: "sprawdź: prawy tylny narożnik detalu 1" },
         { kind: "set", reg: "G55", x: -150, y: -260, label: "przełącz na G55, stań nad narożnikiem detalu 2 i zapisz" },
         { kind: "move", frame: "G55", x: 40, y: 25, label: "środek detalu 2 w układzie G55" },
+      ],
+    },
+    {
+      kind: "drill",
+      intro: "Przewidź skutek pomyłki przy pomiarze.",
+      questions: [
+        { kind: "choice", q: "Operator wpisał do G54 sam odczyt X−325, bez promienia czujnika Ø10. Program wykonuje `G00 X0. Y0.`. Gdzie stanie środek narzędzia względem lewej krawędzi płytki?", options: ["5 mm na lewo od krawędzi, w powietrzu", "dokładnie na krawędzi", "5 mm na prawo, nad płytką", "10 mm na lewo od krawędzi"], answer: 0, why: "X0 to teraz pozycja maszynowa −325, a krawędź leży w −320. Cały program jest przesunięty o promień czujnika: każdy kontur wyjdzie 5 mm w stronę −X." },
       ],
     },
   ],

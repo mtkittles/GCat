@@ -28,7 +28,6 @@ export const f0_2: LessonDoc = {
     { t: "h", x: "Jak łączą się układy", id: "lancuch" },
     { t: "p", x: "Pozycja maszynowa to suma przesunięcia zera detalu i współrzędnej z programu. Dla każdej osi osobno:" },
     { t: "code", x: "X maszyny = X przesunięcia + X z programu\n  −260    =     −320      +     60", caption: "Przesunięcie to wektor od M do W. Zapisuje się je w rejestrze G54 — lekcja F0.3." },
-    { t: "diagram", id: "f02-chain" },
     { t: "p", x: "Program zna tylko W. Dzięki temu ten sam program pasuje do detalu w dowolnym miejscu stołu — zmienia się tylko przesunięcie." },
 
     { t: "h", x: "Gdzie postawić W", id: "gdzie-w" },
@@ -38,12 +37,13 @@ export const f0_2: LessonDoc = {
 
   worked: {
     title: "Przelicz pozycję maszynową na współrzędną programu",
-    intro: "Rejestr G54 ma X−320 Y−260. Ekran pozycji maszynowej pokazuje X−260.000 Y−240.000. Gdzie stoi narzędzie w układzie detalu?",
+    intro: "Sytuacja: po bazowaniu narzędzie stoi gdzieś nad płytką. Ekran pozycji maszynowej pokazuje X−260.000 Y−240.000, a w rejestrze G54 zapisano X−320 Y−260 — wektor od M do W. Gdzie stoi narzędzie w układzie detalu, czyli jaką współrzędną ma w programie? Rysunek pokazuje oś X.",
+    fig: "f02-chain",
     steps: [
-      { x: "Dla każdej osi: pozycja maszynowa = przesunięcie + współrzędna z programu. Szukasz współrzędnej z programu, więc odejmujesz." },
-      { x: "X: −260 − (−320) = 60.", code: "X60" },
-      { x: "Y: −240 − (−260) = 20.", code: "Y20" },
-      { x: "Porównaj z rysunkiem: to punkt H z lekcji F0.1." },
+      { x: "Dla każdej osi: pozycja maszynowa = przesunięcie + współrzędna z programu. Szukasz współrzędnej z programu, więc odejmujesz przesunięcie od pozycji maszynowej." },
+      { x: "X na rysunku: od M do W jest −320 (pomarańczowa strzałka), od M do narzędzia T −260 (biała). Od W do T zostaje −260 − (−320) = 60 (zielona).", code: "X60" },
+      { x: "Y tak samo: −240 − (−260) = 20.", code: "Y20" },
+      { x: "Porównaj z rysunkiem detalu: to punkt H z lekcji F0.1." },
     ],
     result: "Narzędzie stoi nad punktem H, `X60 Y20`. Ekran ABSOLUTE na Fanucu i WCS na Sinumeriku wykonują to samo odejmowanie i pokazują wynik od razu.",
   },
@@ -58,6 +58,13 @@ export const f0_2: LessonDoc = {
         { kind: "move", frame: "G54", x: 0, y: 0, label: "stań nad zerem W i porównaj z wartością w G54" },
         { kind: "move", frame: "G54", x: 60, y: 20, label: "punkt H z lekcji F0.1" },
         { kind: "move", frame: "G54", x: 80, y: 50, label: "prawy tylny narożnik detalu" },
+      ],
+    },
+    {
+      kind: "drill",
+      intro: "Przewidź, zanim sprawdzisz w symulatorze.",
+      questions: [
+        { kind: "choice", q: "Imadło przestawiono o 15 mm w stronę −X i zmierzono zero od nowa: G54 X−335 zamiast X−320. Program bez zmian wykonuje `G00 X60. Y20.`. Co pokaże ekran MASZYNA w osi X?", options: ["X−275 — narzędzie znów stoi nad punktem H", "X−260 — jak przed przestawieniem", "X60 — program podaje pozycję maszynową", "X−245"], answer: 0, why: "Pozycja maszynowa = przesunięcie + program: −335 + 60 = −275. Program się nie zmienia, bo liczy od W, a W przesunęło się razem z detalem." },
       ],
     },
   ],
