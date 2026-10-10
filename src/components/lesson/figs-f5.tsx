@@ -1,4 +1,4 @@
-import { Code, Dim, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu F5 — cykle wiercenia. Styl i kolory z fig.tsx. */
 
@@ -266,6 +266,68 @@ export function TapDepthM6() {
   );
 }
 
+/* ================= F5.3: przykład rozwiązany — przebieg G84 krok po kroku =================
+   Numery zgodne z krokami przykładu w f5-3.ts. Te same założenia co TapDepthM6. */
+export function TapRun() {
+  const R: [number, number, number, number] = [-19, 25, -20.5, 9];
+  const m = mapper(R, [8, 8, 344, 226]);
+  const P = (x: number, z: number) => `${m.X(x)},${m.Y(z)}`;
+  const xs = -4, rH = 2.5, rT = 3;
+  const L = 12, zTap = -15, zFull = -17.1, zTip = -18, zR = 5;
+  const lv: { z: number; t: string; cls: string; dy: number }[] = [
+    { z: -L, t: "Z−12 pełny gwint", cls: "t-acc t-b", dy: 2 },
+    { z: zTap, t: "Z−15 koniec gwintownika", cls: "t-cut t-b", dy: 2 },
+    { z: zFull, t: "Z−17,1 pełna Ø5", cls: "t-mut", dy: 2 },
+    { z: zTip, t: "Z−18 czubek wiertła", cls: "t-mut", dy: 12 },
+  ];
+  return (
+    <Fig id="f53rn" code="G84" title="Jeden otwór M6×1 — przebieg cyklu" h={246} legend={["cut", "stock"]}
+      notes={<><Code k="acc">1  M29 S500</Code><Code k="cut">2–4  G84 X10. Y10. Z-15. R5. F500</Code><Code k="arc">6  wyjście do R5</Code></>}
+      caption={<>1 — tryb sztywny przed cyklem. 2 — od R5 obroty i oś Z ruszają razem. 3 — wejście z F = S · P = 500 mm/min. 4 — koniec gwintownika w Z−15, o nakrój 3 mm poniżej pełnego gwintu. 5 — pod nim 2,1 mm pełnej średnicy otworu. 6 — obroty odwrócone, wyjście tym samym torem do R5.</>}>
+      {(c) => (
+        <g>
+          <polygon points={`${P(-19, 0)} ${P(xs - rH, 0)} ${P(xs - rH, zFull)} ${P(xs, zTip)} ${P(xs + rH, zFull)} ${P(xs + rH, 0)} ${P(25, 0)} ${P(25, -20.5)} ${P(-19, -20.5)}`} fill={c.hatch} className="p-con" />
+          {Array.from({ length: L }, (_, i) => {
+            const z1 = -i, z2 = z1 - 0.5, z3 = z1 - 1;
+            return (
+              <g key={i}>
+                <polyline points={`${P(xs - rH, z1)} ${P(xs - rT, z2)} ${P(xs - rH, z3)}`} className="p-acc" fill="none" />
+                <polyline points={`${P(xs + rH, z1)} ${P(xs + rT, z2)} ${P(xs + rH, z3)}`} className="p-acc" fill="none" />
+              </g>
+            );
+          })}
+          <line x1={m.X(xs - rT)} y1={m.Y(-L)} x2={m.X(xs - rH)} y2={m.Y(zTap)} className="p-acc dashed" />
+          <line x1={m.X(xs + rT)} y1={m.Y(-L)} x2={m.X(xs + rH)} y2={m.Y(zTap)} className="p-acc dashed" />
+          {/* płaszczyzna R i rozbieg */}
+          <line x1={m.X(-19)} y1={m.Y(zR)} x2={m.X(25)} y2={m.Y(zR)} className="p-cons" strokeDasharray="4 4" />
+          <T x={m.X(24.5)} y={m.Y(zR) - 5} anchor="end" cls="t-acc t-b">R5</T>
+          <T x={m.X(24.5)} y={m.Y(0) - 4} anchor="end" cls="t-mut t-sm">Z0</T>
+          <Step x={m.X(xs)} y={m.Y(8)} n={1} />
+          <T x={m.X(xs) + 12} y={m.Y(8) + 4} cls="t-mono t-sm">M29 S500</T>
+          <Step x={m.X(14)} y={m.Y(zR)} n={2} />
+          {/* wejście i wyjście */}
+          <line x1={m.X(xs - 6)} y1={m.Y(zR)} x2={m.X(xs - 6)} y2={m.Y(zTap) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={m.X(xs - 6) - 14} y={m.Y(-3)} n={3} />
+          <T x={m.X(xs - 6) - 6} y={m.Y(-7)} anchor="end" cls="t-cut t-b t-sm">F500</T>
+          <line x1={m.X(xs + 5)} y1={m.Y(zTap)} x2={m.X(xs + 5)} y2={m.Y(zR) + 3} className="p-arc thick" markerEnd={c.a("arc")} />
+          <Step x={m.X(xs + 5) + 14} y={m.Y(-3)} n={6} />
+          {/* poziomy */}
+          {lv.map((l) => (
+            <g key={l.z}>
+              <line x1={m.X(xs - 4)} y1={m.Y(l.z)} x2={m.X(xs + 8.4)} y2={m.Y(l.z)} className={l.z === zTap ? "p-cut" : "p-cons"} />
+              <T x={m.X(xs + 10.8)} y={m.Y(l.z) + l.dy} cls={l.cls}>{l.t}</T>
+            </g>
+          ))}
+          <Step x={m.X(xs + 9.6)} y={m.Y(zTap)} n={4} />
+          <Dim c={c} x1={m.X(-14.5)} y1={m.Y(-L)} x2={m.X(-14.5)} y2={m.Y(zTap)} label="3" lside={1} />
+          <Dim c={c} x1={m.X(-14.5)} y1={m.Y(zTap)} x2={m.X(-14.5)} y2={m.Y(zFull)} label="2,1" lside={1} />
+          <Step x={m.X(-12.3)} y={m.Y((zTap + zFull) / 2) + 4} n={5} />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= F5.4: G98 i G99 przy docisku ================= */
 export function RetractLevels() {
   const R: [number, number, number, number] = [-4, 96, -10, 38];
@@ -310,5 +372,6 @@ export const f5Figs = {
   "f52-tip": () => <DrillTip />,
   "f53-tap": () => <TapCycle />,
   "f53-depth": () => <TapDepthM6 />,
+  "f53-run": () => <TapRun />,
   "f54-levels": () => <RetractLevels />,
 };

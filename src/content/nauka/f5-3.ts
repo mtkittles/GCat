@@ -57,16 +57,18 @@ export const f5_3: LessonDoc = {
 
   worked: {
     title: "Gwinty M6 w płytce",
-    intro: "Otwory Ø5 z lekcji F5.2: czubek w Z−18, pełna średnica do Z−17,1. Gwint M6×1 — 12 mm pełnego zarysu. Gwintownik maszynowy z nakrojem 3 zwojów (założenie przykładu), S500.",
+    intro: "Sytuacja: w płytce są cztery otwory Ø5 z lekcji F5.2 — czubek wiertła w Z−18, pełna średnica do Z−17,1. Rysunek wymaga gwintu M6×1 na 12 mm pełnego zarysu. We wrzecionie gwintownik maszynowy z nakrojem 3 zwojów (założenie przykładu), S500. Numery kroków odpowiadają numerom na rysunku.",
+    fig: "f53-run",
     steps: [
-      { x: "Posuw z obrotów i skoku: 500 · 1.", code: "F500" },
-      { x: "Koniec gwintownika o nakrój poniżej pełnego gwintu: 12 + 3 = 15.", code: "Z-15." },
-      { x: "Kontrola otworu: pełna średnica Z−17,1, koniec gwintownika Z−15 — 2,1 mm zapasu.", code: "17,1 − 15 = 2,1" },
-      { x: "Na Fanucu — tryb sztywny przed cyklem.", code: "M29 S500" },
-      { x: "Cykl na pierwszym otworze, R wyżej niż przy wierceniu.", code: "G84 X10. Y10. Z-15. R5. F500" },
-      { x: "Pozostałe otwory i skasowanie cyklu.", code: "X70. → Y40. → X10. → G80" },
+      { x: "Krok 1: na Fanucu tryb sztywny włącza się przed cyklem — kod ustawia parametr maszyny, najczęściej M29.", code: "M29 S500" },
+      { x: "Krok 2: płaszczyzna R5. Od niej obroty i oś Z ruszają razem, a 5 mm nad materiałem daje im odcinek na zsynchronizowany rozbieg.", code: "R5." },
+      { x: "Krok 3: wejście. Na jeden obrót gwintownik wchodzi o skok 1 mm, więc posuw wynika z obrotów: 500 · 1.", code: "F500" },
+      { x: "Krok 4: koniec gwintownika o nakrój poniżej pełnego gwintu: 12 + 3.", code: "Z-15." },
+      { x: "Krok 5: kontrola otworu. Pełna Ø5 kończy się w Z−17,1, czyli pod końcem gwintownika zostaje zapas na wióry.", code: "17,1 − 15 = 2,1" },
+      { x: "Krok 6: na dnie cykl odwraca obroty i wykręca gwintownik tym samym torem do R5. Kroki 2–6 robi jeden blok:", code: "G84 X10. Y10. Z-15. R5. F500" },
+      { x: "Pozostałe otwory to same współrzędne — cykl jest modalny. Na koniec skasowanie cyklu.", code: "X70. → Y40. → X10. → G80" },
     ],
-    result: "Pełny gwint sięga Z−12, koniec gwintownika Z−15, pełna średnica otworu Z−17,1, czubek wiertła Z−18. Te cztery głębokości pokazuje przekrój w części teoretycznej.",
+    result: "Pełny gwint sięga Z−12, koniec gwintownika Z−15, pełna średnica otworu Z−17,1, czubek wiertła Z−18. Przy innym gwintowniku zmienia się tylko długość nakroju — przelicz Z i sprawdź zapas otworu.",
   },
 
   practice: [
@@ -89,6 +91,7 @@ export const f5_3: LessonDoc = {
         { kind: "gap", q: "Gwintujesz M10×1,5 cyklem G84 przy S300, posuw minutowy (G94). Jaki posuw F wpiszesz w bloku?", template: "F{0}", answers: [["450"]], why: "Gwintownik wchodzi o skok na każdy obrót: F = S · P = 300 · 1,5 = 450 mm/min." },
         { kind: "gap", q: "Jaką średnicę wiertła dobierzesz pod gwint M8×1,25 (gwintownik skrawający)?", template: "Ø{0}", answers: [["6.8", "6,8", "6.75", "6,75", "6.7", "6,7"]], why: "d − P = 8 − 1,25 = 6,75 → najbliższe typowe wiertło Ø6,8. Niektóre tabele podają Ø6,7 — rozstrzyga zalecenie producenta gwintownika." },
         { kind: "gap", q: "Gwint M6×1, wymagane 10 mm pełnego gwintu, nakrój gwintownika 3 zwoje. Na jakie Z zaprogramujesz G84?", template: "Z{0}", answers: [["-13", "-13.", "-13.0"]], why: "Nakrój 3 · 1 = 3 mm, więc koniec gwintownika w Z−(10 + 3)." },
+        { kind: "choice", q: "Ktoś wpisał `G84 X10. Y10. Z-12. R5. F500`, bo rysunek wymaga 12 mm gwintu M6×1. Gwintownik ma nakrój 3 zwojów. Gdzie skończy się pełny zarys gwintu?", options: ["około Z−9 — gwint o 3 mm za krótki", "w Z−12, jak w programie", "w Z−15", "w Z−17,1, na końcu pełnej średnicy"], answer: 0, why: "Z w G84 to koniec gwintownika. Nad nim pracuje nakrój 3 · 1 = 3 mm, który nie tnie pełnego zarysu — pełny gwint kończy się około 3 mm wyżej, w Z−9." },
         { kind: "choice", q: "Gwintownik M6×1, S600, w programie F500. Co się stanie?", options: ["posuw nie zgadza się ze skokiem — zerwany gwint albo złamany gwintownik", "gwint wyjdzie płytszy", "nic, sterowanie poprawi", "gwint wyjdzie lewy"], answer: 0, why: "Przy S600 potrzeba F600." },
       ],
     },
