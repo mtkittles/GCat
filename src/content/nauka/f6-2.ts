@@ -66,7 +66,6 @@ export const f6_2: LessonDoc = {
 
     { t: "h", x: "Zgrubnie i na gotowo", id: "kolejnosc" },
     { t: "p", x: "Obróbka zgrubna usuwa materiał z wnętrza i zostawia na ścianach naddatek — tu 1 mm. Obróbka wykańczająca zbiera ten naddatek jednym przejściem z korekcją promienia, dzięki czemu ściany wychodzą w wymiarze i z dobrą powierzchnią." },
-    { t: "diagram", id: "f62-pocket" },
     { t: "table", head: ["Etap", "Tor środka freza", "Uwagi"], rows: [
       ["rampa i oś", "X23…X37, Y25", "pierwsze przejście to pełny rowek: ae = 100% D, ap = 4 mm"],
       ["pętla zgrubna", "X23…X37, Y21…Y29", "ściana − promień 5 − naddatek 1"],
@@ -80,7 +79,8 @@ export const f6_2: LessonDoc = {
 
   worked: {
     title: "Tor pętli zgrubnej",
-    intro: "Ściany kieszeni: X17…X43, Y15…Y35. Frez Ø10, naddatek na ściany 1 mm.",
+    intro: "Sytuacja: w płytce trzeba zgrubnie wybrać kieszeń o ścianach X17…X43 i Y15…Y35 (26 × 20) frezem Ø10, zostawiając 1 mm naddatku na ściany dla przejścia wykańczającego. Jaki tor ma środek freza? Na rysunku zielona pętla to tor zgrubny, niebieski kontur — przejście na gotowo.",
+    fig: "f62-pocket",
     steps: [
       { x: "Odsunięcie środka freza od ściany: promień + naddatek, 5 + 1.", code: "6 mm" },
       { x: "X: 17 + 6 i 43 − 6.", code: "X23…X37" },
@@ -107,6 +107,7 @@ export const f6_2: LessonDoc = {
       intro: "Geometria kieszeni.",
       questions: [
         { kind: "gap", q: "Kieszeń od X10 do X50, frez Ø12, naddatek 0,5 mm. W jakim zakresie X jedzie środek freza w pętli zgrubnej?", template: "X{0}…X{1}", answers: [["16.5", "16,5"], ["43.5", "43,5"]], why: "Odsunięcie 6 + 0,5 = 6,5: 10 + 6,5 i 50 − 6,5." },
+        { kind: "choice", q: "Do przykładu założono frez Ø12, a tor pętli zostawiono X23…X37, Y21…Y29. Co zostanie na ścianach?", options: ["zero naddatku — zgrubne przejście obrobi ściany na wymiar", "nadal 1 mm", "2 mm", "frez podetnie ściany o 1 mm"], answer: 0, why: "Pętla jest 6 mm od ścian, a frez Ø12 ma promień 6. Krawędź dotyka ściany — na wykańczanie nie zostaje materiał, a ściany mają ślad zgrubnego przejścia." },
         { kind: "choice", q: "Kieszeń z narożami R4. Który frez wykończy naroża?", options: ["Ø6", "Ø8", "Ø10", "każdy"], answer: 0, why: "Promień freza (3) musi być mniejszy niż promień naroża (4)." },
         { kind: "choice", q: "Wykańczasz ściany kieszeni przy M03 i G41. W którą stronę obiegasz kieszeń?", options: ["przeciwnie do zegara", "zgodnie z zegarem", "bez znaczenia", "zygzakiem"], answer: 0, why: "Wewnątrz współbieżnie znaczy przeciwnie do zegara." },
       ],

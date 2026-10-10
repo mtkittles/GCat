@@ -31,7 +31,6 @@ export const f6_1: LessonDoc = {
   theory: [
     { t: "h", x: "Pierwsza operacja", id: "po-co" },
     { t: "p", x: "Planowanie zbiera naddatek z górnej powierzchni i robi z niej płaszczyznę, od której liczy się Z0 i wszystkie głębokości. Dlatego zwykle idzie pierwsze. Surówka płytki ma 1 mm naddatku — program planuje ją do Z0." },
-    { t: "diagram", id: "f61-face" },
 
     { t: "h", x: "Położenie głowicy", id: "polozenie" },
     { t: "p", x: "Szerokość skrawania **ae** najlepiej dobrać na około 70–80% średnicy głowicy, z osią nad detalem. Płytka ma 50 mm szerokości, głowica Ø63: jedno przejście środkiem daje ae = 50 mm, czyli 79% D." },
@@ -52,10 +51,11 @@ export const f6_1: LessonDoc = {
 
   worked: {
     title: "Planowanie płytki",
-    intro: "Płytka 80 × 50, naddatek 1 mm. Głowica Ø63, 5 płytek 45°, vc = 200 m/min, fz = 0,16.",
+    intro: "Sytuacja: górna powierzchnia płytki 80 × 50 ma 1 mm naddatku i trzeba ją zebrać jednym przejściem. Głowica Ø63 z 5 płytkami 45°, vc = 200 m/min, fz = 0,16. Gdzie ustawić oś głowicy, skąd zacząć i dokąd jechać? Rysunek pokazuje płytkę z góry i oba położenia głowicy.",
+    fig: "f61-face",
     steps: [
       { x: "Oś na środku płytki: Y25, ae = 50 mm.", code: "Y25." },
-      { x: "Start poza detalem: promień 31,5 + zapas.", code: "X-40." },
+      { x: "Start poza detalem (lewy okrąg na rysunku): promień 31,5 + zapas — krawędź głowicy w X−8,5.", code: "X-40." },
       { x: "Obroty i posuw: S = 1000 · 200 / (π · 63) ≈ 1010, F = 0,16 · 5 · 1000.", code: "S1000 F800" },
       { x: "Jedno przejście na Z0 do punktu za detalem.", code: "G01 X120. F800" },
     ],
@@ -81,6 +81,7 @@ export const f6_1: LessonDoc = {
       questions: [
         { kind: "gap", q: "Głowica Ø80 planuje detal od X0 do X120. Za detalem ma zostać 10 mm odstępu. Do jakiego X dojeżdża środek głowicy?", template: "X{0}", answers: [["170"]], why: "Środek głowicy musi minąć koniec detalu o promień głowicy i odstęp: 120 + 40 + 10 = 170." },
         { kind: "gap", q: "ap = 2 mm, ae = 40 mm, vf = 600 mm/min. Ile wynosi wydajność Q (cm³/min)?", template: "{0}", answers: [["48"]], why: "2 · 40 · 600 / 1000 = 48." },
+        { kind: "choice", q: "W przykładzie zmieniono start na `G00 X-20. Y25.`. Co się stanie przy zejściu `G01 Z0.`?", options: ["głowica zejdzie pionowo w naddatek — jej krawędź sięga X11,5", "nic, głowica jest jeszcze w powietrzu", "sterowanie przesunie start", "głowica zatrzyma się nad krawędzią X0"], answer: 0, why: "Promień głowicy to 31,5 mm: −20 + 31,5 = 11,5. Płytka zaczyna się w X0, więc zejście z Z5 na Z0 wbija głowicę pionowo w 1 mm naddatku na pasie 11,5 mm — zamiast łagodnego wejścia z boku." },
         { kind: "choice", q: "Detal szeroki na 60 mm. Która głowica pasuje do jednego przejścia?", options: ["Ø80 (ae 75%)", "Ø63 (ae 95%)", "Ø50 (za mała)", "Ø125 (ae 48%)"], answer: 0, why: "Typowe zalecenie producentów głowic to ae ok. 70–80% D: 60 / 80 = 75%." },
       ],
     },
