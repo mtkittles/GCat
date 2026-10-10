@@ -47,7 +47,7 @@ export const t3_2: LessonDoc = {
 
     { t: "h", x: "Kontur wykańczający", id: "wykanczanie" },
     { t: "p", x: "Nóż wykańczający przechodzi kontur jeden raz, od czoła w stronę uchwytu, dokładnie po wymiarach z rysunku. Wejście najlepiej po przedłużeniu pierwszego elementu — tutaj fazy: z X14 Z2 linia pod 45° trafia w początek fazy na czole." },
-    { t: "diagram", id: "t32-contour" },
+    { t: "p", x: "Liczby w konturze wykańczającym to wymiary z rysunku wałka (T0.1): Ø20, Ø30, Ø36, długości 20, 40 i 55 od czoła, fazy 1 × 45°. Przejścia zgrubne leżą o naddatek dalej — Ø36,4 czy Z−54,8 to tor noża zgrubnego, a nie wymiar detalu." },
 
     { t: "h", x: "Fazy i stożki", id: "fazy" },
     { t: "p", x: "Faza to G01 w obu osiach naraz. Z lekcji T0.2: przy 45° X zmienia się o dwa razy więcej niż Z. Stożek liczy się tak samo, tylko z tangensem kąta." },
@@ -57,12 +57,13 @@ export const t3_2: LessonDoc = {
 
   worked: {
     title: "Kontur wykańczający wałka",
-    intro: "Nóż T0202 R0,4 stoi w X14 Z2. Kontur z rysunku z fazami 1 × 45°.",
+    intro: "Sytuacja: zgrubnie zostało 0,2 mm na stronę. Nóż wykańczający T0202 R0,4 stoi w X14 Z2 i ma przejść kontur z rysunku z fazami 1 × 45° — od czoła do Ø36 i wyjście ponad pręt. Numery na rysunku to numery kroków.",
+    fig: "t32-contour",
     steps: [
-      { x: "Faza na czopie Ø20 — z X14 Z2 po linii 45°.", code: "G01 X20. Z-1. F0.1" },
-      { x: "Czop Ø20 i czoło stopnia do początku fazy.", code: "Z-20. → X28." },
-      { x: "Faza 1 × 45° na Ø30.", code: "X30. Z-21." },
-      { x: "Ø30, stopień, Ø36 i wyjście po czole pręta.", code: "Z-40. → X36. → Z-55. → X42." },
+      { x: "Faza na czopie Ø20 — z X14 Z2 po linii 45°, w której przedłużeniu leży faza.", code: "G01 X20. Z-1. F0.1" },
+      { x: "Czop Ø20 do długości 20 i czoło stopnia do początku fazy: 30 − 2 · 1.", code: "Z-20. → X28." },
+      { x: "Faza 1 × 45° na Ø30: 1 mm w Z, 2 mm na średnicy.", code: "X30. Z-21." },
+      { x: "Ø30 do Z−40, stopień na Ø36, Ø36 do Z−55 i wyjście ponad pręt.", code: "Z-40. → X36. → Z-55. → X42." },
     ],
     result: "Wszystkie liczby da się odczytać z rysunku — dlatego kontur wykańczający pisze się absolutnie (T1.2).",
   },
@@ -83,6 +84,7 @@ export const t3_2: LessonDoc = {
       kind: "drill",
       intro: "Średnice przejść i fazy.",
       questions: [
+        { kind: "choice", q: "W przykładzie fazę na Ø30 wpisano `X30. Z-22.` zamiast `X30. Z-21.`. Co powstanie na krawędzi stopnia?", options: ["stożek 2 mm długości o kącie ok. 26,6° do osi zamiast fazy 1 × 45°", "faza 1 × 45°, tylko przesunięta o 1 mm", "faza 2 × 45°", "nic — sterowanie poprawi kąt"], answer: 0, why: "ΔX = 2 w średnicy to 1 mm na stronę, a ΔZ = 2. tan α = 1 / 2, α ≈ 26,6°. Dla 45° potrzeba ΔZ równego połowie ΔX (T0.2)." },
         { kind: "gap", q: "Stopień Ø24, naddatek 0,4 mm na średnicy. Na jaką średnicę toczy ostatnie przejście zgrubne?", template: "Ø{0}", answers: [["24.4", "24,4"]], why: "24 + 0,4." },
         { kind: "gap", q: "Faza 1,5 × 45° na Ø40 zaczyna się na czole stopnia w Z−30. W jakim punkcie się kończy?", template: "X{0} Z{1}", answers: [["40"], ["-31.5", "-31,5"]], why: "Pełna średnica 1,5 mm dalej w Z." },
         { kind: "gap", q: "Faza 1 × 45° kończy się w X20 Z−1. Nóż startuje na przedłużeniu fazy w Z2. Na jakiej średnicy?", template: "X{0}", answers: [["14"]], why: "Z2 to 3 mm przed końcem fazy: X = 20 − 2 · 3." },

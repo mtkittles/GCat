@@ -1,4 +1,4 @@
-import { Code, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu T3 — ruchy na tokarce. Widok z boku: Z w prawo, X (promień) w górę. */
 
@@ -8,26 +8,60 @@ const P = (m: M, z: number, r: number) => `${m.X(z)},${m.Y(r)}`;
 /* ================= T3.1: jedno przejście ================= */
 /* Schemat bez zachowania skali: oś X (promień) rozciągnięta, żeby 2 mm były widoczne. */
 export function PassLoop() {
-  const X = (z: number) => 18 + (z + 60) * 4.6, Y = (r: number) => 196 - (r - 13) * 16;
+  const X = (z: number) => 18 + (z + 60) * 4.6, Y = (r: number) => 200 - (r - 13) * 16;
   return (
     <Fig id="t31pl" code="G00 G01" title="Jedno przejście zgrubne: cztery ruchy" h={222} legend={["rap", "cut", "bad", "stock"]}
-      notes={<><Code k="rap">G00 X36.4</Code><Code k="cut">G01 Z-54.8 F0.3</Code><Code k="cut">X40.5</Code><Code k="rap">G00 Z2.</Code></>}
+      notes={<><Code k="rap">G00 X36.4</Code><Code k="cut">G01 Z-54.8 F0.3</Code><Code k="cut">X42.</Code><Code k="rap">G00 Z2.</Code></>}
       caption={<>Wejście na średnicę i powrót idą ruchem szybkim w powietrzu, toczenie i wyjście z materiału — posuwem. Powrót ruchem szybkim bez wyjścia w X przeciągnąłby ostrze po świeżo toczonej powierzchni. Skala pionowa powiększona.</>}>
       {(c) => (
         <g>
           <rect x={X(-60)} y={Y(20)} width={X(0) - X(-60)} height={Y(13) - Y(20)} fill={c.hatch} className="p-con" style={{ opacity: 0.6 }} />
           <line x1={X(2)} y1={Y(22)} x2={X(2)} y2={Y(18.2) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={X(2)} y1={Y(18.2)} x2={X(-54.8) + 3} y2={Y(18.2)} className="p-cut thick" markerEnd={c.a("cut")} />
-          <line x1={X(-54.8)} y1={Y(18.2)} x2={X(-54.8)} y2={Y(20.25) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
-          <line x1={X(-54.8)} y1={Y(20.25)} x2={X(2) - 3} y2={Y(20.25)} className="p-rap" markerEnd={c.a("rap")} />
+          <line x1={X(-54.8)} y1={Y(18.2)} x2={X(-54.8)} y2={Y(21) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={X(-54.8)} y1={Y(21)} x2={X(2) - 3} y2={Y(21)} className="p-rap" markerEnd={c.a("rap")} />
           <line x1={X(-50)} y1={Y(17.3)} x2={X(-4)} y2={Y(17.3)} className="p-bad" markerEnd={c.a("bad")} />
           <T x={X(-27)} y={Y(17.3) + 16} anchor="middle" cls="t-bad">G00 Z2. bez wyjścia w X — po powierzchni</T>
           <T x={X(-26)} y={Y(18.2) - 6} anchor="middle" cls="t-cut t-b">2. G01 Z-54.8</T>
-          <T x={X(-26)} y={Y(20.25) - 6} anchor="middle" cls="t-rap t-b">4. G00 Z2.</T>
-          <T x={X(2) + 6} y={Y(20.8)} cls="t-rap t-b">1.</T>
-          <T x={X(-54.8) - 6} y={Y(19.4)} anchor="end" cls="t-cut t-b">3.</T>
+          <T x={X(-26)} y={Y(21) - 6} anchor="middle" cls="t-rap t-b">4. G00 Z2.</T>
+          <T x={X(2) + 6} y={Y(20.2)} cls="t-rap t-b">1.</T>
+          <T x={X(-54.8) - 6} y={Y(19.8)} anchor="end" cls="t-cut t-b">3.</T>
           <Pt x={X(2)} y={Y(22)} label="X44 Z2" pos="w" cls="t-mono" dot="pt-rap" />
           <T x={X(-58)} y={Y(14)} cls="t-mut">pręt Ø40 — toczona warstwa</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+
+/* ================= T3.1: przykład — przejście i prześwity ================= */
+export function PassClear() {
+  const zx = (z: number) => 14 + (z + 84) * (332 / 98), ry = (r: number) => 208 - (r - 12) * 10.4;
+  return (
+    <Fig id="t31cl" code="G00" title="Przejście: prześwit do surówki i szczęk" h={230} legend={["rap", "cut", "stock"]}
+      notes={<><Code k="rap">1  G00 X36.4</Code><Code k="cut">2  G01 Z-54.8 F0.3</Code><Code k="cut">3  X42.</Code><Code k="rap">4  G00 Z2.</Code></>}
+      caption={<>Pręt Ø40 wystaje 70 mm ze szczęk. Powrót ruchem szybkim idzie 1 mm na stronę nad surowym prętem, nie nad gotowym konturem. Koniec toczenia zostawia 15,2 mm do szczęk. Numery odpowiadają krokom przykładu. Skala promieniowa powiększona.</>}>
+      {(c) => (
+        <g>
+          <rect x={zx(-84)} y={ry(28)} width={zx(-70) - zx(-84)} height={ry(20) - ry(28)} rx={3} className="clamp" />
+          <T x={zx(-77)} y={ry(28) - 5} anchor="middle" cls="t-mut t-sm">szczęki</T>
+          <rect x={zx(-84)} y={ry(20)} width={zx(0) - zx(-84)} height={ry(12) - ry(20)} fill={c.hatch} className="p-con" />
+          <rect x={zx(-54.8)} y={ry(20)} width={zx(0) - zx(-54.8)} height={ry(18.2) - ry(20)} className="p-fill-cut" />
+          <line x1={zx(2)} y1={ry(22)} x2={zx(2)} y2={ry(18.2) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={zx(6.5)} y={ry(20)} n={1} />
+          <line x1={zx(2)} y1={ry(18.2)} x2={zx(-54.8) + 3} y2={ry(18.2)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={zx(-27)} y={ry(16.6)} n={2} />
+          <line x1={zx(-54.8)} y1={ry(18.2)} x2={zx(-54.8)} y2={ry(21) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={zx(-59)} y={ry(22.4)} n={3} />
+          <line x1={zx(-54.8)} y1={ry(21)} x2={zx(2) - 3} y2={ry(21)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={zx(-27)} y={ry(22.4)} n={4} />
+          <Pt x={zx(2)} y={ry(22)} label="X44 Z2" pos="ne" cls="t-mono t-sm" dot="pt-rap" />
+          <line x1={zx(-40)} y1={ry(20)} x2={zx(-40)} y2={ry(21)} className="p-dim" />
+          <T x={zx(-41)} y={ry(23.6)} anchor="middle" cls="t-mono t-sm">1 mm</T>
+          <Dim x1={zx(-70)} y1={ry(14)} x2={zx(-54.8)} y2={ry(14)} off={0} label="15,2" c={c} cls="t-mono t-b t-sm" lside={-1} />
+          <line x1={zx(-54.8)} y1={ry(18.2)} x2={zx(-54.8)} y2={ry(13.5)} className="p-ext" />
+          <T x={zx(-27)} y={ry(13.5)} anchor="middle" cls="t-mut t-sm">pręt Ø40</T>
         </g>
       )}
     </Fig>
@@ -43,7 +77,7 @@ export function FinishContour() {
   return (
     <Fig id="t32fc" code="G01" title="Kontur wykańczający z fazami" h={230} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">G00 X14. Z2.</Code><Code k="cut">G01 X20. Z-1. F0.1</Code></>}
-      caption={<>Nóż wchodzi na fazę po jej przedłużeniu: z X14 Z2 linia 45° trafia dokładnie w początek fazy na czole. Ostre naroże przy Ø36 dostanie promień w lekcji T3.3.</>}>
+      caption={<>Nóż wchodzi na fazę po jej przedłużeniu: z X14 Z2 linia 45° trafia dokładnie w początek fazy na czole. Każda liczba to wymiar z rysunku wałka. Ostre naroże przy Ø36 dostanie promień w lekcji T3.3. Numery odpowiadają krokom przykładu.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(m, 0, 0)} ${P(m, 0, 9)} ${pts.slice(1, -1).map(([z, r]) => P(m, z, r)).join(" ")} ${P(m, -58, 18)} ${P(m, -58, 0)}`} fill={c.hatch} className="p-con" />
@@ -52,6 +86,10 @@ export function FinishContour() {
           <line x1={m.X(2)} y1={m.Y(7)} x2={m.X(0)} y2={m.Y(9)} className="p-rap" />
           {labels.map(([z, r, l, pos]) => <Pt key={l} x={m.X(z)} y={m.Y(r)} label={l} pos={pos} cls="t-mono" dot="pt-cut" />)}
           <Pt x={m.X(2)} y={m.Y(7)} label="X14 Z2" pos="s" cls="t-mono t-b" dot="pt-rap" />
+          <Step x={m.X(4)} y={m.Y(11)} n={1} />
+          <Step x={m.X(-11)} y={m.Y(12.5)} n={2} />
+          <Step x={m.X(-30)} y={m.Y(12.6)} n={3} />
+          <Step x={m.X(-48)} y={m.Y(20.5)} n={4} />
         </g>
       )}
     </Fig>
@@ -92,7 +130,7 @@ export function StepArcs() {
   return (
     <Fig id="t33ar" code="G02 G03" title="Stopień Ø30 → Ø36: naroże wklęsłe i wypukłe" h={232} legend={["cut", "arc", "stock"]}
       notes={<><Code k="arc">Z-39. → G02 X32. Z-40. R1.</Code><Code k="arc">G01 X35. → G03 X36. Z-40.5 R0.5</Code></>}
-      caption={<>Patrząc na rysunek z osią X w górę: promień wklęsły między Ø30 a czołem stopnia to łuk zgodnie z zegarem (G02), a zaokrąglenie krawędzi Ø36 — przeciwnie (G03). Nóż jedzie od czoła w stronę uchwytu.</>}>
+      caption={<>Widok z boku, od strony +Y: Z w prawo, X w górę, głowica tylna. Numery odpowiadają krokom przykładu. Promień wklęsły między Ø30 a czołem stopnia to łuk zgodnie z zegarem (G02), a zaokrąglenie krawędzi Ø36 — przeciwnie (G03). Nóż jedzie od czoła w stronę uchwytu.</>}>
       {(c) => (
         <g>
           <path d={`M ${P(m, -36.5, 15)} L ${P(m, -39, 15)} A ${u} ${u} 0 0 1 ${P(m, -40, 16)} L ${P(m, -40, 17.5)} A ${0.5 * u} ${0.5 * u} 0 0 0 ${P(m, -40.5, 18)} L ${P(m, -43, 18)} L ${P(m, -43, 13.8)} L ${P(m, -36.5, 13.8)} Z`} fill={c.hatch} className="p-con" />
@@ -104,8 +142,12 @@ export function StepArcs() {
           <T x={m.X(-39.2)} y={m.Y(15.3)} cls="t-arc t-b">G02 R1</T>
           <T x={m.X(-40.2)} y={m.Y(18.6)} anchor="middle" cls="t-arc t-b">G03 R0,5</T>
           <Pt x={m.X(-39)} y={m.Y(15)} label="X30 Z−39" pos="se" cls="t-mono" dot="pt-cut" />
-          <Pt x={m.X(-40)} y={m.Y(16)} label="X32 Z−40" pos="e" cls="t-mono" dot="pt-cut" />
+          <Pt x={m.X(-40)} y={m.Y(16)} label="X32 Z−40" pos="w" cls="t-mono" dot="pt-cut" />
           <Pt x={m.X(-40.5)} y={m.Y(18)} label="X36 Z−40,5" pos="nw" cls="t-mono" dot="pt-cut" />
+          <Step x={m.X(-37.4)} y={m.Y(15.45)} n={1} />
+          <Step x={m.X(-39.15)} y={m.Y(15.85)} n={2} />
+          <Step x={m.X(-39.6)} y={m.Y(17.1)} n={3} />
+          <Step x={m.X(-42.2)} y={m.Y(17.5)} n={4} />
         </g>
       )}
     </Fig>
@@ -133,7 +175,7 @@ export function ArcViews() {
   return (
     <Fig id="t33vw" code="G02" title="Ten sam blok G02 widziany przy dwóch głowicach" h={200} legend={["arc", "acc"]}
       notes={<Code k="arc">w programie: G02 — w obu przypadkach</Code>}
-      caption={<>Przy głowicy tylnej +X biegnie od operatora i łuk G02 wygląda zgodnie z zegarem. Przy przedniej +X biegnie do operatora — ten sam łuk wygląda z jego miejsca na przeciwny. Kierunek odczytuje się zawsze z rysunku w układzie X w górę, a nie przez szybę.</>}>
+      caption={<>Przy głowicy tylnej +X biegnie od operatora i łuk G02 wygląda zgodnie z zegarem. Przy przedniej +X biegnie do operatora — ten sam łuk wygląda z jego miejsca na przeciwny. Kierunek odczytuje się z rysunku w układzie programu — Z w prawo, X w górę — a nie przez szybę.</>}>
       {() => <g><View x0={2} rear={false} /><View x0={184} rear /></g>}
     </Fig>
   );
@@ -141,6 +183,7 @@ export function ArcViews() {
 
 export const t3Figs = {
   "t31-pass": () => <PassLoop />,
+  "t31-clear": () => <PassClear />,
   "t32-contour": () => <FinishContour />,
   "t32-rough": () => <RoughLayers />,
   "t33-arcs": () => <StepArcs />,

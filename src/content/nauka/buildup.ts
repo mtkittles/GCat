@@ -195,7 +195,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "(TOCZENIE ZGRUBNE - RECZNIE, NADDATEK 0.4 NA SREDNICY)", since: "T3.1", until: "T5.1", note: "Przejścia zgrubne zapisane blok po bloku. W module T5 zastąpi je jeden cykl G71." },
       { code: "G00 X36.4", since: "T3.1", until: "T5.1", note: "Ruch szybki na średnicę przejścia, przed czołem (Z2)." },
       { code: "G01 Z-54.8 F0.3", since: "T3.1", until: "T5.1", note: "Toczenie wzdłużne na Ø36,4. Zostaje 0,2 mm na stronę i 0,2 mm w Z na wykończenie." },
-      { code: "X40.5", since: "T3.1", until: "T5.1", note: "Wyjście promieniowe z materiału, nadal posuwem." },
+      { code: "X42.", since: "T3.1", until: "T5.1", note: "Wyjście promieniowe z materiału, nadal posuwem — 1 mm na stronę nad surowym prętem." },
       { code: "G00 Z2.", since: "T3.1", until: "T5.1", note: "Powrót ruchem szybkim nad czoło — nóż jest już ponad detalem." },
       { code: "G00 X32.", since: "T3.2", until: "T5.1", note: "Drugie przejście: Ø32, ap = 2,2." },
       { code: "G01 Z-39.8", since: "T3.2", until: "T5.1", note: "Do stopnia Ø36 z naddatkiem 0,2." },
