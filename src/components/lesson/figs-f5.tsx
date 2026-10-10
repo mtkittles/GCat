@@ -328,6 +328,61 @@ export function TapRun() {
   );
 }
 
+/* ================= F5.4: przykład rozwiązany — tor narzędzia krok po kroku =================
+   Numery zgodne z krokami przykładu w f5-4.ts: Z30, G99 X15, G98 X45, G99 X75, G80. */
+export function RetractRun() {
+  const R: [number, number, number, number] = [-4, 96, -12, 38];
+  const m = mapper(R, [10, 6, 340, 208]);
+  const zI = 30, zR = 2, zB = -7, d = 1.6;
+  const rap = (x1: number, z1: number, x2: number, z2: number, k: string) => (
+    <line key={k} x1={m.X(x1)} y1={m.Y(z1)} x2={m.X(x2)} y2={m.Y(z2)} className="p-rap thick" />
+  );
+  const hole = (x: number, up: number, k: string) => (
+    <g key={k}>
+      <line x1={m.X(x - d)} y1={m.Y(zR)} x2={m.X(x - d)} y2={m.Y(zB)} className="p-cut thick" />
+      {rap(x + d, zB, x + d, up, k + "u")}
+    </g>
+  );
+  return (
+    <Fig id="f54rn" code="G98 G99" title="Trzy otwory — tor narzędzia" h={232} legend={["rap", "cut", "stock"]}
+      notes={<><Code k="rap">1  G00 Z30.</Code><Code k="cut">2  G99 G81 X15. … R2.</Code><Code k="cut">3  G98 X45.</Code><Code k="cut">4  G99 X75.</Code><Code k="acc">5  G80</Code></>}
+      caption={<>1 — start nad pierwszym otworem na Z30: ta wysokość staje się poziomem początkowym. 2 — otwór X15 z G99: powrót do R2 i przejazd do X45 tuż nad detalem. 3 — otwór X45 z G98: powrót na Z30, przejazd nad dociskiem. 4 — otwór X75 z G99: znów powrót do R2. 5 — G80 kasuje cykl.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={12 * m.u} fill={c.hatch} className="p-con" />
+          <rect x={m.X(56)} y={m.Y(25)} width={10 * m.u} height={25 * m.u} rx={2} className="clamp" />
+          <T x={m.X(61)} y={m.Y(12)} anchor="middle" cls="t-mut t-sm">docisk</T>
+          <T x={m.X(61)} y={m.Y(12) + 13} anchor="middle" cls="t-mut t-sm">25 mm</T>
+          {[15, 45, 75].map((x) => <rect key={x} x={m.X(x - 3)} y={m.Y(0)} width={6 * m.u} height={7 * m.u} className="panel-bg" />)}
+          <line x1={m.X(-4)} y1={m.Y(zI)} x2={m.X(96)} y2={m.Y(zI)} className="p-cons" strokeDasharray="4 4" />
+          <line x1={m.X(-4)} y1={m.Y(zR)} x2={m.X(96)} y2={m.Y(zR)} className="p-cons" strokeDasharray="4 4" />
+          <T x={m.X(95)} y={m.Y(zI) - 5} anchor="end" cls="t-mut t-sm">Z30 poziom początkowy</T>
+          <T x={m.X(95)} y={m.Y(zR) - 4} anchor="end" cls="t-acc t-b">R2</T>
+          {/* 1: start i zejście do R */}
+          {rap(15 - d, zI, 15 - d, zR, "s")}
+          <circle cx={m.X(15 - d)} cy={m.Y(zI)} r={3} className="pt" />
+          <Step x={m.X(15) - 24} y={m.Y(zI) + 12} n={1} />
+          {/* 2: X15, G99 */}
+          {hole(15, zR, "h1")}
+          {rap(15 + d, zR, 45 - d, zR, "t1")}
+          <Step x={m.X(30)} y={m.Y(zR) - 14} n={2} />
+          {/* 3: X45, G98 */}
+          {hole(45, zI, "h2")}
+          {rap(45 + d, zI, 75 - d, zI, "t2")}
+          <Step x={m.X(52)} y={m.Y(zI) + 14} n={3} />
+          {/* 4: X75, G99 */}
+          {rap(75 - d, zI, 75 - d, zR, "d3")}
+          {hole(75, zR, "h3")}
+          <Step x={m.X(75) + 16} y={m.Y(14)} n={4} />
+          {/* 5: G80 */}
+          <Step x={m.X(75) + 16} y={m.Y(zR) - 12} n={5} />
+          {[15, 45, 75].map((x) => <T key={x} x={m.X(x)} y={m.Y(-12) - 3} anchor="middle" cls="t-mono t-sm">{`X${x}`}</T>)}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= F5.4: G98 i G99 przy docisku ================= */
 export function RetractLevels() {
   const R: [number, number, number, number] = [-4, 96, -10, 38];
@@ -365,6 +420,7 @@ export function RetractLevels() {
 }
 
 export const f5Figs = {
+  "f54-run": () => <RetractRun />,
   "f51-cycle": () => <CycleSteps />,
   "f51-spot": () => <SpotDepth />,
   "f51-holes": () => <PlateHoles />,
