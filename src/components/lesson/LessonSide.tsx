@@ -91,16 +91,19 @@ export function LessonRail({ track, id, meta, lines, prev, next }: {
   track: string; id: string; meta: { label: string; value: string }[]; lines: RailLine[];
   prev?: { href: string; label: string }; next?: { href: string; label: string };
 }) {
+  /* Panel pokazuje kontekst bieżącej operacji — bloki dopisane w tej lekcji — a nie cały program,
+     który i tak stoi w sekcji „Program detalu”. */
   const shown = lines.filter((l) => l.state !== "future");
-  const fresh = shown.filter((l) => l.state === "new").length;
+  const fresh = shown.filter((l) => l.state === "new");
+  const ctx = fresh.length ? fresh : shown.slice(-4);
   return (
     <aside className="ls-rail" aria-label="Postęp i program">
       <LessonStatus track={track} id={id} />
       <dl className="ls-rail-meta">{meta.map((m) => <div key={m.label}><dt>{m.label}</dt><dd>{m.value}</dd></div>)}</dl>
       <div className="ls-rail-prog">
-        <p className="ls-nav-h">Program detalu <span>{shown.length} bl.{fresh ? ` · +${fresh}` : ""}</span></p>
-        <pre>{shown.map((l, k) => <span key={k} className={l.state === "new" ? "is-new" : undefined}>{l.code}{"\n"}</span>)}</pre>
-        <a href="#program" className="ls-rail-link">Opis linii ↓</a>
+        <p className="ls-nav-h">{fresh.length ? "Dopisane w tej lekcji" : "Koniec programu na tym etapie"} <span>{fresh.length ? `+${fresh.length} z ${shown.length} bl.` : `${shown.length} bl.`}</span></p>
+        <pre>{ctx.map((l, k) => <span key={k} className={l.state === "new" ? "is-new" : undefined}>{l.code}{"\n"}</span>)}</pre>
+        <a href="#program" className="ls-rail-link">Cały program i opis linii ↓</a>
       </div>
       <div className="ls-rail-nav">
         {prev && <Link href={prev.href}><small>Poprzednia</small>{prev.label}</Link>}

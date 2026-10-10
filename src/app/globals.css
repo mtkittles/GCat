@@ -1902,18 +1902,19 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 @media (min-width: 1100px) {
   .ls-layout { display: grid; grid-template-columns: 236px minmax(0, 1fr); gap: 2.5rem; align-items: start; }
   .ls-left { display: block; position: sticky; top: 5.25rem; max-height: calc(100vh - 6.5rem); overflow: auto; padding-right: .25rem; }
-  .ls-main { max-width: 1120px; }
+  .ls-main { max-width: 860px; }
   .ls-main .article p, .ls-main .ls-p { max-width: 80ch; font-size: 16px; }
   .ls-main .fig { max-width: 46rem; }
   .ls-drawer { display: none; }
 }
-@media (min-width: 1440px) {
-  .ls-layout { grid-template-columns: 250px minmax(0, 1fr) 340px; }
+/* Prawy panel dopiero od 1680 px — wtedy kolumna treści nadal ma ok. 800 px (audyt #29, rozdz. 8). */
+@media (min-width: 1680px) {
+  .ls-layout { grid-template-columns: 240px minmax(0, 1fr) 300px; }
   .ls-right { display: block; position: sticky; top: 5.25rem; max-height: calc(100vh - 6.5rem); overflow: auto; }
   .ls-status-inline { display: none; }
 }
 @media (min-width: 1900px) {
-  .ls-layout { grid-template-columns: 280px minmax(0, 1fr) 400px; gap: 3rem; }
+  .ls-layout { grid-template-columns: 260px minmax(0, 1fr) 340px; gap: 3rem; }
   .ls-main .fig { max-width: 52rem; }
 }
 
