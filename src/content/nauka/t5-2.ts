@@ -55,7 +55,8 @@ export const t5_2: LessonDoc = {
       ["pierwszy blok konturu", "ruch tylko w X", "ruch tylko w Z"],
       ["głębokość warstwy", "U w pierwszym bloku", "W w pierwszym bloku"],
     ] },
-    { t: "p", x: "Kołnierz z przykładu to przypadek graniczny: 15 mm materiału na stronę na długości 15 mm, więc oba cykle zrobią po osiem przejść. Przewaga G72 rośnie, gdy materiał jest dużo głębszy niż dłuższy. Tarcza Ø120 z piastą Ø40 grubości 20: G71 potrzebuje 20 krótkich przejść po 2 mm, G72 — kilku długich, na całą szerokość tarczy." },
+    { t: "p", x: "O wyborze decyduje kierunek, w którym zdejmuje się naddatek. G71 zbiera warstwy równoległe do osi: każde przejście biegnie wzdłuż Z, a cykl schodzi w X. G72 zbiera warstwy równoległe do czoła: przejście biegnie w X, a cykl schodzi w Z. Materiał długi i płytki zbiera się więc wzdłużnie, krótki i głęboki — poprzecznie." },
+    { t: "p", x: "Liczba przejść jest skutkiem tego wyboru. Kołnierz z przykładu to przypadek graniczny: 15 mm materiału na stronę na długości 15 mm, więc oba cykle zrobią po osiem warstw. Tarcza Ø120 z piastą Ø40 grubości 20: G71 robi 20 warstw po ok. 20 mm długości, G72 — 10 warstw po ok. 40 mm, na całą wysokość tarczy." },
     { t: "demo", mode: "lathe", title: "Kołnierz cyklem G72 i G70", src: program, caption: "Zielone — przejścia poprzeczne, na końcu przejście po konturze z naddatkiem i wykończenie G70." },
 
     { t: "h", x: "Kontur dla G72", id: "kontur" },
@@ -68,14 +69,15 @@ export const t5_2: LessonDoc = {
 
   worked: {
     title: "Kołnierz z pręta Ø60",
-    intro: "Piasta Ø30 długa na 15 mm z fazą 1 × 45°, kołnierz zostaje z pręta Ø60. Start w X64 Z2.",
+    intro: "Sytuacja: piasta Ø30 długa na 15 mm z fazą 1 × 45°, kołnierz zostaje z pręta Ø60, czoło pręta na Z0. Materiału jest 15 mm na stronę na długości 15 mm — zdejmie go G72. Start w X64 Z2. Numery na rysunku to numery kroków.",
+    fig: "t52-layers",
     steps: [
       { x: "Pierwszy blok konturu: ruch tylko w Z na głębokość kołnierza.", code: "N10 G00 Z-15." },
       { x: "Czoło kołnierza do piasty i piasta w stronę czoła.", code: "G01 X30. F0.1 → Z-1." },
       { x: "Faza i koniec konturu.", code: "N20 X28. Z0." },
       { x: "Cykl: warstwy po 2 mm w Z, naddatki jak w G71.", code: "G72 W2. R0.5 → G72 P10 Q20 U0.4 W0.1 F0.25" },
     ],
-    result: "Kontur G72 czyta się „od głębi do czoła” — odwrotnie niż kontur G71, który biegnie od czoła w stronę uchwytu.",
+    result: "Kontur G72 czyta się „od głębi do czoła” — odwrotnie niż kontur G71, który biegnie od czoła w stronę uchwytu. Po G72 zostaje pomarańczowy pas naddatku na nóż wykańczający i G70.",
   },
 
   practice: [
@@ -97,6 +99,7 @@ export const t5_2: LessonDoc = {
       questions: [
         { kind: "choice", q: "Tarcza Ø120 grubości 20 z piastą Ø40. Który cykl zgrubny?", options: ["G72", "G71", "G70", "G76"], answer: 0, why: "Materiał krótki i głęboki — przejścia poprzeczne." },
         { kind: "choice", q: "Jaki ruch ma pierwszy blok konturu dla G72?", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "Odwrotnie niż w G71." },
+        { kind: "gap", q: "W przykładzie w pierwszym bloku cyklu wpisano `G72 W5. R0.5` zamiast `W2.`. Ile warstw w Z zrobi cykl na 15 mm kołnierza?", template: "{0}", answers: [["3"]], why: "15 / 5 = 3 warstwy. Każda zbiera 5 mm w Z na całej wysokości kołnierza — trzy razy więcej niż płytka miała dostać przy W2." },
       ],
     },
   ],
@@ -104,7 +107,7 @@ export const t5_2: LessonDoc = {
   pitfalls: [
     { title: "Kontur G71 w G72", x: "Kontur przepisany z G71, zaczynający się ruchem w X. G72 wymaga pierwszego ruchu w Z — alarm albo przejścia w złym kierunku." },
     { title: "W pomylone w blokach", x: "Pierwszy blok: W to głębokość warstwy. Drugi blok: W to naddatek w Z. `G72 W0.1 R0.5` robi warstwy po 0,1 mm." },
-    { title: "Za mały zapas startu w X", x: "Start w X61 przy pręcie Ø60. Ruch szybki w Z na głębokość konturu przechodzi 0,5 mm od powierzchni pręta — przy bicu pręta ociera o materiał." },
+    { title: "Za mały zapas startu w X", x: "Start w X61 przy pręcie Ø60. Ruch szybki w Z na głębokość konturu przechodzi 0,5 mm od powierzchni pręta — przy biciu pręta ociera o materiał." },
   ],
 
   controllers: {
