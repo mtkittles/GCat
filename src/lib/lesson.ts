@@ -82,7 +82,8 @@ export interface LessonDoc {
   controllers?: { rows: [string, string, string][]; note?: string };
   quiz: Question[];
   summary: string[];
-  sources: { id: string; where: string }[];
+  /** where — co źródło potwierdza; loc — rozdział i strona; url — odnośnik do konkretnej strony. */
+  sources: { id: string; where: string; loc?: string; url?: string }[];
   /** Lekcja uczy natywnego języka Siemensa — profil i sekcja porównania zamiast domyślnego zapisu Fanuc. */
   dialect?: "sinumerik";
 }

@@ -101,7 +101,7 @@ export const lekcjaSchema = z.strictObject({
   controllers: z.strictObject({ rows: z.array(z.tuple([z.string(), z.string(), z.string()])), note: z.string().optional() }).optional(),
   pitfalls: z.array(z.strictObject({ title: text, x: text, fig: z.string().optional(), danger: z.boolean().optional() })).default([]),
   summary: z.array(text).default([]),
-  sources: z.array(z.strictObject({ id: text, where: z.string() })).default([]),
+  sources: z.array(z.strictObject({ id: text, where: z.string(), loc: z.string().optional(), url: z.string().optional() })).default([]),
 });
 export type Lekcja = z.infer<typeof lekcjaSchema>;
 
