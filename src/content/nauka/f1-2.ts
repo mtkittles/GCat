@@ -34,14 +34,16 @@ export const f1_2: LessonDoc = {
 
   worked: {
     title: "Ustal stan w linii 5",
-    intro: "Fragment programu płytki: (1) `G90 G54 G17`, (2) `G00 X-20. Y10.`, (3) `Z5.`, (4) `G01 Z-5. F150`, (5) `X-5. F400`. Co obowiązuje w linii 5?",
+    intro: "Sytuacja: po `G43 H1 Z50.` narzędzie stoi na Z50. Dalej fragment programu płytki: (1) `G90 G54 G17`, (2) `G00 X-20. Y10.`, (3) `Z5.`, (4) `G01 Z-5. F150`, (5) `X-5. F400`. Co obowiązuje w linii 5 i gdzie stoi frez po jej wykonaniu? Numery na rysunku to numery linii.",
+    fig: "f12-run",
     steps: [
-      { x: "Ruch: ostatni kod z grupy ruchu przed linią 5 to G01 z linii 4.", code: "G01" },
-      { x: "Posuw: linia 5 sama podaje F400, które zastępuje F150.", code: "F400" },
+      { x: "Linie 2 i 3: G00 z linii 2 działa też w linii 3, choć jej nie ma — dlatego zejście na Z5 jest ruchem szybkim.", code: "G00" },
+      { x: "Linia 4: G01 zastępuje G00 w grupie ruchu, F150 ustawia posuw.", code: "G01 F150" },
+      { x: "Linia 5: brak kodu ruchu — działa G01 z linii 4. F400 z tej linii zastępuje F150.", code: "G01 F400" },
       { x: "Wymiary i układ: G90 i G54 z linii 1, nic ich nie zmieniło.", code: "G90 G54" },
-      { x: "Pozycja: X z linii 5, Y z linii 2, Z z linii 4.", code: "X−5 Y10 Z−5" },
+      { x: "Pozycja po linii 5: X z linii 5, Y z linii 2, Z z linii 4.", code: "X−5 Y10 Z−5" },
     ],
-    result: "W linii 5 frez jedzie ruchem roboczym z F400 do X−5, a Y10 i Z−5 zostają z wcześniejszych bloków.",
+    result: "W linii 5 frez jedzie ruchem roboczym z F400 do X−5, a Y10 i Z−5 zostają z wcześniejszych bloków. Żadna z linii 3 i 5 nie powtarza kodu ruchu — działa to, co ustawiła ostatnia linia z tej grupy.",
   },
 
   practice: [
@@ -60,6 +62,7 @@ export const f1_2: LessonDoc = {
           why: "F400 zastępuje poprzedni posuw. X-5. to tylko cel ruchu." },
         { kind: "token", q: "Wskaż słowo, które działa **tylko w swoim bloku**.", block: "G91 G28 Z0.", answer: 1,
           why: "G28 jest jednorazowe. G91 zostaje aktywne — dlatego w programie płytki zaraz potem stoi G90." },
+        { kind: "choice", q: "W przykładzie ktoś skrócił linię 5 do samego `X-5.`. Z jakim posuwem frez dojedzie do płytki?", options: ["F150 — z linii 4", "F400", "ruchem szybkim", "alarm — brak F"], answer: 0, why: "F jest modalne: bez nowego F obowiązuje ostatnie, czyli F150 z zejścia. Dojazd będzie wolniejszy, niż zakładano — to nie błąd składni, tylko wolniejsza obróbka." },
         { kind: "choice", q: "Fanuc, blok `G00 G01 X10.`. Który kod zadziała?",
           options: ["G00", "G01 — ostatni z tej samej grupy", "oba po kolei", "żaden"], answer: 1,
           why: "Fanuc wykonuje ostatni kod z grupy. Taki zapis to jednak prawie zawsze pomyłka." },

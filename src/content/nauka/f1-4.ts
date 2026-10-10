@@ -29,14 +29,15 @@ export const f1_4: LessonDoc = {
 
   worked: {
     title: "Rysunek w calach",
-    intro: "Otwór na rysunku: 1,5″ od lewej krawędzi i 0,75″ od dolnej. Zero W w lewym dolnym narożniku. Możesz programować w calach albo przeliczyć na milimetry.",
+    intro: "Sytuacja: rysunek z zagranicznego zamówienia jest w calach. Środek otworu leży 1,5″ od lewej krawędzi i 0,75″ od dolnej, zero W w lewym dolnym narożniku. Możesz programować w calach albo przeliczyć wymiary na milimetry — rysunek pokazuje oba zapisy.",
+    fig: "f14-hole",
     steps: [
       { x: "Wariant calowy: program zaczyna się od G20, wartości przepisujesz z rysunku.", code: "G20 … X1.5 Y0.75" },
       { x: "Wariant metryczny, X: 1,5 × 25,4 = 38,1 mm.", code: "X38.1" },
       { x: "Wariant metryczny, Y: 0,75 × 25,4 = 19,05 mm.", code: "Y19.05" },
       { x: "Program metryczny zaczyna się od G21.", code: "G21 … X38.1 Y19.05" },
     ],
-    result: "Oba programy trafią w ten sam punkt. Wybierz jeden system dla całego programu — mieszanie jednostek to prosta droga do detalu 25 razy za małego albo za dużego.",
+    result: "Oba programy trafią w ten sam punkt. Wybierz jeden system dla całego programu — mieszanie jednostek daje detal 25,4 razy za mały albo za duży.",
   },
 
   practice: [
@@ -55,6 +56,7 @@ export const f1_4: LessonDoc = {
         { kind: "token", q: "Wskaż słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
         { kind: "gap", q: "G20 jest aktywne. Ile milimetrów to `X3.`?", template: "{0} mm", answers: [["76.2", "76,2"]], why: "3 × 25,4 = 76,2 mm." },
         { kind: "gap", q: "Rysunek w calach: 2,0″. Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
+        { kind: "choice", q: "Program z przykładu ma w bloku startowym `G21`, ale ktoś przepisał wymiary wprost z rysunku: `X1.5 Y0.75`. Gdzie stanie wiertło?", options: ["1,5 mm i 0,75 mm od narożnika W — przy samej krawędzi", "w środku otworu, jak na rysunku", "alarm — niezgodne jednostki", "38,1 mm od W"], answer: 0, why: "Sterowanie nie zna jednostek rysunku. Przy G21 słowo `X1.5` to 1,5 mm, więc otwór wypadnie przy narożniku, 25,4 razy bliżej W niż na rysunku." },
         { kind: "choice", q: "Frezarka pionowa, kontur w widoku z góry z łukami. Jaka płaszczyzna?", options: ["G17", "G18", "G19", "bez znaczenia"], answer: 0, why: "Widok z góry to płaszczyzna XY — G17." },
       ],
     },

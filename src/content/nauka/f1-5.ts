@@ -23,7 +23,6 @@ export const f1_5: LessonDoc = {
     { t: "note", kind: "info", x: "Profil kursu: frezarka pionowa, trzy osie, zapis Fanuc (ISO), milimetry. Ten zestaw kodów to start programów w kursie, a nie lista bezpieczna na każdej obrabiarce. Producent maszyny może wymagać innych kodów albo innej kolejności — sprawdź to w jej instrukcji, zanim przeniesiesz program." },
 
     { t: "h", x: "Szkielet programu", id: "szkielet" },
-    { t: "diagram", id: "f15-skeleton" },
     { t: "p", x: "Nagłówek z komentarzami opisuje detal, zero i narzędzia — operator czyta go przed uruchomieniem. Sekcja obróbki to jedyna część, która naprawdę zmienia się z detalu na detal." },
 
     { t: "h", x: "Zatrzymania i koniec", id: "koniec" },
@@ -39,14 +38,15 @@ export const f1_5: LessonDoc = {
 
   worked: {
     title: "Zbuduj początek i koniec programu płytki",
-    intro: "Detal: płytka 80 × 50, zero W w lewym dolnym narożniku, frez Ø10 jako T1, obroty 2500.",
+    intro: "Sytuacja: nowy program płytki 80 × 50 ma działać na maszynie, na której poprzedni program mógł zostawić G91, G95 albo aktywną korekcję. Zero W w lewym dolnym narożniku, frez Ø10 jako T1, obroty 2500. Zbuduj początek i koniec programu — rysunek pokazuje kolejność sekcji.",
+    fig: "f15-skeleton",
     steps: [
-      { x: "Nagłówek: numer programu i opis w komentarzu.", code: "O1000 (PLYTKA)" },
-      { x: "Bezpieczny start: jednostki, wymiary, posuw w mm/min, płaszczyzna, a w drugiej linii kasowanie korekcji oraz cykli.", code: "G21 G90 G94 G17" },
-      { x: "Druga linia bezpiecznego startu, potem wybór zera detalu.", code: "G40 G49 G80 → G54" },
+      { x: "Nagłówek: numer programu i opis w komentarzu — operator czyta go przed uruchomieniem.", code: "O1000 (PLYTKA)" },
+      { x: "Bezpieczny start, linia 1: milimetry, wymiary absolutne, posuw w mm/min, płaszczyzna XY.", code: "G21 G90 G94 G17" },
+      { x: "Linia 2 kasuje korekcje i cykle, potem wybór zera detalu.", code: "G40 G49 G80 → G54" },
       { x: "Koniec: odjazd w Z, stop wrzeciona, powrót do G90, M30.", code: "M05 … M30" },
     ],
-    result: "Cały program w obecnym stanie widać w sekcji Program detalu poniżej — po tej lekcji ma już komplet: nagłówek, blok startowy i zakończenie.",
+    result: "Cały program w obecnym stanie widać w sekcji Program detalu poniżej — po tej lekcji ma już komplet: nagłówek, blok startowy i zakończenie. Cokolwiek zostawił poprzedni program, od bloku startowego stan jest znany.",
   },
 
   practice: [
@@ -71,6 +71,7 @@ export const f1_5: LessonDoc = {
         { kind: "choice", q: "Początek programu: `O1001` → `T1 M06` → `S3000 M03` → `G00 X0. Y0.`. Czego brakuje?",
           options: ["M30", "bloku startowego z G21 G90 G94 G17 G40 G49 G80 i wyboru G54", "komentarza z nazwą", "niczego"], answer: 1,
           why: "Bez bloku startowego program przejmuje stan po poprzedniej pracy." },
+        { kind: "choice", q: "Poprzedni program skończył się w G91. Nowy program nie ma `G90` w bloku startowym, a pierwszy ruch to `G00 X-20. Y10.`. Co się stanie?", options: ["frez przesunie się o 20 mm w −X i 10 mm w +Y od miejsca, w którym stoi", "pojedzie do X−20 Y10 od zera W", "sterowanie zgłosi alarm", "pojedzie do zera maszyny"], answer: 0, why: "G91 jest modalne i przechodzi między programami. Bez G90 w bloku startowym współrzędne są przyrostami od bieżącej pozycji — stąd G90 w pierwszej linii." },
         { kind: "token", q: "Wskaż kod, który zatrzyma program **tylko przy włączonym Optional Stop**.", block: "M00 M01 M02 M30", answer: 1,
           why: "M01 to stop warunkowy." },
       ],
