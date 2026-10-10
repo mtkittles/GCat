@@ -17,12 +17,16 @@ export default function Buildup({ title, lines, lessonId, mode }: { title: strin
   const [sim, setSim] = useState(false);
   const shown = future ? lines.filter((l) => !l.until) : lines.filter((l) => l.state !== "future");
   const fresh = lines.filter((l) => l.state === "new").length;
+  const partial = lines.some((l) => l.state === "future");
   return (
     <div className="bu">
       <div className="bu-head">
         <strong>{title}</strong>
         {fresh > 0 && <span className="chip chip-accent">+{fresh} {fresh === 1 ? "linia" : fresh < 5 ? "linie" : "linii"} w {lessonId}</span>}
       </div>
+      {partial && <p className="bu-stage">{future
+        ? <>Cały program docelowy. Wyszarzone linie dojdą w kolejnych lekcjach — wybierz linię, żeby zobaczyć w której.</>
+        : <>Fragment programu na etapie lekcji {lessonId}. Operacji z kolejnych lekcji jeszcze w nim nie ma — to nie jest gotowy program detalu.</>}</p>}
       <ol className="bu-code">
         {shown.map((l, i) => (
           <li key={i} className={`bu-line is-${l.state}${open === i ? " is-open" : ""}`}>
