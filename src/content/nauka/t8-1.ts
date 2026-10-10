@@ -42,7 +42,7 @@ export const t8_1: LessonDoc = {
     { t: "ul", items: [
       "**powtarzalne elementy wzdłuż osi** — kilka jednakowych rowków, podcięć, fazek w odstępach,",
       "**ten sam kontur na kilku detalach** — przy obróbce z pręta, gdy z jednego wysięgu powstaje kilka sztuk,",
-      "**praca z podajnikiem pręta** — program główny bywa zakończony `M99` zamiast `M30`, żeby maszyna zaczynała kolejną sztukę bez zatrzymania; pętlę przerywa licznik sztuk albo koniec pręta.",
+      "**praca z podajnikiem pręta** — program główny bywa zakończony `M99` zamiast `M30`, żeby maszyna zaczynała kolejną sztukę bez zatrzymania; pętlę przerywa licznik sztuk albo koniec pręta. Czy i jak to się robi, zależy od organizacji automatycznej pracy i ustawień maszyny — podajnik, licznik i sposób zatrzymania opisuje dokumentacja producenta.",
     ] },
 
     { t: "h", x: "Przesunięcie adresem W", id: "w" },
@@ -58,14 +58,15 @@ export const t8_1: LessonDoc = {
 
   worked: {
     title: "Trzy rowki na wałku Ø30",
-    intro: "Rowki 3 mm do Ø26 w Z−10, Z−20 i Z−30. Nóż 3 mm zmierzony na lewym narożu.",
+    intro: "Sytuacja: wałek Ø30 dostaje trzy jednakowe rowki 3 mm do Ø26, z lewą krawędzią w Z−10, Z−20 i Z−30. Nóż 3 mm zmierzony na lewym narożu. Zamiast trzech kopii tych samych bloków — jeden podprogram wywołany trzy razy. Numery na rysunku to numery kroków.",
+    fig: "t81-count",
     steps: [
       { x: "Start nad pierwszym rowkiem, ponad średnicą wałka.", code: "G00 X34. Z-10." },
       { x: "Podprogram: wcięcie, wyjście, przesunięcie o 10 mm w stronę uchwytu.", code: "G01 X26. → G00 X34. → W-10." },
       { x: "Koniec podprogramu.", code: "M99" },
       { x: "Wywołanie trzy razy.", code: "M98 P3000 L3" },
     ],
-    result: "Czwarty i piąty rowek to tylko `L5` zamiast `L3` — o ile wałek jest wystarczająco długi.",
+    result: "Po trzecim przebiegu nóż stoi w Z−40, bo ostatnie `W-10.` też się wykonuje. Czwarty i piąty rowek to tylko `L5` zamiast `L3` — o ile wałek jest wystarczająco długi.",
   },
 
   practice: [
@@ -87,6 +88,7 @@ export const t8_1: LessonDoc = {
       kind: "drill",
       intro: "Podprogramy na tokarce.",
       questions: [
+        { kind: "gap", q: "W przykładzie w podprogramie przeniesiono `W-10.` na początek, przed `G01 X26.`. Start dalej w Z−10, `L3`. Gdzie powstaną rowki (lewa krawędź)?", template: "Z{0}, Z{1}, Z{2}", answers: [["-20"], ["-30"], ["-40"]], why: "Każdy przebieg najpierw przesuwa nóż o 10 mm, a dopiero potem wcina. Rowki wypadają o jedną podziałkę dalej: Z−20, Z−30, Z−40 — rowka w Z−10 nie ma." },
         { kind: "gap", q: "Start Z−5, podprogram kończy się `W-8.`, wywołanie `L4`. Gdzie stoi nóż po ostatnim przebiegu?", template: "Z{0}", answers: [["-37"]], why: "−5 − 4 · 8 = −37." },
         { kind: "choice", q: "Czy podprogram z `W-10.` musi przywracać G90 przed M99?", options: ["nie — W jest przyrostem tylko w swoim bloku", "tak, zawsze", "tylko na Sinumeriku", "tylko przy L > 1"], answer: 0, why: "W systemie A tryb się nie zmienia." },
         { kind: "choice", q: "Po co program z podajnikiem pręta kończy się czasem M99?", options: ["żeby zaczynać kolejną sztukę bez zatrzymania", "żeby wyłączyć wrzeciono", "bo M30 nie działa na tokarce", "bez powodu"], answer: 0, why: "Pętlę przerywa licznik albo koniec pręta." },
