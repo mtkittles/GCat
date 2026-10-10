@@ -29,14 +29,15 @@ export const f2_4: LessonDoc = {
 
   worked: {
     title: "Chłodziwo w programie płytki",
-    intro: "Stal C45, frez VHM, kontur z pełnym zanurzeniem 5 mm — chłodziwo zalewowe.",
+    intro: "Sytuacja: frez VHM Ø10 obrabia kontur płytki ze stali C45 na pełną głębokość 5 mm. Chłodziwo zalewowe ma płynąć przez całe skrawanie, ale nie podczas wymiany ani po zatrzymaniu wrzeciona. Numery kroków odpowiadają numerom na osi czasu.",
+    fig: "f24-time",
     steps: [
-      { x: "Po wymianie narzędzia i włączeniu obrotów.", code: "S2500 M03" },
-      { x: "Chłodziwo włączone przed najazdem.", code: "M08" },
-      { x: "Po konturze odjazd w Z.", code: "G00 Z5." },
-      { x: "Chłodziwo wyłączone przed zatrzymaniem wrzeciona.", code: "M09 → M05" },
+      { x: "Krok 1: po wymianie narzędzia włączasz obroty.", code: "S2500 M03" },
+      { x: "Krok 2: chłodziwo włączone przed najazdem — ciecz jest na ostrzu, zanim frez dotknie materiału.", code: "M08" },
+      { x: "Krok 3: po konturze odjazd w Z.", code: "G00 Z5." },
+      { x: "Krok 4: chłodziwo wyłączone przed zatrzymaniem wrzeciona.", code: "M09 → M05" },
     ],
-    result: "Oba kody są już w programie płytki poniżej.",
+    result: "Pas „ciecz płynie” obejmuje cały najazd i kontur. Oba kody są już w programie płytki poniżej.",
   },
 
   practice: [
@@ -54,6 +55,7 @@ export const f2_4: LessonDoc = {
       questions: [
         { kind: "order", q: "Ułóż w typowej kolejności.", items: ["M09", "(OBROBKA)", "T1 M06", "M08", "S2500 M03"], answer: [2, 4, 3, 1, 0], why: "Wymiana, obroty, chłodziwo, obróbka, wyłączenie chłodziwa." },
         { kind: "token", q: "Wskaż kod, który **włącza** chłodziwo zalewowe.", block: "M05 M09 M08 M03", answer: 2, why: "M08 — chłodziwo włączone." },
+        { kind: "choice", q: "W programie z przykładu `M08` przesunięto za pierwszy blok konturu `G01 Y55.`. Co się stanie na tym odcinku?", options: ["frez obrobi cały pierwszy bok płytki na sucho", "chłodziwo i tak popłynie od M03", "sterowanie zgłosi alarm", "nic — liczy się tylko koniec konturu"], answer: 0, why: "M08 działa od bloku, w którym stoi. Pierwszy bok skrawa się bez chłodziwa, a ostrze nagrzewa się i potem gwałtownie stygnie — zostaw M08 przed najazdem." },
         { kind: "choice", q: "Frezowanie węglikiem, chłodziwo raz dochodzi do ostrza, raz nie. Co grozi ostrzu?", options: ["pęknięcia cieplne", "nic — lepsze niż brak chłodzenia", "korozja", "wolniejsze obroty"], answer: 0, why: "Przerywany strumień pogłębia skoki temperatury." },
       ],
     },
