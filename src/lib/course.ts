@@ -28,6 +28,7 @@ import { f6_2 } from "@/content/nauka/f6-2";
 import { f6_3 } from "@/content/nauka/f6-3";
 import { f7_1 } from "@/content/nauka/f7-1";
 import { f7_2 } from "@/content/nauka/f7-2";
+import { f8_1 } from "@/content/nauka/f8-1";
 import { t0_1 } from "@/content/nauka/t0-1";
 import { t0_2 } from "@/content/nauka/t0-2";
 import { t0_3 } from "@/content/nauka/t0-3";
@@ -127,6 +128,9 @@ export const tracks: Record<Track, TrackDef> = {
       { id: "F7", title: "Podprogramy", skill: "Przeniesiesz powtarzalny fragment do podprogramu — M98/M99 i w Sinumeriku.", lessons: [
         L("F7.1", "M98 i M99", f7_1),
         L("F7.2", "Podprogramy w Sinumeriku", f7_2),
+      ] },
+      { id: "F8", title: "Zadanie końcowe", skill: "Napiszesz od pustej strony program konturu nowego detalu — z innym wymiarem, zerem i narzędziem.", lessons: [
+        L("F8.1", "Zadanie końcowe: nowa płytka", f8_1),
       ] },
     ],
   },
