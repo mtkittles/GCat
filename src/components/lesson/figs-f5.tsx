@@ -184,6 +184,44 @@ export function DrillTip() {
   );
 }
 
+/* ================= F5.2: przykład — bilans głębokości i zagłębienia G83 ================= */
+export function DrillPlan() {
+  const R: [number, number, number, number] = [-22, 26, -21, 5];
+  const m = mapper(R, [8, 8, 344, 232]);
+  const P = (x: number, z: number) => `${m.X(x)},${m.Y(z)}`;
+  const xs = -10, rH = 2.5;
+  const lv: [number, string, string, number][] = [[-15, "Z−15 gwintownik", "t-acc t-b", 4], [-17, "Z−17 min. pełna Ø5", "t-mut", -2], [-18, "Z−18 czubek", "t-cut t-b", 12]];
+  const pecks = [-2, -6, -10, -14, -18];
+  return (
+    <Fig id="f52pl" code="G83" title="Głębokość otworu i zagłębienia Q4" h={250} legend={["cut", "dim", "stock"]}
+      notes={<><Code k="cut">G83 X10. Y10. Z-18. R2. Q4. F380</Code></>}
+      caption={<>Lewa część: głębokość liczona od gwintu w dół — 12 + 3 = 15, +2 zapasu = 17, +0,9 stożka ≈ 18. Prawa część: od R2 do Z−18 jest 20 mm, więc Q4 daje pięć zagłębień z dnami w Z−2, −6, −10, −14, −18; po każdym wiertło wraca do R. Płytka ma 20 mm, pod czubkiem zostają 2 mm.</>}>
+      {(c) => (
+        <g>
+          <polygon points={`${P(-22, 0)} ${P(xs - rH, 0)} ${P(xs - rH, -17.1)} ${P(xs, -18)} ${P(xs + rH, -17.1)} ${P(xs + rH, 0)} ${P(26, 0)} ${P(26, -20)} ${P(-22, -20)}`} fill={c.hatch} className="p-con" />
+          <line x1={m.X(-22)} y1={m.Y(2)} x2={m.X(26)} y2={m.Y(2)} className="p-cons" strokeDasharray="4 4" />
+          <T x={m.X(-21)} y={m.Y(2) - 4} cls="t-acc t-b t-sm">R2</T>
+          {lv.map(([z, t, cls, dy]) => (
+            <g key={z}>
+              <line x1={m.X(xs - 4)} y1={m.Y(z)} x2={m.X(xs + 6)} y2={m.Y(z)} className="p-cons" />
+              <T x={m.X(xs + 6.5)} y={m.Y(z) + dy} cls={`${cls} t-sm`}>{t}</T>
+            </g>
+          ))}
+          <Dim c={c} x1={m.X(-19)} y1={m.Y(0)} x2={m.X(-19)} y2={m.Y(-12)} label="12" lside={1} />
+          <Dim c={c} x1={m.X(-19)} y1={m.Y(-12)} x2={m.X(-19)} y2={m.Y(-15)} label="3" lside={1} />
+          {pecks.map((z, i) => (
+            <g key={z}>
+              <line x1={m.X(14 + i * 2.6)} y1={m.Y(2)} x2={m.X(14 + i * 2.6)} y2={m.Y(z) - 2} className="p-cut" markerEnd={c.a("cut")} />
+              <T x={m.X(14 + i * 2.6)} y={m.Y(z) + 13} anchor="middle" cls="t-mono t-sm">{String(z).replace("-", "−")}</T>
+            </g>
+          ))}
+          <T x={m.X(19.2)} y={m.Y(2) - 6} anchor="middle" cls="t-cut t-b t-sm">Q4 × 5</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= F5.3: gwintowanie ================= */
 /* Otwór z F5.2 (pełna średnica do Z−17,1, czubek Z−18), pełny gwint do Z−12,
    nakrój 3 mm (założenie lekcji) → koniec gwintownika Z−15. */
@@ -426,6 +464,7 @@ export const f5Figs = {
   "f51-holes": () => <PlateHoles />,
   "f52-peck": () => <PeckCompare />,
   "f52-tip": () => <DrillTip />,
+  "f52-plan": () => <DrillPlan />,
   "f53-tap": () => <TapCycle />,
   "f53-depth": () => <TapDepthM6 />,
   "f53-run": () => <TapRun />,

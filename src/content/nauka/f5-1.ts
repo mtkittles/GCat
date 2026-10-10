@@ -56,16 +56,16 @@ export const f5_1: LessonDoc = {
     { t: "diagram", id: "f51-spot" },
     { t: "p", x: "W programie płytki jedno przejście nawiertakiem 90° robi dwie rzeczy: fazkę Ø6 pod gwint M6 i miejsce startu dla wiertła Ø5. To założenie przykładu, a nie jedyna technologia." },
     { t: "note", kind: "warn", x: "Uwaga na kąty. Stożek 90° jest bardziej stromy niż wierzchołek wiertła 140° z lekcji F5.2. Wiertło wchodzące w taki stożek dotyka najpierw narożami, a nie środkiem — przy węgliku grozi to wykruszeniem naroży. Dlatego przy wiertłach VHM często nawierca się kątem równym albo większym niż kąt wiertła albo wierci bez nawiercania, a fazkę robi się osobno. Rozstrzyga zalecenie producenta wybranego wiertła." },
-    { t: "diagram", id: "f51-holes" },
   ],
 
   worked: {
     title: "Nawiercenie czterech otworów płytki",
-    intro: "Nawiertak Ø10 90°, fazka Ø6 pod gwint M6. Otwory: X10 Y10, X70 Y10, X70 Y40, X10 Y40. Z0 na górnej powierzchni.",
+    intro: "Sytuacja: w płytce trzeba nawiercić cztery otwory pod gwint M6 w środkach naroży R10: X10 Y10, X70 Y10, X70 Y40, X10 Y40. Nawiertak Ø10 90° ma zostawić fazkę Ø6. Z0 na górnej powierzchni. Numery na rysunku to kolejność otworów.",
+    fig: "f51-holes",
     steps: [
-      { x: "Głębokość: połowa średnicy fazki, 6 / 2 = 3.", code: "Z-3." },
+      { x: "Głębokość: przy 90° ile w głąb, tyle w bok — połowa średnicy fazki, 6 / 2 = 3.", code: "Z-3." },
       { x: "Płaszczyzna R 2 mm nad materiałem, postój 0,2 s, posuw 150 mm/min.", code: "R2. P200 F150" },
-      { x: "Pierwszy otwór w bloku cyklu, kolejne — tylko zmieniona współrzędna.", code: "X70. → Y40. → X10." },
+      { x: "Otwór 1 w bloku cyklu, kolejne — tylko zmieniona współrzędna, w kolejności 2, 3, 4.", code: "X70. → Y40. → X10." },
       { x: "Skasowanie cyklu.", code: "G80" },
     ],
     result: "`G82 X10. Y10. Z-3. R2. P200 F150`, potem `X70.`, `Y40.`, `X10.` i `G80`. Pięć krótkich bloków zamiast szesnastu.",
@@ -91,6 +91,7 @@ export const f5_1: LessonDoc = {
 
         { kind: "token", q: "Wskaż słowo, które podaje **płaszczyznę R**.", block: "G81 X20. Y15. Z-8. R3. F100", answer: 4, why: "R3. — posuw zaczyna się 3 mm nad Z0." },
         { kind: "gap", q: "Nawiertak 90°, fazka Ø8. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-4"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 8 / 2 = 4, więc Z−4." },
+        { kind: "choice", q: "W bloku cyklu z przykładu wpisano `Z-4.` zamiast `Z-3.`. Jaka fazka powstanie?", options: ["Ø8 — większa niż zakładane Ø6", "Ø6, bez zmian", "Ø4", "Ø10 — cała średnica nawiertaka"], answer: 0, why: "Nawiertak 90°: średnica fazki = 2 × głębokość = 8 mm. Zbyt duża fazka zjada pierwsze zwoje gwintu M6." },
         { kind: "choice", q: "Czym G82 różni się od G81?", options: ["postojem na dnie przez czas P", "wycofaniem co Q", "gwintowaniem", "niczym"], answer: 0, why: "G82 = G81 + postój P." },
       ],
     },

@@ -41,7 +41,6 @@ export const f4_2: LessonDoc = {
   theory: [
     { t: "h", x: "Program opisuje detal", id: "idea" },
     { t: "p", x: "W F3.2 i F3.3 liczyłeś tor środka freza: X−5, Y55, łuki R15. Z korekcją promienia program podaje sam kontur z rysunku, a sterowanie odsuwa środek freza o promień zapisany w rejestrze **D**. Ten sam program pasuje do freza Ø10 i Ø12 — zmienia się tylko wartość w rejestrze." },
-    { t: "diagram", id: "f42-comp" },
 
     { t: "h", x: "Lewa czy prawa", id: "strona" },
     { t: "p", x: "[[G41]] — frez po **lewej** stronie konturu, patrząc w kierunku ruchu. [[G42]] — po **prawej**. [[G40]] wyłącza korekcję. Przy obrotach M03 i zwykłym frezie prawoskrętnym G41 daje [[frezowanie współbieżne]], a G42 — przeciwbieżne." },
@@ -66,12 +65,13 @@ export const f4_2: LessonDoc = {
 
   worked: {
     title: "Program płytki z korekcją",
-    intro: "Kontur z F3.3 zapisany wymiarami z rysunku. Frez stoi na Z−5 w X−20 Y10.",
+    intro: "Sytuacja: kontur płytki z F3.3 ma być zapisany wymiarami z rysunku — X0…X80, Y0…Y50, naroża R10 — a przesunięcie o promień freza ma policzyć sterowanie z rejestru D1. Frez stoi na Z−5 w X−20 Y10. Numery odpowiadają rysunkowi: zielony kontur to program, przerywany — tor środka.",
+    fig: "f42-comp",
     steps: [
-      { x: "Włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400" },
-      { x: "Lewa krawędź w górę do początku naroża. Bez tego odcinka łuk z X0 Y10 do X10 Y50 nie istnieje: cięciwa ma ok. 41,2 mm, a łuk R10 mieści najwyżej 20 mm.", code: "G01 Y40." },
-      { x: "Naroża z rysunku: R10 zamiast R15, punkty końcowe na konturze.", code: "G02 X10. Y50. R10." },
-      { x: "Pozostałe naroża tak samo: X80 Y40, X70 Y0, X0 Y10.", code: "R10." },
+      { x: "Krok 1: włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400" },
+      { x: "Krok 2: lewa krawędź w górę do początku naroża. Bez tego odcinka łuk z X0 Y10 do X10 Y50 nie istnieje: cięciwa ma ok. 41,2 mm, a łuk R10 mieści najwyżej 20 mm.", code: "G01 Y40." },
+      { x: "Krok 3: naroża z rysunku — R10 zamiast R15, punkty końcowe na konturze.", code: "G02 X10. Y50. R10." },
+      { x: "Krok 4: pozostałe naroża tak samo: X80 Y40, X70 Y0, X0 Y10.", code: "R10." },
       { x: "Wyłączenie korekcji na odjeździe od konturu.", code: "G40 G01 X-20." },
     ],
     result: "Program jest krótszy do sprawdzenia: każdą liczbę widać na rysunku. Promień freza siedzi w rejestrze D1, gdzie operator koryguje wymiar.",
@@ -96,6 +96,7 @@ export const f4_2: LessonDoc = {
     {"kind":"bughunt","q":"Kompensacja promienia. Który blok zgłosi alarm na większości sterowań?","program":"G00 X-20. Y10.\nG01 Z-5. F150\nG41 D1 G03 X0. Y10. R10. F400\nG01 Y55.\nG40 G01 X-20.","answer":2,"why":"Kompensacji nie wolno włączać w bloku z łukiem. Najpierw odcinek z G41 (np. do X−10 Y0), dopiero potem G03."},
 
         { kind: "gap", q: "Płytka zmierzona: 50,06 zamiast 50,00. O ile zmienić D?", template: "{0}", answers: [["-0.03", "-0,03"]], why: "Odchyłka +0,06, połowa na każdą stronę: D − 0,03." },
+        { kind: "gap", q: "Program z przykładu, ale założono frez Ø8, a w D1 został promień 5,0 po frezie Ø10. Jaki wymiar zewnętrzny będzie miała płytka zamiast 80 × 50?", template: "{0} × {1}", answers: [["82"], ["52"]], why: "Sterowanie odsuwa środek o 5 mm, a frez ma promień 4 — na każdej stronie zostaje 1 mm materiału więcej. Wymiar rośnie o 2 mm: 82 × 52." },
         { kind: "choice", q: "Kieszeń obiegana przeciwnie do zegara, frez ma być po lewej stronie ruchu. Który kod?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Lewa strona — G41." },
         { kind: "choice", q: "Czy można włączyć korekcję blokiem `G41 D1 G02 X10. Y50. R10.`?", options: ["nie — tylko ruchem liniowym", "tak", "tylko na Sinumeriku", "tylko z G91"], answer: 0, why: "Włączanie i wyłączanie korekcji odbywa się na odcinku prostym." },
       ],
