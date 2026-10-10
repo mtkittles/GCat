@@ -10,7 +10,7 @@ import { plural } from "@/lib/plural";
 */
 
 export type TrackLesson = { id: string; title: string; href: string | null; minutes?: number };
-export type TrackModule = { id: string; title: string; lessons: TrackLesson[] };
+export type TrackModule = { id: string; title: string; skill?: string; lessons: TrackLesson[] };
 
 export default function TrackBody({ track, modules, part, partFig, other }: {
   track: string; modules: TrackModule[]; part: string; partFig?: ReactNode; other: { href: string; label: string };
@@ -34,6 +34,7 @@ export default function TrackBody({ track, modules, part, partFig, other }: {
           return (
             <li key={m.id} className="tp-mod">
               <h2><span className="tp-mid">{m.id}</span>{m.title}{ready.length > 0 && <span className="tp-mod-bar">{mDone}/{ready.length}</span>}</h2>
+              {m.skill && <p className="tp-skill"><span>Po module</span>{m.skill}</p>}
               <ol className="tp-lessons">
                 {m.lessons.map((l) => {
                   const isDone = isPassed(P(l.id)), isRd = isRead(P(l.id));

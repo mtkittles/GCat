@@ -13,7 +13,7 @@ export default function TrackPage({ track }: { track: Track }) {
   const other = tracks[track === "frezowanie" ? "toczenie" : "frezowanie"];
   const { ready, total } = trackStats(track);
   const modules = T.modules.map((m) => ({
-    id: m.id, title: m.title,
+    id: m.id, title: m.title, skill: m.skill,
     lessons: m.lessons.map((l) => ({ id: l.id, title: l.title, href: l.doc ? lessonHref(track, l.slug!) : null, minutes: l.doc?.minutes })),
   }));
   return (
