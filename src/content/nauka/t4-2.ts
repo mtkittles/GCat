@@ -16,7 +16,8 @@ export const t4_2: LessonDoc = {
       ["wytaczak, toczenie w stronę uchwytu", "wyżej i bliżej uchwytu", "2"],
       ["zewnętrzny, toczenie od uchwytu (nóż lewy)", "niżej i dalej od uchwytu", "4"],
       ["nóż mierzony w środku naroża", "w środku", "0 albo 9"],
-    ], caption: "Numery w układzie z rysunku: Z w prawo, X w górę — tak samo dla głowicy przedniej i tylnej." },
+    ], caption: "Numery w układzie z rysunku: Z w prawo, X w górę — według instrukcji Fanuc ten sam numer obowiązuje przy głowicy przedniej i tylnej. Przy nowej maszynie porównaj rysunek kierunków w jej dokumentacji." },
+    { t: "p", x: "Numeru nie trzeba pamiętać. Wystarczy narysować naroże w widoku Z w prawo, X w górę, zaznaczyć część naroża, która skrawa, i znaleźć P na przecięciu stycznych w X i Z. Strona, po której wypada P względem środka, daje numer z mapy kierunków." },
 
     { t: "h", x: "Tabela korekcji noża", id: "tabela" },
     { t: "p", x: "W jednym wierszu tabeli stoją: geometria X i Z, zużycie X i Z, promień naroża R i kierunek ostrza T. Numer wiersza to dwie ostatnie cyfry słowa T z programu — dla `T0202` wiersz 2." },
@@ -26,12 +27,13 @@ export const t4_2: LessonDoc = {
 
   worked: {
     title: "Wpis dla noża wykańczającego wałka",
-    intro: "Nóż T0202 z płytką VBMT 160404, toczenie zewnętrzne w stronę uchwytu.",
+    intro: "Sytuacja: nóż T0202 z płytką VBMT 160404 toczy zewnętrzny kontur wałka w stronę uchwytu z korekcją G42 (T4.1). Co trzeba wpisać w wierszu tabeli, żeby sterowanie znalazło środek naroża? Numery na rysunku to numery kroków.",
+    fig: "t42-nose",
     steps: [
       { x: "Promień naroża z kodu płytki: ostatnie cyfry 04.", code: "R 0.4" },
-      { x: "Nóż zewnętrzny w stronę uchwytu: P niżej i bliżej uchwytu niż środek naroża.", code: "T 3" },
-      { x: "Wiersz korekcji z programu: T0202.", code: "wiersz 02" },
-      { x: "W programie: korekcja z T4.1 działa, bo sterowanie ma już R i T.", code: "G42 G00 X14. Z2." },
+      { x: "Nóż zewnętrzny skrawa dolną częścią naroża: P leży w dół i w lewo od środka (w widoku Z w prawo, X w górę).", code: "T 3" },
+      { x: "Wiersz korekcji z programu: dwie ostatnie cyfry `T0202`.", code: "wiersz 02" },
+      { x: "W programie korekcja z T4.1 działa, bo sterowanie ma już R i kierunek ostrza.", code: "G42 G00 X14. Z2." },
     ],
     result: "Komentarz `(T0202: R0.4, KIERUNEK OSTRZA 3)` w programie wałka przypomina operatorowi, co ma być w tabeli.",
   },
@@ -42,14 +44,15 @@ export const t4_2: LessonDoc = {
       intro: "Kierunki ostrza i odczyt płytek.",
       questions: [
         { kind: "choice", q: "Wytaczak toczy otwór w stronę uchwytu. Jaki kierunek ostrza wpiszesz w tabeli korekcji?", options: ["2", "3", "8", "0"], answer: 0, why: "P wyżej i bliżej uchwytu niż środek naroża." },
+        { kind: "gap", q: "W przykładzie w wierszu 02 wpisano kierunek 2 zamiast 3, R 0,4 bez zmian. Jaką średnicę da przy G42 odcinek Ø36 z programu?", template: "Ø{0}", answers: [["37,6", "37.6"]], why: "Sterowanie sądzi, że P leży nad środkiem naroża, a leży pod nim. Środek wychodzi o 2 · 0,4 = 0,8 mm za wysoko na promieniu — średnica o 1,6 mm za duża: Ø37,6. Przesuwa się cały kontur, nie tylko fazy." },
         { kind: "gap", q: "Jaki promień naroża ma płytka DNMG 150612?", template: "R{0}", answers: [["1.2", "1,2"]], why: "Ostatnie cyfry 12 → 1,2 mm." },
-        { kind: "choice", q: "Nóż zewnętrzny ma w tabeli T = 2 zamiast 3. Co się stanie z G42?", options: ["sterowanie źle wyznaczy środek naroża i przesunie kontur", "nic", "alarm przy każdym bloku", "wyłączy się G96"], answer: 0, why: "Kierunek ostrza decyduje, gdzie leży środek naroża względem P." },
+        { kind: "choice", q: "Nóż zewnętrzny ma w tabeli T = 2 zamiast 3. Co się stanie z G42?", options: ["sterowanie źle wyznaczy środek naroża i przesunie kontur", "nic", "alarm przy każdym bloku", "wyłączy się G96"], answer: 0, why: "Kierunek ostrza decyduje, gdzie leży środek naroża względem P. Przy 2 zamiast 3 cały kontur przesuwa się o 2 · rε promieniowo." },
       ],
     },
   ],
 
   pitfalls: [
-    { title: "Zły kierunek ostrza", x: "T = 2 zamiast 3 dla noża zewnętrznego. Sterowanie liczy środek naroża po złej stronie P — fazy i promienie wychodzą przesunięte o dwa promienie naroża w jednej osi." },
+    { title: "Zły kierunek ostrza", x: "T = 2 zamiast 3 dla noża zewnętrznego. Sterowanie liczy środek naroża po złej stronie P — cały kontur przesuwa się o 2 · rε promieniowo, średnice wychodzą o 4 · rε za duże." },
     { title: "Stary promień po zmianie płytki", x: "Płytka R0,8 wymieniona na R0,4, w tabeli zostało 0,8. Korekcja przesuwa naroże o 0,4 za dużo — kontur na fazach i łukach wychodzi za mały." },
     { title: "R wpisany jako średnica", x: "Z oznaczenia „08” operator wpisuje 1,6. Korekcja odsuwa naroże dwa razy za daleko." },
   ],
@@ -60,7 +63,7 @@ export const t4_2: LessonDoc = {
       ["Promień naroża", "R w tabeli korekcji", "promień ostrza w danych narzędzia"],
       ["Wiersz korekcji", "dwie ostatnie cyfry słowa T", "numer ostrza D"],
     ],
-    note: "Numeracja kierunków 1–9 jest na obu sterowaniach taka sama. Różnią się nazwy pól w tabeli narzędzi.",
+    note: "W dokumentacji obu producentów rysunek położeń 1–9 jest taki sam, różnią się nazwy pól w tabeli narzędzi. Przed pierwszym wpisem porównaj rysunek z instrukcją swojego sterowania.",
   },
 
   quiz: [
