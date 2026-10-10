@@ -48,16 +48,16 @@ export const f3_3: LessonDoc = {
 
     { t: "h", x: "Naroża płytki", id: "naroza" },
     { t: "p", x: "Płytka dostaje naroża R10. Frez Ø10 jedzie środkiem o 5 mm dalej od konturu, więc na narożu wypukłym promień jego toru to 10 + 5 = 15. Środek łuku narzędzia pokrywa się ze środkiem naroża detalu." },
-    { t: "diagram", id: "f33-corner" },
     { t: "p", x: "Przy obiegu zgodnym z zegarem wszystkie cztery naroża zewnętrzne to `G02`. Proste odcinki kończą się tam, gdzie zaczyna się łuk: lewa krawędź w Y40, a nie w Y55." },
     { t: "widget", id: "arc" },
   ],
 
   worked: {
     title: "Pierwsze naroże konturu",
-    intro: "Frez jedzie w górę lewą krawędzią, X−5. Naroże detalu R10 ma środek w X10 Y40.",
+    intro: "Sytuacja: frez Ø10 jedzie w górę lewą krawędzią płytki, X−5. Naroże detalu ma promień R10 i środek w X10 Y40. Tor środka freza musi to naroże obejść łukiem — rysunek pokazuje detal, tor i oba punkty styku.",
+    fig: "f33-corner",
     steps: [
-      { x: "Odcinek kończy się na wysokości środka naroża.", code: "G01 Y40." },
+      { x: "Odcinek kończy się na wysokości środka naroża — tu zaczyna się łuk.", code: "G01 Y40." },
       { x: "Łuk zgodnie z zegarem, patrząc z góry.", code: "G02" },
       { x: "Koniec łuku: nad środkiem naroża, 15 mm wyżej.", code: "X10. Y55." },
       { x: "Promień toru: 10 + 5. Łuk ma 90°, więc R dodatnie.", code: "R15." },
@@ -83,6 +83,7 @@ export const f3_3: LessonDoc = {
       questions: [
         { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem. Którym kodem zaprogramujesz naroża wypukłe?", options: ["G02", "G03", "raz G02, raz G03", "G01"], answer: 0, why: "Przy obiegu zgodnym z zegarem łuki wypukłe też idą zgodnie z zegarem." },
         { kind: "gap", q: "Naroże detalu R6, frez Ø8, obróbka z zewnątrz. Jaki promień ma łuk toru środka freza?", template: "R{0}", answers: [["10"]], why: "6 + 4 = 10." },
+        { kind: "choice", q: "W przykładzie wpisano `G03 X10. Y55. R15.` zamiast G02. Co zrobi frez?", options: ["pojedzie łukiem wygiętym w stronę detalu i podetnie naroże", "obejdzie naroże jak przy G02", "alarm — zły kierunek", "pojedzie po prostej"], answer: 0, why: "Te same punkty i promień, ale przeciwny kierunek: środek łuku wypada w X−5 Y55, po drugiej stronie cięciwy. Łuk przechodzi przez obszar naroża, a frez Ø10 wcina się w materiał." },
         { kind: "choice", q: "Łuk ma 270°. Jaki znak R na Fanucu?", options: ["dodatni", "ujemny", "bez znaczenia", "łuku ponad 180° nie da się zapisać"], answer: 1, why: "Ujemne R wybiera łuk dłuższy niż 180°." },
       ],
     },

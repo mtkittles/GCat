@@ -43,11 +43,12 @@ export const f3_5: LessonDoc = {
 
   worked: {
     title: "Postój na trzy obroty",
-    intro: "Nawiertak, S1500, dno nawiercenia ma być gładkie. Postój liczony w obrotach wrzeciona.",
+    intro: "Sytuacja: nawiertak przy S1500 schodzi na Z−2. Dno nawiercenia ma być gładkie, więc narzędzie ma na dnie wykonać co najmniej trzy pełne obroty bez posuwu. Rysunek pokazuje Z w czasie: wejście, postój i wyjście.",
+    fig: "f35-dwell",
     steps: [
       { x: "Czas jednego obrotu: 60 s / 1500 obr.", code: "0,04 s" },
       { x: "Trzy obroty: 3 · 0,04.", code: "0,12 s" },
-      { x: "Zaokrąglenie w górę do pełnej dziesiątej.", code: "G04 X0.2" },
+      { x: "Zaokrąglenie w górę do pełnej dziesiątej — na rysunku to 5 obrotów.", code: "G04 X0.2" },
       { x: "Wersja w milisekundach.", code: "G04 P200" },
     ],
     result: "`G04 X0.2` po `G01 Z-2. F80`, potem odjazd `G00 Z5.`. W cyklach wiercenia ten sam postój podaje się adresem P w bloku cyklu (moduł F5).",
@@ -65,6 +66,13 @@ export const f3_5: LessonDoc = {
       ],
       hints: ["Trzy bloki: G01 Z-2. F80, G04 X0.5, G00 Z5."],
       solution: starter.replace("(DOPISZ: G01 Z-2. F80, POSTOJ 0,5 S, ODJAZD G00 Z5.)\n", "G01 Z-2. F80\nG04 X0.5\nG00 Z5."),
+    },
+    {
+      kind: "drill",
+      intro: "Przewidź skutek zmiany obrotów.",
+      questions: [
+        { kind: "gap", q: "Ten sam program z `G04 X0.2` uruchomiono przy S3000 zamiast S1500. Ile pełnych obrotów wykona nawiertak na dnie?", template: "{0} obrotów", answers: [["10"]], why: "Jeden obrót przy S3000 trwa 60 / 3000 = 0,02 s, więc 0,2 s to 10 obrotów. Postój w sekundach nie zmienia się z obrotami — liczba obrotów tak." },
+      ],
     },
   ],
 
