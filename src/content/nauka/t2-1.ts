@@ -10,13 +10,14 @@ export const t2_1: LessonDoc = {
   theory: [
     { t: "h", x: "Słowo T na tokarce", id: "t" },
     { t: "p", x: "Na tokarce Fanuc słowo T ma cztery cyfry: dwie pierwsze wybierają **pozycję w głowicy**, dwie ostatnie — **numer rejestru korekcji**. `T0101` to nóż z pozycji 1 z korekcją 1. Nie ma M06: głowica obraca się od razu po odczytaniu bloku." },
+    { t: "note", kind: "info", x: "Format czterocyfrowy to profil przyjęty w kursie i najczęstszy na tokarkach Fanuc. Liczbę cyfr i podział na pozycję i korekcję ustawia parametr sterowania — na innej maszynie sprawdź go w jej dokumentacji." },
     { t: "diagram", id: "t21-turret" },
     { t: "note", kind: "warn", x: "Głowica obraca się tam, gdzie akurat stoi. Przed każdym T nóż musi być w bezpiecznym miejscu — w punkcie referencyjnym albo w punkcie wymiany, daleko od detalu i konika. Inaczej inny nóż w głowicy może uderzyć w detal podczas obrotu." },
 
     { t: "h", x: "Korekcje noża", id: "korekcje" },
     { t: "p", x: "Każdy nóż ma w tabeli dwie grupy wartości. **Geometria** — odległość ostrza od punktu bazowego głowicy w X i Z, mierzona przy ustawianiu narzędzia. **Zużycie** — małe poprawki, którymi operator ustawia wymiar detalu bez zmiany programu." },
     { t: "diagram", id: "t21-offsets" },
-    { t: "p", x: "W tej samej tabeli stoją promień naroża płytki R i kierunek ostrza T — potrzebne do korekcji promienia ostrza (moduł T4)." },
+    { t: "p", x: "W tym samym wierszu tabeli stoją jeszcze promień naroża płytki R i kierunek ostrza (kolumna T, lekcja T4.2). Oba są potrzebne do korekcji promienia ostrza (moduł T4). Jeden wiersz opisuje więc cały nóż: pozycję w głowicy wybiera słowo T, a wiersz — geometrię, zużycie, R i kierunek ostrza." },
 
     { t: "h", x: "Korekcja zużycia a wymiar", id: "zuzycie" },
     { t: "p", x: "Korekcja X na tokarce jest zwykle w średnicy, tak jak programowanie. Zmierzona średnica trafia do korekcji wprost, bez dzielenia na pół." },
@@ -37,14 +38,15 @@ export const t2_1: LessonDoc = {
 
   worked: {
     title: "Zmiana noża w programie wałka",
-    intro: "Po obróbce nożem T0101 program przechodzi na nóż wykańczający T0202.",
+    intro: "Sytuacja: nóż zgrubny T0101 skończył przejście i stoi w X42 Z2, tuż przy detalu. Dalej ma pracować nóż wykańczający T0202. Numery na rysunku to numery kroków.",
+    fig: "t21-change",
     steps: [
-      { x: "Odjazd do punktu referencyjnego: najpierw X, potem Z.", code: "G28 U0. → G28 W0." },
-      { x: "Obrót głowicy na pozycję 2 z korekcją 2.", code: "T0202" },
-      { x: "Obroty dla nowego noża — po zmianie narzędzia zawsze od nowa.", code: "G96 S250 M03" },
-      { x: "Dojazd do detalu z bezpiecznej strony.", code: "G00 X44. Z2." },
+      { x: "Odjazd do punktu referencyjnego: najpierw X, potem Z. Głowica ma się obrócić daleko od detalu i konika.", code: "G28 U0. → G28 W0." },
+      { x: "Obrót głowicy na pozycję 2 i wczytanie rejestru korekcji 2.", code: "T0202" },
+      { x: "Obroty dla nowego noża — po zmianie narzędzia ustawia się je od nowa, bo nóż wykańczający pracuje z inną prędkością.", code: "G96 S250 M03" },
+      { x: "Dojazd ruchem szybkim przed czoło, nad pręt.", code: "G00 X44. Z2." },
     ],
-    result: "Numer korekcji zwykle równa się numerowi pozycji: T0202, T0303. Wtedy od razu widać, czy korekcja pasuje do noża.",
+    result: "Numer korekcji równy numerowi pozycji — T0202, T0303 — od razu pokazuje, czy korekcja pasuje do noża. Limit `G50 S3000` z początku programu dalej obowiązuje, bo jest modalny.",
   },
 
   practice: [
@@ -62,6 +64,7 @@ export const t2_1: LessonDoc = {
       questions: [
         { kind: "gap", q: "Wywołaj nóż z pozycji 4 z korekcją 4.", template: "T{0}", answers: [["0404"]], why: "Dwie cyfry pozycji, dwie cyfry korekcji." },
         { kind: "gap", q: "Średnica wyszła Ø25,06 zamiast Ø25,00. O ile zmienisz zużycie X (korekcja w średnicy)?", template: "{0}", answers: [["-0.06", "-0,06", "-.06"]], why: "Korekcja X w średnicy — cała odchyłka, w minus." },
+        { kind: "gap", q: "W przykładzie zamiast `T0202` wpisano `T0201`. W tabeli geometria X noża 1 to −182,400, noża 2 to −176,100 (w średnicy). O ile w średnicy rozminie się tor noża 2 z programem?", template: "{0} mm", answers: [["6,3", "6.3"]], why: "Nóż 2 jedzie z przesunięciem zmierzonym dla noża 1. Błąd to różnica geometrii: 182,4 − 176,1 = 6,3 mm w średnicy, czyli 3,15 mm na stronę. Każdy wymiar w X wyjdzie przesunięty o tyle samo." },
         { kind: "choice", q: "Co robi `T0100`?", options: ["zostawia nóż 1 i wyłącza korekcję", "wybiera nóż 100", "wymienia nóż na 1 z korekcją 100", "alarm"], answer: 0, why: "Korekcja 00 oznacza brak korekcji." },
         { kind: "order", q: "Ułóż zmianę noża.", items: ["T0202", "G28 W0.", "G00 X44. Z2.", "G28 U0.", "G96 S250 M03"], answer: [3, 1, 0, 4, 2], why: "Odjazd X, odjazd Z, obrót głowicy, obroty, dojazd." },
       ],

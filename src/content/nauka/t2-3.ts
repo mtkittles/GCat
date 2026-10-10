@@ -36,29 +36,31 @@ export const t2_3: LessonDoc = {
 
     { t: "h", x: "Posuw a powierzchnia", id: "chropowatosc" },
     { t: "diagram", id: "t23-rt" },
-    { t: "p", x: "Chropowatość teoretyczna rośnie z kwadratem posuwu. Dwa razy większy posuw to cztery razy większe Rt. Średnia arytmetyczna Ra wynosi w przybliżeniu jedną czwartą Rt." },
+    { t: "p", x: "Chropowatość teoretyczna rośnie z kwadratem posuwu. Dwa razy większy posuw to cztery razy większe Rt. Dla profilu z samych łuków naroża średnia arytmetyczna Ra wynosi w przybliżeniu jedną czwartą Rt." },
+    { t: "note", kind: "info", x: "To geometria idealna: naroże bez zużycia i wykruszeń, brak drgań, brak narostu. Rzeczywista chropowatość zależy jeszcze od materiału, zużycia płytki, sztywności zamocowania i prędkości skrawania. Rt z wzoru służy do doboru posuwu, a wymiar Ra na rysunku potwierdza dopiero pomiar." },
     { t: "table", head: ["Obróbka", "Posuw f", "Promień naroża rε", "Rt teoretyczne"], rows: [
       ["zgrubna", "0,25–0,4 mm/obr", "0,8–1,2", "powierzchnia nieistotna"],
-      ["wykańczająca", "0,08–0,15 mm/obr", "0,4–0,8", "f 0,1, rε 0,4 → Rt ≈ 3,1 µm, Ra ≈ 0,8"],
+      ["wykańczająca", "0,08–0,15 mm/obr", "0,4–0,8", "f 0,1, rε 0,4 → Rt ≈ 3,1 µm, Ra ≈ 0,8 (przybliżenie)"],
     ], caption: "Wartości orientacyjne dla stali. Zakres posuwu dla danej płytki i łamacza wióra podaje katalog." },
     { t: "note", kind: "info", x: "Płytka wiór łamie tylko w swoim zakresie posuwu i głębokości. Za mały posuw daje długi, splątany wiór, który owija się wokół detalu — to częsty problem przy wykańczaniu." },
 
     { t: "h", x: "Planowanie czoła", id: "planowanie" },
     { t: "p", x: "Pierwsza operacja na wałku to planowanie czoła: nóż jedzie w X od średnicy pręta do osi, na Z0. Program prowadzi teoretyczny wierzchołek ostrza, a naroże o promieniu rε kończy się wcześniej — przy X0 w środku zostałby mały czop. Dlatego przejście kończy się za osią, na X = −2 · rε." },
+    { t: "p", x: "Wartość −2 · rε dotyczy modelu z kursu: noża zewnętrznego z kierunkiem ostrza 3 (lekcja T4.2) i toru teoretycznego wierzchołka P bez korekcji promienia (G40). Przy innej orientacji ostrza albo z włączoną korekcją G41/G42 koniec przejścia liczy się inaczej." },
     { t: "diagram", id: "t23-face" },
     { t: "p", x: "Chłodziwo na tokarce działa jak na frezarce: `M08` włącza je przed skrawaniem, `M09` wyłącza po nim." },
   ],
 
   worked: {
     title: "Planowanie czoła wałka",
-    intro: "Pręt Ø40, nóż CNMG z narożem R0,8, G96 S200, G50 S3000.",
+    intro: "Sytuacja: pręt Ø40, nóż CNMG z narożem R0,8 (kierunek ostrza 3, korekcja promienia wyłączona), `G96 S200`, `G50 S3000`. Trzeba splanować czoło na Z0, zbierając ok. 0,5 mm. Numery na rysunku to numery kroków.",
+    fig: "t23-pass",
     steps: [
-      { x: "Dojazd na Z0, poza średnicą pręta.", code: "G00 X44. Z0." },
-      { x: "Koniec za osią: −2 · 0,8.", code: "X-1.6" },
-      { x: "Posuw wykańczający dla czoła.", code: "G01 X-1.6 F0.15" },
-      { x: "Odjazd od czoła w Z.", code: "G00 Z2." },
+      { x: "Dojazd ruchem szybkim na Z0, poza średnicą pręta.", code: "G00 X44. Z0." },
+      { x: "Przejście przez oś z posuwem wykańczającym. Koniec za osią: −2 · 0,8 = −1,6.", code: "G01 X-1.6 F0.15" },
+      { x: "Odjazd od czoła w Z, zanim nóż wróci w X.", code: "G00 Z2." },
     ],
-    result: "Czas przejścia rośnie ku osi dopiero wtedy, gdy obroty dojdą do limitu: od Ø21 w dół vf = 0,15 · 3000 = 450 mm/min zostaje stałe.",
+    result: "Od Ø21 w dół obroty stoją na limicie, więc posuw minutowy też przestaje rosnąć: vf = 0,15 · 3000 = 450 mm/min.",
   },
 
   practice: [
@@ -79,6 +81,7 @@ export const t2_3: LessonDoc = {
       intro: "Posuw, chropowatość i czas.",
       questions: [
         { kind: "gap", q: "f = 0,15 mm/obr, naroże rε = 0,8 mm. Ile wynosi teoretyczna wysokość nierówności Rt (µm, do 0,1)?", template: "{0} µm", answers: [["3.5", "3,5"]], why: "0,15² / (8 · 0,8) · 1000 ≈ 3,5 µm." },
+        { kind: "choice", q: "W przykładzie koniec przejścia zmieniono z `X-1.6` na `X0.`. Co zostanie na czole?", options: ["czopek w środku, o średnicy u podstawy ok. 1,6 mm", "nic — X0 to środek", "wgłębienie w środku czoła", "zadzior na krawędzi Ø40"], answer: 0, why: "Przy X0 punkt P stoi na osi, ale czoło styka się z narożem 0,8 mm wyżej. Środek o promieniu ok. 0,8 mm zostaje nietoczony — czopek o średnicy ok. 1,6 mm." },
         { kind: "gap", q: "f = 0,25 mm/obr, n = 1200 obr/min. Ile wynosi posuw minutowy vf (mm/min)?", template: "{0}", answers: [["300"]], why: "0,25 · 1200 = 300." },
         { kind: "gap", q: "Nóż z narożem R1,2 planuje czoło do osi (model z lekcji, bez korekcji). Do jakiego X ma dojechać punkt P?", template: "X{0}", answers: [["-2.4", "-2,4"]], why: "−2 · 1,2." },
       ],
@@ -111,7 +114,7 @@ export const t2_3: LessonDoc = {
 
   summary: [
     "F na tokarce: mm/obr — G99 na Fanucu (system A), G95 na Sinumeriku.",
-    "Rt ≈ f² / (8 · rε) · 1000 µm, Ra ≈ Rt / 4.",
+    "Rt ≈ f² / (8 · rε) · 1000 µm, Ra ≈ Rt / 4 — wartości teoretyczne, rzeczywiste Ra potwierdza pomiar.",
     "Zgrubnie 0,25–0,4, na gotowo 0,08–0,15 mm/obr — w zakresie łamacza wióra.",
     "Planowanie do osi kończy się na X = −2 · rε.",
   ],
