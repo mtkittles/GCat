@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
+    "audit:dzialy": "npx --yes tsx scripts/audit-dzialy.ts",
     "tokeny": "npx --yes tsx scripts/tokeny.ts",
     "tresci": "tsx scripts/tresci.ts",
     "porownaj": "tsx scripts/porownaj-build.ts",
