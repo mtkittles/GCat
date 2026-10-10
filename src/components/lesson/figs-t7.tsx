@@ -97,7 +97,7 @@ export function ThreadJob() {
       caption={<>Widok z boku, skala promieniowa powiększona. Gwint zaczyna się w Z5 — ponad trzy skoki przed czołem, żeby oś Z zdążyła się rozpędzić — i kończy w podcięciu Z−16…−20, przed stopniem Ø30. Pierwsze przejście schodzi na Ø19,4, ostatnie na rdzeń Ø18,16. Numery odpowiadają krokom przykładu.</>}>
       {(c) => (
         <g>
-          <polygon points={poly([[0, 7], [0, 10], [-16, 10], [-16, 8.5], [-20, 8.5], [-20, 14], [-30, 14], [-30, 7]])} fill={c.hatch} className="p-con" />
+          <polygon points={poly([[0, 7], [0, 10], [-16, 10], [-16, 8.5], [-20, 8.5], [-20, 14], [-21, 15], [-30, 15], [-30, 7]])} fill={c.hatch} className="p-con" />
           <rect x={zx(-16)} y={ry(10)} width={zx(0) - zx(-16)} height={ry(9.08) - ry(10)} className="p-fill-acc" />
           <line x1={zx(5)} y1={ry(11)} x2={zx(5)} y2={ry(9.7) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={zx(5)} y1={ry(9.7)} x2={zx(-17) + 3} y2={ry(9.7)} className="p-cut thick" markerEnd={c.a("cut")} />
@@ -110,7 +110,7 @@ export function ThreadJob() {
           <Step x={zx(-18)} y={ry(11.2)} n={2} />
           <Step x={zx(1)} y={ry(10.5)} n={3} />
           <Step x={zx(9.5)} y={ry(11)} n={4} />
-          <T x={zx(-25)} y={ry(15)} anchor="middle" cls="t-mut t-sm">stopień Ø30</T>
+          <T x={zx(-25)} y={ry(11.5)} anchor="middle" cls="t-mut t-sm">stopień Ø30</T>
           <T x={zx(-4)} y={ry(7.6)} anchor="middle" cls="t-mut t-sm">czop Ø20</T>
           <line x1={zx(0)} y1={ry(7)} x2={zx(0)} y2={ry(12)} className="p-cons" strokeDasharray="3 3" />
           <T x={zx(0.4)} y={ry(12)} cls="t-mut t-sm">Z0</T>

@@ -99,7 +99,7 @@ export const t5_2: LessonDoc = {
       questions: [
         { kind: "choice", q: "Tarcza Ø120 grubości 20 z piastą Ø40. Który cykl zgrubny?", options: ["G72", "G71", "G70", "G76"], answer: 0, why: "Materiał krótki i głęboki — przejścia poprzeczne." },
         { kind: "choice", q: "Jaki ruch ma pierwszy blok konturu dla G72?", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "Odwrotnie niż w G71." },
-        { kind: "gap", q: "W przykładzie w pierwszym bloku cyklu wpisano `G72 W5. R0.5` zamiast `W2.`. Ile warstw w Z zrobi cykl na 15 mm kołnierza?", template: "{0}", answers: [["3"]], why: "15 / 5 = 3 warstwy. Każda zbiera 5 mm w Z na całej wysokości kołnierza — trzy razy więcej niż płytka miała dostać przy W2." },
+        { kind: "gap", q: "W przykładzie w pierwszym bloku cyklu wpisano `G72 W5. R0.5` zamiast `W2.`. Start dalej w Z2, czoło pręta na Z0. Na jakim Z wypadnie pierwsza warstwa?", template: "Z{0}", answers: [["-3"]], why: "Cykl schodzi od punktu startowego: 2 − 5 = −3. Pierwsza warstwa zbiera więc 3 mm materiału (2 mm z kroku to jeszcze powietrze przed czołem), a kolejne po 5 mm — 2,5 raza głębiej niż przy W2." },
       ],
     },
   ],
