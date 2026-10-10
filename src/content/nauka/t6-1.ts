@@ -34,8 +34,7 @@ export const t6_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Rowek i nóż do rowków", id: "rowek" },
-    { t: "p", x: "Nóż do rowków ma dwa naroża i ostrze czołowe o znanej szerokości. Mierzy się go na jednym narożu — zwykle lewym, od strony uchwytu. Z w programie to wtedy położenie lewej krawędzi noża, a prawa jest o szerokość płytki dalej w stronę czoła." },
-    { t: "diagram", id: "t61-groove" },
+    { t: "p", x: "Nóż do rowków ma dwa naroża i ostrze czołowe o znanej szerokości. Mierzy się go na jednym narożu — zwykle lewym, od strony uchwytu. Z w programie to wtedy położenie lewej krawędzi noża, a prawa jest o szerokość płytki dalej w stronę czoła. Rysunek w przykładzie rozwiązanym pokazuje to na podcięciu wałka." },
     { t: "p", x: "Wałek dostaje podcięcie 4 × Ø17 przy stopniu — wybieg dla noża do gwintów z modułu T7. Rowek jest o 1 mm szerszy niż nóż, więc potrzeba dwóch wcięć." },
 
     { t: "h", x: "Cykl G75", id: "g75" },
@@ -52,19 +51,20 @@ export const t6_1: LessonDoc = {
 
     { t: "h", x: "Parametry rowkowania", id: "parametry" },
     { t: "p", x: "Nóż do rowków pracuje ostrzem czołowym na pełnej szerokości, a wiór nie ma gdzie uciec. Dlatego posuw jest mały — zwykle setne części milimetra na obrót — a prędkość skrawania niższa niż przy toczeniu wzdłużnym. Konkretną wartość dobiera się do płytki, jej szerokości i materiału według katalogu producenta; `F0.05` w przykładzie to założenie. Wycofanie R łamie wiór, zanim zapcha rowek." },
-    { t: "note", kind: "warn", x: "Odjazd z rowka zawsze najpierw w X. Ruch w Z z nożem w rowku łamie płytkę o ściankę." },
+    { t: "note", kind: "warn", x: "Z rowka promieniowego odjeżdża się najpierw w X. Ruch w Z z nożem w rowku łamie płytkę o ściankę." },
   ],
 
   worked: {
     title: "Podcięcie przy stopniu wałka",
-    intro: "Rowek Z−16…Z−20, dno Ø17, nóż 3 mm zmierzony na lewym narożu. Ø20 przed rowkiem.",
+    intro: "Sytuacja: przed gwintem M20 wałek potrzebuje podcięcia Z−16…Z−20 z dnem Ø17, tuż przy stopniu Ø30. Nóż do rowków ma 3 mm i jest zmierzony na lewym narożu. Ø20 przed rowkiem. Numery na rysunku to numery kroków.",
+    fig: "t61-groove",
     steps: [
       { x: "Pierwsze wcięcie: lewe naroże w Z−19, prawe w Z−16. Start ponad Ø20.", code: "G00 X22. Z-19." },
-      { x: "Głębokość na stronę: (22 − 17) / 2 = 2,5 — dwa wejścia po 1,5 mm.", code: "P1500" },
+      { x: "Głębokość na stronę: (22 − 17) / 2 = 2,5 — dwa wejścia, po 1,5 i 1 mm.", code: "P1500" },
       { x: "Drugie wcięcie przy stopniu: lewe naroże w Z−20, czyli 1 mm dalej.", code: "Z-20. Q1000" },
       { x: "Cykl i odjazd w X.", code: "G75 R0.5 → G75 X17. Z-20. P1500 Q1000 F0.05 → G00 X44." },
     ],
-    result: "Cykl robi oba wcięcia, łamie wiór na każdym i wraca do punktu startowego.",
+    result: "Cykl robi oba wcięcia, łamie wiór na każdym i wraca do punktu startowego. P1500 i Q1000 to milimetry zapisane w mikrometrach — przy systemie wejściowym 0,001 mm.",
   },
 
   practice: [
@@ -84,6 +84,7 @@ export const t6_1: LessonDoc = {
       kind: "drill",
       intro: "Położenie noża i adresy.",
       questions: [
+        { kind: "choice", q: "W przykładzie nóż zmierzono na prawym narożu, a program został bez zmian (Z−19, Z−20). Co się stanie?", options: ["rowek przesunie się o 3 mm w stronę uchwytu i nóż wetnie się w stopień Ø30", "nic — G75 sam uwzględni szerokość płytki", "rowek przesunie się o 3 mm w stronę czoła", "rowek będzie węższy o 3 mm"], answer: 0, why: "Z w programie to teraz prawa krawędź. Wcięcia leżą na Z−22…−19 i Z−23…−20, czyli za czołem stopnia w Z−20. Odcinek Z−16…−19 zostaje nietknięty." },
         { kind: "gap", q: "Nóż szerokości 4 mm zmierzony na lewym narożu. Rowek Z−30…Z−26 (szerokość 4). Na jakie Z ustawisz nóż do pojedynczego wcięcia?", template: "Z{0}", answers: [["-30"]], why: "Lewa krawędź noża w Z−30, prawa w Z−26." },
         { kind: "gap", q: "Wejścia po 2 mm na stronę. Jaką wartość P wpiszesz w G75 (µm, bez kropki)?", template: "P{0}", answers: [["2000"]], why: "P w mikrometrach, bez kropki." },
         { kind: "choice", q: "Nóż w rowku na dnie. Jak odjechać?", options: ["najpierw w X", "najpierw w Z", "po skosie", "obojętnie"], answer: 0, why: "Ruch w Z w rowku łamie płytkę." },
@@ -93,14 +94,14 @@ export const t6_1: LessonDoc = {
 
   pitfalls: [
     { title: "Pomylone naroże odniesienia", x: "Nóż zmierzony na prawym narożu, a program liczony dla lewego. Rowek przesuwa się o szerokość płytki — przy stopniu nóż wcina się w czoło stopnia." },
-    { title: "P z kropką", x: "`P1.5` zamiast `P1500`. Na wielu Fanucach to alarm albo 0,0015 mm na wejście — cykl robi setki wejść." },
+    { title: "P z kropką", x: "`P1.5` zamiast `P1500`. Zależnie od sterowania i parametru to alarm albo wartość w najmniejszych przyrostach — przy systemie 0,001 mm 0,0015 mm na wejście, czyli setki wejść." },
     { title: "Za duży posuw", x: "F0.2 jak przy toczeniu wzdłużnym. Wiór na pełnej szerokości ostrza nie ma gdzie uciec — płytka pęka." },
   ],
 
   controllers: {
     rows: [
       ["Rowek promieniowy", "`G75` (dwa bloki)", "`CYCLE93` / `CYCLE930`"],
-      ["Głębokość wejścia, przesunięcie", "P, Q w mikrometrach", "parametry cyklu w mm"],
+      ["Głębokość wejścia, przesunięcie", "P, Q w najmniejszych przyrostach (przy 0,001 mm — µm)", "parametry cyklu w mm"],
       ["Podcięcie pod gwint", "G75 albo ruchy G01", "`CYCLE96` (podcięcia normalne)"],
     ],
     note: "Sinumerik ma osobne cykle do rowków i do znormalizowanych podcięć pod gwint.",
