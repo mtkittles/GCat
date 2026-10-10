@@ -12,13 +12,14 @@ export const f2_3: LessonDoc = {
     { t: "p", x: "Adres **F** podaje posuw, czyli prędkość, z jaką narzędzie przesuwa się po torze. Na frezarce domyślnie działa [[G94]] — posuw w mm/min: `F400` to 400 mm na minutę. `G95` zmienia jednostkę na mm na obrót wrzeciona; na frezarce używa się go rzadko, głównie przy gwintowaniu, a na tokarce jest standardem." },
 
     { t: "h", x: "Skąd wziąć F", id: "obliczanie" },
-    { t: "p", x: "Katalog narzędzia podaje [[fz]] — posuw na ostrze, czyli grubość wióra, jaką zbiera jedno ostrze. Posuw minutowy liczy się z niego, z liczby ostrzy z i z obrotów n:" },
+    { t: "p", x: "Katalog narzędzia podaje [[fz]] — posuw na ostrze. To droga, o którą frez przesuwa się między pracą kolejnych ostrzy. Jeśli frez ma 4 ostrza, w jednym obrocie przesunie się o 4 · fz. Posuw minutowy liczy się z fz, liczby ostrzy z i obrotów n:" },
     { t: "code", x: "vf = fz · z · n\n\nfz — posuw na ostrze [mm/ostrze]\nz  — liczba ostrzy\nn  — obroty [obr/min]\nvf — posuw minutowy = F [mm/min]", caption: "Kalkulator obróbki w menu liczy to samo." },
     { t: "diagram", id: "f23-fz" },
-    { t: "p", x: "Przy małej szerokości skrawania (ae mniejsze niż połowa średnicy) rzeczywista grubość wióra jest mniejsza niż fz — to [[pocienianie wióra]]. Katalogi podają wtedy korektę w górę. Zbyt cienki wiór nie skrawa, tylko trze." },
+    { t: "p", x: "Grubość wióra h to coś innego niż fz. Zależy od tego, w którym miejscu obwodu ostrze pracuje: w kierunku posuwu h = fz, z boku freza h maleje do zera. Przy małej szerokości skrawania (ae mniejsze niż połowa średnicy) ostrza pracują tylko przy boku, więc największa grubość wióra jest mniejsza niż fz — to [[pocienianie wióra]]. Katalogi podają wtedy korektę fz w górę. Zbyt cienki wiór nie skrawa, tylko trze." },
 
     { t: "h", x: "Dwa posuwy w jednym programie", id: "dwa-posuwy" },
-    { t: "p", x: "Wejście w materiał osią Z obciąża ostrza czołowe, które zbierają materiał całą szerokością. Dlatego zejście programuje się wolniej niż kontur — typowo 30–50% posuwu konturowego. W programie płytki: `F150` na wejście i `F400` na kontur." },
+    { t: "p", x: "Gdy frez zagłębia się pionowo w materiał, skrawają ostrza czołowe. Przy osi freza prędkość skrawania spada do zera, a wiór trudno wychodzi, dlatego posuw wgłębny jest mniejszy niż konturowy. Jego wartość podaje producent freza; frez musi mieć ostrza dochodzące do środka." },
+    { t: "p", x: "W programie płytki frez schodzi w X−20, obok detalu — w powietrzu, więc niczego nie skrawa. Mniejszy posuw zejścia (`F150`, ok. 40% z `F400`) to tu przyjęte w kursie zabezpieczenie: jeśli zero Z albo naddatek nie zgadza się z założeniem, frez dotknie materiału wolno. Lekcja F6.2 pokazuje, jak wejść w materiał rampą zamiast pionowo." },
     { t: "note", kind: "info", x: "`G00` nie używa F. Operator może zmienić posuw w trakcie pracy korektorem (override, zwykle 0–150%). Wartość w programie odpowiada 100%." },
   ],
 
@@ -27,7 +28,7 @@ export const f2_3: LessonDoc = {
     intro: "Frez VHM Ø10, 4 ostrza, stal C45. Z lekcji F2.2: S2500. Katalog: fz = 0,04 mm/ostrze.",
     steps: [
       { x: "Posuw konturowy: 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },
-      { x: "Wejście w Z: ok. 40% posuwu konturowego, zaokrąglone.", code: "F150" },
+      { x: "Zejście w Z obok detalu: w kursie ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "F150" },
       { x: "Zejście piszesz w bloku G01 Z…, kontur w pierwszym bloku ruchu po obrysie.", code: "G01 Z-5. F150" },
       { x: "F jest modalne, więc dalsze bloki konturu nie muszą go powtarzać.", code: "G01 X-5. F400" },
     ],
@@ -56,9 +57,9 @@ export const f2_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G95 na frezarce", x: "Po programie z gwintowaniem zostało aktywne `G95`. `F400` znaczy wtedy 400 mm na obrót — sterowanie zgłosi przekroczenie posuwu albo wykona ruch z maksymalną prędkością. Blok startowy może zawierać `G94`." },
+    { title: "G95 na frezarce", x: "Po programie z gwintowaniem zostało aktywne `G95`. `F400` znaczy wtedy 400 mm na obrót — przy S2500 to 1 000 000 mm/min. Sterowanie ograniczy posuw do maksymalnego posuwu roboczego z parametrów albo zgłosi alarm. Dlatego kompletny program ustawia `G94` na starcie." },
     { title: "Zła liczba ostrzy", x: "Frez 4-ostrzowy policzony jako 2-ostrzowy daje posuw dwa razy za mały. Ostrza trą zamiast skrawać i szybko się tępią." },
-    { title: "Wejście posuwem konturowym", x: "`G01 Z-5.` bez zmiany F wchodzi w materiał posuwem ustawionym na kontur. Ostrza czołowe są przeciążone, a frez może pęknąć." },
+    { title: "Zagłębianie posuwem konturowym", x: "`G01 Z-5.` nad materiałem z F ustawionym na kontur. Ostrza czołowe dostają posuw kilka razy większy niż dopuszczalny posuw wgłębny — grozi to wykruszeniem ostrzy albo złamaniem freza. Sprawdź posuw wgłębny w katalogu albo zejdź obok detalu." },
     { title: "Za cienki wiór", x: "Przy wąskiej ścieżce (małe ae) fz z tabeli daje wiór cieńszy niż zakładany. Narzędzie się grzeje i ślizga. Stosuj korektę na pocienianie wióra z katalogu." },
   ],
 
@@ -85,7 +86,8 @@ export const f2_3: LessonDoc = {
   summary: [
     "F to posuw. W G94 — mm/min, w G95 — mm/obr.",
     "vf = fz · z · n. fz z katalogu, z — liczba ostrzy, n — obroty.",
-    "Wejście w Z wolniej niż kontur, typowo 30–50%.",
+    "fz to droga między ostrzami, nie grubość wióra. Wiór jest cieńszy niż fz z boku freza i przy małym ae.",
+    "Zagłębianie w materiał — posuw wgłębny z katalogu. W kursie zejście obok detalu ok. 40% posuwu konturowego.",
     "F jest modalne — po zmianie narzędzia licz i wpisuj od nowa.",
   ],
 

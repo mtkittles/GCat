@@ -273,13 +273,14 @@ export function RetractLevels() {
   const holes = [15, 45, 75];
   return (
     <Fig id="f54lv" code="G98 G99" title="Powrót do R albo do poziomu początkowego" h={232} legend={["rap", "bad", "stock"]}
-      notes={<><Code k="rap">G99 X15. … X45.</Code><Code k="rap">G98 X45. (przed dociskiem)</Code></>}
-      caption={<><b>G99</b> wraca do płaszczyzny R — krótko i szybko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego — tak przeskakuje się nad dociskiem.</>}>
+      notes={<><Code k="rap">G99 G81 X15. …</Code><Code k="rap">G98 X45.</Code><Code k="rap">G99 X75.</Code></>}
+      caption={<><b>G99</b> wraca do płaszczyzny R — krótko i szybko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego — tak przeskakuje się nad dociskiem 25 mm. Po trzecim otworze znów G99: bez niego aktywne G98 podniosłoby narzędzie na Z30.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={10 * m.u} fill={c.hatch} className="p-con" />
-          <rect x={m.X(56)} y={m.Y(14)} width={10 * m.u} height={14 * m.u} rx={2} className="clamp" />
-          <T x={m.X(61)} y={m.Y(14) - 5} anchor="middle" cls="t-mut">docisk</T>
+          <rect x={m.X(56)} y={m.Y(25)} width={10 * m.u} height={25 * m.u} rx={2} className="clamp" />
+          <T x={m.X(61)} y={m.Y(12)} anchor="middle" cls="t-mut t-sm">docisk</T>
+          <T x={m.X(61)} y={m.Y(12) + 13} anchor="middle" cls="t-mut t-sm">25 mm</T>
           {holes.map((h) => <rect key={h} x={m.X(h - 2)} y={m.Y(0)} width={4 * m.u} height={7 * m.u} className="panel-bg" />)}
           <line x1={m.X(-4)} y1={m.Y(30)} x2={m.X(96)} y2={m.Y(30)} className="p-cons" />
           <line x1={m.X(-4)} y1={m.Y(2)} x2={m.X(96)} y2={m.Y(2)} className="p-cons" />
@@ -289,6 +290,9 @@ export function RetractLevels() {
           <line x1={m.X(45)} y1={m.Y(-7)} x2={m.X(45)} y2={m.Y(30) + 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(45) + 3} y1={m.Y(30)} x2={m.X(75) - 3} y2={m.Y(30)} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(45) + 3} y1={m.Y(2) + 5} x2={m.X(75) - 3} y2={m.Y(2) + 5} className="p-bad" markerEnd={c.a("bad")} />
+          <line x1={m.X(75)} y1={m.Y(30)} x2={m.X(75)} y2={m.Y(2) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
+          <line x1={m.X(77.5)} y1={m.Y(-7)} x2={m.X(77.5)} y2={m.Y(2) + 3} className="p-rap" markerEnd={c.a("rap")} />
+          <T x={m.X(79)} y={m.Y(10)} cls="t-rap t-b t-sm">G99</T>
           <T x={m.X(30)} y={m.Y(2) - 6} anchor="middle" cls="t-rap t-b">G99</T>
           <T x={m.X(60)} y={m.Y(30) - 6} anchor="middle" cls="t-rap t-b">G98</T>
           <T x={m.X(50)} y={m.Y(2) + 22} cls="t-bad">G99 — kolizja</T>

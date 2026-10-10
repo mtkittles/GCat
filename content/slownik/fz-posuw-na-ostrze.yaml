@@ -5,8 +5,10 @@ aliases:
   - fz
   - posuw na ząb
 def: >-
-  Grubość warstwy zbieranej przez jedno ostrze freza w jednym obrocie.
-  Podstawowy parametr doboru posuwu przy frezowaniu: Vf = n × z × fz.
+  Droga, o którą frez przesuwa się między pracą kolejnych ostrzy. Nie jest równa
+  grubości wióra — ta zależy też od szerokości skrawania ae i kąta
+  przystawienia. Podstawowy parametr doboru posuwu przy frezowaniu: vf = fz · z
+  · n.
 see:
   - g94-g95
 diagram: apae

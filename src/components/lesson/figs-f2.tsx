@@ -82,27 +82,45 @@ export function SpindleDir() {
 
 /* ================= F2.3: posuw na ostrze ================= */
 export function ToothFeed() {
-  const c1 = { x: 136, y: 122 }, d = 18, r = 44;
+  /* Widok z góry, skala przesadzona. Okrąg przerywany — tor poprzedniego ostrza,
+     okrąg pełny — tor bieżącego ostrza, przesunięty o fz w kierunku posuwu (+X).
+     Grubość wióra h mierzona promieniowo: przy kierunku posuwu h = fz,
+     pod kątem θ od niego h ≈ fz · cos θ. */
+  const r = 86, d = 28, c1 = { x: 118, y: 136 }, c2 = { x: c1.x + d, y: c1.y };
+  const th = (58 * Math.PI) / 180;
+  const ux = Math.cos(th), uy = -Math.sin(th);
+  const t1 = -d * ux + Math.sqrt(d * d * ux * ux - d * d + r * r);  // punkt na torze poprzedniego ostrza
+  const P1 = { x: c2.x + t1 * ux, y: c2.y + t1 * uy }, P2 = { x: c2.x + r * ux, y: c2.y + r * uy };
   const ix = c1.x + d / 2, iy = Math.sqrt(r * r - (d / 2) ** 2);
+  const yAe = c2.y - r + 22;
   return (
-    <Fig id="f23fz" code="fz" title="Posuw na ostrze — widok z góry, skala przesadzona" h={236} legend={["cut", "acc"]}
+    <Fig id="f23fz" code="fz" title="fz to przesunięcie, h to grubość wióra" h={262} legend={["cut", "acc"]}
       notes={<Code k="acc">vf = fz · z · n</Code>}
-      caption={<>Między wejściami dwóch kolejnych ostrzy frez przesuwa się o <b>fz</b>. Każde ostrze zbiera sierp materiału o grubości do fz. Posuw minutowy F to fz razy liczba ostrzy razy obroty.</>}>
+      caption={<>Widok z góry, skala przesadzona. Punkty 1 i 2 to środek freza w chwili pracy dwóch kolejnych ostrzy — dzieli je <b>fz</b>, czyli droga, a nie grubość wióra. Ostrze 2 zbiera sierp materiału między swoim torem a torem ostrza 1. Grubość sierpa <b>h</b> zależy od miejsca: w kierunku posuwu h = fz, w stronę boku freza maleje do zera. Przy małym ae ostrza pracują tylko w pasie nad przerywaną linią, więc największe h jest mniejsze niż fz — to pocienianie wióra.</>}>
       {(c) => (
         <g>
           <path d={`M ${ix} ${c1.y - iy} A ${r} ${r} 0 1 1 ${ix} ${c1.y + iy} A ${r} ${r} 0 0 0 ${ix} ${c1.y - iy} Z`} className="p-fill-acc" />
           <circle cx={c1.x} cy={c1.y} r={r} className="p-cons" />
-          <circle cx={c1.x + d} cy={c1.y} r={r} className="tool" />
-          {[0, 90, 180, 270].map((a) => { const t = (a * Math.PI) / 180; return <line key={a} x1={c1.x + d} y1={c1.y} x2={c1.x + d + Math.cos(t) * r} y2={c1.y + Math.sin(t) * r} className="p-dim" />; })}
-          <line x1={c1.x + r} y1={c1.y - 60} x2={c1.x + r + d} y2={c1.y - 60} className="p-acc" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
-          <line x1={c1.x + r} y1={c1.y - 64} x2={c1.x + r} y2={c1.y} className="p-cons" />
-          <line x1={c1.x + r + d} y1={c1.y - 64} x2={c1.x + r + d} y2={c1.y} className="p-cons" />
-          <T x={c1.x + r + d / 2} y={c1.y - 68} anchor="middle" cls="t-acc t-b t-mono">fz</T>
-          <line x1={c1.x + d + r + 30} y1={c1.y + 30} x2={c1.x + d + r + 90} y2={c1.y + 30} className="p-cut thick" markerEnd={c.a("cut")} />
-          <T x={c1.x + d + r + 60} y={c1.y + 22} anchor="middle" cls="t-cut t-b">vf</T>
-          <T x={c1.x + d + r + 6} y={c1.y + 4} cls="t-acc">wiór</T>
-          <T x={c1.x - r - 6} y={c1.y + 4} anchor="end" cls="t-mut">poprzednie</T>
-          <T x={c1.x - r - 6} y={c1.y + 17} anchor="end" cls="t-mut">ostrze</T>
+          <circle cx={c2.x} cy={c2.y} r={r} className="p-cut" />
+          {/* środki i fz */}
+          <circle cx={c1.x} cy={c1.y} r={2.6} className="pt" />
+          <circle cx={c2.x} cy={c2.y} r={2.6} className="pt" />
+          <line x1={c1.x} y1={c1.y + 14} x2={c2.x} y2={c2.y + 14} className="p-acc" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <T x={(c1.x + c2.x) / 2} y={c1.y + 30} anchor="middle" cls="t-acc t-b t-mono">fz</T>
+          <T x={c1.x} y={c1.y - 9} anchor="middle" cls="t-mut t-mono">1</T>
+          <T x={c2.x} y={c2.y - 9} anchor="middle" cls="t-mono">2</T>
+          {/* h w kierunku posuwu = fz */}
+          <line x1={c1.x + r} y1={c1.y} x2={c2.x + r} y2={c2.y} className="p-acc thick" />
+          <T x={c2.x + r + 6} y={c2.y + 4} cls="t-acc t-b">h = fz</T>
+          {/* h pod kątem — mniejsze */}
+          <line x1={P1.x} y1={P1.y} x2={P2.x} y2={P2.y} className="p-acc thick" />
+          <T x={P2.x + 6} y={P2.y - 2} cls="t-acc t-b">h &lt; fz</T>
+          {/* granica małego ae */}
+          <line x1={c2.x - 30} y1={yAe} x2={c2.x + r + 70} y2={yAe} className="p-cons" strokeDasharray="5 4" />
+          <T x={c2.x + r + 70} y={yAe + 14} anchor="end" cls="t-mut t-sm">granica małego ae</T>
+          {/* kierunek posuwu */}
+          <line x1={c2.x + r + 14} y1={c2.y + 60} x2={c2.x + r + 84} y2={c2.y + 60} className="p-cut thick" markerEnd={c.a("cut")} />
+          <T x={c2.x + r + 49} y={c2.y + 52} anchor="middle" cls="t-cut t-b">posuw vf</T>
         </g>
       )}
     </Fig>

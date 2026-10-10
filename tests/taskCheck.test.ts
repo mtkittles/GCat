@@ -51,8 +51,9 @@ describe("zadania Nauki — inne poprawne zapisy też przechodzą", () => {
     const s = sub(task(f5_3).solution, "G84 X10. Y10. Z-15. R5. F500", "G95\nG84 X10. Y10. Z-15. R5. F1.");
     expect(run(f5_3, s).passed).toBe(true);
   });
-  it("F5.4: jawne G99 X75. po przejeździe nad dociskiem", () => {
-    const s = sub(task(f5_4).solution, "G98 X45.\nX75.", "G98 X45.\nG99 X75.");
+  it("F5.4: kody G w innej kolejności w bloku (G81 G99 …, X45. G98)", () => {
+    let s = sub(task(f5_4).solution, "G99 G81 X15.", "G81 G99 X15.");
+    s = sub(s, "G98 X45.", "X45. G98");
     expect(run(f5_4, s).passed).toBe(true);
   });
 });
@@ -106,5 +107,20 @@ describe("F5.2/F5.3 — bilans głębokości otworu gwintowanego (audyt #29, A02
     const full = zTip + 0.18 * 5; // wiertło Ø5, 140°
     expect(zTap).toBe(-15);       // 12 mm pełnego gwintu + 3 mm nakroju
     expect(zTap - full).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("F5.4 — trzeci otwór z G99 (audyt #29, A07)", () => {
+  it("rozwiązanie: tylko jeden powrót na Z30, po otworze 2", async () => {
+    const { parseProgram } = await import("@/lib/parser");
+    const p = parseProgram(task(f5_4).solution, {});
+    const ups = p.segments.filter((s) => s.kind === "rapid" && s.to.z > s.from.z && s.from.z < 0).map((s) => [s.to.x, +s.to.z.toFixed(3)]);
+    expect(ups).toEqual([[15, 2], [45, 30], [75, 2]]);
+  });
+  it("droga w Z: G98 vs G99 dla 6 otworów, start i koniec na Z40 — 370 mm", async () => {
+    const { parseProgram } = await import("@/lib/parser");
+    const holes = (ret: string) => `G21 G90 G17 G54\nS1000 M03\nG00 X0. Y0. Z40.\n${ret} G81 X0. Y0. Z-5. R3. F100\nX10.\nX20.\nX30.\nX40.\nX50.\nG80\nG00 Z40.\nM30`;
+    const zLen = (src: string) => parseProgram(src, {}).segments.reduce((a, s) => a + Math.abs(s.to.z - s.from.z), 0);
+    expect(Math.round(zLen(holes("G98")) - zLen(holes("G99")))).toBe(370);
   });
 });
