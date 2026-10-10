@@ -32,4 +32,12 @@ Poprawki merytoryczne przy okazji: F4.1 — kontrola zgodności H/T opisana jako
 - Galeria „Gotowe programy”: `G94` w 13 programach frezarskich; karta G84 w Kodach: przykład `Z-12.`.
 - Bibliografia: wydanie, rozdział i strona w każdym `sources[].where`.
 
+## Po zakończeniu Nauki (decyzja użytkownika 2026-10-10)
+
+- Ujednolicić pozostałe działy — Kody, Zadania, Programy, Kalkulatory, Słownik — do stylu i jakości Nauki (sytuacja → kod → rezultat, rysunek przy przykładzie, czytelność, źródła). Robione na końcu, po wszystkich lekcjach.
+
+## Etap 3, część 2 — lekcje według wzorca pilotażu
+
+- F0.2, F0.3 — rysunki przeniesione z teorii do przykładu rozwiązanego, kroki odwołują się do rysunku, pytanie na przewidywanie (przestawione imadło; pomiar bez promienia czujnika).
+
 Brak nowych zmiennych środowiskowych i zależności.
