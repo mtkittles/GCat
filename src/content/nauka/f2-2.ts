@@ -26,15 +26,16 @@ export const f2_2: LessonDoc = {
 
   worked: {
     title: "Oblicz S dla dwóch materiałów",
-    intro: "Frez VHM Ø10. Stal C45: vc = 80 m/min. Aluminium: vc = 300 m/min. Maszyna ma maksymalnie 8000 obr/min.",
+    intro: "Sytuacja: ten sam frez VHM Ø10 ma obrabiać detal ze stali C45 (vc = 80 m/min) i z aluminium (vc = 300 m/min). Wartości vc to założenie przykładu. Maszyna daje najwyżej 8000 obr/min. Rysunek porównuje wyliczone obroty z tym limitem.",
+    fig: "f22-limit",
     steps: [
       { x: "Stal: 1000 · 80 / (π · 10) ≈ 2546 obr/min. Zaokrąglasz w dół.", code: "S2500" },
-      { x: "Aluminium: 1000 · 300 / (π · 10) ≈ 9549 obr/min.", code: "9549" },
+      { x: "Aluminium: 1000 · 300 / (π · 10) ≈ 9549 obr/min — czerwona część słupka wychodzi poza limit.", code: "9549" },
       { x: "To więcej niż 8000, które daje maszyna — programujesz maksimum.", code: "S8000" },
       { x: "Rzeczywista vc przy S8000: π · 10 · 8000 / 1000 ≈ 251 m/min zamiast 300.", code: "vc ≈ 251" },
       { x: "Frez prawoskrętny, więc kierunek w prawo.", code: "M03" },
     ],
-    result: "Stal: `S2500 M03`. Aluminium: `S8000 M03` przy vc ≈ 251 m/min. Posuw F liczysz z fz dla S8000 (lekcja F2.3) i sprawdzasz, czy te parametry mieszczą się w zaleceniach producenta freza. Wartości vc w przykładzie to założenie, nie dane konkretnego narzędzia.",
+    result: "Stal: `S2500 M03`. Aluminium: `S8000 M03` przy vc ≈ 251 m/min. Posuw F liczysz z fz dla S8000 (lekcja F2.3) i sprawdzasz, czy te parametry mieszczą się w zaleceniach producenta freza.",
   },
 
   practice: [
@@ -53,6 +54,7 @@ export const f2_2: LessonDoc = {
         {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny obraca się wtedy grzbietami ostrzy do materiału: nie skrawa, tylko trze, grzeje się i szybko tępi albo wykrusza. Powinno być S2500 M03."},
 
         { kind: "gap", q: "Frez Ø8, vc = 100 m/min. Ile obrotów (w pełnych obr/min)?", template: "n = {0}", answers: [["3979", "3978", "3980"]], why: "1000 · 100 / (π · 8) ≈ 3979 obr/min." },
+        { kind: "gap", q: "W programie dla aluminium z przykładu (S8000) frez Ø10 zastąpiono frezem Ø6, a S zostało bez zmian. Jaka będzie prędkość skrawania (m/min, w pełnych)?", template: "vc ≈ {0}", answers: [["151", "150"]], why: "vc = π · 6 · 8000 / 1000 ≈ 151 m/min. Mniejsza średnica przy tych samych obrotach to mniejsza prędkość na ostrzu — S trzeba liczyć od nowa dla każdego narzędzia." },
         { kind: "token", q: "Wskaż słowo, które **uruchamia** obroty.", block: "S1800 M03 M08", answer: 1, why: "M03 włącza obroty w prawo z wartością S1800. M08 to chłodziwo." },
         { kind: "choice", q: "Wiertło Ø5 i wiertło Ø20 z tego samego materiału, to samo vc. Które potrzebuje większych obrotów?", options: ["Ø5, czterokrotnie większych", "Ø20", "takich samych", "zależy od posuwu"], answer: 0, why: "Obroty są odwrotnie proporcjonalne do średnicy." },
         { kind: "choice", q: "Frez prawoskrętny. Który kod?", options: ["M03", "M04", "M05", "M06"], answer: 0, why: "Narzędzia prawoskrętne pracują w prawo — M03." },

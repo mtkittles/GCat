@@ -30,14 +30,15 @@ export const f2_1: LessonDoc = {
 
   worked: {
     title: "Program na dwa narzędzia",
-    intro: "Płytkę najpierw obrabia frez T1, potem nawiertak T2. Magazyn ma pracować, zanim frez skończy.",
+    intro: "Sytuacja: płytkę najpierw obrabia frez T1, potem nawiertak T2. Maszyna ma magazyn z ramieniem wymiany: narzędzie z kolejnego gniazda może czekać w pozycji wymiany, zanim padnie M06. Magazyn ma się obrócić, zanim frez skończy. Numery kroków odpowiadają numerom na osi czasu.",
+    fig: "f21-time",
     steps: [
-      { x: "Wymiana na frez.", code: "T1 M06" },
-      { x: "Zaraz po niej przygotowanie nawiertaka — magazyn obraca się w trakcie frezowania.", code: "T2" },
-      { x: "Obróbka frezem, odjazd w Z, stop wrzeciona.", code: "… M05" },
-      { x: "Wymiana na przygotowane T2 i ponowne włączenie obrotów.", code: "M06 → S… M03" },
+      { x: "Krok 1: wymiana na frez.", code: "T1 M06" },
+      { x: "Krok 2: zaraz po niej przygotowanie nawiertaka — magazyn obraca się, a frez w tym czasie skrawa.", code: "T2" },
+      { x: "Krok 3: obróbka frezem, odjazd w Z, stop wrzeciona.", code: "… M05" },
+      { x: "Krok 4: wymiana na przygotowane T2 i ponowne włączenie obrotów.", code: "M06 → S… M03" },
     ],
-    result: "Zapis `M06` bez T wymienia na ostatnio przygotowane narzędzie. Wiele osób woli jednak pisać `T2 M06` przy każdej wymianie — program jest wtedy czytelny od razu.",
+    result: "Zapis `M06` bez T wymienia na ostatnio przygotowane narzędzie. Wiele osób woli jednak pisać `T2 M06` przy każdej wymianie — program jest wtedy czytelny od razu. Czy T przygotowuje narzędzie z wyprzedzeniem, zależy od budowy magazynu — sprawdź instrukcję maszyny.",
   },
 
   practice: [
@@ -56,6 +57,7 @@ export const f2_1: LessonDoc = {
         { kind: "token", q: "Wskaż słowo, które **wykonuje** wymianę.", block: "N20 T3 M06", answer: 2, why: "T3 wybiera, M06 wymienia." },
         { kind: "gap", q: "Wywołaj narzędzie nr 5 z wymianą.", template: "T{0} M{1}", answers: [["5"], ["06", "6"]], why: "T5 M06." },
         { kind: "choice", q: "We wrzecionie jest T1. Program wykonuje blok `T4`. Czym skrawa maszyna w następnym bloku?", options: ["T4", "T1", "żadnym — alarm", "zależy od S"], answer: 1, why: "Samo T przygotowuje narzędzie w magazynie. Wymiany nie było." },
+        { kind: "choice", q: "Na maszynie z przykładu ktoś usunął samotne `T2` po `T1 M06`, a po obróbce napisał `T2 M06`. Co się zmieni?", options: ["wymiana potrwa dłużej — magazyn obróci się dopiero przy M06", "do wrzeciona trafi T1", "alarm — brak przygotowania", "nic, czas ten sam"], answer: 0, why: "Bez wcześniejszego T magazyn szuka nawiertaka dopiero przy wymianie, a wrzeciono w tym czasie stoi. Program działa poprawnie, tylko wolniej." },
         { kind: "order", q: "Ułóż zmianę z T1 na T2.", items: ["S3000 M03", "M05", "T2 M06", "G00 Z5."], answer: [3, 1, 2, 0], why: "Odjazd, stop wrzeciona, wymiana, obroty dla nowego narzędzia." },
       ],
     },

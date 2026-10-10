@@ -1,4 +1,4 @@
-import { Code, Fig, mapper, T } from "@/components/fig";
+import { Code, Fig, mapper, Step, T } from "@/components/fig";
 
 /* Rysunki modułu F2 — wrzeciono i narzędzie. Styl i kolory z fig.tsx. */
 
@@ -192,10 +192,111 @@ export function PlateFeeds() {
   );
 }
 
+/* ================= Oś czasu programu (przykłady F2.1, F2.4) ================= */
+type Bar = { row: number; x0: number; x1: number; t: string; cls: string };
+function Timeline({ rows, bars, ticks, steps }: { rows: string[]; bars: Bar[]; ticks: [number, string][]; steps: [number, number, number][] }) {
+  // x w jednostkach 0–100, wiersze co 34 px
+  const X = (v: number) => 104 + v * 2.36, Y = (r: number) => 30 + r * 46;
+  return (
+    <g>
+      {rows.map((r, i) => <T key={r} x={96} y={Y(i) + 18} anchor="end" cls="t-mut t-sm">{r}</T>)}
+      {bars.map((b, i) => (
+        <g key={i}>
+          <rect x={X(b.x0)} y={Y(b.row) + 2} width={X(b.x1) - X(b.x0)} height={24} rx={5} className={b.cls} />
+          <T x={(X(b.x0) + X(b.x1)) / 2} y={Y(b.row) + 18} anchor="middle" cls="t-sm t-b">{b.t}</T>
+        </g>
+      ))}
+      <line x1={X(0)} y1={Y(rows.length) + 4} x2={X(100)} y2={Y(rows.length) + 4} className="p-cons" />
+      {ticks.map(([x, t]) => (
+        <g key={t}>
+          <line x1={X(x)} y1={Y(rows.length)} x2={X(x)} y2={Y(rows.length) + 8} className="p-cons" />
+          <T x={X(x)} y={Y(rows.length) + 22} anchor="middle" cls="t-mono t-sm">{t}</T>
+        </g>
+      ))}
+      {steps.map(([x, r, n]) => <Step key={n} x={X(x)} y={Y(r) - 9} n={n} />)}
+    </g>
+  );
+}
+
+/* ================= F2.1: przykład — dwa narzędzia, magazyn pracuje w tle ================= */
+export function ToolTimeline() {
+  return (
+    <Fig id="f21tl" code="T M06" title="Wymiana i przygotowanie narzędzia w czasie" h={176}
+      notes={<><Code k="acc">T1 M06 → T2 → … M05 → M06</Code></>}
+      caption={<>Oś pozioma to kolejność bloków programu. 1 — wymiana na T1. 2 — <code>T2</code> obraca magazyn i ustawia nawiertak w pozycji wymiany, podczas gdy frez T1 już skrawa. 3 — po obróbce odjazd i stop wrzeciona. 4 — <code>M06</code> zamienia narzędzia od razu, bez czekania na magazyn.</>}>
+      {() => (
+        <Timeline rows={["wrzeciono", "magazyn"]}
+          bars={[
+            { row: 0, x0: 0, x1: 12, t: "M06", cls: "p-fill-acc" },
+            { row: 0, x0: 13, x1: 72, t: "T1 frezuje płytkę", cls: "p-fill-cut" },
+            { row: 0, x0: 73, x1: 84, t: "M05", cls: "panel-bg" },
+            { row: 0, x0: 85, x1: 100, t: "M06", cls: "p-fill-acc" },
+            { row: 1, x0: 13, x1: 40, t: "obrót do T2", cls: "panel-bg" },
+          ]}
+          ticks={[[0, "T1 M06"], [13, "T2"], [73, "M05"], [92, "M06"]]}
+          steps={[[6, 0, 1], [13, 1, 2], [78, 0, 3], [92, 0, 4]]} />
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F2.4: przykład — kiedy płynie chłodziwo ================= */
+export function CoolantTimeline() {
+  return (
+    <Fig id="f24tl" code="M08 M09" title="Chłodziwo w programie płytki" h={222}
+      notes={<><Code k="acc">S2500 M03 → M08 → … → G00 Z5. → M09 → M05</Code></>}
+      caption={<>Oś pozioma to kolejność bloków. 1 — obroty. 2 — chłodziwo płynie, zanim frez dojedzie do materiału. 3 — po konturze odjazd w Z. 4 — najpierw M09, potem M05: wrzeciono nie stoi zalane, a ostatnie obroty zrzucają ciecz z narzędzia.</>}>
+      {() => (
+        <Timeline rows={["wrzeciono", "ruch", "chłodziwo"]}
+          bars={[
+            { row: 0, x0: 0, x1: 86, t: "obroty M03", cls: "p-fill-acc" },
+            { row: 1, x0: 22, x1: 66, t: "najazd i kontur", cls: "p-fill-cut" },
+            { row: 2, x0: 10, x1: 76, t: "M08 — ciecz płynie", cls: "p-fill-cut" },
+          ]}
+          ticks={[[0, "M03"], [10, "M08"], [22, "najazd"], [66, "Z5."], [76, "M09"], [86, "M05"]]}
+          steps={[[3, 0, 1], [10, 2, 2], [66, 1, 3], [76, 2, 4]]} />
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F2.2: przykład — obroty wyliczone a limit maszyny ================= */
+export function SpindleLimit() {
+  const W = 230, max = 10000, X = (v: number) => 96 + (v / max) * W;
+  const rows: [string, number, string][] = [["stal C45", 2546, "S2500"], ["aluminium", 9549, "S8000"]];
+  return (
+    <Fig id="f22lm" code="S" title="Wyliczone S a maksimum wrzeciona" h={150}
+      notes={<><Code k="acc">stal: S2500 M03</Code><Code k="acc">aluminium: S8000 M03 → vc ≈ 251</Code></>}
+      caption={<>Słupek — obroty z wzoru n = 1000 · vc / (π · D) dla freza Ø10. Pionowa kreska — maksimum maszyny 8000 obr/min. Część ponad limitem (czerwona) jest nieosiągalna, więc w programie stoi S8000, a skrawanie idzie z mniejszą vc.</>}>
+      {() => (
+        <g>
+          {rows.map(([n, v, s], i) => {
+            const y = 26 + i * 40, cut = Math.min(v, 8000);
+            return (
+              <g key={n}>
+                <T x={88} y={y + 15} anchor="end" cls="t-sm">{n}</T>
+                <rect x={X(0)} y={y} width={X(cut) - X(0)} height={22} rx={4} className="p-fill-acc" />
+                {v > 8000 && <rect x={X(8000)} y={y} width={X(v) - X(8000)} height={22} rx={4} className="p-fill-bad" />}
+                <T x={X(v) + 6} y={y + 15} cls="t-mono t-sm">{v}</T>
+                <T x={X(cut) - 6} y={y + 15} anchor="end" cls="t-acc t-b t-mono t-sm">{s}</T>
+              </g>
+            );
+          })}
+          <line x1={X(8000)} y1={14} x2={X(8000)} y2={112} className="p-bad" />
+          <T x={X(8000)} y={126} anchor="middle" cls="t-bad t-sm t-b">max 8000</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const f2Figs = {
   "f21-change": () => <ToolChange />,
   "f22-dir": () => <SpindleDir />,
   "f23-fz": () => <ToothFeed />,
   "f23-feeds": () => <PlateFeeds />,
   "f24-coolant": () => <Coolant />,
+  "f21-time": () => <ToolTimeline />,
+  "f22-limit": () => <SpindleLimit />,
+  "f24-time": () => <CoolantTimeline />,
 };
