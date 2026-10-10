@@ -104,9 +104,9 @@ export const f3_2: LessonDoc = {
     { kind: "choice", q: "Czym G01 różni się od G00?", options: ["jedzie z posuwem F po odcinku prostym", "jedzie szybciej", "działa tylko w Z", "nie wymaga współrzędnych"], answer: 0, why: "G01 to ruch roboczy z posuwem." },
     { kind: "gap", q: "Frez Ø12, prawa krawędź detalu w X60. Jaki X środka dla obróbki tej krawędzi z zewnątrz?", template: "X{0}", answers: [["66"]], why: "60 + 6 = 66." },
     { kind: "choice", q: "Program bez żadnego F ma blok `G01 X50.`. Co się stanie?", options: ["alarm — brak posuwu", "ruch z maksymalną prędkością", "ruch z F100", "ruch G00"], answer: 0, why: "G01 wymaga posuwu." },
-    { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem przy M03 to:", options: ["frezowanie współbieżne", "frezowanie przeciwbieżne", "wiercenie", "bez znaczenia"], answer: 0, why: "Ostrze wchodzi w materiał od najgrubszego wióra." },
-    { kind: "token", q: "Tapnij blok, który **wchodzi w materiał**.", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 1, why: "Zejście na Z−5 z posuwem wgłębnym." },
-    { kind: "choice", q: "Tor po samym konturze X0…X80 frezem Ø10. Detal wyjdzie:", options: ["o 10 mm krótszy", "o 5 mm krótszy", "w wymiarze", "o 10 mm dłuższy"], answer: 0, why: "Frez zbiera promień z każdej strony: 2 × 5 = 10 mm." },
+    { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem przy M03 — jakie to frezowanie?", options: ["frezowanie współbieżne", "frezowanie przeciwbieżne", "wiercenie", "bez znaczenia"], answer: 0, why: "Ostrze wchodzi w materiał od najgrubszego wióra." },
+    { kind: "token", q: "Wskaż blok, który **wchodzi w materiał**.", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 1, why: "Zejście na Z−5 z posuwem wgłębnym." },
+    { kind: "choice", q: "Program prowadzi środek freza Ø10 po samym konturze X0…X80. Jaki wyjdzie detal?", options: ["o 10 mm krótszy", "o 5 mm krótszy", "w wymiarze", "o 10 mm dłuższy"], answer: 0, why: "Frez zbiera promień z każdej strony: 2 × 5 = 10 mm." },
   ],
 
   summary: [

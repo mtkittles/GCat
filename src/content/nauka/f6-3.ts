@@ -87,9 +87,9 @@ export const f6_3: LessonDoc = {
       kind: "drill",
       intro: "Spirala i łuki najazdu.",
       questions: [
-        { kind: "gap", q: "Spirala o promieniu 4 mm, skok 1,5 mm na obrót. Kąt (stopnie, w przybliżeniu):", template: "{0}°", answers: [["3.4", "3,4", "3"]], why: "Obwód 25,1 mm, atan(1,5 / 25,1) ≈ 3,4°." },
+        { kind: "gap", q: "Spirala o promieniu 4 mm schodzi 1,5 mm na obrót. Pod jakim kątem schodzi frez (stopnie, w przybliżeniu)?", template: "{0}°", answers: [["3.4", "3,4", "3"]], why: "Obwód 25,1 mm, atan(1,5 / 25,1) ≈ 3,4°." },
         { kind: "choice", q: "Kieszeń Ø30, frez Ø12. Który promień łuku najazdu jest poprawny?", options: ["R10", "R5", "R16", "R6"], answer: 0, why: "Większy niż 6 (promień freza) i mniejszy niż 15 (promień kieszeni)." },
-        { kind: "gap", q: "Kieszeń wyszła Ø25,06 zamiast Ø25,00. Zmiana D:", template: "{0}", answers: [["+0.03", "0.03", "+0,03", "0,03"]], why: "Za duża o 0,06 — zwiększasz D o połowę, frez odsuwa się od ściany." },
+        { kind: "gap", q: "Kieszeń wyszła Ø25,06 zamiast Ø25,00. O ile zmienisz D?", template: "{0}", answers: [["+0.03", "0.03", "+0,03", "0,03"]], why: "Za duża o 0,06 — zwiększasz D o połowę, frez odsuwa się od ściany." },
       ],
     },
   ],
@@ -111,12 +111,12 @@ export const f6_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F6.2", q: "Kierunek wykańczania ścian kieszeni przy M03 i G41:", options: ["przeciwnie do zegara", "zgodnie z zegarem", "dowolny", "zygzak"], answer: 0, why: "Wewnątrz współbieżnie." },
+    { kind: "choice", review: "F6.2", q: "W którą stronę obiegasz ściany kieszeni przy wykańczaniu z M03 i G41?", options: ["przeciwnie do zegara", "zgodnie z zegarem", "dowolny", "zygzak"], answer: 0, why: "Wewnątrz współbieżnie." },
     { kind: "choice", q: "Czym różni się blok spirali od pełnego okręgu?", options: ["dodatkowym ruchem w Z", "adresem R", "kodem G01", "niczym"], answer: 0, why: "G03 I… z Z to zwój spirali." },
-    { kind: "gap", q: "Start spirali X65 Y30, środek kieszeni X60 Y30. I:", template: "I{0}", answers: [["-5"]], why: "60 − 65 = −5." },
+    { kind: "gap", q: "Start spirali X65 Y30, środek kieszeni X60 Y30. Ile wynosi I?", template: "I{0}", answers: [["-5"]], why: "60 − 65 = −5." },
     { kind: "choice", q: "Kieszeń za duża. Co z D?", options: ["zwiększyć", "zmniejszyć", "nie zmieniać", "zmienić H"], answer: 0, why: "Większe D odsuwa frez od ściany kieszeni." },
     { kind: "choice", q: "Frez Ø10, spirala R3. Do jakiego promienia sięga materiał usunięty spiralą?", options: ["8 mm", "3 mm", "5 mm", "13 mm"], answer: 0, why: "3 + 5 = 8." },
-    { kind: "token", q: "Tapnij blok, który **wykańcza ścianę** kieszeni.", block: "G03 I-3. Z-4. | G03 X70. Y25. R7. | G03 I-10.", answer: 2, why: "Pełny okrąg po ścianie Ø20." },
+    { kind: "token", q: "Wskaż blok, który **wykańcza ścianę** kieszeni.", block: "G03 I-3. Z-4. | G03 X70. Y25. R7. | G03 I-10.", answer: 2, why: "Pełny okrąg po ścianie Ø20." },
   ],
 
   summary: [

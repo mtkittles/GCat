@@ -55,8 +55,8 @@ export const t0_2: LessonDoc = {
       kind: "drill",
       intro: "Przeliczenia średnicowe.",
       questions: [
-        { kind: "gap", q: "Z Ø36 na Ø30. Głębokość skrawania ap:", template: "{0} mm", answers: [["3"]], why: "(36 − 30) / 2 = 3." },
-        { kind: "gap", q: "Faza 1,5 × 45° na czopie Ø24. X na początku fazy (na czole):", template: "X{0}", answers: [["21"]], why: "24 − 2 · 1,5 = 21." },
+        { kind: "gap", q: "Toczysz z Ø36 na Ø30 jednym przejściem. Ile wynosi głębokość skrawania ap?", template: "{0} mm", answers: [["3"]], why: "(36 − 30) / 2 = 3." },
+        { kind: "gap", q: "Faza 1,5 × 45° na czopie Ø24. Na jakiej średnicy faza zaczyna się na czole?", template: "X{0}", answers: [["21"]], why: "24 − 2 · 1,5 = 21." },
         { kind: "choice", q: "Nóż stoi w X40. Ile milimetrów od osi?", options: ["20", "40", "80", "10"], answer: 0, why: "X to średnica, promień to połowa." },
       ],
     },
@@ -81,9 +81,9 @@ export const t0_2: LessonDoc = {
   quiz: [
     { kind: "choice", review: "T0.1", q: "Gdzie leży X0 na tokarce?", options: ["na osi obrotu", "na powierzchni pręta", "na czole", "na szczękach"], answer: 0, why: "X0 to oś." },
     { kind: "choice", q: "Co oznacza `X30` na tokarce z programowaniem średnicowym?", options: ["średnicę 30 mm", "30 mm od osi", "30 mm od czoła", "promień 30"], answer: 0, why: "Nóż stoi 15 mm od osi." },
-    { kind: "gap", q: "Z Ø50 na Ø42. ap:", template: "{0} mm", answers: [["4"]], why: "(50 − 42) / 2 = 4." },
-    { kind: "gap", q: "Faza 1 × 45° kończy się na Ø30 w Z−21. Początek fazy na stopniu Z−20:", template: "X{0}", answers: [["28"]], why: "30 − 2 · 1 = 28." },
-    { kind: "choice", q: "Promień łuku R na tokarce podajesz:", options: ["jako promień", "jako średnicę", "zależnie od X", "w U"], answer: 0, why: "R to zawsze promień." },
+    { kind: "gap", q: "Toczysz z Ø50 na Ø42 jednym przejściem. Ile wynosi ap?", template: "{0} mm", answers: [["4"]], why: "(50 − 42) / 2 = 4." },
+    { kind: "gap", q: "Faza 1 × 45° zaczyna się na czole stopnia w Z−20 i kończy na Ø30 w Z−21. Na jakiej średnicy się zaczyna?", template: "X{0}", answers: [["28"]], why: "30 − 2 · 1 = 28." },
+    { kind: "choice", q: "Jak podajesz promień łuku R na tokarce z programowaniem średnicowym?", options: ["jako promień", "jako średnicę", "zależnie od X", "w U"], answer: 0, why: "R to zawsze promień." },
     { kind: "choice", q: "Po co średnice w programie?", options: ["tak wymiaruje się rysunki i mierzy detal", "bo sterowanie liczy szybciej", "bo X nie może być promieniem", "bez powodu"], answer: 0, why: "Liczby z rysunku i pomiaru trafiają do programu bez przeliczeń." },
   ],
 

@@ -110,7 +110,7 @@ export const f4_3: LessonDoc = {
     { kind: "choice", review: "F4.2", q: "Płytka obiegana zgodnie z zegarem, M03. Który kod korekcji?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Materiał po prawej, frez po lewej — współbieżnie." },
     { kind: "choice", q: "Dlaczego najazd prostopadły zostawia ślad?", options: ["frez zatrzymuje się i zmienia kierunek na ścianie", "bo G01 jest wolniejsze", "przez chłodziwo", "nie zostawia"], answer: 0, why: "Zmiana obciążenia i ugięcia w jednym punkcie." },
     { kind: "choice", q: "Czym włącza się korekcję przy najeździe po łuku?", options: ["odcinkiem przed łukiem", "samym łukiem", "blokiem G40", "G43"], answer: 0, why: "Korekcję włącza i wyłącza tylko ruch liniowy." },
-    { kind: "choice", q: "Frez Ø10. Najmniejszy sensowny promień łuku najazdu:", options: ["większy niż 5 mm", "dokładnie 5 mm", "2 mm", "dowolny"], answer: 0, why: "Środek freza musi zmieścić się po wewnętrznej stronie łuku." },
+    { kind: "choice", q: "Frez Ø10. Jaki jest najmniejszy sensowny promień łuku najazdu?", options: ["większy niż 5 mm", "dokładnie 5 mm", "2 mm", "dowolny"], answer: 0, why: "Środek freza musi zmieścić się po wewnętrznej stronie łuku." },
     { kind: "order", q: "Ułóż wejście i wyjście z konturu.", items: ["G40 G01 X-20. Y10.", "G41 D1 G01 X-10. Y0. F400", "(KONTUR)", "G03 X0. Y10. R10.", "G03 X-10. Y20. R10."], answer: [1, 3, 2, 4, 0], why: "Włączenie korekcji, łuk najazdu, kontur, łuk odjazdu, wyłączenie korekcji." },
   ],
 

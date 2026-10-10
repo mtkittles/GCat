@@ -89,7 +89,7 @@ export const f3_5: LessonDoc = {
     { kind: "choice", q: "Czy `G04` jest modalne?", options: ["nie, działa tylko w swoim bloku", "tak, do G00", "tak, do końca programu", "zależy od P"], answer: 0, why: "Postój jest jednorazowy." },
     { kind: "gap", q: "S2000. Ile sekund trwają 4 obroty?", template: "{0} s", answers: [["0.12", "0,12"]], why: "60 / 2000 = 0,03 s na obrót, razy 4." },
     { kind: "choice", q: "Gdzie postój G04 szkodzi?", options: ["na ścianie konturu", "na dnie nawiercenia", "przy łamaniu wióra", "po M08 na starszej maszynie"], answer: 0, why: "Frez oparty o ścianę zostawia ślad." },
-    { kind: "token", q: "Tapnij zapis postoju **500 ms**.", block: "G04 X500 | G04 P500 | G04 X5.", answer: 1, why: "P bez kropki — milisekundy." },
+    { kind: "token", q: "Wskaż zapis postoju **500 ms**.", block: "G04 X500 | G04 P500 | G04 X5.", answer: 1, why: "P bez kropki — milisekundy." },
   ],
 
   summary: [

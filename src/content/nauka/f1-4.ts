@@ -52,7 +52,7 @@ export const f1_4: LessonDoc = {
       kind: "drill",
       intro: "Przeliczenia i wybór płaszczyzny.",
       questions: [
-        { kind: "token", q: "Tapnij słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
+        { kind: "token", q: "Wskaż słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
         { kind: "gap", q: "G20 jest aktywne. Ile milimetrów to `X3.`?", template: "{0} mm", answers: [["76.2", "76,2"]], why: "3 × 25,4 = 76,2 mm." },
         { kind: "gap", q: "Rysunek w calach: 2,0″. Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
         { kind: "choice", q: "Frezarka pionowa, kontur w widoku z góry z łukami. Jaka płaszczyzna?", options: ["G17", "G18", "G19", "bez znaczenia"], answer: 0, why: "Widok z góry to płaszczyzna XY — G17." },
@@ -81,8 +81,8 @@ export const f1_4: LessonDoc = {
     { kind: "choice", q: "Co ustawia `G21`?", options: ["płaszczyznę XY", "milimetry", "wymiary absolutne", "zero detalu"], answer: 1, why: "G21 — milimetry, G20 — cale." },
     { kind: "gap", q: "G20 aktywne. Ile mm to `Y0.5`?", template: "{0} mm", answers: [["12.7", "12,7"]], why: "0,5 × 25,4 = 12,7." },
     { kind: "choice", q: "Na co **nie** wpływa wybór płaszczyzny G17/G18/G19?", options: ["łuki G02/G03", "korekcję promienia", "ruch po prostej G01", "oś cyklu wiercenia"], answer: 2, why: "Ruch po prostej przebiega tak samo w każdej płaszczyźnie." },
-    { kind: "choice", q: "W G17 wiercenie cyklem odbywa się wzdłuż osi:", options: ["X", "Y", "Z", "wybranej w bloku"], answer: 2, why: "Oś wiercenia jest prostopadła do płaszczyzny, dla XY to Z." },
-    { kind: "choice", q: "Program calowy uruchomiony w G21 bez zmiany wartości. Detal wyjdzie:", options: ["25,4 razy za duży", "25,4 razy za mały", "w porządku", "sterowanie przeliczy samo"], answer: 1, why: "Wartości w calach czytane jako milimetry są 25,4 razy za małe." },
+    { kind: "choice", q: "Wzdłuż której osi wierci cykl przy aktywnym G17?", options: ["X", "Y", "Z", "wybranej w bloku"], answer: 2, why: "Oś wiercenia jest prostopadła do płaszczyzny, dla XY to Z." },
+    { kind: "choice", q: "Program calowy uruchomiono w G21 bez przeliczenia wartości. Jaki wyjdzie detal?", options: ["25,4 razy za duży", "25,4 razy za mały", "w porządku", "sterowanie przeliczy samo"], answer: 1, why: "Wartości w calach czytane jako milimetry są 25,4 razy za małe." },
     { kind: "choice", q: "Z której strony patrzy się na płaszczyznę XY, oceniając kierunek G02?", options: ["od +Z, z góry", "od −Z, z dołu", "od +X", "zależy od sterowania"], answer: 0, why: "Od strony dodatniej osi prostopadłej do płaszczyzny." },
   ],
 

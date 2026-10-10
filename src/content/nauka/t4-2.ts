@@ -41,8 +41,8 @@ export const t4_2: LessonDoc = {
       kind: "drill",
       intro: "Kierunki ostrza i odczyt płytek.",
       questions: [
-        { kind: "choice", q: "Wytaczak toczy otwór w stronę uchwytu. Kierunek ostrza:", options: ["2", "3", "8", "0"], answer: 0, why: "P wyżej i bliżej uchwytu niż środek naroża." },
-        { kind: "gap", q: "Płytka DNMG 150612. Promień naroża (mm):", template: "R{0}", answers: [["1.2", "1,2"]], why: "Ostatnie cyfry 12 → 1,2 mm." },
+        { kind: "choice", q: "Wytaczak toczy otwór w stronę uchwytu. Jaki kierunek ostrza wpiszesz w tabeli korekcji?", options: ["2", "3", "8", "0"], answer: 0, why: "P wyżej i bliżej uchwytu niż środek naroża." },
+        { kind: "gap", q: "Jaki promień naroża ma płytka DNMG 150612?", template: "R{0}", answers: [["1.2", "1,2"]], why: "Ostatnie cyfry 12 → 1,2 mm." },
         { kind: "choice", q: "Nóż zewnętrzny ma w tabeli T = 2 zamiast 3. Co się stanie z G42?", options: ["sterowanie źle wyznaczy środek naroża i przesunie kontur", "nic", "alarm przy każdym bloku", "wyłączy się G96"], answer: 0, why: "Kierunek ostrza decyduje, gdzie leży środek naroża względem P." },
       ],
     },
@@ -64,10 +64,10 @@ export const t4_2: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T4.1", q: "Toczenie zewnętrzne w stronę uchwytu. Kod korekcji:", options: ["G42", "G41", "G40", "G96"], answer: 0, why: "Nóż po prawej stronie kierunku ruchu." },
+    { kind: "choice", review: "T4.1", q: "Toczenie zewnętrzne w stronę uchwytu. Którym kodem włączysz korekcję?", options: ["G42", "G41", "G40", "G96"], answer: 0, why: "Nóż po prawej stronie kierunku ruchu." },
     { kind: "choice", q: "Co mówi sterowaniu kierunek ostrza T?", options: ["gdzie leży punkt P względem środka naroża", "w którą stronę kręci się wrzeciono", "numer pozycji w głowicy", "kierunek posuwu"], answer: 0, why: "Z R i T sterowanie wyznacza środek naroża." },
-    { kind: "choice", q: "Kierunek ostrza dla typowego noża zewnętrznego:", options: ["3", "2", "8", "5"], answer: 0, why: "P niżej i bliżej uchwytu." },
-    { kind: "gap", q: "Płytka CNMG 120404. Promień naroża (mm):", template: "R{0}", answers: [["0.4", "0,4"]], why: "04 → 0,4 mm." },
+    { kind: "choice", q: "Jaki kierunek ostrza ma typowy nóż zewnętrzny (głowica za osią)?", options: ["3", "2", "8", "5"], answer: 0, why: "P niżej i bliżej uchwytu." },
+    { kind: "gap", q: "Jaki promień naroża ma płytka CNMG 120404?", template: "R{0}", answers: [["0.4", "0,4"]], why: "04 → 0,4 mm." },
     { kind: "choice", q: "Z którego wiersza tabeli korzysta `T0303`?", options: ["03", "30", "33", "01"], answer: 0, why: "Dwie ostatnie cyfry." },
   ],
 

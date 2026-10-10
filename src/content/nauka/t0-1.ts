@@ -47,7 +47,7 @@ export const t0_1: LessonDoc = {
       intro: "Kierunki i współrzędne.",
       questions: [
         { kind: "choice", q: "W którą stronę prowadzi +Z na tokarce?", options: ["od uchwytu w stronę konika", "do uchwytu", "od osi na zewnątrz", "w stronę operatora"], answer: 0, why: "+Z oddala nóż od uchwytu i detalu." },
-        { kind: "gap", q: "Stopień Ø36 zaczyna się 40 mm od czoła. Punkt na krawędzi stopnia:", template: "X{0} Z{1}", answers: [["36"], ["-40"]], why: "Średnica 36, 40 mm w stronę uchwytu." },
+        { kind: "gap", q: "Stopień Ø36 zaczyna się 40 mm od czoła (Z0 na czole). Jakie współrzędne ma punkt na krawędzi stopnia?", template: "X{0} Z{1}", answers: [["36"], ["-40"]], why: "Średnica 36, 40 mm w stronę uchwytu." },
       ],
     },
   ],
@@ -70,10 +70,10 @@ export const t0_1: LessonDoc = {
   quiz: [
     { kind: "choice", q: "Wzdłuż czego biegnie oś Z na tokarce?", options: ["wzdłuż osi wrzeciona", "promieniowo", "pionowo", "w stronę operatora"], answer: 0, why: "Z pokrywa się z osią obrotu." },
     { kind: "choice", q: "Gdzie zwykle leży zero detalu na tokarce?", options: ["na osi obrotu, na czole detalu", "na szczękach uchwytu", "na końcu pręta w uchwycie", "na powierzchni Ø40"], answer: 0, why: "X0 na osi, Z0 na czole." },
-    { kind: "choice", q: "Nóż ma odjechać od detalu promieniowo. Kierunek:", options: ["+X", "−X", "+Z", "−Z"], answer: 0, why: "+X prowadzi od osi na zewnątrz." },
-    { kind: "gap", q: "Koniec czopa Ø20, 20 mm od czoła. Współrzędne:", template: "X{0} Z{1}", answers: [["20"], ["-20"]], why: "Średnica 20, Z ujemne w stronę uchwytu." },
+    { kind: "choice", q: "Nóż ma odjechać od detalu promieniowo. W którym kierunku?", options: ["+X", "−X", "+Z", "−Z"], answer: 0, why: "+X prowadzi od osi na zewnątrz." },
+    { kind: "gap", q: "Czop Ø20 kończy się 20 mm od czoła. Jakie współrzędne ma jego koniec?", template: "X{0} Z{1}", answers: [["20"], ["-20"]], why: "Średnica 20, Z ujemne w stronę uchwytu." },
     { kind: "choice", q: "Dlaczego zwykła tokarka nie potrzebuje osi Y?", options: ["detal się obraca, więc cała jego powierzchnia przechodzi przed nożem", "bo ma dwie osie Z", "bo X zastępuje Y", "bo tak wymaga G18"], answer: 0, why: "Obrót detalu zastępuje trzecią oś." },
-    { kind: "choice", q: "Czy X bywa ujemne przy zwykłej obróbce zewnętrznej?", options: ["nie — X0 to oś obrotu", "tak, po drugiej stronie detalu", "zawsze przy planowaniu", "tylko w G91"], answer: 0, why: "Nóż pracuje po jednej stronie osi." },
+    { kind: "choice", q: "Czy X bywa ujemne przy zwykłej obróbce zewnętrznej?", options: ["nie — X0 to oś obrotu", "tak, po drugiej stronie detalu", "zawsze przy planowaniu", "tylko w G91"], answer: 0, why: "Nóż pracuje po jednej stronie osi. Wyjątek: przy planowaniu czoła nóż przechodzi kawałek za oś, np. X−1,6 (lekcja T2.3)." },
   ],
 
   summary: [

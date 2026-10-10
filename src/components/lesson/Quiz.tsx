@@ -138,7 +138,7 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
         return (
           <div className="ord">
             <ol className="ord-seq">
-              {seq.length === 0 && <li className="ord-empty">Tapnij elementy poniżej w kolejności wykonania.</li>}
+              {seq.length === 0 && <li className="ord-empty">Wybieraj elementy poniżej w kolejności wykonania.</li>}
               {seq.map((i, k) => {
                 const st = checked ? (q.answer[k] === i ? "is-ok" : "is-bad") : "";
                 return <li key={i}><button type="button" disabled={checked} className={`ord-item ${st}`} onClick={() => setAns(seq.filter((x) => x !== i))}>
@@ -154,7 +154,7 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
         );
       })()}
       {q.kind === "point" && (
-        <PointGrid id={`q${uid}${qi}`} title="Tapnij, aby zaznaczyć" picked={ans as [number, number] | null}
+        <PointGrid id={`q${uid}${qi}`} title="Kliknij, aby zaznaczyć" picked={ans as [number, number] | null}
           onPick={(p) => setAns(p)} target={q.target} reveal={checked} locked={checked} />
       )}
 

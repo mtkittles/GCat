@@ -53,7 +53,7 @@ export const f2_4: LessonDoc = {
       intro: "Chłodziwo w kolejności programu.",
       questions: [
         { kind: "order", q: "Ułóż w typowej kolejności.", items: ["M09", "(OBROBKA)", "T1 M06", "M08", "S2500 M03"], answer: [2, 4, 3, 1, 0], why: "Wymiana, obroty, chłodziwo, obróbka, wyłączenie chłodziwa." },
-        { kind: "token", q: "Tapnij kod, który **włącza** chłodziwo zalewowe.", block: "M05 M09 M08 M03", answer: 2, why: "M08 — chłodziwo włączone." },
+        { kind: "token", q: "Wskaż kod, który **włącza** chłodziwo zalewowe.", block: "M05 M09 M08 M03", answer: 2, why: "M08 — chłodziwo włączone." },
         { kind: "choice", q: "Frezowanie węglikiem, chłodziwo raz dochodzi do ostrza, raz nie. Co grozi ostrzu?", options: ["pęknięcia cieplne", "nic — lepsze niż brak chłodzenia", "korozja", "wolniejsze obroty"], answer: 0, why: "Przerywany strumień pogłębia skoki temperatury." },
       ],
     },
@@ -80,8 +80,8 @@ export const f2_4: LessonDoc = {
     { kind: "choice", q: "Co robi `M09`?", options: ["włącza chłodziwo", "wyłącza chłodziwo", "włącza mgłę", "zatrzymuje wrzeciono"], answer: 1, why: "M09 — chłodziwo wyłączone." },
     { kind: "choice", q: "Gdzie w programie stoi `M08`?", options: ["po włączeniu obrotów, przed najazdem", "przed M06", "po M30", "w bloku startowym"], answer: 0, why: "Chłodziwo ma płynąć, zanim narzędzie dotknie materiału." },
     { kind: "choice", q: "Który materiał zwykle obrabia się na sucho?", options: ["żeliwo szare", "stop tytanu", "aluminium", "stal nierdzewna przy wierceniu"], answer: 0, why: "Żeliwo szare daje suchy, kruchy wiór." },
-    { kind: "choice", q: "Dlaczego stopy tytanu wymagają obfitego chłodzenia?", options: ["słabo przewodzą ciepło, więc gromadzi się ono przy ostrzu", "łatwo się palą przy każdej obróbce", "tak wymaga M08", "żeby zmniejszyć obroty"], answer: 0, why: "Ciepło nie odpływa w detal i wiór, tylko nagrzewa ostrze." },
-    { kind: "token", q: "Tapnij kod, który zwykle włącza **mgłę**.", block: "M08 M07 M09", answer: 1, why: "M07 — mgła, na maszynach, które ją mają." },
+    { kind: "choice", q: "Dlaczego stopy tytanu wymagają obfitego chłodzenia?", options: ["słabo przewodzą ciepło, więc gromadzi się ono przy ostrzu", "łatwo się palą przy każdej obróbce", "tak wymaga M08", "żeby zmniejszyć obroty"], answer: 0, why: "Mniej ciepła odpływa w detal i wiór niż przy stali, więc więcej zostaje przy ostrzu." },
+    { kind: "token", q: "Wskaż kod, który zwykle włącza **mgłę**.", block: "M08 M07 M09", answer: 1, why: "M07 — mgła, na maszynach, które ją mają." },
   ],
 
   summary: [

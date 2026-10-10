@@ -57,7 +57,7 @@ export const f5_4: LessonDoc = {
 
         { kind: "choice", q: "Cztery otwory na płaskiej płycie, nic nie wystaje. Który kod powrotu?", options: ["G99", "G98", "bez znaczenia", "G80"], answer: 0, why: "G99 skraca drogę — nie ma nad czym przeskakiwać." },
         { kind: "choice", q: "Po którym otworze trzeba wrócić wyżej, jeśli docisk stoi między otworem 2 a 3?", options: ["po otworze 2", "po otworze 3", "po otworze 1", "po każdym"], answer: 0, why: "Wysokość powrotu po otworze 2 decyduje o przejeździe nad dociskiem." },
-        { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99 (dla wszystkich otworów)?", template: "{0} mm", answers: [["444"]], why: "Na każdy otwór 2 × (40 − 3) = 74 mm, razy 6 = 444 mm." },
+        { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. W obu wariantach narzędzie startuje z Z40 i po ostatnim otworze wraca na Z40. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99?", template: "{0} mm", answers: [["370"]], why: "Różnica powstaje tylko na przejazdach między otworami: z G98 narzędzie wraca z R3 na Z40 i zjeżdża z powrotem, czyli 2 × 37 = 74 mm więcej. Przejazdów między 6 otworami jest 5: 5 × 74 = 370 mm. Start i koniec są w obu wariantach takie same." },
         { kind: "order", q: "Ułóż wiercenie z przeskokiem nad dociskiem po drugim otworze.", items: ["G80", "G98 X45.", "G00 Z30.", "G99 G81 X15. Y20. Z-7. R2. F120", "G99 X75."], answer: [2, 3, 1, 4, 0], why: "Poziom początkowy, otwór 1 z G99, otwór 2 z G98, otwór 3, G80." },
       ],
     },
@@ -80,12 +80,12 @@ export const f5_4: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F5.3", q: "M8×1,25 przy S400. F:", template: "F{0}", answers: [["500"]], why: "400 · 1,25 = 500." },
+    { kind: "gap", review: "F5.3", q: "Gwintownik M8×1,25, S400, posuw minutowy (G94). Jaki posuw F wpiszesz w G84?", template: "F{0}", answers: [["500"]], why: "400 · 1,25 = 500." },
     { kind: "choice", q: "Dokąd wraca narzędzie po otworze z G98?", options: ["do poziomu początkowego", "do płaszczyzny R", "do Z0", "do punktu referencyjnego"], answer: 0, why: "G98 — poziom sprzed cyklu." },
     { kind: "choice", q: "Co wyznacza poziom początkowy?", options: ["ostatnie Z przed cyklem", "adres R", "G54", "parametr maszyny"], answer: 0, why: "To wysokość, na której narzędzie stało przed cyklem." },
     { kind: "choice", q: "Czy G98/G99 można zmieniać między otworami w trakcie cyklu?", options: ["tak, oba są modalne", "nie, tylko przed cyklem", "tylko na Sinumeriku", "tylko z G80"], answer: 0, why: "Wystarczy dopisać G98 lub G99 do bloku z pozycją otworu." },
     { kind: "choice", q: "Które kody na Fanucu też kasują cykl?", options: ["G00–G03", "G98 i G99", "M08", "G54"], answer: 0, why: "Kody grupy ruchu kasują cykl, ale jawne G80 jest czytelniejsze." },
-    { kind: "token", q: "Tapnij blok, po którym narzędzie **przeskoczy nad dociskiem**.", block: "G99 G81 X15. Y20. Z-7. R2. F120 | G98 X45. | G99 X75.", answer: 1, why: "G98 po otworze w X45 wraca na poziom początkowy." },
+    { kind: "token", q: "Wskaż blok, po którym narzędzie **przeskoczy nad dociskiem**.", block: "G99 G81 X15. Y20. Z-7. R2. F120 | G98 X45. | G99 X75.", answer: 1, why: "G98 po otworze w X45 wraca na poziom początkowy." },
   ],
 
   summary: [

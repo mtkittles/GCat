@@ -106,9 +106,9 @@ export const t1_2: LessonDoc = {
     { kind: "choice", review: "T1.1", q: "Które słowo działa tylko w swoim bloku?", options: ["G04", "G01", "F0.2", "G00"], answer: 0, why: "Postój jest jednorazowy." },
     { kind: "choice", q: "Co oznacza `W-10.` na tokarce Fanuc?", options: ["10 mm w stronę uchwytu od bieżącego punktu", "Z−10 od zera W", "średnicę 10", "postój 10 s"], answer: 0, why: "W to przyrost w Z." },
     { kind: "gap", q: "Nóż w X36. Blok `U-6.`. Na jakiej średnicy stanie?", template: "X{0}", answers: [["30"]], why: "36 − 6 = 30." },
-    { kind: "choice", q: "`U-6.` przesuwa nóż w stronę osi o:", options: ["3 mm", "6 mm", "12 mm", "zależy od Z"], answer: 0, why: "U jest w średnicy." },
+    { kind: "choice", q: "O ile milimetrów w stronę osi przesuwa nóż blok `U-6.`?", options: ["3 mm", "6 mm", "12 mm", "zależy od Z"], answer: 0, why: "U jest w średnicy." },
     { kind: "choice", q: "Jak zapisać przyrost w X na Sinumeriku?", options: ["`X=IC(-6)` albo G91", "`U-6`", "`G90 X-6`", "`W-6`"], answer: 0, why: "IC — przyrostowo dla jednej osi." },
-    { kind: "token", q: "Tapnij słowo **absolutne**.", block: "G01 U-4. Z-30. F0.2", answer: 2, why: "Z-30. to cel od zera. U-4. to przyrost." },
+    { kind: "token", q: "Wskaż słowo **absolutne**.", block: "G01 U-4. Z-30. F0.2", answer: 2, why: "Z-30. to cel od zera. U-4. to przyrost." },
   ],
 
   summary: [

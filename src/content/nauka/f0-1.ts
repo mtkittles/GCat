@@ -92,9 +92,9 @@ export const f0_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", q: "Na frezarce pionowej ruch w **+Z** oznacza, że narzędzie:",
+    { kind: "choice", q: "Co robi narzędzie frezarki pionowej, gdy jedzie w **+Z**?",
       options: ["zbliża się do detalu", "odjeżdża od detalu w górę", "przesuwa się w prawo", "przesuwa się w stronę operatora"],
-      answer: 1, why: "+Z zawsze zwiększa odległość między narzędziem a detalem. Na frezarce pionowej to ruch w górę." },
+      answer: 1, why: "Wg ISO 841 ruch w +Z zwiększa odległość między narzędziem a detalem. Na frezarce pionowej to ruch w górę." },
     { kind: "choice", q: "Z0 leży na górnej powierzchni. Frez ma zejść **3 mm** w materiał. Która wartość jest poprawna?",
       options: ["`Z3`", "`Z-3`", "`Z0.3`", "`Z-0.3`"],
       answer: 1, why: "Materiał jest pod Z0, więc głębokość ma minus: `Z-3`. `Z3` to 3 mm nad powierzchnią." },

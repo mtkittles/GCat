@@ -87,8 +87,8 @@ export const f5_1: LessonDoc = {
       questions: [
     {"kind":"bughunt","q":"Cykl wiercenia. Który blok jest błędny?","program":"G00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z3. R2. F120\nX45.\nX75.\nG80","answer":1,"why":"Z3. to dno otworu 3 mm NAD powierzchnią — wiertło niczego nie wywierci albo sterowanie zgłosi alarm. Dno musi być ujemne: Z-7."},
 
-        { kind: "token", q: "Tapnij słowo, które podaje **płaszczyznę R**.", block: "G81 X20. Y15. Z-8. R3. F100", answer: 4, why: "R3. — posuw zaczyna się 3 mm nad Z0." },
-        { kind: "gap", q: "Nawiertak 90°, fazka Ø8. Podaj Z dna.", template: "Z{0}", answers: [["-4"]], why: "8 / 2 = 4." },
+        { kind: "token", q: "Wskaż słowo, które podaje **płaszczyznę R**.", block: "G81 X20. Y15. Z-8. R3. F100", answer: 4, why: "R3. — posuw zaczyna się 3 mm nad Z0." },
+        { kind: "gap", q: "Nawiertak 90°, fazka Ø8. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-4"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 8 / 2 = 4, więc Z−4." },
         { kind: "choice", q: "Czym G82 różni się od G81?", options: ["postojem na dnie przez czas P", "wycofaniem co Q", "gwintowaniem", "niczym"], answer: 0, why: "G82 = G81 + postój P." },
       ],
     },
@@ -116,8 +116,8 @@ export const f5_1: LessonDoc = {
     { kind: "choice", q: "Od jakiej wysokości cykl G81 jedzie posuwem?", options: ["od płaszczyzny R", "od poziomu początkowego", "od Z0", "od dna"], answer: 0, why: "Do R ruch szybki, dalej posuw." },
     { kind: "order", q: "Ułóż ruchy cyklu G81.", items: ["posuw do Z", "ruch szybki nad otwór", "ruch szybki w górę", "ruch szybki do R"], answer: [1, 3, 0, 2], why: "XY, R, dno, powrót." },
     { kind: "choice", q: "Po `G81 X10. Y10. Z-10. R2. F120` stoi blok `X40.`. Co się stanie?", options: ["kolejny otwór w X40 Y10", "ruch szybki bez wiercenia", "alarm", "ruch G01"], answer: 0, why: "Cykl jest modalny." },
-    { kind: "gap", q: "Nawiertak 90°, fazka Ø10. Z dna:", template: "Z{0}", answers: [["-5"]], why: "10 / 2 = 5." },
-    { kind: "token", q: "Tapnij słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 6, why: "P300 — 0,3 s." },
+    { kind: "gap", q: "Nawiertak 90°, fazka Ø10. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-5"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 10 / 2 = 5, więc Z−5." },
+    { kind: "token", q: "Wskaż słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 6, why: "P300 — 0,3 s." },
     { kind: "choice", q: "Po co nawiercać przed wierceniem?", options: ["wiertło nie ucieka i otwór ma właściwe położenie", "żeby otwór był głębszy", "bo wymaga tego G81", "żeby ominąć G80"], answer: 0, why: "Stożek prowadzi wiertło przy wejściu." },
   ],
 

@@ -46,14 +46,14 @@ export const f2_1: LessonDoc = {
       intro: "Po frezowaniu program ma przejść na nawiertak T2. Dopisz wymianę narzędzia razem z tym, co musi jej towarzyszyć.",
       starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\n(DOPISZ: STOP WRZECIONA, WYMIANA NA T2, KOREKCJA DLUGOSCI H2 Z DOJAZDEM NA Z50, OBROTY S1800 W PRAWO)\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
       checks: [{"t":"require","codes":["T2","M06","H2","S1800","M03"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.","tolerance":0.05}],
-      hints: ["Kolejność: `M05` (wrzeciono stoi przy wymianie), `T2 M06`, `G43 H2 Z50.`, `S1800 M03`.","Numer H musi zgadzać się z numerem narzędzia we wrzecionie — tu H2 dla T2."],
+      hints: ["Kolejność: `M05` (wrzeciono stoi przy wymianie), `T2 M06`, `G43 H2 Z50.`, `S1800 M03`.","W kursie przyjęto, że numer H jest równy numerowi narzędzia — tu H2 dla T2. G43 użyje tego rejestru, który wskażesz."],
       solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nT2 M06 (NAWIERTAK)\nG43 H2 Z50.\nS1800 M03\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
     },
     {
       kind: "drill",
       intro: "Wymiana i przygotowanie narzędzi.",
       questions: [
-        { kind: "token", q: "Tapnij słowo, które **wykonuje** wymianę.", block: "N20 T3 M06", answer: 2, why: "T3 wybiera, M06 wymienia." },
+        { kind: "token", q: "Wskaż słowo, które **wykonuje** wymianę.", block: "N20 T3 M06", answer: 2, why: "T3 wybiera, M06 wymienia." },
         { kind: "gap", q: "Wywołaj narzędzie nr 5 z wymianą.", template: "T{0} M{1}", answers: [["5"], ["06", "6"]], why: "T5 M06." },
         { kind: "choice", q: "We wrzecionie jest T1. Program wykonuje blok `T4`. Czym skrawa maszyna w następnym bloku?", options: ["T4", "T1", "żadnym — alarm", "zależy od S"], answer: 1, why: "Samo T przygotowuje narzędzie w magazynie. Wymiany nie było." },
         { kind: "order", q: "Ułóż zmianę z T1 na T2.", items: ["S3000 M03", "M05", "T2 M06", "G00 Z5."], answer: [3, 1, 2, 0], why: "Odjazd, stop wrzeciona, wymiana, obroty dla nowego narzędzia." },
@@ -80,7 +80,7 @@ export const f2_1: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F1.5", q: "Które kody stoją w bloku startowym?", options: ["`G21 G90 G17 G40 G49 G80`", "`T1 M06 S2500 M03`", "`G43 H1 Z50.`", "`M05 M30`"], answer: 0, why: "Blok startowy ustawia tryby i kasuje korekcje oraz cykle." },
     { kind: "choice", q: "Co robi samo `T2` na centrum z magazynem?", options: ["wymienia narzędzie na T2", "przygotowuje T2 w pozycji wymiany", "włącza korekcję T2", "nic"], answer: 1, why: "Wymianę wykonuje dopiero M06." },
-    { kind: "token", q: "Tapnij słowo, które **wybiera** narzędzie.", block: "N40 M06 T7", answer: 2, why: "T7 wybiera narzędzie nr 7." },
+    { kind: "token", q: "Wskaż słowo, które **wybiera** narzędzie.", block: "N40 M06 T7", answer: 2, why: "T7 wybiera narzędzie nr 7." },
     { kind: "choice", q: "W jakim stanie jest wrzeciono tuż po `M06`?", options: ["obraca się jak przed wymianą", "stoi", "obraca się w lewo", "zależy od T"], answer: 1, why: "Wymiana wymaga zatrzymanego wrzeciona." },
     { kind: "gap", q: "Wymień narzędzie na nr 12.", template: "T{0} M{1}", answers: [["12"], ["06", "6"]], why: "T12 M06." },
     { kind: "choice", q: "Po co przygotowywać następne narzędzie zaraz po wymianie?", options: ["żeby magazyn obracał się w trakcie obróbki i wymiana trwała krócej", "bo tak wymaga M06", "żeby włączyć korekcję", "bez powodu"], answer: 0, why: "Magazyn zdąży ustawić narzędzie, zanim będzie potrzebne." },

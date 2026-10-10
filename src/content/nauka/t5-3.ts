@@ -49,7 +49,7 @@ export const t5_3: LessonDoc = {
       kind: "drill",
       intro: "Symulator GCat pracuje w dialekcie Fanuca, więc zapis Sinumerika ćwiczysz na pytaniach.",
       questions: [
-        { kind: "gap", q: "Fanuc: `U0.6` w drugim bloku G71. Wartość FALX:", template: "{0}", answers: [["0.3", "0,3"]], why: "0,6 w średnicy to 0,3 na stronę." },
+        { kind: "gap", q: "Na Fanucu w drugim bloku G71 jest `U0.6`. Jaką wartość wpiszesz w FALX cyklu CYCLE95?", template: "{0}", answers: [["0.3", "0,3"]], why: "0,6 w średnicy to 0,3 na stronę." },
         { kind: "choice", q: "Co zastępuje `G70 P10 Q20` na Sinumeriku?", options: ["drugie wywołanie cyklu z wykańczaniem w VARI", "M98 P10", "G70", "RET"], answer: 0, why: "Rodzaj obróbki wybiera parametr VARI." },
         { kind: "choice", q: "Jak zapisać promień łuku w języku Siemensa?", options: ["CR=1", "R1.", "I1", "K1"], answer: 0, why: "CR — circle radius." },
       ],
@@ -74,11 +74,11 @@ export const t5_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T5.2", q: "Pierwszy blok konturu dla G72:", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "W G71 — tylko w X." },
+    { kind: "choice", review: "T5.2", q: "Jaki ruch ma pierwszy blok konturu dla G72?", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "W G71 — tylko w X." },
     { kind: "choice", q: "Który parametr CYCLE95 podaje nazwę konturu?", options: ["NPP", "MID", "VARI", "FF1"], answer: 0, why: "NPP — nazwa konturu." },
     { kind: "choice", q: "W czym podawany jest FALX?", options: ["w promieniu", "w średnicy", "w procentach", "w obrotach"], answer: 0, why: "Inaczej niż U w G71." },
     { kind: "choice", q: "Jak na Sinumeriku wybiera się między obróbką zgrubną a wykańczającą?", options: ["parametrem VARI", "kodem G70", "kodem G72", "nazwą konturu"], answer: 0, why: "Jeden cykl, różne warianty." },
-    { kind: "choice", q: "Odpowiednik `G50 S3000` na Sinumeriku:", options: ["LIMS=3000", "G50 S3000", "G96 S3000", "MID=3000"], answer: 0, why: "Limit obrotów." },
+    { kind: "choice", q: "Czym na Sinumeriku zastąpisz `G50 S3000`?", options: ["LIMS=3000", "G50 S3000", "G96 S3000", "MID=3000"], answer: 0, why: "Limit obrotów." },
   ],
 
   summary: [

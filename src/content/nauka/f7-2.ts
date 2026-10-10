@@ -50,7 +50,7 @@ export const f7_2: LessonDoc = {
       kind: "drill",
       intro: "Symulator GCat pracuje w dialekcie Fanuca, więc tu ćwiczysz zapis Sinumerika na pytaniach.",
       questions: [
-        { kind: "token", q: "Tapnij blok, który **wywołuje podprogram** 3 razy.", block: "G0 X10 Y10 | KIESZEN P3 | RET", answer: 1, why: "Nazwa podprogramu i P3." },
+        { kind: "token", q: "Wskaż blok, który **wywołuje podprogram** 3 razy.", block: "G0 X10 Y10 | KIESZEN P3 | RET", answer: 1, why: "Nazwa podprogramu i P3." },
         { kind: "order", q: "Ułóż plik podprogramu z parametrami.", items: ["RET", "PROC OTWOR(REAL XP, REAL YP)", "G0 X=XP Y=YP"], answer: [1, 2, 0], why: "Deklaracja, treść, koniec." },
         { kind: "choice", q: "Czym kończy się podprogram Sinumerika?", options: ["RET albo M17", "M99", "M30", "M98"], answer: 0, why: "M99 to zapis Fanuca." },
         { kind: "gap", q: "Zapisz 6 przebiegów podprogramu ROWEK.", template: "ROWEK P{0}", answers: [["6"]], why: "P podaje liczbę przebiegów." },
@@ -80,8 +80,8 @@ export const f7_2: LessonDoc = {
     { kind: "choice", q: "Jak wywołać podprogram na Sinumeriku?", options: ["jego nazwą", "M98 P…", "G65", "M17"], answer: 0, why: "Nazwa pliku SPF w bloku." },
     { kind: "choice", q: "W jakim pliku jest podprogram Sinumerika?", options: [".SPF", ".MPF", ".NC", ".TXT"], answer: 0, why: "MPF — program główny, SPF — podprogram." },
     { kind: "choice", q: "Co daje `PROC OTWOR(REAL XP, REAL YP)`?", options: ["podprogram przyjmuje dwa parametry", "wywołuje cykl wiercenia", "kończy program", "definiuje zero detalu"], answer: 0, why: "Deklaracja parametrów podprogramu." },
-    { kind: "choice", q: "Odpowiednik parametrycznego podprogramu na Fanucu to:", options: ["makro G65", "M98 L…", "G52", "G91"], answer: 0, why: "Makro użytkownika przyjmuje wartości przez adresy." },
-    { kind: "token", q: "Tapnij zapis **końca** podprogramu Sinumerika.", block: "M99 | M30 | M17", answer: 2, why: "M17 albo RET." },
+    { kind: "choice", q: "Co na Fanucu odpowiada podprogramowi z parametrami?", options: ["makro G65", "M98 L…", "G52", "G91"], answer: 0, why: "Makro użytkownika przyjmuje wartości przez adresy." },
+    { kind: "token", q: "Wskaż zapis **końca** podprogramu Sinumerika.", block: "M99 | M30 | M17", answer: 2, why: "M17 albo RET." },
   ],
 
   summary: [

@@ -100,9 +100,9 @@ export const t1_3: LessonDoc = {
   quiz: [
     { kind: "gap", review: "T1.2", q: "Nóż w X40. Zapisz przyrost do Ø34.", template: "U{0}", answers: [["-6", "-6."]], why: "34 − 40 = −6." },
     { kind: "choice", q: "Którą płaszczyznę ustawia blok startowy tokarki?", options: ["G18", "G17", "G19", "żadną"], answer: 0, why: "Tokarka pracuje w płaszczyźnie ZX." },
-    { kind: "choice", q: "Dlaczego odjazd zaczyna się od X?", options: ["nóż wychodzi ponad detal, zanim pojedzie wzdłuż osi", "X jest szybsze", "tak wymaga G28", "bez powodu"], answer: 0, why: "Ruch w Z przy detalu grozi kolizją ze stopniem." },
+    { kind: "choice", q: "Dlaczego po toczeniu zewnętrznym odjazd zaczyna się od X?", options: ["nóż wychodzi ponad detal, zanim pojedzie wzdłuż osi", "X jest szybsze", "tak wymaga G28", "bez powodu"], answer: 0, why: "Ruch w Z przy detalu grozi kolizją ze stopniem. Przy narzędziu wewnętrznym (wytaczak, wiertło) kolejność jest inna — najpierw wyjście z otworu w Z." },
     { kind: "choice", q: "Co znaczy `F0.2` przy aktywnym `G98` na tokarce Fanuc?", options: ["0,2 mm/min", "0,2 mm/obr", "20 mm/min", "alarm"], answer: 0, why: "G98 — posuw minutowy." },
-    { kind: "token", q: "Tapnij kod, który **kasuje korekcję promienia ostrza**.", block: "G18 G21 G40 G80 G99", answer: 2, why: "G40." },
+    { kind: "token", q: "Wskaż kod, który **kasuje korekcję promienia ostrza**.", block: "G18 G21 G40 G80 G99", answer: 2, why: "G40." },
     { kind: "choice", q: "Co oznacza `G28 U0.`?", options: ["odjazd do punktu referencyjnego w X bez punktu pośredniego", "ruch do X0", "postój", "zerowanie U"], answer: 0, why: "Przyrost zero jako punkt pośredni." },
   ],
 

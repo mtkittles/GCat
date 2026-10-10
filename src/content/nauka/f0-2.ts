@@ -80,7 +80,7 @@ export const f0_2: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F0.1", q: "Z0 leży na górnej powierzchni. Narzędzie ma stać **10 mm nad** detalem:",
+    { kind: "choice", review: "F0.1", q: "Z0 leży na górnej powierzchni. Jakie Z zaprogramujesz, żeby narzędzie stało **10 mm nad** detalem?",
       options: ["`Z-10`", "`Z10`", "`Z0`", "`Z100`"], answer: 1, why: "Nad powierzchnią Z jest dodatnie." },
     { kind: "choice", q: "Który punkt ustala się osobno dla każdego zamocowania detalu?",
       options: ["M", "R", "W", "N"], answer: 2, why: "W to zero detalu. M, R i N są stałe i ustala je producent." },

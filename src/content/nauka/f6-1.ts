@@ -79,9 +79,9 @@ export const f6_1: LessonDoc = {
       kind: "drill",
       intro: "Położenie głowicy i parametry.",
       questions: [
-        { kind: "gap", q: "Głowica Ø80, detal długi na 120 mm, zapas 10 mm. X końca przejścia:", template: "X{0}", answers: [["170"]], why: "120 + 40 + 10 = 170." },
-        { kind: "gap", q: "ap = 2, ae = 40, vf = 600. Wydajność Q (cm³/min):", template: "{0}", answers: [["48"]], why: "2 · 40 · 600 / 1000 = 48." },
-        { kind: "choice", q: "Detal szeroki na 60 mm. Która głowica pasuje do jednego przejścia?", options: ["Ø80 (ae 75%)", "Ø63 (ae 95%)", "Ø50 (za mała)", "Ø125 (ae 48%)"], answer: 0, why: "ae około 70–80% D." },
+        { kind: "gap", q: "Głowica Ø80 planuje detal od X0 do X120. Za detalem ma zostać 10 mm odstępu. Do jakiego X dojeżdża środek głowicy?", template: "X{0}", answers: [["170"]], why: "Środek głowicy musi minąć koniec detalu o promień głowicy i odstęp: 120 + 40 + 10 = 170." },
+        { kind: "gap", q: "ap = 2 mm, ae = 40 mm, vf = 600 mm/min. Ile wynosi wydajność Q (cm³/min)?", template: "{0}", answers: [["48"]], why: "2 · 40 · 600 / 1000 = 48." },
+        { kind: "choice", q: "Detal szeroki na 60 mm. Która głowica pasuje do jednego przejścia?", options: ["Ø80 (ae 75%)", "Ø63 (ae 95%)", "Ø50 (za mała)", "Ø125 (ae 48%)"], answer: 0, why: "Typowe zalecenie producentów głowic to ae ok. 70–80% D: 60 / 80 = 75%." },
       ],
     },
   ],
@@ -104,9 +104,9 @@ export const f6_1: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F5.4", q: "Kiedy G98 zamiast G99?", options: ["przed przejazdem nad przeszkodą", "zawsze", "na płaskiej płycie", "nigdy"], answer: 0, why: "G98 wraca na poziom początkowy." },
     { kind: "choice", q: "Dlaczego planowanie idzie zwykle jako pierwsze?", options: ["tworzy powierzchnię, od której liczy się Z0 i głębokości", "bo głowica jest najcięższa", "bo tak wymaga G54", "bez powodu"], answer: 0, why: "Powierzchnia planowana to baza dla kolejnych operacji." },
-    { kind: "choice", q: "Najlepsza szerokość skrawania dla głowicy:", options: ["ok. 70–80% D", "100% D", "10% D", "dokładnie D/2 z osią na krawędzi"], answer: 0, why: "Łagodne wejście ostrza i dobra wydajność." },
-    { kind: "gap", q: "Głowica Ø50, fz = 0,12, 4 płytki, S1200. F:", template: "F{0}", answers: [["576"]], why: "0,12 · 4 · 1200 = 576." },
-    { kind: "gap", q: "Płytka 45°, fz = 0,2. Grubość wióra (mm, do 0,01):", template: "{0}", answers: [["0.14", "0,14"]], why: "0,2 · sin 45° ≈ 0,14." },
+    { kind: "choice", q: "Jaką szerokość skrawania ae zwykle zaleca się dla głowicy?", options: ["ok. 70–80% D", "100% D", "10% D", "dokładnie D/2 z osią na krawędzi"], answer: 0, why: "Typowe zalecenie producentów głowic: łagodne wejście ostrza i dobra wydajność." },
+    { kind: "gap", q: "Głowica Ø50, 4 płytki, fz = 0,12 mm, S1200. Jaki posuw F (mm/min) wpiszesz?", template: "F{0}", answers: [["576"]], why: "0,12 · 4 · 1200 = 576." },
+    { kind: "gap", q: "Płytka o kącie przystawienia 45°, fz = 0,2 mm. Ile wynosi największa grubość wióra hex (mm, do 0,01)?", template: "{0}", answers: [["0.14", "0,14"]], why: "hex ≈ fz · sin κr = 0,2 · 0,707 ≈ 0,14 mm — przy zaangażowaniu ae co najmniej 50% D." },
     { kind: "choice", q: "Gdzie zaczyna się przejście planujące?", options: ["poza detalem, z odstępem większym niż promień głowicy", "nad środkiem detalu", "na krawędzi detalu", "w zerze W"], answer: 0, why: "Głowica wchodzi w materiał bokiem." },
   ],
 

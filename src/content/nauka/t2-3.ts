@@ -78,9 +78,9 @@ export const t2_3: LessonDoc = {
       kind: "drill",
       intro: "Posuw, chropowatość i czas.",
       questions: [
-        { kind: "gap", q: "f = 0,15, rε = 0,8. Rt teoretyczne (µm, do 0,1):", template: "{0} µm", answers: [["3.5", "3,5"]], why: "0,15² / (8 · 0,8) · 1000 ≈ 3,5 µm." },
-        { kind: "gap", q: "f = 0,25, n = 1200. vf (mm/min):", template: "{0}", answers: [["300"]], why: "0,25 · 1200 = 300." },
-        { kind: "gap", q: "Nóż z narożem R1,2 planuje do osi. X końca przejścia:", template: "X{0}", answers: [["-2.4", "-2,4"]], why: "−2 · 1,2." },
+        { kind: "gap", q: "f = 0,15 mm/obr, naroże rε = 0,8 mm. Ile wynosi teoretyczna wysokość nierówności Rt (µm, do 0,1)?", template: "{0} µm", answers: [["3.5", "3,5"]], why: "0,15² / (8 · 0,8) · 1000 ≈ 3,5 µm." },
+        { kind: "gap", q: "f = 0,25 mm/obr, n = 1200 obr/min. Ile wynosi posuw minutowy vf (mm/min)?", template: "{0}", answers: [["300"]], why: "0,25 · 1200 = 300." },
+        { kind: "gap", q: "Nóż z narożem R1,2 planuje czoło do osi (model z lekcji, bez korekcji). Do jakiego X ma dojechać punkt P?", template: "X{0}", answers: [["-2.4", "-2,4"]], why: "−2 · 1,2." },
       ],
     },
   ],
@@ -103,10 +103,10 @@ export const t2_3: LessonDoc = {
   quiz: [
     { kind: "choice", review: "T2.2", q: "Po co G50 przed G96?", options: ["ogranicza obroty przy małych średnicach", "ustawia posuw", "wybiera nóż", "włącza chłodziwo"], answer: 0, why: "Przy osi obroty rosłyby bez końca." },
     { kind: "choice", q: "Co znaczy `F0.2` przy G99?", options: ["0,2 mm na obrót", "0,2 mm/min", "200 mm/min", "0,2 obr/min"], answer: 0, why: "G99 — posuw na obrót (system A)." },
-    { kind: "choice", q: "Posuw wzrósł dwukrotnie. Rt:", options: ["rośnie czterokrotnie", "rośnie dwukrotnie", "bez zmian", "maleje"], answer: 0, why: "Rt ∼ f²." },
-    { kind: "gap", q: "f = 0,1, rε = 0,4. Rt (µm, do 0,1):", template: "{0} µm", answers: [["3.1", "3,1"]], why: "0,01 / 3,2 · 1000 ≈ 3,1." },
+    { kind: "choice", q: "Posuw wzrósł dwukrotnie. Co dzieje się z teoretycznym Rt?", options: ["rośnie czterokrotnie", "rośnie dwukrotnie", "bez zmian", "maleje"], answer: 0, why: "Rt ∼ f²." },
+    { kind: "gap", q: "f = 0,1 mm/obr, rε = 0,4 mm. Ile wynosi teoretyczne Rt (µm, do 0,1)?", template: "{0} µm", answers: [["3.1", "3,1"]], why: "0,01 / 3,2 · 1000 ≈ 3,1." },
     { kind: "choice", q: "Dlaczego planowanie kończy się na X ujemnym?", options: ["żeby naroże zebrało materiał w środku czoła", "bo X0 jest niedostępne", "bo tak wymaga G96", "żeby odjechać szybciej"], answer: 0, why: "Wierzchołek teoretyczny i naroże to nie ten sam punkt." },
-    { kind: "token", q: "Tapnij kod posuwu **na obrót** na Sinumeriku.", block: "G94 | G95 | G96", answer: 1, why: "G95." },
+    { kind: "token", q: "Wskaż kod posuwu **na obrót** na Sinumeriku.", block: "G94 | G95 | G96", answer: 1, why: "G95." },
   ],
 
   summary: [

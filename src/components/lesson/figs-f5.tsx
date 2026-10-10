@@ -98,58 +98,62 @@ export function PlateHoles() {
   );
 }
 
-/* ================= F5.2: G83 i G73 ================= */
-/* Przebieg ruchu w czasie: poziomo kolejne ruchy, pionowo głębokość.
+/* ================= F5.2: G83 krok po kroku ================= */
+/* Pięć przekrojów tego samego otworu — po jednym na każde zagłębienie.
    Zagłębienia liczone od płaszczyzny R (jak w parserze GCat i opisie G83 Haas):
-   R2, Z−18, Q4 → dna Z−2, −6, −10, −14, −18. Odstęp ponownego najazdu (1 mm) i cofnięcie
-   G73 (0,6 mm) są tu przykładowe — w sterowaniu ustawia je parametr. */
-const PK = { zR: 2, depth: 18, q: 4 };
+   R2, Z−18, Q4 → dna Z−2, −6, −10, −14, −18. Odstęp ponownego najazdu (1 mm) jest
+   przykładowy — w sterowaniu ustawia go parametr. Tory w osi otworu rozsunięte w bok
+   tylko po to, żeby ruch w dół i w górę nie nakładały się na siebie. */
+const PK = { zR: 2, depth: 18, q: 4, gap: 1 };
 const peckBottoms = () => {
   const out: number[] = [];
   for (let d = PK.zR; d > -PK.depth + 1e-9;) { d = Math.max(-PK.depth, d - PK.q); out.push(d); }
   return out;
 };
-function Peck({ x0, deep }: { x0: number; deep: boolean }) {
-  const { zR, depth } = PK, back = deep ? 1 : 0.6;
-  const Y = (z: number) => 56 - z * 7.6;              // z w mm, dodatnie w górę
-  const bottoms = peckBottoms();
-  const pts: { z: number; kind: "cut" | "rap" }[] = [{ z: zR, kind: "rap" }];
-  bottoms.forEach((d, i) => {
-    pts.push({ z: d, kind: "cut" });
-    if (i < bottoms.length - 1) {
-      if (deep) { pts.push({ z: zR, kind: "rap" }); pts.push({ z: d + back, kind: "rap" }); }
-      else pts.push({ z: d + back, kind: "rap" });
-    }
-  });
-  pts.push({ z: zR, kind: "rap" });
-  let x = x0 + 22;
-  const segs = pts.slice(1).map((p, i) => {
-    const a = pts[i], len = Math.abs(p.z - a.z);
-    const dx = p.kind === "cut" ? len * 2.8 : Math.max(3, len * 0.5);
-    const s = { x1: x, y1: Y(a.z), x2: x + dx, y2: Y(p.z), kind: p.kind };
-    x += dx;
-    return s;
-  });
-  return (
-    <g>
-      <rect x={x0 + 8} y={Y(0)} width={160} height={Y(-depth - 1.5) - Y(0)} className="solid-hatch" />
-      <line x1={x0 + 8} y1={Y(zR)} x2={x0 + 168} y2={Y(zR)} className="p-cons" />
-      <T x={x0 + 10} y={Y(zR) - 4} cls="t-acc t-sm t-b">R2</T>
-      {bottoms.slice(0, -1).map((z) => <line key={z} x1={x0 + 8} y1={Y(z)} x2={x0 + 168} y2={Y(z)} className="p-ext" />)}
-      {deep && bottoms.slice(0, -1).map((z) => <T key={z} x={x0 + 166} y={Y(z) - 3} anchor="end" cls="t-mono t-sm t-mut">{`Z${z < 0 ? "−" : ""}${Math.abs(z)}`}</T>)}
-      <T x={x0 + 166} y={Y(-depth) + 12} anchor="end" cls="t-mono t-sm">Z−18</T>
-      {segs.map((sg, i) => <line key={i} x1={sg.x1} y1={sg.y1} x2={sg.x2} y2={sg.y2} className={sg.kind === "cut" ? "p-cut thick" : "p-rap"} />)}
-      <T x={x0 + 88} y={24} anchor="middle" cls="t-b t-mono t-big">{deep ? "G83" : "G73"}</T>
-      <T x={x0 + 88} y={Y(-depth - 1.5) + 16} anchor="middle" cls="t-mut">{deep ? "wyjazd do R po każdym Q" : "krótkie cofnięcie po każdym Q"}</T>
-    </g>
-  );
-}
 
 export function PeckCompare() {
+  const bottoms = peckBottoms();
+  const top = 40, k = 10.5;                      // y dla Z=+2 … skala px/mm
+  const Y = (z: number) => top + (PK.zR - z) * k;
+  const x0 = 70, col = 57, hw = 7;               // pierwsza kolumna, odstęp kolumn, pół szerokości otworu
+  const zBot = -PK.depth - 2;
+  const fmtZ = (z: number) => (z < 0 ? `−${Math.abs(z)}` : `${z}`);
   return (
-    <Fig id="f52pk" code="Q" title="Wiercenie z wycofaniem: R2, Q4, Z−18" h={236} legend={["cut", "rap"]}
-      caption={<>Poziomo kolejne ruchy, pionowo głębokość. Zagłębienia liczy się od <b>R2</b>: dna w Z−2, −6, −10, −14 i −18 — pięć wejść po 4 mm, pierwsze zbiera w materiale tylko 2 mm. <b>G83</b> po każdym zagłębieniu wyjeżdża do R, więc wiór wychodzi z otworu, i wraca szybkim ruchem tuż nad poprzednie dno. <b>G73</b> cofa się tylko o ułamek milimetra, żeby złamać wiór. Odstęp najazdu i wielkość cofnięcia ustawia parametr sterowania.</>}>
-      {() => <g><Peck x0={2} deep /><Peck x0={184} deep={false} /></g>}
+    <Fig id="f52pk" code="G83" title="G83 krok po kroku: R2, Q4, Z−18" h={300} legend={["cut", "rap", "stock"]}
+      notes={<Code k="acc">G83 X… Y… Z-18. R2. Q4. F380</Code>}
+      caption={<>Pięć kolejnych wejść w ten sam otwór. Zagłębienia liczy się od <b>R2</b>: dna w Z−2, −6, −10, −14 i −18. Pierwsze wejście zaczyna 2 mm nad materiałem, więc w metalu zbiera tylko 2 mm. Po każdym dnie <b>G83</b> wyjeżdża szybko do R — wiór wychodzi z otworu — i wraca szybko tuż nad poprzednie dno; ten odstęp ustawia parametr sterowania. Ruch w dół i w górę idzie w osi otworu, na rysunku rozsunięto je dla czytelności.</>}>
+      {(c) => (
+        <g>
+          {/* oś głębokości */}
+          {[PK.zR, 0, ...bottoms].map((z) => (
+            <g key={z}>
+              <line x1={x0 - 22} y1={Y(z)} x2={x0 + col * 4 + 26} y2={Y(z)} className="p-ext" />
+              <T x={x0 - 24} y={Y(z) + 3.5} anchor="end" cls={z === PK.zR ? "t-acc t-b" : "t-mono t-mut"}>{z === PK.zR ? "R2" : `Z${fmtZ(z)}`}</T>
+            </g>
+          ))}
+          {bottoms.map((d, i) => {
+            const xc = x0 + i * col;
+            const prev = i === 0 ? null : bottoms[i - 1];
+            const start = prev === null ? PK.zR : prev + PK.gap;   // gdzie zaczyna się posuw
+            const xd = xc - 3.5, xu = xc + 3.5;
+            return (
+              <g key={d}>
+                {/* materiał i otwór wywiercony do bieżącego dna */}
+                <rect x={xc - 23} y={Y(0)} width={46} height={Y(zBot) - Y(0)} fill={c.hatch} className="p-con" />
+                <polygon points={`${xc - hw},${Y(0)} ${xc + hw},${Y(0)} ${xc + hw},${Y(d) - 2} ${xc},${Y(d) + 2} ${xc - hw},${Y(d) - 2}`} style={{ fill: "var(--bg)", stroke: "var(--ink-2)" }} />
+                {/* dojazd szybki nad poprzednie dno */}
+                {prev !== null && <line x1={xd} y1={Y(PK.zR)} x2={xd} y2={Y(start) - 3} className="p-rap" markerEnd={c.a("rap")} />}
+                {/* posuw do nowego dna */}
+                <line x1={xd} y1={Y(start)} x2={xd} y2={Y(d) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
+                {/* wyjazd szybki do R */}
+                <line x1={xu} y1={Y(d)} x2={xu} y2={Y(PK.zR) + 3} className="p-rap" markerEnd={c.a("rap")} />
+                <Num x={xc} y={top - 22} n={i + 1} />
+                <T x={xc} y={Y(zBot) + 14} anchor="middle" cls="t-mono t-sm">{`do Z${fmtZ(d)}`}</T>
+              </g>
+            );
+          })}
+        </g>
+      )}
     </Fig>
   );
 }

@@ -86,9 +86,9 @@ export const f5_3: LessonDoc = {
       kind: "drill",
       intro: "Posuw gwintowania i otwór pod gwint.",
       questions: [
-        { kind: "gap", q: "M10×1,5 przy S300. Posuw F (mm/min):", template: "F{0}", answers: [["450"]], why: "300 · 1,5 = 450." },
-        { kind: "gap", q: "Średnica wiertła pod M8×1,25:", template: "Ø{0}", answers: [["6.8", "6,8", "6.75", "6,75"]], why: "8 − 1,25 = 6,75 → wiertło Ø6,8." },
-        { kind: "gap", q: "M6×1, pełny gwint 10 mm, nakrój 3 zwoje. Z w bloku G84:", template: "Z{0}", answers: [["-13", "-13.", "-13.0"]], why: "Nakrój 3 · 1 = 3 mm, więc koniec gwintownika w Z−(10 + 3)." },
+        { kind: "gap", q: "Gwintujesz M10×1,5 cyklem G84 przy S300, posuw minutowy (G94). Jaki posuw F wpiszesz w bloku?", template: "F{0}", answers: [["450"]], why: "Gwintownik wchodzi o skok na każdy obrót: F = S · P = 300 · 1,5 = 450 mm/min." },
+        { kind: "gap", q: "Jaką średnicę wiertła dobierzesz pod gwint M8×1,25 (gwintownik skrawający)?", template: "Ø{0}", answers: [["6.8", "6,8", "6.75", "6,75", "6.7", "6,7"]], why: "d − P = 8 − 1,25 = 6,75 → najbliższe typowe wiertło Ø6,8. Niektóre tabele podają Ø6,7 — rozstrzyga zalecenie producenta gwintownika." },
+        { kind: "gap", q: "Gwint M6×1, wymagane 10 mm pełnego gwintu, nakrój gwintownika 3 zwoje. Na jakie Z zaprogramujesz G84?", template: "Z{0}", answers: [["-13", "-13.", "-13.0"]], why: "Nakrój 3 · 1 = 3 mm, więc koniec gwintownika w Z−(10 + 3)." },
         { kind: "choice", q: "Gwintownik M6×1, S600, w programie F500. Co się stanie?", options: ["posuw nie zgadza się ze skokiem — zerwany gwint albo złamany gwintownik", "gwint wyjdzie płytszy", "nic, sterowanie poprawi", "gwint wyjdzie lewy"], answer: 0, why: "Przy S600 potrzeba F600." },
       ],
     },
@@ -113,13 +113,13 @@ export const f5_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F5.2", q: "Wiertło 140°, Ø5. Długość stożka (mm):", template: "{0} mm", answers: [["0.9", "0,9"]], why: "0,18 · 5 = 0,9." },
-    { kind: "gap", q: "M6×1 przy S450. F:", template: "F{0}", answers: [["450"]], why: "450 · 1 = 450." },
+    { kind: "gap", review: "F5.2", q: "Wiertło 140°, Ø5. Jak długi jest stożek na końcu wiertła (mm, do 0,1)?", template: "{0} mm", answers: [["0.9", "0,9"]], why: "Stożek = (D/2) / tan(140°/2) = 2,5 / 2,75 ≈ 0,9 mm. Skrót 0,18 · D wynika z tego samego wzoru: 1 / (2 · tan 70°) ≈ 0,18 (lekcja F5.2)." },
+    { kind: "gap", q: "Gwintownik M6×1, S450, posuw minutowy (G94). Jaki posuw F wpiszesz w G84?", template: "F{0}", answers: [["450"]], why: "450 · 1 = 450." },
     { kind: "choice", q: "Co robi G84 na dnie otworu?", options: ["odwraca obroty i wychodzi posuwem", "wychodzi ruchem szybkim", "zatrzymuje się na czas P", "cofa się o Q"], answer: 0, why: "Gwintownik musi się wykręcić tym samym torem." },
     { kind: "choice", q: "Co włącza `M29` na Fanucu?", options: ["gwintowanie sztywne", "chłodziwo", "wymianę narzędzia", "cykl G83"], answer: 0, why: "Sprzężenie obrotów wrzeciona z osią Z." },
-    { kind: "gap", q: "Wiertło pod M12×1,75:", template: "Ø{0}", answers: [["10.2", "10,2", "10.25", "10,25"]], why: "12 − 1,75 = 10,25 → Ø10,2." },
+    { kind: "gap", q: "Jaką średnicę wiertła dobierzesz pod gwint M12×1,75 (gwintownik skrawający)?", template: "Ø{0}", answers: [["10.2", "10,2", "10.25", "10,25"]], why: "12 − 1,75 = 10,25 → Ø10,2." },
     { kind: "choice", q: "Dlaczego korektor posuwu nie działa podczas G84?", options: ["zmiana posuwu zniszczyłaby gwint", "bo G84 jest ruchem szybkim", "przez M29", "działa normalnie"], answer: 0, why: "Posuw musi dokładnie odpowiadać obrotom i skokowi." },
-    { kind: "token", q: "Tapnij słowo, które musi być równe **S · P**.", block: "G84 X10. Y10. Z-15. R5. F500", answer: 5, why: "F500 = 500 · 1." },
+    { kind: "token", q: "Wskaż słowo, które musi być równe **S · P**.", block: "G84 X10. Y10. Z-15. R5. F500", answer: 5, why: "F500 = 500 · 1." },
   ],
 
   summary: [

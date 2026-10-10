@@ -114,8 +114,8 @@ export const t8_1: LessonDoc = {
     { kind: "choice", review: "T7.2", q: "Po G32 nóż jest w zwoju. Co dalej?", options: ["G00 w X, potem w Z", "G00 w Z", "G32 z powrotem", "M30"], answer: 0, why: "Najpierw wyjście ze zwoju." },
     { kind: "choice", q: "Co robi `M98 P3000 L3`?", options: ["wywołuje podprogram O3000 trzy razy", "wywołuje O3 trzy tysiące razy", "kończy program", "przesuwa nóż o 3000"], answer: 0, why: "P — numer, L — powtórzenia." },
     { kind: "choice", q: "Jak w podprogramie tokarskim Fanuc przesunąć nóż o 10 mm w stronę uchwytu bez zmiany trybu?", options: ["`W-10.`", "`G91 Z-10.`", "`Z-10.`", "`U-10.`"], answer: 0, why: "W to przyrost w Z." },
-    { kind: "gap", q: "Start Z−12, podprogram z `W-6.`, `L5`. Z końcowe:", template: "Z{0}", answers: [["-42"]], why: "−12 − 5 · 6 = −42." },
-    { kind: "choice", q: "Odpowiednik `M98 P3000 L3` na Sinumeriku:", options: ["nazwa podprogramu z P3", "M98 P3000", "G65 P3", "CYCLE95"], answer: 0, why: "Wywołanie nazwą, P — liczba przebiegów." },
+    { kind: "gap", q: "Start w Z−12, podprogram kończy się `W-6.`, wywołanie `L5`. W jakim Z stanie nóż?", template: "Z{0}", answers: [["-42"]], why: "−12 − 5 · 6 = −42." },
+    { kind: "choice", q: "Jak na Sinumeriku wywołasz podprogram trzy razy, tak jak `M98 P3000 L3`?", options: ["nazwa podprogramu z P3", "M98 P3000", "G65 P3", "CYCLE95"], answer: 0, why: "Wywołanie nazwą, P — liczba przebiegów." },
   ],
 
   summary: [

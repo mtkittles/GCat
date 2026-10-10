@@ -83,9 +83,9 @@ export const t3_2: LessonDoc = {
       kind: "drill",
       intro: "Średnice przejść i fazy.",
       questions: [
-        { kind: "gap", q: "Stopień Ø24, naddatek 0,4 na średnicy. Średnica ostatniego przejścia zgrubnego:", template: "Ø{0}", answers: [["24.4", "24,4"]], why: "24 + 0,4." },
-        { kind: "gap", q: "Faza 1,5 × 45° na Ø40, zaczyna się na czole stopnia w Z−30. Punkt końca fazy:", template: "X{0} Z{1}", answers: [["40"], ["-31.5", "-31,5"]], why: "Pełna średnica 1,5 mm dalej w Z." },
-        { kind: "gap", q: "Faza 1 × 45° kończy się w X20 Z−1. Start na przedłużeniu fazy w Z2:", template: "X{0}", answers: [["14"]], why: "Z2 to 3 mm przed końcem fazy: X = 20 − 2 · 3." },
+        { kind: "gap", q: "Stopień Ø24, naddatek 0,4 mm na średnicy. Na jaką średnicę toczy ostatnie przejście zgrubne?", template: "Ø{0}", answers: [["24.4", "24,4"]], why: "24 + 0,4." },
+        { kind: "gap", q: "Faza 1,5 × 45° na Ø40 zaczyna się na czole stopnia w Z−30. W jakim punkcie się kończy?", template: "X{0} Z{1}", answers: [["40"], ["-31.5", "-31,5"]], why: "Pełna średnica 1,5 mm dalej w Z." },
+        { kind: "gap", q: "Faza 1 × 45° kończy się w X20 Z−1. Nóż startuje na przedłużeniu fazy w Z2. Na jakiej średnicy?", template: "X{0}", answers: [["14"]], why: "Z2 to 3 mm przed końcem fazy: X = 20 − 2 · 3." },
       ],
     },
   ],
@@ -107,10 +107,10 @@ export const t3_2: LessonDoc = {
 
   quiz: [
     { kind: "choice", review: "T3.1", q: "Którym ruchem nóż wychodzi z materiału przy stopniu?", options: ["G01", "G00", "G28", "dowolnym"], answer: 0, why: "Ostrze wciąż styka się z czołem stopnia." },
-    { kind: "choice", q: "Ruch G01 tylko w X to:", options: ["toczenie poprzeczne", "toczenie wzdłużne", "stożek", "gwint"], answer: 0, why: "Czoło albo stopień." },
-    { kind: "gap", q: "Z Ø36 na Ø31 w jednym przejściu. ap:", template: "{0} mm", answers: [["2.5", "2,5"]], why: "(36 − 31) / 2." },
+    { kind: "choice", q: "Jak nazywa się ruch G01 tylko w osi X?", options: ["toczenie poprzeczne", "toczenie wzdłużne", "stożek", "gwint"], answer: 0, why: "Czoło albo stopień." },
+    { kind: "gap", q: "Toczysz z Ø36 na Ø31 jednym przejściem. Ile wynosi ap?", template: "{0} mm", answers: [["2.5", "2,5"]], why: "(36 − 31) / 2." },
     { kind: "choice", q: "Po co naddatek po obróbce zgrubnej?", options: ["żeby nóż wykańczający zdjął równą, cienką warstwę", "żeby skrócić program", "bo wymaga tego G96", "bez powodu"], answer: 0, why: "Wymiar i powierzchnia zależą od noża wykańczającego." },
-    { kind: "gap", q: "Faza 2 × 45° na Ø30 w Z0. Punkt początku fazy na czole:", template: "X{0}", answers: [["26"]], why: "30 − 2 · 2." },
+    { kind: "gap", q: "Faza 2 × 45° na krawędzi czopa Ø30 przy czole Z0. Na jakiej średnicy faza zaczyna się na czole?", template: "X{0}", answers: [["26"]], why: "30 − 2 · 2." },
     { kind: "choice", q: "Dlaczego kontur wykańczający pisze się absolutnie?", options: ["każdą liczbę da się sprawdzić z rysunkiem", "bo U i W są zabronione", "bo szybciej", "bez powodu"], answer: 0, why: "Błąd nie przesuwa reszty konturu." },
   ],
 

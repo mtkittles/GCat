@@ -104,7 +104,7 @@ export const t4_1: LessonDoc = {
       kind: "drill",
       intro: "Strona korekcji i wielkość błędu.",
       questions: [
-        { kind: "gap", q: "Faza 45°, naroże R1,2, bez korekcji. Błąd prostopadle do fazy (mm, do 0,01):", template: "{0}", answers: [["0.5", "0,5", "0.50", "0,50"]], why: "0,414 · 1,2 ≈ 0,50." },
+        { kind: "gap", q: "Faza 45°, naroże R1,2, program bez korekcji promienia. O ile kontur fazy odbiega od rysunku, mierząc prostopadle (mm, do 0,01)?", template: "{0}", answers: [["0.5", "0,5", "0.50", "0,50"]], why: "0,414 · 1,2 ≈ 0,50." },
         { kind: "choice", q: "Wytaczanie otworu w stronę uchwytu. Który kod?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Nóż pod konturem — po lewej stronie kierunku ruchu." },
         { kind: "choice", q: "Na którym elemencie konturu brak korekcji **nie** daje błędu kształtu?", options: ["średnica wzdłuż Z", "faza 45°", "stożek", "promień R1"], answer: 0, why: "Na średnicach i czołach naroże styka się na wysokości P." },
       ],
@@ -128,12 +128,12 @@ export const t4_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T3.3", q: "Promień wklęsły między średnicą a czołem stopnia, ruch w stronę uchwytu:", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Przy X w górę — zgodnie z zegarem." },
+    { kind: "choice", review: "T3.3", q: "Ruch w stronę uchwytu (głowica za osią). Którym kodem zaprogramujesz promień wklęsły między średnicą a czołem stopnia?", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Przy X w górę — zgodnie z zegarem." },
     { kind: "choice", q: "Czym jest punkt P noża tokarskiego?", options: ["przecięciem stycznych do naroża w X i Z", "środkiem naroża", "końcem oprawki", "punktem bazowym głowicy"], answer: 0, why: "Do niego mierzy się nóż i jego prowadzi program." },
     { kind: "choice", q: "Toczenie zewnętrzne w stronę uchwytu. Który kod korekcji?", options: ["G42", "G41", "G40", "G43"], answer: 0, why: "Nóż nad konturem — po prawej stronie kierunku ruchu." },
-    { kind: "gap", q: "Naroże R0,8, faza 45° bez korekcji. Błąd (mm, do 0,01):", template: "{0}", answers: [["0.33", "0,33"]], why: "0,414 · 0,8 ≈ 0,33." },
+    { kind: "gap", q: "Naroże R0,8, faza 45°, bez korekcji. O ile kontur fazy odbiega od rysunku (mm, do 0,01)?", template: "{0}", answers: [["0.33", "0,33"]], why: "0,414 · 0,8 ≈ 0,33." },
     { kind: "choice", q: "Czym włącza się korekcję promienia ostrza?", options: ["ruchem liniowym G00 lub G01", "łukiem", "blokiem bez ruchu", "G96"], answer: 0, why: "Na odcinku sterowanie buduje przesunięcie." },
-    { kind: "token", q: "Tapnij blok, który **wyłącza** korekcję.", block: "G42 G00 X14. Z2. | G01 X20. Z-1. F0.1 | G40 G00 Z2.", answer: 2, why: "G40 na odjeździe." },
+    { kind: "token", q: "Wskaż blok, który **wyłącza** korekcję.", block: "G42 G00 X14. Z2. | G01 X20. Z-1. F0.1 | G40 G00 Z2.", answer: 2, why: "G40 na odjeździe." },
   ],
 
   summary: [

@@ -47,7 +47,7 @@ export const f1_2: LessonDoc = {
   practice: [
     {
       kind: "state",
-      intro: "Tapnij dowolną linię, żeby zobaczyć stan sterowania po jej wykonaniu. Wyróżnione pola zmieniły się właśnie w tej linii.",
+      intro: "Wskaż dowolną linię, żeby zobaczyć stan sterowania po jej wykonaniu. Wyróżnione pola zmieniły się właśnie w tej linii.",
       program: "G90 G54 G17\nT1 M06\nS2500 M03\nG00 X-20. Y10.\nZ5.\nG01 Z-5. F150\nX-5. F400\nY40.\nG02 X10. Y55. R15.\nG01 X70.\nG00 Z5.\nG91 G28 Z0.\nG90\nM05",
     },
     {
@@ -56,9 +56,9 @@ export const f1_2: LessonDoc = {
       questions: [
         { kind: "choice", q: "Po `G01 Z-5. F150` stoi blok `X-5.`. Jakim ruchem pojedzie frez?",
           options: ["G00", "G01 z F150", "alarm — brak G w bloku", "G01 bez posuwu"], answer: 1, why: "G01 i F150 są modalne i obowiązują dalej." },
-        { kind: "token", q: "W bloku `X-5. F400` tapnij słowo, które **zmienia stan modalny**.", block: "X-5. F400", answer: 1,
+        { kind: "token", q: "W bloku `X-5. F400` wskaż słowo, które **zmienia stan modalny**.", block: "X-5. F400", answer: 1,
           why: "F400 zastępuje poprzedni posuw. X-5. to tylko cel ruchu." },
-        { kind: "token", q: "Tapnij słowo, które działa **tylko w swoim bloku**.", block: "G91 G28 Z0.", answer: 1,
+        { kind: "token", q: "Wskaż słowo, które działa **tylko w swoim bloku**.", block: "G91 G28 Z0.", answer: 1,
           why: "G28 jest jednorazowe. G91 zostaje aktywne — dlatego w programie płytki zaraz potem stoi G90." },
         { kind: "choice", q: "Fanuc, blok `G00 G01 X10.`. Który kod zadziała?",
           options: ["G00", "G01 — ostatni z tej samej grupy", "oba po kolei", "żaden"], answer: 1,
@@ -84,7 +84,7 @@ export const f1_2: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F1.1", q: "`X60` bez kropki na Sinumeriku to:",
+    { kind: "choice", review: "F1.1", q: "Co oznacza `X60` bez kropki na Sinumeriku?",
       options: ["60 mm", "0,060 mm", "zależy od parametru", "błąd składni"], answer: 0, why: "Sinumerik czyta wartość bez kropki jako milimetry." },
     { kind: "choice", q: "Co znaczy, że `G01` jest modalne?",
       options: ["działa tylko w swoim bloku", "działa, dopóki nie zastąpi go inny kod z tej samej grupy", "działa do końca programu bez względu na inne kody", "musi stać w każdym bloku ruchu"], answer: 1,
@@ -93,7 +93,7 @@ export const f1_2: LessonDoc = {
       options: ["G01 z F200", "G00", "alarm — brak G", "G01 bez posuwu"], answer: 1, why: "G00 z drugiego bloku zastąpiło G01." },
     { kind: "gap", q: "Program: `G01 X10. F200` → `Y20.` → `X40. F350` → `Y0.`. Jaki posuw obowiązuje w ostatnim bloku?",
       template: "F{0}", answers: [["350"]], why: "F350 z trzeciego bloku zastąpiło F200 i obowiązuje dalej." },
-    { kind: "token", q: "Tapnij słowo, które działa **tylko w tym bloku**.", block: "G90 G04 X2.", answer: 1,
+    { kind: "token", q: "Wskaż słowo, które działa **tylko w tym bloku**.", block: "G90 G04 X2.", answer: 1,
       why: "G04 to postój jednorazowy. G90 jest modalne." },
     { kind: "choice", q: "Które kody mogą stać razem w jednym bloku?",
       options: ["`G00 G01`", "`G90 G91`", "`G90 G54 G17`", "`G17 G18`"], answer: 2, why: "G90, G54 i G17 należą do trzech różnych grup." },

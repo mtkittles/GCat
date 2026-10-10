@@ -81,8 +81,8 @@ export const f3_3: LessonDoc = {
       kind: "drill",
       intro: "Kierunek i znak R.",
       questions: [
-        { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem. Naroża wypukłe to:", options: ["G02", "G03", "raz G02, raz G03", "G01"], answer: 0, why: "Przy obiegu zgodnym z zegarem łuki wypukłe też idą zgodnie z zegarem." },
-        { kind: "gap", q: "Naroże detalu R6, frez Ø8, obróbka z zewnątrz. Promień toru:", template: "R{0}", answers: [["10"]], why: "6 + 4 = 10." },
+        { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem. Którym kodem zaprogramujesz naroża wypukłe?", options: ["G02", "G03", "raz G02, raz G03", "G01"], answer: 0, why: "Przy obiegu zgodnym z zegarem łuki wypukłe też idą zgodnie z zegarem." },
+        { kind: "gap", q: "Naroże detalu R6, frez Ø8, obróbka z zewnątrz. Jaki promień ma łuk toru środka freza?", template: "R{0}", answers: [["10"]], why: "6 + 4 = 10." },
         { kind: "choice", q: "Łuk ma 270°. Jaki znak R na Fanucu?", options: ["dodatni", "ujemny", "bez znaczenia", "łuku ponad 180° nie da się zapisać"], answer: 1, why: "Ujemne R wybiera łuk dłuższy niż 180°." },
       ],
     },
@@ -108,10 +108,10 @@ export const f3_3: LessonDoc = {
     { kind: "gap", review: "F3.2", q: "Frez Ø10, lewa krawędź detalu w X0. Jaki X środka przy obróbce z zewnątrz?", template: "X{0}", answers: [["-5"]], why: "0 − 5 = −5." },
     { kind: "choice", q: "Co oznacza `G03`?", options: ["łuk zgodnie z zegarem", "łuk przeciwnie do zegara", "ruch szybki", "postój"], answer: 1, why: "G02 — zgodnie, G03 — przeciwnie, patrząc z góry." },
     { kind: "choice", q: "Gdzie zaczyna się łuk `G02 X10. Y55. R15.`?", options: ["w X10 Y55", "w bieżącej pozycji narzędzia", "w zerze W", "w środku łuku"], answer: 1, why: "Blok podaje tylko koniec i promień." },
-    { kind: "gap", q: "Naroże detalu R8, frez Ø12, obróbka z zewnątrz. Promień toru:", template: "R{0}", answers: [["14"]], why: "8 + 6 = 14." },
+    { kind: "gap", q: "Naroże detalu R8, frez Ø12, obróbka z zewnątrz. Jaki promień ma łuk toru środka freza?", template: "R{0}", answers: [["14"]], why: "8 + 6 = 14." },
     { kind: "choice", q: "Odległość między startem a końcem łuku wynosi 40 mm, w bloku R15. Co się stanie?", options: ["alarm — punkty są dalej niż 2R", "łuk o promieniu 20", "odcinek prosty", "pełny okrąg"], answer: 0, why: "Łuk R15 łączy punkty odległe najwyżej o 30 mm." },
     { kind: "choice", q: "Jak zapisać pełny okrąg?", options: ["przez R ze startem równym końcowi", "przez I i J", "dwoma G01", "nie da się"], answer: 1, why: "R nie określa środka, gdy start i koniec się pokrywają." },
-    { kind: "token", q: "Tapnij słowo, które podaje **promień**.", block: "G02 X85. Y40. R15.", answer: 3, why: "R15. — promień łuku." },
+    { kind: "token", q: "Wskaż słowo, które podaje **promień**.", block: "G02 X85. Y40. R15.", answer: 3, why: "R15. — promień łuku." },
   ],
 
   summary: [

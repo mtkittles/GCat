@@ -90,9 +90,9 @@ export const t7_1: LessonDoc = {
       kind: "drill",
       intro: "Wymiary gwintu i adresy G76.",
       questions: [
-        { kind: "gap", q: "M12×1,75. Wysokość zwoju h3 (mm, do 0,01):", template: "{0}", answers: [["1.07", "1,07"]], why: "0,6134 · 1,75 ≈ 1,07." },
-        { kind: "gap", q: "M12×1,75. Średnica rdzenia (mm, do 0,01):", template: "X{0}", answers: [["9.86", "9,86", "9.85", "9,85"]], why: "12 − 2 · 1,07 ≈ 9,86." },
-        { kind: "gap", q: "Wysokość zwoju 1,07 mm. Wartość P w drugim bloku:", template: "P{0}", answers: [["1070"]], why: "Mikrometry, bez kropki." },
+        { kind: "gap", q: "Gwint M12×1,75. Ile wynosi wysokość zwoju h3 (mm, do 0,01)?", template: "{0}", answers: [["1.07", "1,07"]], why: "0,6134 · 1,75 ≈ 1,07." },
+        { kind: "gap", q: "Gwint M12×1,75. Ile wynosi podstawowa średnica rdzenia (mm, do 0,01)?", template: "X{0}", answers: [["9.86", "9,86", "9.85", "9,85"]], why: "h3 = 0,6134 · 1,75 = 1,073 mm, więc 12 − 2 · 1,073 ≈ 9,85 mm. To wymiar podstawowy — wymiar wykonawczy z tolerancją sprawdza się sprawdzianem." },
+        { kind: "gap", q: "Wysokość zwoju 1,07 mm. Jaką wartość P wpiszesz w drugim bloku G76 (µm, bez kropki)?", template: "P{0}", answers: [["1070"]], why: "Mikrometry, bez kropki." },
         { kind: "choice", q: "Dlaczego gwintuje się przy G97?", options: ["obroty muszą być stałe, żeby nóż trafiał w ten sam zwój", "G96 nie działa na tokarce", "G97 jest szybsze", "bez powodu"], answer: 0, why: "Synchronizacja przejść." },
       ],
     },
@@ -117,7 +117,7 @@ export const t7_1: LessonDoc = {
   quiz: [
     { kind: "choice", review: "T6.2", q: "Który tryb obrotów przy wierceniu w osi?", options: ["G97", "G96", "G50", "G98"], answer: 0, why: "Stałe obroty dla średnicy wiertła." },
     { kind: "choice", q: "Czemu równa się posuw przy gwintowaniu?", options: ["skokowi gwintu na obrót", "0,1 mm/obr", "prędkości skrawania", "wysokości zwoju"], answer: 0, why: "Na każdy obrót — jeden skok." },
-    { kind: "gap", q: "M16×2. Wysokość zwoju (mm, do 0,01):", template: "{0}", answers: [["1.23", "1,23"]], why: "0,6134 · 2 ≈ 1,23." },
+    { kind: "gap", q: "Gwint M16×2. Ile wynosi wysokość zwoju h3 (mm, do 0,01)?", template: "{0}", answers: [["1.23", "1,23"]], why: "0,6134 · 2 ≈ 1,23." },
     { kind: "choice", q: "Co oznacza X w drugim bloku G76?", options: ["średnicę rdzenia", "średnicę nominalną", "przyrost X", "skok"], answer: 0, why: "Dno zwoju." },
     { kind: "choice", q: "Dlaczego kolejne wejścia G76 są coraz płytsze?", options: ["żeby przekrój wióra był podobny", "żeby skrócić program", "bo tak wymaga G97", "bez powodu"], answer: 0, why: "Wraz z głębokością rośnie szerokość styku ostrza." },
     { kind: "choice", q: "Gdzie powinien kończyć się gwint zewnętrzny przed stopniem?", options: ["w podcięciu albo z zapasem przed stopniem", "na czole stopnia", "za stopniem", "obojętnie"], answer: 0, why: "Nóż musi wyjść z materiału." },

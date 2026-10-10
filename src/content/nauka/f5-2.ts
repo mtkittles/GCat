@@ -31,20 +31,22 @@ export const f5_2: LessonDoc = {
   theory: [
     { t: "h", x: "Wiór w głębokim otworze", id: "wior" },
     { t: "p", x: "Do głębokości około trzech średnic wiór wychodzi rowkami wiertła sam. Głębiej zaczyna się pakować: rośnie moment, temperatura i ryzyko złamania wiertła. Cykle z wycofaniem dzielą otwór na odcinki o długości **Q**." },
-    { t: "diagram", id: "f52-peck" },
     { t: "table", head: ["Cykl", "Po każdym Q", "Kiedy"], rows: [
       ["[[G83]]", "wycofanie do R i szybki powrót tuż nad poprzednie dno", "głębokie otwory, wiór trzeba wyprowadzić z otworu"],
       ["[[G73]]", "cofnięcie o ułamek milimetra", "łamanie długiego wióra w otworach średniej głębokości"],
       ["`G81`", "brak", "otwory płytkie, wiertła VHM z chłodzeniem przez wrzeciono"],
     ] },
     { t: "p", x: "Zagłębienia liczy się od płaszczyzny **R**, nie od Z0: z R2 do Z−18 jest 20 mm, więc Q4 daje pięć wejść z dnami w Z−2, −6, −10, −14 i −18. Pierwsze zaczyna się 2 mm nad materiałem, więc w materiale zbiera tylko 2 mm. Jeśli droga nie dzieli się przez Q, ostatnie zagłębienie jest krótsze. Ten model stosuje symulator GCat i opis G83 w dokumentacji Haas; odstęp ponownego najazdu nad poprzednie dno ustawia parametr sterowania." },
+    { t: "diagram", id: "f52-peck" },
     { t: "p", x: "Q podaje się jako dodatnią długość jednego zagłębienia. Obowiązuje ta sama zasada kropki co przy wymiarach: `Q4.` to 4 mm, a na Fanucu bez kropki `Q4000` może oznaczać 4 mm w mikrometrach — zależnie od parametru (lekcja F1.1)." },
     { t: "note", kind: "info", x: "Wiertła VHM z kanałami chłodzącymi często wierci się bez wycofania, nawet na 5–8 średnic — ciśnienie chłodziwa wypłukuje wiór. Każde ponowne wejście to dla węglika uderzenie w dno. Wycofanie ma sens przy wiertłach HSS i bez chłodzenia przez wrzeciono." },
 
     { t: "h", x: "Z to czubek wiertła", id: "czubek" },
     { t: "p", x: "Z w cyklu opisuje położenie czubka. Pełna średnica kończy się wyżej — o długość stożka. Przy otworze pod gwint liczy się głębokość pełnej średnicy, a ta zależy od gwintownika (lekcja F5.3)." },
     { t: "diagram", id: "f52-tip" },
-    { t: "code", x: "długość stożka = (D / 2) / tan(kąt / 2)\n118°: 0,30 · D\n140°: 0,18 · D" },
+    { t: "p", x: "Skąd długość stożka? Przekrój czubka to dwa trójkąty prostokątne. Przyprostokątna pozioma to promień wiertła D/2, kąt przy wierzchołku to połowa kąta wiertła. Wysokość trójkąta — czyli długość stożka — to D/2 podzielone przez tangens tej połowy." },
+    { t: "code", x: "długość stożka = (D / 2) / tan(kąt / 2)\n\n118°: tan 59° ≈ 1,66  →  (D/2) / 1,66 ≈ 0,30 · D\n140°: tan 70° ≈ 2,75  →  (D/2) / 2,75 ≈ 0,18 · D\n\nØ5, 140°:  2,5 / 2,75 ≈ 0,9 mm" },
+    { t: "p", x: "Współczynniki 0,30 i 0,18 to tylko skróty tego samego wzoru dla dwóch najczęstszych kątów. Przy innym kącie wiertła licz z wzoru." },
   ],
 
   worked: {
@@ -53,7 +55,7 @@ export const f5_2: LessonDoc = {
     steps: [
       { x: "Koniec gwintownika musi zejść o nakrój poniżej pełnego gwintu: 12 + 3 = 15 mm.", code: "15 mm" },
       { x: "Pod końcem gwintownika zostawiamy zapas na wióry i bicie osiowe — w tym przykładzie 2 mm. Tyle dalej musi sięgać pełna średnica otworu.", code: "17 mm" },
-      { x: "Stożek wiertła 140°: 0,18 · 5 = 0,9 mm. Czubek: 17 + 0,9 = 17,9 — zaokrąglasz do Z−18. Pełna średnica sięga wtedy Z−17,1.", code: "Z-18." },
+      { x: "Stożek wiertła 140°: (D/2) / tan 70° = 2,5 / 2,75 ≈ 0,9 mm. Czubek: 17 + 0,9 = 17,9 — zaokrąglasz do Z−18. Pełna średnica sięga wtedy Z−17,1.", code: "Z-18." },
       { x: "18 / 5 = 3,6 średnicy — głęboko jak na wiertło bez chłodzenia przez wrzeciono, więc G83.", code: "G83" },
       { x: "Od R2 do Z−18 jest 20 mm: pięć zagłębień po 4 mm, dna w Z−2, −6, −10, −14, −18.", code: "Q4." },
     ],
@@ -76,7 +78,7 @@ export const f5_2: LessonDoc = {
       kind: "drill",
       intro: "Głębokość i dobór cyklu.",
       questions: [
-        { kind: "gap", q: "Wiertło 118°, Ø8. Długość stożka (mm, z dokładnością do 0,1):", template: "{0} mm", answers: [["2.4", "2,4"]], why: "0,3 · 8 = 2,4." },
+        { kind: "gap", q: "Wiertło 118°, Ø8. Jak długi jest stożek na końcu wiertła (mm, do 0,1)?", template: "{0} mm", answers: [["2.4", "2,4"]], why: "Stożek = (D/2) / tan(118°/2) = 4 / tan 59° = 4 / 1,66 ≈ 2,4 mm. Skrót: 0,3 · D." },
         { kind: "gap", q: "Z−20, R2, Q5. Ile zagłębień wykona G83?", template: "{0}", answers: [["5"]], why: "Liczymy od R2: do Z−20 jest 22 mm. Cztery pełne zagłębienia po 5 mm (20 mm) i piąte, krótsze, na 2 mm." },
         { kind: "choice", q: "Stal długowiórowa, otwór 2,5 × D, wiór owija się wokół wiertła. Który cykl?", options: ["G73", "G83", "G82", "G84"], answer: 0, why: "G73 łamie wiór krótkim cofnięciem, bez straty czasu na wyjazd do R." },
       ],
@@ -102,9 +104,9 @@ export const f5_2: LessonDoc = {
     { kind: "choice", review: "F5.1", q: "Co robi `G80`?", options: ["kasuje cykl wiercenia", "włącza wiercenie", "ustawia R", "wraca do G54"], answer: 0, why: "Bez G80 kolejny ruch wierci otwór." },
     { kind: "choice", q: "Od jakiej głębokości zwykle warto wiercić z wycofaniem (wiertło bez chłodzenia przez wrzeciono)?", options: ["powyżej ok. 3 × D", "zawsze", "powyżej 10 × D", "nigdy"], answer: 0, why: "Głębiej wiór przestaje sam wychodzić." },
     { kind: "choice", q: "Co robi G83 po każdym zagłębieniu Q?", options: ["wyjeżdża do R", "cofa się o ułamek mm", "zatrzymuje wrzeciono", "zmienia narzędzie"], answer: 0, why: "Pełne wyprowadzenie wióra." },
-    { kind: "gap", q: "Wiertło 140°, Ø10. Długość stożka (mm):", template: "{0} mm", answers: [["1.8", "1,8"]], why: "0,18 · 10 = 1,8." },
-    { kind: "gap", q: "Pełna średnica Ø6 (118°) ma sięgać 20 mm. Z czubka (mm, do 0,1):", template: "Z{0}", answers: [["-21.8", "-21,8"]], why: "Stożek 0,3 · 6 = 1,8, czubek 20 + 1,8." },
-    { kind: "token", q: "Tapnij słowo, które podaje **długość jednego zagłębienia**.", block: "G83 X10. Y10. Z-18. R2. Q4. F380", answer: 5, why: "Q4. — 4 mm na jedno wejście." },
+    { kind: "gap", q: "Wiertło 140°, Ø10. Jak długi jest stożek na końcu wiertła (mm, do 0,1)?", template: "{0} mm", answers: [["1.8", "1,8"]], why: "Stożek = (D/2) / tan(140°/2) = 5 / tan 70° = 5 / 2,75 ≈ 1,8 mm. Skrót: 0,18 · D." },
+    { kind: "gap", q: "Wiertło 118°, Ø6. Pełna średnica ma sięgać 20 mm w głąb. Na jakie Z zaprogramujesz czubek (do 0,1)?", template: "Z{0}", answers: [["-21.8", "-21,8"]], why: "Stożek = 3 / tan 59° = 3 / 1,66 ≈ 1,8 mm. Czubek leży o stożek niżej niż koniec pełnej średnicy: 20 + 1,8 = 21,8, więc Z−21,8." },
+    { kind: "token", q: "Wskaż słowo, które podaje **długość jednego zagłębienia**.", block: "G83 X10. Y10. Z-18. R2. Q4. F380", answer: 5, why: "Q4. — 4 mm na jedno wejście." },
   ],
 
   summary: [

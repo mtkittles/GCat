@@ -94,12 +94,12 @@ export const f3_4: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F3.3", q: "Naroże detalu R5, frez Ø6, obróbka z zewnątrz. Promień toru:", template: "R{0}", answers: [["8"]], why: "5 + 3 = 8." },
+    { kind: "gap", review: "F3.3", q: "Naroże detalu R5, frez Ø6, obróbka z zewnątrz. Jaki promień ma łuk toru środka freza?", template: "R{0}", answers: [["8"]], why: "5 + 3 = 8." },
     { kind: "choice", q: "Od czego liczy się I i J na Fanucu?", options: ["od punktu startu łuku", "od zera W", "od końca łuku", "zależnie od G90/G91"], answer: 0, why: "I i J są przyrostowe od startu, niezależnie od G90." },
     { kind: "gap", q: "Start X30 Y20, środek X30 Y5. Podaj I i J.", template: "I{0} J{1}", answers: [["0"], ["-15"]], why: "I = 0, J = 5 − 20 = −15." },
     { kind: "choice", q: "Który zapis da pełny okrąg?", options: ["`G02 X50. Y25. R10.` ze startem w X50 Y25", "`G02 I-10.` ze startem w X50 Y25", "`G01 I-10.`", "`G02 R-10.`"], answer: 1, why: "Blok z I i bez X, Y kończy łuk w punkcie startu." },
     { kind: "choice", q: "Kiedy I, J są wyraźnie lepsze od R?", options: ["przy łukach bliskich 180° i pełnych okręgach", "przy krótkich łukach 90°", "nigdy", "tylko w G91"], answer: 0, why: "Środek wyliczany z R jest tam bardzo czuły na zaokrąglenia." },
-    { kind: "token", q: "Tapnij słowo, które podaje **odległość do środka w osi Y**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka." },
+    { kind: "token", q: "Wskaż słowo, które podaje **odległość do środka w osi Y**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka." },
   ],
 
   summary: [

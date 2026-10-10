@@ -60,11 +60,11 @@ export const f1_1: LessonDoc = {
   practice: [
     {
       kind: "drill",
-      intro: "Krótkie zadania na czytanie bloków. Tapnij właściwe słowo albo uzupełnij luki.",
+      intro: "Krótkie zadania na czytanie bloków. Wskaż właściwe słowo albo uzupełnij luki.",
       questions: [
-        { kind: "token", q: "Tapnij słowo, które ustawia **posuw**.", block: "N20 G01 X40. Y10. F250", answer: 4, why: "F to adres posuwu." },
-        { kind: "token", q: "Tapnij **funkcję pomocniczą**.", block: "N30 S2000 M03", answer: 2, why: "M03 włącza obroty wrzeciona w prawo — to funkcja M." },
-        { kind: "token", q: "Tapnij słowo, które podaje cel w osi **Z**.", block: "N40 G00 Z5. M08", answer: 2, why: "Z5. — cel 5 mm nad zerem Z." },
+        { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "N20 G01 X40. Y10. F250", answer: 4, why: "F to adres posuwu." },
+        { kind: "token", q: "Wskaż **funkcję pomocniczą**.", block: "N30 S2000 M03", answer: 2, why: "M03 włącza obroty wrzeciona w prawo — to funkcja M." },
+        { kind: "token", q: "Wskaż słowo, które podaje cel w osi **Z**.", block: "N40 G00 Z5. M08", answer: 2, why: "Z5. — cel 5 mm nad zerem Z." },
         { kind: "gap", q: "Uzupełnij blok: ruch roboczy do X80 Y0 z posuwem 300 mm/min.", template: "G{0} X{1}. Y0. F{2}", answers: [["01", "1"], ["80"], ["300"]], why: "G01 to ruch roboczy, X80. to cel, F300 to posuw." },
         { kind: "choice", q: "Który zapis na Fanucu na pewno oznacza 60 mm?", options: ["`X60`", "`X60.`", "`X0.60`", "`X6.0`"], answer: 1, why: "Kropka dziesiętna usuwa zależność od parametru." },
       ],
@@ -89,16 +89,16 @@ export const f1_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F0.2", q: "Pozycja maszynowa to:",
+    { kind: "choice", review: "F0.2", q: "Jak powstaje pozycja maszynowa w uproszczonym modelu (bez korekcji narzędzia i obrotu układu)?",
       options: ["przesunięcie + współrzędna z programu", "współrzędna z programu − przesunięcie", "zawsze to samo co w programie", "wartość z G28"], answer: 0,
       why: "Program liczy od W, a W leży w miejscu zapisanym w rejestrze przesunięcia." },
     { kind: "choice", q: "Jak nazywa się litera na początku słowa, np. X w `X60.`?",
       options: ["wartość", "adres", "blok", "kod M"], answer: 1, why: "Litera to adres, liczba po niej to wartość." },
-    { kind: "token", q: "Tapnij **funkcję przygotowawczą**.", block: "N10 S1200 M03 G01 X20.", answer: 3,
+    { kind: "token", q: "Wskaż **funkcję przygotowawczą**.", block: "N10 S1200 M03 G01 X20.", answer: 3,
       why: "Funkcje przygotowawcze mają adres G." },
     { kind: "choice", q: "Co zrobi sterowanie z blokiem `/N50 M08` przy włączonym przełączniku BLOCK SKIP?",
       options: ["wykona go", "pominie go", "zatrzyma program", "zgłosi alarm"], answer: 1, why: "Ukośnik oznacza blok do pominięcia, gdy przełącznik jest włączony." },
-    { kind: "choice", q: "Na Sinumeriku komentarz zaczyna się od:",
+    { kind: "choice", q: "Od jakiego znaku zaczyna się komentarz na Sinumeriku?",
       options: ["`(`", "`;`", "`/`", "`%`"], answer: 1, why: "Sinumerik: średnik. Fanuc: nawias." },
     { kind: "gap", q: "Zapisz posuw 250 mm/min jako jedno słowo.", template: "{0}", answers: [["F250", "F250."]],
       why: "Adres F i wartość 250." },

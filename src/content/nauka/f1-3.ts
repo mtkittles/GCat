@@ -92,7 +92,7 @@ export const f1_3: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F1.2", q: "Po `G91` w linii 10 program nie zawiera już G90 ani G91. W jakim trybie jest linia 20?",
       options: ["G90", "G91", "zależy od parametru", "alarm"], answer: 1, why: "G91 jest modalne i obowiązuje do wywołania G90." },
-    { kind: "choice", q: "`G91 X20.` znaczy:",
+    { kind: "choice", q: "Co oznacza blok `G91 X20.`?",
       options: ["jedź do X20 od zera W", "przesuń się o 20 mm w +X od bieżącej pozycji", "ustaw X20 jako nowe zero", "jedź 20 mm w −X"], answer: 1,
       why: "W G91 wartość jest przyrostem od bieżącej pozycji." },
     { kind: "gap", q: "Frez w X80. Y50. (G90). Cel X20. Y50. Podaj przyrost w G91.", template: "X{0}", answers: [["-60"]], why: "20 − 80 = −60." },

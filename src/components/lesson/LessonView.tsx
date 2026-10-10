@@ -148,7 +148,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       <Sec id="test" n={++n} title="Sprawdź się"><Quiz questions={doc.quiz} figs={quizFigs} progressKey={`${track}/${doc.id}`} /></Sec>
 
       <Sec id="program" n={++n} title="Program detalu">
-        <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Tapnij linię, żeby zobaczyć, co robi.</p>
+        <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Wybierz linię, żeby zobaczyć, co robi.</p>
         <Buildup title={bu.title} lines={lines} lessonId={doc.id} mode={T.mode} />
       </Sec>
 

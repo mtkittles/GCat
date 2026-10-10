@@ -45,7 +45,7 @@ export const f4_1: LessonDoc = {
       intro: "Po wymianie narzędzia brakuje korekcji długości. Dopisz ją tak, żeby frez stanął czubkiem 50 mm nad zerem detalu.",
       starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\n(DOPISZ KOREKCJE DLUGOSCI Z REJESTRU 1 I DOJAZD NA Z50)\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["G43","H1"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
-      hints: ["`G43 H1 Z50.` — włączenie korekcji łączy się z ruchem w Z, żeby sterowanie od razu policzyło pozycję z długością narzędzia.","Numer H = numer narzędzia we wrzecionie (T1 → H1)."],
+      hints: ["`G43 H1 Z50.` — włączenie korekcji łączy się z ruchem w Z, żeby sterowanie od razu policzyło pozycję z długością narzędzia.","Konwencja kursu: numer H równy numerowi narzędzia (T1 → H1)."],
       solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
     },
     {
@@ -53,7 +53,7 @@ export const f4_1: LessonDoc = {
       intro: "Korekcja długości w liczbach i w zapisie.",
       questions: [
         { kind: "gap", q: "G54 Z = −380, H3 = 92,5, program: `G43 H3 Z10.`. Gdzie stanie N (pozycja maszynowa Z)?", template: "Z{0}", answers: [["-277.5", "-277,5"]], why: "−380 + 10 + 92,5 = −277,5." },
-        { kind: "token", q: "Tapnij słowo, które wskazuje **rejestr długości**.", block: "G43 H1 Z50.", answer: 1, why: "H1 — rejestr korekcji długości nr 1." },
+        { kind: "token", q: "Wskaż słowo, które wskazuje **rejestr długości**.", block: "G43 H1 Z50.", answer: 1, why: "H1 — rejestr korekcji długości nr 1." },
         { kind: "choice", q: "We wrzecionie jest T2, a program ma `G43 H1`. Co się stanie?", options: ["sterowanie użyje długości T1 — czubek trafi w złe miejsce", "sterowanie samo weźmie H2", "alarm", "nic, H nie ma znaczenia"], answer: 0, why: "Sterowanie nie sprawdza, czy H pasuje do narzędzia." },
         { kind: "order", q: "Ułóż początek pracy narzędzia.", items: ["S2500 M03", "G43 H1 Z50.", "T1 M06", "G00 X-20. Y10."], answer: [2, 1, 0, 3], why: "Wymiana, korekcja z ruchem na bezpieczną wysokość, obroty, najazd." },
       ],
@@ -80,16 +80,16 @@ export const f4_1: LessonDoc = {
     { kind: "choice", review: "F3.5", q: "Co robi `G04 X0.3`?", options: ["postój 0,3 s", "ruch do X0.3", "postój 3 obroty", "zmianę korekcji"], answer: 0, why: "G04 z X z kropką — sekundy." },
     { kind: "choice", q: "Co włącza `G43 H1`?", options: ["korekcję długości z rejestru 1", "korekcję promienia", "przesunięcie G54", "narzędzie nr 1"], answer: 0, why: "G43 — korekcja długości, H — numer rejestru." },
     { kind: "choice", q: "Od czego mierzy się długość narzędzia przy metodzie z presetterem?", options: ["od bazy N na czole wrzeciona do czubka", "od zera W", "od zera maszyny M", "od stołu"], answer: 0, why: "Długość to odległość N — czubek." },
-    { kind: "gap", q: "G54 Z = −420, H5 = 110, program `G43 H5 Z2.`. Pozycja maszynowa N:", template: "Z{0}", answers: [["-308"]], why: "−420 + 2 + 110 = −308." },
+    { kind: "gap", q: "G54 Z = −420, H5 = 110, program `G43 H5 Z2.`. Jaką pozycję maszynową Z ma punkt N?", template: "Z{0}", answers: [["-308"]], why: "−420 + 2 + 110 = −308." },
     { kind: "choice", q: "Kiedy zwykle włącza się G43?", options: ["zaraz po wymianie narzędzia, z ruchem na bezpieczną wysokość", "na końcu programu", "przed M06", "w bloku startowym"], answer: 0, why: "Korekcja musi być aktywna przed pierwszym ruchem w stronę detalu." },
-    { kind: "choice", q: "Po wymianie płytki w głowicy frezowej trzeba:", options: ["zmierzyć długość i zaktualizować H", "zmienić G54", "zmienić program", "nic"], answer: 0, why: "Nowa płytka może zmienić długość narzędzia." },
-    { kind: "token", q: "Tapnij kod, który **wyłącza** korekcję długości.", block: "G43 G49 G41 G40", answer: 1, why: "G49 — wyłączenie korekcji długości." },
+    { kind: "choice", q: "Co trzeba zrobić po wymianie płytki w głowicy frezowej?", options: ["zmierzyć długość i zaktualizować H", "zmienić G54", "zmienić program", "nic"], answer: 0, why: "Nowa płytka może zmienić długość narzędzia." },
+    { kind: "token", q: "Wskaż kod, który **wyłącza** korekcję długości.", block: "G43 G49 G41 G40", answer: 1, why: "G49 — wyłączenie korekcji długości." },
   ],
 
   summary: [
     "Program podaje położenie czubka, a długość narzędzia dolicza G43 z rejestru H.",
     "G43 H… włącza się po wymianie, razem z ruchem na bezpieczną wysokość.",
-    "Numer H = numer T. Zły rejestr to błąd głębokości równy różnicy długości.",
+    "W kursie H ma numer narzędzia (konwencja, nie wymóg sterowania). Zły rejestr to błąd głębokości równy różnicy długości.",
     "Przy długościach od N: Z maszyny = G54 Z + Z programu + H.",
   ],
 

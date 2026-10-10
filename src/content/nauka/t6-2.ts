@@ -81,9 +81,9 @@ export const t6_2: LessonDoc = {
       kind: "drill",
       intro: "Wiercenie w osi.",
       questions: [
-        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Obroty (pełne):", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
+        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Jakie obroty wpiszesz przy G97 (pełne obr/min)?", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
         { kind: "choice", q: "Dlaczego wiercenie w osi w G97?", options: ["przy D = 0 G96 dałby od razu limit obrotów", "G96 nie działa z G74", "bo tak jest szybciej", "bez powodu"], answer: 0, why: "Obroty z G96 dążą do nieskończoności przy osi." },
-        { kind: "gap", q: "Wejścia po 4 mm. Wartość Q:", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
+        { kind: "gap", q: "Wejścia po 4 mm. Jaką wartość Q wpiszesz w G74 (µm, bez kropki)?", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
       ],
     },
   ],
@@ -109,7 +109,7 @@ export const t6_2: LessonDoc = {
     { kind: "choice", q: "Który tryb obrotów przy wierceniu w osi?", options: ["G97", "G96", "G50", "G99"], answer: 0, why: "Stałe obroty dla średnicy wiertła." },
     { kind: "gap", q: "Głębokość Z−12, Q3000. Ile pełnych wejść po 3 mm (start Z0)?", template: "{0}", answers: [["4"]], why: "12 / 3 = 4." },
     { kind: "choice", q: "Czym jest Z w bloku G74 przy wierceniu?", options: ["położeniem czubka wiertła", "końcem pełnej średnicy", "wycofaniem", "punktem startu"], answer: 0, why: "Jak na frezarce." },
-    { kind: "token", q: "Tapnij słowo, które podaje **głębokość wejścia**.", block: "G74 Z-15. Q3000 F0.08", answer: 2, why: "Q3000 — 3 mm." },
+    { kind: "token", q: "Wskaż słowo, które podaje **głębokość wejścia**.", block: "G74 Z-15. Q3000 F0.08", answer: 2, why: "Q3000 — 3 mm." },
   ],
 
   summary: [

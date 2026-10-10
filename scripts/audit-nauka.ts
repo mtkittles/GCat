@@ -35,6 +35,8 @@ function texts(doc: LessonDoc): string[] {
 }
 
 function checkQuestion(where: string, q: Question, track: Track, idx: number) {
+  // Pytanie albo polecenie, nie sama etykieta („Promień toru:”) — uczeń ma wiedzieć, o co jest pytany.
+  if ((q.kind === "choice" || q.kind === "gap") && !/[?.]\s*$/.test(q.q.trim())) warn(where, `treść nie jest pytaniem ani poleceniem: ${q.q}`);
   if (q.kind === "choice") {
     if (q.answer < 0 || q.answer >= q.options.length) warn(where, `odpowiedź poza zakresem: ${q.q}`);
     if (new Set(q.options).size !== q.options.length) warn(where, `powtórzone opcje: ${q.q}`);

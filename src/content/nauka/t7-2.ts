@@ -80,7 +80,7 @@ export const t7_2: LessonDoc = {
       intro: "G32 w praktyce.",
       questions: [
         { kind: "order", q: "Ułóż jedno przejście gwintu.", items: ["Z5.", "G32 Z-17. F1.5", "G00 X22.", "G00 X19.4"], answer: [3, 1, 2, 0], why: "Wejście, przejście, wyjście w X, powrót w Z." },
-        { kind: "choice", q: "Odpowiednik G32 na Sinumeriku:", options: ["G33", "G76", "G92", "CYCLE95"], answer: 0, why: "G33 — gwint po prostej." },
+        { kind: "choice", q: "Czym na Sinumeriku zastąpisz G32?", options: ["G33", "G76", "G92", "CYCLE95"], answer: 0, why: "G33 — gwint po prostej." },
       ],
     },
   ],

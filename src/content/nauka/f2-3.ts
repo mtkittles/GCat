@@ -49,8 +49,8 @@ export const f2_3: LessonDoc = {
       questions: [
         { kind: "gap", q: "fz = 0,05, z = 3, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["450"]], why: "0,05 · 3 · 3000 = 450 mm/min." },
         { kind: "gap", q: "Program ma F600, frez 4-ostrzowy, S3000. Jakie jest fz?", template: "fz = {0}", answers: [["0.05", "0,05", ".05"]], why: "600 / (4 · 3000) = 0,05 mm/ostrze." },
-        { kind: "token", q: "Tapnij słowo, które ustawia **posuw**.", block: "G01 X80. Y0. F400", answer: 3, why: "F400 — 400 mm/min." },
-        { kind: "choice", q: "Frez 2-ostrzowy zamiast 4-ostrzowego przy tym samym fz i S. Posuw F:", options: ["zostaje taki sam", "maleje o połowę", "rośnie dwukrotnie", "zależy od średnicy"], answer: 1, why: "F jest proporcjonalne do liczby ostrzy." },
+        { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "G01 X80. Y0. F400", answer: 3, why: "F400 — 400 mm/min." },
+        { kind: "choice", q: "Frez 2-ostrzowy zamiast 4-ostrzowego, to samo fz i S. Co dzieje się z posuwem F?", options: ["zostaje taki sam", "maleje o połowę", "rośnie dwukrotnie", "zależy od średnicy"], answer: 1, why: "F jest proporcjonalne do liczby ostrzy." },
       ],
     },
   ],
@@ -73,10 +73,10 @@ export const f2_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F2.2", q: "Frez Ø10, vc = 94 m/min. Obroty w pełnych obr/min:", template: "n = {0}", answers: [["2992", "2991", "2993"]], why: "1000 · 94 / (π · 10) ≈ 2992." },
+    { kind: "gap", review: "F2.2", q: "Frez Ø10, vc = 94 m/min. Ile obrotów wpiszesz (w pełnych obr/min)?", template: "n = {0}", answers: [["2992", "2991", "2993"]], why: "1000 · 94 / (π · 10) ≈ 2992." },
     { kind: "choice", q: "Co oznacza `F400` przy aktywnym `G94`?", options: ["400 mm/min", "400 mm/obr", "400 obr/min", "400 m/min"], answer: 0, why: "G94 — posuw minutowy." },
     { kind: "gap", q: "fz = 0,06, z = 2, n = 5000. Ile wynosi F?", template: "F{0}", answers: [["600"]], why: "0,06 · 2 · 5000 = 600." },
-    { kind: "choice", q: "Dlaczego zejście w Z programuje się wolniej niż kontur?", options: ["ostrza czołowe zbierają materiał całą szerokością", "oś Z jest słabsza", "tak wymaga G01", "żeby oszczędzić chłodziwo"], answer: 0, why: "Przy wejściu pracuje czoło freza, a nie obwód." },
+    { kind: "choice", q: "Frez zagłębia się pionowo w materiał. Dlaczego posuw zejścia przyjmuje się mniejszy niż konturowy?", options: ["pracują ostrza czołowe: przy osi prędkość skrawania spada do zera, a wiór trudno wychodzi", "oś Z jest słabsza", "tak wymaga G01", "żeby oszczędzić chłodziwo"], answer: 0, why: "Przy zagłębianiu skrawa czoło freza, a nie obwód. Dopuszczalny posuw wgłębny podaje producent freza. Zejście obok detalu, w powietrzu, nie obciąża ostrzy." },
     { kind: "choice", q: "Obroty wzrosły z S2000 do S3000 przy tym samym fz. Co z F?", options: ["zostaje", "rośnie o połowę", "maleje", "rośnie dwukrotnie"], answer: 1, why: "F jest proporcjonalne do n: 3000/2000 = 1,5." },
     { kind: "choice", q: "Korektor posuwu ustawiony na 50%, w programie F400. Z jakim posuwem jedzie maszyna?", options: ["400 mm/min", "200 mm/min", "800 mm/min", "zależy od G00"], answer: 1, why: "Korektor mnoży posuw z programu." },
     { kind: "choice", q: "Który kod ustawia posuw na minutę?", options: ["G94", "G95", "G96", "G97"], answer: 0, why: "G94 — mm/min, G95 — mm/obr." },

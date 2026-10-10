@@ -49,10 +49,10 @@ export const f2_2: LessonDoc = {
       kind: "drill",
       intro: "Obliczenia i kody wrzeciona. Przy obliczeniach wystarczy wynik w pełnych obrotach.",
       questions: [
-        {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny nie skrawa, tylko trze i łamie się. Powinno być S2500 M03."},
+        {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny obraca się wtedy grzbietami ostrzy do materiału: nie skrawa, tylko trze, grzeje się i szybko tępi albo wykrusza. Powinno być S2500 M03."},
 
         { kind: "gap", q: "Frez Ø8, vc = 100 m/min. Ile obrotów (w pełnych obr/min)?", template: "n = {0}", answers: [["3979", "3978", "3980"]], why: "1000 · 100 / (π · 8) ≈ 3979 obr/min." },
-        { kind: "token", q: "Tapnij słowo, które **uruchamia** obroty.", block: "S1800 M03 M08", answer: 1, why: "M03 włącza obroty w prawo z wartością S1800. M08 to chłodziwo." },
+        { kind: "token", q: "Wskaż słowo, które **uruchamia** obroty.", block: "S1800 M03 M08", answer: 1, why: "M03 włącza obroty w prawo z wartością S1800. M08 to chłodziwo." },
         { kind: "choice", q: "Wiertło Ø5 i wiertło Ø20 z tego samego materiału, to samo vc. Które potrzebuje większych obrotów?", options: ["Ø5, czterokrotnie większych", "Ø20", "takich samych", "zależy od posuwu"], answer: 0, why: "Obroty są odwrotnie proporcjonalne do średnicy." },
         { kind: "choice", q: "Frez prawoskrętny. Który kod?", options: ["M03", "M04", "M05", "M06"], answer: 0, why: "Narzędzia prawoskrętne pracują w prawo — M03." },
       ],
@@ -79,9 +79,9 @@ export const f2_2: LessonDoc = {
     { kind: "choice", review: "F2.1", q: "W jakim stanie jest wrzeciono po `M06`?", options: ["stoi", "obraca się", "obraca się w lewo", "zależy od S"], answer: 0, why: "Dlatego po wymianie znowu pada S… M03." },
     { kind: "choice", q: "Co robi samo `S2000` przy zatrzymanym wrzecionie?", options: ["uruchamia obroty w prawo", "tylko ustawia wartość obrotów", "zatrzymuje wrzeciono", "wywołuje alarm"], answer: 1, why: "Obroty startują dopiero z M03 lub M04." },
     { kind: "gap", q: "Frez Ø12, vc = 90 m/min. Ile obrotów (pełne obr/min)?", template: "n = {0}", answers: [["2387", "2386", "2388"]], why: "1000 · 90 / (π · 12) ≈ 2387." },
-    { kind: "choice", q: "Kierunek M03 ocenia się, patrząc:", options: ["od strony wrzeciona w stronę detalu", "od strony detalu na wrzeciono", "z boku maszyny", "zależy od sterowania"], answer: 0, why: "Na frezarce pionowej to widok z góry." },
-    { kind: "choice", q: "Obliczone n = 11 400, maszyna ma maksymalnie 10 000. Co programujesz?", options: ["`S11400`", "`S10000`", "`S5700`", "zmieniasz narzędzie"], answer: 1, why: "Więcej maszyna nie da. Prędkość skrawania będzie nieco niższa." },
-    { kind: "token", q: "Tapnij kod, który **zatrzymuje** wrzeciono.", block: "M03 M08 M05 M30", answer: 2, why: "M05 — stop wrzeciona." },
+    { kind: "choice", q: "Skąd patrzysz, oceniając kierunek obrotów M03?", options: ["od strony wrzeciona w stronę detalu", "od strony detalu na wrzeciono", "z boku maszyny", "zależy od sterowania"], answer: 0, why: "Na frezarce pionowej to widok z góry." },
+    { kind: "choice", q: "Obliczone n = 11 400, maszyna ma maksymalnie 10 000. Co programujesz?", options: ["`S11400`", "`S10000`", "`S5700`", "zmieniasz narzędzie"], answer: 1, why: "Więcej maszyna nie da. Rzeczywista vc spadnie proporcjonalnie (tu ok. 88%), a posuw F trzeba przeliczyć dla S10000 z przyjętego fz." },
+    { kind: "token", q: "Wskaż kod, który **zatrzymuje** wrzeciono.", block: "M03 M08 M05 M30", answer: 2, why: "M05 — stop wrzeciona." },
     { kind: "choice", q: "Co się stanie, gdy wstawisz do wzoru promień zamiast średnicy?", options: ["obroty wyjdą dwa razy za duże", "obroty wyjdą dwa razy za małe", "nic", "sterowanie to poprawi"], answer: 0, why: "Mianownik jest dwa razy mniejszy, więc wynik dwa razy większy." },
   ],
 

@@ -70,7 +70,7 @@ export const f3_1: LessonDoc = {
       intro: "Krótkie pytania o ruch szybki.",
       questions: [
         { kind: "choice", q: "Frez stoi w Z5. nad detalem, ma przejechać w inne miejsce. Co najpierw?", options: ["G00 w XY", "G00 w Z do góry", "G01 w XY", "wszystko w jednym bloku"], answer: 1, why: "Odjazd: najpierw Z w górę, potem XY." },
-        { kind: "token", q: "Który blok jest **niebezpieczny** przy imadle obok detalu? Tapnij go.", block: "G00 Z50. | G00 X-20. Y10. | G00 X-20. Y10. Z5.", answer: 2, why: "Ruch ze zjazdem w Z i przejazdem w XY naraz może pójść nisko nad szczękami." },
+        { kind: "token", q: "Który blok jest **niebezpieczny** przy imadle obok detalu? Wskaż go.", block: "G00 Z50. | G00 X-20. Y10. | G00 X-20. Y10. Z5.", answer: 2, why: "Ruch ze zjazdem w Z i przejazdem w XY naraz może pójść nisko nad szczękami." },
       ],
     },
   ],
@@ -94,7 +94,7 @@ export const f3_1: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F2.4", q: "Gdzie stoi `M08`?", options: ["po włączeniu obrotów, przed najazdem", "przed M06", "po M30", "w bloku startowym"], answer: 0, why: "Chłodziwo ma płynąć przed dotknięciem materiału." },
     { kind: "choice", q: "Z jaką prędkością jedzie `G00 X100.`?", options: ["z posuwem F", "z maksymalną prędkością osi z parametrów, pomnożoną przez korektor", "zawsze 10 m/min", "z prędkością ostatniego G01"], answer: 1, why: "G00 nie używa F." },
-    { kind: "choice", q: "Najazd nad detal w bezpiecznej kolejności:", options: ["Z w dół, potem XY", "XY wysoko, potem Z w dół", "XY i Z razem", "kolejność nie ma znaczenia"], answer: 1, why: "Najpierw XY na wysokości bezpiecznej, potem sam Z." },
+    { kind: "choice", q: "W jakiej kolejności bezpiecznie najechać nad detal?", options: ["Z w dół, potem XY", "XY wysoko, potem Z w dół", "XY i Z razem", "kolejność nie ma znaczenia"], answer: 1, why: "Najpierw XY na wysokości bezpiecznej, potem sam Z." },
     { kind: "choice", q: "Dlaczego tor `G00` może nie być odcinkiem prostym?", options: ["osie mogą jechać niezależnie, każda z pełną prędkością", "G00 zawsze jedzie po łuku", "przez korektor posuwu", "przez G17"], answer: 0, why: "Oś z krótszą drogą kończy wcześniej." },
     { kind: "choice", q: "Po `G00 Z5.` stoi blok `Z-5.`. Co się stanie?", options: ["zejście z posuwem F", "zejście ruchem szybkim w materiał", "alarm", "nic"], answer: 1, why: "G00 jest modalne. Przed wejściem w materiał musi paść G01." },
     { kind: "gap", q: "Frez Ø10 ma przejechać obok detalu tak, by jego krawędź była 10 mm od lewej krawędzi detalu (X0). Jaki X środka?", template: "X{0}", answers: [["-15"]], why: "Krawędź w X−10, środek dalej o promień: −10 − 5 = −15." },

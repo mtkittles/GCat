@@ -61,7 +61,7 @@ export const t2_1: LessonDoc = {
       intro: "Słowo T i korekcja zużycia.",
       questions: [
         { kind: "gap", q: "Wywołaj nóż z pozycji 4 z korekcją 4.", template: "T{0}", answers: [["0404"]], why: "Dwie cyfry pozycji, dwie cyfry korekcji." },
-        { kind: "gap", q: "Średnica wyszła Ø25,06 zamiast Ø25,00. Zmiana zużycia X:", template: "{0}", answers: [["-0.06", "-0,06", "-.06"]], why: "Korekcja X w średnicy — cała odchyłka, w minus." },
+        { kind: "gap", q: "Średnica wyszła Ø25,06 zamiast Ø25,00. O ile zmienisz zużycie X (korekcja w średnicy)?", template: "{0}", answers: [["-0.06", "-0,06", "-.06"]], why: "Korekcja X w średnicy — cała odchyłka, w minus." },
         { kind: "choice", q: "Co robi `T0100`?", options: ["zostawia nóż 1 i wyłącza korekcję", "wybiera nóż 100", "wymienia nóż na 1 z korekcją 100", "alarm"], answer: 0, why: "Korekcja 00 oznacza brak korekcji." },
         { kind: "order", q: "Ułóż zmianę noża.", items: ["T0202", "G28 W0.", "G00 X44. Z2.", "G28 U0.", "G96 S250 M03"], answer: [3, 1, 0, 4, 2], why: "Odjazd X, odjazd Z, obrót głowicy, obroty, dojazd." },
       ],
@@ -85,12 +85,12 @@ export const t2_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T1.3", q: "Dlaczego odjazd zaczyna się od X?", options: ["nóż wychodzi ponad detal, zanim pojedzie wzdłuż osi", "X jest szybsze", "tak wymaga G28", "bez powodu"], answer: 0, why: "Ruch w Z przy detalu grozi kolizją." },
+    { kind: "choice", review: "T1.3", q: "Dlaczego po toczeniu zewnętrznym odjazd zaczyna się od X?", options: ["nóż wychodzi ponad detal, zanim pojedzie wzdłuż osi", "X jest szybsze", "tak wymaga G28", "bez powodu"], answer: 0, why: "Ruch w Z przy detalu grozi kolizją. Narzędzie wewnętrzne najpierw wychodzi z otworu w Z." },
     { kind: "choice", q: "Co oznaczają ostatnie dwie cyfry w `T0305`?", options: ["numer rejestru korekcji", "pozycję w głowicy", "obroty", "promień naroża"], answer: 0, why: "Pozycja 03, korekcja 05." },
     { kind: "choice", q: "Czy tokarka Fanuc potrzebuje M06 do zmiany noża?", options: ["nie, głowica obraca się po T", "tak, zawsze", "tylko przy T0101", "tylko w G99"], answer: 0, why: "Słowo T od razu obraca głowicę." },
-    { kind: "gap", q: "Zmierzono Ø40,05, rysunek Ø40,00. Zmiana zużycia X:", template: "{0}", answers: [["-0.05", "-0,05", "-.05"]], why: "Cała odchyłka, bo korekcja X jest w średnicy." },
+    { kind: "gap", q: "Zmierzono Ø40,05, rysunek wymaga Ø40,00. O ile zmienisz zużycie X?", template: "{0}", answers: [["-0.05", "-0,05", "-.05"]], why: "Cała odchyłka, bo korekcja X jest w średnicy." },
     { kind: "choice", q: "Co zawiera korekcja geometrii noża?", options: ["odległość ostrza od punktu bazowego głowicy w X i Z", "obroty", "posuw", "numer programu"], answer: 0, why: "Dzięki niej każdy nóż trafia w wymiar z programu." },
-    { kind: "token", q: "Tapnij słowo, które **obraca głowicę**.", block: "G28 W0. | T0202 | G96 S250 M03", answer: 1, why: "T0202." },
+    { kind: "token", q: "Wskaż słowo, które **obraca głowicę**.", block: "G28 W0. | T0202 | G96 S250 M03", answer: 1, why: "T0202." },
   ],
 
   summary: [

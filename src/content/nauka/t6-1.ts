@@ -84,8 +84,8 @@ export const t6_1: LessonDoc = {
       kind: "drill",
       intro: "Położenie noża i adresy.",
       questions: [
-        { kind: "gap", q: "Nóż 4 mm zmierzony na lewym narożu, rowek Z−30…Z−26 (szerokość 4). Z pojedynczego wcięcia:", template: "Z{0}", answers: [["-30"]], why: "Lewa krawędź noża w Z−30, prawa w Z−26." },
-        { kind: "gap", q: "Wejścia po 2 mm na stronę. Wartość P:", template: "P{0}", answers: [["2000"]], why: "P w mikrometrach, bez kropki." },
+        { kind: "gap", q: "Nóż szerokości 4 mm zmierzony na lewym narożu. Rowek Z−30…Z−26 (szerokość 4). Na jakie Z ustawisz nóż do pojedynczego wcięcia?", template: "Z{0}", answers: [["-30"]], why: "Lewa krawędź noża w Z−30, prawa w Z−26." },
+        { kind: "gap", q: "Wejścia po 2 mm na stronę. Jaką wartość P wpiszesz w G75 (µm, bez kropki)?", template: "P{0}", answers: [["2000"]], why: "P w mikrometrach, bez kropki." },
         { kind: "choice", q: "Nóż w rowku na dnie. Jak odjechać?", options: ["najpierw w X", "najpierw w Z", "po skosie", "obojętnie"], answer: 0, why: "Ruch w Z w rowku łamie płytkę." },
       ],
     },
@@ -112,7 +112,7 @@ export const t6_1: LessonDoc = {
     { kind: "choice", q: "Po co wycofanie R w G75?", options: ["żeby złamać wiór", "żeby zmierzyć rowek", "żeby zmienić nóż", "bez powodu"], answer: 0, why: "Wiór nie zapcha rowka." },
     { kind: "gap", q: "Start Ø30, dno Ø24, P1000. Ile wejść w jednym wcięciu?", template: "{0}", answers: [["3"]], why: "(30 − 24) / 2 = 3 mm na stronę, po 1 mm." },
     { kind: "choice", q: "Rowek 6 mm, nóż 3 mm. Ile wcięć przy Q3000?", options: ["2", "1", "3", "6"], answer: 0, why: "Druga pozycja 3 mm dalej pokrywa resztę." },
-    { kind: "token", q: "Tapnij słowo, które podaje **przesunięcie między wcięciami**.", block: "G75 X17. Z-20. P1500 Q1000 F0.05", answer: 4, why: "Q1000 — 1 mm w Z." },
+    { kind: "token", q: "Wskaż słowo, które podaje **przesunięcie między wcięciami**.", block: "G75 X17. Z-20. P1500 Q1000 F0.05", answer: 4, why: "Q1000 — 1 mm w Z." },
   ],
 
   summary: [
