@@ -14,6 +14,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: p ? `${p.title} — gotowy program — GCat` : "Program — GCat" };
 }
 
+/* Profil zapisu programu — jak nad lekcjami; osie obrotowe zależą od kinematyki maszyny. */
+function profile(p: { mode: "mill" | "lathe"; dialect?: "fanuc" | "sinumerik"; category: string }) {
+  if (p.mode === "lathe") return "Zapis: Fanuc, system A · tokarka, X w średnicy · milimetry, posuw na obrót (G99).";
+  const lang = p.dialect === "sinumerik" ? "SINUMERIK — język natywny" : "Fanuc (ISO)";
+  const axes = /osi/.test(p.category) ? " Osie obrotowe i ich kierunki zależą od kinematyki maszyny." : "";
+  return `Zapis: ${lang} · frezarka · milimetry, posuw na minutę (G94).${axes}`;
+}
+
 export default async function ProgramPage({ params }: { params: Promise<{ slug: string }> }) {
   const p = programBySlug((await params).slug);
   if (!p) notFound();
@@ -30,9 +38,10 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
           <div className="pg-meta"><span>{p.mode === "mill" ? "Frezowanie" : "Toczenie"}</span><span>{p.category}</span><span>{p.level}</span></div>
           <h1>{p.title}</h1>
           <p>{p.summary}</p>
+          <p className="tp-profile">{profile(p)}</p>
           <div className="pg-chips">{p.features.map((f) => <Chip key={f}>{f}</Chip>)}</div>
           <dl className="pg-facts">
-            <div><dt>Czas obróbki</dt><dd>ok. {mins} min</dd></div>
+            <div><dt>Czas wg symulatora</dt><dd>ok. {mins} min</dd></div>
             <div><dt>Bloki</dt><dd>{lines.filter((l) => l.trim()).length}</dd></div>
             <div><dt>Narzędzia</dt><dd>{Object.keys(p.tools).length}</dd></div>
             {p.ops && <div><dt>Zabiegi</dt><dd>{p.ops.length}</dd></div>}
@@ -56,6 +65,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
               })}
             </tbody>
           </table>
+          <p className="text-muted text-sm max-w-prose">Obroty, posuwy i głębokości to wartości przykładowe dla symulatora GCat. Przed uruchomieniem na obrabiarce dobierz je do narzędzia, materiału i mocowania (kalkulator, katalog producenta narzędzia), a numery narzędzi, korektory, punkt wymiany i kody M — do swojej maszyny i sterowania.</p>
         </section>
       )}
       <div className="pg-cols">
