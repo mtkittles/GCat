@@ -1,4 +1,4 @@
-import { Code, Dim, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu T0 — tokarka. Widok z boku: Z w prawo, X (promień) w górę. */
 
@@ -77,6 +77,38 @@ export function LathePart() {
   );
 }
 
+
+/* ================= T0.1: przykład — punkty konturu ================= */
+export function ContourPoints() {
+  const R: [number, number, number, number] = [-46, 8, -3, 24];
+  const m = mapper(R, [10, 8, 340, 240]);
+  const pts = PROFILE.slice(0, 7);
+  return (
+    <Fig id="t01cp" code="X Z" title="Punkty konturu — górna połowa wałka" h={258} legend={["con", "stock"]}
+      notes={<><Code k="con">X0 Z0 · X18 Z0 → X20 Z-1</Code><Code k="con">X20 Z-20 · X28 Z-20 → X30 Z-21</Code></>}
+      caption={<>Widok z boku: Z w prawo, X w górę. Przy punktach — średnica X i odległość Z od czoła. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <line x1={m.X(-44)} y1={m.Y(20)} x2={m.X(4)} y2={m.Y(20)} className="stock-out" />
+          <T x={m.X(-44)} y={m.Y(20) - 5} cls="t-mut t-sm">pręt Ø40</T>
+          <polygon points={poly(m, [...pts, [-44, 15], [-44, 0]])} fill={c.hatch} className="p-con" />
+          <line x1={m.X(-46)} y1={m.Y(0)} x2={m.X(8)} y2={m.Y(0)} className="p-cons" />
+          <Pt x={m.X(0)} y={m.Y(0)} label="W  X0 Z0" pos="se" cls="t-mono t-b t-sm" dot="pt-rap" />
+          <Step x={m.X(4)} y={m.Y(3)} n={1} />
+          <Pt x={m.X(0)} y={m.Y(9)} label="X18 Z0" pos="e" cls="t-mono t-sm" />
+          <Pt x={m.X(-1)} y={m.Y(10)} label="X20 Z−1" pos="n" cls="t-mono t-b t-sm" />
+          <Step x={m.X(4)} y={m.Y(12)} n={2} />
+          <Pt x={m.X(-20)} y={m.Y(10)} label="X20 Z−20" pos="se" cls="t-mono t-b t-sm" />
+          <Step x={m.X(-12)} y={m.Y(5)} n={3} />
+          <Pt x={m.X(-20)} y={m.Y(14)} label="X28 Z−20" pos="e" cls="t-mono t-sm" />
+          <Pt x={m.X(-21)} y={m.Y(15)} label="X30 Z−21" pos="nw" cls="t-mono t-b t-sm" />
+          <Step x={m.X(-15)} y={m.Y(17.5)} n={4} />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T0.2: promień i średnica ================= */
 export function DiaRadius() {
   const R: [number, number, number, number] = [-46, 26, -24, 28];
@@ -97,6 +129,41 @@ export function DiaRadius() {
           <Dim x1={m.X(-38)} y1={m.Y(15)} x2={m.X(-38)} y2={m.Y(20)} off={0} label="ap 5" c={c} lside={-1} cls="t-mono t-cut t-b" />
           <line x1={m.X(-44)} y1={m.Y(15)} x2={m.X(0)} y2={m.Y(15)} className="p-cut dashed" />
           <line x1={m.X(-44)} y1={m.Y(-15)} x2={m.X(0)} y2={m.Y(-15)} className="p-cut dashed" />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+
+/* ================= T0.2: przykład — dwa przejścia ================= */
+export function TwoPasses() {
+  const R: [number, number, number, number] = [-25, 9, 9, 23];
+  const m = mapper(R, [10, 8, 340, 214]);
+  return (
+    <Fig id="t02tp" code="ap" title="Z Ø40 na Ø30 w dwóch przejściach" h={232} legend={["cut", "stock"]}
+      notes={<><Code k="cut">1. przejście X35. — ap 2,5</Code><Code k="cut">2. przejście X30. — ap 2,5</Code></>}
+      caption={<>Górna krawędź pręta, powiększenie. Na stronę schodzi 5 mm: dwa pasy po 2,5 mm. W programie X zmienia się w każdym przejściu o 5, bo X to średnica. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(-25)} y={m.Y(15)} width={25 * m.u} height={6 * m.u} fill={c.hatch} className="p-con" />
+          <rect x={m.X(-20)} y={m.Y(20)} width={20 * m.u} height={2.5 * m.u} className="p-fill-cut" opacity={0.9} />
+          <rect x={m.X(-20)} y={m.Y(17.5)} width={20 * m.u} height={2.5 * m.u} className="p-fill-cut" opacity={0.45} />
+          <rect x={m.X(-25)} y={m.Y(20)} width={5 * m.u} height={5 * m.u} fill={c.hatch} className="p-con" />
+          <line x1={m.X(6)} y1={m.Y(17.5)} x2={m.X(-20) + 3} y2={m.Y(17.5)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={m.X(6)} y1={m.Y(15)} x2={m.X(-20) + 3} y2={m.Y(15)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <T x={m.X(6.3)} y={m.Y(17.5) - 5} cls="t-mono t-cut t-b t-sm">X35.</T>
+          <T x={m.X(6.3)} y={m.Y(15) - 5} cls="t-mono t-cut t-b t-sm">X30.</T>
+          <Step x={m.X(-10)} y={m.Y(18.75)} n={3} />
+          <Step x={m.X(-10)} y={m.Y(16.25)} n={4} />
+          <line x1={m.X(-22.5)} y1={m.Y(15)} x2={m.X(-22.5)} y2={m.Y(20)} className="p-dim" markerStart={c.a("dim")} markerEnd={c.a("dim")} />
+          <T x={m.X(-21.8)} y={m.Y(17.5) + 4} cls="t-mono t-b t-sm">5</T>
+          <Step x={m.X(-22.5)} y={m.Y(21.8)} n={1} />
+          <T x={m.X(-3)} y={m.Y(21.4) + 4} anchor="end" cls="t-mono t-sm">2,5 + 2,5</T>
+          <Step x={m.X(-1)} y={m.Y(21.4)} n={2} />
+          <T x={m.X(-12)} y={m.Y(12) + 4} anchor="middle" cls="t-mut t-sm">czop Ø30</T>
+          <line x1={m.X(0)} y1={m.Y(9)} x2={m.X(0)} y2={m.Y(22.5)} className="p-cons" strokeDasharray="3 3" />
+          <T x={m.X(0.5)} y={m.Y(9.4)} cls="t-mut t-sm">Z0</T>
         </g>
       )}
     </Fig>
@@ -148,6 +215,40 @@ export function LatheZero() {
   );
 }
 
+
+/* ================= T0.3: przykład — ustawienie Z0 ================= */
+export function FaceTouch() {
+  const R: [number, number, number, number] = [-30, 22, -4, 26];
+  const m = mapper(R, [10, 8, 340, 252]);
+  const raw = [0, 4, 8, 12, 16, 20].map((r, i) => `${m.X(i % 2 ? 0.9 : 0.4)},${m.Y(r)}`).join(" ");
+  return (
+    <Fig id="t03ft" code="Z0" title="Planowanie czoła i zapis Z0" h={270} legend={["cut", "acc", "stock"]}
+      notes={<><Code k="acc">G54 Z = −312,4 (pozycja maszynowa ostrza)</Code></>}
+      caption={<>Surowe czoło po piłowaniu jest nierówne. Nóż zbiera ok. 0,5 mm, zostaje na czystym czole i ta pozycja maszynowa staje się Z0. Liczba −312,4 jest przykładowa — zależy od maszyny i wysięgu pręta. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(-30)} y={m.Y(20)} width={30 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
+          <polyline points={raw} className="p-con" fill="none" />
+          <rect x={m.X(0)} y={m.Y(20)} width={0.6 * m.u} height={20 * m.u} className="p-fill-cut" />
+          <line x1={m.X(-30)} y1={m.Y(0)} x2={m.X(22)} y2={m.Y(0)} className="p-cons" />
+          <line x1={m.X(0)} y1={m.Y(23)} x2={m.X(0)} y2={m.Y(1) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={m.X(3.5)} y={m.Y(15)} n={1} />
+          <T x={m.X(2.2)} y={m.Y(21.5)} cls="t-mut t-sm">ok. 0,5</T>
+          <polygon points={`${m.X(0)},${m.Y(2)} ${m.X(3)},${m.Y(7)} ${m.X(7)},${m.Y(4.5)}`} className="p-fill-acc" style={{ stroke: "var(--accent)" }} />
+          <Step x={m.X(10)} y={m.Y(5)} n={2} />
+          <T x={m.X(12.5)} y={m.Y(5) + 4} cls="t-mono t-sm">Z masz. −312,4</T>
+          <Step x={m.X(10)} y={m.Y(11)} n={3} />
+          <T x={m.X(12.5)} y={m.Y(11) + 4} cls="t-mono t-acc t-b t-sm">G54 Z −312,4</T>
+          <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-acc t-b" dot="pt-rap" />
+          <Step x={m.X(-6)} y={m.Y(-4)} n={4} />
+          <T x={m.X(-8.5)} y={m.Y(-4) + 4} anchor="end" cls="t-mono t-sm">Z0 = czoło</T>
+          <T x={m.X(-15)} y={m.Y(10) + 4} anchor="middle" cls="t-b">pręt Ø40</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T0.3: głowica przednia i tylna ================= */
 function Turret({ x0, rear }: { x0: number; rear: boolean }) {
   const cy = 100, top = rear ? cy - 46 : cy + 46;
@@ -178,8 +279,11 @@ export function TurretPosition() {
 export const t0Figs = {
   "t01-axes": () => <LatheAxes />,
   "t01-part": () => <LathePart />,
+  "t01-pts": () => <ContourPoints />,
   "t02-dia": () => <DiaRadius />,
+  "t02-pass": () => <TwoPasses />,
   "t02-chamfer": () => <DiaChamfer />,
   "t03-zero": () => <LatheZero />,
+  "t03-touch": () => <FaceTouch />,
   "t03-turret": () => <TurretPosition />,
 };

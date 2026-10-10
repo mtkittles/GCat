@@ -31,14 +31,15 @@ export const t0_2: LessonDoc = {
 
   worked: {
     title: "Przejścia z Ø40 na Ø30",
-    intro: "Czop Ø30 ma powstać z pręta Ø40. Nóż zbiera najwyżej 2,5 mm na stronę.",
+    intro: "Sytuacja: czop Ø30 o długości 20 mm ma powstać z pręta Ø40, a nóż zbiera najwyżej 2,5 mm na stronę. Ile przejść i jakie X w każdym z nich? Numery na rysunku to numery kroków.",
+    fig: "t02-pass",
     steps: [
-      { x: "Materiał na stronę: (40 − 30) / 2.", code: "5 mm" },
-      { x: "Dwa przejścia po 2,5 mm promieniowo — w średnicy po 5 mm.", code: "X35 → X30" },
+      { x: "Materiał na stronę: połowa różnicy średnic.", code: "(40 − 30) / 2 = 5 mm" },
+      { x: "5 mm przy 2,5 mm na przejście — dwa przejścia. W średnicy każde to 5 mm.", code: "2 × 2,5 mm" },
       { x: "Pierwsze przejście: z Ø40 na Ø35.", code: "X35." },
       { x: "Drugie: z Ø35 na Ø30.", code: "X30." },
     ],
-    result: "Każdy krok o 5 w X to 2,5 mm głębokości skrawania. Pomyłka w drugą stronę — ap równe różnicy średnic — dałaby przejścia dwa razy głębsze niż zakładane.",
+    result: "Każdy krok o 5 w X to 2,5 mm głębokości skrawania. Gdyby policzyć ap jako różnicę średnic, przejścia byłyby zaplanowane dwa razy płycej, niż wychodzi naprawdę.",
   },
 
   practice: [
@@ -57,6 +58,7 @@ export const t0_2: LessonDoc = {
       questions: [
         { kind: "gap", q: "Toczysz z Ø36 na Ø30 jednym przejściem. Ile wynosi głębokość skrawania ap?", template: "{0} mm", answers: [["3"]], why: "(36 − 30) / 2 = 3." },
         { kind: "gap", q: "Faza 1,5 × 45° na czopie Ø24. Na jakiej średnicy faza zaczyna się na czole?", template: "X{0}", answers: [["21"]], why: "24 − 2 · 1,5 = 21." },
+        { kind: "gap", q: "W programie czopa Ø30 z pręta Ø40 zamiast `X30.` wpisano promień z rysunku, `X15.`. Jaką średnicę stoczy nóż i jaką głębokość weźmie jednym przejściem?", template: "Ø{0}, ap {1} mm", answers: [["15"], ["12,5", "12.5"]], why: "X15 to średnica 15, czyli 7,5 mm od osi. Z promienia 20 na 7,5 to 12,5 mm na stronę — pięć razy więcej niż zakładane 2,5 mm. Detal do wyrzucenia, a nóż przy takim ap może się złamać." },
         { kind: "choice", q: "Nóż stoi w X40. Ile milimetrów od osi?", options: ["20", "40", "80", "10"], answer: 0, why: "X to średnica, promień to połowa." },
       ],
     },
