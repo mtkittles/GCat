@@ -1737,6 +1737,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .bu { display: grid; gap: .6rem; }
 .bu-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex-wrap: wrap; }
 .bu-head strong { font-family: var(--font-display); font-size: 15px; }
+.bu-stage { font-size: .88rem; line-height: 1.5; color: var(--ink-2); border-left: 3px solid var(--line-strong); padding: .15rem 0 .15rem .65rem; }
 .bu-code { display: grid; padding: .4rem 0; border-radius: 12px; background: var(--panel); border: 1px solid var(--line); counter-reset: bl; overflow-x: auto; }
 .bu-line { counter-increment: bl; }
 .bu-line > button { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: .5rem; width: 100%; min-height: 38px; text-align: left; padding: .45rem .75rem .45rem 0; background: transparent; border: none; border-left: 3px solid transparent; }

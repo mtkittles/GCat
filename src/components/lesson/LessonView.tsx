@@ -12,6 +12,7 @@ import { buildup } from "@/content/nauka/buildup";
 import { sourceDoc, sources } from "@/content/nauka/sources";
 import { flat, lessonDoc, lessonHref, orderOf, tracks, type Track } from "@/lib/course";
 import Buildup, { type ShownLine } from "./Buildup";
+import PartState from "./PartState";
 import JogDemo from "./JogDemo";
 import OffsetJog from "./OffsetJog";
 import StateExplorer from "./StateExplorer";
@@ -171,6 +172,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
       <Sec id="program" n={++n} title="Program detalu">
         <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Wybierz linię, żeby zobaczyć, co robi.</p>
+        <PartState track={track} lessonId={doc.id} />
         <Buildup title={bu.title} lines={lines} lessonId={doc.id} mode={T.mode} />
       </Sec>
 
