@@ -31,10 +31,15 @@ function Sec({ id, n, title, children }: { id: string; n?: number; title: string
   );
 }
 
+/* Wersje sterowań, do których odnoszą się tabele porównawcze (bibliografia: src/content/nauka/sources.ts). */
+const FANUC_VER = { frezowanie: "Series 0i-F Plus, frezarka", toczenie: "Series 0i-F Plus, tokarka, system A" } as const;
+const SIEMENS_VER = "840D sl / 828D, wyd. 10/2015";
+
 export default function LessonView({ track, slug }: { track: Track; slug: string }) {
   const plan = lessonDoc(track, slug);
   const doc = plan?.doc;
   if (!plan || !doc) notFound();
+  const fanucVer = FANUC_VER[track];
   const T = tracks[track];
   const native = doc.dialect === "sinumerik";
   const all = flat(track);
@@ -144,11 +149,15 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
             : "Przykłady w lekcji są zapisane w języku Fanuc (ISO). SINUMERIK z włączonym trybem ISO (zależnie od wersji i opcji sterowania) przyjmuje wiele z tych kodów — wtedy obowiązuje kolumna Fanuc. Panel poniżej pokazuje natywny język Siemensa."}</p>
           <details className="ls-native" open={native || undefined}>
             <summary>{native ? "Fanuc (ISO) i SINUMERIK — porównanie" : "SINUMERIK — język natywny: pokaż różnice"}</summary>
+            <p className="ls-ctl-vers">Fanuc: {fanucVer} · SINUMERIK: {SIEMENS_VER}</p>
             <div className="overflow-x-auto">
               <table className="code-table ls-ctl tbl-stack">
-                <thead><tr><th /><th>{native ? "Fanuc (ISO)" : "Fanuc (ISO) — przykład główny"}</th><th>{native ? "SINUMERIK — język natywny, ta lekcja" : "SINUMERIK — język natywny"}</th></tr></thead>
+                <thead><tr><th />
+                  <th>{native ? "Fanuc — ISO" : "Fanuc — ISO, przykład główny"}<small className="ls-ctl-ver">{fanucVer}</small></th>
+                  <th>{native ? "SINUMERIK — język natywny, ta lekcja" : "SINUMERIK — język natywny"}<small className="ls-ctl-ver">{SIEMENS_VER}</small></th>
+                </tr></thead>
                 <tbody>{doc.controllers.rows.map((row) => (
-                  <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc (ISO)">{rich(row[1])}</td><td data-label="SINUMERIK, natywnie">{rich(row[2])}</td></tr>
+                  <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc — ISO">{rich(row[1])}</td><td data-label="SINUMERIK — natywnie">{rich(row[2])}</td></tr>
                 ))}</tbody>
               </table>
             </div>
