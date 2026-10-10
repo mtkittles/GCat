@@ -45,18 +45,19 @@ export const t6_2: LessonDoc = {
     { t: "table", head: ["Adres", "Znaczenie"], rows: [
       ["**R** (pierwszy blok)", "wycofanie po każdym wejściu"],
       ["**Z**", "głębokość — położenie czubka wiertła"],
-      ["**Q**", "głębokość jednego wejścia, w mikrometrach, bez kropki"],
+      ["**Q**", "głębokość jednego wejścia bez kropki, w najmniejszych przyrostach — przy systemie 0,001 mm w mikrometrach"],
       ["**F**", "posuw na obrót"],
-    ], caption: "G74 działa jak G73 z frezarki: krótkie wycofanie łamie wiór, ale go nie wyprowadza. Przy głębokich otworach operator dodaje pełne wyjście albo używa cyklu wiercenia z wyprowadzeniem wióra." },
+    ], caption: "Efekt wycofania jest taki jak w G73 na frezarce: krótkie cofnięcie łamie wiór, ale go nie wyprowadza z otworu. Składnia i ustawienia obu cykli są inne. Przy głębokich otworach programista dodaje pełne wyjście albo używa cyklu wiercenia z wyprowadzeniem wióra." },
     { t: "p", x: "Z tym samym cyklem, z adresami X i P, wykonuje się rowki czołowe — nóż wcina się w czoło w kolejnych średnicach. W tej lekcji używamy go tylko do wiercenia." },
     { t: "note", kind: "info", x: "Z w programie to czubek wiertła. Stożek wiertła 118° ma długość około 0,3 · D, więc pełna średnica Ø8 kończy się 2,4 mm wyżej — przy otworze pod gwint liczy się właśnie ta głębokość." },
   ],
 
   worked: {
     title: "Otwór Ø8 w czole wałka",
-    intro: "Wiertło HSS Ø8 w pozycji 5, głębokość czubka 15 mm.",
+    intro: "Sytuacja: po toczeniu z G96 w czole wałka trzeba wywiercić otwór Ø8 wiertłem HSS z pozycji 5, czubek na Z−15. Numery na rysunku to numery kroków.",
+    fig: "t62-pecks",
     steps: [
-      { x: "Obroty stałe dla Ø8.", code: "G97 S1200 M03" },
+      { x: "Obroty stałe dla Ø8 — G96 z toczenia trzeba wyłączyć.", code: "G97 S1200 M03" },
       { x: "Nad osią, 2 mm przed czołem.", code: "G00 X0. Z2." },
       { x: "Wycofanie 0,5 po każdym wejściu.", code: "G74 R0.5" },
       { x: "Do Z−15 po 3 mm, posuw 0,08 mm/obr.", code: "G74 Z-15. Q3000 F0.08" },
@@ -81,6 +82,7 @@ export const t6_2: LessonDoc = {
       kind: "drill",
       intro: "Wiercenie w osi.",
       questions: [
+        { kind: "gap", q: "W przykładzie pominięto krok 1 — zostało `G96 S200` z toczenia przy `G50 S3000`. Z jakimi obrotami pracuje wiertło w X0?", template: "{0} obr/min", answers: [["3000"]], why: "W X0 średnica jest zerowa, więc G96 od razu dochodzi do limitu G50: 3000 obr/min. Wiertło Ø8 ma wtedy vc ≈ π · 8 · 3000 / 1000 ≈ 75 m/min zamiast zakładanych 30." },
         { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Jakie obroty wpiszesz przy G97 (pełne obr/min)?", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
         { kind: "choice", q: "Dlaczego wiercenie w osi w G97?", options: ["przy D = 0 G96 dałby od razu limit obrotów", "G96 nie działa z G74", "bo tak jest szybciej", "bez powodu"], answer: 0, why: "Obroty z G96 dążą do nieskończoności przy osi." },
         { kind: "gap", q: "Wejścia po 4 mm. Jaką wartość Q wpiszesz w G74 (µm, bez kropki)?", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
@@ -98,7 +100,7 @@ export const t6_2: LessonDoc = {
     rows: [
       ["Wiercenie z łamaniem wióra", "`G74` na tokarce (system A)", "`CYCLE83` na tokarce"],
       ["Obroty", "`G97 S…`", "`G97 S…`"],
-      ["Q", "mikrometry, bez kropki", "parametry cyklu w mm"],
+      ["Q", "bez kropki, w najmniejszych przyrostach (przy 0,001 mm — µm)", "parametry cyklu w mm"],
     ],
     note: "Na Sinumeriku wiercenie na tokarce używa tych samych cykli co na frezarce, w płaszczyźnie tokarskiej.",
   },
