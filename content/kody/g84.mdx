@@ -69,12 +69,20 @@ pitfalls:
     wygniataków średnica z katalogu (poprawka).
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T4 M06 (GWINTOWNIK M6X1)
+    G43 H4 Z50.
     S500 M03
-    G00 X20 Y20 Z10
-    G01 Z-12 F500
-    G04 P200
-    G01 Z10 F500
+    (OTWORY 5 MM WIERCONE WCZESNIEJ, CZUBEK NA Z-18.)
+    (M29 - GWINTOWANIE SZTYWNE NA WIELU FANUCACH, ZALEZY OD MASZYNY)
+    M29 S500
+    G99 G84 X10. Y10. Z-15. R5. F500
+    X70.
+    G80
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''
