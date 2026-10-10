@@ -1,4 +1,4 @@
-import { Code, Dim, Fig, mapper, Pt, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu T2 — narzędzie, obroty, posuw na tokarce. */
 
@@ -65,6 +65,40 @@ export function ToolOffsets() {
   );
 }
 
+
+/* ================= T2.1: przykład — zmiana noża ================= */
+export function ToolChange() {
+  const R: [number, number, number, number] = [-70, 112, -4, 86];
+  const m = mapper(R, [10, 8, 340, 222]);
+  const tc = { z: 96, r: 70 };
+  return (
+    <Fig id="t21ch" code="T0202" title="Zmiana noża: odjazd, obrót głowicy, powrót" h={240} legend={["rap", "stock"]}
+      notes={<><Code k="rap">1  G28 U0. → G28 W0.</Code><Code k="con">2  T0202 · 3  G96 S250 M03</Code><Code k="rap">4  G00 X44. Z2.</Code></>}
+      caption={<>Nóż T0101 kończy pracę w X42 Z2. Głowica obraca się dopiero daleko od detalu i konika. Tor ruchu szybkiego do punktu 4 zależy od sterowania — na rysunku uproszczony. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(-66)} y={m.Y(20)} width={66 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
+          <line x1={m.X(-70)} y1={m.Y(0)} x2={m.X(112)} y2={m.Y(0)} className="p-cons" />
+          <line x1={m.X(2)} y1={m.Y(21)} x2={m.X(2)} y2={m.Y(tc.r) + 3} className="p-rap thick" markerEnd={c.a("rap")} />
+          <line x1={m.X(2)} y1={m.Y(tc.r)} x2={m.X(tc.z - 12) - 3} y2={m.Y(tc.r)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={m.X(-6)} y={m.Y(46)} n={1} />
+          <circle cx={m.X(tc.z)} cy={m.Y(tc.r)} r={12 * m.u} className="spindle" />
+          {[0, 1, 2, 3, 4, 5].map((i) => { const a = (i * Math.PI) / 3 + Math.PI; return <circle key={i} cx={m.X(tc.z) + Math.cos(a) * 9 * m.u} cy={m.Y(tc.r) + Math.sin(a) * 9 * m.u} r={2.6 * m.u} className={i === 1 ? "p-fill-acc" : "panel-bg"} style={{ stroke: i === 1 ? "var(--accent)" : "var(--ink-2)" }} />; })}
+          <path d={`M ${m.X(tc.z) + 15 * m.u} ${m.Y(tc.r) - 2 * m.u} A ${15 * m.u} ${15 * m.u} 0 0 1 ${m.X(tc.z) + 2 * m.u} ${m.Y(tc.r) + 15 * m.u}`} className="p-acc" fill="none" markerEnd={c.a("acc")} />
+          <Step x={m.X(tc.z + 16)} y={m.Y(tc.r + 12)} n={2} />
+          <T x={m.X(tc.z - 14)} y={m.Y(tc.r + 8)} anchor="end" cls="t-mono t-acc t-b t-sm">T0202</T>
+          <Step x={m.X(60)} y={m.Y(30)} n={3} />
+          <T x={m.X(65)} y={m.Y(30) + 4} cls="t-mono t-sm">G96 S250 M03</T>
+          <line x1={m.X(tc.z - 9)} y1={m.Y(tc.r - 9)} x2={m.X(2) + 3} y2={m.Y(22) - 2} className="p-rap" strokeDasharray="6 4" markerEnd={c.a("rap")} />
+          <Step x={m.X(30)} y={m.Y(43)} n={4} />
+          <Pt x={m.X(2)} y={m.Y(22)} label="X44 Z2" pos="e" cls="t-mono t-sm" />
+          <T x={m.X(-33)} y={m.Y(10) + 4} anchor="middle" cls="t-mut t-sm">wałek</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T2.2: G96 i G50 ================= */
 export function CssChart() {
   const L = 48, B = 176, Rr = 338, Tt = 26, DM = 80, NM = 4500;
@@ -94,6 +128,43 @@ export function CssChart() {
   );
 }
 
+
+/* ================= T2.2: przykład — obroty przy planowaniu ================= */
+export function FaceRpm() {
+  const L = 48, B = 180, Rr = 330, Tt = 30, DM = 48, NM = 4000;
+  const X = (d: number) => L + (d / DM) * (Rr - L), Y = (n: number) => B - (n / NM) * (B - Tt);
+  const n = (d: number) => (1000 * 200) / (Math.PI * d);
+  const dL = (1000 * 200) / (Math.PI * 3000);
+  const curve = Array.from({ length: 80 }, (_, i) => { const d = dL + (i / 79) * (44 - dL); return `${X(d)},${Y(n(d))}`; }).join(" ");
+  const ghost = Array.from({ length: 40 }, (_, i) => { const d = 15 + (i / 39) * (dL - 15); return `${X(d)},${Y(n(d))}`; }).join(" ");
+  return (
+    <Fig id="t22fr" code="G50" title="Planowanie od Ø44 do osi: G96 S200, G50 S3000" h={222} legend={["acc", "bad"]}
+      notes={<><Code k="acc">Ø44 → Ø21,2: obroty rosną, vc = 200 m/min</Code><Code k="bad">Ø21,2 → oś: 3000 obr/min, vc spada do zera</Code></>}
+      caption={<>Nóż jedzie od prawej do lewej strony wykresu. Do Ø21,2 sterowanie podnosi obroty, żeby utrzymać vc. Dalej trzyma limit — w czerwonym polu prędkość skrawania już nie jest stała. Numery odpowiadają krokom przykładu.</>}>
+      {() => (
+        <g>
+          <rect x={L} y={Tt} width={X(dL) - L} height={B - Tt} className="p-fill-bad" opacity={0.18} />
+          <line x1={L} y1={B} x2={Rr} y2={B} className="ax" /><line x1={L} y1={B} x2={L} y2={Tt} className="ax" />
+          {[0, 10, 20, 30, 40].map((v) => <T key={v} x={X(v)} y={B + 14} anchor="middle" cls="t-tick">{v}</T>)}
+          {[1000, 2000, 3000].map((v) => <T key={v} x={L - 5} y={Y(v) + 3} anchor="end" cls="t-tick">{v}</T>)}
+          <T x={Rr} y={B + 28} anchor="end" cls="t-mut t-sm">średnica Ø</T>
+          <T x={L} y={Tt - 10} cls="t-mut t-sm">obr/min</T>
+          <polyline points={ghost} className="p-cons" style={{ fill: "none" }} />
+          <polyline points={curve} className="p-acc thick" style={{ fill: "none" }} />
+          <line x1={L} y1={Y(3000)} x2={X(dL)} y2={Y(3000)} className="p-bad thick" style={{ strokeDasharray: "none" }} />
+          <Pt x={X(44)} y={Y(n(44))} label="Ø44: 1447" pos="n" cls="t-mono t-acc t-sm" />
+          <Step x={X(44)} y={Y(n(44)) + 18} n={1} />
+          <Pt x={X(dL)} y={Y(3000)} label="Ø21,2" pos="ne" cls="t-mono t-sm t-b" />
+          <Step x={X(dL) + 14} y={Y(3000) + 22} n={2} />
+          <T x={X(dL / 2)} y={Y(3000) + 18} anchor="middle" cls="t-bad t-sm t-b">limit 3000</T>
+          <Step x={X(dL / 2)} y={Y(3000) + 40} n={3} />
+          <T x={X(dL / 2)} y={Y(1000)} anchor="middle" cls="t-bad t-sm">vc &lt; 200</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T2.3: chropowatość teoretyczna ================= */
 export function Roughness() {
   const f = 64, re = 58, y0 = 120, n = 4, x0 = 44;
@@ -104,7 +175,7 @@ export function Roughness() {
   });
   return (
     <Fig id="t23rt" code="Rt" title="Posuw zostawia ślad promienia naroża" h={206} legend={["acc", "dim", "stock"]}
-      notes={<><Code k="acc">Rt ≈ f² / (8 · rε) · 1000 [µm]</Code><Code k="con">f 0,2, rε 0,8 → Rt ≈ 6,3 µm, Ra ≈ 1,6</Code></>}
+      notes={<><Code k="acc">Rt ≈ f² / (8 · rε) · 1000 [µm]</Code><Code k="con">f 0,2, rε 0,8 → Rt ≈ 6,3 µm (Ra ≈ 1,6 — przybliżenie)</Code></>}
       caption={<>Każdy obrót przesuwa ostrze o posuw f, a naroże o promieniu rε zostawia łuk. Wysokość grzbietów między łukami to teoretyczna chropowatość Rt — rośnie z kwadratem posuwu i maleje z promieniem naroża. Skala przesadzona.</>}>
       {(c) => (
         <g>
@@ -115,6 +186,37 @@ export function Roughness() {
           <line x1={x0 + 2 * f} y1={y0} x2={x0 + 1.5 * f + 40} y2={y0} className="p-cons" />
           <Dim x1={x0 + 1.5 * f + 34} y1={y0 - h} x2={x0 + 1.5 * f + 34} y2={y0} off={0} label="Rt" c={c} lside={1} cls="t-acc t-b t-mono" />
           <T x={x0 + f} y={y0 - re - 6} anchor="middle" cls="t-mut">naroże rε</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+
+/* ================= T2.3: przykład — planowanie czoła ================= */
+export function FacePass() {
+  const R: [number, number, number, number] = [-16, 10, -3, 25];
+  const m = mapper(R, [30, 8, 300, 222]);
+  return (
+    <Fig id="t23fp" code="G01" title="Planowanie czoła wałka" h={240} legend={["rap", "cut", "stock"]}
+      notes={<><Code k="rap">1  G00 X44. Z0.</Code><Code k="cut">2  G01 X-1.6 F0.15</Code><Code k="rap">3  G00 Z2.</Code></>}
+      caption={<>Pręt Ø40, nóż z narożem R0,8 w kierunku ostrza 3, bez korekcji promienia. Tor punktu P kończy się 0,8 mm za osią, w X−1,6 — dopiero wtedy naroże zbiera materiał do samego środka. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(-16)} y={m.Y(20)} width={16 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
+          <rect x={m.X(0)} y={m.Y(20)} width={0.5 * m.u} height={20 * m.u} className="p-fill-cut" />
+          <line x1={m.X(-16)} y1={m.Y(0)} x2={m.X(10)} y2={m.Y(0)} className="p-cons" />
+          <T x={m.X(9.5)} y={m.Y(0) - 5} anchor="end" cls="t-mut t-sm">oś</T>
+          <line x1={m.X(7)} y1={m.Y(24)} x2={m.X(0) + 3} y2={m.Y(22)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={m.X(5)} y={m.Y(20.5)} n={1} />
+          <line x1={m.X(0)} y1={m.Y(22)} x2={m.X(0)} y2={m.Y(-0.8) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={m.X(2.5)} y={m.Y(10)} n={2} />
+          <line x1={m.X(0)} y1={m.Y(-0.8)} x2={m.X(2) - 3} y2={m.Y(-0.8)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <Step x={m.X(4.5)} y={m.Y(-0.8)} n={3} />
+          <Pt x={m.X(0)} y={m.Y(22)} label="X44 Z0" pos="nw" cls="t-mono t-sm" dot="pt-rap" />
+          <Pt x={m.X(0)} y={m.Y(-0.8)} label="X−1,6" pos="sw" cls="t-mono t-cut t-b t-sm" />
+          <T x={m.X(-8)} y={m.Y(10) + 4} anchor="middle" cls="t-mut t-sm">pręt Ø40</T>
+          <T x={m.X(1.2)} y={m.Y(16) + 4} cls="t-mut t-sm">zbiera ok. 0,5</T>
         </g>
       )}
     </Fig>
@@ -150,7 +252,10 @@ export function FaceCenter() {
 export const t2Figs = {
   "t21-turret": () => <TurretT />,
   "t21-offsets": () => <ToolOffsets />,
+  "t21-change": () => <ToolChange />,
   "t22-css": () => <CssChart />,
+  "t22-face": () => <FaceRpm />,
   "t23-rt": () => <Roughness />,
   "t23-face": () => <FaceCenter />,
+  "t23-pass": () => <FacePass />,
 };

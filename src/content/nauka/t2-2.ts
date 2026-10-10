@@ -18,7 +18,7 @@ export const t2_2: LessonDoc = {
 
     { t: "h", x: "Limit obrotów G50", id: "g50" },
     { t: "diagram", id: "t22-css" },
-    { t: "p", x: "Gdy nóż zbliża się do osi, średnica dąży do zera, a obroty z wzoru — do nieskończoności. `G50 S3000` przed G96 ogranicza je do 3000 obr/min. Poniżej średnicy, przy której wzór daje 3000, sterowanie trzyma limit, a prędkość skrawania spada." },
+    { t: "p", x: "Gdy nóż zbliża się do osi, średnica dąży do zera, a obroty z wzoru — do nieskończoności. `G50 S3000` przed G96 ogranicza je do 3000 obr/min. Poniżej średnicy, przy której wzór daje 3000, sterowanie trzyma limit, a prędkość skrawania spada — w tym obszarze G96 nie daje już stałej prędkości skrawania." },
     { t: "note", kind: "warn", x: "Limit dobiera się do uchwytu i detalu, a nie tylko do maszyny. Szczęki uchwytu przy wysokich obrotach tracą siłę mocowania od siły odśrodkowej — długi albo niewyważony detal może się wysunąć." },
 
     { t: "h", x: "Kiedy G97", id: "kiedy-g97" },
@@ -31,14 +31,15 @@ export const t2_2: LessonDoc = {
 
   worked: {
     title: "Obroty przy planowaniu czoła wałka",
-    intro: "Planowanie z Ø44 do osi, G96 S200, G50 S3000.",
+    intro: "Sytuacja: nóż planuje czoło od Ø44 do osi przy `G96 S200` i `G50 S3000`. Jak zmieniają się obroty po drodze i od której średnicy prędkość skrawania przestaje być stała? Numery na wykresie to numery kroków.",
+    fig: "t22-face",
     steps: [
-      { x: "Na Ø44: 1000 · 200 / (π · 44).", code: "≈ 1447 obr/min" },
-      { x: "Średnica, przy której wzór daje 3000: 1000 · 200 / (π · 3000).", code: "Ø21,2" },
-      { x: "Od Ø21,2 do osi obroty stoją na limicie.", code: "3000 obr/min" },
+      { x: "Na starcie, na Ø44: 1000 · 200 / (π · 44).", code: "≈ 1447 obr/min" },
+      { x: "Średnica, przy której wzór daje limit: 1000 · 200 / (π · 3000).", code: "Ø21,2" },
+      { x: "Od Ø21,2 do osi obroty stoją na limicie, a prędkość skrawania maleje razem ze średnicą.", code: "3000 obr/min" },
       { x: "Zapis w programie — limit przed G96.", code: "G50 S3000 → G96 S200 M03" },
     ],
-    result: "Połowa czoła (od Ø21 w dół) jest toczona z mniejszą prędkością skrawania niż 200 m/min. Tak ma być — to cena bezpiecznego limitu.",
+    result: "Środek czoła, od Ø21 w dół, jest toczony z mniejszą prędkością skrawania niż 200 m/min. Tak ma być — to cena bezpiecznego limitu.",
   },
 
   practice: [
@@ -61,6 +62,7 @@ export const t2_2: LessonDoc = {
       questions: [
     {"kind":"bughunt","q":"Planowanie czoła do osi. Który blok jest w złej kolejności?","program":"T0101\nG96 S200 M03\nG50 S3000\nG00 X44. Z0.\nG01 X-1.6 F0.15","answer":2,"why":"Limit obrotów musi stać PRZED G96 — tu wrzeciono rozpędza się bez ograniczenia, zanim limit zadziała. Kolejność: G50 S3000, potem G96 S200 M03."},
 
+        { kind: "gap", q: "W przykładzie limit zmieniono na `G50 S2000`, vc zostaje 200 m/min. Od jakiej średnicy obroty staną na limicie (mm, do 0,1)?", template: "Ø{0}", answers: [["31,8", "31.8"]], why: "1000 · 200 / (π · 2000) ≈ 31,8. Niższy limit zaczyna działać na większej średnicy — większa część czoła jest toczona z vc poniżej 200 m/min." },
         { kind: "gap", q: "G96 S180. Jakie obroty da sterowanie na średnicy Ø30 (pełne obr/min)?", template: "n = {0}", answers: [["1910", "1909", "1911"]], why: "1000 · 180 / (π · 30) ≈ 1910." },
         { kind: "gap", q: "G96 S150, G50 S2500. Poniżej jakiej średnicy działa limit (mm, do 0,1)?", template: "Ø{0}", answers: [["19.1", "19,1"]], why: "1000 · 150 / (π · 2500) ≈ 19,1." },
         { kind: "choice", q: "Wiercenie w osi wiertłem Ø8. Który tryb obrotów?", options: ["G97 z obrotami dla Ø8", "G96", "G50", "bez znaczenia"], answer: 0, why: "Przy D = 0 G96 dałby od razu limit." },
