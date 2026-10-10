@@ -11,10 +11,11 @@ export const t0_1: LessonDoc = {
     { t: "h", x: "Dwie osie", id: "osie" },
     { t: "p", x: "Tokarka CNC ma dwie podstawowe osie. **Z** biegnie wzdłuż osi wrzeciona: +Z prowadzi od uchwytu w stronę konika. **X** jest promieniowa, prostopadła do osi obrotu: +X prowadzi od osi na zewnątrz. Tak jak na frezarce, ruch w kierunku dodatnim oddala nóż od detalu — to zasada normy ISO 841." },
     { t: "diagram", id: "t01-axes" },
+    { t: "p", x: "Rysunki w kursie pokazują tokarkę z boku: Z w prawo, X w górę, głowica za osią obrotu (tylna). Przy widoku z innej strony zmienia się wygląd, ale nie znaczenie znaków — +X dalej prowadzi od osi, a +Z od uchwytu." },
     { t: "p", x: "Osi Y zwykła tokarka nie ma: detal się obraca, więc każdy punkt jego powierzchni sam przechodzi przed nożem. Tokarki z narzędziami napędzanymi mają dodatkowo sterowany obrót wrzeciona (oś C), a czasem także oś Y — to temat na osobną ścieżkę." },
 
     { t: "h", x: "Zero detalu", id: "zero" },
-    { t: "p", x: "[[zero detalu|Zero detalu]] W leży na osi obrotu i na czole gotowego detalu. Z0 to więc płaszczyzna czoła, a wszystko w stronę uchwytu ma Z ujemne. X0 to oś — X przy zwykłej obróbce nie bywa ujemne." },
+    { t: "p", x: "[[zero detalu|Zero detalu]] W leży na osi obrotu i na czole gotowego detalu. Z0 to więc płaszczyzna czoła, a wszystko w stronę uchwytu ma Z ujemne. X0 to oś — X przy zwykłej obróbce zewnętrznej nie bywa ujemne. Wyjątek to planowanie czoła: nóż przechodzi kawałek za oś, żeby nie zostawić czopka na środku (lekcja T2.3)." },
     { t: "diagram", id: "t01-part" },
     { t: "p", x: "Punkt na tokarce opisują dwie liczby: X i Z. `X30 Z-21` znaczy: średnica 30 mm, 21 mm od czoła w stronę uchwytu. X podaje się jako średnicę — dlaczego i co z tego wynika, pokazuje lekcja T0.2." },
     { t: "note", kind: "info", x: "Rysunek tokarski rysuje zwykle górną połowę detalu jako przekrój, a dolną jako widok. Program opisuje tylko górną połowę konturu — resztę tworzy obrót detalu." },
@@ -22,14 +23,15 @@ export const t0_1: LessonDoc = {
 
   worked: {
     title: "Odczytaj punkty konturu wałka",
-    intro: "Wałek z rysunku: czop Ø20 długi na 20 mm z fazą 1 × 45° na czole, dalej stopień na Ø30 z fazą 1 × 45°.",
+    intro: "Sytuacja: masz rysunek wałka z pręta Ø40 i trzeba wypisać punkty konturu do programu. Czop Ø20 ma 20 mm długości i fazę 1 × 45° na czole, dalej jest stopień na Ø30 z fazą 1 × 45°. Zero W leży na osi i na czole. Numery na rysunku to numery kroków.",
+    fig: "t01-pts",
     steps: [
       { x: "Zero W: oś obrotu i czoło detalu.", code: "X0 Z0" },
-      { x: "Faza na czole kończy się na pełnej średnicy czopa, 1 mm od czoła.", code: "X20 Z-1" },
+      { x: "Faza na czole zaczyna się na Ø18 w Z0 i kończy na pełnej średnicy czopa, 1 mm od czoła.", code: "X18 Z0 → X20 Z-1" },
       { x: "Czop Ø20 kończy się 20 mm od czoła — tu zaczyna się stopień.", code: "X20 Z-20" },
       { x: "Stopień na Ø30 z fazą: najpierw do Ø28, potem faza do Ø30 o 1 mm dalej.", code: "X28 Z-20 → X30 Z-21" },
     ],
-    result: "Kontur górnej połowy to ciąg punktów X, Z od czoła w stronę uchwytu. Pełna lista stoi w programie wałka poniżej.",
+    result: "Kontur górnej połowy to ciąg punktów X, Z od czoła w stronę uchwytu. Każdy punkt ma Z ujemne albo zero, a X równe średnicy z rysunku.",
   },
 
   practice: [
@@ -47,13 +49,14 @@ export const t0_1: LessonDoc = {
       intro: "Kierunki i współrzędne.",
       questions: [
         { kind: "choice", q: "W którą stronę prowadzi +Z na tokarce?", options: ["od uchwytu w stronę konika", "do uchwytu", "od osi na zewnątrz", "w stronę operatora"], answer: 0, why: "+Z oddala nóż od uchwytu i detalu." },
+        { kind: "choice", q: "Nóż stoi na końcu fazy, w X20 Z−1. Następny blok miał być `G01 X20. Z-20.`, ale wpisano `Z20.`. Gdzie skończy ruch?", options: ["21 mm dalej w stronę konika, przed czołem — w powietrzu", "na końcu czopa, w Z−20", "w uchwycie", "sterowanie odrzuci blok"], answer: 0, why: "Z20 leży 20 mm przed czołem, po stronie +Z. Z Z−1 nóż przejedzie 21 mm w stronę konika i nie zetknie się z detalem — czop zostanie nietoczony." },
         { kind: "gap", q: "Stopień Ø36 zaczyna się 40 mm od czoła (Z0 na czole). Jakie współrzędne ma punkt na krawędzi stopnia?", template: "X{0} Z{1}", answers: [["36"], ["-40"]], why: "Średnica 36, 40 mm w stronę uchwytu." },
       ],
     },
   ],
 
   pitfalls: [
-    { title: "Z dodatnie w stronę uchwytu", x: "`Z20` zamiast `Z-20`. Nóż jedzie 20 mm przed czoło, w powietrze. Odwrotna pomyłka — dodatnie Z tam, gdzie miało być ujemne przy odjeździe — prowadzi nóż w detal albo w uchwyt." },
+    { title: "Pomylony znak Z", x: "`Z20` zamiast `Z-20`. Nóż jedzie 20 mm przed czoło, w powietrze. Odwrotna pomyłka — `Z-20` zamiast `Z20` przy odjeździe przed czoło — prowadzi nóż w detal albo w stronę uchwytu." },
     { title: "Wymiar od złej bazy", x: "Rysunek wymiaruje stopień od drugiego końca wałka, a Z0 leży na czole. Każdą długość trzeba przeliczyć na odległość od czoła, zanim trafi do programu." },
     { title: "Uchwyt blisko konturu", x: "Wysięg 70 mm, a kontur kończy się w Z−55. Między końcem obróbki a szczękami zostaje 15 mm. Każdy ruch w stronę uchwytu sprawdzaj z długością wysięgu." },
   ],
