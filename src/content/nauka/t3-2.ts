@@ -35,7 +35,7 @@ export const t3_2: LessonDoc = {
     { t: "p", x: "[[G01]] prowadzi nóż po odcinku z posuwem na obrót. Ruch tylko w Z to toczenie wzdłużne, tylko w X — toczenie poprzeczne (czoło, stopień), a w obu osiach naraz — stożek albo faza." },
 
     { t: "h", x: "Przejścia zgrubne", id: "zgrubne" },
-    { t: "p", x: "Pręt Ø40 trzeba zdjąć warstwami. Głębokość jednego przejścia (ap) wynika z płytki i sztywności detalu — dla wałka Ø40 i płytki CNMG około 2–2,5 mm na stronę. Każdy stopień kończy się naddatkiem na obróbkę wykańczającą." },
+    { t: "p", x: "Pręt Ø40 trzeba zdjąć warstwami. [[ap — głębokość skrawania|Głębokość jednego przejścia]] (ap) wynika z płytki i sztywności detalu — dla wałka Ø40 i płytki CNMG około 2–2,5 mm na stronę. Każdy stopień kończy się naddatkiem na obróbkę wykańczającą." },
     { t: "diagram", id: "t32-rough" },
     { t: "table", head: ["Przejście", "Średnica", "ap", "Do Z"], rows: [
       ["1", "Ø36,4", "1,8", "−54,8"],
