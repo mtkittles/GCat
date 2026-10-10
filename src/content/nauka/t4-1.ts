@@ -75,14 +75,15 @@ export const t4_1: LessonDoc = {
 
   worked: {
     title: "Korekcja w programie wałka",
-    intro: "Kontur wykańczający z T3.3, nóż T0202 R0,4. Dojazd z punktu wymiany na X14 Z2, odjazd po wyjściu na X42.",
+    intro: "Sytuacja: program wykańczający wałka z T3.3 daje na fazach 45° błąd 0,414 · 0,4 ≈ 0,17 mm, bo prowadzi punkt P noża T0202 z narożem R0,4. W tabeli korekcji T02 są już wpisane promień R0,4 i kierunek ostrza 3 (lekcja T4.2). Trzeba dopisać korekcję tak, żeby kontur w programie został bez zmian. Numery kroków odpowiadają numerom na rysunku.",
+    fig: "t41-run",
     steps: [
-      { x: "Nóż zewnętrzny jedzie w stronę uchwytu — G42 na dojeździe.", code: "G42 G00 X14. Z2." },
-      { x: "Kontur bez zmian — wymiary z rysunku.", code: "G01 X20. Z-1. F0.1 …" },
-      { x: "Po wyjściu na X42 nóż jest ponad detalem.", code: "X42." },
-      { x: "Wyłączenie korekcji na odjeździe w Z.", code: "G40 G00 Z2." },
+      { x: "Krok 1: nóż zewnętrzny jedzie w stronę uchwytu, nad konturem — G42. Korekcję włącza ruch liniowy w powietrzu, do punktu startowego X14 Z2; na nim sterowanie odsuwa naroże o rε od konturu.", code: "G42 G00 X14. Z2." },
+      { x: "Krok 2: kontur bez zmian — wymiary z rysunku. Sterowanie prowadzi naroże stycznie do faz i promieni.", code: "G01 X20. Z-1. F0.1 …" },
+      { x: "Kontur kończy wyjście na X42 — nóż jest już ponad detalem.", code: "X42." },
+      { x: "Krok 3: wyłączenie korekcji na odjeździe w Z, w powietrzu.", code: "G40 G00 Z2." },
     ],
-    result: "Dwa słowa w programie — G42 i G40 — usuwają błąd 0,17 mm na fazach i poprawiają kształt obu promieni przy stopniu.",
+    result: "Dwa słowa w programie — G42 i G40 — przy poprawnych R i T w tabeli usuwają błąd 0,17 mm na fazach i poprawiają kształt obu promieni przy stopniu. Średnice i czoła wychodziły dobrze także bez korekcji.",
   },
 
   practice: [
@@ -105,6 +106,7 @@ export const t4_1: LessonDoc = {
       intro: "Strona korekcji i wielkość błędu.",
       questions: [
         { kind: "gap", q: "Faza 45°, naroże R1,2, program bez korekcji promienia. O ile kontur fazy odbiega od rysunku, mierząc prostopadle (mm, do 0,01)?", template: "{0}", answers: [["0.5", "0,5", "0.50", "0,50"]], why: "0,414 · 1,2 ≈ 0,50." },
+        { kind: "choice", q: "Program ma `G42` na dojeździe i `G40` na odjeździe, ale w tabeli korekcji T02 promień naroża R = 0, choć płytka ma R0,4. O ile faza 45° będzie odbiegać od rysunku (prostopadle)?", options: ["ok. 0,17 mm — jak bez korekcji", "0 — G42 wystarczy", "ok. 0,33 mm", "sterowanie zatrzyma program"], answer: 0, why: "G42 przesuwa naroże o promień z tabeli. Przy R = 0 przesunięcia nie ma i zostaje błąd 0,414 · 0,4 ≈ 0,17 mm." },
         { kind: "choice", q: "Wytaczanie otworu w stronę uchwytu. Który kod?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Nóż pod konturem — po lewej stronie kierunku ruchu." },
         { kind: "choice", q: "Na którym elemencie konturu brak korekcji **nie** daje błędu kształtu?", options: ["średnica wzdłuż Z", "faza 45°", "stożek", "promień R1"], answer: 0, why: "Na średnicach i czołach naroże styka się na wysokości P." },
       ],
@@ -115,7 +117,7 @@ export const t4_1: LessonDoc = {
     { title: "G42 włączone na łuku", x: "`G42 G02 …` — sterowanie zgłosi alarm albo potraktuje łuk jak ruch włączający i zniekształci go. Korekcję włącza ruch liniowy." },
     { title: "Włączenie tuż przy detalu", x: "`G42 G01 X20. Z0.` z nożem stojącym 0,2 mm od czoła. Na ruchu włączającym nie ma miejsca na przesunięcie o rε — nóż wcina się w naroże." },
     { title: "Brak R w tabeli", x: "Promień naroża w tabeli korekcji = 0. G42 niczego nie zmienia — program wygląda na poprawny, a fazy nadal mają błąd." },
-    { title: "G41 i G42 zamienione", x: "Nóż zewnętrzny z G41: sterowanie odsuwa naroże w stronę materiału. Kontur wychodzi mniejszy o dwa promienie naroża na fazach i promieniach." },
+    { title: "G41 i G42 zamienione", x: "Nóż zewnętrzny z G41: sterowanie układa naroże po stronie materiału zamiast nad konturem. Cały kontur — także średnice — wychodzi o ok. 2 · rε za głęboko w promieniu, czyli średnice mniejsze o ok. 4 · rε (dla R0,4 ok. 1,6 mm)." },
   ],
 
   controllers: {
