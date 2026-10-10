@@ -52,7 +52,8 @@ export const t7_2: LessonDoc = {
 
   worked: {
     title: "Pięć przejść M20×1,5",
-    intro: "Gwint jednozwojny, skok 1,5 mm. Rdzeń Ø18,16, start X22 Z5. Wejścia prostopadłe, coraz płytsze — ten rozkład to założenie przykładu; rzeczywisty dobiera się do płytki, materiału i skoku według zaleceń producenta płytki.",
+    intro: "Sytuacja: ten sam gwint M20×1,5 co w T7.1, ale zapisany ręcznie — żeby zobaczyć, co robi cykl. Gwint jednozwojny, skok 1,5 mm, rdzeń Ø18,16, start X22 Z5. Wejścia prostopadłe, coraz płytsze — ten rozkład to założenie przykładu; rzeczywisty dobiera się do płytki, materiału i skoku według zaleceń producenta płytki. Numery na rysunku to numery kroków.",
+    fig: "t72-depths",
     steps: [
       { x: "Pierwsze przejście: 0,3 mm na stronę.", code: "X19.4" },
       { x: "Kolejne: 0,25 i 0,2 mm na stronę.", code: "X18.9 → X18.5" },
@@ -79,6 +80,7 @@ export const t7_2: LessonDoc = {
       kind: "drill",
       intro: "G32 w praktyce.",
       questions: [
+        { kind: "gap", q: "W przykładzie trzecie przejście zaczyna się z Z3 zamiast Z5, reszta bez zmian. O ile w osi Z przesunie się bruzda tego przejścia względem zwoju?", template: "{0} mm", answers: [["0,5", "0.5"]], why: "Każde przejście rusza po tym samym znaczniku wrzeciona. Start 2 mm bliżej przesuwa linię śrubową o 2 mm, czyli o 2 − 1,5 = 0,5 mm względem zwoju o skoku 1,5. Gwint dostaje drugą, przesuniętą bruzdę." },
         { kind: "order", q: "Ułóż jedno przejście gwintu.", items: ["Z5.", "G32 Z-17. F1.5", "G00 X22.", "G00 X19.4"], answer: [3, 1, 2, 0], why: "Wejście, przejście, wyjście w X, powrót w Z." },
         { kind: "choice", q: "Czym w natywnym języku Siemensa (SINUMERIK) zastąpisz G32?", options: ["G33", "G76", "G92", "CYCLE95"], answer: 0, why: "G33 — gwint po prostej." },
       ],
@@ -87,7 +89,7 @@ export const t7_2: LessonDoc = {
 
   pitfalls: [
     { title: "Inny Z startu w kolejnym przejściu", x: "Pierwsze przejście z Z5, drugie z Z3. Zwój przesuwa się o część skoku — gwint ma dwa zarysy i nie pasuje do nakrętki." },
-    { title: "Powrót w Z bez wyjścia w X", x: "Po G32 od razu `Z5.`. Nóż wraca po zwoju i niszczy go — zawsze najpierw wyjście w X." },
+    { title: "Powrót w Z bez wyjścia w X", x: "Po G32 od razu `Z5.`. Nóż wraca po zwoju i niszczy go — najpierw wyjście w X." },
     { title: "Za głębokie wejścia prostopadłe", x: "Przy dosuwie prostopadłym obie krawędzie noża tną jednocześnie, więc przekrój wióra rośnie szybciej niż przy dosuwie wzdłuż boku zarysu, jak w G76. Kolejne wejścia muszą być coraz płytsze, a pierwsze — dopasowane do płytki i materiału. Za głębokie wejście grozi klinowaniem wióra i wykruszeniem płytki." },
   ],
 
