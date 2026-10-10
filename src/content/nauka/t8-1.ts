@@ -53,7 +53,7 @@ export const t8_1: LessonDoc = {
 
     { t: "h", x: "Sinumerik", id: "sinumerik" },
     { t: "p", x: "Na Sinumeriku ten sam podprogram leży w pliku .SPF i jest wywoływany nazwą z liczbą przebiegów: `ROWEK P3`. Przesunięcie w Z zapisuje się przyrostowo: `Z=IC(-10)`, a koniec podprogramu — `RET` albo `M17`." },
-    { t: "note", kind: "tip", x: "To ostatnia lekcja ścieżki toczenia. Program wałka poniżej jest kompletny: planowanie, cykl G71 i G70 z korekcją ostrza, podcięcie, gwint M20×1,5 i otwór osiowy. Rozwiń go i uruchom w symulatorze." },
+    { t: "note", kind: "tip", x: "To ostatnia lekcja z nowym materiałem. Program wałka poniżej jest kompletny: planowanie, cykl G71 i G70 z korekcją ostrza, podcięcie, gwint M20×1,5 i otwór osiowy. Rozwiń go i uruchom w symulatorze. Dalej czeka zadanie końcowe (lekcja T9.1): nowy wałek od pustej strony." },
   ],
 
   worked: {

@@ -222,6 +222,6 @@ describe("schematy pasują do danych jeszcze w TS (lekcje, programy, zadania —
     }
     for (const e of exercises) check(`zadanie ${e.slug}`, zadanieSchema, e);
     expect(bad).toEqual([]);
-    expect([lessons, PROGRAMS.length, exercises.length]).toEqual([51, 22, 16]);
+    expect([lessons, PROGRAMS.length, exercises.length]).toEqual([52, 22, 16]);
   });
 });
