@@ -9,19 +9,20 @@ export const f0_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Trzy osie liniowe", id: "osie" },
-    { t: "p", x: "Frezarka pionowa ma trzy osie liniowe. **X** to ruch w prawo i w lewo, zwykle najdłuższy przesuw. **Y** to ruch do operatora i od niego. **Z** to ruch w górę i w dół, wzdłuż osi wrzeciona." },
+    { t: "p", x: "Stoisz przed typową frezarką pionową z trzema osiami liniowymi. **X** to ruch w prawo i w lewo — zwykle najdłuższy przesuw. **Y** to ruch od operatora i do niego. **Z** to ruch w górę i w dół, wzdłuż osi wrzeciona." },
     { t: "diagram", id: "f01-axes" },
     { t: "p", x: "Zwroty dodatnie wyznacza [[reguła prawej dłoni]]: kciuk to +X, palec wskazujący +Y, środkowy +Z. Tak ustawione osie tworzą [[układ współrzędnych|układ prawoskrętny]] opisany w normie ISO 841. Obowiązuje on na każdym sterowaniu, więc na Fanucu i na Sinumeriku kierunki są te same." },
 
     { t: "h", x: "+Z znaczy: od detalu", id: "plus-z" },
-    { t: "p", x: "Najważniejsza zasada tej lekcji: **ruch w +Z zwiększa odległość narzędzia od detalu**. Z0 kładzie się zwykle na górnej powierzchni, więc każda wartość Z z minusem leży już w materiale." },
+    { t: "p", x: "Wg ISO 841 **ruch w +Z zwiększa odległość narzędzia od detalu** — na frezarce pionowej to ruch w górę." },
+    { t: "p", x: "W przykładach kursu Z0 leży na górnej powierzchni płytki. Z5 oznacza wtedy 5 mm nad tą płaszczyzną, a Z−5 — 5 mm poniżej niej. Sam znak Z nie mówi jeszcze, czy frez dotyka materiału: nad płytką Z−5 jest w materiale, ale przy X−20 frez stoi obok płytki i może zejść poniżej Z0 bez skrawania. Materiał zależy od Z, od położenia w X i Y oraz od tego, co już wcześniej zebrano — np. nad wyfrezowaną kieszenią." },
     { t: "diagram", id: "f01-side" },
 
     { t: "h", x: "Programujesz ruch narzędzia", id: "ruch-narzedzia" },
-    { t: "p", x: "Na wielu frezarkach w X i Y jeździ stół, a wrzeciono stoi w miejscu. Program pisze się jednak zawsze tak, jakby ruszało się narzędzie, a detal stał. Dzięki temu ten sam program działa na maszynie z ruchomym stołem i na maszynie z ruchomą kolumną." },
+    { t: "p", x: "Na wielu frezarkach w X i Y jeździ stół, a wrzeciono stoi w miejscu. Program opisuje jednak ruch narzędzia względem detalu — tak przyjmuje ISO 841. Dzięki temu ten sam program działa na maszynie z ruchomym stołem i na maszynie z ruchomą kolumną. Gdy stół jedzie w lewo, narzędzie przesuwa się po detalu w prawo, w +X." },
 
     { t: "h", x: "Współrzędne punktu", id: "wspolrzedne" },
-    { t: "p", x: "Położenie punktu to trzy liczby: odległości od [[zero detalu|zera detalu]] mierzone wzdłuż X, Y i Z. Zapis `X60 Y20 Z5` znaczy: 60 mm w prawo od zera, 20 mm w głąb i 5 mm nad górną powierzchnią." },
+    { t: "p", x: "Położenie punktu to trzy liczby: odległości od [[zero detalu|zera detalu]] mierzone wzdłuż X, Y i Z. Przy zerze w lewym dolnym narożniku płytki zapis `X60 Y20 Z5` znaczy: 60 mm w prawo od zera, 20 mm od operatora i 5 mm nad górną powierzchnią." },
     { t: "diagram", id: "f01-zero" },
     { t: "p", x: "Miejsce zera wybiera programista. Narożnik daje same dodatnie X i Y, więc łatwo czytać program. Środek wymaga minusów, ale jest wygodny przy detalach symetrycznych i okrągłych. Jak zero ustawia się na maszynie — w lekcji F0.2." },
     { t: "note", kind: "info", x: "Obroty wokół X, Y i Z to osie **A**, **B** i **C**. Spotkasz je na maszynach 4- i 5-osiowych. Ten kurs zostaje przy trzech osiach liniowych." },
@@ -36,6 +37,7 @@ export const f0_1: LessonDoc = {
       { x: "Idź wzdłuż X do rzutu punktu H: 60 mm w prawo.", code: "X60" },
       { x: "Idź wzdłuż Y: 20 mm od dolnej krawędzi płytki.", code: "Y20" },
       { x: "Wysokość: 5 mm nad powierzchnią, na której leży Z0.", code: "Z5" },
+      { x: "Sprawdź na rysunku: H leży nad płytką, więc Z5 to 5 mm nad materiałem. Gdyby frez zszedł tu na Z−5, byłby już w materiale.", code: "X60 Y20 Z5" },
     ],
     result: "Pozycja nad H to `X60 Y20 Z5`. Tak samo odczytasz naroża: P2 `X80 Y0`, P3 `X80 Y50`, P4 `X0 Y50`.",
   },
@@ -64,7 +66,7 @@ export const f0_1: LessonDoc = {
   pitfalls: [
     {
       title: "Zgubiony minus przy Z",
-      x: "`Z2` zamiast `Z-2` i frez przejdzie nad detalem, niczego nie zbierając. Odwrotna pomyłka, `Z-20` zamiast `Z-2`, to wejście w materiał na całą grubość płytki. Przy każdej wartości Z zadaj sobie pytanie: powietrze czy materiał?",
+      x: "`Z2` zamiast `Z-2` i frez przejdzie nad detalem, niczego nie zbierając. Odwrotna pomyłka, `Z-20` zamiast `Z-2`, to wejście w materiał na całą grubość płytki. Przy każdej wartości Z sprawdź, gdzie frez jest w X i Y, i odpowiedz: powietrze czy materiał?",
       fig: "f01-zsign",
     },
     {
@@ -97,7 +99,10 @@ export const f0_1: LessonDoc = {
       answer: 1, why: "Wg ISO 841 ruch w +Z zwiększa odległość między narzędziem a detalem. Na frezarce pionowej to ruch w górę." },
     { kind: "choice", q: "Z0 leży na górnej powierzchni. Frez ma zejść **3 mm** w materiał. Która wartość jest poprawna?",
       options: ["`Z3`", "`Z-3`", "`Z0.3`", "`Z-0.3`"],
-      answer: 1, why: "Materiał jest pod Z0, więc głębokość ma minus: `Z-3`. `Z3` to 3 mm nad powierzchnią." },
+      answer: 1, why: "Frez stoi nad płytką, a jej materiał jest pod Z0, więc głębokość ma minus: `Z-3`. `Z3` to 3 mm nad powierzchnią." },
+    { kind: "choice", q: "Płytka od X0 do X80, Z0 na górnej powierzchni. Frez Ø10 stoi w **X−20** Y10 **Z−5**. Gdzie jest?",
+      options: ["obok płytki, w powietrzu — 5 mm poniżej płaszczyzny Z0", "5 mm w materiale płytki", "5 mm nad płytką", "w stole maszyny"],
+      answer: 0, why: "Z−5 to 5 mm poniżej płaszczyzny Z0, ale w X−20 frez (krawędzie X−25 i X−15) jest jeszcze przed płytką, która zaczyna się w X0. O materiale decyduje Z razem z X i Y." },
     { kind: "gap", q: "Płytka 80 × 50, zero w lewym dolnym narożniku. Podaj współrzędne prawego górnego narożnika.",
       template: "X{0} Y{1}", answers: [["80"], ["50"]],
       why: "Prawy górny narożnik leży na końcu obu wymiarów: 80 mm w X i 50 mm w Y." },
@@ -115,8 +120,8 @@ export const f0_1: LessonDoc = {
   ],
 
   summary: [
-    "X w prawo, Y od operatora, Z w górę. Zwroty dodatnie daje reguła prawej dłoni.",
-    "+Z odsuwa narzędzie od detalu. Przy Z0 na górze minus oznacza materiał.",
+    "Na typowej frezarce pionowej: +X w prawo, +Y od operatora, +Z w górę. Zwroty dodatnie daje reguła prawej dłoni (ISO 841).",
+    "+Z odsuwa narzędzie od detalu. Przy Z0 na górze minus oznacza „poniżej górnej powierzchni” — w materiale tylko wtedy, gdy frez jest nad detalem.",
     "Program opisuje ruch narzędzia, nawet jeśli na maszynie jeździ stół.",
     "Współrzędne liczysz od zera detalu, a nie od krawędzi, od której zwymiarowano rysunek.",
   ],

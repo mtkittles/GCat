@@ -67,27 +67,33 @@ export function TopView() {
 
 /* ================= widok z boku: znak Z ================= */
 export function SideView() {
-  const R: [number, number, number, number] = [-22, 96, -26, 36];
-  const m = mapper(R, [16, 8, 332, 232]);
+  /* Ten sam Z−5 w dwóch miejscach: nad płytką frez jest w materiale, obok płytki (X−20) — w powietrzu.
+     Frez Ø10, widok z boku (od −Y), Z0 na górnej powierzchni płytki 80 × 20. */
+  const R: [number, number, number, number] = [-32, 102, -26, 36];
+  const m = mapper(R, [12, 8, 336, 232]);
   const tool = (x: number, z: number, cls: string) => (
     <rect x={m.X(x - 5)} y={m.Y(36)} width={10 * m.u} height={m.Y(z) - m.Y(36)} className={cls} rx={2} />
   );
   return (
     <Fig id="f01side" code="Z" title="Widok z boku — Z0 na górnej powierzchni" h={254} legend={["rap", "cut", "stock"]}
-      caption={<>Nad powierzchnią Z jest dodatnie, w materiale — ujemne. <b>Z5</b> to typowa wysokość, z której frez zjeżdża do skrawania, <b>Z−5</b> to 5 mm w głąb detalu.</>}>
+      caption={<>Z mówi tylko, jak wysoko jest narzędzie względem płaszczyzny Z0. <b>Z5</b> to 5 mm nad nią — typowa wysokość, z której frez zjeżdża do skrawania. <b>Z−5</b> to 5 mm pod nią: nad płytką (X60) frez jest wtedy w materiale, a obok płytki (X−20) — w powietrzu. Czy frez skrawa, wynika z Z <b>i</b> z położenia w X i Y.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={80 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
           <rect x={m.X(55)} y={m.Y(0)} width={10 * m.u} height={5 * m.u} className="panel-bg" />
-          <line x1={m.X(-22)} y1={m.Y(0)} x2={m.X(96)} y2={m.Y(0)} className="p-cons" />
-          <T x={m.X(84)} y={m.Y(0) - 5} cls="t-acc t-b t-mono">Z0</T>
+          <line x1={m.X(-32)} y1={m.Y(0)} x2={m.X(88)} y2={m.Y(0)} className="p-cons" />
+          <T x={m.X(82)} y={m.Y(0) - 5} cls="t-acc t-b t-mono">Z0</T>
+          <line x1={m.X(-32)} y1={m.Y(-5)} x2={m.X(0)} y2={m.Y(-5)} className="p-ext" />
 
-          <line x1={m.X(-13)} y1={m.Y(0)} x2={m.X(-13)} y2={m.Y(30)} className="p-acc thick" markerEnd={c.a("acc")} />
-          <line x1={m.X(-13)} y1={m.Y(0)} x2={m.X(-13)} y2={m.Y(-22)} className="p-bad" markerEnd={c.a("bad")} />
-          <T x={m.X(-10)} y={m.Y(30) + 4} cls="t-acc t-b">+Z</T>
-          <T x={m.X(-10)} y={m.Y(30) + 17} cls="t-mut">od detalu</T>
-          <T x={m.X(-10)} y={m.Y(-22) - 2} cls="t-bad t-b">−Z</T>
-          <T x={m.X(-10)} y={m.Y(-22) + 11} cls="t-mut">w materiał</T>
+          <line x1={m.X(93)} y1={m.Y(0)} x2={m.X(93)} y2={m.Y(30)} className="p-acc thick" markerEnd={c.a("acc")} />
+          <line x1={m.X(93)} y1={m.Y(0)} x2={m.X(93)} y2={m.Y(-22)} className="p-acc" markerEnd={c.a("acc")} />
+          <T x={m.X(95)} y={m.Y(30) + 4} cls="t-acc t-b">+Z</T>
+          <T x={m.X(95)} y={m.Y(-22) + 4} cls="t-acc t-b">−Z</T>
+
+          {tool(-20, -5, "cutter")}
+          <T x={m.X(-20)} y={m.Y(-5) + 14} anchor="middle" cls="t-cut t-b t-mono">Z−5</T>
+          <T x={m.X(-20)} y={m.Y(-5) + 27} anchor="middle" cls="t-mut t-sm">obok płytki</T>
+          <T x={m.X(-20)} y={m.Y(-5) + 39} anchor="middle" cls="t-mut t-sm">— powietrze</T>
 
           {tool(25, 5, "cutter")}
           <line x1={m.X(19)} y1={m.Y(5)} x2={m.X(31)} y2={m.Y(5)} className="p-rap" />
@@ -96,8 +102,8 @@ export function SideView() {
           {tool(60, -5, "cutter")}
           <line x1={m.X(54)} y1={m.Y(-5)} x2={m.X(66)} y2={m.Y(-5)} className="p-cut" />
           <T x={m.X(67)} y={m.Y(-5) + 4} cls="t-cut t-b t-mono">Z−5</T>
+          <T x={m.X(67)} y={m.Y(-5) + 17} cls="t-mut t-sm">w materiale</T>
 
-          <Dim x1={m.X(80)} y1={m.Y(0)} x2={m.X(80)} y2={m.Y(-20)} off={-12} label="20" c={c} lside={-1} />
         </g>
       )}
     </Fig>
