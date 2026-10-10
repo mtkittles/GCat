@@ -1,4 +1,4 @@
-import { Code, Fig, T } from "@/components/fig";
+import { Code, Fig, mapper, T } from "@/components/fig";
 
 /* Rysunki modułu F2 — wrzeciono i narzędzie. Styl i kolory z fig.tsx. */
 
@@ -154,9 +154,48 @@ export function Coolant() {
   );
 }
 
+/* ================= F2.3: posuwy w programie płytki — widok z góry =================
+   Frez Ø10. Krok 1: zejście w X−20 Y10, obok płytki (w powietrzu), F150.
+   Krok 2: dojazd do X−5 — krawędź freza styka się z bokiem płytki X0, F400.
+   Krok 3: kontur w górę do Y55 — F400 działa dalej (modalne). */
+export function PlateFeeds() {
+  const R: [number, number, number, number] = [-32, 88, -8, 62];
+  const m = mapper(R, [10, 8, 340, 214]);
+  const r = 5;
+  const Step = ({ x, y, n }: { x: number; y: number; n: number }) => (
+    <g><circle cx={x} cy={y} r={8} className="step" /><text x={x} y={y + 3.8} textAnchor="middle" className="step-n">{n}</text></g>
+  );
+  return (
+    <Fig id="f23pf" code="F" title="Gdzie który posuw — płytka z góry" h={240} legend={["cut", "stock"]}
+      notes={<><Code k="cut">1  G01 Z-5. F150</Code><Code k="cut">2  G01 X-5. F400</Code><Code k="cut">3  G01 Y55.</Code></>}
+      caption={<>1 — frez Ø10 schodzi na Z−5 w X−20, obok płytki: w powietrzu, z mniejszym posuwem przyjętym w kursie. 2 — dojazd do X−5: krawędź freza staje przy boku płytki w X0, a od następnego ruchu skrawa obwód freza — dlatego F400 pada już w tym bloku. 3 — dalszy kontur: F400 działa dalej, bo F jest modalne.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
+          <T x={m.X(40)} y={m.Y(25) + 4} anchor="middle" cls="t-mut">płytka 80 × 50</T>
+          {/* krok 1: zejście w powietrzu */}
+          <circle cx={m.X(-20)} cy={m.Y(10)} r={r * m.u} className="tool" />
+          <circle cx={m.X(-20)} cy={m.Y(10)} r={2.2} className="pt" />
+          <T x={m.X(-20)} y={m.Y(10) + r * m.u + 13} anchor="middle" cls="t-mono t-sm">X−20 Y10</T>
+          <Step x={m.X(-20) - 22} y={m.Y(10)} n={1} />
+          {/* krok 2: dojazd */}
+          <line x1={m.X(-20) + 4} y1={m.Y(10)} x2={m.X(-5) - 3} y2={m.Y(10)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={m.X(-12.5)} y={m.Y(10) - 16} n={2} />
+          <circle cx={m.X(-5)} cy={m.Y(10)} r={r * m.u} className="tool" opacity={0.6} />
+          {/* krok 3: kontur */}
+          <line x1={m.X(-5)} y1={m.Y(10) - 4} x2={m.X(-5)} y2={m.Y(55) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
+          <Step x={m.X(-5) - 18} y={m.Y(35)} n={3} />
+          <T x={m.X(-5) + 2} y={m.Y(55) - 6} cls="t-mono t-sm">Y55</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const f2Figs = {
   "f21-change": () => <ToolChange />,
   "f22-dir": () => <SpindleDir />,
   "f23-fz": () => <ToothFeed />,
+  "f23-feeds": () => <PlateFeeds />,
   "f24-coolant": () => <Coolant />,
 };
