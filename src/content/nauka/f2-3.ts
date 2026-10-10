@@ -9,7 +9,7 @@ export const f2_3: LessonDoc = {
 
   theory: [
     { t: "h", x: "F w milimetrach na minutę", id: "f-g94" },
-    { t: "p", x: "Adres **F** podaje posuw, czyli prędkość, z jaką narzędzie przesuwa się po torze. Na frezarce domyślnie działa [[G94]] — posuw w mm/min: `F400` to 400 mm na minutę. `G95` zmienia jednostkę na mm na obrót wrzeciona; na frezarce używa się go rzadko, głównie przy gwintowaniu, a na tokarce jest standardem." },
+    { t: "p", x: "Adres **F** podaje posuw, czyli prędkość, z jaką narzędzie przesuwa się po torze. Na frezarce zwykle działa [[G94]] — posuw w mm/min: `F400` to 400 mm na minutę. Programy w kursie ustawiają `G94` jawnie w bloku startowym (lekcja F1.5), bo stan po poprzednim programie może być inny. `G95` zmienia jednostkę na mm na obrót wrzeciona; na frezarce używa się go rzadko, głównie przy gwintowaniu, a na tokarce jest standardem." },
 
     { t: "h", x: "Skąd wziąć F", id: "obliczanie" },
     { t: "p", x: "Katalog narzędzia podaje [[fz]] — posuw na ostrze. To droga, o którą frez przesuwa się między pracą kolejnych ostrzy. Jeśli frez ma 4 ostrza, w jednym obrocie przesunie się o 4 · fz. Posuw minutowy liczy się z fz, liczby ostrzy z i obrotów n:" },
@@ -39,10 +39,10 @@ export const f2_3: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Program ma ruchy robocze bez posuwu. Oblicz posuw konturowy z fz i wpisz osobny posuw zejścia.",
-      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. (DOPISZ POSUW ZEJSCIA)\nG01 X-5. (DOPISZ POSUW KONTUROWY)\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. (DOPISZ POSUW ZEJSCIA)\nG01 X-5. (DOPISZ POSUW KONTUROWY)\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"feed","on":"plunge","f":150,"label":"Zejście w Z z aktywnym F150"},{"t":"feed","on":"xy","f":400,"label":"Kontur z aktywnym F400"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["Posuw konturowy: fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.","Zejście w Z: ok. 40 % z 400, zaokrąglone — `F150` w bloku `G01 Z-5.`; `F400` w pierwszym bloku konturu."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",

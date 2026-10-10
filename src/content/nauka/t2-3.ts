@@ -106,7 +106,7 @@ export const t2_3: LessonDoc = {
     { kind: "choice", q: "Posuw wzrósł dwukrotnie. Co dzieje się z teoretycznym Rt?", options: ["rośnie czterokrotnie", "rośnie dwukrotnie", "bez zmian", "maleje"], answer: 0, why: "Rt ∼ f²." },
     { kind: "gap", q: "f = 0,1 mm/obr, rε = 0,4 mm. Ile wynosi teoretyczne Rt (µm, do 0,1)?", template: "{0} µm", answers: [["3.1", "3,1"]], why: "0,01 / 3,2 · 1000 ≈ 3,1." },
     { kind: "choice", q: "Dlaczego planowanie kończy się na X ujemnym?", options: ["żeby naroże zebrało materiał w środku czoła", "bo X0 jest niedostępne", "bo tak wymaga G96", "żeby odjechać szybciej"], answer: 0, why: "Wierzchołek teoretyczny i naroże to nie ten sam punkt." },
-    { kind: "token", q: "Wskaż kod posuwu **na obrót** na Sinumeriku.", block: "G94 | G95 | G96", answer: 1, why: "G95." },
+    { kind: "token", q: "Wskaż kod posuwu **na obrót** w natywnym języku Siemensa.", block: "G94 | G95 | G96", answer: 1, why: "G95." },
   ],
 
   summary: [

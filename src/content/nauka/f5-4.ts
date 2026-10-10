@@ -45,10 +45,10 @@ export const f5_4: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Trzy otwory z przykładu rozwiązanego: X15, X45, X75 w Y20, R2, dno Z−7. Między X45 a X75 stoi docisk. Dopisz cykl z właściwymi poziomami powrotu.",
-      starter: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\n(DOPISZ CYKL G81 NA TRZY OTWORY: PO PIERWSZYM POWROT DO R, PO DRUGIM DO POZIOMU POCZATKOWEGO (DOCISK), POTEM TRZECI Z POWROTEM DO R I KASOWANIE CYKLU; F120)\nG00 Z50.\nM09\nM05\nM30",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\n(DOPISZ CYKL G81 NA TRZY OTWORY: PO PIERWSZYM POWROT DO R, PO DRUGIM DO POZIOMU POCZATKOWEGO (DOCISK), POTEM TRZECI Z POWROTEM DO R I KASOWANIE CYKLU; F120)\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["G81","G98","G99","G80"]},{"t":"rapidAbove","x0":45,"x1":75,"z":25,"label":"Przejazd nad dociskiem (między X45 a X75) wyżej niż Z25"},{"t":"cut","reference":"G90\nG00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nG99 X75.\nG80\nG00 Z50.","tolerance":0.05}],
       hints: ["Pierwszy otwór: `G99 G81 X15. Y20. Z-7. R2. F120` — do następnego nie ma przeszkody.","Drugi otwór z `G98 X45.`, bo po nim przejazd nad dociskiem; trzeci `G99 X75.` — bez G99 zostałoby aktywne G98; na końcu `G80`."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nG99 X75.\nG80\nG00 Z50.\nM09\nM05\nM30",
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (WIERTLO FI6)\nG43 H2 Z30.\nS1500 M03\nM08\nG00 X15. Y20.\nG99 G81 X15. Y20. Z-7. R2. F120\nG98 X45.\nG99 X75.\nG80\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",
@@ -77,7 +77,7 @@ export const f5_4: LessonDoc = {
       ["Powrót do R", "`G99`", "RTP ustawione na RFP + SDIS"],
       ["Kasowanie cyklu", "`G80` albo kod ruchu G00–G03", "`MCALL` bez nazwy"],
     ],
-    note: "Sinumerik nie ma G98/G99 — wysokość powrotu podaje się parametrem cyklu RTP. Przeskok nad przeszkodą programuje się ruchem między wywołaniami cyklu.",
+    note: "W natywnym języku Siemensa nie ma G98/G99 — wysokość powrotu podaje się parametrem cyklu RTP. W trybie ISO SINUMERIK obsługuje cykle G81–G89 z G98/G99 — zależnie od wersji i opcji sterowania. Przeskok nad przeszkodą programuje się ruchem między wywołaniami cyklu.",
   },
 
   quiz: [

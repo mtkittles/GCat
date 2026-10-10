@@ -21,7 +21,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "O1000 (PLYTKA 80X50X20 - GCAT)", since: "F1.1", note: "Numer programu i nazwa detalu w komentarzu." },
       { code: "(ZERO W: LEWY DOLNY NAROZNIK, Z0 NA GORZE)", since: "F0.1", note: "Gdzie leży zero detalu. Wszystkie współrzędne niżej liczymy od tego punktu." },
       { code: "(P1 X0 Y0 / P2 X80 Y0 / P3 X80 Y50 / P4 X0 Y50)", since: "F0.1", note: "Naroża płytki odczytane z rysunku, względem zera W." },
-      { code: "G21 G90 G17", since: "F1.4", note: "Milimetry, wymiary absolutne, płaszczyzna XY." },
+      { code: "G21 G90 G94 G17", since: "F1.4", note: "Milimetry, wymiary absolutne, posuw w mm/min (G94), płaszczyzna XY." },
       { code: "G40 G49 G80", since: "F1.5", note: "Kasowanie korekcji promienia, korekcji długości i cyklu — na wypadek, gdyby zostały z poprzedniego programu." },
       { code: "G54", since: "F0.3", note: "Aktywne przesunięcie zera detalu z rejestru G54." },
       { code: "(NADDATEK 1 MM NA GORNEJ POWIERZCHNI)", since: "F6.1", note: "Surówka jest o 1 mm wyższa — pierwsza operacja zbiera go do Z0." },

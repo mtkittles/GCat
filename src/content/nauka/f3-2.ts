@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1000 (PLYTKA)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06
@@ -50,7 +50,7 @@ export const f3_2: LessonDoc = {
       ["dolna, Y0", "Y−5", "`G01 X-5.`"],
     ] },
     { t: "p", x: "Kierunek obiegu zgodny z ruchem wskazówek zegara przy obrotach M03 daje [[frezowanie współbieżne]] — lepszą powierzchnię i dłuższą trwałość ostrza przy obróbce konturu zewnętrznego." },
-    { t: "demo", mode: "mill", title: "Kontur płytki z odcinków", src: "G21 G90 G17 G54\nG00 X-20. Y10. Z50.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nY55.\nX85.\nY-5.\nX-5.\nY10.\nG00 Z5.\nM30",
+    { t: "demo", mode: "mill", title: "Kontur płytki z odcinków", src: "G21 G90 G94 G17 G54\nG00 X-20. Y10. Z50.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nY55.\nX85.\nY-5.\nX-5.\nY10.\nG00 Z5.\nM30",
       caption: "Zielone odcinki to G01, bursztynowe przerywane — G00." },
   ],
 

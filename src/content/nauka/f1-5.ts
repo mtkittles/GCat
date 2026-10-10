@@ -13,12 +13,14 @@ export const f1_5: LessonDoc = {
     { t: "table", head: ["Kod", "Co robi", "Przed czym chroni"], rows: [
       ["`G21`", "milimetry", "programem calowym odczytanym jako metryczny"],
       ["`G90`", "wymiary absolutne", "G91 zostawionym po poprzednim programie"],
+      ["`G94`", "posuw w mm/min", "G95 zostawionym po gwintowaniu — F400 czytane jako 400 mm/obr"],
       ["`G17`", "płaszczyzna XY", "łukami w złej płaszczyźnie"],
       ["`G40`", "wyłącza korekcję promienia", "torem przesuniętym o promień freza"],
       ["`G49`", "wyłącza korekcję długości", "ruchem z długością poprzedniego narzędzia"],
       ["`G80`", "kasuje cykl wiercenia", "wierceniem otworu przy każdym ruchu"],
     ] },
-    { t: "p", x: "Kody z różnych grup mogą stać w jednym bloku. Wielu programistów rozdziela je na dwie linie, żeby łatwiej było je sprawdzić: `G21 G90 G17` i `G40 G49 G80`. Po nich pada `G54` — wybór zera detalu." },
+    { t: "p", x: "Kody z różnych grup mogą stać w jednym bloku. Wielu programistów rozdziela je na dwie linie, żeby łatwiej było je sprawdzić: `G21 G90 G94 G17` i `G40 G49 G80`. Po nich pada `G54` — wybór zera detalu." },
+    { t: "note", kind: "info", x: "Profil kursu: frezarka pionowa, trzy osie, zapis Fanuc (ISO), milimetry. Ten zestaw kodów to start programów w kursie, a nie lista bezpieczna na każdej obrabiarce. Producent maszyny może wymagać innych kodów albo innej kolejności — sprawdź to w jej instrukcji, zanim przeniesiesz program." },
 
     { t: "h", x: "Szkielet programu", id: "szkielet" },
     { t: "diagram", id: "f15-skeleton" },
@@ -40,7 +42,7 @@ export const f1_5: LessonDoc = {
     intro: "Detal: płytka 80 × 50, zero W w lewym dolnym narożniku, frez Ø10 jako T1, obroty 2500.",
     steps: [
       { x: "Nagłówek: numer programu i opis w komentarzu.", code: "O1000 (PLYTKA)" },
-      { x: "Bezpieczny start: jednostki, wymiary, płaszczyzna i kasowanie korekcji oraz cykli.", code: "G21 G90 G17" },
+      { x: "Bezpieczny start: jednostki, wymiary, posuw w mm/min, płaszczyzna, a w drugiej linii kasowanie korekcji oraz cykli.", code: "G21 G90 G94 G17" },
       { x: "Druga linia bezpiecznego startu, potem wybór zera detalu.", code: "G40 G49 G80 → G54" },
       { x: "Koniec: odjazd w Z, stop wrzeciona, powrót do G90, M30.", code: "M05 … M30" },
     ],
@@ -51,23 +53,23 @@ export const f1_5: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Program ma obróbkę, ale nie ma bezpiecznego początku ani zakończenia. Dopisz oba w miejscu komentarzy.",
-      starter: "O1000 (PLYTKA)\n(DOPISZ BEZPIECZNY START: JEDNOSTKI, WYMIAROWANIE, PLASZCZYZNA / KASOWANIE KOREKCJI I CYKLI / ZERO DETALU)\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ ZAKONCZENIE: STOP WRZECIONA, KONIEC PROGRAMU Z PRZEWINIECIEM)",
-      checks: [{"t":"require","codes":["G21","G90","G17","G40","G49","G80","G54","M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
-      hints: ["Blok startowy z lekcji: `G21 G90 G17`, potem `G40 G49 G80`, a na końcu wybór zera `G54`.","Zakończenie: `M05` zatrzymuje wrzeciono, `M30` kończy program i przewija go na początek."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30",
+      starter: "O1000 (PLYTKA)\n(DOPISZ BEZPIECZNY START: JEDNOSTKI, WYMIAROWANIE, POSUW MM/MIN, PLASZCZYZNA / KASOWANIE KOREKCJI I CYKLI / ZERO DETALU)\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ ZAKONCZENIE: STOP WRZECIONA, KONIEC PROGRAMU Z PRZEWINIECIEM)",
+      checks: [{"t":"require","codes":["G21","G90","G94","G17","G40","G49","G80","G54","M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
+      hints: ["Blok startowy z lekcji: `G21 G90 G94 G17`, potem `G40 G49 G80`, a na końcu wybór zera `G54`.","Zakończenie: `M05` zatrzymuje wrzeciono, `M30` kończy program i przewija go na początek."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30",
     },
     {
       kind: "drill",
       intro: "Ułóż sekcje programu i znajdź braki.",
       questions: [
-        {"kind":"bughunt","q":"Który blok jest w złym miejscu? Program ma ruszyć bezpiecznie.","program":"O1000 (PLYTKA)\nT1 M06\nG21 G90 G17\nG40 G49 G80\nG54\nG43 H1 Z50.\nS2500 M03","answer":1,"why":"Wymiana narzędzia stoi przed blokiem startowym — przy innym stanie sterowania (np. G91 z poprzedniego programu) nawet dojazd do wymiany może pójść źle. Najpierw G21 G90 G17, G40 G49 G80 i G54, potem T1 M06."},
+        {"kind":"bughunt","q":"Który blok jest w złym miejscu? Program ma ruszyć bezpiecznie.","program":"O1000 (PLYTKA)\nT1 M06\nG21 G90 G94 G17\nG40 G49 G80\nG54\nG43 H1 Z50.\nS2500 M03","answer":1,"why":"Wymiana narzędzia stoi przed blokiem startowym — przy innym stanie sterowania (np. G91 z poprzedniego programu) nawet dojazd do wymiany może pójść źle. Najpierw G21 G90 G94 G17, G40 G49 G80 i G54, potem T1 M06."},
 
         { kind: "order", q: "Ułóż bloki programu w kolejności wykonania.",
-          items: ["M30", "S2500 M03", "O1000 (PLYTKA)", "(OBROBKA)", "T1 M06", "G21 G90 G17 G40 G49 G80", "M05"],
+          items: ["M30", "S2500 M03", "O1000 (PLYTKA)", "(OBROBKA)", "T1 M06", "G21 G90 G94 G17 G40 G49 G80", "M05"],
           answer: [2, 5, 4, 1, 3, 6, 0],
           why: "Nagłówek, bezpieczny start, narzędzie, obroty, obróbka, stop wrzeciona, koniec. Obroty po wymianie, bo M06 zatrzymuje wrzeciono." },
         { kind: "choice", q: "Początek programu: `O1001` → `T1 M06` → `S3000 M03` → `G00 X0. Y0.`. Czego brakuje?",
-          options: ["M30", "bloku startowego z G21 G90 G17 G40 G49 G80 i wyboru G54", "komentarza z nazwą", "niczego"], answer: 1,
+          options: ["M30", "bloku startowego z G21 G90 G94 G17 G40 G49 G80 i wyboru G54", "komentarza z nazwą", "niczego"], answer: 1,
           why: "Bez bloku startowego program przejmuje stan po poprzedniej pracy." },
         { kind: "token", q: "Wskaż kod, który zatrzyma program **tylko przy włączonym Optional Stop**.", block: "M00 M01 M02 M30", answer: 1,
           why: "M01 to stop warunkowy." },
@@ -105,7 +107,7 @@ export const f1_5: LessonDoc = {
   ],
 
   summary: [
-    "Blok startowy ustawia G21 G90 G17 i kasuje G40 G49 G80, zanim padnie pierwszy ruch.",
+    "Blok startowy w kursie ustawia G21 G90 G94 G17 i kasuje G40 G49 G80, zanim padnie pierwszy ruch. Na konkretnej maszynie sprawdź wymagania producenta.",
     "Kolejność sekcji: nagłówek, start, układ, narzędzie i obroty, obróbka, zakończenie.",
     "M00 zatrzymuje zawsze, M01 tylko z Optional Stop, M30 kończy i przewija program.",
     "Przed M30: odjazd w Z, M05, powrót do G90.",

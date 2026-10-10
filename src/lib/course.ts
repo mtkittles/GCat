@@ -63,6 +63,8 @@ export interface PlanLesson { id: string; title: string; slug?: string; doc?: Le
 export interface Module { id: string; title: string; lessons: PlanLesson[] }
 export interface TrackDef {
   key: Track; mode: "mill" | "lathe"; title: string; blurb: string; part: string;
+  /** Profil zapisu przykładów — pokazywany nad treścią każdej lekcji ścieżki. */
+  profile: string;
   banner: string; modules: Module[];
 }
 
@@ -73,6 +75,7 @@ export const tracks: Record<Track, TrackDef> = {
     key: "frezowanie", mode: "mill", title: "Frezowanie",
     blurb: "Od osi XYZ do kieszeni, cykli wiercenia i podprogramów.",
     part: "Płytka 80 × 50 z zaokrąglonymi narożami",
+    profile: "Zapis przykładów: Fanuc (ISO) · frezarka pionowa, 3 osie · milimetry, posuw na minutę (G94). SINUMERIK — w panelu „Fanuc i Sinumerik”.",
     banner: "/img/banner-mill.jpg",
     modules: [
       { id: "F0", title: "Maszyna", lessons: [
@@ -126,6 +129,7 @@ export const tracks: Record<Track, TrackDef> = {
     key: "toczenie", mode: "lathe", title: "Toczenie",
     blurb: "Od osi X i Z do cykli zgrubnych, rowków i gwintów.",
     part: "Wałek stopniowany z fazą, rowkiem i gwintem",
+    profile: "Zapis przykładów: Fanuc, system A · tokarka dwuosiowa, X w średnicy · milimetry, posuw na obrót (G99). SINUMERIK — w panelu „Fanuc i Sinumerik”.",
     banner: "/img/banner-turn.jpg",
     modules: [
       { id: "T0", title: "Maszyna", lessons: [

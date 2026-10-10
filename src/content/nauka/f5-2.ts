@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1004 (OTWORY POD M6)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T3 M06 (WIERTLO FI5 VHM 140ST)

@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1003 (NAWIERCENIE PLYTKI)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T2 M06 (NAWIERTAK FI10 90ST)

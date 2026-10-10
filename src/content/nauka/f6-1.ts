@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1006 (PLANOWANIE)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T5 M06 (GLOWICA FI63 5Z 45ST)

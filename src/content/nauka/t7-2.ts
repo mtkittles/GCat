@@ -80,7 +80,7 @@ export const t7_2: LessonDoc = {
       intro: "G32 w praktyce.",
       questions: [
         { kind: "order", q: "Ułóż jedno przejście gwintu.", items: ["Z5.", "G32 Z-17. F1.5", "G00 X22.", "G00 X19.4"], answer: [3, 1, 2, 0], why: "Wejście, przejście, wyjście w X, powrót w Z." },
-        { kind: "choice", q: "Czym na Sinumeriku zastąpisz G32?", options: ["G33", "G76", "G92", "CYCLE95"], answer: 0, why: "G33 — gwint po prostej." },
+        { kind: "choice", q: "Czym w natywnym języku Siemensa (SINUMERIK) zastąpisz G32?", options: ["G33", "G76", "G92", "CYCLE95"], answer: 0, why: "G33 — gwint po prostej." },
       ],
     },
   ],
@@ -105,7 +105,7 @@ export const t7_2: LessonDoc = {
     { kind: "choice", q: "Co robi `G32 Z-17. F1.5`?", options: ["jedno przejście gwintu o skoku 1,5", "cały gwint", "rowek", "postój"], answer: 0, why: "Jeden blok — jedno przejście." },
     { kind: "choice", q: "Po G32 nóż jest w zwoju. Co dalej?", options: ["G00 w X, potem w Z", "G00 w Z", "G32 w Z z powrotem", "M30"], answer: 0, why: "Najpierw wyjście ze zwoju." },
     { kind: "choice", q: "Dlaczego każde przejście startuje z tego samego Z?", options: ["żeby nóż trafił w ten sam zwój", "bo tak jest szybciej", "bo wymaga tego G97", "bez powodu"], answer: 0, why: "Synchronizacja ze znacznikiem wrzeciona." },
-    { kind: "choice", q: "Jak na Sinumeriku podaje się skok w G33 dla gwintu w osi Z?", options: ["K", "F", "P", "Q"], answer: 0, why: "K — skok w Z." },
+    { kind: "choice", q: "Jak w natywnym języku Siemensa podaje się skok w G33 dla gwintu w osi Z?", options: ["K", "F", "P", "Q"], answer: 0, why: "K — skok w Z." },
   ],
 
   summary: [

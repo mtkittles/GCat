@@ -17,7 +17,11 @@ export const sources: Record<string, Source> = {
   },
   sinumerik: {
     id: "sinumerik", short: "SINUMERIK — Podstawy programowania",
-    full: "SIEMENS SINUMERIK 840D sl / 828D — Programming Manual, Fundamentals.",
+    full: "SIEMENS SINUMERIK 840D sl / 828D — Programming Manual, Fundamentals, wyd. 10/2015, 6FC5398-1BP40-5BA3. Język natywny Siemensa; inne wersje sterowania mogą się różnić.",
+  },
+  "sinumerik-iso-t": {
+    id: "sinumerik-iso-t", short: "SINUMERIK — ISO Turning",
+    full: "SIEMENS SINUMERIK 840D sl / 828D — ISO Turning, oprogramowanie 4.5, wyd. 02/2012, 6FC5398-5BP40-3BA0. Rozdz. 1.1 (tryby języka), rozdz. 4.1.2 (G70–G76, typy G71).",
   },
   jemielniak: {
     id: "jemielniak", short: "Jemielniak, Obróbka skrawaniem",

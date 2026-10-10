@@ -1606,6 +1606,14 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .ls-pit p { color: var(--ink-2); line-height: 1.6; font-size: 14.5px; }
 .ls-pit .fig { background: transparent; border: none; padding: 0; }
 .ls .article h2 { font-size: 1.1rem; font-weight: 700; margin-top: .4rem; }
+.tp-profile { font-size: 13.5px; line-height: 1.5; color: var(--muted); margin: -.6rem 0 0; }
+.ls-goal p.ls-profile { font-family: var(--font-sans); font-size: 13px; font-weight: 500; line-height: 1.45; color: var(--muted); letter-spacing: 0; margin-top: .2rem; }
+.ls-native { border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.ls-native > summary { cursor: pointer; padding: .7rem .9rem; font-weight: 600; font-size: 14px; color: var(--ink); list-style: none; display: flex; align-items: center; gap: .5rem; }
+.ls-native > summary::-webkit-details-marker { display: none; }
+.ls-native > summary::before { content: "▸"; color: var(--accent); transition: transform .15s; }
+.ls-native[open] > summary::before { transform: rotate(90deg); }
+.ls-native > :not(summary) { margin: 0 .9rem .8rem; }
 .ls-ctl { width: 100%; table-layout: fixed; }
 .ls-ctl th, .ls-ctl td { white-space: normal; overflow-wrap: break-word; hyphens: auto; vertical-align: top; font-size: 13.5px; line-height: 1.45; }
 .ls-ctl thead th:first-child { width: 28%; }

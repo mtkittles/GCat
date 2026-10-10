@@ -1,7 +1,7 @@
 import type { LessonDoc } from "@/lib/lesson";
 
 const starter = `O1001 (ROWEK PIERSCIENIOWY)
-G21 G90 G17
+G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06 (FREZ FI10, OSTRZE PRZEZ SRODEK)

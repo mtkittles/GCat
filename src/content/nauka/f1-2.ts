@@ -84,7 +84,7 @@ export const f1_2: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F1.1", q: "Co oznacza `X60` bez kropki na Sinumeriku?",
+    { kind: "choice", review: "F1.1", q: "Co oznacza `X60` bez kropki w natywnym języku Siemensa (SINUMERIK)?",
       options: ["60 mm", "0,060 mm", "zależy od parametru", "błąd składni"], answer: 0, why: "Sinumerik czyta wartość bez kropki jako milimetry." },
     { kind: "choice", q: "Co znaczy, że `G01` jest modalne?",
       options: ["działa tylko w swoim bloku", "działa, dopóki nie zastąpi go inny kod z tej samej grupy", "działa do końca programu bez względu na inne kody", "musi stać w każdym bloku ruchu"], answer: 1,

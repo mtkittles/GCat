@@ -11,7 +11,7 @@ export const f1_1: LessonDoc = {
     { t: "h", x: "Program to lista bloków", id: "bloki" },
     { t: "p", x: "Program CNC to zwykły tekst. Każda linia to [[blok]], czyli jedno polecenie dla maszyny. Sterowanie czyta bloki po kolei, od góry: wykonuje blok i dopiero wtedy przechodzi do następnego." },
     { t: "demo", mode: "mill", title: "Sterowanie wykonuje blok po bloku",
-      src: "N10 G21 G90 G17 G54\nN20 G00 X-20. Y10.\nN30 Z5.\nN40 G01 Z-5. F150\nN50 X-5. F400\nN60 Y40.\nN70 G00 Z5.\nN80 M30",
+      src: "N10 G21 G90 G94 G17 G54\nN20 G00 X-20. Y10.\nN30 Z5.\nN40 G01 Z-5. F150\nN50 X-5. F400\nN60 Y40.\nN70 G00 Z5.\nN80 M30",
       caption: "Podświetlona linia to blok, który sterowanie właśnie wykonuje." },
 
     { t: "h", x: "Słowo = adres + wartość", id: "slowo" },
@@ -98,7 +98,7 @@ export const f1_1: LessonDoc = {
       why: "Funkcje przygotowawcze mają adres G." },
     { kind: "choice", q: "Co zrobi sterowanie z blokiem `/N50 M08` przy włączonym przełączniku BLOCK SKIP?",
       options: ["wykona go", "pominie go", "zatrzyma program", "zgłosi alarm"], answer: 1, why: "Ukośnik oznacza blok do pominięcia, gdy przełącznik jest włączony." },
-    { kind: "choice", q: "Od jakiego znaku zaczyna się komentarz na Sinumeriku?",
+    { kind: "choice", q: "Od jakiego znaku zaczyna się komentarz w natywnym języku Siemensa (SINUMERIK)?",
       options: ["`(`", "`;`", "`/`", "`%`"], answer: 1, why: "Sinumerik: średnik. Fanuc: nawias." },
     { kind: "gap", q: "Zapisz posuw 250 mm/min jako jedno słowo.", template: "{0}", answers: [["F250", "F250."]],
       why: "Adres F i wartość 250." },

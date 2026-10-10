@@ -87,6 +87,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       <section className="ls-goal" aria-labelledby="cel">
         <h2 id="cel">Cel lekcji</h2>
         <p>{rich(doc.goal)}</p>
+        <p className="ls-profile">{T.profile}</p>
       </section>
 
       <Sec id="teoria" n={++n} title="Teoria"><Article blocks={doc.theory} /></Sec>
@@ -133,15 +134,20 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
       {doc.controllers && (
         <Sec id="sterowania" n={++n} title="Fanuc i Sinumerik">
-          <div className="overflow-x-auto">
-            <table className="code-table ls-ctl tbl-stack">
-              <thead><tr><th /><th>Fanuc</th><th>Sinumerik</th></tr></thead>
-              <tbody>{doc.controllers.rows.map((row) => (
-                <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc">{rich(row[1])}</td><td data-label="Sinumerik">{rich(row[2])}</td></tr>
-              ))}</tbody>
-            </table>
-          </div>
-          {doc.controllers.note && <p className="cap">{rich(doc.controllers.note)}</p>}
+          <p className="ls-p">Przykłady w lekcji są zapisane w języku Fanuc (ISO). SINUMERIK z włączonym trybem ISO (zależnie od wersji i opcji sterowania) przyjmuje wiele z tych kodów — wtedy obowiązuje kolumna Fanuc. Panel poniżej pokazuje natywny język Siemensa.</p>
+          <details className="ls-native">
+            <summary>SINUMERIK — język natywny: pokaż różnice</summary>
+            <div className="overflow-x-auto">
+              <table className="code-table ls-ctl tbl-stack">
+                <thead><tr><th /><th>Fanuc (ISO) — przykład główny</th><th>SINUMERIK — język natywny</th></tr></thead>
+                <tbody>{doc.controllers.rows.map((row) => (
+                  <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc (ISO)">{rich(row[1])}</td><td data-label="SINUMERIK, natywnie">{rich(row[2])}</td></tr>
+                ))}</tbody>
+              </table>
+            </div>
+            {doc.controllers.note && <p className="cap">{rich(doc.controllers.note)}</p>}
+            <p className="cap">Odniesienie: SINUMERIK 840D sl / 828D — Programming Manual, Fundamentals (wyd. 10/2015); tryb ISO toczenia — ISO Turning (02/2012). Na konkretnej maszynie obowiązuje dokumentacja jej wersji sterowania.</p>
+          </details>
         </Sec>
       )}
 

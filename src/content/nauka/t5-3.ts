@@ -9,7 +9,7 @@ export const t5_3: LessonDoc = {
 
   theory: [
     { t: "h", x: "Jeden cykl, kilka rodzajów obróbki", id: "cycle95" },
-    { t: "p", x: "Sinumerik nie ma osobnych kodów G71, G72 i G70. Obróbkę skrawaniem wzdłuż konturu wykonuje jeden cykl — w klasycznej postaci `CYCLE95`, w nowszych wersjach sterowania `CYCLE952`, zwykle generowany w edytorze cykli. Kontur leży w podprogramie albo między etykietami w programie." },
+    { t: "p", x: "W natywnym języku Siemensa nie ma osobnych kodów G71, G72 i G70 (w trybie ISO SINUMERIK je rozumie — dokumentacja ISO Turning, zależnie od wersji). Obróbkę skrawaniem wzdłuż konturu wykonuje jeden cykl — w klasycznej postaci `CYCLE95`, w nowszych wersjach sterowania `CYCLE952`, zwykle generowany w edytorze cykli. Kontur leży w podprogramie albo między etykietami w programie." },
     { t: "diagram", id: "t53-cycle95" },
     { t: "table", head: ["Parametr", "Znaczenie", "Odpowiednik w G71"], rows: [
       ["NPP", "nazwa konturu (podprogram lub etykiety)", "`P… Q…`"],
@@ -50,7 +50,7 @@ export const t5_3: LessonDoc = {
       intro: "Symulator GCat pracuje w dialekcie Fanuca, więc zapis Sinumerika ćwiczysz na pytaniach.",
       questions: [
         { kind: "gap", q: "Na Fanucu w drugim bloku G71 jest `U0.6`. Jaką wartość wpiszesz w FALX cyklu CYCLE95?", template: "{0}", answers: [["0.3", "0,3"]], why: "0,6 w średnicy to 0,3 na stronę." },
-        { kind: "choice", q: "Co zastępuje `G70 P10 Q20` na Sinumeriku?", options: ["drugie wywołanie cyklu z wykańczaniem w VARI", "M98 P10", "G70", "RET"], answer: 0, why: "Rodzaj obróbki wybiera parametr VARI." },
+        { kind: "choice", q: "Co zastępuje `G70 P10 Q20` w natywnym języku Siemensa (SINUMERIK)?", options: ["drugie wywołanie cyklu z wykańczaniem w VARI", "M98 P10", "G70", "RET"], answer: 0, why: "Rodzaj obróbki wybiera parametr VARI." },
         { kind: "choice", q: "Jak zapisać promień łuku w języku Siemensa?", options: ["CR=1", "R1.", "I1", "K1"], answer: 0, why: "CR — circle radius." },
       ],
     },
@@ -77,8 +77,8 @@ export const t5_3: LessonDoc = {
     { kind: "choice", review: "T5.2", q: "Jaki ruch ma pierwszy blok konturu dla G72?", options: ["ruch tylko w Z", "ruch tylko w X", "łuk", "dowolny"], answer: 0, why: "W G71 — tylko w X." },
     { kind: "choice", q: "Który parametr CYCLE95 podaje nazwę konturu?", options: ["NPP", "MID", "VARI", "FF1"], answer: 0, why: "NPP — nazwa konturu." },
     { kind: "choice", q: "W czym podawany jest FALX?", options: ["w promieniu", "w średnicy", "w procentach", "w obrotach"], answer: 0, why: "Inaczej niż U w G71." },
-    { kind: "choice", q: "Jak na Sinumeriku wybiera się między obróbką zgrubną a wykańczającą?", options: ["parametrem VARI", "kodem G70", "kodem G72", "nazwą konturu"], answer: 0, why: "Jeden cykl, różne warianty." },
-    { kind: "choice", q: "Czym na Sinumeriku zastąpisz `G50 S3000`?", options: ["LIMS=3000", "G50 S3000", "G96 S3000", "MID=3000"], answer: 0, why: "Limit obrotów." },
+    { kind: "choice", q: "Jak w cyklu CYCLE95 (SINUMERIK, język natywny) wybiera się między obróbką zgrubną a wykańczającą?", options: ["parametrem VARI", "kodem G70", "kodem G72", "nazwą konturu"], answer: 0, why: "Jeden cykl, różne warianty." },
+    { kind: "choice", q: "Czym w natywnym języku Siemensa (SINUMERIK) zastąpisz `G50 S3000`?", options: ["LIMS=3000", "G50 S3000", "G96 S3000", "MID=3000"], answer: 0, why: "Limit obrotów." },
   ],
 
   summary: [
@@ -91,5 +91,6 @@ export const t5_3: LessonDoc = {
   sources: [
     { id: "sinumerik", where: "CYCLE95 i CYCLE952 — skrawanie wzdłuż konturu, parametry" },
     { id: "fanuc", where: "G71, G72, G70 — porównanie" },
+    { id: "sinumerik-iso-t", where: "rozdz. 4.1.2, s. 79–85: G70–G76 w trybie ISO" },
   ],
 };
