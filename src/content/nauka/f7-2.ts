@@ -4,6 +4,7 @@ export const f7_2: LessonDoc = {
   id: "F7.2",
   slug: "f7-2-podprogramy-sinumerik",
   title: "Podprogramy w Sinumeriku",
+  dialect: "sinumerik",
   minutes: 12,
   goal: "Zapiszesz podprogram Sinumerika jako osobny plik, wywołasz go nazwą z powtórzeniami i przekażesz mu parametry.",
 

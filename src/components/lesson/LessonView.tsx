@@ -36,6 +36,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
   const doc = plan?.doc;
   if (!plan || !doc) notFound();
   const T = tracks[track];
+  const native = doc.dialect === "sinumerik";
   const all = flat(track);
   const idx = orderOf(track, doc.id);
   const ready = all.filter((l) => l.doc);
@@ -87,7 +88,9 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       <section className="ls-goal" aria-labelledby="cel">
         <h2 id="cel">Cel lekcji</h2>
         <p>{rich(doc.goal)}</p>
-        <p className="ls-profile">{T.profile}</p>
+        <p className="ls-profile">{native
+          ? "Zapis przykładów w tej lekcji: SINUMERIK — natywny język Siemensa (Programming Manual Fundamentals, wyd. 10/2015). Odpowiedniki Fanuc (ISO) — w sekcji „Fanuc i Sinumerik”."
+          : T.profile}</p>
       </section>
 
       <Sec id="teoria" n={++n} title="Teoria"><Article blocks={doc.theory} /></Sec>
@@ -134,12 +137,14 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
       {doc.controllers && (
         <Sec id="sterowania" n={++n} title="Fanuc i Sinumerik">
-          <p className="ls-p">Przykłady w lekcji są zapisane w języku Fanuc (ISO). SINUMERIK z włączonym trybem ISO (zależnie od wersji i opcji sterowania) przyjmuje wiele z tych kodów — wtedy obowiązuje kolumna Fanuc. Panel poniżej pokazuje natywny język Siemensa.</p>
-          <details className="ls-native">
-            <summary>SINUMERIK — język natywny: pokaż różnice</summary>
+          <p className="ls-p">{native
+            ? "Ta lekcja uczy natywnego języka Siemensa. Tabela poniżej zestawia go z zapisem Fanuc (ISO) używanym w pozostałych lekcjach kursu. SINUMERIK z włączonym trybem ISO (zależnie od wersji i opcji sterowania) przyjmuje też zapis z kolumny Fanuc."
+            : "Przykłady w lekcji są zapisane w języku Fanuc (ISO). SINUMERIK z włączonym trybem ISO (zależnie od wersji i opcji sterowania) przyjmuje wiele z tych kodów — wtedy obowiązuje kolumna Fanuc. Panel poniżej pokazuje natywny język Siemensa."}</p>
+          <details className="ls-native" open={native || undefined}>
+            <summary>{native ? "Fanuc (ISO) i SINUMERIK — porównanie" : "SINUMERIK — język natywny: pokaż różnice"}</summary>
             <div className="overflow-x-auto">
               <table className="code-table ls-ctl tbl-stack">
-                <thead><tr><th /><th>Fanuc (ISO) — przykład główny</th><th>SINUMERIK — język natywny</th></tr></thead>
+                <thead><tr><th /><th>{native ? "Fanuc (ISO)" : "Fanuc (ISO) — przykład główny"}</th><th>{native ? "SINUMERIK — język natywny, ta lekcja" : "SINUMERIK — język natywny"}</th></tr></thead>
                 <tbody>{doc.controllers.rows.map((row) => (
                   <tr key={row[0]}><th scope="row">{rich(row[0])}</th><td data-label="Fanuc (ISO)">{rich(row[1])}</td><td data-label="SINUMERIK, natywnie">{rich(row[2])}</td></tr>
                 ))}</tbody>

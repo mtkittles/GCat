@@ -4,6 +4,7 @@ export const t5_3: LessonDoc = {
   id: "T5.3",
   slug: "t5-3-cycle95-sinumerik",
   title: "CYCLE95 w Sinumeriku",
+  dialect: "sinumerik",
   minutes: 12,
   goal: "Przeniesiesz obróbkę wałka z G71/G70 na cykl Sinumerika i rozpoznasz jego główne parametry.",
 
@@ -70,7 +71,7 @@ export const t5_3: LessonDoc = {
       ["Naddatek w X", "`U` — średnica", "FALX — promień"],
       ["Limit obrotów", "`G50 S…`", "`LIMS=…`"],
     ],
-    note: "Na Sinumeriku jeden cykl pokrywa to, co na Fanucu robią trzy kody.",
+    note: "W natywnym języku Siemensa jeden cykl pokrywa to, co na Fanucu robią trzy kody.",
   },
 
   quiz: [

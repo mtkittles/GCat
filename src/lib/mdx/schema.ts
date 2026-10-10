@@ -97,6 +97,7 @@ export const lekcjaSchema = z.strictObject({
   goal: text,
   /** powiązane karty (slugi) — jawne, opcjonalne */
   codes: z.array(slug).default([]),
+  dialect: z.literal("sinumerik").optional(),
   controllers: z.strictObject({ rows: z.array(z.tuple([z.string(), z.string(), z.string()])), note: z.string().optional() }).optional(),
   pitfalls: z.array(z.strictObject({ title: text, x: text, fig: z.string().optional() })).default([]),
   summary: z.array(text).default([]),

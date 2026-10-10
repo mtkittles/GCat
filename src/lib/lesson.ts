@@ -82,4 +82,6 @@ export interface LessonDoc {
   quiz: Question[];
   summary: string[];
   sources: { id: string; where: string }[];
+  /** Lekcja uczy natywnego języka Siemensa — profil i sekcja porównania zamiast domyślnego zapisu Fanuc. */
+  dialect?: "sinumerik";
 }
