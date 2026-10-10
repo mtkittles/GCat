@@ -1256,7 +1256,7 @@
         "desc": "Na frezarce: powrót do poziomu początkowego / do R — nie jednostka posuwu"
       }
     ],
-    "example": "G21 G90 G94 G17\nG40 G49 G80\nG54\nT4 M06 (GWINTOWNIK M6X1)\nG43 H4 Z50.\nS500 M03\n(OTWORY 5 MM WIERCONE WCZESNIEJ, CZUBEK NA Z-18.)\nM29 S500\nG99 G84 X10. Y10. Z-15. R5. F500\nX70.\nG80\nG00 Z50.\nM05\nM30",
+    "example": "G21 G90 G94 G17\nG40 G49 G80\nG54\nT4 M06 (GWINTOWNIK M6X1)\nG43 H4 Z50.\nS500 M03\n(OTWORY 5 MM WIERCONE WCZESNIEJ, CZUBEK NA Z-18.)\n(M29 - GWINTOWANIE SZTYWNE NA WIELU FANUCACH, ZALEZY OD MASZYNY)\nM29 S500\nG99 G84 X10. Y10. Z-15. R5. F500\nX70.\nG80\nG00 Z50.\nM05\nM30",
     "sinumerik": "W Sinumeriku gwintowanie wykonują cykle **CYCLE84** (sztywne) i **CYCLE840** (z uchwytem kompensacyjnym). Nazwy i kolejność parametrów zależą od wydania cykli — przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.",
     "pitfalls": [
       "Posuw niezgodny ze skokiem (przyczyna) → gwintownik pęka albo zrywa zwoje (skutek) → w G94 F = S × skok, w G95 F = skok, a tryb posuwu ustaw jawnie przed cyklem (poprawka).",
