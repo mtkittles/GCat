@@ -51,7 +51,8 @@ export const t1_2: LessonDoc = {
 
   worked: {
     title: "Przejście na Ø36 przyrostowo",
-    intro: "Nóż stoi w X44 Z2. Ma przetoczyć Ø36 na długości do Z−55, wyjść na Ø40 i wrócić nad czoło.",
+    intro: "Sytuacja: nóż stoi w X44 Z2. Ma przetoczyć Ø36 do Z−55, wyjść na Ø40 i wrócić nad czoło — zapisane samymi przyrostami U i W. Numery na rysunku to numery kroków.",
+    fig: "t12-run",
     steps: [
       { x: "Z Ø44 na Ø36: przyrost średnicy 36 − 44.", code: "G01 U-8. F0.2" },
       { x: "Z Z2 do Z−55: przyrost −55 − 2.", code: "W-57." },
@@ -80,6 +81,7 @@ export const t1_2: LessonDoc = {
       questions: [
     {"kind":"choice","q":"Gdzie stanie nóż po tych blokach (X w średnicy)?","code":"G00 X44. Z2.\nG01 U-8. F0.2\nW-20.\nU6.","options":["X42 Z−18","X36 Z−18","X42 Z−20","X38 Z−22"],"answer":0,"why":"U i W to przyrosty: X44 − 8 = X36, Z2 − 20 = Z−18, X36 + 6 = X42."},
 
+        { kind: "gap", q: "W przykładzie w kroku 1 wpisano `U-4.` zamiast `U-8.`, reszta bez zmian. Na jakiej średnicy pojedzie nóż w kroku 2 i na jakiej skończy w kroku 3?", template: "krok 2: X{0}, krok 3: X{1}", answers: [["40"], ["44"]], why: "44 − 4 = 40: nóż jedzie po powierzchni pręta Ø40 i nic nie zbiera. U4. liczy się od tego błędnego punktu, więc wyjście kończy się w X44. Każdy przyrost po błędzie przenosi go dalej — dlatego kontur pisze się absolutnie." },
         { kind: "gap", q: "Nóż w X40. Cel Ø32. Zapisz przyrostowo.", template: "U{0}", answers: [["-8", "-8."]], why: "32 − 40 = −8." },
         { kind: "gap", q: "Nóż w X30 Z-20. Blok `U6. W-15.`. Gdzie stanie?", template: "X{0} Z{1}", answers: [["36"], ["-35"]], why: "30 + 6 = 36, −20 − 15 = −35." },
         { kind: "choice", q: "Tokarka Fanuc, system A. Co zrobi blok `G90 X30. Z-20. F0.2`?", options: ["wykona cykl toczenia wzdłużnego", "ustawi wymiary absolutne i pojedzie po prostej", "alarm", "nic"], answer: 0, why: "W systemie A G90 to cykl." },

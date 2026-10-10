@@ -32,11 +32,13 @@ export const t1_3: LessonDoc = {
       ["`G80`", "kasuje cykl wiercenia", "wierceniem przy pierwszym ruchu"],
       ["`G99`", "posuw w mm/obr", "posuwem minutowym, 0,2 mm/min zamiast 0,2 mm/obr"],
     ] },
-    { t: "p", x: "Po nim `G54` — zero detalu z lekcji T0.3. Wybór narzędzia i obrotów to moduł T2." },
+    { t: "p", x: "Po nim `G54` — zero detalu z lekcji T0.3. Wybór narzędzia i obrotów to moduł T2. Który z tych trybów maszyna ma aktywny zaraz po włączeniu, ustawiają parametry — dlatego program nie zakłada stanu domyślnego, tylko ustawia go sam." },
+    { t: "p", x: "G40 wyłącza tylko korekcję promienia ostrza (lekcja T4.1). Korekcja geometrii noża, czyli jego wymiary w X i Z, wchodzi z wywołaniem `T0101`. Czy maszyna wykonuje to przesunięcie od razu, czy przy pierwszym ruchu po wywołaniu, zależy od parametru sterowania (lekcja T2.1)." },
     { t: "diagram", id: "t13-skeleton" },
 
     { t: "h", x: "Odjazd: najpierw X", id: "odjazd" },
-    { t: "p", x: "Po obróbce nóż stoi blisko detalu, często przy stopniu albo w rowku. Ruch w Z od razu mógłby przeciągnąć ostrze po ściance albo uderzyć w wyższy stopień. Dlatego odjazd zaczyna się od X — nóż wychodzi promieniowo ponad detal — a dopiero potem jedzie w Z." },
+    { t: "p", x: "Po obróbce nóż stoi blisko detalu, często przy stopniu albo w rowku. Ruch w Z od razu mógłby przeciągnąć ostrze po ściance albo uderzyć w wyższy stopień. Dlatego przy obróbce zewnętrznej odjazd zaczyna się od X — nóż wychodzi promieniowo ponad detal — a dopiero potem jedzie w Z." },
+    { t: "note", kind: "warn", x: "Przy narzędziu wewnętrznym — wytaczaku, wiertle — kolejność jest odwrotna: najpierw wyjście z otworu w Z, potem X. Ruch w X z ostrzem w otworze wbiłby je w ściankę." },
     { t: "code", x: "G28 U0.   (NAJPIERW X DO PUNKTU REFERENCYJNEGO)\nG28 W0.   (POTEM Z)\nM30", caption: "U0 i W0 to przyrost zero — sterowanie jedzie do punktu referencyjnego bez punktu pośredniego (lekcja T1.2)." },
     { t: "note", kind: "info", x: "Wiele zakładów zamiast G28 używa odjazdu do stałego punktu wymiany narzędzia, np. `G00 X200. Z150.`. Zasada kolejności jest ta sama: jeśli jest ryzyko kolizji w Z, najpierw X." },
 
@@ -46,14 +48,15 @@ export const t1_3: LessonDoc = {
 
   worked: {
     title: "Początek i koniec programu wałka",
-    intro: "Program wałka ma już komentarze z zerem i surówką oraz G54. Brakuje trybów na starcie i zakończenia.",
+    intro: "Sytuacja: program wałka ma już komentarze z zerem i surówką, obroty i jedno przejście na Ø36. Brakuje trybów na starcie, zera detalu i zakończenia. Numery na rysunku to numery kroków — kroki 1 i 2 nie ruszają osiami, więc na rysunku są tylko 3 i 4.",
+    fig: "t13-exit",
     steps: [
       { x: "Tryby: płaszczyzna, jednostki, kasowanie korekcji i cykli, posuw na obrót.", code: "G18 G21 G40 G80 G99" },
       { x: "Zero detalu.", code: "G54" },
       { x: "Na końcu: odjazd w X, potem w Z.", code: "G28 U0. → G28 W0." },
-      { x: "Koniec i przewinięcie.", code: "M30" },
+      { x: "Koniec z przewinięciem. `M05` stoi już w programie przed odjazdem, więc wrzeciono jest zatrzymane.", code: "M30" },
     ],
-    result: "Program wałka ma teraz komplet początku i końca. Moduł T2 doda narzędzie, obroty i posuw.",
+    result: "Program wałka ma komplet początku i końca. Moduł T2 doda wybór narzędzia, obroty zależne od średnicy i posuw.",
   },
 
   practice: [
@@ -76,6 +79,7 @@ export const t1_3: LessonDoc = {
       intro: "Kolejność i znaczenie kodów startowych.",
       questions: [
         { kind: "order", q: "Ułóż zakończenie programu tokarskiego.", items: ["M30", "G28 W0.", "M05", "G28 U0."], answer: [2, 3, 1, 0], why: "Stop wrzeciona, odjazd X, odjazd Z, koniec." },
+        { kind: "gap", q: "Poprzedni program zostawił `G98` (posuw na minutę), a w bloku startowym brakuje `G99`. Ile razy wolniej niż zakładano pojedzie `G01 X36. F0.2` przy `G97 S1000`?", template: "{0} razy", answers: [["1000"]], why: "Zakładano 0,2 mm/obr · 1000 obr/min = 200 mm/min. Przy G98 F0.2 to 0,2 mm/min — tysiąc razy wolniej. Nóż prawie stoi w materiale i go grzeje." },
         { kind: "choice", q: "Po co `G99` w bloku startowym tokarki Fanuc?", options: ["ustawia posuw w mm/obr", "kasuje cykl", "wybiera płaszczyznę", "kończy program"], answer: 0, why: "F0.2 ma znaczyć 0,2 mm na obrót." },
       ],
     },
