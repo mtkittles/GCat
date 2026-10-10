@@ -59,9 +59,9 @@ export const f2_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G95 na frezarce", x: "Po programie z gwintowaniem zostało aktywne `G95`. `F400` znaczy wtedy 400 mm na obrót — przy S2500 to 1 000 000 mm/min. Sterowanie ograniczy posuw do maksymalnego posuwu roboczego z parametrów albo zgłosi alarm. Dlatego kompletny program ustawia `G94` na starcie." },
+    { title: "G95 na frezarce", danger: true, x: "Po programie z gwintowaniem zostało aktywne `G95`. `F400` znaczy wtedy 400 mm na obrót — przy S2500 to 1 000 000 mm/min. Sterowanie ograniczy posuw do maksymalnego posuwu roboczego z parametrów albo zgłosi alarm. Dlatego kompletny program ustawia `G94` na starcie." },
     { title: "Zła liczba ostrzy", x: "Frez 4-ostrzowy policzony jako 2-ostrzowy daje posuw dwa razy za mały. Ostrza trą zamiast skrawać i szybko się tępią." },
-    { title: "Zagłębianie posuwem konturowym", x: "`G01 Z-5.` nad materiałem z F ustawionym na kontur. Ostrza czołowe dostają posuw kilka razy większy niż dopuszczalny posuw wgłębny — grozi to wykruszeniem ostrzy albo złamaniem freza. Sprawdź posuw wgłębny w katalogu albo zejdź obok detalu." },
+    { title: "Zagłębianie posuwem konturowym", danger: true, x: "`G01 Z-5.` nad materiałem z F ustawionym na kontur. Ostrza czołowe dostają posuw kilka razy większy niż dopuszczalny posuw wgłębny — grozi to wykruszeniem ostrzy albo złamaniem freza. Sprawdź posuw wgłębny w katalogu albo zejdź obok detalu." },
     { title: "Za cienki wiór", x: "Przy wąskiej ścieżce (małe ae) fz z tabeli daje wiór cieńszy niż zakładany. Narzędzie się grzeje i ślizga. Stosuj korektę na pocienianie wióra z katalogu." },
   ],
 

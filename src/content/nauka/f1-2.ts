@@ -71,8 +71,8 @@ export const f1_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Zapomniany tryb z poprzedniej linii", x: "Po `G00 Z5.` programista dopisuje `X30.`, myśląc o skrawaniu. Frez pojedzie ruchem szybkim, bo G00 wciąż działa. Przed każdym wejściem w materiał sprawdź, jaki ruch jest aktywny." },
-    { title: "Stan zostawiony przez poprzedni program", x: "Program skończył się w `G91` albo z włączoną korekcją `G41`. Część sterowań nie przywraca wszystkich trybów domyślnych po M30 lub resecie, a następny program bez bloku startowego je przejmie." },
+    { title: "Zapomniany tryb z poprzedniej linii", danger: true, x: "Po `G00 Z5.` programista dopisuje `X30.`, myśląc o skrawaniu. Frez pojedzie ruchem szybkim, bo G00 wciąż działa. Przed każdym wejściem w materiał sprawdź, jaki ruch jest aktywny." },
+    { title: "Stan zostawiony przez poprzedni program", danger: true, x: "Program skończył się w `G91` albo z włączoną korekcją `G41`. Część sterowań nie przywraca wszystkich trybów domyślnych po M30 lub resecie, a następny program bez bloku startowego je przejmie." },
     { title: "Posuw poprzedniego narzędzia", x: "F jest modalne. Po wymianie narzędzia bez nowego F frez jedzie z posuwem ustawionym dla poprzedniego narzędzia." },
     { title: "Dwa kody z jednej grupy w bloku", x: "`G00 G01` w jednym bloku: Fanuc weźmie ostatni, inne sterowania mogą zgłosić alarm. W bloku stawiaj najwyżej jeden kod z każdej grupy." },
   ],

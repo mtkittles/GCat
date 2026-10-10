@@ -65,7 +65,7 @@ export const t0_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Promień zamiast średnicy", x: "Programista wpisuje promień z rysunku: `X15.` dla Ø30. Nóż toczy Ø15 — detal do wyrzucenia, a przy głębokim przejściu nóż wchodzi w materiał z ogromnym ap." },
+    { title: "Promień zamiast średnicy", danger: true, x: "Programista wpisuje promień z rysunku: `X15.` dla Ø30. Nóż toczy Ø15 — detal do wyrzucenia, a przy głębokim przejściu nóż wchodzi w materiał z ogromnym ap." },
     { title: "ap równe różnicy średnic", x: "Z Ø40 na Ø30 policzone jako 10 mm głębokości. Przejścia są zaplanowane dwa razy płycej, niż myślisz — albo, przy odwrotnej pomyłce, dwa razy głębiej." },
     { title: "Średnica w R łuku", x: "Promień zaokrąglenia R3 wpisany jako `R6.` przez analogię do X. R jest zawsze promieniem łuku." },
     { title: "Faza liczona jak na frezarce", x: "Faza 1 × 45° zapisana jako |ΔX| = 1 przy |ΔZ| = 1. W zapisie średnicowym promień zmienia się wtedy tylko o 0,5 mm na 1 mm długości — to nie faza 45°, tylko stożek o półkącie ok. 26,6° (tan α = 0,5). Dla fazy 1 × 45° potrzeba |ΔX| = 2 przy |ΔZ| = 1." },

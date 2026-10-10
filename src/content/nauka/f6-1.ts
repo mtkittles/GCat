@@ -88,7 +88,7 @@ export const f6_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Start nad detalem", x: "Głowica zjeżdża na Z0 nad materiałem i wchodzi czołem na pełnej szerokości. Płytki dostają uderzenie, a w miejscu wejścia zostaje ślad." },
+    { title: "Start nad detalem", danger: true, x: "Głowica zjeżdża na Z0 nad materiałem i wchodzi czołem na pełnej szerokości. Płytki dostają uderzenie, a w miejscu wejścia zostaje ślad." },
     { title: "Oś na krawędzi detalu", x: "Detal szeroki na połowę średnicy, oś na jego krawędzi. Każda płytka wchodzi w materiał na najgrubszym wiórze — płytki wykruszają się szybciej." },
     { title: "Za mały posuw przy 45°", x: "fz z tabeli dla frezu 90° użyte w głowicy 45°. Wiór jest o 30% cieńszy niż planowano, płytki trą i się grzeją." },
     { title: "Za krótki wybieg", x: "Przejście kończy się, zanim cała głowica opuści detal. Na końcu zostaje nieobrobiony sierp albo ślad po zatrzymaniu." },

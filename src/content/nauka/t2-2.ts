@@ -71,8 +71,8 @@ export const t2_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G96 bez G50", x: "Planowanie do osi przy G96 bez limitu: obroty rosną do maksimum maszyny. Szczęki tracą siłę mocowania, a detal może wypaść z uchwytu." },
-    { title: "G50 po G96", x: "Limit wpisany za blokiem z G96 M03. Wrzeciono rozpędza się przez chwilę bez ograniczenia — przy małej średnicy startu od razu do maksimum." },
+    { title: "G96 bez G50", danger: true, x: "Planowanie do osi przy G96 bez limitu: obroty rosną do maksimum maszyny. Szczęki tracą siłę mocowania, a detal może wypaść z uchwytu." },
+    { title: "G50 po G96", danger: true, x: "Limit wpisany za blokiem z G96 M03. Wrzeciono rozpędza się przez chwilę bez ograniczenia — przy małej średnicy startu od razu do maksimum." },
     { title: "S po zmianie trybu", x: "Po `G97` zostaje `S200` z G96 — wrzeciono kręci się 200 obr/min zamiast 200 m/min. Przy wierceniu czy gwintowaniu to kilkukrotnie za wolno." },
     { title: "Złe X0", x: "G96 liczy obroty z aktualnego X. Jeśli korekcja X noża jest błędna, sterowanie liczy obroty dla innej średnicy, niż toczy." },
   ],

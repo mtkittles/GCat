@@ -65,7 +65,7 @@ export const t0_3: LessonDoc = {
 
   pitfalls: [
     { title: "Z0 na surowym czole", x: "Pomiar na czole po piłowaniu, bez planowania. Czoło ma odchyłki rzędu dziesiątych milimetra — wszystkie długości w Z przesuną się o tyle samo." },
-    { title: "Stare Z0 po przełożeniu pręta", x: "Pręt wysunięty z uchwytu o 10 mm więcej, a przesunięcie zostało. Cały program przesuwa się o 10 mm — nóż zaczyna skrawać w powietrzu albo wchodzi za głęboko." },
+    { title: "Stare Z0 po przełożeniu pręta", danger: true, x: "Pręt wysunięty z uchwytu o 10 mm więcej, a przesunięcie zostało. Cały program przesuwa się o 10 mm — nóż zaczyna skrawać w powietrzu albo wchodzi za głęboko." },
     { title: "Kierunek łuku oceniany z miejsca operatora", x: "Na tokarce z głowicą przednią łuk z programu wygląda z miejsca operatora na odwrotny. Kierunek G02/G03 ocenia się według rysunku w układzie X w górę, a nie według tego, co widać przez szybę." },
   ],
 

@@ -91,8 +91,8 @@ export const t6_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Wiercenie w G96", x: "Po toczeniu z G96 program przechodzi do wiertła bez G97. Wrzeciono rozpędza się do limitu G50, a wiertło pracuje z prędkością kilkakrotnie za dużą." },
-    { title: "Wiertło poza osią", x: "Błędna korekcja X wiertła — X0 w programie nie trafia w oś. Wiertło wchodzi mimośrodowo, otwór jest za duży albo wiertło pęka." },
+    { title: "Wiercenie w G96", danger: true, x: "Po toczeniu z G96 program przechodzi do wiertła bez G97. Wrzeciono rozpędza się do limitu G50, a wiertło pracuje z prędkością kilkakrotnie za dużą." },
+    { title: "Wiertło poza osią", danger: true, x: "Błędna korekcja X wiertła — X0 w programie nie trafia w oś. Wiertło wchodzi mimośrodowo, otwór jest za duży albo wiertło pęka." },
     { title: "Q z kropką", x: "`Q3.` zamiast `Q3000`. Zależnie od parametru — alarm albo wejścia po 0,003 mm." },
   ],
 

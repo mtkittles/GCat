@@ -76,7 +76,7 @@ export const f1_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Zapomniane G90 po G91", x: "Po `G91 G28 Z0.` program wraca do skrawania blokiem `X20.`, myśląc o punkcie od W. Sterowanie odmierzy 20 mm od bieżącej pozycji. Dlatego w programie płytki zaraz po G28 stoi `G90`." },
+    { title: "Zapomniane G90 po G91", danger: true, x: "Po `G91 G28 Z0.` program wraca do skrawania blokiem `X20.`, myśląc o punkcie od W. Sterowanie odmierzy 20 mm od bieżącej pozycji. Dlatego w programie płytki zaraz po G28 stoi `G90`." },
     { title: "Błędy się sumują", x: "W G91 każdy blok zaczyna się tam, gdzie skończył poprzedni. Pomyłka w jednym bloku przesuwa cały dalszy tor, a nie tylko jeden punkt." },
     { title: "Z w G91", x: "`G91 Z-5.` to zejście o 5 mm od miejsca, w którym frez stoi, a nie na głębokość 5 mm pod Z0. Frez stojący na Z5. skończy na Z0." },
     { title: "Zaokrąglenia w długich łańcuchach", x: "Przyrosty zaokrąglane do 0,001 mm w wielu blokach mogą się zsumować do wartości innej niż wymiar z rysunku. Wymiary tolerowane programuj w G90, od bazy." },

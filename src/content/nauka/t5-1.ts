@@ -125,7 +125,7 @@ export const t5_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Punkt startowy w materiale", x: "Cykl wywołany z X38 Z2 przy pręcie Ø40. Pierwsza warstwa zaczyna się ruchem szybkim w X na średnicę mniejszą niż pręt, a start leży w materiale — cykl nie ma skąd bezpiecznie ruszyć." },
+    { title: "Punkt startowy w materiale", danger: true, x: "Cykl wywołany z X38 Z2 przy pręcie Ø40. Pierwsza warstwa zaczyna się ruchem szybkim w X na średnicę mniejszą niż pręt, a start leży w materiale — cykl nie ma skąd bezpiecznie ruszyć." },
     { title: "Pomylone znaczenia U", x: "`G71 U0.4 R0.5` — w pierwszym bloku U to głębokość. Cykl robi przejścia po 0,4 mm i trwa pięć razy dłużej." },
     { title: "Kontur z podcięciem", x: "Rowek pod gwint wpisany do konturu G71 typu I. X nie może tam maleć — cykl zgłosi alarm. Rowek robi się osobnym nożem (moduł T6)." },
     { title: "Brak N w konturze", x: "`P10 Q20`, a w programie nie ma bloku N20 — alarm. Numery N w konturze to jedyne, po czym cykl go znajduje." },

@@ -124,9 +124,11 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       </Sec>
 
       <Sec id="bledy" n={++n} title="Typowe błędy">
+        {doc.pitfalls.some((p) => p.danger) && <p className="ls-pit-key"><span><i className="is-danger" aria-hidden />czerwona karta — kolizja, uszkodzenie narzędzia albo zagrożenie dla operatora</span><span><i aria-hidden />szara — zły wymiar, alarm albo strata czasu</span></p>}
         <div className="ls-pits">
           {doc.pitfalls.map((p) => (
-            <div key={p.title} className="ls-pit">
+            <div key={p.title} className={p.danger ? "ls-pit is-danger" : "ls-pit"}>
+              {p.danger && <span className="ls-pit-tag">Groźne</span>}
               <h3>{p.title}</h3>
               <p>{rich(p.x)}</p>
               {p.fig && diagrams[p.fig]?.()}

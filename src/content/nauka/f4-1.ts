@@ -63,9 +63,9 @@ export const f4_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "H innego narzędzia", x: "`T2 M06`, a potem `G43 H1`. Wiertło dłuższe o 17,5 mm od frezu jedzie z długością frezu — czubek zejdzie 17,5 mm niżej, niż mówi program. W kursie H ma numer narzędzia — to konwencja, nie wymóg sterowania. Po każdej wymianie sprawdź, czy H wskazuje rejestr aktywnego narzędzia." },
-    { title: "Brak G43 po wymianie", x: "Program pominął `G43`. Sterowanie liczy bez długości narzędzia, a Z z programu odnosi się do czoła wrzeciona. Przy metodzie z długościami od N narzędzie wbije się w detal." },
-    { title: "G49 po G43", x: "`G49` wpisane w środek programu wyłącza korekcję. Następny ruch w Z przesunie wrzeciono o całą długość narzędzia." },
+    { title: "H innego narzędzia", danger: true, x: "`T2 M06`, a potem `G43 H1`. Wiertło dłuższe o 17,5 mm od frezu jedzie z długością frezu — czubek zejdzie 17,5 mm niżej, niż mówi program. W kursie H ma numer narzędzia — to konwencja, nie wymóg sterowania. Po każdej wymianie sprawdź, czy H wskazuje rejestr aktywnego narzędzia." },
+    { title: "Brak G43 po wymianie", danger: true, x: "Program pominął `G43`. Sterowanie liczy bez długości narzędzia, a Z z programu odnosi się do czoła wrzeciona. Przy metodzie z długościami od N narzędzie wbije się w detal." },
+    { title: "G49 po G43", danger: true, x: "`G49` wpisane w środek programu wyłącza korekcję. Następny ruch w Z przesunie wrzeciono o całą długość narzędzia." },
     { title: "Nowe narzędzie bez pomiaru", x: "Wymiana płytki albo przezbrojenie oprawki zmienia długość. Stara wartość w H daje błąd głębokości równy różnicy długości." },
   ],
 

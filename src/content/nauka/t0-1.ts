@@ -56,9 +56,9 @@ export const t0_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Pomylony znak Z", x: "`Z20` zamiast `Z-20`. Nóż jedzie 20 mm przed czoło, w powietrze. Odwrotna pomyłka — `Z-20` zamiast `Z20` przy odjeździe przed czoło — prowadzi nóż w detal albo w stronę uchwytu." },
+    { title: "Pomylony znak Z", danger: true, x: "`Z20` zamiast `Z-20`. Nóż jedzie 20 mm przed czoło, w powietrze. Odwrotna pomyłka — `Z-20` zamiast `Z20` przy odjeździe przed czoło — prowadzi nóż w detal albo w stronę uchwytu." },
     { title: "Wymiar od złej bazy", x: "Rysunek wymiaruje stopień od drugiego końca wałka, a Z0 leży na czole. Każdą długość trzeba przeliczyć na odległość od czoła, zanim trafi do programu." },
-    { title: "Uchwyt blisko konturu", x: "Wysięg 70 mm, a kontur kończy się w Z−55. Między końcem obróbki a szczękami zostaje 15 mm. Każdy ruch w stronę uchwytu sprawdzaj z długością wysięgu." },
+    { title: "Uchwyt blisko konturu", danger: true, x: "Wysięg 70 mm, a kontur kończy się w Z−55. Między końcem obróbki a szczękami zostaje 15 mm. Każdy ruch w stronę uchwytu sprawdzaj z długością wysięgu." },
   ],
 
   controllers: {

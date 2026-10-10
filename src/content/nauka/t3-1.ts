@@ -77,9 +77,9 @@ export const t3_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Powrót bez wyjścia w X", x: "`G00 Z2.` zaraz po toczeniu. Nóż jedzie ruchem szybkim wzdłuż świeżo toczonej średnicy — rysa na powierzchni, a przy stopniu uderzenie." },
-    { title: "Wejście ruchem szybkim w materiał", x: "`G00 X36.4` z nożem ustawionym za czołem (Z ujemne). Ruch szybki promieniowy wprost w pręt." },
-    { title: "Wyjście ruchem szybkim", x: "`G00 X42.` zamiast `G01`. Przy stopniu nóż jeszcze styka się z czołem stopnia — ruch szybki wyrywa ostrze albo zostawia ślad." },
+    { title: "Powrót bez wyjścia w X", danger: true, x: "`G00 Z2.` zaraz po toczeniu. Nóż jedzie ruchem szybkim wzdłuż świeżo toczonej średnicy — rysa na powierzchni, a przy stopniu uderzenie." },
+    { title: "Wejście ruchem szybkim w materiał", danger: true, x: "`G00 X36.4` z nożem ustawionym za czołem (Z ujemne). Ruch szybki promieniowy wprost w pręt." },
+    { title: "Wyjście ruchem szybkim", danger: true, x: "`G00 X42.` zamiast `G01`. Przy stopniu nóż jeszcze styka się z czołem stopnia — ruch szybki wyrywa ostrze albo zostawia ślad." },
   ],
 
   controllers: {

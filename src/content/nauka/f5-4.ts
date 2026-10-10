@@ -67,10 +67,10 @@ export const f5_4: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G99 przed przeszkodą", x: "Przejazd na wysokości R2 do otworu za dociskiem — ruch szybki prosto w docisk. Przed każdym przejazdem nad przeszkodą: G98 i poziom początkowy nad nią." },
-    { title: "Poziom początkowy za nisko", x: "Cykl zaczęty z Z5 — G98 wraca tylko na Z5. Poziom początkowy to Z sprzed cyklu, więc ustaw go świadomie ruchem `G00 Z…` przed pierwszym otworem." },
+    { title: "G99 przed przeszkodą", danger: true, x: "Przejazd na wysokości R2 do otworu za dociskiem — ruch szybki prosto w docisk. Przed każdym przejazdem nad przeszkodą: G98 i poziom początkowy nad nią." },
+    { title: "Poziom początkowy za nisko", danger: true, x: "Cykl zaczęty z Z5 — G98 wraca tylko na Z5. Poziom początkowy to Z sprzed cyklu, więc ustaw go świadomie ruchem `G00 Z…` przed pierwszym otworem." },
     { title: "Poziom początkowy za wysoko", x: "Cykl zaczęty zaraz po `G43 H2 Z200.` z G98: każdy otwór to 400 mm drogi w Z. Program działa, ale sztuka trwa niepotrzebnie długo." },
-    { title: "Brak G80 przed zmianą narzędzia", x: "Przejazd do wymiany po cyklu bez G80 może wywołać otwór w miejscu, w którym nikt go nie planował." },
+    { title: "Brak G80 przed zmianą narzędzia", danger: true, x: "Przejazd do wymiany po cyklu bez G80 może wywołać otwór w miejscu, w którym nikt go nie planował." },
   ],
 
   controllers: {

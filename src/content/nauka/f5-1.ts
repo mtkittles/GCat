@@ -98,9 +98,9 @@ export const f5_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Brak G80 po cyklu", x: "Po ostatnim otworze program jedzie `G00 X-20. Y10.` do następnej operacji. Cykl jest wciąż aktywny, więc w X−20 Y10 powstaje otwór — często w imadle." },
+    { title: "Brak G80 po cyklu", danger: true, x: "Po ostatnim otworze program jedzie `G00 X-20. Y10.` do następnej operacji. Cykl jest wciąż aktywny, więc w X−20 Y10 powstaje otwór — często w imadle." },
     { title: "Z dodatnie w cyklu", x: "`Z3.` zamiast `Z-3.` — dno nad powierzchnią. Sterowanie zgłosi alarm albo narzędzie nic nie zrobi, zależnie od położenia R." },
-    { title: "R poniżej powierzchni", x: "`R-2.` na nierównym odlewie albo przy pomyłce znaku: ruch szybki do R kończy się w materiale. R zawsze nad najwyższym punktem powierzchni." },
+    { title: "R poniżej powierzchni", danger: true, x: "`R-2.` na nierównym odlewie albo przy pomyłce znaku: ruch szybki do R kończy się w materiale. R zawsze nad najwyższym punktem powierzchni." },
     { title: "P z kropką", x: "`P0.2` zamiast `P200`. Na wielu Fanucach P nie przyjmuje kropki — alarm albo postój liczony inaczej, niż zamierzałeś." },
   ],
 

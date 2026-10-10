@@ -65,7 +65,7 @@ export const f1_4: LessonDoc = {
   pitfalls: [
     { title: "Program calowy bez G20", x: "Program przepisany z rysunku w calach, ale bez `G20`, a sterowanie jest w G21. `X2.` to wtedy 2 mm zamiast 50,8 mm — detal wychodzi ponad 25 razy mniejszy. Odwrotny błąd daje ruchy 25 razy dłuższe." },
     { title: "G18 zostawione przez poprzedni program", x: "Po programie z łukami w pionie aktywne zostało `G18`. Łuk `G02 X… Y…` w nowym programie leży wtedy w złej płaszczyźnie: sterowanie zgłosi alarm albo pojedzie innym torem. Dlatego blok startowy w kursie ustawia `G17`." },
-    { title: "Posuw w calach", x: "Przy G20 `F10.` to 10 cali na minutę, czyli 254 mm/min. Posuw przepisany z tabeli metrycznej do programu calowego jest 25 razy za duży." },
+    { title: "Posuw w calach", danger: true, x: "Przy G20 `F10.` to 10 cali na minutę, czyli 254 mm/min. Posuw przepisany z tabeli metrycznej do programu calowego jest 25 razy za duży." },
   ],
 
   controllers: {

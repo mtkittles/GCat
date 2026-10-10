@@ -91,8 +91,8 @@ export const f3_2: LessonDoc = {
   pitfalls: [
     { title: "G01 bez F", x: "Pierwszy G01 w programie bez posuwu: alarm. Gorzej, gdy F zostało z poprzedniego narzędzia — maszyna pojedzie, ale z posuwem, który do tego narzędzia nie pasuje." },
     { title: "Zapomniany promień", x: "Tor poprowadzony po samym konturze, X0…X80, a nie X−5…X85. Frez zbiera po 5 mm z każdej strony i detal wychodzi 10 mm mniejszy." },
-    { title: "Wejście nad detalem", x: "`G01 Z-5.` wpisane, gdy frez stoi nad płytką, a nie obok niej. Frez wchodzi pionowo w pełny materiał — wiele frezów nie ma ostrza przez środek i tak nie skrawa." },
-    { title: "Wejście z posuwem konturowym", x: "Jedno F400 dla całego ruchu, także dla zejścia w Z. Ostrza czołowe są przeciążone." },
+    { title: "Wejście nad detalem", danger: true, x: "`G01 Z-5.` wpisane, gdy frez stoi nad płytką, a nie obok niej. Frez wchodzi pionowo w pełny materiał — wiele frezów nie ma ostrza przez środek i tak nie skrawa." },
+    { title: "Wejście z posuwem konturowym", danger: true, x: "Jedno F400 dla całego ruchu, także dla zejścia w Z. Ostrza czołowe są przeciążone." },
   ],
 
   controllers: {

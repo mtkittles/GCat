@@ -77,10 +77,10 @@ export const f3_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Zjazd w Z razem z XY", x: "`G00 X-20. Y10. Z5.` przy niezależnym ruchu osi może zejść nisko jeszcze nad detalem i dalej jechać poziomo, prosto na docisk albo szczękę imadła." },
-    { title: "G00 zostawione przed skrawaniem", x: "Po `G00 Z5.` programista pisze `Z-5.`, zapominając o G01. G00 jest modalne, więc frez wejdzie w materiał ruchem szybkim (lekcja F1.2)." },
-    { title: "Za niska wysokość bezpieczna", x: "Z10 wystarcza nad płytką, ale nie nad śrubą docisku wystającą 25 mm. Wysokość bezpieczna liczy się od najwyższej przeszkody na stole, a nie od detalu." },
-    { title: "Pełna prędkość przy pierwszym uruchomieniu", x: "Nowy program odpalony z korektorem ruchu szybkiego na 100% nie daje czasu na reakcję. Pierwsza sztuka: 25% i praca blok po bloku." },
+    { title: "Zjazd w Z razem z XY", danger: true, x: "`G00 X-20. Y10. Z5.` przy niezależnym ruchu osi może zejść nisko jeszcze nad detalem i dalej jechać poziomo, prosto na docisk albo szczękę imadła." },
+    { title: "G00 zostawione przed skrawaniem", danger: true, x: "Po `G00 Z5.` programista pisze `Z-5.`, zapominając o G01. G00 jest modalne, więc frez wejdzie w materiał ruchem szybkim (lekcja F1.2)." },
+    { title: "Za niska wysokość bezpieczna", danger: true, x: "Z10 wystarcza nad płytką, ale nie nad śrubą docisku wystającą 25 mm. Wysokość bezpieczna liczy się od najwyższej przeszkody na stole, a nie od detalu." },
+    { title: "Pełna prędkość przy pierwszym uruchomieniu", danger: true, x: "Nowy program odpalony z korektorem ruchu szybkiego na 100% nie daje czasu na reakcję. Pierwsza sztuka: 25% i praca blok po bloku." },
   ],
 
   controllers: {

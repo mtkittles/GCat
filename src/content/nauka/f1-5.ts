@@ -79,10 +79,10 @@ export const f1_5: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Aktywny cykl z poprzedniego programu", x: "Program z otworami skończył się bez `G80`. Następny program bez bloku startowego pierwszym ruchem w XY wywierci otwór tam, gdzie miał tylko przejechać." },
-    { title: "Koniec bez odjazdu w Z", x: "Program kończy się z narzędziem 2 mm nad detalem. Operator wyjmuje detal ręką przy frezie, a następny program startuje ruchem szybkim z niskiej wysokości." },
+    { title: "Aktywny cykl z poprzedniego programu", danger: true, x: "Program z otworami skończył się bez `G80`. Następny program bez bloku startowego pierwszym ruchem w XY wywierci otwór tam, gdzie miał tylko przejechać." },
+    { title: "Koniec bez odjazdu w Z", danger: true, x: "Program kończy się z narzędziem 2 mm nad detalem. Operator wyjmuje detal ręką przy frezie, a następny program startuje ruchem szybkim z niskiej wysokości." },
     { title: "M00 zamiast M01", x: "`M00` zatrzymuje program zawsze. Zostawiony po pierwszej sztuce zatrzymuje każdą następną, aż ktoś go usunie." },
-    { title: "G49 po włączeniu korekcji", x: "`G49` stoi w bloku startowym, na początku. Wpisane po `G43` wyłączyłoby korekcję długości, której program właśnie potrzebuje (lekcja F4.1)." },
+    { title: "G49 po włączeniu korekcji", danger: true, x: "`G49` stoi w bloku startowym, na początku. Wpisane po `G43` wyłączyłoby korekcję długości, której program właśnie potrzebuje (lekcja F4.1)." },
   ],
 
   controllers: {

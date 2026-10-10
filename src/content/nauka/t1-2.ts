@@ -90,9 +90,9 @@ export const t1_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G90 przeniesione z frezarki", x: "Programista pisze na początku programu tokarskiego `G90` „dla pewności”. W systemie A sterowanie odczyta to jako cykl toczenia z bieżącymi wartościami albo zgłosi alarm." },
+    { title: "G90 przeniesione z frezarki", danger: true, x: "Programista pisze na początku programu tokarskiego `G90` „dla pewności”. W systemie A sterowanie odczyta to jako cykl toczenia z bieżącymi wartościami albo zgłosi alarm." },
     { title: "U w promieniu", x: "`U-4.` z myślą o zejściu 4 mm na stronę. U jest w średnicy — nóż zejdzie 2 mm. Na 4 mm na stronę potrzeba `U-8.`." },
-    { title: "Program z innego systemu kodów", x: "Program z tokarki w systemie B (z G90/G91) uruchomiony na maszynie w systemie A. Bloki z G90 staną się cyklami, a współrzędne po G91 — absolutnymi." },
+    { title: "Program z innego systemu kodów", danger: true, x: "Program z tokarki w systemie B (z G90/G91) uruchomiony na maszynie w systemie A. Bloki z G90 staną się cyklami, a współrzędne po G91 — absolutnymi." },
   ],
 
   controllers: {

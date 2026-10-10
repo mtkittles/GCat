@@ -86,7 +86,7 @@ export const t1_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Odjazd w Z przy stopniu", x: "Nóż kończy toczenie Ø30 tuż przy stopniu Ø36 i program jedzie `G28 W0.` jako pierwszy. Ostrze trze po czole stopnia albo w nie uderza. Najpierw X." },
+    { title: "Odjazd w Z przy stopniu", danger: true, x: "Nóż kończy toczenie Ø30 tuż przy stopniu Ø36 i program jedzie `G28 W0.` jako pierwszy. Ostrze trze po czole stopnia albo w nie uderza. Najpierw X." },
     { title: "Brak G99", x: "Poprzedni program zostawił G98 (mm/min). `F0.2` to wtedy 0,2 mm na minutę — nóż prawie stoi w materiale i go grzeje, a obróbka trwa godziny." },
     { title: "G17 z frezarki", x: "Blok startowy przepisany z programu frezarskiego: `G17` zamiast `G18`. Łuki i korekcja ostrza trafiają do złej płaszczyzny." },
   ],
