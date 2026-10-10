@@ -44,12 +44,13 @@ export const f3_4: LessonDoc = {
 
   worked: {
     title: "Naroże płytki przez I, J",
-    intro: "Ten sam łuk co w F3.3: start X−5 Y40, koniec X10 Y55, środek X10 Y40.",
+    intro: "Sytuacja: to samo naroże co w F3.3 — start łuku X−5 Y40, koniec X10 Y55, środek X10 Y40. Tym razem zamiast R podajesz położenie środka: I i J to przesunięcie od startu łuku do środka. Numery odpowiadają rysunkowi.",
+    fig: "f34-ij",
     steps: [
-      { x: "I: X środka − X startu = 10 − (−5).", code: "I15." },
-      { x: "J: Y środka − Y startu = 40 − 40.", code: "J0." },
-      { x: "Kierunek bez zmian, zgodnie z zegarem.", code: "G02" },
-      { x: "Blok kompletny.", code: "G02 X10. Y55. I15. J0." },
+      { x: "Krok 1, I: X środka − X startu = 10 − (−5).", code: "I15." },
+      { x: "Krok 2, J: Y środka − Y startu = 40 − 40.", code: "J0." },
+      { x: "Krok 3: kierunek bez zmian, zgodnie z zegarem.", code: "G02" },
+      { x: "Krok 4: punkt końcowy i blok kompletny.", code: "G02 X10. Y55. I15. J0." },
     ],
     result: "Ten sam tor co `G02 X10. Y55. R15.`. Zapis `J0.` można pominąć — oś bez przesunięcia ma wartość 0.",
   },
@@ -73,6 +74,7 @@ export const f3_4: LessonDoc = {
 
         { kind: "gap", q: "Start X20 Y10, środek X20 Y30. Podaj I i J.", template: "I{0} J{1}", answers: [["0"], ["20"]], why: "I = 20 − 20 = 0, J = 30 − 10 = 20." },
         { kind: "gap", q: "Start X60 Y40, środek X45 Y40. Podaj I.", template: "I{0}", answers: [["-15"]], why: "45 − 60 = −15." },
+        { kind: "choice", q: "W przykładzie wpisano `I-15.` zamiast `I15.`. Co zrobi sterowanie?", options: ["najpewniej alarm: środek X−20 Y40 nie pasuje do punktu końcowego", "pojedzie tym samym łukiem", "zrobi pełny okrąg", "pojedzie po prostej"], answer: 0, why: "Środek wypada w X−20 Y40. Start jest 15 mm od niego, koniec X10 Y55 — ok. 33,5 mm. Promienie się nie zgadzają, więc Fanuc zgłasza alarm, jeśli różnica przekracza tolerancję ustawioną parametrem." },
         { kind: "choice", q: "Start X10 Y0, blok `G03 I-10.`. Gdzie jest środek?", options: ["X0 Y0", "X20 Y0", "X−10 Y0", "X10 Y−10"], answer: 0, why: "10 + (−10) = 0." },
       ],
     },

@@ -29,7 +29,6 @@ export const f3_1: LessonDoc = {
     { t: "h", x: "Tor nie zawsze jest prosty", id: "tor" },
     { t: "p", x: "Na wielu maszynach przy G00 każda oś jedzie niezależnie, z własną pełną prędkością. Oś z krótszą drogą kończy wcześniej, a narzędzie dojeżdża do celu po łamanej, a nie po odcinku. Czy tak jest na Twojej maszynie, decyduje parametr sterowania." },
     { t: "diagram", id: "rapid-path" },
-    { t: "diagram", id: "f31-approach" },
 
     { t: "h", x: "Bezpieczna kolejność", id: "kolejnosc" },
     { t: "ul", items: [
@@ -42,14 +41,15 @@ export const f3_1: LessonDoc = {
 
   worked: {
     title: "Najazd na start konturu płytki",
-    intro: "Frez Ø10 stoi w X40. Y25. Z50., nad środkiem płytki. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10.",
+    intro: "Sytuacja: frez Ø10 stoi w X40 Y25 Z50, nad środkiem płytki. Przy lewej krawędzi płytki stoi docisk. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10. Rysunek pokazuje widok z boku i oba możliwe najazdy.",
+    fig: "f31-approach",
     steps: [
-      { x: "Zostaw Z50 i przejedź w XY. Frez leci wysoko nad detalem i dociskami.", code: "G00 X-20. Y10." },
-      { x: "Sprawdź odstęp. Promień freza to 5 mm, więc krawędź bliższa płytce leży w X−20 + 5 = X−15, a druga w X−25. Płytka zaczyna się w X0 — zostaje 15 mm. Uchwyty sprawdzasz osobno.", code: "−20 + 5 = −15" },
-      { x: "Teraz sam Z w dół, do płaszczyzny zbliżenia 5 mm nad powierzchnią.", code: "G00 Z5." },
+      { x: "Krok 1 na rysunku: zostaw Z50 i przejedź w XY. Frez leci wysoko nad detalem i dociskiem.", code: "G00 X-20. Y10." },
+      { x: "Sprawdź odstęp. Promień freza to 5 mm, więc krawędź bliższa płytce leży w X−20 + 5 = X−15, a druga w X−25. Płytka zaczyna się w X0 — zostaje 15 mm. Docisk i szczęki sprawdzasz osobno.", code: "−20 + 5 = −15" },
+      { x: "Krok 2: teraz sam Z w dół, do płaszczyzny zbliżenia 5 mm nad powierzchnią.", code: "G00 Z5." },
       { x: "Dalej zejście na głębokość — obok płytki, w powietrzu — już z posuwem (lekcja F3.2).", code: "G01 Z-5. F150" },
     ],
-    result: "Dwa bloki zamiast jednego. Zapis `G00 X-20. Y10. Z5.` jest krótszy, ale tor zależy wtedy od parametru maszyny i może przejść nisko nad dociskami.",
+    result: "Dwa bloki zamiast jednego. Zapis `G00 X-20. Y10. Z5.` (czerwona linia) jest krótszy, ale tor zależy wtedy od maszyny: oś Z może skończyć wcześniej, a reszta drogi pobiegnie nisko nad dociskiem.",
   },
 
   practice: [
@@ -69,6 +69,7 @@ export const f3_1: LessonDoc = {
       kind: "drill",
       intro: "Krótkie pytania o ruch szybki.",
       questions: [
+        { kind: "choice", q: "W przykładzie zamieniono kolejność: najpierw `G00 Z5.`, potem `G00 X-20. Y10.`. Co się stanie przy drugim bloku?", options: ["frez przeleci 5 mm nad płytką — prosto w docisk wyższy niż 5 mm", "nic, kolejność bloków nie ma znaczenia", "sterowanie samo podniesie frez nad docisk", "frez pojedzie z posuwem roboczym"], answer: 0, why: "Po pierwszym bloku frez jest już na Z5 nad środkiem płytki. Przejazd w XY odbywa się na tej wysokości, a docisk wystaje wyżej — stąd zasada: XY wysoko, potem Z." },
         { kind: "choice", q: "Frez stoi w Z5. nad detalem, ma przejechać w inne miejsce. Co najpierw?", options: ["G00 w XY", "G00 w Z do góry", "G01 w XY", "wszystko w jednym bloku"], answer: 1, why: "Odjazd: najpierw Z w górę, potem XY." },
         { kind: "token", q: "Który blok jest **niebezpieczny** przy imadle obok detalu? Wskaż go.", block: "G00 Z50. | G00 X-20. Y10. | G00 X-20. Y10. Z5.", answer: 2, why: "Ruch ze zjazdem w Z i przejazdem w XY naraz może pójść nisko nad szczękami." },
       ],

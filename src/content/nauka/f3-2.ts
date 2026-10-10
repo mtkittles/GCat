@@ -56,12 +56,13 @@ export const f3_2: LessonDoc = {
 
   worked: {
     title: "Policz tor środka dla konturu płytki",
-    intro: "Płytka 80 × 50, zero W w lewym dolnym narożniku, frez Ø10 (r = 5). Obieg zgodnie z zegarem, start obok lewej krawędzi.",
+    intro: "Sytuacja: płytka 80 × 50, zero W w lewym dolnym narożniku. Frez Ø10 (r = 5) zszedł obok płytki w X−20 Y10 na Z−5. Ma obejść cały obwód zgodnie z zegarem. Program podaje środek freza, a rysunek ma wymiary krawędzi — trzeba je przeliczyć. Numery odpowiadają krawędziom na rysunku.",
+    fig: "f32-path",
     steps: [
-      { x: "Lewa krawędź X0, frez na zewnątrz: 0 − 5.", code: "X-5." },
-      { x: "Górna krawędź Y50: 50 + 5.", code: "Y55." },
-      { x: "Prawa krawędź X80: 80 + 5.", code: "X85." },
-      { x: "Dolna krawędź Y0: 0 − 5.", code: "Y-5." },
+      { x: "Krok 1, lewa krawędź X0: frez na zewnątrz, czyli 0 − 5.", code: "X-5." },
+      { x: "Krok 2, górna krawędź Y50: 50 + 5.", code: "Y55." },
+      { x: "Krok 3, prawa krawędź X80: 80 + 5.", code: "X85." },
+      { x: "Krok 4, dolna krawędź Y0: 0 − 5.", code: "Y-5." },
     ],
     result: "Obieg: `Y55.` → `X85.` → `Y-5.` → `X-5.` → `Y10.` (domknięcie do punktu wejścia). Naroża toru są ostre — detal też. Zaokrąglenia R10 doda lekcja F3.3.",
   },
@@ -77,6 +78,13 @@ export const f3_2: LessonDoc = {
       ],
       hints: ["Zejście: G01 Z-5. F150 — frez stoi już nad X−20 Y10.", "Kontur: X−5, potem Y55, X85, Y−5, X−5 i powrót do Y10. Posuw F400 wpisz w pierwszym bloku konturu."],
       solution: starter.replace("(DOPISZ: ZEJSCIE NA Z-5, DOJAZD DO X-5 I OBIEG KONTURU)\n", cut),
+    },
+    {
+      kind: "drill",
+      intro: "Przewidź, zanim uruchomisz symulator.",
+      questions: [
+        { kind: "choice", q: "W obiegu z przykładu pomylono znak: zamiast `Y-5.` jest `Y5.`. Co się stanie na prawej krawędzi i potem?", options: ["frez zatrzyma się w X85 Y5, a powrót do X−5 przetnie płytkę na głębokości 5 mm", "nic, sterowanie poprawi znak", "frez obejdzie płytkę 10 mm wyżej", "alarm — ujemny wymiar"], answer: 0, why: "Środek w Y5 to 5 mm nad krawędzią Y0, więc frez Ø10 sięga Y0–Y10. Ruch w X wzdłuż Y5 przechodzi przez materiał płytki — zamiast obejścia jest cięcie." },
+      ],
     },
   ],
 
