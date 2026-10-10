@@ -50,7 +50,6 @@ export const f7_1: LessonDoc = {
     ] },
 
     { t: "h", x: "Wywołanie i powrót", id: "budowa" },
-    { t: "diagram", id: "f71-flow" },
     { t: "table", head: ["Zapis", "Znaczenie"], rows: [
       ["`M98 P2000`", "jedno wywołanie podprogramu O2000"],
       ["`M98 P2000 L4`", "cztery wywołania — powtórzenia w adresie L"],
@@ -70,7 +69,8 @@ export const f7_1: LessonDoc = {
 
   worked: {
     title: "Spirala z F6.3 jako podprogram",
-    intro: "Cztery bloki `G03 I-3. Z-1.` … `Z-4.` mają zastąpić jedno wywołanie. Frez stoi w X63 Y25 na Z0.",
+    intro: "Sytuacja: w programie kieszeni z F6.3 cztery bloki `G03 I-3. Z-1.` … `Z-4.` różnią się tylko głębokością. Mają zostać zastąpione jednym wywołaniem podprogramu. Frez stoi w X63 Y25 na Z0. Rysunek pokazuje przepływ: wywołanie, cztery przebiegi i powrót.",
+    fig: "f71-flow",
     steps: [
       { x: "Jeden zwój przyrostowo: pełny obrót i 1 mm w dół.", code: "G91 G03 I-3. Z-1." },
       { x: "Powrót do wymiarów absolutnych przed wyjściem.", code: "G90" },
@@ -99,6 +99,7 @@ export const f7_1: LessonDoc = {
       intro: "Zapis wywołań i budowa podprogramu.",
       questions: [
         { kind: "gap", q: "`M98 P31500` — ile przebiegów i który podprogram?", template: "{0} × O{1}", answers: [["3"], ["1500"]], why: "Ostatnie cztery cyfry to numer, cyfry przed nimi — liczba powtórzeń." },
+        { kind: "choice", q: "W podprogramie z przykładu ktoś usunął `G90` przed `M99`. Co się stanie po powrocie do programu głównego?", options: ["dalsze bloki programu głównego wykonają się w G91 — jako przyrosty", "nic, M99 przywraca G90", "alarm przy M99", "spirala wykona się raz"], answer: 0, why: "G91 jest modalne i zostaje po powrocie. Kolejne współrzędne programu głównego, np. najazd na ścianę, będą przesunięciami od bieżącej pozycji zamiast punktami od W." },
         { kind: "order", q: "Ułóż podprogram jednego zwoju spirali.", items: ["M99", "O2000", "G90", "G91 G03 I-3. Z-1."], answer: [1, 3, 2, 0], why: "Numer, ruch przyrostowy, powrót do G90, koniec." },
         { kind: "choice", q: "Podprogram `G90 G03 I-3. Z-1.` wywołany 4 razy. Na jakiej głębokości skończy się spirala?", options: ["Z−1 — każdy przebieg jedzie do tego samego Z", "Z−4", "Z0", "alarm"], answer: 0, why: "W G90 Z−1 to położenie absolutne, a nie przyrost." },
       ],

@@ -11,7 +11,6 @@ export const f7_2: LessonDoc = {
   theory: [
     { t: "h", x: "Plik zamiast numeru", id: "pliki" },
     { t: "p", x: "Sinumerik trzyma program główny w pliku .MPF, a podprogram w osobnym pliku .SPF — w katalogu detalu albo w katalogu podprogramów. Podprogram wywołuje się jego **nazwą**, bez M98. Nazwa może być opisowa, np. `SPIRALA`, albo w starym stylu `L2000`." },
-    { t: "diagram", id: "f72-flow" },
     { t: "table", head: ["Zapis", "Znaczenie"], rows: [
       ["`SPIRALA`", "jedno wywołanie podprogramu SPIRALA.SPF"],
       ["`SPIRALA P4`", "cztery przebiegi"],
@@ -36,7 +35,8 @@ export const f7_2: LessonDoc = {
 
   worked: {
     title: "Spirala płytki na Sinumeriku",
-    intro: "Ten sam podprogram co w F7.1, przeniesiony do składni Siemensa.",
+    intro: "Sytuacja: ten sam podprogram spirali co w F7.1 ma działać na sterowaniu SINUMERIK w języku natywnym. Na Siemensie podprogram to osobny plik .SPF wywoływany nazwą. Rysunek pokazuje program główny PLYTKA.MPF i plik SPIRALA.SPF.",
+    fig: "f72-flow",
     steps: [
       { x: "Treść podprogramu do pliku SPIRALA.SPF, bez kropek i bez numeru O.", code: "G91 G3 I-3 Z-1" },
       { x: "Przywrócenie wymiarów absolutnych — tak samo jak na Fanucu.", code: "G90" },
@@ -54,6 +54,7 @@ export const f7_2: LessonDoc = {
         { kind: "token", q: "Wskaż blok, który **wywołuje podprogram** 3 razy.", block: "G0 X10 Y10 | KIESZEN P3 | RET", answer: 1, why: "Nazwa podprogramu i P3." },
         { kind: "order", q: "Ułóż plik podprogramu z parametrami.", items: ["RET", "PROC OTWOR(REAL XP, REAL YP)", "G0 X=XP Y=YP"], answer: [1, 2, 0], why: "Deklaracja, treść, koniec." },
         { kind: "choice", q: "Czym kończy się podprogram w natywnym języku Siemensa (SINUMERIK)?", options: ["RET albo M17", "M99", "M30", "M98"], answer: 0, why: "M99 to zapis Fanuca — SINUMERIK rozumie go tylko w trybie ISO." },
+        { kind: "choice", q: "W programie z przykładu wywołanie skrócono do `SPIRALA` — bez `P4`. Jak głęboka będzie kieszeń po spirali?", options: ["1 mm — podprogram wykona się raz", "4 mm, jak wcześniej", "alarm — brak liczby przebiegów", "0 mm"], answer: 0, why: "Bez P podprogram wykonuje się jeden raz. Jeden zwój schodzi o 1 mm, więc kieszeń ma 1 mm zamiast 4." },
         { kind: "gap", q: "Zapisz 6 przebiegów podprogramu ROWEK.", template: "ROWEK P{0}", answers: [["6"]], why: "P podaje liczbę przebiegów." },
       ],
     },

@@ -45,7 +45,6 @@ export const f6_3: LessonDoc = {
     { t: "p", x: "Kąt spirali liczy się jak kąt rampy: skok na obwód. Promień 3 mm to obwód 18,8 mm, skok 1 mm daje około 3°. Frez bez ostrza przez środek zostawiłby przy zbyt małym promieniu spirali rdzeń w środku — minimalną średnicę otworu dla wejścia po spirali podaje katalog." },
 
     { t: "h", x: "Wykończenie ściany", id: "wykonczenie" },
-    { t: "diagram", id: "f63-circle" },
     { t: "ul", items: [
       "Spirala o promieniu 3 mm frezem Ø10 wybiera środek do promienia 8 mm. Na ścianie zostają 2 mm.",
       "Najazd: odcinek z G41 w dół, potem łuk R7 styczny do ściany. Promień łuku najazdu musi być większy niż promień freza (5) i mniejszy niż promień kieszeni (10).",
@@ -59,7 +58,8 @@ export const f6_3: LessonDoc = {
 
   worked: {
     title: "Kieszeń Ø20 w płytce",
-    intro: "Środek X60 Y25, głębokość 4 mm, frez Ø10.",
+    intro: "Sytuacja: kieszeń Ø20 o środku X60 Y25 i głębokości 4 mm, frez Ø10. Nie ma otworu wstępnego, więc frez schodzi spiralą, potem wykańcza ścianę pełnym okręgiem z korekcją. Rysunek pokazuje spiralę, najazd, okrąg i odjazd.",
+    fig: "f63-circle",
     steps: [
       { x: "Start spirali 3 mm na prawo od środka.", code: "G00 X63. Y25." },
       { x: "Cztery zwoje po 1 mm i obrót na dnie. I = 60 − 63.", code: "G03 I-3. Z-1. … Z-4." },
@@ -88,6 +88,7 @@ export const f6_3: LessonDoc = {
       intro: "Spirala i łuki najazdu.",
       questions: [
         { kind: "gap", q: "Spirala o promieniu 4 mm schodzi 1,5 mm na obrót. Pod jakim kątem schodzi frez (stopnie, w przybliżeniu)?", template: "{0}°", answers: [["3.4", "3,4", "3"]], why: "Obwód 25,1 mm, atan(1,5 / 25,1) ≈ 3,4°." },
+        { kind: "choice", q: "W przykładzie założono frez Ø16 zamiast Ø10, a spirala została `G03 I-3.`. Co stanie się w kieszeni Ø20?", options: ["spirala wytnie Ø22 — 1 mm w ścianę z każdej strony", "spirala zmieści się w kieszeni", "frez nie dotknie materiału", "alarm — za duży frez"], answer: 0, why: "Zasięg spirali to promień toru + promień freza: 3 + 8 = 11 mm, czyli Ø22. Kieszeń ma Ø20, więc spirala podcina ścianę, zanim zacznie się przejście wykańczające." },
         { kind: "choice", q: "Kieszeń Ø30, frez Ø12. Który promień łuku najazdu jest poprawny?", options: ["R10", "R5", "R16", "R6"], answer: 0, why: "Większy niż 6 (promień freza) i mniejszy niż 15 (promień kieszeni)." },
         { kind: "gap", q: "Kieszeń wyszła Ø25,06 zamiast Ø25,00. O ile zmienisz D?", template: "{0}", answers: [["+0.03", "0.03", "+0,03", "0,03"]], why: "Za duża o 0,06 — zwiększasz D o połowę, frez odsuwa się od ściany." },
       ],
