@@ -51,6 +51,7 @@ import { t6_2 } from "@/content/nauka/t6-2";
 import { t7_1 } from "@/content/nauka/t7-1";
 import { t7_2 } from "@/content/nauka/t7-2";
 import { t8_1 } from "@/content/nauka/t8-1";
+import { t9_1 } from "@/content/nauka/t9-1";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -180,6 +181,9 @@ export const tracks: Record<Track, TrackDef> = {
       ] },
       { id: "T8", title: "Podprogramy", skill: "Przeniesiesz powtarzalny fragment programu tokarskiego do podprogramu.", lessons: [
         L("T8.1", "Podprogramy na tokarce", t8_1),
+      ] },
+      { id: "T9", title: "Zadanie końcowe", skill: "Napiszesz od pustej strony program toczenia nowego wałka — z innymi średnicami i nożem o innym promieniu ostrza.", lessons: [
+        L("T9.1", "Zadanie końcowe: nowy wałek", t9_1),
       ] },
     ],
   },
