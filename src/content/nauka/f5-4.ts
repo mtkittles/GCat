@@ -81,7 +81,7 @@ export const f5_4: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F5.3", q: "Gwintownik M8×1,25, S400, posuw minutowy (G94). Jaki posuw F wpiszesz w G84?", template: "F{0}", answers: [["500"]], why: "400 · 1,25 = 500." },
+    { kind: "gap", review: "F5.1", q: "Nawiertak 90° ma zrobić fazkę Ø6 pod gwint M6. Na jakie Z zaprogramujesz dno w G82?", template: "Z{0}", answers: [["-3", "-3."]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 6 / 2 = 3, więc Z−3 — tak jak w programie płytki." },
     { kind: "choice", q: "Dokąd wraca narzędzie po otworze z G98?", options: ["do poziomu początkowego", "do płaszczyzny R", "do Z0", "do punktu referencyjnego"], answer: 0, why: "G98 — poziom sprzed cyklu." },
     { kind: "choice", q: "Co wyznacza poziom początkowy?", options: ["ostatnie Z przed cyklem", "adres R", "G54", "parametr maszyny"], answer: 0, why: "To wysokość, na której narzędzie stało przed cyklem." },
     { kind: "choice", q: "Czy G98/G99 można zmieniać między otworami w trakcie cyklu?", options: ["tak, oba są modalne", "nie, tylko przed cyklem", "tylko na Sinumeriku", "tylko z G80"], answer: 0, why: "Wystarczy dopisać G98 lub G99 do bloku z pozycją otworu." },

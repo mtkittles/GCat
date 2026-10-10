@@ -1,6 +1,7 @@
 /* Audyt spójności działu Nauka. Uruchom: npx tsx scripts/audit-nauka.ts */
 import { flat, orderOf, type Track } from "@/lib/course";
 import { buildup } from "@/content/nauka/buildup";
+import { START7 } from "@/content/nauka/start7";
 import { sources } from "@/content/nauka/sources";
 import { diagrams } from "@/components/diagrams";
 import { gcodes } from "@/lib/gcodes";
@@ -116,6 +117,17 @@ for (const track of ["frezowanie", "toczenie"] as Track[]) {
     const errs = prog.lines.flatMap((x) => x.errors.map((e) => `${x.index + 1}: ${e}`));
     const vals = validate(prog).filter((v) => v.level === "error").map((v) => v.msg);
     if (errs.length || vals.length) warn(`program ${l.id}`, [...errs, ...vals].join(" | "));
+  }
+}
+
+// Plan „7 dni”: powtórki w testach muszą dotyczyć lekcji, które uczeń przeszedł w tym planie.
+{
+  const seen = new Set<string>();
+  for (const d of START7) for (const id of d.lessons) {
+    const doc = flat("frezowanie").find((l) => l.id === id)?.doc;
+    if (!doc) { warn(`7 dni, dzień ${d.day}`, `brak lekcji ${id}`); continue; }
+    for (const q of doc.quiz) if (q.review && !seen.has(q.review)) warn(`7 dni, dzień ${d.day}`, `${id}: powtórka z ${q.review}, której nie ma wcześniej w planie`);
+    seen.add(id);
   }
 }
 

@@ -37,7 +37,7 @@ export const t6_2: LessonDoc = {
     { t: "diagram", id: "t62-drill" },
 
     { t: "h", x: "Obroty — G97", id: "obroty" },
-    { t: "p", x: "W osi średnica jest równa zeru. Przy G96 sterowanie od razu podniosłoby obroty do limitu G50 (lekcja T2.2). Wiercenie w osi programuje się więc zawsze w G97, z obrotami liczonymi dla średnicy wiertła." },
+    { t: "p", x: "W osi średnica jest równa zeru. Przy G96 sterowanie od razu podniosłoby obroty do limitu G50 (lekcja T2.2). Przy klasycznym wierceniu nieruchomym wiertłem w osi programuje się więc G97, z obrotami liczonymi dla średnicy wiertła." },
     { t: "code", x: "wiertło HSS Ø8, vc ≈ 30 m/min:\nn = 1000 · 30 / (π · 8) ≈ 1194  →  G97 S1200" },
 
     { t: "h", x: "Cykl G74", id: "g74" },
@@ -114,7 +114,7 @@ export const t6_2: LessonDoc = {
 
   summary: [
     "Na tokarce wiertło stoi w osi (X0), obraca się detal.",
-    "Wiercenie w osi zawsze w G97.",
+    "Wiercenie nieruchomym wiertłem w osi — G97, obroty dla średnicy wiertła.",
     "G74 R / G74 Z Q F — wejścia po Q z krótkim wycofaniem.",
     "Q w mikrometrach, bez kropki. Z to czubek wiertła.",
   ],

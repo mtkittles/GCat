@@ -39,7 +39,7 @@ export const t7_2: LessonDoc = {
 
     { t: "h", x: "Kiedy G32 zamiast G76", id: "kiedy" },
     { t: "ul", items: [
-      "gwinty nietypowe: stożkowe z przerwą, wielozwojne, z niestandardowym zarysem,",
+      "gwinty nietypowe: stożkowe z przerwą, z niestandardowym zarysem, wielozwojne — przy nich F to skok linii śrubowej (lead), czyli podziałka × liczba zwojów, a każdy zwój zaczyna się z przesunięciem o podziałkę,",
       "gwint kończący się w miejscu, gdzie cykl nie da się dobrze ustawić,",
       "nauka i kontrola: każde przejście widać w programie.",
     ] },
@@ -52,7 +52,7 @@ export const t7_2: LessonDoc = {
 
   worked: {
     title: "Pięć przejść M20×1,5",
-    intro: "Rdzeń Ø18,16, start X22 Z5. Wejścia prostopadłe, coraz płytsze.",
+    intro: "Gwint jednozwojny, skok 1,5 mm. Rdzeń Ø18,16, start X22 Z5. Wejścia prostopadłe, coraz płytsze — ten rozkład to założenie przykładu; rzeczywisty dobiera się do płytki, materiału i skoku według zaleceń producenta płytki.",
     steps: [
       { x: "Pierwsze przejście: 0,3 mm na stronę.", code: "X19.4" },
       { x: "Kolejne: 0,25 i 0,2 mm na stronę.", code: "X18.9 → X18.5" },
@@ -88,7 +88,7 @@ export const t7_2: LessonDoc = {
   pitfalls: [
     { title: "Inny Z startu w kolejnym przejściu", x: "Pierwsze przejście z Z5, drugie z Z3. Zwój przesuwa się o część skoku — gwint ma dwa zarysy i nie pasuje do nakrętki." },
     { title: "Powrót w Z bez wyjścia w X", x: "Po G32 od razu `Z5.`. Nóż wraca po zwoju i niszczy go — zawsze najpierw wyjście w X." },
-    { title: "Za głębokie wejścia prostopadłe", x: "Wejścia jak w G76 (0,3 i więcej) przy dosuwie prostopadłym. Obie krawędzie noża tną jednocześnie, wiór się klinuje, płytka pęka." },
+    { title: "Za głębokie wejścia prostopadłe", x: "Przy dosuwie prostopadłym obie krawędzie noża tną jednocześnie, więc przekrój wióra rośnie szybciej niż przy dosuwie wzdłuż boku zarysu, jak w G76. Kolejne wejścia muszą być coraz płytsze, a pierwsze — dopasowane do płytki i materiału. Za głębokie wejście grozi klinowaniem wióra i wykruszeniem płytki." },
   ],
 
   controllers: {

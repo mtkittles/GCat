@@ -62,7 +62,7 @@ export const f1_4: LessonDoc = {
 
   pitfalls: [
     { title: "Program calowy bez G20", x: "Program przepisany z rysunku w calach, ale bez `G20`, a sterowanie jest w G21. `X2.` to wtedy 2 mm zamiast 50,8 mm — detal wychodzi ponad 25 razy mniejszy. Odwrotny błąd daje ruchy 25 razy dłuższe." },
-    { title: "G18 zostawione przez poprzedni program", x: "Po programie z łukami w pionie aktywne zostało `G18`. Łuk `G02 X… Y…` w nowym programie leży wtedy w złej płaszczyźnie: sterowanie zgłosi alarm albo pojedzie innym torem. Blok startowy zawsze ustawia `G17`." },
+    { title: "G18 zostawione przez poprzedni program", x: "Po programie z łukami w pionie aktywne zostało `G18`. Łuk `G02 X… Y…` w nowym programie leży wtedy w złej płaszczyźnie: sterowanie zgłosi alarm albo pojedzie innym torem. Dlatego blok startowy w kursie ustawia `G17`." },
     { title: "Posuw w calach", x: "Przy G20 `F10.` to 10 cali na minutę, czyli 254 mm/min. Posuw przepisany z tabeli metrycznej do programu calowego jest 25 razy za duży." },
   ],
 
@@ -90,7 +90,7 @@ export const f1_4: LessonDoc = {
     "G21 — milimetry, G20 — cale. Ustawia się je raz, na początku programu.",
     "1 cal = 25,4 mm. Jednostki zmieniają też znaczenie posuwu F.",
     "G17 (XY), G18 (ZX), G19 (YZ) decydują o łukach, korekcji promienia i osi wiercenia.",
-    "Na frezarce pionowej pracujesz w G17 — blok startowy zawsze to ustawia.",
+    "Na frezarce pionowej pracujesz zwykle w G17 — blok startowy w kursie to ustawia.",
   ],
 
   sources: [

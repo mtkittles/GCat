@@ -35,7 +35,7 @@ export const t7_1: LessonDoc = {
     { t: "h", x: "Gwint na tokarce", id: "gwint" },
     { t: "p", x: "Nóż do gwintów ma zarys zwoju — dla gwintu metrycznego 60°. Posuw w Z równa się skokowi gwintu i jest zsynchronizowany z obrotem wrzeciona: na każdy obrót nóż przesuwa się dokładnie o skok. Gwintu nie da się wyciąć jednym przejściem — nóż wchodzi w kilku, coraz płytszych przejściach, każde dokładnie w ten sam zwój." },
     { t: "diagram", id: "t71-profile" },
-    { t: "code", x: "h3 = 0,6134 · P = 0,6134 · 1,5 ≈ 0,92 mm\nrdzeń = 20 − 2 · 0,92 = 18,16 mm", caption: "Wysokość zwoju gwintu zewnętrznego ISO. W praktyce wymiar sprawdza się pierścieniem albo mikrometrem do gwintów i koryguje zużyciem X." },
+    { t: "code", x: "h3 = 0,6134 · P = 0,6134 · 1,5 ≈ 0,92 mm\nrdzeń = 20 − 2 · 0,92 = 18,16 mm", caption: "Wysokość zwoju gwintu zewnętrznego ISO — wymiar podstawowy. Wymiar wykonawczy z tolerancją (np. klasa 6g) bierze się z tabel; w praktyce gwint sprawdza się pierścieniem albo mikrometrem do gwintów i koryguje zużyciem X." },
 
     { t: "h", x: "Cykl G76 — dwa bloki", id: "g76" },
     { t: "code", x: "G76 P010060 Q50 R0.05\nG76 X18.16 Z-17. P920 Q300 F1.5" },
@@ -58,7 +58,7 @@ export const t7_1: LessonDoc = {
       "**Koniec w Z** w podcięciu z lekcji T6.1: gwint kończy się w Z−17, a podcięcie zaczyna w Z−16. Nóż wychodzi z materiału, zanim cofnie się w X.",
       "**Obroty stałe** — G97. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.",
     ] },
-    { t: "note", kind: "warn", x: "W trakcie gwintowania korektor posuwu i STOP posuwu nie działają do końca przejścia — zatrzymanie w połowie zniszczyłoby zwój." },
+    { t: "note", kind: "warn", x: "Na wielu sterowaniach podczas przejścia gwintu korektor posuwu nie działa, a STOP posuwu zadziała dopiero po zakończeniu przejścia — zatrzymanie w połowie zniszczyłoby zwój. Dokładne zachowanie zależy od sterowania i jego parametrów." },
   ],
 
   worked: {
@@ -70,7 +70,7 @@ export const t7_1: LessonDoc = {
       { x: "Pierwsze wejście 0,3 mm, najmniejsze 0,05, naddatek 0,05.", code: "Q300 · Q50 · R0.05" },
       { x: "Jedno przejście wykańczające, bez wyjścia skośnego, 60°.", code: "P010060" },
     ],
-    result: "Cykl wykonuje 10 przejść: od Ø19,4 do rdzenia Ø18,16. Wszystkie zaczynają się w Z5, więc nóż trafia za każdym razem w ten sam zwój.",
+    result: "W symulatorze GCat cykl wykonuje 10 przejść: od Ø19,4 do rdzenia Ø18,16. Symulator rozkłada wejścia tak jak opis G76 w instrukcji Fanuc — kolejne głębokości rosną z pierwiastkiem numeru przejścia, nie mniej niż Q. Na konkretnej maszynie liczbę przejść sprawdź w symulacji sterowania. Wszystkie przejścia zaczynają się w Z5, więc nóż trafia za każdym razem w ten sam zwój.",
   },
 
   practice: [

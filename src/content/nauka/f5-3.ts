@@ -34,10 +34,10 @@ export const f5_3: LessonDoc = {
     { t: "p", x: "Gwintownik na każdy obrót wchodzi w materiał dokładnie o skok gwintu P. Posuw nie jest więc parametrem do wyboru — wynika z obrotów:" },
     { t: "code", x: "F = S · P        (G94, mm/min)\nM6×1,  S500:  F = 500 · 1    = 500\nM8×1,25, S400: F = 400 · 1,25 = 500" },
     { t: "diagram", id: "f53-tap" },
-    { t: "p", x: "Cykl [[G84]] wchodzi posuwem z obrotami w prawo do Z, na dnie odwraca obroty i wychodzi tym samym torem do R. W trakcie gwintowania korektor posuwu jest zablokowany na 100% — każda zmiana posuwu zniszczyłaby gwint." },
+    { t: "p", x: "Cykl [[G84]] wchodzi posuwem z obrotami w prawo do Z, na dnie odwraca obroty i wychodzi tym samym torem do R. W trakcie gwintowania korektor posuwu jest zwykle zablokowany na 100% (niektóre sterowania pozwalają go odblokować parametrem): zmiana posuwu bez zmiany obrotów zniszczyłaby gwint." },
 
     { t: "h", x: "Gwintowanie sztywne", id: "sztywne" },
-    { t: "p", x: "Przy [[gwintowanie sztywne|gwintowaniu sztywnym]] sterowanie sprzęga obrót wrzeciona z ruchem osi Z — gwintownik siedzi w zwykłej oprawce. Na Fanucu włącza je `M29 S…` tuż przed G84. Starsze maszyny bez tej funkcji gwintują w oprawce kompensacyjnej, która wybiera różnice między obrotami a posuwem." },
+    { t: "p", x: "Przy [[gwintowanie sztywne|gwintowaniu sztywnym]] sterowanie sprzęga obrót wrzeciona z ruchem osi Z — gwintownik siedzi w zwykłej oprawce. Na Fanucu włącza je kod M ustawiony parametrem — najczęściej `M29 S…` tuż przed G84. Na niektórych maszynach, np. Haas, G84 gwintuje sztywno bez M29 (instrukcja G84 producenta). Sprawdź to w dokumentacji swojej maszyny. Starsze maszyny bez tej funkcji gwintują w oprawce kompensacyjnej, która wybiera różnice między obrotami a posuwem." },
     { t: "note", kind: "info", x: "Gwint lewy na Fanucu frezarskim robi cykl `G74` — obroty w lewo na wejściu, w prawo na wyjściu." },
 
     { t: "h", x: "Z to koniec gwintownika", id: "glebokosc" },
@@ -52,7 +52,7 @@ export const f5_3: LessonDoc = {
       ["M4", "0,7", "Ø3,3"], ["M5", "0,8", "Ø4,2"], ["M6", "1", "Ø5,0"],
       ["M8", "1,25", "Ø6,8"], ["M10", "1,5", "Ø8,5"], ["M12", "1,75", "Ø10,2"],
     ], caption: "Gwintownik skrawający: D wiertła ≈ d − P, zaokrąglone do typowego wiertła. Tabele producentów mogą podawać nieco inne wartości (np. Ø6,7 lub Ø6,8 pod M8) — rozstrzyga zalecenie dla wybranego gwintownika." },
-    { t: "p", x: "Płaszczyzna R przy gwintowaniu jest wyższa niż przy wierceniu, np. R5: gwintownik musi osiągnąć synchronizację obrotów i posuwu, zanim dotknie materiału." },
+    { t: "p", x: "Płaszczyznę R przy gwintowaniu ustawia się często wyżej niż przy wierceniu — w tym przykładzie R5. Od R gwintownik i oś Z ruszają razem, a zapas nad materiałem daje im odcinek na rozpędzenie się w zsynchronizowanym ruchu. Ile zapasu potrzeba, zależy od maszyny i obrotów — sprawdź instrukcję." },
   ],
 
   worked: {
@@ -99,7 +99,7 @@ export const f5_3: LessonDoc = {
     { title: "Z równe długości gwintu", x: "G84 z Z−12 dla 12 mm gwintu. Pełny zarys kończy się wtedy około Z−9 — o długość nakroju wyżej. Gwint wychodzi za krótki, a sprawdzian tego nie przepuści." },
     { title: "Za płytki otwór", x: "Otwór wiercony na głębokość gwintu. Nakrój może dojść do dna, zanim gwint osiągnie pełną głębokość — ryzyko złamania gwintownika w otworze." },
     { title: "Brak M29 na maszynie z gwintowaniem sztywnym", x: "Gwintownik w zwykłej oprawce, a G84 bez M29 pracuje jak do oprawki kompensacyjnej. Różnica między obrotami a posuwem nie ma gdzie się podziać." },
-    { title: "R za nisko", x: "R2 przy gwintowaniu: wrzeciono nie zdąży zsynchronizować się z osią Z przed materiałem. Pierwsze zwoje wychodzą poszarpane." },
+    { title: "R za nisko", x: "Zbyt mały zapas między R a materiałem: wrzeciono i oś Z mogą nie zdążyć rozpędzić się razem przed pierwszym zwojem, a pierwsze zwoje wyjdą niedokładne. Zapas dobierz według instrukcji maszyny." },
   ],
 
   controllers: {
@@ -118,19 +118,20 @@ export const f5_3: LessonDoc = {
     { kind: "choice", q: "Co robi G84 na dnie otworu?", options: ["odwraca obroty i wychodzi posuwem", "wychodzi ruchem szybkim", "zatrzymuje się na czas P", "cofa się o Q"], answer: 0, why: "Gwintownik musi się wykręcić tym samym torem." },
     { kind: "choice", q: "Co włącza `M29` na Fanucu?", options: ["gwintowanie sztywne", "chłodziwo", "wymianę narzędzia", "cykl G83"], answer: 0, why: "Sprzężenie obrotów wrzeciona z osią Z." },
     { kind: "gap", q: "Jaką średnicę wiertła dobierzesz pod gwint M12×1,75 (gwintownik skrawający)?", template: "Ø{0}", answers: [["10.2", "10,2", "10.25", "10,25"]], why: "12 − 1,75 = 10,25 → Ø10,2." },
-    { kind: "choice", q: "Dlaczego korektor posuwu nie działa podczas G84?", options: ["zmiana posuwu zniszczyłaby gwint", "bo G84 jest ruchem szybkim", "przez M29", "działa normalnie"], answer: 0, why: "Posuw musi dokładnie odpowiadać obrotom i skokowi." },
+    { kind: "choice", q: "Dlaczego korektor posuwu zwykle nie działa podczas G84?", options: ["zmiana posuwu zniszczyłaby gwint", "bo G84 jest ruchem szybkim", "przez M29", "działa normalnie"], answer: 0, why: "Posuw musi dokładnie odpowiadać obrotom i skokowi." },
     { kind: "token", q: "Wskaż słowo, które musi być równe **S · P**.", block: "G84 X10. Y10. Z-15. R5. F500", answer: 5, why: "F500 = 500 · 1." },
   ],
 
   summary: [
     "F = S · P. Posuw gwintowania wynika z obrotów i skoku.",
     "G84: wejście w prawo, obroty odwrócone na dnie, wyjście do R.",
-    "Gwintowanie sztywne na Fanucu: M29 S… przed G84.",
+    "Gwintowanie sztywne na Fanucu: zwykle M29 S… przed G84 (kod ustawia parametr; niektóre maszyny go nie wymagają).",
     "Z w G84 = −(pełny gwint + nakrój). Pełna średnica otworu sięga jeszcze niżej, o zapas.",
     "Gwintownik skrawający: wiertło ≈ d − P. Wygniatak — otwór wg producenta.",
   ],
 
   sources: [
+    { id: "haas", where: "G84 — F, R, Z i uruchamianie wrzeciona w tym sterowaniu" },
     { id: "fanuc", where: "G84, G74, gwintowanie sztywne M29" },
     { id: "sinumerik", where: "CYCLE84 i CYCLE840" },
     { id: "sandvik", where: "gwintowanie, średnice otworów pod gwint" },

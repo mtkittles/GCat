@@ -33,7 +33,11 @@ export const sources: Record<string, Source> = {
   },
   haas: {
     id: "haas", short: "Haas — kody G frezarki",
-    full: "Haas Automation, Mill Operator's Manual — G-codes (G83: Q jako przyrost, start posuwu od R, ustawienia wycofania). haascnc.com, dostęp 10/2026.",
+    full: "Haas Automation, Mill Operator's Manual — G-codes (G83: Q jako przyrost, start posuwu od R, ustawienia wycofania; G84: gwintowanie sztywne bez M29). haascnc.com, dostęp 10/2026. Dotyczy maszyn Haas, nie dowolnego Fanuca.",
+  },
+  harvey: {
+    id: "harvey", short: "Harvey Performance — Spot Drilling",
+    full: "Harvey Performance Company, In The Loupe: Choosing the Right Spot Drill — dobór kąta nawiertaka do kąta wiertła. harveyperformance.com, dostęp 10/2026.",
   },
   vergnano: {
     id: "vergnano", short: "Vergnano — geometria gwintowników",

@@ -21,7 +21,7 @@ export const f2_4: LessonDoc = {
 
     { t: "h", x: "Kiedy na sucho", id: "sucho" },
     { t: "p", x: "Żeliwo szare, materiały hartowane obrabiane płytkami ceramicznymi albo CBN i wiele operacji frezowania stali węglikiem idzie na sucho lub z nadmuchem powietrza. Stopy tytanu i niklu — typowe w lotnictwie — przeciwnie: wymagają obfitego chłodzenia, często pod wysokim ciśnieniem." },
-    { t: "note", kind: "warn", x: "Chłodziwo podawaj pełnym strumieniem albo wcale. Przy frezowaniu ostrze nagrzewa się i stygnie z każdym obrotem, a przerywany strumień pogłębia te skoki temperatury. Węglik pęka wtedy drobnymi rysami prostopadłymi do krawędzi." },
+    { t: "note", kind: "warn", x: "Przy frezowaniu węglikiem z chłodziwem zalewowym podawaj je stałym, obfitym strumieniem przez cały czas skrawania. Ostrze nagrzewa się i stygnie z każdym obrotem, a strumień, który raz dochodzi do ostrza, a raz nie, pogłębia te skoki temperatury — węglik może pękać drobnymi rysami prostopadłymi do krawędzi. Jeśli strumień nie dociera stabilnie, producenci narzędzi często zalecają pracę na sucho z nadmuchem albo mgłę (MQL). Rozstrzyga zalecenie producenta narzędzia." },
 
     { t: "h", x: "Miejsce w programie", id: "miejsce" },
     { t: "p", x: "`M08` stoi po włączeniu obrotów, przed dojazdem do detalu. `M09` — po zakończeniu skrawania, przed wymianą narzędzia albo końcem programu. `M30` na większości maszyn i tak wyłącza chłodziwo, ale jawne `M09` czyni program czytelnym." },
@@ -87,7 +87,7 @@ export const f2_4: LessonDoc = {
   summary: [
     "M08 — chłodziwo zalewowe, M09 — wyłączone, M07 — mgła na wielu maszynach.",
     "M08 po obrotach, przed najazdem. M09 po skrawaniu.",
-    "Pełny strumień albo wcale — przerywany niszczy węglik przy frezowaniu.",
+    "Chłodziwo zalewowe przy frezowaniu węglikiem — stałym strumieniem. Przerywany strumień grozi pęknięciami cieplnymi; inne sposoby chłodzenia według zaleceń producenta narzędzia.",
     "Tytan i nikiel: dużo chłodziwa. Żeliwo, ceramika, CBN: często na sucho.",
   ],
 

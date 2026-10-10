@@ -54,6 +54,8 @@ export const f5_1: LessonDoc = {
     { t: "h", x: "Nawiercenie przed wierceniem", id: "nawiercanie" },
     { t: "p", x: "Nawiertak robi krótki stożek, w który trafia potem wiertło. Wiertło nie ucieka na boki przy wejściu, a otwór ma właściwe położenie. Stożek zostaje jako fazka — pod gwint robi się ją nieco większą niż średnica gwintu." },
     { t: "diagram", id: "f51-spot" },
+    { t: "p", x: "W programie płytki jedno przejście nawiertakiem 90° robi dwie rzeczy: fazkę Ø6 pod gwint M6 i miejsce startu dla wiertła Ø5. To założenie przykładu, a nie jedyna technologia." },
+    { t: "note", kind: "warn", x: "Uwaga na kąty. Stożek 90° jest bardziej stromy niż wierzchołek wiertła 140° z lekcji F5.2. Wiertło wchodzące w taki stożek dotyka najpierw narożami, a nie środkiem — przy węgliku grozi to wykruszeniem naroży. Dlatego przy wiertłach VHM często nawierca się kątem równym albo większym niż kąt wiertła albo wierci bez nawiercania, a fazkę robi się osobno. Rozstrzyga zalecenie producenta wybranego wiertła." },
     { t: "diagram", id: "f51-holes" },
   ],
 
@@ -112,7 +114,7 @@ export const f5_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F4.3", q: "Czym włącza się korekcję przy najeździe po łuku?", options: ["odcinkiem przed łukiem", "samym łukiem", "G43", "G80"], answer: 0, why: "Korekcję promienia włącza ruch liniowy." },
+    { kind: "choice", review: "F4.1", q: "Po `T2 M06` program ma `G43 H2 Z50.`. Co robi ten blok przed cyklem wiercenia?", options: ["włącza korekcję długości z rejestru 2 i ustawia czubek nawiertaka na Z50", "włącza korekcję promienia", "wybiera układ G54", "kasuje cykl"], answer: 0, why: "G43 z H2 dolicza długość narzędzia z rejestru 2 — dzięki temu Z50, R2 i Z−3 w cyklu dotyczą czubka narzędzia." },
     { kind: "choice", q: "Od jakiej wysokości cykl G81 jedzie posuwem?", options: ["od płaszczyzny R", "od poziomu początkowego", "od Z0", "od dna"], answer: 0, why: "Do R ruch szybki, dalej posuw." },
     { kind: "order", q: "Ułóż ruchy cyklu G81.", items: ["posuw do Z", "ruch szybki nad otwór", "ruch szybki w górę", "ruch szybki do R"], answer: [1, 3, 0, 2], why: "XY, R, dno, powrót." },
     { kind: "choice", q: "Po `G81 X10. Y10. Z-10. R2. F120` stoi blok `X40.`. Co się stanie?", options: ["kolejny otwór w X40 Y10", "ruch szybki bez wiercenia", "alarm", "ruch G01"], answer: 0, why: "Cykl jest modalny." },
@@ -129,6 +131,7 @@ export const f5_1: LessonDoc = {
   ],
 
   sources: [
+    { id: "harvey", where: "kąt nawiertaka a kąt wiertła — kontakt naroży przy kącie mniejszym niż kąt wiertła" },
     { id: "fanuc", where: "cykle stałe G81 i G82, płaszczyzna R, poziom początkowy, G80" },
     { id: "sinumerik", where: "CYCLE81, CYCLE82, MCALL" },
     { id: "sandvik", where: "nawiercanie i dobór parametrów wiercenia" },

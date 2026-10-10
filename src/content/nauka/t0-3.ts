@@ -11,7 +11,7 @@ export const t0_3: LessonDoc = {
     { t: "h", x: "M i W na tokarce", id: "punkty" },
     { t: "p", x: "Zero maszyny M leży zwykle na osi wrzeciona, na czole jego końcówki — tam, gdzie mocuje się uchwyt. Zero detalu W leży na tej samej osi, na czole detalu. Oba punkty są na osi obrotu, więc różnią się tylko w Z." },
     { t: "diagram", id: "t03-zero" },
-    { t: "p", x: "X0 jest zawsze na osi, niezależnie od detalu — dlatego na tokarce ustala się tylko zero w Z. Przesunięcie Z zależy od tego, jak daleko pręt wystaje z uchwytu, i zmienia się po każdym przełożeniu materiału." },
+    { t: "p", x: "X0 leży na osi obrotu, niezależnie od detalu — dlatego w tej metodzie zero detalu ustala się tylko w Z. Każdy nóż trzeba jednak zmierzyć także w X — to jego korekcja geometrii (lekcja T2.1). Przesunięcie Z zależy od tego, jak daleko pręt wystaje z uchwytu, i zmienia się po każdym przełożeniu materiału." },
 
     { t: "h", x: "Pomiar Z0", id: "pomiar" },
     { t: "ul", items: [
