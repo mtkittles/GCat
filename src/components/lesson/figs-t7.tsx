@@ -1,4 +1,4 @@
-import { Code, Dim, Fig, mapper, T } from "@/components/fig";
+import { Code, Dim, Fig, mapper, Pt, Step, T } from "@/components/fig";
 
 /* Rysunki modułu T7 — gwintowanie. Z w prawo, X (promień) w górę. */
 
@@ -86,8 +86,72 @@ export function G32Pass() {
   );
 }
 
+
+/* ================= T7.1: przykład — gwint na wałku ================= */
+export function ThreadJob() {
+  const zx = (z: number) => 18 + (z + 32) * (318 / 40), ry = (r: number) => 214 - (r - 7) * 24;
+  const poly = (pts: [number, number][]) => pts.map(([z, r]) => `${zx(z)},${ry(r)}`).join(" ");
+  return (
+    <Fig id="t71jb" code="G76" title="M20×1,5: od Z5 do podcięcia w Z−17" h={236} legend={["rap", "cut", "acc", "stock"]}
+      notes={<><Code k="acc">G76 P010060 Q50 R0.05</Code><Code k="acc">G76 X18.16 Z-17. P920 Q300 F1.5</Code></>}
+      caption={<>Widok z boku, skala promieniowa powiększona. Gwint zaczyna się w Z5 — ponad trzy skoki przed czołem, żeby oś Z zdążyła się rozpędzić — i kończy w podcięciu Z−16…−20, przed stopniem Ø30. Pierwsze przejście schodzi na Ø19,4, ostatnie na rdzeń Ø18,16. Numery odpowiadają krokom przykładu.</>}>
+      {(c) => (
+        <g>
+          <polygon points={poly([[0, 7], [0, 10], [-16, 10], [-16, 8.5], [-20, 8.5], [-20, 14], [-30, 14], [-30, 7]])} fill={c.hatch} className="p-con" />
+          <rect x={zx(-16)} y={ry(10)} width={zx(0) - zx(-16)} height={ry(9.08) - ry(10)} className="p-fill-acc" />
+          <line x1={zx(5)} y1={ry(11)} x2={zx(5)} y2={ry(9.7) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
+          <line x1={zx(5)} y1={ry(9.7)} x2={zx(-17) + 3} y2={ry(9.7)} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={zx(-17)} y1={ry(9.08)} x2={zx(5)} y2={ry(9.08)} className="p-acc" strokeDasharray="4 3" />
+          <Pt x={zx(5)} y={ry(11)} label="X22 Z5" pos="n" cls="t-mono t-sm" dot="pt-rap" />
+          <T x={zx(6)} y={ry(9.7) + 4} cls="t-mono t-cut t-sm">X19.4</T>
+          <T x={zx(6)} y={ry(9.08) + 4} cls="t-mono t-acc t-b t-sm">X18.16</T>
+          <Pt x={zx(-17)} y={ry(9.7)} label="Z−17" pos="nw" cls="t-mono t-b t-sm" />
+          <Step x={zx(-8)} y={ry(8.6)} n={1} />
+          <Step x={zx(-18)} y={ry(11.2)} n={2} />
+          <Step x={zx(1)} y={ry(10.5)} n={3} />
+          <Step x={zx(9.5)} y={ry(11)} n={4} />
+          <T x={zx(-25)} y={ry(15)} anchor="middle" cls="t-mut t-sm">stopień Ø30</T>
+          <T x={zx(-4)} y={ry(7.6)} anchor="middle" cls="t-mut t-sm">czop Ø20</T>
+          <line x1={zx(0)} y1={ry(7)} x2={zx(0)} y2={ry(12)} className="p-cons" strokeDasharray="3 3" />
+          <T x={zx(0.4)} y={ry(12)} cls="t-mut t-sm">Z0</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= T7.2: przykład — pięć przejść G32 ================= */
+export function G32Depths() {
+  const cx = 130, top = 46, sc = 150; /* 1 mm = 150 px */
+  const tan30 = Math.tan(Math.PI / 6);
+  const depths: [number, string, number][] = [[0.3, "X19.4", 1], [0.55, "X18.9", 2], [0.75, "X18.5", 2], [0.875, "X18.25", 3], [0.92, "X18.16", 4]];
+  const v = (d: number) => `${cx - d * sc * tan30},${top} ${cx},${top + d * sc} ${cx + d * sc * tan30},${top}`;
+  return (
+    <Fig id="t72dp" code="G32" title="Głębokość czubka noża w pięciu przejściach" h={214} legend={["cut", "acc"]}
+      notes={<><Code k="cut">0,3 · 0,25 · 0,2 · 0,125 · 0,045 mm na stronę</Code></>}
+      caption={<>Przekrój jednego zwoju, skala mocno powiększona. Przy wejściu prostopadłym czubek noża schodzi w osi zwoju i obie krawędzie tną naraz — dlatego każde kolejne wejście jest płytsze. Rozkład to założenie przykładu; rzeczywisty dobiera się do płytki i materiału. Numery odpowiadają krokom przykładu.</>}>
+      {() => (
+        <g>
+          <line x1={20} y1={top} x2={340} y2={top} className="p-cons" />
+          <T x={24} y={top - 6} cls="t-mut t-sm">Ø20</T>
+          {depths.map(([d, x, n], i) => (
+            <g key={x}>
+              <polyline points={v(d)} className={i === depths.length - 1 ? "p-acc thick" : "p-cut"} style={{ fill: "none" }} />
+              <line x1={cx + d * sc * tan30 + 4} y1={top + d * sc} x2={250} y2={top + d * sc} className="p-ext" />
+              <T x={254} y={top + d * sc + 4 + (i === 3 ? -5 : i === 4 ? 9 : 0)} cls={i === depths.length - 1 ? "t-mono t-acc t-b t-sm" : "t-mono t-sm"}>{x}</T>
+              {(i === 0 || i === 1 || i === 3 || i === 4) && <Step x={i === 4 ? 336 : 316} y={top + d * sc + (i === 3 ? -6 : i === 4 ? 6 : 0)} n={n} />}
+            </g>
+          ))}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const t7Figs = {
   "t71-profile": () => <ThreadProfile />,
   "t71-passes": () => <ThreadPasses />,
   "t72-g32": () => <G32Pass />,
+  "t71-job": () => <ThreadJob />,
+  "t72-depths": () => <G32Depths />,
 };

@@ -63,7 +63,8 @@ export const t7_1: LessonDoc = {
 
   worked: {
     title: "Gwint M20×1,5 na wałku",
-    intro: "Czop Ø20 od Z0 do Z−16, podcięcie Z−16…Z−20. Nóż 60°, G97 S1200.",
+    intro: "Sytuacja: czop Ø20 od Z0 do Z−16 ma dostać gwint M20×1,5. Za nim jest podcięcie Z−16…Z−20 z lekcji T6.1, a dalej stopień Ø30. Nóż 60°, G97 S1200, start w X22 Z5. Numery na rysunku to numery kroków.",
+    fig: "t71-job",
     steps: [
       { x: "Wysokość zwoju 0,6134 · 1,5 i średnica rdzenia.", code: "P920 · X18.16" },
       { x: "Koniec gwintu w podcięciu.", code: "Z-17." },
@@ -90,6 +91,7 @@ export const t7_1: LessonDoc = {
       kind: "drill",
       intro: "Wymiary gwintu i adresy G76.",
       questions: [
+        { kind: "choice", q: "W przykładzie koniec gwintu wpisano `Z-21.` zamiast `Z-17.`. Co się stanie w pierwszym przejściu?", options: ["nóż wjedzie z posuwem 1,5 mm/obr w czoło stopnia Ø30 w Z−20", "gwint wyjdzie dłuższy o 4 mm, bez innych skutków", "cykl skróci przejście do podcięcia", "sterowanie odrzuci Z poza czopem"], answer: 0, why: "Stopień Ø30 zaczyna się w Z−20, a pierwsze przejście idzie na Ø19,4 — poniżej jego średnicy. Ruch gwintowania trwa do Z−21, więc nóż uderza w czoło stopnia przy pełnym posuwie gwintu." },
         { kind: "gap", q: "Gwint M12×1,75. Ile wynosi wysokość zwoju h3 (mm, do 0,01)?", template: "{0}", answers: [["1.07", "1,07"]], why: "0,6134 · 1,75 ≈ 1,07." },
         { kind: "gap", q: "Gwint M12×1,75. Ile wynosi podstawowa średnica rdzenia (mm, do 0,01)?", template: "X{0}", answers: [["9.86", "9,86", "9.85", "9,85"]], why: "h3 = 0,6134 · 1,75 = 1,073 mm, więc 12 − 2 · 1,073 ≈ 9,85 mm. To wymiar podstawowy — wymiar wykonawczy z tolerancją sprawdza się sprawdzianem." },
         { kind: "gap", q: "Wysokość zwoju 1,07 mm. Jaką wartość P wpiszesz w drugim bloku G76 (µm, bez kropki)?", template: "P{0}", answers: [["1070"]], why: "Mikrometry, bez kropki." },
@@ -100,7 +102,7 @@ export const t7_1: LessonDoc = {
 
   pitfalls: [
     { title: "Start za blisko czoła", x: "`G00 X22. Z1.` przy skoku 1,5. Oś Z nie zdąży się rozpędzić — pierwszy zwój wychodzi z innym skokiem niż reszta i sprawdzian nie wchodzi." },
-    { title: "Koniec gwintu na stopniu", x: "Z−20 zamiast Z−17: nóż dochodzi do stopnia z pełną prędkością posuwu i uderza w czoło. Koniec zawsze w podcięciu albo przed stopniem z zapasem." },
+    { title: "Koniec gwintu na stopniu", x: "Z−20 zamiast Z−17: nóż dochodzi do stopnia z pełną prędkością posuwu i uderza w czoło. Koniec gwintu kładzie się w podcięciu albo przed stopniem, z zapasem." },
     { title: "Wysokość zwoju w milimetrach", x: "`P0.92` zamiast `P920`. Zależnie od parametru — alarm albo gwint głęboki na 0,00092 mm." },
     { title: "Zmiana S między przejściami", x: "Operator zmienia korektor obrotów w trakcie gwintowania. Kolejne przejście trafia obok zwoju — gwint do wyrzucenia." },
   ],
