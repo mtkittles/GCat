@@ -10,8 +10,8 @@
       "Kontur musi się domknąć — wróć do punktu startu.",
       "Pamiętaj o M03 i posuwie F."
     ],
-    "starter": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\n(dopisz dalszą część)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-3 F100\nG01 X80 F400\nG01 Y50\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\n(dopisz dalszą część)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-3 F100\nG01 X80 F400\nG01 Y50\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -44,8 +44,8 @@
       "Punkt styczności leży 10 mm od narożnika.",
       "Możesz użyć R albo I/J — sprawdzane jest tylko położenie toru."
     ],
-    "starter": "G21 G90 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\n(dopisz kontur z czterema lukami R10)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\nG01 X70 F400\nG03 X80 Y10 R10\nG01 Y40\nG03 X70 Y50 R10\nG01 X10\nG03 X0 Y40 R10\nG01 Y10\nG03 X10 Y0 R10\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\n(dopisz kontur z czterema lukami R10)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\nG01 X70 F400\nG03 X80 Y10 R10\nG01 Y40\nG03 X70 Y50 R10\nG01 X10\nG03 X0 Y40 R10\nG01 Y10\nG03 X10 Y0 R10\nG00 Z5\nM30",
     "tolerance": 0.15,
     "requireCodes": [
       "G03"
@@ -78,8 +78,8 @@
       "Płaszczyzna R musi leżeć nad materiałem.",
       "Bez G80 kolejny ruch też wywierci otwór."
     ],
-    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS1200 M03\nG00 X20 Y20 Z10\n(dopisz cykl)\nG00 Z50\nM30",
-    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS1200 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM30",
+    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\n(dopisz cykl)\nG00 Z50\nM30",
+    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G81",
@@ -113,8 +113,8 @@
       "Pełne wycofanie do R po każdym zagłębieniu to G83, nie G73.",
       "Głębokość zagłębienia podaje adres Q."
     ],
-    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30 Z10\n(dopisz cykl)\nG80\nG00 Z50\nM30",
-    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS900 M03\nG00 X30 Y30 Z10\nG99 G83 X30 Y30 Z-45 R2 Q6 F100\nG80\nG00 Z50\nM30",
+    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\n(dopisz cykl)\nG80\nG00 Z50\nM30",
+    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\nG99 G83 X30 Y30 Z-45 R2 Q6 F100\nG80\nG00 Z50\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G83"
@@ -151,8 +151,8 @@
       "G91 obowiązuje aż do G90.",
       "Wszystkie ruchy w materiale muszą być na G01."
     ],
-    "starter": "G21 G90 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\n(dopisz piec rowkow)\nG90\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG90\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\n(dopisz piec rowkow)\nG90\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG90\nG00 Z5\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G91",
@@ -253,8 +253,8 @@
       "Kontur wewnętrzny musi się domykać.",
       "Nie podnoś narzędzia między przejściami — zejdź kolejnym G01 w Z."
     ],
-    "starter": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz dwa przejscia)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG01 Z-6 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz dwa przejscia)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG01 Z-6 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG00 Z5\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -287,8 +287,8 @@
       "Blok dojazdowy musi być dłuższy niż promień narzędzia — stąd start z X-20 Y-20.",
       "Nie zapomnij G40 na końcu, inaczej kolejne narzędzie odziedziczy korekcję."
     ],
-    "starter": "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\n(dopisz kontur z G41 i G40)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\nG41 D1 X0 Y0 F350\nG01 Y45\nG01 X70\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\n(dopisz kontur z G41 i G40)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\nG41 D1 X0 Y0 F350\nG01 Y45\nG01 X70\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G41",
@@ -322,8 +322,8 @@
       "Płaszczyzna R przy gwintowaniu powinna być wyżej — zostaw zapas na rozbieg, np. R5.",
       "Po każdym cyklu daj G80."
     ],
-    "starter": "G21 G90 G17 G54 G80\nT01 M06\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nS500 M03\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
-    "reference": "G21 G90 G17 G54 G80\nT01 M06\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nS500 M03\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
+    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
+    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G81",
@@ -365,8 +365,8 @@
       "Środek leży 15 mm w prawo od punktu startu, czyli I15 J0.",
       "Dodanie Z w bloku łuku zamienia go w helisę."
     ],
-    "starter": "G21 G90 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\n(dopisz trzy zwoje helisy)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\nG03 X25 Y40 Z-2 I15 J0 F300\nG03 X25 Y40 Z-4 I15 J0\nG03 X25 Y40 Z-6 I15 J0\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\n(dopisz trzy zwoje helisy)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\nG03 X25 Y40 Z-2 I15 J0 F300\nG03 X25 Y40 Z-4 I15 J0\nG03 X25 Y40 Z-6 I15 J0\nG00 Z5\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G03"
@@ -399,8 +399,8 @@
       "W trybie G91 jeden fragment wystarczy powtórzyć trzy razy.",
       "Rowki mają być równoległe, wszystkie w kierunku dodatnim X."
     ],
-    "starter": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz trzy rowki)\nG00 Z5\nM30",
-    "reference": "G21 G90 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y35\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y55\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz trzy rowki)\nG00 Z5\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y35\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y55\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -433,8 +433,8 @@
       "Wyjście poza materiał zapobiega śladowi na krawędzi.",
       "Nie podnoś narzędzia między przejściami, jeśli nie musisz."
     ],
-    "starter": "G21 G90 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\n(dopisz trzy przejscia)\nG00 Z50\nM30",
-    "reference": "G21 G90 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\nG01 Z-1 F150\nG01 X130 F800\nG01 Y30\nG01 X-30\nG01 Y45\nG01 X130\nG00 Z50\nM30",
+    "starter": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\n(dopisz trzy przejscia)\nG00 Z50\nM30",
+    "reference": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\nG01 Z-1 F150\nG01 X130 F800\nG01 Y30\nG01 X-30\nG01 Y45\nG01 X130\nG00 Z50\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -532,8 +532,8 @@
       "Blok bezpiecznego startu: G00 G90 G17 G54 G40 G49 G80.",
       "Zakończ przez G91 G28 Z0, G90, M30."
     ],
-    "starter": "O0500\nG21 G90 G17 G54 G40 G49 G80\n(T01 — kontur)\n(T02 — otwory)\nM30",
-    "reference": "O0500\nG21 G90 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-10 Y-10\nG00 Z2\nG01 Z-5 F120\nG01 X0 Y0 F400\nG01 X90\nG01 Y55\nG01 X0\nG01 Y0\nG01 X-10 Y-10\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1400 M03\nM08\nG99 G81 X25 Y27 Z-22 R2 F130\nX65\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "starter": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\n(T01 — kontur)\n(T02 — otwory)\nM30",
+    "reference": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-10 Y-10\nG00 Z2\nG01 Z-5 F120\nG01 X0 Y0 F400\nG01 X90\nG01 Y55\nG01 X0\nG01 Y0\nG01 X-10 Y-10\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1400 M03\nM08\nG99 G81 X25 Y27 Z-22 R2 F130\nX65\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G43",
