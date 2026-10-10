@@ -30,15 +30,16 @@ export const f5_4: LessonDoc = {
 
   worked: {
     title: "Trzy otwory i docisk",
-    intro: "Otwory w X15, X45 i X75 w jednej linii, Y20. Między X45 a X75 stoi docisk wysoki na 25 mm nad detalem. R2, dno Z−7.",
+    intro: "Sytuacja: trzy otwory w X15, X45 i X75 w jednej linii, Y20, R2, dno Z−7. Między X45 a X75 stoi docisk wysoki na 25 mm nad detalem. Między X15 a X45 nic nie wystaje. Numery kroków odpowiadają numerom na rysunku.",
+    fig: "f54-run",
     steps: [
-      { x: "Poziom początkowy nad dociskiem, z zapasem.", code: "G00 Z30." },
-      { x: "Pierwszy otwór z G99 — do następnego nie ma przeszkody.", code: "G99 G81 X15. Y20. Z-7. R2. F120" },
-      { x: "Drugi otwór z G98 — potem przejazd nad dociskiem.", code: "G98 X45." },
-      { x: "Trzeci otwór z G99. G98 z poprzedniego bloku jest modalne — bez jawnego G99 narzędzie po trzecim otworze też wróciłoby na Z30.", code: "G99 X75." },
-      { x: "Koniec cyklu.", code: "G80" },
+      { x: "Krok 1: nad pierwszym otworem narzędzie stoi na Z30 — 5 mm nad dociskiem. Ta wysokość, ostatnie Z przed cyklem, staje się poziomem początkowym dla G98.", code: "G00 Z30." },
+      { x: "Krok 2: otwór X15 z G99. Do następnego otworu nie ma przeszkody, więc wystarczy powrót do R2 i przejazd tuż nad detalem.", code: "G99 G81 X15. Y20. Z-7. R2. F120" },
+      { x: "Krok 3: otwór X45 z G98. Po nim jest przejazd nad dociskiem, więc narzędzie wraca na Z30 i dopiero na tej wysokości jedzie do X75.", code: "G98 X45." },
+      { x: "Krok 4: otwór X75 z G99. G98 z poprzedniego bloku jest modalne — bez jawnego G99 narzędzie po trzecim otworze też wróciłoby na Z30.", code: "G99 X75." },
+      { x: "Krok 5: koniec cyklu.", code: "G80" },
     ],
-    result: "Tylko jeden powrót na Z30 — po drugim otworze, przed przejazdem nad dociskiem. Po pierwszym i trzecim otworze narzędzie wraca do R2. O wysokości powrotu decyduje kod aktywny w bloku danego otworu.",
+    result: "Tylko jeden powrót na Z30 — po drugim otworze, przed przejazdem nad dociskiem. Po pierwszym i trzecim otworze narzędzie wraca do R2. O wysokości powrotu decyduje kod aktywny w bloku danego otworu, a o wysokości G98 — Z, z którego cykl wystartował.",
   },
 
   practice: [
@@ -56,6 +57,7 @@ export const f5_4: LessonDoc = {
       questions: [
     {"kind":"bughunt","q":"Między otworem 2 a 3 stoi docisk wysoki na 25 mm. Który blok jest niebezpieczny?","program":"G00 X15. Y20. Z30.\nG99 G81 X15. Y20. Z-7. R2. F120\nG99 X45.\nX75.\nG80","answer":2,"why":"Po otworze 2 powrót do R (2 mm nad detalem) i przejazd do X75 uderzy w docisk. Tu potrzebny G98 — powrót do poziomu początkowego Z30."},
 
+        { kind: "choice", q: "W przykładzie ktoś zmienił pierwszy blok na `G00 Z20.`, a resztę zostawił bez zmian. Co się stanie przy przejeździe z X45 do X75?", options: ["narzędzie uderzy w docisk — G98 wraca tylko na Z20", "G98 podniesie narzędzie na Z30 jak wcześniej", "G98 podniesie narzędzie nad najwyższy punkt mocowania", "nic — R2 jest powyżej detalu"], answer: 0, why: "G98 wraca do poziomu początkowego, czyli Z sprzed cyklu — tu Z20. Docisk ma 25 mm, więc przejazd na Z20 trafia w niego. Cykl nie omija docisku sam — wysokość przejazdu wynika tylko z programu." },
         { kind: "choice", q: "Cztery otwory na płaskiej płycie, nic nie wystaje. Który kod powrotu?", options: ["G99", "G98", "bez znaczenia", "G80"], answer: 0, why: "G99 skraca drogę — nie ma nad czym przeskakiwać." },
         { kind: "choice", q: "Po którym otworze trzeba wrócić wyżej, jeśli docisk stoi między otworem 2 a 3?", options: ["po otworze 2", "po otworze 3", "po otworze 1", "po każdym"], answer: 0, why: "Wysokość powrotu po otworze 2 decyduje o przejeździe nad dociskiem." },
         { kind: "gap", q: "Poziom początkowy Z40, R3, 6 otworów. W obu wariantach narzędzie startuje z Z40 i po ostatnim otworze wraca na Z40. O ile milimetrów dłuższa jest droga w Z z G98 niż z G99?", template: "{0} mm", answers: [["370"]], why: "Różnica powstaje tylko na przejazdach między otworami: z G98 narzędzie wraca z R3 na Z40 i zjeżdża z powrotem, czyli 2 × 37 = 74 mm więcej. Przejazdów między 6 otworami jest 5: 5 × 74 = 370 mm. Start i koniec są w obu wariantach takie same." },
