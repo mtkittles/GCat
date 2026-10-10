@@ -25,14 +25,15 @@ export const f2_3: LessonDoc = {
 
   worked: {
     title: "Posuwy dla płytki",
-    intro: "Frez VHM Ø10, 4 ostrza, stal C45. Z lekcji F2.2: S2500. Katalog: fz = 0,04 mm/ostrze.",
+    intro: "Sytuacja: frez VHM Ø10 z 4 ostrzami stoi nad X−20 Y10, obok płytki ze stali C45. Z lekcji F2.2: S2500. Katalog podaje fz = 0,04 mm/ostrze. Program ma zejść na Z−5 i obrobić bok płytki.",
+    fig: "f23-feeds",
     steps: [
-      { x: "Posuw konturowy: 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },
-      { x: "Zejście w Z obok detalu: w kursie ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "F150" },
-      { x: "Zejście piszesz w bloku G01 Z…, kontur w pierwszym bloku ruchu po obrysie.", code: "G01 Z-5. F150" },
-      { x: "F jest modalne, więc dalsze bloki konturu nie muszą go powtarzać.", code: "G01 X-5. F400" },
+      { x: "Posuw konturowy z katalogu: vf = fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },
+      { x: "Krok 1 na rysunku: zejście w X−20, obok płytki — frez nie skrawa. W kursie zejście idzie z ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "G01 Z-5. F150" },
+      { x: "Krok 2: dojazd do X−5. Krawędź freza staje przy boku płytki, a od następnego ruchu skrawa obwód — dlatego F400 pada już w tym bloku.", code: "G01 X-5. F400" },
+      { x: "Krok 3: kontur wzdłuż boku. F jest modalne, więc dalsze bloki nie muszą go powtarzać.", code: "G01 Y55." },
     ],
-    result: "Te same wartości stoją w programie płytki. Przy zmianie narzędzia liczysz je od nowa — zmienia się i n, i z, i fz.",
+    result: "Te same wartości stoją w programie płytki. Przy zmianie narzędzia liczysz je od nowa — zmienia się n, z i fz. Gdyby frez miał wejść pionowo w materiał zamiast obok płytki, posuw wgłębny bierzesz z katalogu freza.",
   },
 
   practice: [
@@ -51,6 +52,7 @@ export const f2_3: LessonDoc = {
         { kind: "gap", q: "fz = 0,05, z = 3, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["450"]], why: "0,05 · 3 · 3000 = 450 mm/min." },
         { kind: "gap", q: "Program ma F600, frez 4-ostrzowy, S3000. Jakie jest fz?", template: "fz = {0}", answers: [["0.05", "0,05", ".05"]], why: "600 / (4 · 3000) = 0,05 mm/ostrze." },
         { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "G01 X80. Y0. F400", answer: 3, why: "F400 — 400 mm/min." },
+        { kind: "choice", q: "Po bloku `G01 X-5. F400` frez Ø10 stoi w X−5 Y10 Z−5, przy boku płytki (X0). Następny blok to `G01 Y55.`. Co się stanie?", options: ["frez jedzie wzdłuż boku z F400 i skrawa obwodem", "frez jedzie z F150, bo to był pierwszy posuw", "alarm — w bloku brak F", "ruch szybki, bo brak G01 w poprzednim bloku"], answer: 0, why: "G01 i F400 są modalne. Krawędź freza leży na boku płytki, więc ruch wzdłuż Y zbiera materiał obwodem." },
         { kind: "choice", q: "Frez 2-ostrzowy zamiast 4-ostrzowego, to samo fz i S. Co dzieje się z posuwem F?", options: ["zostaje taki sam", "maleje o połowę", "rośnie dwukrotnie", "zależy od średnicy"], answer: 1, why: "F jest proporcjonalne do liczby ostrzy." },
       ],
     },
