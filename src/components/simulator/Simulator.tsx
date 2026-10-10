@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
+import { autoStartOk, reduceMotion } from "./motion";
 import { initLatheProfile, latheProfileCached, type LatheCache, latheChuck, latheCollisions } from "./latheStock";
 import { latheOutline } from "./latheInsert";
 import { setLayout, useSimLayout, type SimView } from "./simLayout";
@@ -50,7 +51,11 @@ interface Props {
   editable?: boolean;
   onSourceChange?: (s: string) => void;
   compact?: boolean;
-  autoplay?: boolean;
+  /** Start animacji bez kliknięcia. „wide” — tylko na szerokim ekranie (na telefonie pierwszy kadr i przycisk).
+      Przy ustawieniu „ogranicz ruch” animacja nigdy nie startuje sama. */
+  autoplay?: boolean | "wide";
+  /** Pokaz z paskiem start/pauza/krok/reset (demonstracje w lekcjach i artykułach). */
+  controls?: boolean;
   dialect?: Dialect;
   allow3d?: boolean;
   /** Wymiary półfabrykatu narzucone przez przykład lub lekcję. */
@@ -93,7 +98,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   // Kinematyka frezarki 4/5-osiowej: „auto” — z liter osi w programie (B → B/C, inaczej A/C).
   const [kinSel, setKinSel] = useState<Kin | "auto">("auto");
@@ -211,7 +216,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const latheCache = useRef<LatheCache | null>(null);
   const fsCanvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
-  const [playing, setPlaying] = useState(autoplay);
+  // Pokaz (showcase) startuje dopiero, gdy jest widoczny — decyduje o tym obserwator niżej.
+  const [playing, setPlaying] = useState(!!autoplay && !showcase && autoStartOk(autoplay));
+  // Po pierwszym ręcznym sterowaniu (start, pauza, krok, suwak) pokaz nie wznawia się sam.
+  const manual = useRef(false);
+  const userPlay = (v: boolean | ((p: boolean) => boolean)) => { manual.current = true; setPlaying(v); };
   // Kliknięcie w link (logo, menu, karta) zatrzymuje animację — inaczej ciągłe klatki
   // odkładały przejście na inną stronę aż do pauzy. Ukrycie karty przeglądarki też pauzuje.
   useEffect(() => {
@@ -228,7 +237,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }, [playing]);
   const [speed, setSpeed] = useState(1);
   const [prevSource, setPrevSource] = useState(source);
-  if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(autoplay); }
+  if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(!!autoplay && autoStartOk(autoplay)); }
 
   const [showComp, setShowComp] = useState(true);
   const [localLearn, setLocalLearn] = useState(false);
@@ -337,10 +346,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   useEffect(() => {
     if (!showcase) return;
     const el = canvasRef.current; if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(([e]) => setPlaying(e.isIntersecting), { threshold: 0.15 });
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) setPlaying(false);
+      else if (autoplay && autoStartOk(autoplay) && !manual.current) setPlaying(true);
+    }, { threshold: 0.15 });
     io.observe(el);
     return () => io.disconnect();
-  }, [showcase]);
+  }, [showcase, autoplay]);
 
   // Program wgrany z zewnątrz bywa calowy — podpowiadamy, gdy wykryjemy G20.
   const hasG20 = useMemo(() => program.lines.some((l) => l.words.some((w) => w.letter === "G" && w.value === 20)), [program]);
@@ -846,7 +858,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       acc += lengths[i];
       if (segments[i].line === idx) hit = i;
     }
-    setPlaying(false);
+    userPlay(false);
     setProgress(hit >= 0 ? Math.max(0, acc - 1e-3) : acc);
   };
   const jumpOn = appLayout ? layout.jump : jumpLocal;
@@ -1028,21 +1040,21 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   const transportBar = (
     <div className="sim-controls">
-      <button onClick={() => { if (progress >= total) setProgress(0); setPlaying((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
+      <button onClick={() => { if (progress >= total) setProgress(0); userPlay((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
         <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
           {playing ? <path d="M7 5h4v14H7zM13 5h4v14h-4z" /> : <path d="M7 4l13 8-13 8z" />}
         </svg>
         <span className="ctrl-label">{playing ? "Pauza" : "Start"}</span>
       </button>
-      <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
+      <button onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
         <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
         <span className="ctrl-label">‹ Krok</span>
       </button>
-      <button onClick={() => { setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
+      <button onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
         <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
         <span className="ctrl-label">Krok ›</span>
       </button>
-      <button onClick={() => { setPlaying(false); setProgress(0); }} aria-label="Reset">
+      <button onClick={() => { userPlay(false); setProgress(0); }} aria-label="Reset">
         <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
         <span className="ctrl-label">Reset</span>
       </button>
@@ -1051,7 +1063,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {Math.round(speed * 100)}%
       </button>
       <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
-        onChange={(e) => { setPlaying(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
+        onChange={(e) => { userPlay(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
     </div>
   );
 
@@ -1116,6 +1128,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       <div className="showcase">
         <div className="showcase-view">
           <canvas ref={canvasRef} className="sim-canvas showcase-canvas" />
+          {controls && <div className="showcase-ctrl">{transportBar}</div>}
           <ul className="showcase-legend">
             <li><i style={{ background: "var(--amber)" }} />G00 · szybki przejazd</li>
             <li><i style={{ background: "var(--green)" }} />G01 · ruch roboczy</li>
@@ -1148,10 +1161,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       onKeyDown={(e) => {
         const el = e.target as HTMLElement;
         if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
-        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); setPlaying((p) => !p); }
-        else if (e.key === "ArrowRight") { e.preventDefault(); setPlaying(false); setProgress((p) => stepTo(p, lengths, +1)); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); setPlaying(false); setProgress((p) => stepTo(p, lengths, -1)); }
-        else if (e.key === "Home") { e.preventDefault(); setPlaying(false); setProgress(0); }
+        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); userPlay((p) => !p); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
+        else if (e.key === "Home") { e.preventDefault(); userPlay(false); setProgress(0); }
       }}
       className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
@@ -1236,7 +1249,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   if (!l.segments.length) return;
                   let acc = 0;
                   for (let i = 0; i < segments.length; i++) {
-                    if (segments[i].line === l.index) { setPlaying(false); setProgress(acc + 1e-3); return; }
+                    if (segments[i].line === l.index) { userPlay(false); setProgress(acc + 1e-3); return; }
                     acc += lengths[i];
                   }
                 }}>
@@ -1529,8 +1542,7 @@ function stripNumbers(src: string) {
   return src.split("\n").map((l) => l.replace(/^\s*N\d+\s*/i, "")).join("\n");
 }
 
-const reduceMotion = () =>
-  typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+
 
 /** Obrys półfabrykatu dobieranego automatycznie: zakres ruchów roboczych
     powiększony o promień największego narzędzia. */

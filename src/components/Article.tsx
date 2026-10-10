@@ -41,7 +41,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           case "demo": return (
             <figure key={i} className="grid gap-2 demo-fig">
               {b.title && <figcaption className="demo-title">{rich(b.title)}</figcaption>}
-              <SimClient initial={b.src} mode={b.mode ?? "mill"} showcase autoplay editable={false} />
+              <SimClient initial={b.src} mode={b.mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
               {b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}
             </figure>
           );

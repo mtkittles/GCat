@@ -48,7 +48,7 @@ export function Demo({ src, mode, title, caption }: { src: string; mode?: Mode; 
   return (
     <figure className="grid gap-2 demo-fig">
       {title && <figcaption className="demo-title">{rich(title)}</figcaption>}
-      <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay editable={false} />
+      <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
       {caption && <figcaption className="cap">{rich(caption)}</figcaption>}
     </figure>
   );
