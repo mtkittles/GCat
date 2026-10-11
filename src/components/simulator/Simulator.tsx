@@ -72,6 +72,8 @@ interface Props {
   appLayout?: boolean;
   /** Program wzorcowy (zadanie, rozwiązanie) do nałożenia na tor jako przerywana linia. */
   reference?: string;
+  /** Zadanie w lekcji: widoczne tylko edycja, widok i start/krok; narzędzia stanowiska pod „Więcej”. */
+  lesson?: boolean;
 }
 
 type MTab = "code" | "sim" | "tools" | "set";
@@ -98,7 +100,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference, lesson = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   // Kinematyka frezarki 4/5-osiowej: „auto” — z liter osi w programie (B → B/C, inaczej A/C).
   const [kinSel, setKinSel] = useState<Kin | "auto">("auto");
@@ -1156,92 +1158,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     );
   }
 
-  return (
-    <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined} tabIndex={-1}
-      onKeyDown={(e) => {
-        const el = e.target as HTMLElement;
-        if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
-        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); userPlay((p) => !p); }
-        else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
-        else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
-        else if (e.key === "Home") { e.preventDefault(); userPlay(false); setProgress(0); }
-      }}
-      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
-      onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
-      onDragLeave={() => setDragOver(false)}
-      onDrop={onDrop}>
-      {!compact && (
-        <details className="panel m-code" open>
-          <summary className="panel-head">Program</summary>
-          <div className="flex flex-col gap-2 min-h-0 panel-body">
-          {codeTop && <div className="m-only grid gap-2">{codeTop}</div>}
-          {editable ? (
-            <>
-              <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
-                follow={appLayout ? layout.follow : playing} onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} onLineClick={onLineClick} />
-              <div className="editor-status">
-                <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
-                <label className="jump-opt" title="Kliknięcie w linię programu przestawia symulację na koniec tej linii: położenie narzędzia, stan maszyny, ubytek materiału">
-                  <input type="checkbox" checked={jumpOn} onChange={(e) => setJump(e.target.checked)} />klik → narzędzie
-                </label>
-                <form className="goto" onSubmit={(e) => {
-                  e.preventDefault();
-                  const q = gotoN.trim().replace(/^n/i, "");
-                  if (!q) return;
-                  const n = Number(q);
-                  if (!Number.isFinite(n)) return;
-                  // najpierw szukamy bloku o numerze N, w razie braku traktujemy jako numer linii
-                  const byBlock = program.lines.findIndex((l) => l.words.some((w) => w.letter === "N" && w.value === n));
-                  editorRef.current?.goToLine((byBlock >= 0 ? byBlock : n - 1) + 1);
-                }}>
-                  <input value={gotoN} onChange={(e) => setGotoN(e.target.value)} placeholder="N / linia" aria-label="Idź do bloku" inputMode="numeric" />
-                  <button type="submit">Idź</button>
-                </form>
-                <span className="editor-legend">
-                  <i style={{ background: "var(--amber)" }} />G00
-                  <i style={{ background: "var(--green)" }} />G01
-                  <i style={{ background: "var(--blue)" }} />G02/G03
-                </span>
-              </div>
-              <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
-            </>
-          ) : null}
-          {editable && (
-            <div className="file-bar">
-              <label className="file-btn">
-                Wczytaj plik
-                {/* Bez atrybutu accept — iOS wygasza pliki .nc, .tap czy .mpf, bo nie zna ich typu MIME. */}
-                <input type="file" onChange={async (e) => {
-                  const f = e.target.files?.[0]; if (!f) return;
-                  const text = await f.text();
-                  onSourceChange?.(text.replace(/\r\n/g, "\n"));
-                  setFileName(f.name);
-                  e.target.value = "";
-                }} />
-              </label>
-              <button onClick={() => {
-                const blob = new Blob([source], { type: "text/plain;charset=utf-8" });
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = fileName || "program.nc";
-                a.click(); URL.revokeObjectURL(a.href);
-              }}>Zapisz jako .nc</button>
-              <button onClick={() => { navigator.clipboard?.writeText(source); }}>Kopiuj</button>
-              <button onClick={() => onSourceChange?.(renumber(source))} title="Nadaj blokom numery N co 5">N-umeruj</button>
-              <button onClick={() => onSourceChange?.(stripNumbers(source))} title="Usuń numery bloków">Bez N</button>
-              {fileName && <span className="file-name">{fileName}</span>}
-              <span className="file-hint">albo przeciągnij plik tutaj</span>
-              <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
-            </div>
-          )}
-          {units === "auto" && hasG20 && (
-            <p className="units-note">Program zawiera G20 — współrzędne liczone w calach i przeliczane na milimetry (1&nbsp;cal = 25,4&nbsp;mm). Jeśli tor wygląda źle, wymuś jednostki przełącznikiem powyżej.</p>
-          )}
-          {issues.length > 0 && (
-            <ul className="sim-issues">
-              {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
-            </ul>
-          )}
+  const simLines = (
           <ol className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
             {program.lines.map((l) => (
               <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
@@ -1258,18 +1175,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               </li>
             ))}
           </ol>
-          </div>
-        </details>
-
-      )}
-      <div className="flex flex-col gap-2 wb-main">
-        {!compact && allow3d && (
-            <div className="viewbar m-sim">
-              {viewSwitch}
-              <button type="button" className="vb-m vb-dim" onClick={() => setView(view === "2d" ? "3d" : "2d")}
-                aria-label={view === "2d" ? "Przełącz na widok 3D" : "Przełącz na widok 2D"} title="Przełącz widok 2D / 3D">
-                {view === "2d" ? "3D" : mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "XA" : "XY"}
-              </button>
+  );
+  const viewExtras = (
+    <>
               {layoutMenu}
               <button className="vb-desk" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
@@ -1309,6 +1217,114 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 <summary title="Eksport podglądu i toru" aria-label="Eksport"><span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg></span><span className="vb-tx">Eksport ▾</span></summary>
                 <div className="lay-pop">{exportItems}</div>
               </details>
+    </>
+  );
+
+  return (
+    <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined} tabIndex={-1}
+      onKeyDown={(e) => {
+        const el = e.target as HTMLElement;
+        if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
+        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); userPlay((p) => !p); }
+        else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
+        else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
+        else if (e.key === "Home") { e.preventDefault(); userPlay(false); setProgress(0); }
+      }}
+      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
+      onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={onDrop}>
+      {!compact && (
+        <details className="panel m-code" open>
+          <summary className="panel-head">Program</summary>
+          <div className="flex flex-col gap-2 min-h-0 panel-body">
+          {codeTop && <div className="m-only grid gap-2">{codeTop}</div>}
+          {editable ? (
+            <>
+              <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
+                follow={appLayout ? layout.follow : playing} onReady={(h) => { editorRef.current = h; }} onCaret={setCaret} onLineClick={onLineClick} />
+              {!lesson && <div className="editor-status">
+                <span className="caret-pos">kursor: <b>linia {caret?.line ?? 1}</b> · kol. {caret?.col ?? 1}</span>
+                <label className="jump-opt" title="Kliknięcie w linię programu przestawia symulację na koniec tej linii: położenie narzędzia, stan maszyny, ubytek materiału">
+                  <input type="checkbox" checked={jumpOn} onChange={(e) => setJump(e.target.checked)} />klik → narzędzie
+                </label>
+                <form className="goto" onSubmit={(e) => {
+                  e.preventDefault();
+                  const q = gotoN.trim().replace(/^n/i, "");
+                  if (!q) return;
+                  const n = Number(q);
+                  if (!Number.isFinite(n)) return;
+                  // najpierw szukamy bloku o numerze N, w razie braku traktujemy jako numer linii
+                  const byBlock = program.lines.findIndex((l) => l.words.some((w) => w.letter === "N" && w.value === n));
+                  editorRef.current?.goToLine((byBlock >= 0 ? byBlock : n - 1) + 1);
+                }}>
+                  <input value={gotoN} onChange={(e) => setGotoN(e.target.value)} placeholder="N / linia" aria-label="Idź do bloku" inputMode="numeric" />
+                  <button type="submit">Idź</button>
+                </form>
+                <span className="editor-legend">
+                  <i style={{ background: "var(--amber)" }} />G00
+                  <i style={{ background: "var(--green)" }} />G01
+                  <i style={{ background: "var(--blue)" }} />G02/G03
+                </span>
+              </div>}
+              <GcodePad onInsert={(t) => editorRef.current?.insert(t)} />
+            </>
+          ) : null}
+          {editable && !lesson && (
+            <div className="file-bar">
+              <label className="file-btn">
+                Wczytaj plik
+                {/* Bez atrybutu accept — iOS wygasza pliki .nc, .tap czy .mpf, bo nie zna ich typu MIME. */}
+                <input type="file" onChange={async (e) => {
+                  const f = e.target.files?.[0]; if (!f) return;
+                  const text = await f.text();
+                  onSourceChange?.(text.replace(/\r\n/g, "\n"));
+                  setFileName(f.name);
+                  e.target.value = "";
+                }} />
+              </label>
+              <button onClick={() => {
+                const blob = new Blob([source], { type: "text/plain;charset=utf-8" });
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = fileName || "program.nc";
+                a.click(); URL.revokeObjectURL(a.href);
+              }}>Zapisz jako .nc</button>
+              <button onClick={() => { navigator.clipboard?.writeText(source); }}>Kopiuj</button>
+              <button onClick={() => onSourceChange?.(renumber(source))} title="Nadaj blokom numery N co 5">N-umeruj</button>
+              <button onClick={() => onSourceChange?.(stripNumbers(source))} title="Usuń numery bloków">Bez N</button>
+              {fileName && <span className="file-name">{fileName}</span>}
+              <span className="file-hint">albo przeciągnij plik tutaj</span>
+              <span className="file-stat">{program.lines.filter((l) => l.words.length).length} bloków · {program.segments.length} ruchów</span>
+            </div>
+          )}
+          {units === "auto" && hasG20 && (
+            <p className="units-note">Program zawiera G20 — współrzędne liczone w calach i przeliczane na milimetry (1&nbsp;cal = 25,4&nbsp;mm). Jeśli tor wygląda źle, wymuś jednostki przełącznikiem powyżej.</p>
+          )}
+          {issues.length > 0 && (
+            <ul className="sim-issues">
+              {issues.map((i, k) => <li key={k} className={i.level}><b>linia {i.line + 1}</b> {i.msg}</li>)}
+            </ul>
+          )}
+          {lesson ? <details className="sim-lines-more"><summary>Opis bloków</summary>{simLines}</details> : simLines}
+          </div>
+        </details>
+
+      )}
+      <div className="flex flex-col gap-2 wb-main">
+        {!compact && allow3d && (
+            <div className="viewbar m-sim">
+              {viewSwitch}
+              <button type="button" className="vb-m vb-dim" onClick={() => setView(view === "2d" ? "3d" : "2d")}
+                aria-label={view === "2d" ? "Przełącz na widok 3D" : "Przełącz na widok 2D"} title="Przełącz widok 2D / 3D">
+                {view === "2d" ? "3D" : mode === "lathe" ? "ZX" : isCyl(setup, mode) ? "XA" : "XY"}
+              </button>
+              {lesson ? (
+                <details className="lay-menu vb-more">
+                  <summary title="Materiał, jednostki, tryb nauki, eksport">Więcej ▾</summary>
+                  <div className="lay-pop vb-more-pop">{viewExtras}</div>
+                </details>
+              ) : viewExtras}
               {comp.active && <button className="vb-desk" aria-pressed={showComp} onClick={() => setShowComp((v) => !v)}
                 title={mode === "lathe" ? "Tor punktu P ostrza z uwzględnieniem G41/G42 i promienia naroża" : "Tor środka narzędzia z uwzględnieniem G41/G42"}>
                 <span className="lbl-long">{showComp ? (mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)") : "Tor programowany"}</span>

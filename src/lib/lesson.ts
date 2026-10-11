@@ -65,7 +65,8 @@ export type Practice =
   | { kind: "lathejog"; intro: string; goals: LatheGoal[]; setZ?: boolean }
   /** G96: wykres obrotów w funkcji średnicy z limitem G50. */
   | { kind: "css"; intro: string; vc?: number; limit?: number }
-  | { kind: "task"; intro: string; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }
+  /** brief — dane i kroki zadania nad edytorem (zamiast długiego komentarza w kodzie). */
+  | { kind: "task"; intro: string; brief?: string[]; /** Dodatkowy widok nad edytorem: przekrój Z dla G43. */ view?: "g43"; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
 export interface WorkedStep { x: string; code?: string }

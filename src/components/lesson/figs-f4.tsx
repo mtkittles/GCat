@@ -8,8 +8,8 @@ export function ToolLength() {
   const tools = [{ x: 90, L: 86, n: 1, h: "85.200" }, { x: 250, L: 118, n: 2, h: "102.700" }];
   return (
     <Fig id="f41tl" code="G43 H" title="Dwa narzędzia, ten sam cel Z5" h={246} legend={["acc", "dim", "stock"]}
-      notes={<><Code k="acc">pozycja N = Z programu + H</Code></>}
-      caption={<>Program mówi tylko, gdzie ma być czubek: Z5. Sterowanie dolicza długość z rejestru H i ustawia czoło wrzeciona N wyżej dla dłuższego narzędzia. Bez G43 oba czubki trafiłyby w złe miejsce.</>}>
+      notes={<><Code k="acc">pozycja N = Z programu + wartość z rejestru H</Code><Code k="dim">H1 — numer rejestru, 85,200 — liczba w nim zapisana</Code></>}
+      caption={<>Program mówi tylko, gdzie ma być czubek: Z5. Słowo H1 w programie nie jest długością — wskazuje rejestr nr 1, a sterowanie bierze z niego zapisaną liczbę (85,2 mm) i ustawia czoło wrzeciona N wyżej dla dłuższego narzędzia. Bez G43 oba czubki trafiłyby w złe miejsce.</>}>
       {(c) => (
         <g>
           <rect x={20} y={top} width={320} height={40} fill={c.hatch} className="p-con" />
@@ -26,8 +26,8 @@ export function ToolLength() {
                 <rect x={t.x - 5} y={nY + 16} width={10} height={t.L - 16} className="cutter" />
                 <line x1={t.x - 40} y1={nY} x2={t.x + 40} y2={nY} className="p-acc" />
                 <Pt x={t.x} y={nY} label="N" pos="w" cls="t-acc t-b" dot="pt-rap" />
-                <Dim x1={t.x + 30} y1={nY} x2={t.x + 30} y2={tip} label={`H${t.n}`} c={c} lside={1} cls="t-acc t-b t-mono" />
-                <T x={t.x} y={top + 30} anchor="middle" cls="t-b t-mono">{`T${t.n}  H${t.n} = ${t.h}`}</T>
+                <Dim x1={t.x + 30} y1={nY} x2={t.x + 30} y2={tip} label={t.h.replace(/0+$/, "").replace(".", ",")} c={c} lside={1} cls="t-acc t-b t-mono" />
+                <T x={t.x} y={top + 30} anchor="middle" cls="t-b t-mono">{`T${t.n} · rejestr H${t.n} = ${t.h}`}</T>
               </g>
             );
           })}
@@ -111,14 +111,14 @@ export function TwoLengths() {
   const m = mapper(R, [8, 8, 344, 250]);
   const g54 = -400, z5 = g54 + 5;
   const tools = [
-    { x: 75, h: 85.2, name: "T1 frez", n: g54 + 5 + 85.2, w: 10 },
-    { x: 150, h: 102.7, name: "T2 wiertło", n: g54 + 5 + 102.7, w: 6 },
+    { x: 75, h: 85.2, name: "T1 frez", reg: "H1", n: g54 + 5 + 85.2, w: 10 },
+    { x: 150, h: 102.7, name: "T2 wiertło", reg: "H2", n: g54 + 5 + 102.7, w: 6 },
   ];
   const fmt = (v: number) => v.toFixed(1).replace(".", ",").replace("-", "−");
   return (
     <Fig id="f41tw" code="G43" title="Ten sam Z5, różne pozycje wrzeciona" h={268} legend={["dim", "stock"]}
-      notes={<><Code k="acc">N = G54 Z + Z programu + H</Code></>}
-      caption={<>Pionowo współrzędne maszynowe. Detal leży pod linią Z0, czyli pod pozycją −400 zapisaną w G54. Oba narzędzia mają czubek na Z5 programu (−395 maszynowo). Czoło wrzeciona N stoi wyżej o długość narzędzia: frez −309,8, wiertło −292,3. Różnica 17,5 mm to różnica długości H — wartość Z w G54 jest dla obu ta sama.</>}>
+      notes={<><Code k="acc">N = G54 Z + Z programu + wartość H</Code><Code k="dim">H1 = 85,2 · H2 = 102,7</Code></>}
+      caption={<>Pionowo współrzędne maszynowe. Detal leży pod linią Z0, czyli pod pozycją −400 zapisaną w G54. Oba narzędzia mają czubek na Z5 programu (−395 maszynowo). Czoło wrzeciona N stoi wyżej o długość narzędzia: frez −309,8, wiertło −292,3. Różnica 17,5 mm to różnica liczb zapisanych w rejestrach H1 i H2 — wartość Z w G54 jest dla obu ta sama.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(g54)} width={200 * m.u} height={18 * m.u} fill={c.hatch} className="p-con" />
@@ -132,8 +132,9 @@ export function TwoLengths() {
               <rect x={m.X(t.x - t.w / 2)} y={m.Y(t.n)} width={t.w * m.u} height={(t.h) * m.u} className="cutter" />
               <line x1={m.X(t.x - 12)} y1={m.Y(t.n)} x2={m.X(t.x + 12)} y2={m.Y(t.n)} className="p-acc thick" />
               <T x={m.X(t.x + 13)} y={m.Y(t.n) + 4} cls="t-acc t-b t-mono">{`N ${fmt(t.n)}`}</T>
-              <Dim c={c} x1={m.X(t.x - 16)} y1={m.Y(t.n)} x2={m.X(t.x - 16)} y2={m.Y(z5)} label={`H ${fmt(t.h)}`} lside={1} />
+              <Dim c={c} x1={m.X(t.x - 16)} y1={m.Y(t.n)} x2={m.X(t.x - 16)} y2={m.Y(z5)} label={fmt(t.h)} lside={1} />
               <T x={m.X(t.x - 11)} y={m.Y(-268) + 14} anchor="end" cls="t-b t-sm">{t.name}</T>
+              <T x={m.X(t.x - 11)} y={m.Y(-268) + 27} anchor="end" cls="t-mono t-sm t-mut">{`rejestr ${t.reg}`}</T>
             </g>
           ))}
         </g>

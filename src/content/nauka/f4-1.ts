@@ -44,7 +44,9 @@ export const f4_1: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Po wymianie narzędzia brakuje korekcji długości. Dopisz ją tak, żeby frez stanął czubkiem 50 mm nad zerem detalu.",
-      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\n(DOPISZ KOREKCJE DLUGOSCI Z REJESTRU 1 I DOJAZD NA Z50)\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
+      brief: ["Korekcja długości z rejestru 1.", "W tym samym bloku dojazd na Z50."],
+      view: "g43",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\n(TU KOREKCJA DLUGOSCI)\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["G43","H1"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
       hints: ["`G43 H1 Z50.` — włączenie korekcji łączy się z ruchem w Z, żeby sterowanie od razu policzyło pozycję z długością narzędzia.","Konwencja kursu: numer H równy numerowi narzędzia (T1 → H1)."],
       solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",

@@ -1655,7 +1655,20 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 
 /* JOG */
 .jog { display: grid; gap: .7rem; padding: .75rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
-.jog-view svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); touch-action: manipulation; }
+.jog-view svg { display: block; width: 100%; height: auto; max-height: min(46vh, 440px); border-radius: 10px; background: var(--panel); touch-action: manipulation; }
+.jog-side { display: grid; gap: .7rem; align-content: start; min-width: 0; }
+/* Widok i sterowanie obok siebie, gdy ćwiczenie ma dość miejsca — skutek ruchu widać bez przewijania (#31, V05). */
+.ls-practice { container-type: inline-size; }
+@container (min-width: 600px) {
+  .jog { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: start; column-gap: .9rem; }
+  .jog-view { position: sticky; top: 5rem; }
+  .jog-view svg { max-height: min(70vh, 520px); }
+}
+.jog-target { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; padding: .55rem .75rem; border-radius: 10px; border: 1.5px solid var(--accent); background: var(--accent-soft); font-size: 14px; color: var(--ink); line-height: 1.4; }
+.jog-target-k { font: 700 12px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+.jog-target code { font: 700 14px/1.2 var(--font-mono); color: var(--ink); }
+.jog-target.is-done { border-color: var(--green); background: color-mix(in srgb, var(--green) 12%, transparent); }
+.jog-target.is-done .jog-target-k { color: var(--green); }
 .jog-table { fill: color-mix(in srgb, var(--ink) 3%, transparent); stroke: var(--line); }
 .jog-top { fill: #3A3B41; stroke: var(--ink-2); stroke-width: 1; }
 .jog-front { fill: #2A2B30; stroke: var(--ink-2); stroke-width: 1; }
@@ -1666,8 +1679,9 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .jog-mk { fill: var(--accent); }
 .jog-w { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
 .jog-axes .jog-wl { fill: var(--ink); }
-.jog-goal circle { fill: none; stroke: var(--green); stroke-width: 1.6; }
-.jog-goal line { stroke: var(--green); stroke-width: 1.2; }
+.jog-goal circle { fill: none; stroke: var(--accent); stroke-width: 1.8; }
+.jog-goal line { stroke: var(--accent); stroke-width: 1.3; }
+.jog-hit { fill: var(--green); stroke: var(--panel); stroke-width: 1.2; }
 .jog-drop line { stroke: var(--amber); stroke-width: 1.2; stroke-dasharray: 4 3; }
 .jog-drop ellipse { fill: color-mix(in srgb, var(--amber) 22%, transparent); stroke: none; }
 .jog-tool rect, .jog-tool ellipse { fill: #6B6E76; stroke: #D4D4D8; stroke-width: 1; }
@@ -1690,9 +1704,11 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .jog-goals { display: grid; gap: .3rem; }
 .jog-goals li { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .6rem; padding: .5rem .7rem; border-radius: 10px; border: 1px dashed var(--line-strong); font-size: 13.5px; color: var(--muted); }
 .jog-goals li code { font: 700 13px/1 var(--font-mono); color: var(--muted); }
-.jog-goals li.is-now { border-style: solid; border-color: var(--green); color: var(--ink-2); }
-.jog-goals li.is-now code { color: var(--green); }
-.jog-goals li.is-done { border-style: solid; border-color: var(--line); text-decoration: line-through; text-decoration-color: var(--muted); }
+.jog-goals li.is-now { border-style: solid; border-color: var(--accent); color: var(--ink-2); }
+.jog-goals li.is-now code { color: var(--accent); }
+.jog-goals li.is-done { border-style: solid; border-color: color-mix(in srgb, var(--green) 45%, var(--line)); }
+.jog-goals li.is-done code, .jog-goals li.is-done .jog-goal-n { color: var(--green); }
+.jog-goal-n { font: 700 12px/1 var(--font-mono); color: var(--muted); min-width: 1.1em; }
 .jog-goals li.jog-win { border: none; color: var(--green); font-weight: 600; padding-left: 0; }
 
 /* zaznacz punkt */
@@ -2807,3 +2823,35 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .demo-fig .showcase-lines { max-height: 240px; }
 .ls-src > p.ls-src-note { font-size: .9rem; line-height: 1.5; color: var(--ink-2); max-width: 70ch; }
 .ls-src-item a small { display: inline; margin: 0; font-weight: 400; }
+
+/* ---------- Zadanie w lekcji: dane nad edytorem, „Więcej”, przekrój Z dla G43 (#31, V10–V12) ---------- */
+.ptask-brief { display: grid; gap: .35rem; padding: .7rem .85rem; border-radius: 12px; border: 1px solid var(--line); border-left: 3px solid var(--accent); background: var(--card); }
+.ptask-brief-k { font: 700 11.5px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.ptask-brief ul { display: grid; gap: .25rem; padding-left: 1.1rem; list-style: disc; font-size: 15px; line-height: 1.5; color: var(--ink); }
+.vb-more > summary { list-style: none; cursor: pointer; }
+.vb-more > summary::-webkit-details-marker { display: none; }
+.vb-more-pop { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; min-width: 16rem; max-width: min(30rem, 90vw); }
+.vb-more-pop .vb-desk, .vb-more-pop .only-wide { display: inline-flex; }
+.vb-more-pop .exp-menu { position: static; }
+.sim-lines-more > summary { cursor: pointer; font-size: 13.5px; color: var(--muted); padding: .25rem 0; }
+.g43s { display: grid; gap: .5rem; padding: .6rem; border-radius: 14px; border: 1px solid var(--line); background: var(--card); }
+.g43s svg { display: block; width: 100%; max-width: 420px; height: auto; margin-inline: auto; border-radius: 10px; background: var(--panel); }
+.g43s-part { fill: color-mix(in srgb, var(--ink) 14%, var(--panel)); stroke: var(--ink-2); stroke-width: 1; }
+.g43s-table { fill: color-mix(in srgb, var(--ink) 6%, var(--panel)); stroke: var(--line-strong); stroke-dasharray: 4 3; }
+.g43s-z0 { stroke: var(--accent); stroke-width: 1; stroke-dasharray: 5 4; }
+.g43s-spindle { fill: #3A3B41; stroke: #9CA3AF; stroke-width: 1; }
+.g43s-holder { fill: #55575E; stroke: #9CA3AF; stroke-width: 1; }
+.g43s-tool { fill: #9CA3AF; stroke: #E5E7EB; stroke-width: 1; }
+.g43s-tool.is-bad { fill: color-mix(in srgb, var(--red) 55%, #3A3B41); stroke: var(--red); }
+.g43s-nose { stroke: var(--accent); stroke-width: 2; }
+.g43s-tip { fill: var(--accent); stroke: var(--panel); stroke-width: 1; }
+.g43s-tip.is-bad { fill: var(--red); }
+.g43s-lab { font: 600 11px/1 var(--font-sans); fill: var(--ink-2); }
+.g43s-lab.is-acc { fill: var(--accent); font-weight: 700; }
+.g43s-val { font: 700 12px/1 var(--font-mono); fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.g43s-val.is-bad { fill: var(--red); }
+.g43s-cap { display: grid; gap: .3rem; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.g43s-reg { font-size: 13px; color: var(--muted); }
+.g43s-reg b { font-family: var(--font-mono); color: var(--ink-2); }
+.g43s-row { padding: .4rem .6rem; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--green) 40%, var(--line)); }
+.g43s-row.is-bad { border-color: var(--red); color: var(--ink); }

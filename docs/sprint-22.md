@@ -10,3 +10,14 @@ Jedna paczka, jeden PR (`sprint-22/paczka-d`).
 | G04 | opis źródła: adresy X i P (U niepotwierdzone) |
 
 Brak nowych zmiennych środowiskowych i zależności.
+
+## Paczka F — issue #31, etap 2 (`sprint-23/paczka-f`)
+
+| ID | Zmiana |
+|---|---|
+| V05 | JOG (F0.1, F0.2/F0.3, T0.x): widok i sterowanie obok siebie, gdy ćwiczenie ma ≥ 600 px; widok przyklejony przy przewijaniu; ograniczona wysokość grafiki na telefonie |
+| V06 | bieżący cel pomarańczowy z licznikiem „Cel 1/3”; zielony z ✓ tylko po osiągnięciu (też znacznik na rysunku) |
+| V09 | F4.1: rysunki rozdzielają numer rejestru (H1) od liczby w nim (85,2 mm) |
+| V10 | zadanie G43 zaczyna się od przekroju z boku: wrzeciono, oprawka, narzędzie, płytka; czubek liczony z programu w edytorze |
+| V11 | zadania w lekcjach: plik, numeracja, idź do bloku, materiał, jednostki, eksport i tryb nauki pod „Więcej”; opis bloków zwinięty |
+| V12 | dane zadania nad edytorem (12 zadań), w kodzie krótki komentarz „(TU …)” |
