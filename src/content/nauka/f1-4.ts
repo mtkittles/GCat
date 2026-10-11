@@ -96,7 +96,7 @@ export const f1_4: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G20/G21, wybór płaszczyzny G17–G19" },
+    { id: "fanuc", where: "G20/G21, wybór płaszczyzny G17–G19", loc: "rozdz. 3.1, tab. 3.1, s. 71" },
     { id: "sinumerik", where: "G70/G71, G700/G710, płaszczyzny robocze" },
   ],
 };

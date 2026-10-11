@@ -117,7 +117,7 @@ export const f1_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "programowanie absolutne i przyrostowe, G90 i G91" },
+    { id: "fanuc", where: "programowanie absolutne i przyrostowe, G90 i G91", loc: "rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 91" },
     { id: "sinumerik", where: "G90 i G91, wymiary AC i IC dla pojedynczej osi" },
   ],
 };

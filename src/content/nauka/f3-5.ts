@@ -108,7 +108,7 @@ export const f3_5: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G04, adresy X, U i P" },
+    { id: "fanuc", where: "G04, adresy X i P", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79; parametr 3405#1 DWL — rozdz. 7.2.16, s. 201" },
     { id: "sinumerik", where: "G4 z F i S" },
   ],
 };

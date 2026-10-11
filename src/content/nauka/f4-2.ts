@@ -137,7 +137,7 @@ export const f4_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "korekcja promienia G40/G41/G42, włączanie i wyłączanie korekcji, tabela korekcji" },
+    { id: "fanuc", where: "korekcja promienia G40/G41/G42, włączanie i wyłączanie korekcji, tabela korekcji", loc: "rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 84" },
     { id: "sinumerik", where: "korekcja promienia narzędzia G40/G41/G42" },
     { id: "sandvik", where: "frezowanie współbieżne i przeciwbieżne" },
   ],

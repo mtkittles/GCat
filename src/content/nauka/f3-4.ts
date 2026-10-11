@@ -112,7 +112,7 @@ export const f3_4: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "interpolacja kołowa z I, J, K, pełny okrąg" },
+    { id: "fanuc", where: "interpolacja kołowa z I, J, K, pełny okrąg", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "programowanie środka łuku, I=AC()" },
   ],
 };

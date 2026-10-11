@@ -121,7 +121,7 @@ export const t1_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "systemy kodów G A, B i C, programowanie absolutne i przyrostowe na tokarce" },
+    { id: "fanuc", where: "systemy kodów G A, B i C, programowanie absolutne i przyrostowe na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 75–78; parametry 3401#6/#7 GSB/GSC — rozdz. 7.2.16, s. 200" },
     { id: "sinumerik", where: "G90, G91, IC i AC na tokarce" },
   ],
 };

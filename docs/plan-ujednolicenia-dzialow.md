@@ -65,6 +65,16 @@ Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart �
 
 Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart ★ (potrzebny dostęp do dokumentacji).
 
+### Stan po paczce D (sprint 22)
+
+- Dokument Fanuc ustalony: **B-64607EN/01**, wydanie 01, Oct. 2016, „FANUC Series 0i-MODEL F — Operation and Maintenance Handbook” (modele 0i-TF i 0i-MF). Instrukcja **nie wymienia 0i-F Plus**, więc wpis w rejestrze źródeł mówi o 0i-F i zastrzega, że nowsze wersje mogą się różnić.
+- Strony (ze stopki dokumentu) uzupełnione w 12 kartach ★ i 22 lekcjach: tabele kodów G (rozdz. 3.1 s. 71–74, 3.2 s. 75–78), format programu (rozdz. 4, s. 79–93), parametry (1401#1 LRP, 3405#1 DWL, 3401#6/#7 GSB/GSC, 5003#0/#1 SUP/SUV, rozdz. 7).
+- Poprawka merytoryczna: G04 — instrukcja podaje adresy X i P (`G04 {X_ / P_}`, s. 79); wzmianka o U usunięta z opisu źródła, bo nie jest tam potwierdzona.
+- Instrukcja jest zestawieniem — nie opisuje cykli (G71/G70, G76, G32) ani makr; lekcje o nich zostają bez stron do czasu sięgnięcia do DESCRIPTIONS (B-64602EN).
+- Brak w dokumencie (nie wpisujemy jako faktu): definicje M00–M09, M30, M98/M99 jako funkcji standardowych; parametr G94/G95 po włączeniu dla frezarki; parametr wyboru G98/G99; alarm za pominięty G43.
+
+Zostało dla Kodów: SINUMERIK (strony kart ★), lekcje bez stron (f0-*, f1-1, f1-2, f1-5, f2-1, f2-2, f2-4, f5, f6-3, f7-*, f8-1, t0-*, t1-1, t1-3, t2-1, t2-2, t4-2, t5-*, t6-*, t7-*, t8-1, t9-1), FALX w CYCLE95.
+
 ## Zasady (bez zmian)
 
 - Symulator, parser, osadzone dema i odnośniki są chronione (`docs/karty-kodow.md`).

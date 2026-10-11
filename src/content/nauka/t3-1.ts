@@ -106,7 +106,7 @@ export const t3_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G00 na tokarce, tor ruchu szybkiego" },
+    { id: "fanuc", where: "G00 na tokarce, tor ruchu szybkiego", loc: "rozdz. 3.2, tab. 3.2, s. 75; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "G0, RTLION/RTLIOF" },
   ],
 };

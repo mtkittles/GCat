@@ -110,7 +110,7 @@ export const f3_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "pozycjonowanie G00, interpolacja liniowa i nieliniowa przy ruchu szybkim, korektor" },
+    { id: "fanuc", where: "pozycjonowanie G00, interpolacja liniowa i nieliniowa przy ruchu szybkim, korektor", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79; parametr 1401#1 LRP — rozdz. 7.2.11, s. 171" },
     { id: "sinumerik", where: "G0, RTLION i RTLIOF" },
   ],
 };

@@ -146,7 +146,7 @@ export const t4_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "korekcja promienia ostrza na tokarce, punkt teoretyczny ostrza" },
+    { id: "fanuc", where: "korekcja promienia ostrza na tokarce, punkt teoretyczny ostrza", loc: "rozdz. 3.2, tab. 3.2, s. 76; rozdz. 4, s. 85" },
     { id: "sinumerik", where: "korekcja promienia ostrza G41/G42 na tokarce" },
     { id: "sandvik", where: "promień naroża i dokładność kształtu przy toczeniu" },
   ],

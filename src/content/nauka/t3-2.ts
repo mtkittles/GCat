@@ -125,7 +125,7 @@ export const t3_2: LessonDoc = {
 
   sources: [
     { id: "sandvik", where: "toczenie zgrubne i wykańczające, głębokość skrawania" },
-    { id: "fanuc", where: "G01, fazowanie i zaokrąglanie naroży" },
+    { id: "fanuc", where: "G01, fazowanie i zaokrąglanie naroży", loc: "rozdz. 3.2, tab. 3.2, s. 75; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "G1, CHR, CHF, RND" },
   ],
 };

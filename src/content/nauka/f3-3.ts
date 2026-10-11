@@ -123,7 +123,7 @@ export const f3_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "interpolacja kołowa G02/G03, programowanie promieniem R" },
+    { id: "fanuc", where: "interpolacja kołowa G02/G03, programowanie promieniem R", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "G2/G3, CR=" },
   ],
 };

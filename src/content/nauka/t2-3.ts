@@ -122,7 +122,7 @@ export const t2_3: LessonDoc = {
   sources: [
     { id: "sandvik", where: "posuw przy toczeniu, chropowatość teoretyczna, zakresy łamaczy wióra" },
     { id: "jemielniak", where: "chropowatość powierzchni po toczeniu" },
-    { id: "fanuc", where: "G98 i G99 na tokarce" },
+    { id: "fanuc", where: "G98 i G99 na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s. 92" },
     { id: "sinumerik", where: "G94 i G95" },
   ],
 };

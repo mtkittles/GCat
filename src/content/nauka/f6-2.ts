@@ -149,6 +149,6 @@ export const f6_2: LessonDoc = {
   sources: [
     { id: "sandvik", where: "frezowanie kieszeni, wejście po rampie, promienie naroży" },
     { id: "sinumerik", where: "POCKET3" },
-    { id: "fanuc", where: "korekcja promienia na konturach wewnętrznych" },
+    { id: "fanuc", where: "korekcja promienia na konturach wewnętrznych", loc: "rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 84" },
   ],
 };
