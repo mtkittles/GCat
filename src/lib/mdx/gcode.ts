@@ -15,6 +15,7 @@ export function kodToGcode(k: Kod, hasArticle: boolean): GCode {
     ...(k.example.mode ? { exampleMode: k.example.mode } : {}),
     ...(k.example.stock.discriminant ? { exampleStock: k.example.stock.value } : {}),
     ...(k.example.dialect ? { exampleDialect: k.example.dialect } : {}),
+    ...(k.sources.length ? { sources: k.sources.map((x) => ({ id: x.id, where: x.where, ...(x.loc ? { loc: x.loc } : {}), ...(x.url ? { url: x.url } : {}) })) } : {}),
     star: k.star, hasArticle,
   };
 }

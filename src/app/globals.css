@@ -2805,4 +2805,5 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .demo-fig .showcase-legend li { white-space: normal; }
 .demo-fig .showcase-code { border-left: none; border-top: 1px solid rgba(148,163,184,.16); }
 .demo-fig .showcase-lines { max-height: 240px; }
+.ls-src > p.ls-src-note { font-size: .9rem; line-height: 1.5; color: var(--ink-2); max-width: 70ch; }
 .ls-src-item a small { display: inline; margin: 0; font-weight: 400; }
