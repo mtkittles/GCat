@@ -2883,3 +2883,13 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .tm-range input { width: 100%; accent-color: var(--accent); }
 .tm-read { font: 600 15px/1.2 var(--font-mono); color: var(--ink); padding: .35rem .6rem; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .tm-read i { font-style: normal; color: var(--accent); margin-right: .5rem; }
+
+/* ---------- wejście do Nauki i plan ścieżki (#31, V01, V03, V04) ---------- */
+.banner.is-slim { min-height: 112px; }
+.banner.is-slim .banner-inner { padding-block: .9rem; }
+.banner.is-slim .banner-title { font-size: clamp(1.3rem, 4vw, 2rem); }
+@media (max-width: 767px) { .banner.is-slim { min-height: 100px; } }
+.nk-choose { font: 700 12px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: -.6rem; }
+.tp-stage { font: 700 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
+.tp-l.is-next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
+.tp-next { font: 700 11.5px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }

@@ -19,3 +19,12 @@ Brak nowych zmiennych środowiskowych i zależności.
 | V13 | F5.4: w teorii jeden rysunek G98/G99 (`f54-levels`) zamiast dwóch; przebieg krok po kroku zostaje w przykładzie (`f54-run`) |
 | V14 | `f54-levels` pokazuje cały zespół: wiertło Ø6 z wysięgiem 40 i oprawkę Ø32 przy dnie otworu X45 — oprawka 8 mm nad dociskiem; w podpisie skutek krótszego wysięgu (oprawka na Z13, kolizja mimo poprawnego toru czubka) |
 | V15 | T0.1: nowy schemat `t01-machine` przed osiami — wrzeciennik, uchwyt, szczęki, pręt, głowica, oprawka, płytka, konik z kłem (opcjonalnie), łoże; co się obraca, a co przesuwa |
+
+## Paczka I — wejście do Nauki (`sprint-23/paczka-i`)
+
+| ID | Zmiana |
+|---|---|
+| V01 | `/nauka`: „Zaczynam od podstaw — 7 dni do pierwszego programu” przed kartami ścieżek; nad kartami nagłówek „Wybieram ścieżkę” |
+| V03 | plan ścieżki: „Etap N z M” nad każdym modułem; następna lekcja obramowana i oznaczona „następny krok” (z postępu w przeglądarce) |
+| V04 | baner lekcji niższy (`size="slim"`, ok. 112 px zamiast 210–230 px) — więcej treści na pierwszym ekranie |
+| §5 | plan 7 dni: „około 30–40 minut dziennie, we własnym tempie” zamiast „po pół godziny dziennie”; czas ćwiczeń zależy od ucznia |

@@ -28,23 +28,25 @@ export default function TrackBody({ track, modules, part, partFig, other }: {
   return (
     <div className="tp-body">
       <ol className="tp-mods">
-        {modules.map((m) => {
+        {modules.map((m, mi) => {
           const ready = m.lessons.filter((l) => l.href);
           const mDone = ready.filter((l) => isPassed(P(l.id))).length;
           return (
             <li key={m.id} className="tp-mod">
+              <p className="tp-stage">Etap {mi + 1} z {modules.length}</p>
               <h2><span className="tp-mid">{m.id}</span>{m.title}{ready.length > 0 && <span className="tp-mod-bar">{mDone}/{ready.length}</span>}</h2>
               {m.skill && <p className="tp-skill"><span>Po module</span>{m.skill}</p>}
               <ol className="tp-lessons">
                 {m.lessons.map((l) => {
                   const isDone = isPassed(P(l.id)), isRd = isRead(P(l.id));
+                  const isNext = !!l.href && l.id === nextUp?.id && !isFinished(P(l.id));
                   return (
                     <li key={l.id}>
                       {l.href ? (
-                        <Link href={l.href} className={`tp-l is-ready${isDone ? " is-done" : isRd ? " is-read" : ""}`}>
+                        <Link href={l.href} className={`tp-l is-ready${isDone ? " is-done" : isRd ? " is-read" : ""}${isNext ? " is-next" : ""}`} aria-current={isNext ? "step" : undefined}>
                           <span className="tp-lid">{l.id}</span>
                           <span className="tp-lt">{l.title}</span>
-                          <span className="tp-lm">{isDone ? <b className="tp-check"><i aria-hidden>✓</i> zaliczona testem</b> : isRd ? <b className="tp-read"><i aria-hidden>•</i> przeczytana</b> : `${l.minutes} min`}</span>
+                          <span className="tp-lm">{isNext ? <b className="tp-next">następny krok</b> : isDone ? <b className="tp-check"><i aria-hidden>✓</i> zaliczona testem</b> : isRd ? <b className="tp-read"><i aria-hidden>•</i> przeczytana</b> : `${l.minutes} min`}</span>
                         </Link>
                       ) : (
                         <div className="tp-l is-planned" aria-disabled>

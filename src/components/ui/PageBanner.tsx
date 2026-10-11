@@ -19,7 +19,7 @@ export interface BannerProps {
   /** Treść dymka pod przyciskiem „?”. */
   info?: ReactNode;
   mono?: boolean;
-  size?: "default" | "compact";
+  size?: "default" | "compact" | "slim";
   priority?: boolean;
 }
 
@@ -57,7 +57,7 @@ export default function PageBanner({ src, title, subtitle, kicker, meta, info, m
 
   return (
     <div className="banner-wrap" ref={wrap}>
-      <section className={`banner ${size === "compact" ? "is-compact" : ""}`} aria-label={title}>
+      <section className={`banner ${size === "compact" ? "is-compact" : size === "slim" ? "is-slim" : ""}`} aria-label={title}>
         {layers.map((l, i) => (
           <Image
             key={l.key}

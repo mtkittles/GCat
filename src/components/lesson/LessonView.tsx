@@ -83,7 +83,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
     <article className="ls">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { href: `/nauka/${track}`, label: T.title }, { label: doc.id }]} />
       <PageBanner src={T.banner} kicker={`${doc.id}  ·  ${plan.module.id} ${plan.module.title}`} title={doc.title}
-        meta={<><Chip>{doc.minutes} min</Chip><Chip tone="info">{T.title.toLowerCase()}</Chip></>} size="compact" priority />
+        meta={<><Chip>{doc.minutes} min</Chip><Chip tone="info">{T.title.toLowerCase()}</Chip></>} size="slim" priority />
 
       <div className="ls-layout">
       <aside className="ls-left">
