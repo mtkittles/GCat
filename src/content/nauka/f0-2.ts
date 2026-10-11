@@ -80,7 +80,7 @@ export const f0_2: LessonDoc = {
     rows: [
       ["Bazowanie", "tryb REF (ZRN), powrót do punktu referencyjnego", "tryb REF POINT"],
       ["Najazd na R z programu", "`G28` przez punkt pośredni", "`G74`"],
-      ["Ruch w układzie maszyny", "`G53`, tylko w jednym bloku", "`G53` lub `SUPA`, tylko w jednym bloku"],
+      ["Pominięcie przesunięć w jednym bloku", "`G53` — ruch w układzie maszyny", "`G53`, `G153` lub `SUPA` — każdy pomija inny zakres przesunięć"],
       ["Ekran pozycji", "MACHINE i ABSOLUTE", "MCS i WCS"],
     ],
     note: "Sinumerik w trybie języka ISO rozumie `G28`. W natywnym języku Siemensa najazd na punkt referencyjny to `G74`.",
@@ -114,7 +114,7 @@ export const f0_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "sinumerik", where: "punkty M, R, W i baza narzędzia, bazowanie, G74, G53 i SUPA" },
+    { id: "sinumerik", where: "punkty M, R, W i baza narzędzia, bazowanie, G74; G53, G153 i SUPA", loc: "G53, G153, SUPA — rozdz. 13.10, s. 334" },
     { id: "fanuc", where: "powrót do punktu referencyjnego, G28, G53, ekran pozycji", loc: "G28 — rozdz. 3.1, tab. 3.1, s. 71, rozdz. 4, s. 83; G53 — rozdz. 4, s. 87; ekran pozycji — rozdz. 1.3, s. 16–20" },
   ],
 };

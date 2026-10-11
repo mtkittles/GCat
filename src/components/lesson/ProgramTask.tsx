@@ -8,7 +8,11 @@ import G43Side from "./G43Side";
 /*
   Zadanie „dopisz do programu”: edytor z symulatorem, sprawdzanie według listy warunków.
   Porównywana jest geometria i położenia, a nie identyczny zapis.
+  Półfabrykat frezarski w zadaniach: płytka 80 × 50 × 20 (kontur gotowy) z naddatkiem 2 mm na bok,
+  czyli 84 × 54 × 20; zero W w lewym dolnym narożniku konturu gotowego, Z0 na górnej powierzchni (#80).
 */
+
+const MILL_STOCK = { x: 84, y: 54, z: 20, ox: 2, oy: 2, oz: 20 };
 
 export default function ProgramTask({ brief = [], view, starter, checks, hints = [], solution, mode = "mill" }: { brief?: string[]; view?: "g43"; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }) {
   const [src, setSrc] = useState(starter);
@@ -25,7 +29,7 @@ export default function ProgramTask({ brief = [], view, starter, checks, hints =
       )}
       {view === "g43" && <G43Side src={src} />}
       <Simulator lesson source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={mode} reference={showSol ? solution : undefined}
-        stock={mode === "mill" ? { x: 80, y: 50, z: 20, ox: 0, oy: 0, oz: 20 } : undefined} />
+        stock={mode === "mill" ? MILL_STOCK : undefined} />
       <div className="ptask-actions">
         <button type="button" className="btn" onClick={() => setRes(runTaskChecks(src, checks, mode))}>Sprawdź program</button>
         <button type="button" className="btn ghost" onClick={() => { setSrc(starter); setRes(null); }}>Od nowa</button>

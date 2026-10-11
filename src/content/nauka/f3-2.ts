@@ -5,9 +5,10 @@ G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06
+G00 G43 H1 Z50.
 S2500 M03
 M08
-G00 X40. Y25. Z50.
+G00 X40. Y25.
 G00 X-20. Y10.
 G00 Z5.
 (DOPISZ: ZEJSCIE NA Z-5, DOJAZD DO X-5 I OBIEG KONTURU)
@@ -38,25 +39,25 @@ export const f3_2: LessonDoc = {
     { t: "diagram", id: "g01" },
     { t: "p", x: "G01 potrzebuje posuwu. Jeśli w programie nie padło jeszcze żadne F, pierwszy blok G01 kończy się alarmem. Dalej F jest modalne — obowiązuje, dopóki nie wpiszesz nowego." },
 
-    { t: "h", x: "Wejście w materiał", id: "wejscie" },
-    { t: "p", x: "Zejście na głębokość programuje się obok detalu, w powietrzu, z posuwem zmniejszonym dla ostrzy czołowych (lekcja F2.3). W programie płytki frez schodzi w X−20, 15 mm od krawędzi, na `Z-5.` z `F150`, i dopiero potem dojeżdża do konturu z `F400`." },
+    { t: "h", x: "Zejście na głębokość i wejście w materiał", id: "wejscie" },
+    { t: "p", x: "W programie płytki zejście na głębokość odbywa się obok półfabrykatu, w powietrzu: frez schodzi w X−20 na `Z-5.` z `F150` (założenie z lekcji F2.3). Ten ruch niczego nie skrawa. W materiał frez wchodzi dopiero w następnym bloku, `G01 X-5. F400` — na ostatnich 2 mm drogi krawędź freza wchodzi bokiem w naddatek. Zejście pionowo nad materiałem wymaga posuwu wgłębnego z katalogu freza i ostrzy dochodzących do środka; lekcja F6.2 pokazuje wejście rampą." },
 
     { t: "h", x: "Tor środka freza", id: "tor-srodka" },
-    { t: "p", x: "Program prowadzi **środek** narzędzia. Żeby frez Ø10 obrobił krawędź płytki, jego środek musi jechać 5 mm od niej — o promień na zewnątrz. Kontur 80 × 50 daje tor środka od X−5 do X85 i od Y−5 do Y55. Lekcja F4.2 pokaże, jak przerzucić to przesunięcie na sterowanie." },
-    { t: "table", head: ["Krawędź detalu", "Tor środka", "Blok"], rows: [
+    { t: "p", x: "Program prowadzi **środek** narzędzia. Półfabrykat ma wymiary 84 × 54 — po 2 mm naddatku na bok konturu gotowego 80 × 50. Żeby frez Ø10 obrobił gotową krawędź, jego środek musi jechać 5 mm od niej, o promień na zewnątrz. Kontur 80 × 50 daje tor środka od X−5 do X85 i od Y−5 do Y55; w każdym boku frez zbiera pas 2 mm na głębokość 5 mm. Lekcja F4.2 pokaże, jak przerzucić to przesunięcie na sterowanie." },
+    { t: "table", head: ["Krawędź gotowa", "Tor środka", "Blok"], rows: [
       ["lewa, X0", "X−5", "`G01 Y55.`"],
       ["górna, Y50", "Y55", "`G01 X85.`"],
       ["prawa, X80", "X85", "`G01 Y-5.`"],
       ["dolna, Y0", "Y−5", "`G01 X-5.`"],
     ] },
     { t: "p", x: "Kierunek obiegu zgodny z ruchem wskazówek zegara przy obrotach M03 daje [[frezowanie współbieżne]] — lepszą powierzchnię i dłuższą trwałość ostrza przy obróbce konturu zewnętrznego." },
-    { t: "demo", mode: "mill", title: "Kontur płytki z odcinków", src: "G21 G90 G94 G17 G54\nG00 X-20. Y10. Z50.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nY55.\nX85.\nY-5.\nX-5.\nY10.\nG00 Z5.\nM30",
+    { t: "demo", mode: "mill", title: "Kontur płytki z odcinków", src: "G21 G90 G94 G17 G54\nG00 Z50.\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nY55.\nX85.\nY-5.\nX-5.\nY10.\nG00 Z5.\nM30",
       caption: "Zielone odcinki to G01, bursztynowe przerywane — G00." },
   ],
 
   worked: {
     title: "Policz tor środka dla konturu płytki",
-    intro: "Sytuacja: płytka 80 × 50, zero W w lewym dolnym narożniku. Frez Ø10 (r = 5) zszedł obok płytki w X−20 Y10 na Z−5. Ma obejść cały obwód zgodnie z zegarem. Program podaje środek freza, a rysunek ma wymiary krawędzi — trzeba je przeliczyć. Numery odpowiadają krawędziom na rysunku.",
+    intro: "Sytuacja: półfabrykat 84 × 54, kontur gotowy 80 × 50, zero W w lewym dolnym narożniku konturu gotowego. Frez Ø10 (r = 5) zszedł obok półfabrykatu w X−20 Y10 na Z−5. Ma obejść cały obwód zgodnie z zegarem. Program podaje środek freza, a rysunek ma wymiary konturu gotowego — trzeba je przeliczyć. Numery odpowiadają krawędziom na rysunku.",
     fig: "f32-path",
     steps: [
       { x: "Krok 1, lewa krawędź X0: frez na zewnątrz, czyli 0 − 5.", code: "X-5." },
@@ -92,7 +93,7 @@ export const f3_2: LessonDoc = {
     { title: "G01 bez F", x: "Pierwszy G01 w programie bez posuwu: alarm. Gorzej, gdy F zostało z poprzedniego narzędzia — maszyna pojedzie, ale z posuwem, który do tego narzędzia nie pasuje." },
     { title: "Zapomniany promień", x: "Tor poprowadzony po samym konturze, X0…X80, a nie X−5…X85. Frez zbiera po 5 mm z każdej strony i detal wychodzi 10 mm mniejszy." },
     { title: "Wejście nad detalem", danger: true, x: "`G01 Z-5.` wpisane, gdy frez stoi nad płytką, a nie obok niej. Frez wchodzi pionowo w pełny materiał — wiele frezów nie ma ostrza przez środek i tak nie skrawa." },
-    { title: "Wejście z posuwem konturowym", danger: true, x: "Jedno F400 dla całego ruchu, także dla zejścia w Z. Ostrza czołowe są przeciążone." },
+    { title: "Wejście z posuwem konturowym", danger: true, x: "Jedno F400 także dla zejścia w Z nad materiałem — ostrza czołowe dostają posuw dobrany dla obwodu i są przeciążone. Zejście w powietrzu, obok półfabrykatu, ostrzy nie obciąża." },
   ],
 
   controllers: {
@@ -113,15 +114,16 @@ export const f3_2: LessonDoc = {
     { kind: "gap", q: "Frez Ø12, prawa krawędź detalu w X60. Jaki X środka dla obróbki tej krawędzi z zewnątrz?", template: "X{0}", answers: [["66"]], why: "60 + 6 = 66." },
     { kind: "choice", q: "Program bez żadnego F ma blok `G01 X50.`. Co się stanie?", options: ["alarm — brak posuwu", "ruch z maksymalną prędkością", "ruch z F100", "ruch G00"], answer: 0, why: "G01 wymaga posuwu." },
     { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem przy M03 — jakie to frezowanie?", options: ["frezowanie współbieżne", "frezowanie przeciwbieżne", "wiercenie", "bez znaczenia"], answer: 0, why: "Ostrze wchodzi w materiał od najgrubszego wióra." },
-    { kind: "token", q: "Wskaż blok, który **wchodzi w materiał**.", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 1, why: "Zejście na Z−5 z posuwem wgłębnym." },
+    { kind: "token", q: "Który blok ustawia narzędzie na głębokości Z−5?", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 1, why: "`G01 Z-5. F150` — zejście na głębokość obok półfabrykatu, w powietrzu." },
+    { kind: "token", q: "Który blok jako pierwszy **skrawa** — wprowadza frez w naddatek?", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 2, why: "Półfabrykat zaczyna się na X−2. Przy dojeździe do X−5 krawędź freza przechodzi z X−15 do X0 i na ostatnich 2 mm wchodzi w materiał." },
     { kind: "choice", q: "Program prowadzi środek freza Ø10 po samym konturze X0…X80. Jaki wyjdzie detal?", options: ["o 10 mm krótszy", "o 5 mm krótszy", "w wymiarze", "o 10 mm dłuższy"], answer: 0, why: "Frez zbiera promień z każdej strony: 2 × 5 = 10 mm." },
   ],
 
   summary: [
     "G01 — odcinek prosty z posuwem F. Wszystkie osie ruszają i kończą razem.",
     "Pierwsze G01 potrzebuje F, dalej F jest modalne.",
-    "Wejście w Z obok detalu, z mniejszym posuwem.",
-    "Program prowadzi środek freza — o promień od krawędzi detalu.",
+    "Zejście w Z obok półfabrykatu, w powietrzu. Pierwszy ruch w materiale to dojazd do konturu z posuwem konturowym.",
+    "Program prowadzi środek freza — o promień od konturu gotowego. Naddatek zbiera krawędź freza.",
   ],
 
   sources: [

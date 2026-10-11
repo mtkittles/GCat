@@ -12,7 +12,7 @@ export const f4_1: LessonDoc = {
     { t: "p", x: "Program podaje położenie **czubka** narzędzia: `Z5.` znaczy 5 mm nad detalem. Maszyna porusza jednak czołem wrzeciona — bazą narzędzia N z lekcji F0.2. Frez o długości 85 mm i wiertło o długości 103 mm w tym samym położeniu wrzeciona mają czubki w różnych miejscach." },
     { t: "p", x: "Długość każdego narzędzia, mierzona od N do czubka, jest zapisana w tabeli korekcji. [[G43]] z adresem **H** włącza korekcję: sterowanie dodaje długość z rejestru i ustawia wrzeciono tak, żeby czubek trafił w Z z programu." },
     { t: "diagram", id: "f41-length" },
-    { t: "code", x: "T1 M06\nG43 H1 Z50.   (KOREKCJA DLUGOSCI T1, CZUBEK NA Z50)", caption: "G43 włącza się razem z ruchem w Z — pierwszym po wymianie narzędzia, na bezpiecznej wysokości." },
+    { t: "code", x: "T1 M06\nG00 G43 H1 Z50.   (KOREKCJA DLUGOSCI T1, CZUBEK NA Z50)", caption: "G43 włącza się razem z ruchem w Z — pierwszym po wymianie narzędzia, na bezpiecznej wysokości." },
 
     { t: "h", x: "Jak mierzy się długość", id: "pomiar" },
     { t: "ul", items: [
@@ -48,8 +48,8 @@ export const f4_1: LessonDoc = {
       view: "g43",
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\n(TU KOREKCJA DLUGOSCI)\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["G43","H1"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
-      hints: ["`G43 H1 Z50.` — włączenie korekcji łączy się z ruchem w Z, żeby sterowanie od razu policzyło pozycję z długością narzędzia.","Konwencja kursu: numer H równy numerowi narzędzia (T1 → H1)."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
+      hints: ["`G00 G43 H1 Z50.` — włączenie korekcji łączy się z ruchem szybkim w Z, żeby sterowanie od razu policzyło pozycję z długością narzędzia.","Konwencja kursu: numer H równy numerowi narzędzia (T1 → H1)."],
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",
@@ -59,7 +59,7 @@ export const f4_1: LessonDoc = {
         { kind: "token", q: "Wskaż słowo, które wskazuje **rejestr długości**.", block: "G43 H1 Z50.", answer: 1, why: "H1 — rejestr korekcji długości nr 1." },
         { kind: "choice", q: "We wrzecionie jest T2, a program ma `G43 H1`. Co się stanie?", options: ["sterowanie użyje długości T1 — czubek trafi w złe miejsce", "sterowanie samo weźmie H2", "sterowanie zmierzy narzędzie przed ruchem", "nic, H nie ma znaczenia"], answer: 0, why: "W podstawowej konfiguracji sterowanie nie porównuje H z numerem narzędzia — kontrola zgodności bywa opcją maszyny." },
         { kind: "choice", q: "We wrzecionie jest T1 (H1 = 85,2), a program po wymianie ma `G43 H2 Z5.` (H2 = 102,7). Gdzie stanie czubek frezu względem detalu?", options: ["na Z22,5 — 17,5 mm wyżej niż w programie", "na Z−12,5 — w materiale", "na Z5 — G43 dobiera długość do narzędzia we wrzecionie", "na Z−80,2"], answer: 0, why: "N staje na −400 + 5 + 102,7 = −292,3. Frez ma 85,2, więc czubek jest na −292,3 − 85,2 = −377,5, czyli Z22,5. Rejestr za długi podnosi czubek — frez nie dojdzie do zaplanowanej głębokości. Rejestr za krótki (pomyłka z przykładu) wbija narzędzie w materiał." },
-        { kind: "order", q: "Ułóż początek pracy narzędzia.", items: ["S2500 M03", "G43 H1 Z50.", "T1 M06", "G00 X-20. Y10."], answer: [2, 1, 0, 3], why: "Wymiana, korekcja z ruchem na bezpieczną wysokość, obroty, najazd." },
+        { kind: "order", q: "Ułóż początek pracy narzędzia.", items: ["S2500 M03", "G00 G43 H1 Z50.", "T1 M06", "G00 X-20. Y10."], answer: [2, 1, 0, 3], why: "Wymiana, korekcja z ruchem na bezpieczną wysokość, obroty, najazd." },
       ],
     },
   ],

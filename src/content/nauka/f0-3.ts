@@ -5,7 +5,7 @@ export const f0_3: LessonDoc = {
   slug: "f0-3-przesuniecia-g54-g59",
   title: "Przesunięcia G54–G59",
   minutes: 14,
-  goal: "Zmierzysz zero detalu na maszynie, zapiszesz je w G54 i obrobisz dwa detale jednym programem z G54 i G55.",
+  goal: "Obliczysz przesunięcie zera detalu z podanego pomiaru, zapiszesz je w G54 i obrobisz dwa detale jednym programem z G54 i G55.",
 
   theory: [
     { t: "h", x: "Rejestr przesunięcia", id: "rejestr" },
@@ -18,20 +18,21 @@ export const f0_3: LessonDoc = {
     { t: "p", x: "`G54` jest [[funkcja modalna|modalne]]: działa, dopóki program nie wywoła innego rejestru." },
 
     { t: "h", x: "Pomiar zera w X i Y", id: "pomiar" },
-    { t: "p", x: "Operator dojeżdża do krawędzi detalu przyrządem o znanej średnicy — czujnikiem krawędzi, sondą albo trzpieniem — i odczytuje pozycję maszynową w chwili styku. Środek przyrządu jest wtedy o promień od krawędzi, więc promień trzeba uwzględnić." },
+    { t: "p", x: "Przy pomiarze ręcznym operator dojeżdża do krawędzi detalu przyrządem o znanej średnicy — czujnikiem krawędzi albo trzpieniem — i odczytuje pozycję maszynową w chwili styku. Środek przyrządu jest wtedy o promień od krawędzi, więc promień trzeba uwzględnić." },
     { t: "code", x: "od lewej:  X kraw. = X masz. + r\nod prawej: X kraw. = X masz. − r", caption: "Dotyk od lewej to przyrząd po stronie −X. W osi Y tak samo: od przodu dodajesz r, od tyłu odejmujesz." },
     { t: "p", x: "Sterowania mają do tego funkcję pomiaru: po dotknięciu wpisujesz, jaką współrzędną ma środek przyrządu w układzie detalu (np. `X-5` dla Ø10 stojącego z lewej), a sterowanie samo liczy i zapisuje przesunięcie." },
+    { t: "note", kind: "warn", x: "Sonda pomiarowa z cyklem pomiarowym działa inaczej: cykl uwzględnia skalibrowany promień końcówki sam i zapisuje gotowy wynik. Doliczenie promienia drugi raz przesunęłoby zero o promień. Przykłady w tej lekcji to pomiar ręczny przyrządem cylindrycznym Ø10." },
     { t: "note", kind: "info", x: "Wartość Z w rejestrze zależy od sposobu pomiaru długości narzędzi. Omówimy ją razem z korekcją długości w F4.1. Do tego czasu przyjmujemy Z0 na górnej powierzchni detalu." },
 
     { t: "h", x: "Dwa detale, jeden program", id: "dwa-detale" },
-    { t: "p", x: "Dwa imadła na stole to dwa zera: W1 w G54 i W2 w G55. Program obróbki jest ten sam, zmienia się tylko wywołany rejestr." },
+    { t: "p", x: "Dwa imadła na stole to dwa zera: W1 w G54 i W2 w G55. Tor zapisany względem W jest ten sam, zmienia się tylko wywołany rejestr. Przejazd od jednego detalu do drugiego zaczynaj z wysokości, z której cały zespół narzędziowy minie oba zamocowania — ten sam tor względem W nie oznacza tych samych przeszkód na stole." },
     { t: "diagram", id: "f03-two" },
     { t: "code", x: "G54\n(OBROBKA DETALU 1)\nG55\n(TA SAMA OBROBKA DETALU 2)" },
   ],
 
   worked: {
     title: "Ustal G54 czujnikiem krawędzi",
-    intro: "Sytuacja: płytka leży w imadle, a jej zero W ma być w lewym przednim narożniku. Operator dotyka krawędzi czujnikiem Ø10 i odczytuje pozycję maszynową w chwili styku: lewej krawędzi od lewej strony przy MASZYNA X−325.000, przedniej od przodu przy Y−265.000. Co wpisać do G54?",
+    intro: "Sytuacja: płytka leży w imadle, a jej zero W ma być w lewym przednim narożniku. Pomiar ręczny: operator dotyka krawędzi cylindrycznym czujnikiem Ø10 i odczytuje pozycję maszynową w chwili styku: lewej krawędzi od lewej strony przy MASZYNA X−325.000, przedniej od przodu przy Y−265.000. Co wpisać do G54?",
     fig: "f03-edge",
     steps: [
       { x: "Na rysunku: w chwili styku środek czujnika jest o promień 5 mm od krawędzi, po stronie ujemnej osi — z lewej i z przodu detalu." },
@@ -69,7 +70,7 @@ export const f0_3: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Program bez wywołania rejestru", x: "Na Fanucu po włączeniu aktywne jest zwykle `G54`, ale poprzedni program mógł zostawić `G55`. Na Sinumeriku domyślne jest `G500` i program liczy od zera maszyny. Każdy program powinien sam wywołać swój rejestr." },
+    { title: "Program bez wywołania rejestru", x: "Na Fanucu po włączeniu aktywne jest zwykle `G54`, ale poprzedni program mógł zostawić `G55`. Na Sinumeriku stan po włączeniu ustala producent maszyny — często jest to `G500`, które wyłącza przesunięcie nastawne. Aktywne mogą zostać inne przesunięcia, np. frame bazowy; dopiero gdy są zerowe, współrzędne liczą się od zera maszyny. Każdy program powinien sam wywołać swój rejestr." },
     { title: "Promień przyrządu w złą stronę", x: "Dotyk od lewej — dodajesz promień, od prawej — odejmujesz. Pomyłka przesuwa cały detal o średnicę przyrządu, a pierwsze przejście trafia obok konturu." },
     { title: "Pomiar w złym wierszu", x: "Pomiar detalu 2 zapisany do G54 nadpisuje zero detalu 1. Po każdym pomiarze sprawdź, który wiersz tablicy się zmienił." },
     { title: "Stare przesunięcie po przezbrojeniu", x: "Nowe imadło albo przełożony detal to nowe zero. Wartości w G54 pasują tylko do zamocowania, na którym je zmierzono." },
@@ -78,7 +79,7 @@ export const f0_3: LessonDoc = {
   controllers: {
     rows: [
       ["Rejestry przesunięć", "`G54`–`G59`, dodatkowe `G54.1 P1`…", "`G54`–`G57`, dodatkowe `G505`–`G599`"],
-      ["Po włączeniu", "zwykle `G54`", "`G500` — bez przesunięcia nastawnego"],
+      ["Po włączeniu", "zwykle `G54`", "często `G500` — przesunięcie nastawne wyłączone; ustawienie producenta"],
       ["Przesunięcie wspólne dla wszystkich", "EXT (wiersz 00)", "frame bazowy"],
       ["Pomiar krawędzi", "MEASURE w tablicy przesunięć", "JOG → pomiar detalu"],
     ],
@@ -94,9 +95,9 @@ export const f0_3: LessonDoc = {
       template: "X{0}", answers: [["-409"]], why: "Promień 3 mm, przyrząd po stronie −X, więc dodajesz: −412 + 3 = −409." },
     { kind: "gap", q: "Czujnik Ø10 dotyka **prawej** krawędzi od prawej strony przy MASZYNA X−235. Detal ma 80 mm, zero w lewym narożniku. Jaki X wpiszesz do G54?",
       template: "X{0}", answers: [["-320"]], why: "Prawa krawędź: −235 − 5 = −240. Lewa krawędź jest 80 mm dalej w minus: −240 − 80 = −320." },
-    { kind: "choice", q: "Program bez `G54` uruchomiono na Sinumeriku zaraz po włączeniu. Od czego liczy współrzędne?",
-      options: ["zera detalu z G54", "zera maszyny, bo aktywne jest G500", "ostatnio użytego rejestru", "punktu referencyjnego R"], answer: 1,
-      why: "Stan po włączeniu to zwykle G500 — przesunięcie nastawne wyłączone. Ustawienia początkowe może zmienić producent maszyny." },
+    { kind: "choice", q: "Sinumerik po włączeniu ma aktywne `G500`, a frame bazowy i inne przesunięcia są na tej maszynie zerowe. Program bez `G54` — od czego liczy współrzędne?",
+      options: ["zera detalu z G54", "zera maszyny — G500 wyłącza przesunięcie nastawne, a innych przesunięć nie ma", "ostatnio użytego rejestru", "punktu referencyjnego R"], answer: 1,
+      why: "G500 wyłącza przesunięcie nastawne. Gdyby frame bazowy albo inne przesunięcie miało wartości, współrzędne liczyłyby się od tak przesuniętego punktu, a nie od zera maszyny." },
     { kind: "choice", q: "Dwa identyczne detale w G54 i G55. Co zmieniasz w programie, żeby obrobić drugi?",
       options: ["wszystkie współrzędne X", "wywołanie rejestru na `G55`", "wartości w rejestrze G54", "nic, sterowanie samo wybierze"], answer: 1,
       why: "Współrzędne w programie liczą się od W, a W wybiera wywołany rejestr." },
@@ -109,11 +110,11 @@ export const f0_3: LessonDoc = {
     "Rejestr G54–G59 przechowuje współrzędne maszynowe zera detalu.",
     "Krawędź = pozycja maszynowa ± promień przyrządu. Znak zależy od strony dotyku.",
     "Dwa detale na stole to dwa rejestry i jeden program.",
-    "Program zawsze wywołuje swój rejestr — Sinumerik po włączeniu ma G500.",
+    "Program sam wywołuje swój rejestr. Na Sinumeriku stan po włączeniu to często G500 — bez przesunięcia nastawnego.",
   ],
 
   sources: [
     { id: "fanuc", where: "tablica przesunięć, G54–G59, G54.1, pomiar MEASURE", loc: "ekran przesunięć — rozdz. 1.6.3–1.6.4, s. 36–37; G54–G59 — rozdz. 3.1, tab. 3.1, s. 72, rozdz. 4, s. 87; G54.1 — rozdz. 3.1, tab. 3.1, s. 72, rozdz. 5.2, s. 107" },
-    { id: "sinumerik", where: "przesunięcia nastawne G54–G57 i G505–G599, G500, frame bazowy" },
+    { id: "sinumerik", where: "przesunięcia nastawne G54–G57 i G505–G599, G500; wyłączanie przesunięć G53, G153, SUPA", loc: "rozdz. 9.1, s. 135; rozdz. 13.10, s. 334" },
   ],
 };
