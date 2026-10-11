@@ -2855,3 +2855,31 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .g43s-reg b { font-family: var(--font-mono); color: var(--ink-2); }
 .g43s-row { padding: .4rem .6rem; border-radius: 8px; border: 1px solid color-mix(in srgb, var(--green) 40%, var(--line)); }
 .g43s-row.is-bad { border-color: var(--red); color: var(--ink); }
+
+/* Prawa dłoń w rysunkach (F0.1) — kształt z obrysem, bez cieniowania */
+.fig svg .hand-out { stroke: var(--ink-2); fill: none; }
+.fig svg .hand-in { stroke: color-mix(in srgb, var(--ink) 10%, var(--panel)); fill: none; }
+.fig svg .hand-palm { fill: color-mix(in srgb, var(--ink) 10%, var(--panel)); stroke: var(--ink-2); stroke-width: 1.2; stroke-linejoin: round; }
+
+/* F0.1 — ruch stołu a ruch narzędzia (#31, V08) */
+.tm { display: grid; gap: .6rem; padding: .75rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
+.tm-panels { display: grid; gap: .6rem; }
+@media (min-width: 900px) { .tm-panels { grid-template-columns: 1fr 1fr; } }
+.tm-panels svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); }
+.tm-k { font-size: 13.5px; font-weight: 600; color: var(--ink-2); margin-bottom: .3rem; }
+.tm-spindle { fill: #3A3B41; stroke: #9CA3AF; }
+.tm-tool { fill: #9CA3AF; stroke: #E5E7EB; }
+.tm-tip { fill: var(--accent); }
+.tm-table { fill: #2A2B30; stroke: var(--ink-2); }
+.tm-slot { stroke: #4A4B52; }
+.tm-part { fill: color-mix(in srgb, var(--ink) 14%, var(--panel)); stroke: var(--ink); }
+.tm-w { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+.tm-wl { font: 700 12px/1 var(--font-sans); fill: var(--accent); }
+.tm-arrow line { stroke: var(--accent); stroke-width: 2; }
+.tm-arrow path { fill: var(--accent); }
+.tm-arrow text { font: 700 12px/1 var(--font-sans); fill: var(--accent); }
+.tm-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .7rem; }
+.tm-range { flex: 1 1 8rem; display: flex; }
+.tm-range input { width: 100%; accent-color: var(--accent); }
+.tm-read { font: 600 15px/1.2 var(--font-mono); color: var(--ink); padding: .35rem .6rem; border-radius: 8px; background: var(--panel); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.tm-read i { font-style: normal; color: var(--accent); margin-right: .5rem; }

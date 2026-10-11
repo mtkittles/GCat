@@ -1,4 +1,5 @@
 import { Code, Dim, Fig, Grid, mapper, Pt, T } from "@/components/fig";
+import TableMotionDemo from "./TableMotion";
 
 /* Rysunki lekcji F0.1 — układ współrzędnych frezarki. Styl i kolory z fig.tsx. */
 
@@ -31,6 +32,56 @@ export function AxesTriad() {
           <T x={O.x + 10} y={O.y - 116} cls="t-acc t-b t-big">+Z</T>
           <T x={O.x + 10} y={O.y - 101} cls="t-mut">palec środkowy</T>
           <Pt x={O.x} y={O.y} />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= prawa dłoń w ułożeniu osi (#31, V07) ================= */
+/** Palec jako kapsuła: obrys + wypełnienie, od nasady a do czubka b. */
+function Finger({ a, b, w }: { a: { x: number; y: number }; b: { x: number; y: number }; w: number }) {
+  return (
+    <g>
+      <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="hand-out" strokeWidth={w + 2.4} strokeLinecap="round" />
+      <line x1={a.x} y1={a.y} x2={b.x} y2={b.y} className="hand-in" strokeWidth={w} strokeLinecap="round" />
+    </g>
+  );
+}
+
+export function RightHand() {
+  const ang = (35 * Math.PI) / 180, C = Math.cos(ang), S = Math.sin(ang);
+  const B = { x: 150, y: 168 };
+  /** punkt na płaszczyźnie dłoni (x w prawo, y w głąb) i wysokość z */
+  const iso = (x: number, y: number, z = 0) => ({ x: B.x + x + C * y, y: B.y - S * y - z });
+  const O = iso(4, -6);
+  const palm = [iso(-30, 8), iso(26, 8), iso(32, -72), iso(-26, -76)];
+  const palmD = `M ${palm.map((p) => `${p.x} ${p.y}`).join(" L ")} Z`;
+  const fore = [iso(2, -74), iso(2, -150)];
+  const xEnd = { x: O.x + 150, y: O.y }, yEnd = iso(4, 118), zEnd = { x: O.x, y: O.y - 132 };
+  return (
+    <Fig id="f01hand" code="XYZ" title="Prawa dłoń ułożona jak osie frezarki" h={250} legend={["acc"]}
+      caption={<>Prawa dłoń wnętrzem do góry, nadgarstek przy sobie. <b>Kciuk</b> w prawo — <b>+X</b>, <b>wskazujący</b> od siebie, w głąb maszyny — <b>+Y</b>, <b>środkowy</b> zgięty do góry — <b>+Z</b>. Serdeczny i mały palec są podkulone. Tak samo leżą osie frezarki pionowej, gdy stoisz przed nią.</>}>
+      {(c) => (
+        <g>
+          <Finger a={fore[0]} b={fore[1]} w={44} />
+          <Finger a={iso(14, 4)} b={iso(14, 96)} w={15} />
+          <path d={palmD} className="hand-palm" />
+          <Finger a={iso(-14, 4, 2)} b={iso(-16, -12, 18)} w={13} />
+          <Finger a={iso(-25, 0, 2)} b={iso(-27, -14, 14)} w={11} />
+          <Finger a={iso(0, 2, 4)} b={iso(0, 2, 100)} w={15} />
+          <Finger a={iso(26, -40)} b={{ x: iso(26, -40).x + 96, y: iso(26, -40).y }} w={17} />
+
+          <line x1={O.x} y1={O.y} x2={xEnd.x} y2={xEnd.y} className="p-acc thick" markerEnd={c.a("acc")} />
+          <line x1={O.x} y1={O.y} x2={yEnd.x} y2={yEnd.y} className="p-acc thick" markerEnd={c.a("acc")} />
+          <line x1={O.x} y1={O.y} x2={zEnd.x} y2={zEnd.y} className="p-acc thick" markerEnd={c.a("acc")} />
+          <Pt x={O.x} y={O.y} />
+          <T x={xEnd.x + 6} y={xEnd.y + 5} cls="t-acc t-b t-big">+X</T>
+          <T x={xEnd.x - 52} y={xEnd.y + 34} cls="t-mut">kciuk</T>
+          <T x={yEnd.x + 6} y={yEnd.y - 2} cls="t-acc t-b t-big">+Y</T>
+          <T x={yEnd.x + 2} y={yEnd.y + 14} cls="t-mut">wskazujący</T>
+          <T x={zEnd.x + 10} y={zEnd.y + 8} cls="t-acc t-b t-big">+Z</T>
+          <T x={zEnd.x + 12} y={zEnd.y + 24} cls="t-mut">środkowy</T>
         </g>
       )}
     </Fig>
@@ -369,6 +420,8 @@ export function TwoOffsets() {
 
 export const f0Figs = {
   "f01-axes": () => <AxesTriad />,
+  "f01-hand": () => <RightHand />,
+  "f01-relative": () => <TableMotionDemo />,
   "f01-top": () => <TopView />,
   "f01-side": () => <SideView />,
   "f01-zero": () => <ZeroChoice />,
