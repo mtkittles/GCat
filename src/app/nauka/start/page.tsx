@@ -18,8 +18,8 @@ export default function StartPage() {
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { label: "7 dni" }]} />
       <PageBanner src="/img/banner-mill.jpg" kicker="Ścieżka startowa" title="7 dni do pierwszego programu"
-        subtitle={`${days.reduce((a, d) => a + d.lessons.length, 0)} lekcji frezowania, około ${Math.round(total / 60 * 10) / 10} godz. — po pół godziny dziennie.`} size="compact" priority />
-      <p className="text-muted max-w-prose">Każdy dzień to dwie–trzy lekcje z testem. Zaliczone testem oznaczamy automatycznie. Po tygodniu napiszesz pierwszy program płytki: kontur z łukami i wiercenie otworów cyklem. Planowanie, korekcję promienia, kieszenie i gwinty dokładasz potem w pełnej ścieżce frezowania.</p>
+        subtitle={`${days.reduce((a, d) => a + d.lessons.length, 0)} lekcji frezowania, około ${Math.round(total / 60 * 10) / 10} godz. — około 30–40 minut dziennie, we własnym tempie.`} size="compact" priority />
+      <p className="text-muted max-w-prose">Każdy dzień to dwie–trzy lekcje z testem; czas ćwiczeń zależy od Ciebie. Zaliczone testem oznaczamy automatycznie. Po tygodniu napiszesz pierwszy program płytki: kontur z łukami i wiercenie otworów cyklem. Planowanie, korekcję promienia, kieszenie i gwinty dokładasz potem w pełnej ścieżce frezowania.</p>
       <StartPlan days={days} />
     </div>
   );
