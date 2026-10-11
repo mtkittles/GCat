@@ -11,7 +11,8 @@ import { lessonsForGlossary } from "@/lib/lessonRefs";
 
 type Mode = "mill" | "lathe";
 const ABS = /\b(zawsze|nigdy|wyłącznie|na każdym sterowaniu|każde sterowanie|jedyn[aey])\b/gi;
-const ALARM = /złama\w*|rozbij\w*|zniszcz\w*|katastrof\w*/gi;
+/* „złamać wiór” to termin technologiczny, nie straszenie */
+const ALARM = /złama(?!\p{L}*\s+wi[óo]r)\p{L}*|rozbij\p{L}*|zniszcz\p{L}*|katastrof\p{L}*/giu;
 
 function prog(src: string, mode: Mode, dialect?: "fanuc" | "sinumerik") {
   const p = parseProgram(src, { diameterX: mode === "lathe" });

@@ -35,7 +35,9 @@ pitfalls:
   - >-
     G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do
     maksimum.
-  - Wiercenie w osi zawsze na G97.
+  - >-
+    Wiercenie w osi toczy się na G97 — przy G96 i średnicy bliskiej zeru
+    sterowanie dąży do obrotów na limicie (G50 albo maszyny).
 sources: []
 example:
   src: |-
@@ -108,7 +110,7 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 
 ## Dobór prędkości skrawania \{#dobór-prędkości-skrawania}
 
-<Table caption="Wartości orientacyjne dla płytek z węglika z powłoką. Zawsze weryfikuj z katalogiem producenta narzędzia dla konkretnego gatunku i geometrii.">
+<Table caption="Wartości orientacyjne dla płytek z węglika z powłoką. Przed obróbką sprawdź je w katalogu producenta narzędzia dla konkretnego gatunku i geometrii.">
   | Materiał                       | Vc dla węglika \[m/min] | Uwagi                                                |
   | ------------------------------ | ----------------------- | ---------------------------------------------------- |
   | Aluminium                      | 300–1000                | Ograniczeniem są zwykle obroty maszyny, nie materiał |
@@ -124,5 +126,5 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 
 * **Brak G50 / LIMS** przed G96.
 * **Pozostawienie G96 przed wierceniem w osi** — alarm albo maksymalne obroty.
-* **Wpisanie obrotów zamiast Vc** — `G96 S1500` to polecenie utrzymania 1500 m/min, czyli zawsze maksymalne obroty maszyny.
+* **Wpisanie obrotów zamiast Vc** — `G96 S1500` to polecenie utrzymania 1500 m/min — przy typowych średnicach oznacza to obroty na limicie G50 albo maszyny.
 * **Brak powrotu do G97** przed odjazdem i zatrzymaniem — kolejna operacja startuje w nieoczekiwanym trybie.

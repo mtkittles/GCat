@@ -90,12 +90,12 @@ Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej 
   ```
 </Code>
 
-| Adres   | Znaczenie                                                                                                                                   |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| X, Y, Z | Punkt końcowy łuku (\[\[G90]] — bezwzględnie, \[\[G91]] — przyrostowo)                                                                      |
-| I, J, K | Składowe **wektora od punktu początkowego łuku do jego środka**, odpowiednio wzdłuż X, Y i Z. Prawie zawsze przyrostowe, nawet w trybie G90 |
-| R       | Promień łuku. Wartość dodatnia wybiera łuk krótszy (≤180°), ujemna — dłuższy (>180°)                                                        |
-| F       | Posuw mierzony wzdłuż łuku                                                                                                                  |
+| Adres   | Znaczenie                                                                                                                               |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| X, Y, Z | Punkt końcowy łuku (\[\[G90]] — bezwzględnie, \[\[G91]] — przyrostowo)                                                                  |
+| I, J, K | Składowe **wektora od punktu początkowego łuku do jego środka**, odpowiednio wzdłuż X, Y i Z. Domyślnie przyrostowe, także w trybie G90 |
+| R       | Promień łuku. Wartość dodatnia wybiera łuk krótszy (≤180°), ujemna — dłuższy (>180°)                                                    |
+| F       | Posuw mierzony wzdłuż łuku                                                                                                              |
 
 <Note kind="warn">
   Adresy I, J, K liczy się od **punktu startu łuku**, a nie od zera detalu. To najczęstsza pomyłka u osób przepisujących wymiary wprost z rysunku, gdzie środek okręgu podany jest bezwzględnie.

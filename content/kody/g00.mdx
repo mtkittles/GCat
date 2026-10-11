@@ -28,8 +28,8 @@ params:
     desc: Współrzędne punktu docelowego
 pitfalls:
   - >-
-    Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na
-    głębokość G01.
+    Zejście ruchem G00 w materiał w osi Z to częsta przyczyna kolizji. G00 kończ
+    na wysokości bezpiecznej nad detalem, a na głębokość schodź z posuwem (G01).
   - Tor G00 nie jest prostą — nie zakładaj, że ominie zacisk.
 sources:
   - id: haas-workbook
@@ -64,12 +64,12 @@ example:
 
 Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość końcówki narzędzia była dokładnie taka, jak zapisałeś. Przy G00 nie decydujesz o prędkości — jest ona ustawiona przez producenta maszyny i zwykle wynosi od kilkunastu do kilkudziesięciu metrów na minutę. Adres `F` w bloku z G00 jest ignorowany.
 
-|              | G00                                          | G01                                  |
-| ------------ | -------------------------------------------- | ------------------------------------ |
-| Prędkość     | Maksymalna maszyny, niezmienialna z programu | Zadana adresem F                     |
-| Tor          | Zależny od maszyny, zwykle łamany            | Zawsze linia prosta                  |
-| Zastosowanie | Dojazdy i odjazdy w powietrzu                | Skrawanie                            |
-| Ryzyko       | Kolizja przy błędzie w współrzędnych         | Złamanie narzędzia przy złym posuwie |
+|              | G00                                          | G01                                |
+| ------------ | -------------------------------------------- | ---------------------------------- |
+| Prędkość     | Maksymalna maszyny, niezmienialna z programu | Zadana adresem F                   |
+| Tor          | Zależny od maszyny, zwykle łamany            | Linia prosta                       |
+| Zastosowanie | Dojazdy i odjazdy w powietrzu                | Skrawanie                          |
+| Ryzyko       | Kolizja przy błędzie we współrzędnych        | Przeciążenie narzędzia przy złym F |
 
 ## Składnia \{#składnia}
 
@@ -101,7 +101,7 @@ Raz włączone G00 obowiązuje aż do wywołania innej funkcji ruchu z tej samej
 </Code>
 
 <Note kind="warn">
-  Ta sama właściwość działa w drugą stronę i bywa groźna. Jeżeli w programie zostało aktywne G00, a Ty w kolejnym bloku wpiszesz same współrzędne, spodziewając się ruchu roboczego — narzędzie pojedzie z pełną prędkością. Przy zagłębianiu w materiał kończy się to złamanym frezem.
+  Ta sama właściwość działa w drugą stronę i bywa groźna. Jeżeli w programie zostało aktywne G00, a Ty w kolejnym bloku wpiszesz same współrzędne, spodziewając się ruchu roboczego — narzędzie pojedzie z pełną prędkością. Przy zagłębianiu w materiał oznacza to kolizję: frez wchodzi w detal ruchem szybkim.
 </Note>
 
 Sam blok `G00`, bez współrzędnych, nie wykonuje żadnego ruchu. Ustawia tylko tryb.

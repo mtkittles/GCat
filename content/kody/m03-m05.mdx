@@ -29,8 +29,9 @@ params:
     desc: Obroty (obr/min) lub prędkość skrawania przy G96
 pitfalls:
   - >-
-    Tylko jedna funkcja M w bloku (Fanuc). M03 M08 w jednej linii → alarm lub
-    zignorowanie.
+    Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów — na
+    części Fanuców dozwolona jest jedna. Bezpieczniej pisać M03 i M08 w osobnych
+    blokach, jak w przykładach kursu.
 sources: []
 example:
   src: |-

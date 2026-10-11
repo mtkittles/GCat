@@ -14,8 +14,8 @@ related: []
 short: Ruch po prostej z zadanym posuwem F — podstawowy ruch skrawania.
 desc: >-
   G01 prowadzi narzędzie po linii prostej z posuwem F. Wszystkie osie kończą
-  ruch jednocześnie, więc tor jest zawsze prostą. Jest modalny: kolejne bloki z
-  samymi współrzędnymi też będą G01.
+  ruch jednocześnie, więc tor jest odcinkiem prostej. Jest modalny: kolejne
+  bloki z samymi współrzędnymi też będą G01.
 syntax:
   fanuc: G01 X_ Y_ Z_ F_
   sinumerik: G1 X_ Y_ Z_ F_
@@ -30,8 +30,9 @@ params:
 pitfalls:
   - G01 bez F → alarm lub posuw z poprzedniego bloku.
   - >-
-    Na tokarce Fanuc F0.2 (mm/obr) vs frezarka F200 (mm/min) — pomylenie
-    jednostek kończy się złamanym narzędziem.
+    Na tokarce F0.2 to zwykle mm/obr (G99 w systemie A), na frezarce F200 —
+    mm/min (G94). Pomylenie trybu zmienia posuw setki razy: narzędzie trze w
+    miejscu albo zostaje gwałtownie przeciążone.
 sources:
   - id: fanuc
     where: G01 — interpolacja liniowa, posuw F
@@ -168,7 +169,7 @@ Przy frezowaniu posuw liczy się z posuwu na ostrze: **Vf = n × z × fz**, gdzi
 Przy toczeniu podaje się wprost posuw na obrót, bo bezpośrednio odpowiada za grubość wióra i \[\[Rz — chropowatość|chropowatość]]: typowo 0,25–0,45 mm/obr zgrubnie i 0,08–0,20 mm/obr wykańczająco. Gotowe wartości dla konkretnego materiału policzysz w [kalkulatorze](/kalkulator).
 
 <Note kind="warn">
-  Pomylenie jednostek to najdroższy błąd przy G01. `F0.2` na frezarce w trybie \[\[G94]] oznacza 0,2 mm na minutę — narzędzie praktycznie stoi i wypala się w materiale. Odwrotnie, `F250` na tokarce w trybie \[\[G95]] to 250 mm na obrót, czyli natychmiastowe zniszczenie płytki.
+  Pomylenie jednostek to najdroższy błąd przy G01. `F0.2` na frezarce w trybie \[\[G94]] oznacza 0,2 mm na minutę — narzędzie praktycznie stoi i trze w materiale, zamiast skrawać. Odwrotnie, `F250` na tokarce w trybie \[\[G95]] to 250 mm na obrót — około tysiąc razy więcej niż typowe 0,2–0,3, więc nóż zostaje gwałtownie przeciążony. Dlatego tryb posuwu ustawia się w bloku startowym.
 </Note>
 
 ## Zagłębianie w materiał \{#zagłębianie-w-materiał}
