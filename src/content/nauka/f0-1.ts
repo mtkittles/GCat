@@ -11,7 +11,8 @@ export const f0_1: LessonDoc = {
     { t: "h", x: "Trzy osie liniowe", id: "osie" },
     { t: "p", x: "Stoisz przed typową frezarką pionową z trzema osiami liniowymi. **X** to ruch w prawo i w lewo — zwykle najdłuższy przesuw. **Y** to ruch od operatora i do niego. **Z** to ruch w górę i w dół, wzdłuż osi wrzeciona." },
     { t: "diagram", id: "f01-axes" },
-    { t: "p", x: "Zwroty dodatnie wyznacza [[reguła prawej dłoni]]: kciuk to +X, palec wskazujący +Y, środkowy +Z. Tak ustawione osie tworzą [[układ współrzędnych|układ prawoskrętny]] opisany w normie ISO 841. Obowiązuje on na każdym sterowaniu, więc na Fanucu i na Sinumeriku kierunki są te same." },
+    { t: "diagram", id: "f01-hand" },
+    { t: "p", x: "Zwroty dodatnie wyznacza [[reguła prawej dłoni]]: kciuk to +X, palec wskazujący +Y, środkowy +Z. Tak ustawione osie tworzą [[układ współrzędnych|układ prawoskrętny]] opisany w normie ISO 841. Fanuc i SINUMERIK stosują tę konwencję, więc kierunki osi są u nich takie same." },
 
     { t: "h", x: "+Z znaczy: od detalu", id: "plus-z" },
     { t: "p", x: "Wg ISO 841 **ruch w +Z zwiększa odległość narzędzia od detalu** — na frezarce pionowej to ruch w górę." },
@@ -20,6 +21,7 @@ export const f0_1: LessonDoc = {
 
     { t: "h", x: "Programujesz ruch narzędzia", id: "ruch-narzedzia" },
     { t: "p", x: "Na wielu frezarkach w X i Y jeździ stół, a wrzeciono stoi w miejscu. Program opisuje jednak ruch narzędzia względem detalu — tak przyjmuje ISO 841. Dzięki temu ten sam program działa na maszynie z ruchomym stołem i na maszynie z ruchomą kolumną. Gdy stół jedzie w lewo, narzędzie przesuwa się po detalu w prawo, w +X." },
+    { t: "diagram", id: "f01-relative" },
 
     { t: "h", x: "Współrzędne punktu", id: "wspolrzedne" },
     { t: "p", x: "Położenie punktu to trzy liczby: odległości od [[zero detalu|zera detalu]] mierzone wzdłuż X, Y i Z. Przy zerze w lewym dolnym narożniku płytki zapis `X60 Y20 Z5` znaczy: 60 mm w prawo od zera, 20 mm od operatora i 5 mm nad górną powierzchnią." },
