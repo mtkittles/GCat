@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import PageBanner from "@/components/ui/PageBanner";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
@@ -215,7 +216,7 @@ export default function Calc() {
           {thin > 1.01 && (
             <div className="note note-tip max-w-prose">
               Przy ae {ae} mm i frezie ⌀{d} występuje <strong>pocienianie wióra</strong>: rzeczywista grubość wióra jest mniejsza niż fz.
-              Posuw skorygowano współczynnikiem {r2(thin)}, czyli fz efektywne {r3(fzCorr)} mm. Bez tej korekty narzędzie pracowałoby zbyt lekko i szybciej się tępiło.
+              Posuw skorygowano współczynnikiem {r2(thin)}, czyli fz efektywne {r3(fzCorr)} mm. Bez korekty wiór byłby cieńszy, niż zakłada fz — ostrze może wtedy trzeć zamiast skrawać.
             </div>
           )}
           <div className="calc-formulas">
@@ -241,7 +242,7 @@ export default function Calc() {
           <StaleNote show={staleOf("t-")} />
           <div className="calc-outs">
             <Out big label="Obroty przy tej średnicy" value={r0(nTurn)} unit="obr/min" stale={staleOf("t-")} />
-            <Out big label="Chropowatość Rz (teoret.)" value={r2(rz)} unit="µm" stale={staleOf("t-")} />
+            <Out big label="Chropowatość Rt (teoret.)" value={r2(rz)} unit="µm" stale={staleOf("t-")} />
             <Out label="Wydajność Q" value={r2(qTurn)} unit="cm³/min" stale={staleOf("t-")} />
             <Out label="Szacowana moc skrawania" value={r2(pTurn)} unit="kW" stale={staleOf("t-")} />
           </div>
@@ -250,9 +251,9 @@ export default function Calc() {
           <div className="calc-formulas">
             <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcTurn} / (π · {dT}) = <strong>{r0(nTurn)} obr/min</strong></Formula>
             <Formula>Q = Vc · ap · f = {vcTurn} · {apT} · {fTurn} = <strong>{r2(qTurn)} cm³/min</strong></Formula>
-            <Formula>Rz ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
+            <Formula>Rt ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
           </div>
-          <p className="text-sm text-muted max-w-prose">Chropowatość teoretyczna zależy wyłącznie od posuwu i promienia naroża. Jeżeli wychodzi za wysoka, zmniejsz posuw albo weź płytkę o większym rε — zwiększanie obrotów nic tu nie da.</p>
+          <p className="text-sm text-muted max-w-prose">W tym modelu teoretyczna wysokość nierówności Rt zależy tylko od posuwu i promienia naroża — obroty we wzorze nie występują. Rzeczywista chropowatość zależy też od drgań, zużycia ostrza i materiału; potwierdza ją pomiar. Ra wynosi orientacyjnie ok. Rt / 4 (lekcja T2.3).</p>
           
         </section>
       )}
@@ -277,7 +278,7 @@ export default function Calc() {
             <Formula>n = 1000 · Vc / (π · D) = <strong>{r0(nDrill)} obr/min</strong></Formula>
             <Formula>Vf = n · f = {r0(nDrill)} · {fDrill} = <strong>{r0(vfDrill)} mm/min</strong></Formula>
           </div>
-          <p className="text-sm text-muted max-w-prose">Powyżej 3 × D użyj cyklu G83 z odprowadzeniem wióra. Zasada startowa dla posuwu: około 2% średnicy wiertła.</p>
+          <p className="text-sm text-muted max-w-prose">Przy otworach głębszych niż ok. 3 × D stosuje się zwykle wiercenie z wycofaniem (G83, lekcja F5.2) — granicę podaje producent wiertła. Orientacyjny posuw na start: ok. 2% średnicy wiertła na obrót.</p>
           
         </section>
       )}
@@ -303,7 +304,7 @@ export default function Calc() {
             <Formula>F = n · skok = {nTap} · {th.pitch} = <strong>{r0(fTap)} mm/min</strong></Formula>
             <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {th.name.slice(1)} − {th.pitch} = <strong>{th.drill} mm</strong></Formula>
           </div>
-          <p className="note note-warn max-w-prose">Posuw gwintowania musi wynikać ze skoku. Wpisanie dowolnej wartości F kończy się złamaniem gwintownika w otworze.</p>
+          <p className="note note-warn max-w-prose">Posuw gwintowania wynika ze skoku: przy G94 F = S · skok, przy G95 F = skok. Inna wartość rozjeżdża ruch osi Z z obrotem wrzeciona — przy gwintowaniu sztywnym grozi to zniszczeniem gwintu albo złamaniem gwintownika (lekcja F5.3).</p>
           
           <div className="overflow-x-auto"><table className="code-table">
             <thead><tr><th>Gwint</th><th>Skok</th><th>Otwór</th><th>⌀ zewn.</th></tr></thead>
@@ -315,8 +316,10 @@ export default function Calc() {
       <div className="calc-notes">
         <p><b>Wartości „tabela”</b> (Vc, fz, f) to orientacyjne punkty startowe dla wybranej pary materiałów — nie dane katalogowe konkretnego narzędzia. Każde pole możesz nadpisać.</p>
         <p><b>Szacowana moc skrawania</b> to moc zużywana na samo skrawanie (P = Q · kc). Wymagana moc napędu wrzeciona jest większa: P / η, gdzie η to sprawność napędu z danych maszyny.</p>
+        <p><b>W lekcjach:</b> <Link href="/nauka/frezowanie/f2-2-obroty-s-m03">F2.2 obroty</Link> · <Link href="/nauka/frezowanie/f2-3-posuw-f-g94">F2.3 posuw na ostrze</Link> · <Link href="/nauka/frezowanie/f5-3-g84-gwintowanie">F5.3 gwintowanie</Link> · <Link href="/nauka/toczenie/t2-2-g96-g97-limit-obrotow">T2.2 G96 i limit obrotów</Link> · <Link href="/nauka/toczenie/t2-3-posuw-na-obrot">T2.3 posuw na obrót i Rt</Link></p>
+        <p><b>Źródła:</b> definicje prędkości skrawania i posuwu na ostrze (z nich wzory na n i Vf) — R. Kuryjański, <i>Obróbka skrawaniem i obrabiarki</i>, Warszawa 2011, rozdz. 3, s. 53–54 (wzory 3.1 i 3.4); dobór parametrów jako kompromis dokładności, wydajności i kosztu — B. Storch, <i>Podstawy obróbki skrawaniem</i>, Koszalin (rok wydania nieustalony), rozdz. 4.1, s. 168. Wzory na wydajność, moc, Rt i otwór pod gwint — źródło do uzupełnienia.</p>
       </div>
-      <p className="text-sm text-muted max-w-prose">Zakres dla wybranego materiału i węglika: frezowanie Vc {mat.vcMill[0]}–{mat.vcMill[1]}, toczenie {mat.vcTurn[0]}–{mat.vcTurn[1]}, wiercenie {mat.vcDrill[0]}–{mat.vcDrill[1]} m/min. Właściwy opór skrawania kc {mat.kc} N/mm². Zawsze porównaj z katalogiem producenta narzędzia.</p>
+      <p className="text-sm text-muted max-w-prose">Zakres dla wybranego materiału i węglika: frezowanie Vc {mat.vcMill[0]}–{mat.vcMill[1]}, toczenie {mat.vcTurn[0]}–{mat.vcTurn[1]}, wiercenie {mat.vcDrill[0]}–{mat.vcDrill[1]} m/min. Właściwy opór skrawania kc {mat.kc} N/mm². Przed obróbką porównaj je z katalogiem producenta narzędzia.</p>
     </div>
   );
 }

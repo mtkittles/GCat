@@ -34,9 +34,10 @@ params:
     desc: Posuw
 pitfalls:
   - G86 w otworze na wymiar H7 zostawi ślad — użyj G85 lub G76.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     S800 M03
     G00 X30 Y20 Z5
     G01 Z-20 F60

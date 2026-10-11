@@ -9,10 +9,10 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
 import { buildup } from "@/content/nauka/buildup";
-import { sourceDoc, sources } from "@/content/nauka/sources";
 import { flat, lessonDoc, lessonHref, orderOf, tracks, type Track } from "@/lib/course";
 import Buildup, { type ShownLine } from "./Buildup";
 import PartState from "./PartState";
+import SourceList from "./SourceList";
 import JogDemo from "./JogDemo";
 import OffsetJog from "./OffsetJog";
 import StateExplorer from "./StateExplorer";
@@ -180,25 +180,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         <ul className="ls-sum">{doc.summary.map((s) => <li key={s}>{rich(s)}</li>)}</ul>
       </Sec>
 
-      <section className="ls-src" aria-labelledby="zrodla">
-        <h2 id="zrodla">Źródła</h2>
-        <ul className="ls-src-list">
-          {doc.sources.map((s) => {
-            const src = sources[s.id];
-            const url = s.url ?? src?.url;
-            return (
-              <li key={s.id + s.where} className="ls-src-item">
-                <b>{src?.short ?? s.id}</b>
-                {src && <span className="ls-src-doc">{sourceDoc(src)}{src.control && ` — ${src.control}`}</span>}
-                <span><i>Potwierdza:</i> {s.where}</span>
-                <span><i>Miejsce:</i> {s.loc ?? <em>rozdział i strona do uzupełnienia</em>}</span>
-                {src?.note && <span className="ls-src-note">{src.note}</span>}
-                {url && <a href={url} target="_blank" rel="noopener noreferrer">Otwórz dokument ↗{src?.accessed && <small> (dostęp {src.accessed})</small>}</a>}
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+      <SourceList items={doc.sources} />
 
       <LessonStatus track={track} id={doc.id} inline />
       <LessonPager pos={idx + 1} total={all.length} prev={prevLink} next={nextLink} />

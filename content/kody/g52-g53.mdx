@@ -35,9 +35,10 @@ params:
 pitfalls:
   - G53 tylko z G90 i tylko w jednym bloku.
   - G52 nie kasuje się samo po M30 na części sterowników.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

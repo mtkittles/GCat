@@ -47,9 +47,14 @@ pitfalls:
   - >-
     G04 zapisuj w osobnym bloku. W bloku z ruchem X zostanie odczytany jako
     czas.
+sources:
+  - id: fanuc
+    where: G04 — postój, adresy X, U i P
+  - id: sinumerik
+    where: G4 F (sekundy) i G4 S (obroty)
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G00 G43 Z50 H01
     S1200 M03

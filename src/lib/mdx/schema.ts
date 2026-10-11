@@ -56,6 +56,8 @@ export const kodSchema = z.strictObject({
   sinumerik: text,
   params: z.array(z.strictObject({ key: text, desc: text })).default([]),
   pitfalls: z.array(text).default([]),
+  /** źródła jak w lekcjach: id z src/content/nauka/sources.ts, co potwierdza, miejsce; "" = do uzupełnienia */
+  sources: z.array(z.strictObject({ id: text, where: text, loc: z.string().default(""), url: z.string().default("") })).default([]),
   example: z.strictObject({
     src: text,
     simulate: z.boolean().default(true),
@@ -219,6 +221,8 @@ export const zadanieSchema = z.strictObject({
   level: level123,
   mode: z.enum(["mill", "lathe"]),
   brief: text, hints: z.array(text).default([]),
+  /** lekcje do powtórki przed zadaniem (id, np. F3.2) */
+  lessons: z.array(z.string().regex(/^[FT]\d+\.\d+$/, "id lekcji: F3.2 albo T1.4")).default([]),
   starter: z.string(), reference: text,
   tolerance: z.number().optional(),
   requireCodes: z.array(text).optional(), forbidCodes: z.array(text).optional(), maxCutLength: z.number().optional(),

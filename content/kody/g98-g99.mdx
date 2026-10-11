@@ -49,9 +49,14 @@ pitfalls:
     G99 przy zaciskach między otworami: narzędzie przejedzie na wysokości R i
     uderzy w zacisk.
   - Na tokarce w systemie A F0.2 z G98 to 0,2 mm/min, a nie 0,2 mm/obr.
+sources:
+  - id: haas
+    where: G98 i G99 — powrót do punktu początkowego albo płaszczyzny R (Haas)
+    url: >-
+      https://haascnc.com/service/online-operator-s-manuals/mill-operator-s-manual/mill---g-codes.html
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     S1500 M03
     G00 X10 Y20

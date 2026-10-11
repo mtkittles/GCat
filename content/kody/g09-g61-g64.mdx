@@ -50,9 +50,10 @@ pitfalls:
   - >-
     Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku
     kończącym się w tym narożu.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     S2000 M03
     G00 X0 Y0 Z5
     G01 Z-2 F100

@@ -7,6 +7,7 @@ import { validate } from "@/lib/parser/validate";
 import { gcodes } from "@/lib/gcodes";
 import { exercises, glossary } from "@/lib/content";
 import { PROGRAMS } from "@/content/programy";
+import { lessonsForGlossary } from "@/lib/lessonRefs";
 
 type Mode = "mill" | "lathe";
 const ABS = /\b(zawsze|nigdy|wyłącznie|na każdym sterowaniu|każde sterowanie|jedyn[aey])\b/gi;
@@ -46,7 +47,9 @@ const section = (title: string, rows: [string, string | number][], list: [string
   section("Kody", [
     ["karty", gcodes.length],
     ["opracowane ★", gcodes.filter((g) => g.star).length],
-    ["karty z polem źródeł", "0 — schemat karty nie ma pola `sources`"],
+    ["karty ze źródłami", gcodes.filter((g) => g.sources?.length).length],
+    ["karty ze źródłem z miejscem (rozdział/strona)", gcodes.filter((g) => g.sources?.some((x) => x.loc)).length],
+    ["karty ★ bez źródeł", gcodes.filter((g) => g.star && !g.sources?.length).length],
     ["przykłady z błędami", errs.length],
     ["przykłady z ostrzeżeniami walidatora", warned.length],
     ["przykłady frezarskie z ruchem roboczym bez G94", noG94.length],
@@ -57,8 +60,9 @@ const section = (title: string, rows: [string, string | number][], list: [string
 
 /* ---------- Zadania ---------- */
 {
-  const noG94: string[] = [], warned: string[] = [], abs: string[] = [];
+  const noG94: string[] = [], warned: string[] = [], abs: string[] = [], noLesson: string[] = [];
   for (const e of exercises) {
+    if (!e.lessons?.length) noLesson.push(e.slug);
     const r = prog(e.reference, e.mode);
     if (r.warns.length) warned.push(`${e.slug} (${r.warns.join("; ")})`);
     if (r.noG94) noG94.push(e.slug);
@@ -70,13 +74,17 @@ const section = (title: string, rows: [string, string | number][], list: [string
     ["wzorce z ostrzeżeniami walidatora", warned.length],
     ["wzorce frezarskie bez G94", noG94.length],
     ["treści ze słowami bezwarunkowymi", abs.length],
-  ], [["Ostrzeżenia", warned], ["Bez G94", noG94], ["Słowa bezwarunkowe", abs]]);
+    ["zadania bez lekcji do powtórki", noLesson.length],
+  ], [["Ostrzeżenia", warned], ["Bez G94", noG94], ["Słowa bezwarunkowe", abs], ["Bez lekcji", noLesson]]);
 }
 
 /* ---------- Programy ---------- */
 {
-  const noG94: string[] = [], warned: string[] = [], errs: string[] = [];
+  const noG94: string[] = [], warned: string[] = [], errs: string[] = [], abs: string[] = [], alarm: string[] = [];
   for (const p of PROGRAMS) {
+    const text = [p.summary, ...(p.ops ?? []).flatMap((o) => [o.op, o.how])].join(" ");
+    if (hits(text, ABS).length) abs.push(`${p.slug} (${[...new Set(hits(text, ABS))].join("/")})`);
+    if (hits(text, ALARM).length) alarm.push(p.slug);
     const r = prog(p.src, p.mode, p.dialect);
     if (r.errors.length) errs.push(p.slug);
     if (r.warns.length) warned.push(`${p.slug} (${r.warns.length})`);
@@ -87,13 +95,17 @@ const section = (title: string, rows: [string, string | number][], list: [string
     ["z błędami", errs.length],
     ["z ostrzeżeniami walidatora", warned.length],
     ["frezarskie Fanuc bez G94", noG94.length],
-  ], [["Błędy", errs], ["Ostrzeżenia", warned], ["Bez G94", noG94]]);
+    ["opisy ze słowami bezwarunkowymi", abs.length],
+    ["opisy ze słownictwem alarmistycznym", alarm.length],
+  ], [["Błędy", errs], ["Ostrzeżenia", warned], ["Bez G94", noG94], ["Słowa bezwarunkowe", abs], ["Alarmistyczne", alarm]]);
 }
 
 /* ---------- Słownik ---------- */
 {
-  const abs: string[] = [], alarm: string[] = [], noSee: string[] = [];
+  const abs: string[] = [], alarm: string[] = [], noSee: string[] = [], orphan: string[] = [];
+  const inLessons = lessonsForGlossary(glossary);
   for (const h of glossary) {
+    if (!h.see?.length && !inLessons[h.anchor]?.length) orphan.push(h.term);
     if (hits(h.def, ABS).length) abs.push(`${h.term} (${[...new Set(hits(h.def, ABS))].join("/")})`);
     if (hits(h.def, ALARM).length) alarm.push(h.term);
     if (!h.see?.length) noSee.push(h.term);
@@ -102,9 +114,11 @@ const section = (title: string, rows: [string, string | number][], list: [string
     ["hasła", glossary.length],
     ["hasła ze źródłem", "0 — schemat hasła nie ma pola źródła"],
     ["hasła bez odnośnika do karty kodu", noSee.length],
+    ["hasła z odnośnikiem z lekcji", glossary.filter((h) => inLessons[h.anchor]?.length).length],
+    ["hasła bez karty i bez lekcji", orphan.length],
     ["hasła ze słowami bezwarunkowymi", abs.length],
     ["hasła ze słownictwem alarmistycznym", alarm.length],
-  ], [["Słowa bezwarunkowe", abs], ["Alarmistyczne", alarm]]);
+  ], [["Słowa bezwarunkowe", abs], ["Alarmistyczne", alarm], ["Bez karty i lekcji", orphan]]);
 }
 
 console.log(["# Audyt działów — stan automatyczny", "", "Wygenerowano: `npm run audit:dzialy`. Słowa bezwarunkowe i alarmistyczne to kandydaci do przeglądu, nie automatyczne błędy.", "", ...out].join("\n"));
