@@ -1,16 +1,17 @@
 import Link from "next/link";
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Sora } from "next/font/google";
+import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
 import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
 
-// Czcionki serwowane z własnej domeny (bez żądań do Google Fonts), nazwy jak w globals.css.
-const inter = Inter({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "600"], variable: "--font-inter", display: "swap" });
-const sora = Sora({ subsets: ["latin", "latin-ext"], weight: ["600", "700", "800"], variable: "--font-sora", display: "swap" });
-const mono = JetBrains_Mono({ subsets: ["latin", "latin-ext"], weight: ["400", "500", "700"], variable: "--font-jetbrains", display: "swap" });
+// Czcionki z repozytorium (src/app/fonts, licencja OFL): build nie pobiera nic z Google Fonts.
+// Pliki zmienne (oś wght), podzbiór latin + latin-ext; zakres wag jak w nazwach poniżej. Nazwy zmiennych jak w globals.css.
+const inter = localFont({ src: "./fonts/inter.woff2", weight: "400 600", variable: "--font-inter", display: "swap" });
+const sora = localFont({ src: "./fonts/sora.woff2", weight: "600 800", variable: "--font-sora", display: "swap" });
+const mono = localFont({ src: "./fonts/jetbrains-mono.woff2", weight: "400 700", variable: "--font-jetbrains", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

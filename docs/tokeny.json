@@ -302,17 +302,17 @@
     "wagi": {
       "font-weights-sans": {
         "$type": "other",
-        "$value": "400 500 600",
+        "$value": "400 600",
         "$description": "Inter"
       },
       "font-weights-display": {
         "$type": "other",
-        "$value": "600 700 800",
+        "$value": "600 800",
         "$description": "Sora"
       },
       "font-weights-mono": {
         "$type": "other",
-        "$value": "400 500 700",
+        "$value": "400 700",
         "$description": "JetBrains Mono"
       }
     },
