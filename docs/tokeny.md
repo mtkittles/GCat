@@ -34,7 +34,7 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 |---|---|---|---|
 | `--ink` | ![#0F172A](tokeny/0F172A.svg) `#0F172A` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | tekst główny; kontur detalu w rysunkach (.p-con) |
 | `--ink-2` | ![#475569](tokeny/475569.svg) `#475569` | ![#C8C9CC](tokeny/C8C9CC.svg) `#C8C9CC` | tekst drugorzędny, nawigacja; linie wymiarowe (.p-dim, .p-ext), napisy w rysunkach |
-| `--muted` | ![#64748B](tokeny/64748B.svg) `#64748B` | ![#8B8D93](tokeny/8B8D93.svg) `#8B8D93` | podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons) |
+| `--muted` | ![#5B6577](tokeny/5B6577.svg) `#5B6577` | ![#8B8D93](tokeny/8B8D93.svg) `#8B8D93` | podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons) |
 | `--brand-ink` | ![#0F172A](tokeny/0F172A.svg) `#0F172A` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | kolor znaku marki (logo, wordmark) |
 
 ### Akcent
@@ -45,6 +45,12 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--accent` | ![#F97316](tokeny/F97316.svg) `#F97316` | ![#F97316](tokeny/F97316.svg) `#F97316` | przyciski główne, aktywna zakładka, kod inline, parametr w rysunkach (.p-acc) |
 | `--accent-hover` | ![#EA580C](tokeny/EA580C.svg) `#EA580C` | ![#FB923C](tokeny/FB923C.svg) `#FB923C` | akcent po najechaniu |
 | `--accent-soft` | ![#FFF7ED](tokeny/FFF7ED.svg) `#FFF7ED` | ![#2B1C12](tokeny/2B1C12.svg) `#2B1C12` | tło etykiet akcentu (.fig-code, nazwa pliku) |
+| `--accent-ink` | ![#C2410C](tokeny/C2410C.svg) `#C2410C` | ![#F97316](tokeny/F97316.svg) `#F97316` | tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #F97316 |
+| `--on-accent` | ![#111214](tokeny/111214.svg) `#111214` | ![#111214](tokeny/111214.svg) `#111214` | tekst i ikony na tle akcentu (przyciski główne) — kontrast 6,7:1 |
+| `--red-ink` | ![#B91C1C](tokeny/B91C1C.svg) `#B91C1C` | ![#F87171](tokeny/F87171.svg) `#F87171` | czerwony jako kolor tekstu (błąd, kolizja) |
+| `--green-ink` | ![#15803D](tokeny/15803D.svg) `#15803D` | ![#22C55E](tokeny/22C55E.svg) `#22C55E` | zielony jako kolor tekstu (G01, poprawnie) |
+| `--amber-ink` | ![#B45309](tokeny/B45309.svg) `#B45309` | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | bursztyn jako kolor tekstu (G00) |
+| `--blue-ink` | ![#0369A1](tokeny/0369A1.svg) `#0369A1` | ![#38BDF8](tokeny/38BDF8.svg) `#38BDF8` | niebieski jako kolor tekstu (G02/G03) |
 
 ### Stany
 
@@ -75,17 +81,17 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 
 | Token | Wartość (jasny) | Ciemny | Gdzie używany |
 |---|---|---|---|
-| `--cm-comment` | ![#94A3B8](tokeny/94A3B8.svg) `#94A3B8` | ![#64748B](tokeny/64748B.svg) `#64748B` | komentarz ( … ) |
+| `--cm-comment` | ![#5B6577](tokeny/5B6577.svg) `#5B6577` | ![#8B98AB](tokeny/8B98AB.svg) `#8B98AB` | komentarz ( … ) |
 | `--cm-g` | ![#B45309](tokeny/B45309.svg) `#B45309` | ![#FBBF24](tokeny/FBBF24.svg) `#FBBF24` | słowa G |
 | `--cm-m` | ![#7C3AED](tokeny/7C3AED.svg) `#7C3AED` | ![#C4B5FD](tokeny/C4B5FD.svg) `#C4B5FD` | słowa M |
-| `--cm-n` | ![#94A3B8](tokeny/94A3B8.svg) `#94A3B8` | ![#64748B](tokeny/64748B.svg) `#64748B` | numery bloków N |
-| `--cm-g00` | ![#D97706](tokeny/D97706.svg) `#D97706` | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | G00 w edytorze |
+| `--cm-n` | ![#5B6577](tokeny/5B6577.svg) `#5B6577` | ![#8B98AB](tokeny/8B98AB.svg) `#8B98AB` | numery bloków N |
+| `--cm-g00` | ![#B45309](tokeny/B45309.svg) `#B45309` | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | G00 w edytorze |
 | `--cm-g01` | ![#15803D](tokeny/15803D.svg) `#15803D` | ![#4ADE80](tokeny/4ADE80.svg) `#4ADE80` | G01 w edytorze |
 | `--cm-g02` | ![#0369A1](tokeny/0369A1.svg) `#0369A1` | ![#38BDF8](tokeny/38BDF8.svg) `#38BDF8` | G02/G03 w edytorze |
 | `--cm-axis` | ![#0F172A](tokeny/0F172A.svg) `#0F172A` | ![#E2E8F0](tokeny/E2E8F0.svg) `#E2E8F0` | adresy osi X Y Z |
-| `--cm-ijk` | ![#0891B2](tokeny/0891B2.svg) `#0891B2` | ![#67E8F9](tokeny/67E8F9.svg) `#67E8F9` | I J K R |
-| `--cm-fs` | ![#16A34A](tokeny/16A34A.svg) `#16A34A` | ![#86EFAC](tokeny/86EFAC.svg) `#86EFAC` | F i S |
-| `--cm-t` | ![#DB2777](tokeny/DB2777.svg) `#DB2777` | ![#F9A8D4](tokeny/F9A8D4.svg) `#F9A8D4` | T, H, D |
+| `--cm-ijk` | ![#0E7490](tokeny/0E7490.svg) `#0E7490` | ![#67E8F9](tokeny/67E8F9.svg) `#67E8F9` | I J K R |
+| `--cm-fs` | ![#15803D](tokeny/15803D.svg) `#15803D` | ![#86EFAC](tokeny/86EFAC.svg) `#86EFAC` | F i S |
+| `--cm-t` | ![#BE185D](tokeny/BE185D.svg) `#BE185D` | ![#F9A8D4](tokeny/F9A8D4.svg) `#F9A8D4` | T, H, D |
 
 ## Fonty
 

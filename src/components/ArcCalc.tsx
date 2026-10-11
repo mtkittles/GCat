@@ -40,7 +40,7 @@ function Copy({ text }: { text: string }) {
   const [done, setDone] = useState(false);
   return (
     <div className="codeout">
-      <pre className="syntax">{text}</pre>
+      <pre tabIndex={0} className="syntax">{text}</pre>
       <button onClick={() => { navigator.clipboard?.writeText(text); setDone(true); setTimeout(() => setDone(false), 1500); }}>
         {done ? "Skopiowano" : "Kopiuj"}
       </button>

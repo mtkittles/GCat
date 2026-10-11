@@ -1106,7 +1106,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <span className="fs-line-no">{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</span>
         <code>{activeLineText?.raw.trim() || "koniec programu"}</code>
       </div>
-      <div className="fs-coords">
+      <div className="fs-coords" tabIndex={0}>
         <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}</span>
         {mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}
         <span>Z {fmt(currentPos.z)}</span>
@@ -1139,7 +1139,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </div>
         <div className="showcase-code">
           <div className="codecard-head"><span className="codecard-dot" />Symulacja programu</div>
-          <ol className="showcase-lines" ref={linesRef}>
+          <ol className="showcase-lines" ref={linesRef} tabIndex={0} aria-label="Program">
             {program.lines.filter((l) => l.raw.trim()).map((l) => (
               <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
                 <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
@@ -1159,7 +1159,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }
 
   const simLines = (
-          <ol className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
+          <ol tabIndex={0} aria-label="Opis bloków programu" className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
             {program.lines.map((l) => (
               <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
                 onClick={() => {

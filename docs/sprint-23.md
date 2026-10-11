@@ -44,3 +44,16 @@ Trzy krótkie lekcje przed modułem Maszyna, wspólne dla obu ścieżek (identyf
 - Źródła: ISO 841, Haas Mill Programming Workbook s. 1–8, Haas Basic Mill Operator Hand Out ver. C (s. 39 — Length Geometry/Wear, s. 43 — work offsets; nowy wpis `haas-basic`), Fanuc B-64607EN.
 - F0.1 i T0.1 mają pytanie powtórkowe z P.1. Plan „7 dni”: wstęp „Zanim zaczniesz” (FP.1–FP.3, ok. 22 min) przed dniem 1; „4,5 godz.” z przecinkiem.
 - Schemat lekcji: identyfikator `FP.1` / `TP.1` dopuszczony (`^[FT](\d+|P)\.\d+$`). Liczba lekcji w teście: 53 → 59.
+
+## Paczka K — telefon, jasny motyw, kontrast (`sprint-24/paczka-k`)
+
+Przegląd 18 stron na szerokościach 320 / 390 / 1363 px w obu motywach (Playwright + axe-core 4.10, skrypt `scripts/audit-a11y.py`, raport `docs/przeglad-dostepnosci.md`).
+
+| Problem | Zmiana |
+|---|---|
+| tekst w kolorze akcentu i statusów za jasny na jasnym tle | nowe tokeny tekstu `--accent-ink`, `--red-ink`, `--green-ink`, `--amber-ink`, `--blue-ink` (jasny: #C2410C, #B91C1C, #15803D, #B45309, #0369A1; ciemny: dotychczasowe kolory); kolory wypełnień i ruchu bez zmian |
+| biały napis na pomarańczowym przycisku (2,8:1) | `--on-accent` #111214 — ciemny napis na pomarańczu (6,7:1) |
+| szary tekst pomocniczy | `--muted` #5B6577 w jasnym motywie; numery linii i komentarze w ciemnych blokach kodu jaśniejsze; stopka bez `opacity` |
+| kolory składni w edytorze (jasny motyw) | G00, I/J/K, F/S, T, komentarze — ciemniejsze odcienie tej samej barwy |
+| przewijane bloki kodu niedostępne z klawiatury | `tabIndex={0}` na blokach `pre.syntax`, listingu symulatora i opisie bloków |
+| wynik | kontrast 0 / 0 (było 361 ciemny / 1155 jasny), przewijanie poziome strony 0; zostaje `.cm-scroller` edytora CodeMirror (pole edycji — fałszywy alarm axe) |
