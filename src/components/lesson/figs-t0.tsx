@@ -17,6 +17,59 @@ function Chuck({ m, z0, r }: { m: M; z0: number; r: number }) {
   );
 }
 
+/* ================= T0.1: budowa tokarki (#31, V15) ================= */
+export function LatheMachine() {
+  const R: [number, number, number, number] = [-150, 110, -68, 80];
+  const m = mapper(R, [8, 6, 344, 252]);
+  const lbl = (x: number, y: number, tx: number, ty: number, text: string, anchor: "start" | "end" | "middle" = "start", cls = "t-sm") => (
+    <g>
+      <line x1={m.X(x)} y1={m.Y(y)} x2={m.X(tx)} y2={m.Y(ty)} className="p-cons" />
+      <T x={m.X(tx) + (anchor === "end" ? -3 : anchor === "start" ? 3 : 0)} y={m.Y(ty) + (ty > y ? -3 : 11)} anchor={anchor} cls={cls}>{text}</T>
+    </g>
+  );
+  return (
+    <Fig id="t01mc" code="T" title="Tokarka — z czego się składa (widok z boku, głowica tylna)" h={262} legend={["stock"]}
+      notes={<><Code k="con">obraca się: wrzeciono, uchwyt i detal</Code><Code k="acc">przesuwa się w X i Z: głowica z nożem</Code><Code k="dim">konik — opcjonalnie</Code></>}
+      caption={<>Wrzeciono obraca uchwyt, a szczęki trzymają pręt — detal kręci się w osi Z. Nóż siedzi w oprawce na głowicy narzędziowej, a głowica jeździ na saniach w X i Z. Konik z kłem podpiera koniec długiego wałka; przy krótkim detalu nie jest używany. Głowica może stać za osią (tylna, jak w kursie) albo przed nią — zależy od maszyny.</>}>
+      {(c) => (
+        <g>
+          <rect x={m.X(-150)} y={m.Y(-46)} width={260 * m.u} height={10 * m.u} className="clamp" />
+          <rect x={m.X(-146)} y={m.Y(30)} width={34 * m.u} height={66 * m.u} rx={3} className="holder" />
+          <rect x={m.X(-112)} y={m.Y(10)} width={8 * m.u} height={20 * m.u} className="holder" />
+          <rect x={m.X(-104)} y={m.Y(30)} width={12 * m.u} height={60 * m.u} rx={3} className="clamp" />
+          <rect x={m.X(-92)} y={m.Y(24)} width={10 * m.u} height={8 * m.u} className="solid-hatch" />
+          <rect x={m.X(-92)} y={m.Y(-16)} width={10 * m.u} height={8 * m.u} className="solid-hatch" />
+          <rect x={m.X(-92)} y={m.Y(16)} width={92 * m.u} height={32 * m.u} fill={c.hatch} className="p-con" />
+          <line x1={m.X(-150)} y1={m.Y(0)} x2={m.X(110)} y2={m.Y(0)} className="p-cons" strokeDasharray="8 3 2 3" />
+
+          <rect x={m.X(-8)} y={m.Y(70)} width={44 * m.u} height={30 * m.u} rx={4} className="holder" />
+          <rect x={m.X(4)} y={m.Y(40)} width={10 * m.u} height={14 * m.u} className="holder" />
+          <polygon points={`${m.X(4)},${m.Y(26)} ${m.X(6)},${m.Y(19)} ${m.X(12)},${m.Y(26)}`} className="p-fill-acc" style={{ stroke: "var(--accent)" }} />
+          <rect x={m.X(4)} y={m.Y(30)} width={10 * m.u} height={4 * m.u} className="cutter" />
+
+          <g style={{ opacity: 0.75 }}>
+            <rect x={m.X(54)} y={m.Y(22)} width={44 * m.u} height={44 * m.u} rx={3} className="holder" strokeDasharray="4 3" />
+            <rect x={m.X(40)} y={m.Y(5)} width={14 * m.u} height={10 * m.u} className="holder" strokeDasharray="4 3" />
+            <polygon points={`${m.X(40)},${m.Y(5)} ${m.X(30)},${m.Y(0)} ${m.X(40)},${m.Y(-5)}`} className="holder" />
+          </g>
+
+          <T x={m.X(-146)} y={m.Y(30) - 6} cls="t-sm">wrzeciennik</T>
+          <line x1={m.X(-98)} y1={m.Y(-30)} x2={m.X(-98)} y2={m.Y(-35)} className="p-cons" />
+          <T x={m.X(-98)} y={m.Y(-35) + 10} anchor="middle" cls="t-sm">uchwyt</T>
+          {lbl(-86, 26, -74, 36, "szczęki")}
+          <T x={m.X(-46)} y={m.Y(0) - 4} anchor="middle" cls="t-sm t-b">pręt — detal</T>
+          <T x={m.X(14)} y={m.Y(70) - 6} anchor="middle" cls="t-sm">głowica narzędziowa</T>
+          {lbl(14, 47, 40, 50, "oprawka")}
+          {lbl(5, 22, -12, 32, "płytka", "end")}
+          <T x={m.X(76)} y={m.Y(22) + 46 * m.u + 14} anchor="middle" cls="t-sm">konik (opcjonalnie)</T>
+          {lbl(34, -2, 34, -18, "kieł", "middle")}
+          <T x={m.X(-20)} y={m.Y(-56) + 12} anchor="middle" cls="t-sm t-mut">łoże z prowadnicami</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 /* ================= T0.1: osie tokarki ================= */
 export function LatheAxes() {
   const R: [number, number, number, number] = [-98, 42, -30, 44];
@@ -277,6 +330,7 @@ export function TurretPosition() {
 }
 
 export const t0Figs = {
+  "t01-machine": () => <LatheMachine />,
   "t01-axes": () => <LatheAxes />,
   "t01-part": () => <LathePart />,
   "t01-pts": () => <ContourPoints />,
