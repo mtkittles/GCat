@@ -112,7 +112,7 @@ W tabeli korekcji każdy numer D ma dwie wartości: **geometrię** (promień fre
 
 Korekcji nie da się włączyć w miejscu. Sterownik potrzebuje **ruchu prostoliniowego**, w trakcie którego przesunie narzędzie z punktu nieskompensowanego na tor odsunięty o promień.
 
-* blok włączający to **G00 albo G01** — nigdy G02/G03,
+* blok włączający to **G00 albo G01** — blok z łukiem przy włączaniu kończy się na większości sterowań alarmem,
 * jego długość musi być **większa niż promień** narzędzia, najlepiej co najmniej 1,5 raza,
 * ruch prowadzi **z zewnątrz materiału** do początku konturu,
 * wyłączenie `G40` też wymaga ruchu — odjazdu od detalu.

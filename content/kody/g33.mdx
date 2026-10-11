@@ -15,9 +15,9 @@ short: >-
   samo wielokrotnie.
 desc: >-
   G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na
-  obrót, startując zawsze od tego samego położenia kątowego wrzeciona — dzięki
-  temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz sam w
-  każdym przejściu.
+  obrót, startując za każdym razem od tego samego położenia kątowego wrzeciona —
+  dzięki temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz
+  sam w każdym przejściu.
 syntax:
   fanuc: |-
     G00 X23.2
@@ -34,7 +34,9 @@ params:
   - key: Z
     desc: Koniec gwintu
 pitfalls:
-  - Zawsze G97 (stałe obroty) — przy G96 skok by pływał.
+  - >-
+    Gwint toczy się przy stałych obrotach (G97). Przy G96 obroty zmieniają się
+    ze średnicą i kolejne przejścia nie trafiałyby w ten sam zwój.
   - Rozbieg przed gwintem ≥ 2× skok, inaczej pierwsze zwoje są zniekształcone.
 sources: []
 example:

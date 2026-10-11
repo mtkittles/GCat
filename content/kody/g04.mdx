@@ -35,7 +35,10 @@ sinumerik: >-
   osobnym bloku.
 params:
   - key: X / U
-    desc: 'Fanuc: czas w sekundach, zawsze z kropką (X0.5)'
+    desc: >-
+      Fanuc: czas w sekundach, z kropką dziesiętną (X0.5). Bez kropki liczba
+      jest zwykle w najmniejszych przyrostach (X500 = 0,5 s) — zależy od
+      ustawień sterowania
   - key: P
     desc: 'Fanuc: czas w milisekundach, bez kropki (P500 = 0,5 s)'
   - key: F
@@ -129,7 +132,7 @@ Na dnie rowka czy otworu nie liczy się czas, tylko to, **ile razy ostrze obejdz
 | 1200 obr/min | 0,1 s           | `G04 X0.1`  |
 | 3000 obr/min | 0,04 s          | `G04 P40`   |
 
-Na części tokarek Fanuc producent włącza parametr **DWL**. Wtedy w trybie posuwu na obrót (\[\[G99]] na tokarce, \[\[G95]] na frezarce) liczba przy X lub U oznacza **obroty**, a nie sekundy. `G04 U2.0` to wtedy dwa obroty. Adres P zawsze pozostaje w milisekundach.
+Na części tokarek Fanuc producent włącza parametr **DWL**. Wtedy w trybie posuwu na obrót (\[\[G99]] na tokarce, \[\[G95]] na frezarce) liczba przy X lub U oznacza **obroty**, a nie sekundy. `G04 U2.0` to wtedy dwa obroty. Adres P jest wtedy zwykle nadal w milisekundach — potwierdź to w dokumentacji maszyny.
 
 <Diagram id="g04" />
 

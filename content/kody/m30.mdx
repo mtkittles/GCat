@@ -15,15 +15,20 @@ related:
   - m98-m99
 short: M30 kończy program i przewija do początku. M02 tylko kończy.
 desc: >-
-  M30 wyłącza wrzeciono i chłodziwo, resetuje funkcje modalne i ustawia kursor
-  na początku programu. Standardowe zakończenie każdego programu.
+  M30 kończy program główny i ustawia kursor na jego początku. Na większości
+  maszyn zatrzymuje też wrzeciono i chłodziwo, a sterowanie przechodzi w stan
+  resetu — co dokładnie się kasuje, zależy od parametrów maszyny. Dlatego w
+  programach kursu M09 i M05 stoją przed M30.
 syntax:
   fanuc: M30
   sinumerik: M30  (M2 / M17 w podprogramie)
 sinumerik: M30 lub M2 kończy program główny, M17 kończy podprogram (jak M99 w Fanuc).
 params: []
 pitfalls:
-  - M99 zamiast M30 w programie głównym → program zapętla się w nieskończoność.
+  - >-
+    M99 zamiast M30 w programie głównym wraca na jego początek i wykonuje go
+    ponownie — przydatne przy podajniku pręta, groźne, gdy nikt tego nie
+    zaplanował.
 sources: []
 example:
   src: |-

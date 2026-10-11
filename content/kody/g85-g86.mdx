@@ -15,9 +15,9 @@ short: >-
   wychodzi szybko.
 desc: >-
   Cykle wytaczania różnią się sposobem wyjścia z otworu. G85: wyjście na posuwie
-  — brak śladu, ale podwójne czas. G86: stop wrzeciona, szybkie wyjście — może
-  zostawić rysę od ostrza. G76 (frezarka): orientacja wrzeciona i odsunięcie
-  ostrza od ściany przed wyjściem.
+  — brak śladu, ale czas wyjścia równy czasowi wejścia. G86: stop wrzeciona,
+  szybkie wyjście — może zostawić rysę od ostrza. G76 (frezarka): orientacja
+  wrzeciona i odsunięcie ostrza od ściany przed wyjściem.
 syntax:
   fanuc: |-
     G99 G85 X_ Y_ Z_ R_ F_
@@ -33,7 +33,9 @@ params:
   - key: F
     desc: Posuw
 pitfalls:
-  - G86 w otworze na wymiar H7 zostawi ślad — użyj G85 lub G76.
+  - >-
+    G86 w otworze na wymiar H7 może zostawić rysę od ostrza — wtedy G85 albo
+    G76.
 sources: []
 example:
   src: |-
