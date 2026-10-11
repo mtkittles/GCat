@@ -63,9 +63,10 @@ pitfalls:
   - >-
     Duża zmiana kąta w jednym bloku przy TCP to duży ruch osi liniowych —
     sprawdź przejazdy.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G40 G49 G80
+    G21 G90 G94 G17 G40 G49 G80
     G54
     T1 M06 (FREZ FI10)
     S4500 M03

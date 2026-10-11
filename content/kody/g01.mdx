@@ -32,9 +32,14 @@ pitfalls:
   - >-
     Na tokarce Fanuc F0.2 (mm/obr) vs frezarka F200 (mm/min) — pomylenie
     jednostek kończy się złamanym narzędziem.
+sources:
+  - id: fanuc
+    where: G01 — interpolacja liniowa, posuw F
+  - id: sinumerik
+    where: G1, posuw F w trybie G94 albo G95
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

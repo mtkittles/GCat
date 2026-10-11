@@ -36,9 +36,14 @@ pitfalls:
     Na tokarce Fanuc w systemie A G90 to cykl toczenia, a wymiary przyrostowe
     pisze się adresami U i W. Zobacz [[G90 G92 G94 (tokarka)|proste cykle
     tokarskie]].
+sources:
+  - id: fanuc
+    where: G90 i G91 — wymiary absolutne i przyrostowe
+  - id: sinumerik
+    where: G90, G91 oraz AC() i IC() w bloku
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

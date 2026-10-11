@@ -35,9 +35,10 @@ pitfalls:
   - >-
     Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór
     „ucieka”.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

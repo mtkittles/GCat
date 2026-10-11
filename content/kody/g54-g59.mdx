@@ -27,9 +27,14 @@ sinumerik: >-
 params: []
 pitfalls:
   - Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00.
+sources:
+  - id: fanuc
+    where: G54–G59 — układy współrzędnych detalu
+  - id: sinumerik
+    where: przesunięcia nastawne G54–G57 i dalsze, TRANS i ATRANS
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03
