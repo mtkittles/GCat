@@ -97,7 +97,7 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
       </div>
       <div className="quiz-bar" aria-hidden><i style={{ width: `${(pos / order.length) * 100}%` }} /></div>
       <p className="quiz-q">{rich(q.q)}</p>
-      {(q.kind === "choice" || q.kind === "gap") && q.code && <pre className="syntax quiz-code">{q.code}</pre>}
+      {(q.kind === "choice" || q.kind === "gap") && q.code && <pre tabIndex={0} className="syntax quiz-code">{q.code}</pre>}
       {q.kind === "choice" && q.fig && figs[q.fig]}
       {q.kind === "bughunt" && (
         <ol className="bug-code" role="radiogroup" aria-label="Linie programu">

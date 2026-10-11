@@ -53,7 +53,7 @@ export const colors: Group[] = [
   { id: "tekst", title: "Tekst", tokens: [
     { name: "--ink", value: "#0F172A", dark: "#F5F5F4", use: "tekst główny; kontur detalu w rysunkach (.p-con)", src: V },
     { name: "--ink-2", value: "#475569", dark: "#C8C9CC", use: "tekst drugorzędny, nawigacja; linie wymiarowe (.p-dim, .p-ext), napisy w rysunkach", src: V },
-    { name: "--muted", value: "#64748B", dark: "#8B8D93", use: "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)", src: V },
+    { name: "--muted", value: "#5B6577", dark: "#8B8D93", use: "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)", src: V },
     { name: "--brand-ink", value: "#0F172A", dark: "#F5F5F4", use: "kolor znaku marki (logo, wordmark)", src: V },
   ] },
   { id: "akcent", title: "Akcent", tokens: [
@@ -61,6 +61,12 @@ export const colors: Group[] = [
     { name: "--accent", value: "#F97316", dark: "#F97316", use: "przyciski główne, aktywna zakładka, kod inline, parametr w rysunkach (.p-acc)", src: V },
     { name: "--accent-hover", value: "#EA580C", dark: "#FB923C", use: "akcent po najechaniu", src: V },
     { name: "--accent-soft", value: "#FFF7ED", dark: "#2B1C12", use: "tło etykiet akcentu (.fig-code, nazwa pliku)", src: V },
+    { name: "--accent-ink", value: "#C2410C", dark: "#F97316", use: "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #F97316", src: V },
+    { name: "--on-accent", value: "#111214", dark: "#111214", use: "tekst i ikony na tle akcentu (przyciski główne) — kontrast 6,7:1", src: V },
+    { name: "--red-ink", value: "#B91C1C", dark: "#F87171", use: "czerwony jako kolor tekstu (błąd, kolizja)", src: V },
+    { name: "--green-ink", value: "#15803D", dark: "#22C55E", use: "zielony jako kolor tekstu (G01, poprawnie)", src: V },
+    { name: "--amber-ink", value: "#B45309", dark: "#F59E0B", use: "bursztyn jako kolor tekstu (G00)", src: V },
+    { name: "--blue-ink", value: "#0369A1", dark: "#38BDF8", use: "niebieski jako kolor tekstu (G02/G03)", src: V },
   ] },
   { id: "stany", title: "Stany", tokens: [
     { name: "--green", value: "#22C55E", use: "sukces, zaliczone; G01 w rysunkach", src: V },
@@ -79,17 +85,17 @@ export const colors: Group[] = [
     { name: "--path-g02", value: "#38BDF8", use: "G02/G03 — łuk", src: { kind: "same", as: "--blue" } },
   ] },
   { id: "skladnia", title: "Składnia G-kodu (edytor)", tokens: [
-    { name: "--cm-comment", value: "#94A3B8", dark: "#64748B", use: "komentarz ( … )", src: V },
+    { name: "--cm-comment", value: "#5B6577", dark: "#8B98AB", use: "komentarz ( … )", src: V },
     { name: "--cm-g", value: "#B45309", dark: "#FBBF24", use: "słowa G", src: V },
     { name: "--cm-m", value: "#7C3AED", dark: "#C4B5FD", use: "słowa M", src: V },
-    { name: "--cm-n", value: "#94A3B8", dark: "#64748B", use: "numery bloków N", src: V },
-    { name: "--cm-g00", value: "#D97706", dark: "#F59E0B", use: "G00 w edytorze", src: V },
+    { name: "--cm-n", value: "#5B6577", dark: "#8B98AB", use: "numery bloków N", src: V },
+    { name: "--cm-g00", value: "#B45309", dark: "#F59E0B", use: "G00 w edytorze", src: V },
     { name: "--cm-g01", value: "#15803D", dark: "#4ADE80", use: "G01 w edytorze", src: V },
     { name: "--cm-g02", value: "#0369A1", dark: "#38BDF8", use: "G02/G03 w edytorze", src: V },
     { name: "--cm-axis", value: "#0F172A", dark: "#E2E8F0", use: "adresy osi X Y Z", src: V },
-    { name: "--cm-ijk", value: "#0891B2", dark: "#67E8F9", use: "I J K R", src: V },
-    { name: "--cm-fs", value: "#16A34A", dark: "#86EFAC", use: "F i S", src: V },
-    { name: "--cm-t", value: "#DB2777", dark: "#F9A8D4", use: "T, H, D", src: V },
+    { name: "--cm-ijk", value: "#0E7490", dark: "#67E8F9", use: "I J K R", src: V },
+    { name: "--cm-fs", value: "#15803D", dark: "#86EFAC", use: "F i S", src: V },
+    { name: "--cm-t", value: "#BE185D", dark: "#F9A8D4", use: "T, H, D", src: V },
   ] },
 ];
 

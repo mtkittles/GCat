@@ -35,7 +35,7 @@ export function Note({ kind, children }: { kind: "tip" | "warn" | "info"; childr
 
 /** <Code caption="…">```…```</Code> — program do przeczytania (blok `code`); `src` wstawia plugin z bloku ```. */
 export function Code({ src, caption }: { src: string; caption?: string }) {
-  return <figure className="grid gap-1"><pre className="syntax">{src}</pre>{caption && <figcaption className="cap">{rich(caption)}</figcaption>}</figure>;
+  return <figure className="grid gap-1"><pre tabIndex={0} className="syntax">{src}</pre>{caption && <figcaption className="cap">{rich(caption)}</figcaption>}</figure>;
 }
 
 /** <Sim mode caption>```…```</Sim> — edytowalny symulator (blok `sim`). Komponent symulatora bez zmian. */

@@ -52,7 +52,7 @@ export default function Runner({ ex }: { ex: Exercise }) {
       {showRef && (
         <div className="grid gap-2">
           <h2 className="text-lg font-bold">Rozwiązanie wzorcowe</h2>
-          <pre className="syntax">{ex.reference}</pre>
+          <pre tabIndex={0} className="syntax">{ex.reference}</pre>
           <button className="btn ghost w-fit" onClick={() => { setSrc(ex.reference); setRes(null); }}>Wczytaj do edytora</button>
         </div>
       )}

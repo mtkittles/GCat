@@ -64,8 +64,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     <section className="grid gap-3">
       <H id="skladnia">Składnia</H>
       <div className="grid gap-3 sm:grid-cols-2">
-        <div><div className="syntax-label">Fanuc</div><pre className="syntax">{g.syntax.fanuc}</pre></div>
-        <div><div className="syntax-label">Sinumerik</div><pre className="syntax">{g.syntax.sinumerik}</pre></div>
+        <div><div className="syntax-label">Fanuc</div><pre tabIndex={0} className="syntax">{g.syntax.fanuc}</pre></div>
+        <div><div className="syntax-label">Sinumerik</div><pre tabIndex={0} className="syntax">{g.syntax.sinumerik}</pre></div>
       </div>
       {g.params.length > 0 && (
         <table className="addr-table">
@@ -189,7 +189,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
         <H id="przyklad">Przykład</H>
         {g.simulate === false ? (
           <figure className="grid gap-1">
-            <pre className="syntax">{g.example}</pre>
+            <pre tabIndex={0} className="syntax">{g.example}</pre>
             <figcaption className="cap">Program do przeczytania — symulator nie odtwarza tej funkcji.</figcaption>
           </figure>
         ) : (

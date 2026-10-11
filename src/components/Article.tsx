@@ -36,7 +36,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           case "ul": return <ul key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ul>;
           case "ol": return <ol key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ol>;
           case "note": return <aside key={i} className={`note note-${b.kind}`}>{rich(b.x)}</aside>;
-          case "code": return <figure key={i} className="grid gap-1"><pre className="syntax">{b.x}</pre>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>;
+          case "code": return <figure key={i} className="grid gap-1"><pre tabIndex={0} className="syntax">{b.x}</pre>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>;
           case "sim": return <figure key={i} className="grid gap-2">{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}<SimClient initial={b.src} mode={b.mode ?? "mill"} /></figure>;
           case "demo": return (
             <figure key={i} className="grid gap-2 demo-fig">

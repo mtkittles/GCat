@@ -42,7 +42,7 @@ export default function ProgramTask({ brief = [], view, starter, checks, hints =
       )}
       {showSol && (
         <div className="grid gap-2">
-          <pre className="syntax">{solution}</pre>
+          <pre tabIndex={0} className="syntax">{solution}</pre>
           <button type="button" className="btn ghost w-fit" onClick={() => { setSrc(solution); setRes(null); }}>Wczytaj do edytora</button>
         </div>
       )}

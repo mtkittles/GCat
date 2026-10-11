@@ -79,7 +79,7 @@
       },
       "muted": {
         "$type": "color",
-        "$value": "#64748B",
+        "$value": "#5B6577",
         "$extensions": {
           "gcat.dark": "#8B8D93"
         },
@@ -123,6 +123,54 @@
           "gcat.dark": "#2B1C12"
         },
         "$description": "tło etykiet akcentu (.fig-code, nazwa pliku)"
+      },
+      "accent-ink": {
+        "$type": "color",
+        "$value": "#C2410C",
+        "$extensions": {
+          "gcat.dark": "#F97316"
+        },
+        "$description": "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #F97316"
+      },
+      "on-accent": {
+        "$type": "color",
+        "$value": "#111214",
+        "$extensions": {
+          "gcat.dark": "#111214"
+        },
+        "$description": "tekst i ikony na tle akcentu (przyciski główne) — kontrast 6,7:1"
+      },
+      "red-ink": {
+        "$type": "color",
+        "$value": "#B91C1C",
+        "$extensions": {
+          "gcat.dark": "#F87171"
+        },
+        "$description": "czerwony jako kolor tekstu (błąd, kolizja)"
+      },
+      "green-ink": {
+        "$type": "color",
+        "$value": "#15803D",
+        "$extensions": {
+          "gcat.dark": "#22C55E"
+        },
+        "$description": "zielony jako kolor tekstu (G01, poprawnie)"
+      },
+      "amber-ink": {
+        "$type": "color",
+        "$value": "#B45309",
+        "$extensions": {
+          "gcat.dark": "#F59E0B"
+        },
+        "$description": "bursztyn jako kolor tekstu (G00)"
+      },
+      "blue-ink": {
+        "$type": "color",
+        "$value": "#0369A1",
+        "$extensions": {
+          "gcat.dark": "#38BDF8"
+        },
+        "$description": "niebieski jako kolor tekstu (G02/G03)"
       }
     },
     "stany": {
@@ -193,9 +241,9 @@
     "skladnia": {
       "cm-comment": {
         "$type": "color",
-        "$value": "#94A3B8",
+        "$value": "#5B6577",
         "$extensions": {
-          "gcat.dark": "#64748B"
+          "gcat.dark": "#8B98AB"
         },
         "$description": "komentarz ( … )"
       },
@@ -217,15 +265,15 @@
       },
       "cm-n": {
         "$type": "color",
-        "$value": "#94A3B8",
+        "$value": "#5B6577",
         "$extensions": {
-          "gcat.dark": "#64748B"
+          "gcat.dark": "#8B98AB"
         },
         "$description": "numery bloków N"
       },
       "cm-g00": {
         "$type": "color",
-        "$value": "#D97706",
+        "$value": "#B45309",
         "$extensions": {
           "gcat.dark": "#F59E0B"
         },
@@ -257,7 +305,7 @@
       },
       "cm-ijk": {
         "$type": "color",
-        "$value": "#0891B2",
+        "$value": "#0E7490",
         "$extensions": {
           "gcat.dark": "#67E8F9"
         },
@@ -265,7 +313,7 @@
       },
       "cm-fs": {
         "$type": "color",
-        "$value": "#16A34A",
+        "$value": "#15803D",
         "$extensions": {
           "gcat.dark": "#86EFAC"
         },
@@ -273,7 +321,7 @@
       },
       "cm-t": {
         "$type": "color",
-        "$value": "#DB2777",
+        "$value": "#BE185D",
         "$extensions": {
           "gcat.dark": "#F9A8D4"
         },

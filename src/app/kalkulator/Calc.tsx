@@ -90,7 +90,7 @@ function CodeOut({ text, stale }: { text: string; stale?: boolean }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className={`codeout${stale ? " is-stale" : ""}`}>
-      <pre className="syntax">{stale ? "Popraw zaznaczone pola — wynik nie jest aktualny." : text}</pre>
+      <pre tabIndex={0} className="syntax">{stale ? "Popraw zaznaczone pola — wynik nie jest aktualny." : text}</pre>
       <button disabled={stale} aria-disabled={stale} onClick={() => { if (stale) return; navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1600); }}>
         {copied ? "Skopiowano" : "Kopiuj"}
       </button>
