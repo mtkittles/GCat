@@ -2,47 +2,62 @@ import { Code, Dim, Fig, T } from "@/components/fig";
 
 /* Rysunki lekcji wstępnych (moduł P, issue #31 §6): budowa frezarki, zespół narzędziowy, ustawienie. */
 
-/* ================= P.1 — frezarka pionowa: co się obraca, co przesuwa ================= */
+/* ================= P.1 — frezarka: dwie budowy, ten sam ruch główny ================= */
+function Spindle({ x, y, c }: { x: number; y: number; c: { a: (k: "acc") => string } }) {
+  return (
+    <g>
+      <rect x={x - 11} y={y} width={22} height={14} className="clamp" />
+      <rect x={x - 7} y={y + 14} width={14} height={12} className="holder" />
+      <rect x={x - 4} y={y + 26} width={8} height={22} className="cutter" />
+      <path d={`M ${x - 16} ${y + 6} a 16 6 0 1 0 32 0`} className="p-acc" fill="none" markerEnd={c.a("acc")} />
+    </g>
+  );
+}
+
 export function MillMachine() {
   return (
-    <Fig id="p1mill" code="XYZ" title="Frezarka pionowa — z czego się składa (widok z przodu)" h={268} legend={["acc", "stock"]}
-      notes={<><Code k="con">obraca się: wrzeciono z narzędziem</Code><Code k="acc">przesuwa się: stół w X i Y, wrzeciennik w Z</Code></>}
-      caption={<>Wrzeciono obraca narzędzie. Na tej konstrukcji stół z imadłem i detalem jeździ w X (w prawo i w lewo) i w Y (w głąb maszyny), a wrzeciennik po kolumnie w Z. Są też frezarki z ruchomą kolumną albo bramą — program wygląda tak samo, bo opisuje ruch narzędzia względem detalu.</>}>
+    <Fig id="p1mill" code="XYZ" title="Frezarka pionowa — dwie budowy, ten sam program" h={250} legend={["acc", "stock"]}
+      notes={<><Code k="con">ruch główny: obrót wrzeciona z narzędziem</Code><Code k="acc">A: stół — X i Y, wrzeciennik — Z</Code><Code k="acc">B: stół nieruchomy, stojak — X i Y, wrzeciennik — Z</Code></>}
+      caption={<>W obu budowach ruch główny wykonuje wrzeciono z narzędziem. Różnią się ruchy posuwowe: <b>A</b> — frezarka ze stołem krzyżowym, stół przesuwa się w X i Y, wrzeciennik w Z; <b>B</b> — frezarka z ruchomym stojakiem: stół jest nieruchomy, stojak przesuwa się w X i Y, a wrzeciennik w Z. Program jest w obu przypadkach taki sam.</>}>
       {(c) => (
         <g>
-          {/* łoże i kolumna */}
-          <rect x={40} y={226} width={280} height={18} rx={3} className="clamp" />
-          <rect x={250} y={30} width={56} height={196} rx={3} className="holder" />
-          {/* wrzeciennik, wrzeciono, oprawka, frez */}
-          <rect x={150} y={44} width={104} height={50} rx={4} className="holder" />
-          <rect x={176} y={94} width={30} height={22} className="clamp" />
-          <rect x={181} y={116} width={20} height={20} className="holder" />
-          <rect x={185} y={136} width={12} height={34} className="cutter" />
-          <path d="M 170 104 a 22 8 0 1 0 42 0" className="p-acc" fill="none" markerEnd={c.a("acc")} />
-          {/* stół, imadło, detal */}
-          <rect x={60} y={204} width={240} height={14} className="clamp" />
-          <rect x={120} y={186} width={16} height={18} className="holder" />
-          <rect x={248} y={186} width={16} height={18} className="holder" />
-          <rect x={136} y={176} width={112} height={28} fill={c.hatch} className="p-con" />
-          {/* strzałki ruchów */}
-          <line x1={44} y1={196} x2={112} y2={196} className="p-acc thick" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
-          <T x={46} y={188} cls="t-acc t-b">X</T>
-          <circle cx={78} cy={160} r={7} className="p-acc" fill="none" />
-          <circle cx={78} cy={160} r={2} className="pt-rap" />
-          <T x={90} y={164} cls="t-acc t-b">Y</T>
-          <line x1={266} y1={84} x2={266} y2={48} className="p-acc thick" markerEnd={c.a("acc")} />
-          <T x={272} y={60} cls="t-acc t-b">Z</T>
+          {/* A — stół krzyżowy */}
+          <T x={14} y={20} cls="t-b">A — stół krzyżowy</T>
+          <rect x={14} y={214} width={156} height={12} rx={2} className="clamp" />
+          <rect x={128} y={34} width={30} height={180} rx={2} className="holder" />
+          <rect x={70} y={52} width={62} height={34} rx={3} className="holder" />
+          <Spindle x={94} y={86} c={c} />
+          <rect x={22} y={192} width={130} height={10} className="clamp" />
+          <rect x={56} y={170} width={70} height={22} fill={c.hatch} className="p-con" />
+          <line x1={24} y1={182} x2={52} y2={182} className="p-acc thick" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <T x={30} y={176} cls="t-acc t-b t-sm">X</T>
+          <circle cx={36} cy={154} r={6} className="p-acc" fill="none" /><circle cx={36} cy={154} r={1.8} className="pt-rap" />
+          <T x={46} y={158} cls="t-acc t-b t-sm">Y</T>
+          <line x1={143} y1={88} x2={143} y2={56} className="p-acc thick" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <T x={148} y={70} cls="t-acc t-b t-sm">Z</T>
+          <T x={101} y={48} anchor="middle" cls="t-sm">wrzeciennik</T>
+          <T x={91} y={185} anchor="middle" cls="t-sm t-b">przedmiot</T>
+          <T x={22} y={212} cls="t-sm t-mut">stół</T>
+          <T x={143} y={124} anchor="middle" cls="t-sm" >stojak</T>
 
-          <T x={202} y={38} anchor="middle" cls="t-sm">wrzeciennik</T>
-          <T x={278} y={130} anchor="middle" cls="t-sm">kolumna</T>
-          <T x={218} y={128} cls="t-sm">oprawka</T>
-          <T x={204} y={164} cls="t-sm">frez</T>
-          <T x={166} y={100} anchor="end" cls="t-sm t-acc">obrót</T>
-          <T x={192} y={194} anchor="middle" cls="t-sm t-b">detal</T>
-          <T x={256} y={182} cls="t-sm">imadło</T>
-          <T x={60} y={226} cls="t-sm t-mut">stół</T>
-          <T x={180} y={258} anchor="middle" cls="t-sm t-mut">łoże</T>
-          <T x={96} y={152} cls="t-mut t-sm">w głąb</T>
+          {/* B — ruchomy stojak */}
+          <T x={192} y={20} cls="t-b">B — ruchomy stojak</T>
+          <rect x={190} y={214} width={156} height={12} rx={2} className="clamp" />
+          <rect x={196} y={192} width={90} height={22} className="clamp" />
+          <rect x={214} y={170} width={56} height={22} fill={c.hatch} className="p-con" />
+          <T x={242} y={185} anchor="middle" cls="t-sm t-b">przedmiot</T>
+          <T x={200} y={210} cls="t-sm t-mut">stół nieruchomy</T>
+          <rect x={300} y={34} width={30} height={170} rx={2} className="holder" />
+          <rect x={232} y={52} width={72} height={34} rx={3} className="holder" />
+          <Spindle x={258} y={86} c={c} />
+          <line x1={294} y1={206} x2={338} y2={206} className="p-acc thick" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <T x={340} y={200} anchor="end" cls="t-acc t-b t-sm">X</T>
+          <circle cx={322} cy={180} r={6} className="p-acc" fill="none" /><circle cx={322} cy={180} r={1.8} className="pt-rap" />
+          <T x={332} y={184} cls="t-acc t-b t-sm">Y</T>
+          <line x1={315} y1={88} x2={315} y2={56} className="p-acc thick" markerStart={c.a("acc")} markerEnd={c.a("acc")} />
+          <T x={320} y={70} cls="t-acc t-b t-sm">Z</T>
+          <T x={268} y={48} anchor="middle" cls="t-sm">wrzeciennik</T>
+          <line x1={180} y1={30} x2={180} y2={230} className="p-cons" />
         </g>
       )}
     </Fig>
@@ -52,9 +67,9 @@ export function MillMachine() {
 /* ================= P.2 — zespół narzędziowy: punkt prowadzony a cała bryła ================= */
 export function ToolAssembly() {
   return (
-    <Fig id="p2asm" code="L Ø" title="Zespół narzędziowy — co ma wymiary, a co prowadzi program" h={262} legend={["acc", "dim"]}
-      notes={<><Code k="acc">program prowadzi jeden punkt: czubek na osi</Code><Code k="dim">L — długość od czoła wrzeciona N</Code><Code k="dim">wysięg i Ø decydują o prześwicie</Code></>}
-      caption={<>Czoło wrzeciona <b>N</b> to baza, od której mierzy się długość narzędzia <b>L</b>. Program opisuje położenie jednego punktu — czubka na osi narzędzia. Oprawka, chwyt i ostrza mają swoje wymiary, ale współrzędne ich nie opisują: o prześwicie nad dociskiem czy imadłem decyduje cała bryła.</>}>
+    <Fig id="p2asm" code="L Ø" title="Zespół narzędziowy — wymiary i punkt opisany w programie" h={262} legend={["acc", "dim"]}
+      notes={<><Code k="acc">program opisuje czubek na osi narzędzia</Code><Code k="dim">L — od czoła wrzeciona N do czubka</Code><Code k="dim">wysięg i Ø — odstęp od przeszkód</Code></>}
+      caption={<>Czoło wrzeciona <b>N</b> to punkt bazowy, od którego mierzy się długość narzędzia <b>L</b>. Program opisuje położenie jednego punktu — czubka na osi narzędzia. Oprawka, część chwytowa i ostrza mają swoje wymiary, ale współrzędne ich nie opisują: o odstępie od docisku czy imadła decyduje cały zespół.</>}>
       {(c) => (
         <g>
           <rect x={120} y={10} width={100} height={46} rx={3} className="holder" />
@@ -73,7 +88,7 @@ export function ToolAssembly() {
           <line x1={170} y1={4} x2={170} y2={222} className="p-cons" strokeDasharray="8 3 2 3" />
           <T x={226} y={30} cls="t-sm">wrzeciono</T>
           <T x={210} y={80} cls="t-sm">oprawka</T>
-          <T x={188} y={134} cls="t-sm">chwyt</T>
+          <T x={188} y={134} cls="t-sm">część chwytowa</T>
           <T x={188} y={186} cls="t-sm">część robocza</T>
         </g>
       )}
@@ -87,8 +102,8 @@ export function SetupSide() {
   const jaw = (x0: number) => <rect x={X(x0)} y={Y(-6)} width={12 * k} height={22 * k} className="clamp" />;
   return (
     <Fig id="p3set" code="W" title="Płytka w imadle — zero, szczęki i głębokość (widok z przodu)" h={236} legend={["acc", "dim", "stock", "bad"]}
-      notes={<><Code k="acc">W — X0 Z0 na lewym górnym narożniku</Code><Code k="dim">szczęki od Z−6 w dół</Code><Code k="bad">kontur na Z−8 — frez w szczęce</Code></>}
-      caption={<>Płytka 80 × 50 × 20 trzymana w imadle na 14 mm wysokości: górna krawędź szczęk leży 6 mm pod górną powierzchnią, czyli na Z−6. Kontur zewnętrzny frezem Ø12 prowadzi frez tuż obok płytki — nad szczęką. Na głębokości Z−5 zostaje 1 mm zapasu (z lewej). Ten sam kontur na Z−8 przechodzi frezem przez szczękę (z prawej).</>}>
+      notes={<><Code k="acc">W — punkt zerowy w lewym górnym narożniku</Code><Code k="dim">szczęki od Z−6 w dół</Code><Code k="bad">kontur na Z−8 przecina szczękę</Code></>}
+      caption={<>Płytka 80 × 50 × 20 zamocowana w imadle na wysokości 14 mm: górna krawędź szczęk leży 6 mm pod górną powierzchnią, czyli na Z−6. Przy konturze zewnętrznym frez Ø12 przechodzi tuż obok płytki, nad szczęką. Na głębokości Z−5 zostaje 1 mm odstępu (po lewej). Ten sam kontur na Z−8 przecina szczękę (po prawej).</>}>
       {(c) => (
         <g>
           <rect x={X(-12)} y={Y(-28)} width={104 * k} height={4 * k} className="clamp" />

@@ -35,10 +35,12 @@ Trzy krótkie lekcje przed modułem Maszyna, wspólne dla obu ścieżek (identyf
 
 | Lekcja | Treść | Rysunki |
 |---|---|---|
-| P.1 Maszyna, detal i ruch (7 min) | co się obraca, a co przesuwa na frezarce i tokarce; program opisuje ruch narzędzia względem detalu | `p1-mill` (nowy), `t01-machine`, `f01-relative` |
-| P.2 Narzędzie ma kształt (7 min) | wrzeciono → oprawka → chwyt → część robocza; L od czoła N; wysięg i Ø a prześwit; geometria i zużycie; rodzaje narzędzi | `p2-assembly` (nowy), `f41-length` |
-| P.3 Od rysunku do ustawienia (8 min) | bazy → zero W → G54; mocowanie i wysokość szczęk; lista przed pierwszym ruchem | `p3-setup` (nowy) |
+| P.1 Obrabiarka i jej ruchy (7 min) | ruch główny i ruchy posuwowe na frezarce i tokarce; budowa frezarki decyduje, który zespół się przesuwa (stół krzyżowy / ruchomy stojak / brama); program opisuje ruch narzędzia względem przedmiotu | `p1-mill` (dwie budowy), `t01-machine` (przeniesiony z T0.1) |
+| P.2 Zespół narzędziowy (7 min) | wrzeciono → oprawka → część chwytowa → część robocza; długość L od czoła wrzeciona N; wysięg i Ø a kolizja oprawki; geometria i zużycie; podstawowe narzędzia | `p2-assembly` |
+| P.3 Ustawienie przedmiotu (8 min) | baza wymiarowa → punkt zerowy W → G54; mocowanie i wysokość szczęk; lista przed pierwszym uruchomieniem | `p3-setup` |
 
+- Każdy rysunek występuje w kursie raz (bez powtórzeń w lekcji i w kolejnych lekcjach).
+- Słownictwo: ruch główny / ruch posuwowy, wrzeciennik, stojak, stół krzyżowy, suport, oprawka narzędziowa, część chwytowa, przedmiot obrabiany.
 - Źródła: ISO 841, Haas Mill Programming Workbook s. 1–8, Haas Basic Mill Operator Hand Out ver. C (s. 39 — Length Geometry/Wear, s. 43 — work offsets; nowy wpis `haas-basic`), Fanuc B-64607EN.
 - F0.1 i T0.1 mają pytanie powtórkowe z P.1. Plan „7 dni”: wstęp „Zanim zaczniesz” (FP.1–FP.3, ok. 22 min) przed dniem 1; „4,5 godz.” z przecinkiem.
 - Schemat lekcji: identyfikator `FP.1` / `TP.1` dopuszczony (`^[FT](\d+|P)\.\d+$`). Liczba lekcji w teście: 53 → 59.
