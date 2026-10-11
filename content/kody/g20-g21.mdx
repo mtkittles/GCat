@@ -26,6 +26,11 @@ pitfalls:
   - >-
     Program w calach uruchomiony na maszynie w mm → wszystko 25,4× za małe (albo
     za duże).
+sources:
+  - id: fanuc
+    where: G20 i G21 — jednostki programu
+  - id: sinumerik
+    where: G70, G71, G700 i G710 — cale i milimetry
 example:
   src: |-
     G21 G90 G17

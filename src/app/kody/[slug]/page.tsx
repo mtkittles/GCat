@@ -3,6 +3,7 @@ import { cardCodes, lessonsForCodes } from "@/lib/lessonRefs";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
+import SourceList from "@/components/lesson/SourceList";
 import { diagrams } from "@/components/diagrams";
 import { Toc, tocItems } from "@/components/Article";
 import CodeText from "@/components/CodeText";
@@ -28,6 +29,15 @@ function relatedOf(g: GCode): GCode[] {
   const list = g.related?.map(bySlug).filter((x): x is GCode => !!x)
     ?? gcodes.filter((x) => x.group === g.group && x.slug !== g.slug).slice(0, 4);
   return list.slice(0, 6);
+}
+
+/* Profil zapisu przykładów — jak nad lekcjami i zadaniami. */
+function profileOf(g: { milling: boolean; turning: boolean; exampleDialect?: "fanuc" | "sinumerik"; exampleMode?: "mill" | "lathe" }) {
+  if (g.exampleDialect === "sinumerik") return "Zapis przykładu: SINUMERIK — język natywny · frezarka · milimetry.";
+  const mill = "Fanuc (ISO) · frezarka · milimetry, posuw na minutę (G94)";
+  const lathe = "Fanuc, system A · tokarka, X w średnicy · milimetry, posuw na obrót (G99)";
+  if (g.milling && g.turning) return `Zapis przykładów: frezarka — ${mill.replace(" · frezarka", "")}; tokarka — ${lathe.replace(" · tokarka", "")}. Przykład główny: ${g.exampleMode === "lathe" ? "tokarski" : "frezarski"}.`;
+  return `Zapis przykładów: ${g.turning ? lathe : mill}. Różnice w SINUMERIKU — w składni i sekcji Sinumerik.`;
 }
 
 /*
@@ -96,6 +106,13 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     </section>
   );
 
+  const sourcesSec = g.sources?.length ? <SourceList items={g.sources} /> : (
+    <section className="ls-src" aria-labelledby="zrodla">
+      <h2 id="zrodla">Źródła</h2>
+      <p className="ls-src-note">Do uzupełnienia — tej karty nie sprawdzono jeszcze w dokumentacji producenta sterowania. Opis dotyczy profilu podanego wyżej; na konkretnej maszynie obowiązuje jej dokumentacja.</p>
+    </section>
+  );
+
   const footerNav = (
     <nav className="article-nav">
       <span>{prev && <Link href={`/kody/${prev.slug}`}>‹ {prev.code}</Link>}</span>
@@ -116,13 +133,14 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {g.variesBy && <Chip tone="warning">zależy od: {g.variesBy}</Chip>}
         </>} />
       <p className="lead max-w-prose"><CodeText text={g.short} self={self} /></p>
+      <p className="tp-profile">{profileOf(g)}</p>
     </>
   );
 
   if (mdx) {
     // spis treści artykułu z nagłówków MDX (kotwice jawne w pliku)
     const tocBlocks = mdx.headings.map((h) => ({ t: "h" as const, x: h.label, id: h.id }));
-    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : [])];
+    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []), { id: "zrodla", label: "Źródła" }];
     return (
       <div className="article-layout cc">
         <aside className="cc-left"><LeftToc items={toc} /></aside>
@@ -134,6 +152,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           <div className="article grid gap-4">{await mdx.render()}</div>
           {lessonsSec}
           {related}
+          {sourcesSec}
           {footerNav}
         </article>
         <aside className="cc-right"><CardQuick g={g} related={rel} lessons={inLessons} toc={toc} /></aside>
@@ -152,6 +171,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     ...(g.pitfalls.length ? [{ id: "uwagi", label: "Na co uważać" }] : []),
     ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []),
     ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []),
+    { id: "zrodla", label: "Źródła" },
   ];
 
   return (
@@ -190,6 +210,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
       )}
       {lessonsSec}
       {related}
+      {sourcesSec}
       {footerNav}
     </article>
     <aside className="cc-right"><CardQuick g={g} related={rel} lessons={inLessons} toc={toc} /></aside>

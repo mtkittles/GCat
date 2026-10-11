@@ -51,9 +51,10 @@ pitfalls:
   - >-
     Biegun zależy od G90/G91 w bloku z G16 — sprawdź, gdzie stoi narzędzie przed
     włączeniem.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S1200 M03

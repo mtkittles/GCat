@@ -47,7 +47,9 @@ const section = (title: string, rows: [string, string | number][], list: [string
   section("Kody", [
     ["karty", gcodes.length],
     ["opracowane ★", gcodes.filter((g) => g.star).length],
-    ["karty z polem źródeł", "0 — schemat karty nie ma pola `sources`"],
+    ["karty ze źródłami", gcodes.filter((g) => g.sources?.length).length],
+    ["karty ze źródłem z miejscem (rozdział/strona)", gcodes.filter((g) => g.sources?.some((x) => x.loc)).length],
+    ["karty ★ bez źródeł", gcodes.filter((g) => g.star && !g.sources?.length).length],
     ["przykłady z błędami", errs.length],
     ["przykłady z ostrzeżeniami walidatora", warned.length],
     ["przykłady frezarskie z ruchem roboczym bez G94", noG94.length],

@@ -31,9 +31,10 @@ pitfalls:
   - >-
     Tylko jedna funkcja M w bloku (Fanuc). M03 M08 w jednej linii → alarm lub
     zignorowanie.
+sources: []
 example:
   src: |-
-    G21 G90 G17
+    G21 G90 G94 G17
     S1200 M03
     G00 X0 Y0 Z5
     G01 Z-1 F100

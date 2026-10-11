@@ -64,9 +64,12 @@ pitfalls:
   - >-
     Kierunek dodatni osi obrotowej zależy od maszyny — sprawdź w dokumentacji,
     zanim napiszesz A-90.
+sources:
+  - id: iso841
+    where: osie obrotowe A, B, C wokół X, Y, Z i ich zwroty
 example:
   src: |-
-    G21 G90 G17 G40 G49 G80
+    G21 G90 G94 G17 G40 G49 G80
     G54
     T1 M06 (FREZ FI8)
     G43 H1 Z60.

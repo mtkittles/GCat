@@ -37,6 +37,11 @@ pitfalls:
   - >-
     G43 bez ruchu Z w tym samym bloku — na części sterowników nic się nie stanie
     aż do następnego Z.
+sources:
+  - id: fanuc
+    where: G43, G44, G49 — korekcja długości z rejestru H
+  - id: sinumerik
+    where: korekcja długości aktywowana przez T i D
 example:
   src: |-
     G21 G90 G17 G54

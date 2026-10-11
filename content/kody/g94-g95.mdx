@@ -39,6 +39,16 @@ pitfalls:
   - >-
     Na tokarce w systemie A jednostkę posuwu wybierają G98 (mm/min) i G99
     (mm/obr), a G94 to cykl planowania.
+sources:
+  - id: sinumerik
+    where: posuw na ostrze G95 FZ= (język natywny)
+    loc: rozdz. 8.12, s. 129–130
+  - id: haas
+    where: G94 i G95 na frezarce Haas, grupy modalne
+    url: >-
+      https://haascnc.com/service/online-operator-s-manuals/mill-operator-s-manual/mill---g-codes.html
+  - id: fanuc
+    where: G98 i G99 na tokarce w systemie A, G94 i G95 w systemach B i C
 example:
   src: |-
     G18 G21 G40 G99

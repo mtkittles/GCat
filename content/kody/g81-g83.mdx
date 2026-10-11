@@ -46,9 +46,14 @@ pitfalls:
   - >-
     G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w
     zacisk.
+sources:
+  - id: haas
+    where: Q, płaszczyzna R i wycofanie w G83 (Haas)
+    url: >-
+      https://www.haascnc.com/service/codes-settings.type%3Dgcode.machine%3Dmill.value%3DG83.html
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

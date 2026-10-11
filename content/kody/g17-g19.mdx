@@ -22,6 +22,11 @@ sinumerik: Te same kody. Na tokarce Sinumerik G18 jest domyślne po włączeniu.
 params: []
 pitfalls:
   - Łuk w G18 z podanymi I J (zamiast I K) → alarm lub dziwny tor.
+sources:
+  - id: fanuc
+    where: G17, G18, G19 — wybór płaszczyzny
+  - id: sinumerik
+    where: G17, G18, G19 — wybór płaszczyzny
 example:
   src: |-
     G21 G90 G18 G40 G99

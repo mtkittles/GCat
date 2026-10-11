@@ -34,9 +34,14 @@ pitfalls:
   - >-
     Przy R kontroler wybiera krótszy łuk (≤180°). Jeśli chcesz dłuższy, podaj R
     ujemne.
+sources:
+  - id: fanuc
+    where: G03 — interpolacja kołowa, R oraz I J K
+  - id: sinumerik
+    where: G3, CR= oraz I J K
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

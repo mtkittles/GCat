@@ -30,7 +30,7 @@ Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i 
 4. Słownik: 3 hasła ze słowami bezwarunkowymi — warunki zamiast reguł; odnośniki do lekcji dla 11 haseł bez kart.
 5. Programy: przegląd kart technologicznych — „wartości orientacyjne” tam, gdzie brakuje.
 
-### Paczka B — Kody: schemat i źródła
+### Paczka B — Kody: schemat i źródła — **zrobione** (sprint 20, jedna paczka)
 1. Pole `sources` w schemacie karty (jak w lekcjach: dokument, co potwierdza, miejsce, URL) i sekcja „Źródła” na stronie karty — ten sam komponent co w lekcji.
 2. Źródła dla 12 kart ★ — tylko faktycznie sprawdzone miejsca; reszta „do uzupełnienia”.
 3. Profil zapisu nad przykładem karty (Fanuc ISO / frezarka 3-osiowa / G94 albo tokarka system A / G99).
@@ -46,6 +46,16 @@ Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i 
 - Kalkulator: źródła (Kuryjański, Storch), Rt zamiast Rz, odnośniki do lekcji. Wzory na Q, P, Rt i otwór pod gwint — źródło do uzupełnienia.
 - Słownik: 0 haseł ze słowami bezwarunkowymi; 27 haseł z odnośnikiem z lekcji (liczone z `[[…]]`); bez karty i lekcji zostało `kc` (używane w kalkulatorze).
 - Programy: profil zapisu i zastrzeżenie o parametrach na stronie programu.
+
+### Stan po paczce B (sprint 20)
+
+- Pole `sources` w karcie (schemat, Keystatic, strona) i wspólny komponent `SourceList` z lekcjami.
+- Źródła ma 23 karty, w tym wszystkie 12 ★; 9 kart ma potwierdzone miejsce (rozdział/strona albo konkretna strona WWW). Karty ★ odwołują się do instrukcji Fanuc 0i-F Plus i SINUMERIK Fundamentals bez stron — pokazują „do uzupełnienia”, dopóki nie sprawdzimy rozdziałów.
+- Karty bez źródeł pokazują jawnie „do uzupełnienia”.
+- Profil zapisu przykładów pod nagłówkiem każdej karty.
+- `G94` w bloku startowym 24 przykładów frezarskich (pole `example`); bloki `sim` w artykułach bez zmian.
+
+Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart ★; paczka C (język).
 
 ## Zasady (bez zmian)
 

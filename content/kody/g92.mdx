@@ -48,9 +48,10 @@ pitfalls:
   - >-
     Na tokarce w systemie A G92 to cykl gwintowania jednym przejściem, a nie
     ustawienie układu.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

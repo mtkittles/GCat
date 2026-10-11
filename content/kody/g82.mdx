@@ -43,9 +43,10 @@ pitfalls:
   - >-
     Długi postój przy dużych obrotach i słabym chłodzeniu przegrzewa ostrze.
     Wystarczy kilka obrotów wrzeciona.
+sources: []
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T02 M06 (nawiertak 90)
     S1800 M03
     G00 X15 Y15

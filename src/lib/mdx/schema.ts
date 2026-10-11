@@ -56,6 +56,8 @@ export const kodSchema = z.strictObject({
   sinumerik: text,
   params: z.array(z.strictObject({ key: text, desc: text })).default([]),
   pitfalls: z.array(text).default([]),
+  /** źródła jak w lekcjach: id z src/content/nauka/sources.ts, co potwierdza, miejsce; "" = do uzupełnienia */
+  sources: z.array(z.strictObject({ id: text, where: text, loc: z.string().default(""), url: z.string().default("") })).default([]),
   example: z.strictObject({
     src: text,
     simulate: z.boolean().default(true),

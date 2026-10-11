@@ -31,9 +31,17 @@ pitfalls:
     Dojazd G00 do materiału na Z — częsta przyczyna kolizji. Zawsze schodź na
     głębokość G01.
   - Tor G00 nie jest prostą — nie zakładaj, że ominie zacisk.
+sources:
+  - id: haas-workbook
+    where: G00 a G01 — rozdzielenie toru szybkiego i interpolacji (Haas)
+    loc: s. 30 (PDF 36)
+  - id: fanuc
+    where: G00 — pozycjonowanie; tor liniowy albo nieliniowy zależnie od parametru
+  - id: sinumerik
+    where: G0, RTLION i RTLIOF
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

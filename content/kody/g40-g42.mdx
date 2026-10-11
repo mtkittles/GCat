@@ -38,9 +38,14 @@ pitfalls:
   - Włączenie kompensacji w bloku G02/G03 → alarm.
   - Blok dojazdowy krótszy niż promień → alarm „przecięcie”.
   - Wewnętrzny łuk mniejszy niż promień freza → podcięcie lub alarm.
+sources:
+  - id: fanuc
+    where: G40, G41, G42 — korekcja promienia, włączanie i wyłączanie
+  - id: sinumerik
+    where: G40, G41, G42 z korektorem D narzędzia
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03

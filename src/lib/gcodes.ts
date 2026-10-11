@@ -20,6 +20,8 @@ export interface GCode {
   exampleStock?: { x: number; y: number; z: number; ox: number; oy: number; oz: number };
   /** Sterownik, w którego języku zapisano przykład (brak = Fanuc). */
   exampleDialect?: "fanuc" | "sinumerik";
+  /** źródła jak w lekcjach (src/content/nauka/sources.ts) */
+  sources?: { id: string; where: string; loc?: string; url?: string }[];
   /** ★ — karta opracowana w pełnym układzie (pole `star` w pliku karty) */
   star: boolean;
   /** karta ma artykuł (treść MDX pod frontmatterem) */

@@ -40,6 +40,10 @@ params:
 pitfalls:
   - Kontur musi być monotoniczny w obu osiach (Fanuc typ I).
   - Pierwszy blok konturu (N P) może zawierać tylko ruch w X.
+sources:
+  - id: sinumerik-iso-t
+    where: G70–G76 w trybie ISO, typy G71
+    loc: rozdz. 4.1.2, s. 79–85
 example:
   src: |-
     G18 G21 G40 G99

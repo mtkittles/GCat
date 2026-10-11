@@ -39,9 +39,14 @@ pitfalls:
     Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz
     bywa odwrócony.
   - I/J są od punktu STARTU, nie od zera detalu.
+sources:
+  - id: fanuc
+    where: G02 — interpolacja kołowa, R oraz I J K
+  - id: sinumerik
+    where: G2, CR= oraz I J K, AC()
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17 G54
     T01 M06
     G43 H01 Z50.
     S2000 M03
