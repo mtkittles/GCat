@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { LatheGoal } from "@/lib/lesson";
+import { JogList, JogTarget } from "./JogGoals";
 
 /*
   Tokarka z boku: uchwyt po lewej, pręt Ø40 wystaje 70 mm, Z0 na czole, X0 na osi.
@@ -53,6 +54,7 @@ export default function LatheJog({ goals, setZ = false }: { goals: LatheGoal[]; 
   const tip = { x: SX(pos.z), y: SY(r) };
   const zShown = zSet ? f3(pos.z) : f3(FACE_M + pos.z);
 
+  const items = goals.map((g) => ({ code: g.kind === "setz" ? "Z0 ← czoło" : `X${g.x} Z${g.z}`, label: g.label }));
   return (
     <div className="jog lj">
       <div className="jog-view">
@@ -91,6 +93,9 @@ export default function LatheJog({ goals, setZ = false }: { goals: LatheGoal[]; 
         </svg>
       </div>
 
+      <div className="jog-side">
+      <JogTarget items={items} done={done} win="Wszystkie punkty osiągnięte." />
+
       <div className="jog-read lj-read" aria-live="polite">
         <span><i>{radius ? "X (r)" : "X (Ø)"}</i>{f3(radius ? r : pos.d)}</span>
         <span><i>{zSet ? "Z" : "Z masz."}</i>{zShown}</span>
@@ -120,14 +125,8 @@ export default function LatheJog({ goals, setZ = false }: { goals: LatheGoal[]; 
             onSurface ? "Ostrze dotyka powierzchni pręta." : "Naciśnij + albo − przy wybranej osi."}
       </p>
 
-      <ol className="jog-goals">
-        {goals.map((g, i) => (
-          <li key={i} className={i < done ? "is-done" : i === done ? "is-now" : ""}>
-            <code>{g.kind === "setz" ? "Z0 ← czoło" : `X${g.x} Z${g.z}`}</code><span>{g.label}</span>
-          </li>
-        ))}
-        {done >= goals.length && <li className="jog-win">Wszystkie punkty osiągnięte.</li>}
-      </ol>
+      <JogList items={items} done={done} />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { JogGoal } from "@/lib/lesson";
+import { JogList, JogTarget } from "./JogGoals";
 
 /*
   Ręczny przesuw osi (JOG) na płytce 80 × 50 × 20. Zero W w lewym przednim narożniku,
@@ -42,7 +43,7 @@ export default function JogDemo({ goals = [] }: { goals?: JogGoal[] }) {
   const tip = P(pos.x, pos.y, pos.z);
   const r = 5 * U, len = 30 * U;
   const g = goals[goal];
-  const allDone = goals.length > 0 && goal >= goals.length;
+  const items = goals.map((q) => ({ code: `X${q.x} Y${q.y} Z${q.z}`, label: q.label }));
 
   return (
     <div className="jog">
@@ -73,6 +74,8 @@ export default function JogDemo({ goals = [] }: { goals?: JogGoal[] }) {
             </g>
           ); })()}
 
+          {goals.slice(0, goal).map((q, i) => { const c = P(q.x, q.y, q.z); return <circle key={i} cx={c[0]} cy={c[1]} r={4} className="jog-hit" />; })}
+
           {g && (() => { const q = P(g.x, g.y, g.z); return (
             <g className="jog-goal">
               <circle cx={q[0]} cy={q[1]} r={6} />
@@ -97,6 +100,9 @@ export default function JogDemo({ goals = [] }: { goals?: JogGoal[] }) {
           </g>
         </svg>
       </div>
+
+      <div className="jog-side">
+      <JogTarget items={items} done={goal} win="Wszystkie punkty osiągnięte." />
 
       <div className="jog-read" aria-live="polite">
         {(["x", "y", "z"] as const).map((a) => (
@@ -125,16 +131,8 @@ export default function JogDemo({ goals = [] }: { goals?: JogGoal[] }) {
             last ? `Ostatni ruch ${last.replace("-", "−")}: narzędzie ${DIR[last]}.` : "Naciśnij + albo − przy wybranej osi."}
       </p>
 
-      {goals.length > 0 && (
-        <ol className="jog-goals">
-          {goals.map((q, i) => (
-            <li key={i} className={i < goal ? "is-done" : i === goal ? "is-now" : ""}>
-              <code>X{q.x} Y{q.y} Z{q.z}</code><span>{q.label}</span>
-            </li>
-          ))}
-          {allDone && <li className="jog-win">Wszystkie punkty osiągnięte.</li>}
-        </ol>
-      )}
+      <JogList items={items} done={goal} />
+      </div>
     </div>
   );
 }

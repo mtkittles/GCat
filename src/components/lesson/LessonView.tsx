@@ -123,7 +123,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
               : p.kind === "state" ? <StateExplorer program={p.program} />
               : p.kind === "lathejog" ? <LatheJog goals={p.goals} setZ={p.setZ} />
               : p.kind === "css" ? <CssWidget vc0={p.vc} limit0={p.limit} />
-              : p.kind === "task" ? <ProgramTask starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} mode={p.mode} />
+              : p.kind === "task" ? <ProgramTask brief={p.brief} view={p.view} starter={p.starter} checks={p.checks} hints={p.hints} solution={p.solution} mode={p.mode} />
               : <PointDrill tasks={p.tasks} />}
           </div>
         ))}

@@ -151,7 +151,8 @@ export const practiceSchema = z.discriminatedUnion("kind", [
   }),
   z.strictObject({ kind: z.literal("css"), intro: text, vc: z.number().optional(), limit: z.number().optional() }),
   z.strictObject({
-    kind: z.literal("task"), intro: text, starter: z.string(), checks: z.array(taskCheck).min(1),
+    kind: z.literal("task"), intro: text, brief: z.array(text).min(1).optional(), view: z.literal("g43").optional(),
+    starter: z.string(), checks: z.array(taskCheck).min(1),
     hints: z.array(text).optional(), solution: text, mode: z.enum(["mill", "lathe"]).optional(),
   }),
   z.strictObject({ kind: z.literal("points"), intro: text, tasks: z.array(z.strictObject({ target: z.tuple([z.number(), z.number()]), prompt: text, guides: z.boolean().optional() })).min(1) }),

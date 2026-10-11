@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import type { OffsetGoal, OffsetPart } from "@/lib/lesson";
+import { JogList, JogTarget } from "./JogGoals";
 
 /*
   Stół frezarki z góry. M — zero maszyny w prawym tylnym rogu przestrzeni roboczej,
@@ -55,6 +56,7 @@ export default function OffsetJog({ parts, goals, set = false }: { parts: Offset
   const r = regs[active];
   const goal = goals[done];
 
+  const items = goals.map((g) => ({ code: g.kind === "set" ? `${g.reg} ← X${g.x} Y${g.y}` : `${g.frame === "M" ? "MASZ." : g.frame} X${g.x} Y${g.y}`, label: g.label }));
   return (
     <div className="jog oj">
       <div className="jog-view">
@@ -88,6 +90,9 @@ export default function OffsetJog({ parts, goals, set = false }: { parts: Offset
           </g>
         </svg>
       </div>
+
+      <div className="jog-side">
+      <JogTarget items={items} done={done} win="Wszystkie kroki wykonane." />
 
       <div className="oj-read" aria-live="polite">
         <div className="oj-row"><span className="oj-k">MASZYNA</span><span><i>X</i>{f3(pos.x)}</span><span><i>Y</i>{f3(pos.y)}</span></div>
@@ -131,15 +136,8 @@ export default function OffsetJog({ parts, goals, set = false }: { parts: Offset
         ))}</tbody>
       </table>
 
-      <ol className="jog-goals">
-        {goals.map((g, i) => (
-          <li key={i} className={i < done ? "is-done" : i === done ? "is-now" : ""}>
-            <code>{g.kind === "set" ? `${g.reg} ← X${g.x} Y${g.y}` : `${g.frame === "M" ? "MASZ." : g.frame} X${g.x} Y${g.y}`}</code>
-            <span>{g.label}</span>
-          </li>
-        ))}
-        {done >= goals.length && <li className="jog-win">Wszystkie kroki wykonane.</li>}
-      </ol>
+      <JogList items={items} done={done} />
+      </div>
     </div>
   );
 }
