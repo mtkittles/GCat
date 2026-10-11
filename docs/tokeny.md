@@ -97,13 +97,13 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--font-display` | `var(--font-sora), Sora, Inter, system-ui, sans-serif` | nagłówki h1–h3, tytuły rysunków (Sora) · `@theme inline { --font-display }` |
 | `--font-mono` | `var(--font-jetbrains), "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace` | G-kod, kod inline, liczby w rysunkach (JetBrains Mono) · `@theme inline { --font-mono }` |
 
-### Wagi wczytywane (next/font)
+### Zakres wag czcionek (next/font/local, pliki zmienne)
 
 | Token | Wartość | Gdzie używany |
 |---|---|---|
-| `--font-weights-sans` | `400 500 600` | Inter · `src/app/layout.tsx` |
-| `--font-weights-display` | `600 700 800` | Sora · `src/app/layout.tsx` |
-| `--font-weights-mono` | `400 500 700` | JetBrains Mono · `src/app/layout.tsx` |
+| `--font-weights-sans` | `400 600` | Inter · `src/app/layout.tsx` |
+| `--font-weights-display` | `600 800` | Sora · `src/app/layout.tsx` |
+| `--font-weights-mono` | `400 700` | JetBrains Mono · `src/app/layout.tsx` |
 
 ### Tekst w rysunkach (jednostki viewBox 360)
 

@@ -101,10 +101,10 @@ export const fonts: Group[] = [
     { name: "--font-display", value: "var(--font-sora), Sora, Inter, system-ui, sans-serif", use: "nagłówki h1–h3, tytuły rysunków (Sora)", src: rule("@theme inline", "--font-display") },
     { name: "--font-mono", value: 'var(--font-jetbrains), "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace', use: "G-kod, kod inline, liczby w rysunkach (JetBrains Mono)", src: rule("@theme inline", "--font-mono") },
   ] },
-  { id: "wagi", title: "Wagi wczytywane (next/font)", tokens: [
-    { name: "--font-weights-sans", value: "400 500 600", use: "Inter", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`Inter\(\{[^}]*weight: \[([^\]]*)\]` } },
-    { name: "--font-weights-display", value: "600 700 800", use: "Sora", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`Sora\(\{[^}]*weight: \[([^\]]*)\]` } },
-    { name: "--font-weights-mono", value: "400 500 700", use: "JetBrains Mono", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`JetBrains_Mono\(\{[^}]*weight: \[([^\]]*)\]` } },
+  { id: "wagi", title: "Zakres wag czcionek (next/font/local, pliki zmienne)", tokens: [
+    { name: "--font-weights-sans", value: "400 600", use: "Inter", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`inter = localFont\(\{[^}]*weight: "([^"]*)"` } },
+    { name: "--font-weights-display", value: "600 800", use: "Sora", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`sora = localFont\(\{[^}]*weight: "([^"]*)"` } },
+    { name: "--font-weights-mono", value: "400 700", use: "JetBrains Mono", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`mono = localFont\(\{[^}]*weight: "([^"]*)"` } },
   ] },
   { id: "tekst-rysunkow", title: "Tekst w rysunkach (jednostki viewBox 360)", tokens: [
     { name: "--fig-text", value: "11px", use: "napisy w rysunkach", src: rule(".fig svg text", "font-size") },
