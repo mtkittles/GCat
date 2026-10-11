@@ -43,16 +43,16 @@ export const f2_2: LessonDoc = {
       kind: "task", mode: "mill",
       intro: "Oblicz obroty i włącz wrzeciono. Frez VHM Ø10, stal C45, vc = 80 m/min, frez prawoskrętny.",
       brief: ["n = 1000 · vc / (π · D), zaokrąglone w dół do pełnych setek.", "Kierunek obrotów: w prawo."],
-      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\n(TU OBROTY)\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\n(TU OBROTY)\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["S2500","M03"]},{"t":"forbid","codes":["M04"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
       hints: ["1000 · 80 / (π · 10) ≈ 2546 obr/min. W kursie zaokrąglamy w dół do pełnych setek.","Frez prawoskrętny skrawa przy obrotach w prawo: `S2500 M03` w jednym bloku."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",
       intro: "Obliczenia i kody wrzeciona. Przy obliczeniach wystarczy wynik w pełnych obrotach.",
       questions: [
-        {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny obraca się wtedy grzbietami ostrzy do materiału: nie skrawa, tylko trze, grzeje się i szybko tępi albo wykrusza. Powinno być S2500 M03."},
+        {"kind":"bughunt","q":"Frez prawoskrętny. Znajdź błąd.","program":"T1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M04\nM08\nG00 X-20. Y10.","answer":2,"why":"M04 to obroty w lewo — frez prawoskrętny obraca się wtedy grzbietami ostrzy do materiału: nie skrawa, tylko trze, grzeje się i szybko tępi albo wykrusza. Powinno być S2500 M03."},
 
         { kind: "gap", q: "Frez Ø8, vc = 100 m/min. Ile obrotów (w pełnych obr/min)?", template: "n = {0}", answers: [["3979", "3978", "3980"]], why: "1000 · 100 / (π · 8) ≈ 3979 obr/min." },
         { kind: "gap", q: "W programie dla aluminium z przykładu (S8000) frez Ø10 zastąpiono frezem Ø6, a S zostało bez zmian. Jaka będzie prędkość skrawania (m/min, w pełnych)?", template: "vc ≈ {0}", answers: [["151", "150"]], why: "vc = π · 6 · 8000 / 1000 ≈ 151 m/min. Mniejsza średnica przy tych samych obrotach to mniejsza prędkość na ostrzu — S trzeba liczyć od nowa dla każdego narzędzia." },

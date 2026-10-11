@@ -159,33 +159,42 @@ export function Coolant() {
    Krok 2: dojazd do X−5 — krawędź freza styka się z bokiem płytki X0, F400.
    Krok 3: kontur w górę do Y55 — F400 działa dalej (modalne). */
 export function PlateFeeds() {
-  const R: [number, number, number, number] = [-32, 88, -8, 62];
+  const R: [number, number, number, number] = [-34, 88, -10, 62];
   const m = mapper(R, [10, 8, 340, 214]);
   const r = 5;
-  const Step = ({ x, y, n }: { x: number; y: number; n: number }) => (
-    <g><circle cx={x} cy={y} r={8} className="step" /><text x={x} y={y + 3.8} textAnchor="middle" className="step-n">{n}</text></g>
-  );
   return (
-    <Fig id="f23pf" code="F" title="Gdzie który posuw — płytka z góry" h={240} legend={["cut", "stock"]}
+    <Fig id="f23pf" code="F" title="Gdzie który posuw — płytka z góry" h={240} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">1  G01 Z-5. F150</Code><Code k="cut">2  G01 X-5. F400</Code><Code k="cut">3  G01 Y55.</Code></>}
-      caption={<>1 — frez Ø10 schodzi na Z−5 w X−20, obok płytki: w powietrzu, z mniejszym posuwem przyjętym w kursie. 2 — dojazd do X−5: krawędź freza staje przy boku płytki w X0, a od następnego ruchu skrawa obwód freza — dlatego F400 pada już w tym bloku. 3 — dalszy kontur: F400 działa dalej, bo F jest modalne.</>}>
+      caption={<>Półfabrykat 84 × 54 ma po 2 mm naddatku na każdy bok konturu gotowego 80 × 50; zero W leży w lewym dolnym narożniku konturu gotowego. 1 — frez Ø10 schodzi na Z−5 w X−20 Y10; krawędź freza jest 13 mm od półfabrykatu: ruch w powietrzu. 2 — dojazd do X−5: na ostatnich 2 mm krawędź freza wchodzi w naddatek i staje na konturze gotowym X0, dlatego F400 pada już w tym bloku. 3 — ruch wzdłuż Y zbiera obwodem pas naddatku szerokości 2 mm; F400 działa dalej, bo F jest modalne.</>}>
       {(c) => (
         <g>
+          <rect x={m.X(-2)} y={m.Y(52)} width={84 * m.u} height={54 * m.u} className="allow" />
+          <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} style={{ fill: "var(--panel)" }} />
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
-          <T x={m.X(40)} y={m.Y(25) + 4} anchor="middle" cls="t-mut">płytka 80 × 50</T>
+          <T x={m.X(44)} y={m.Y(30) + 4} anchor="middle" cls="t-mut">kontur gotowy 80 × 50</T>
+          {/* zero W i kierunki osi */}
+          <circle cx={m.X(0)} cy={m.Y(0)} r={3} className="pt" />
+          <T x={m.X(0) + 5} y={m.Y(0) + 16} cls="t-b">W</T>
+          <line x1={m.X(0)} y1={m.Y(-7)} x2={m.X(12)} y2={m.Y(-7)} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(12) + 4} y={m.Y(-7) + 4} cls="t-sm t-mono">+X</T>
           {/* krok 1: zejście w powietrzu */}
           <circle cx={m.X(-20)} cy={m.Y(10)} r={r * m.u} className="tool" />
           <circle cx={m.X(-20)} cy={m.Y(10)} r={2.2} className="pt" />
           <T x={m.X(-20)} y={m.Y(10) + r * m.u + 13} anchor="middle" cls="t-mono t-sm">X−20 Y10</T>
-          <Step x={m.X(-20) - 22} y={m.Y(10)} n={1} />
-          {/* krok 2: dojazd */}
+          <T x={m.X(-20)} y={m.Y(10) - r * m.u - 6} anchor="middle" cls="t-mono t-sm">Ø10</T>
+          <Step x={m.X(-20) - 24} y={m.Y(10)} n={1} />
+          {/* krok 2: dojazd — ostatnie 2 mm w naddatku */}
           <line x1={m.X(-20) + 4} y1={m.Y(10)} x2={m.X(-5) - 3} y2={m.Y(10)} className="p-cut thick" markerEnd={c.a("cut")} />
           <Step x={m.X(-12.5)} y={m.Y(10) - 16} n={2} />
-          <circle cx={m.X(-5)} cy={m.Y(10)} r={r * m.u} className="tool" opacity={0.6} />
+          <circle cx={m.X(-5)} cy={m.Y(10)} r={r * m.u} className="tool" opacity={0.75} />
+          <T x={m.X(-5)} y={m.Y(10) + r * m.u + 13} anchor="middle" cls="t-mono t-sm t-cut">X−5</T>
           {/* krok 3: kontur */}
           <line x1={m.X(-5)} y1={m.Y(10) - 4} x2={m.X(-5)} y2={m.Y(55) + 3} className="p-cut thick" markerEnd={c.a("cut")} />
           <Step x={m.X(-5) - 18} y={m.Y(35)} n={3} />
           <T x={m.X(-5) + 2} y={m.Y(55) - 6} cls="t-mono t-sm">Y55</T>
+          {/* opis naddatku */}
+          <line x1={m.X(-1)} y1={m.Y(44)} x2={m.X(5)} y2={m.Y(57)} className="p-cons" />
+          <T x={m.X(6)} y={m.Y(57) - 2} cls="t-sm">naddatek 2 mm — półfabrykat 84 × 54</T>
         </g>
       )}
     </Fig>

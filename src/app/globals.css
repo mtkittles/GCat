@@ -1497,6 +1497,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig .hole-top { fill: var(--panel); stroke: var(--ink); stroke-width: 1.6; }
 .fig .solid-hatch { fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke: var(--ink); stroke-width: 1.2; }
 .fig .stock-out { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
+.fig .allow { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; }
 .fig .spindle { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
 .fig .holder { fill: color-mix(in srgb, var(--ink) 14%, transparent); stroke: var(--ink-2); stroke-width: 1; }
 .fig .cutter { fill: color-mix(in srgb, var(--ink) 30%, transparent); stroke: var(--ink); stroke-width: 1; }
@@ -1511,6 +1512,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .lg-rap { border-color: var(--amber) !important; border-top-style: dashed !important; } .lg-cut { border-color: var(--green) !important; }
 .lg-arc { border-color: var(--blue) !important; } .lg-con { border-color: var(--ink) !important; } .lg-bad { border-color: var(--red) !important; border-top-style: dashed !important; }
 .lg-dim { border-color: var(--ink-2) !important; border-top-width: 1px !important; } .lg-acc { border-color: var(--accent) !important; }
+.lg-allow { height: 9px !important; border: 1px dashed var(--accent) !important; background: color-mix(in srgb, var(--accent) 22%, transparent); }
 .lg-stock { height: 9px !important; border: 1px solid var(--ink) !important; background: repeating-linear-gradient(45deg, var(--line-strong) 0 1.5px, transparent 1.5px 5px); }
 .fig-cap { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
 .fig-cap b { color: var(--ink); }

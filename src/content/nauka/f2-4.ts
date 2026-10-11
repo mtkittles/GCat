@@ -9,19 +9,19 @@ export const f2_4: LessonDoc = {
 
   theory: [
     { t: "h", x: "Kody chłodziwa", id: "kody" },
-    { t: "p", x: "[[M08]] włącza chłodziwo zalewowe, [[M09]] je wyłącza. Na wielu maszynach `M07` włącza mgłę olejową. Chłodzenie przez wrzeciono ma kody zależne od producenta — sprawdza się je w dokumentacji maszyny." },
+    { t: "p", x: "[[M08]] włącza chłodziwo zalewowe, [[M09]] je wyłącza. Na części maszyn `M07` włącza mgłę olejową albo inny dodatkowy sposób chłodzenia — znaczenie tego kodu nadaje producent maszyny. Chłodzenie przez wrzeciono ma kody zależne od producenta — sprawdza się je w dokumentacji maszyny." },
     { t: "diagram", id: "f24-coolant" },
 
     { t: "h", x: "Po co chłodziwo", id: "po-co" },
     { t: "ul", items: [
-      "odbiera ciepło z ostrza i detalu — detal nie rośnie od temperatury w trakcie pomiaru,",
+      "odbiera ciepło z ostrza i detalu — ograniczenie nagrzewania zmniejsza zmiany wymiarów; pomiar i tak wykonuje się w ustalonej temperaturze,",
       "smaruje strefę skrawania i ogranicza narost na ostrzu, zwłaszcza w aluminium,",
       "wypłukuje wióry z otworów i kieszeni, zanim zostaną przecięte drugi raz.",
     ] },
 
     { t: "h", x: "Kiedy na sucho", id: "sucho" },
-    { t: "p", x: "Żeliwo szare, materiały hartowane obrabiane płytkami ceramicznymi albo CBN i wiele operacji frezowania stali węglikiem idzie na sucho lub z nadmuchem powietrza. Stopy tytanu i niklu — typowe w lotnictwie — przeciwnie: wymagają obfitego chłodzenia, często pod wysokim ciśnieniem." },
-    { t: "note", kind: "warn", x: "Przy frezowaniu węglikiem z chłodziwem zalewowym podawaj je stałym, obfitym strumieniem przez cały czas skrawania. Ostrze nagrzewa się i stygnie z każdym obrotem, a strumień, który raz dochodzi do ostrza, a raz nie, pogłębia te skoki temperatury — węglik może pękać drobnymi rysami prostopadłymi do krawędzi. Jeśli strumień nie dociera stabilnie, producenci narzędzi często zalecają pracę na sucho z nadmuchem albo mgłę (MQL). Rozstrzyga zalecenie producenta narzędzia." },
+    { t: "p", x: "Żeliwo szare, materiały hartowane obrabiane płytkami ceramicznymi albo CBN i wiele operacji frezowania stali węglikiem idzie na sucho lub z nadmuchem powietrza. Stopy tytanu i niklu — typowe w lotnictwie — obrabiane narzędziami z węglika zwykle wymagają obfitego chłodzenia, często pod wysokim ciśnieniem. Wyjątkiem jest frezowanie stopów żaroodpornych (np. na bazie niklu) narzędziami ceramicznymi: producent zaleca pracę bez chłodziwa, bo ceramika pracuje w bardzo wysokiej temperaturze i źle znosi gwałtowne schładzanie. O sposobie chłodzenia decyduje zalecenie producenta dla konkretnego narzędzia, materiału i operacji." },
+    { t: "note", kind: "warn", x: "Przy frezowaniu węglikiem z chłodziwem zalewowym podawaj je stałym, obfitym strumieniem przez cały czas skrawania. Ostrze nagrzewa się i stygnie z każdym obrotem, a strumień, który raz dochodzi do ostrza, a raz nie, pogłębia te skoki temperatury — węglik może pękać drobnymi rysami prostopadłymi do krawędzi. Jeśli strumień nie dociera stabilnie, producenci narzędzi często zalecają pracę na sucho z nadmuchem albo minimalne smarowanie (MQL). Rozstrzyga zalecenie producenta narzędzia." },
 
     { t: "h", x: "Miejsce w programie", id: "miejsce" },
     { t: "p", x: "`M08` stoi po włączeniu obrotów, przed dojazdem do detalu. `M09` — po zakończeniu skrawania, przed wymianą narzędzia albo końcem programu. `M30` na większości maszyn i tak wyłącza chłodziwo, ale jawne `M09` czyni program czytelnym." },
@@ -44,10 +44,10 @@ export const f2_4: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Włącz chłodziwo zalewowe przed obróbką i wyłącz je przed zatrzymaniem wrzeciona.",
-      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\n(DOPISZ WLACZENIE CHLODZIWA ZALEWOWEGO)\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ WYLACZENIE CHLODZIWA)\nM05\nM30",
+      starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\n(DOPISZ WLACZENIE CHLODZIWA ZALEWOWEGO)\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ WYLACZENIE CHLODZIWA)\nM05\nM30",
       checks: [{"t":"coolant","label":"Chłodziwo włączone (M08) podczas każdego ruchu roboczego","offBeforeStop":true},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["`M08` po włączeniu obrotów, przed najazdem — chłodziwo ma płynąć, zanim ostrze dotknie materiału.","`M09` po odjeździe w Z, przed `M05`."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
+      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
     },
     {
       kind: "drill",
@@ -82,19 +82,21 @@ export const f2_4: LessonDoc = {
     { kind: "choice", q: "Co robi `M09`?", options: ["włącza chłodziwo", "wyłącza chłodziwo", "włącza mgłę", "zatrzymuje wrzeciono"], answer: 1, why: "M09 — chłodziwo wyłączone." },
     { kind: "choice", q: "Gdzie w programie stoi `M08`?", options: ["po włączeniu obrotów, przed najazdem", "przed M06", "po M30", "w bloku startowym"], answer: 0, why: "Chłodziwo ma płynąć, zanim narzędzie dotknie materiału." },
     { kind: "choice", q: "Który materiał zwykle obrabia się na sucho?", options: ["żeliwo szare", "stop tytanu", "aluminium", "stal nierdzewna przy wierceniu"], answer: 0, why: "Żeliwo szare daje suchy, kruchy wiór." },
-    { kind: "choice", q: "Dlaczego stopy tytanu wymagają obfitego chłodzenia?", options: ["słabo przewodzą ciepło, więc gromadzi się ono przy ostrzu", "łatwo się palą przy każdej obróbce", "tak wymaga M08", "żeby zmniejszyć obroty"], answer: 0, why: "Mniej ciepła odpływa w detal i wiór niż przy stali, więc więcej zostaje przy ostrzu." },
-    { kind: "token", q: "Wskaż kod, który zwykle włącza **mgłę**.", block: "M08 M07 M09", answer: 1, why: "M07 — mgła, na maszynach, które ją mają." },
+    { kind: "choice", q: "Dlaczego przy frezowaniu stopów tytanu węglikiem stosuje się obfite chłodzenie?", options: ["stop słabo przewodzi ciepło, więc gromadzi się ono przy ostrzu", "stop zapala się przy każdej obróbce", "tak wymaga M08", "żeby zmniejszyć obroty"], answer: 0, why: "Mniej ciepła odpływa w detal i wiór niż przy stali, więc więcej zostaje przy ostrzu." },
+    { kind: "choice", q: "Frezowanie stopu niklu frezem ceramicznym. Co zwykle zaleca producent narzędzia?", options: ["pracę bez chłodziwa", "obfite chłodziwo zalewowe", "chłodziwo tylko na wejściu w materiał", "M07 zamiast M08"], answer: 0, why: "Ceramika pracuje w bardzo wysokiej temperaturze i źle znosi gwałtowne schładzanie — producent zaleca obróbkę bez chłodziwa. Przy narzędziach z węglika w tych samych stopach jest odwrotnie." },
+    { kind: "token", q: "Wskaż kod, który na wielu maszynach włącza **mgłę** — dodatkowy rodzaj chłodzenia.", block: "M08 M07 M09", answer: 1, why: "M07 — zwykle mgła, na maszynach, które ją mają. Znaczenie kodu podaje instrukcja maszyny." },
   ],
 
   summary: [
-    "M08 — chłodziwo zalewowe, M09 — wyłączone, M07 — mgła na wielu maszynach.",
+    "M08 — chłodziwo zalewowe, M09 — wyłączone. M07 — dodatkowy rodzaj chłodzenia, znaczenie zależy od maszyny.",
     "M08 po obrotach, przed najazdem. M09 po skrawaniu.",
     "Chłodziwo zalewowe przy frezowaniu węglikiem — stałym strumieniem. Przerywany strumień grozi pęknięciami cieplnymi; inne sposoby chłodzenia według zaleceń producenta narzędzia.",
-    "Tytan i nikiel: dużo chłodziwa. Żeliwo, ceramika, CBN: często na sucho.",
+    "Tytan i nikiel z węglikiem: zwykle obfite chłodzenie. Ceramika w stopach niklu, żeliwo szare, CBN: często na sucho. Rozstrzyga producent narzędzia.",
   ],
 
   sources: [
     { id: "sandvik", where: "chłodzenie przy frezowaniu, pęknięcia cieplne, obróbka na sucho" },
+    { id: "sandvik-ceramic", where: "frezowanie stopów żaroodpornych frezami ceramicznymi bez chłodziwa" },
     { id: "jemielniak", where: "ciecze obróbkowe i ich funkcje" },
     { id: "fanuc", where: "funkcje M07, M08, M09" },
   ],

@@ -103,6 +103,12 @@ export const sources: Record<string, Source> = {
     title: "Poradnik techniczny obróbki skrawaniem (toczenie, frezowanie, wiercenie)",
     note: "Wydanie i strony do uzupełnienia. Wartości skrawania obowiązują dla konkretnej płytki i materiału z katalogu.",
   },
+  "sandvik-ceramic": {
+    id: "sandvik-ceramic", short: "Sandvik Coromant — frezy ceramiczne do HRSA", author: "Sandvik Coromant",
+    title: "Ceramic end mills take the heat in HRSA machining — informacja producenta o frezach ceramicznych do stopów żaroodpornych (HRSA)",
+    url: "https://www.machinery.co.uk/content/product-launches/ceramic-end-mills-from-sandvik-coromant-take-the-heat-in-hrsa-machining", accessed: "10/2026",
+    note: "Zalecenie dotyczy frezów ceramicznych w stopach żaroodpornych: „without coolant application”. Dla narzędzi z węglika obowiązują inne zalecenia.",
+  },
   haas: {
     id: "haas", short: "Haas — kody G frezarki", author: "Haas Automation",
     title: "Mill Operator's Manual — G-codes",

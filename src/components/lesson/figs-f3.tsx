@@ -122,23 +122,27 @@ export function PlatePath() {
   const m = mapper(R, [10, 8, 340, 214]);
   const P: [number, number][] = [[-5, 10], [-5, 55], [85, 55], [85, -5], [-5, -5], [-5, 10]];
   return (
-    <Fig id="f32pp" code="G01" title="Płytka 80 × 50 i tor środka freza Ø10" h={232} legend={["cut", "stock"]}
+    <Fig id="f32pp" code="G01" title="Kontur gotowy 80 × 50 i tor środka freza Ø10" h={232} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">Y55. → X85. → Y-5. → X-5. → Y10.</Code></>}
-      caption={<>Tor środka leży 5 mm (promień freza) od krawędzi, na zewnątrz płytki. Każdy wymiar toru to wymiar krawędzi ± 5. Numery odpowiadają krokom przykładu: lewa, górna, prawa i dolna krawędź.</>}>
+      caption={<>Półfabrykat 84 × 54 ma po 2 mm naddatku na bok. Tor środka leży 5 mm (promień freza) na zewnątrz konturu gotowego, więc krawędź freza biegnie po konturze i zbiera pas naddatku. Każdy wymiar toru to wymiar konturu gotowego ± 5. Numery odpowiadają krokom przykładu: lewa, górna, prawa i dolna krawędź.</>}>
       {(c) => (
         <g>
+          <rect x={m.X(-2)} y={m.Y(52)} width={84 * m.u} height={54 * m.u} className="allow" />
+          <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} style={{ fill: "var(--panel)" }} />
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
+          <circle cx={m.X(-5)} cy={m.Y(25)} r={5 * m.u} className="tool" />
+          <T x={m.X(-5) - 5 * m.u - 4} y={m.Y(25) + 4} anchor="end" cls="t-mono t-sm">Ø10</T>
           <line x1={m.X(-20)} y1={m.Y(10)} x2={m.X(-5) - 3} y2={m.Y(10)} className="p-cut" markerEnd={c.a("cut")} />
           <Pt x={m.X(-20)} y={m.Y(10)} label="X−20 Y10" pos="n" cls="t-mono t-sm" dot="pt-cut" />
           {P.slice(0, -1).map((p, i) => {
             const q = P[i + 1];
             return <line key={i} x1={m.X(p[0])} y1={m.Y(p[1])} x2={m.X(q[0])} y2={m.Y(q[1])} className="p-cut thick" markerEnd={c.a("cut")} />;
           })}
-          <T x={m.X(-5) - 6} y={m.Y(32)} anchor="end" cls="t-cut t-b t-mono">X−5</T>
+          <T x={m.X(-5) - 6} y={m.Y(40)} anchor="end" cls="t-cut t-b t-mono">X−5</T>
           <T x={m.X(40)} y={m.Y(55) - 7} anchor="middle" cls="t-cut t-b t-mono">Y55</T>
           <T x={m.X(85) + 6} y={m.Y(25)} cls="t-cut t-b t-mono">X85</T>
           <T x={m.X(40)} y={m.Y(-5) + 15} anchor="middle" cls="t-cut t-b t-mono">Y−5</T>
-          <Step x={m.X(-5) + 14} y={m.Y(32)} n={1} />
+          <Step x={m.X(-5) + 16} y={m.Y(40)} n={1} />
           <Step x={m.X(20)} y={m.Y(55) + 13} n={2} />
           <Step x={m.X(85) - 14} y={m.Y(25)} n={3} />
           <Step x={m.X(20)} y={m.Y(-5) - 13} n={4} />

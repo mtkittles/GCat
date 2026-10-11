@@ -5,7 +5,7 @@ G21 G90 G94 G17
 G40 G49 G80
 G54
 T2 M06 (NAWIERTAK FI10 90ST)
-G43 H2 Z50.
+G00 G43 H2 Z50.
 S1900 M03
 M08
 (DOPISZ: G82 DLA CZTERECH OTWOROW Z RYSUNKU,
@@ -43,7 +43,7 @@ export const f5_1: LessonDoc = {
       ["**F**", "posuw wiercenia", "mm/min przy G94"],
       ["**P**", "postój na dnie (tylko G82)", "milisekundy, bez kropki"],
     ] },
-    { t: "p", x: "**Poziom początkowy** to Z, na którym narzędzie stało przed cyklem — w programie płytki Z50 z bloku `G43 H2 Z50.`. Na tym poziomie narzędzie przejeżdża między otworami, chyba że wybierzesz inaczej (lekcja F5.4)." },
+    { t: "p", x: "**Poziom początkowy** to Z, na którym narzędzie stało przed cyklem — w programie płytki Z50 z bloku `G00 G43 H2 Z50.`. Na tym poziomie narzędzie przejeżdża między otworami, chyba że wybierzesz inaczej (lekcja F5.4)." },
 
     { t: "h", x: "Cykl jest modalny", id: "modalny" },
     { t: "p", x: "Po bloku z G81 każdy następny blok z X lub Y wierci otwór w nowym miejscu — Z, R i F obowiązują dalej. [[G80]] kasuje cykl. Bez niego pierwszy ruch po cyklu, nawet przejazd do wymiany narzędzia, zakończy się kolejnym otworem." },
@@ -115,7 +115,7 @@ export const f5_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "F4.1", q: "Po `T2 M06` program ma `G43 H2 Z50.`. Co robi ten blok przed cyklem wiercenia?", options: ["włącza korekcję długości z rejestru 2 i ustawia czubek nawiertaka na Z50", "włącza korekcję promienia", "wybiera układ G54", "kasuje cykl"], answer: 0, why: "G43 z H2 dolicza długość narzędzia z rejestru 2 — dzięki temu Z50, R2 i Z−3 w cyklu dotyczą czubka narzędzia." },
+    { kind: "choice", review: "F4.1", q: "Po `T2 M06` program ma `G00 G43 H2 Z50.`. Co robi ten blok przed cyklem wiercenia?", options: ["włącza korekcję długości z rejestru 2 i ustawia czubek nawiertaka na Z50", "włącza korekcję promienia", "wybiera układ G54", "kasuje cykl"], answer: 0, why: "G43 z H2 dolicza długość narzędzia z rejestru 2 — dzięki temu Z50, R2 i Z−3 w cyklu dotyczą czubka narzędzia." },
     { kind: "choice", q: "Od jakiej wysokości cykl G81 jedzie posuwem?", options: ["od płaszczyzny R", "od poziomu początkowego", "od Z0", "od dna"], answer: 0, why: "Do R ruch szybki, dalej posuw." },
     { kind: "order", q: "Ułóż ruchy cyklu G81.", items: ["posuw do Z", "ruch szybki nad otwór", "ruch szybki w górę", "ruch szybki do R"], answer: [1, 3, 0, 2], why: "XY, R, dno, powrót." },
     { kind: "choice", q: "Po `G81 X10. Y10. Z-10. R2. F120` stoi blok `X40.`. Co się stanie?", options: ["kolejny otwór w X40 Y10", "ruch szybki bez wiercenia", "alarm", "ruch G01"], answer: 0, why: "Cykl jest modalny." },

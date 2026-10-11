@@ -34,7 +34,7 @@ export const f1_2: LessonDoc = {
 
   worked: {
     title: "Ustal stan w linii 5",
-    intro: "Sytuacja: po `G43 H1 Z50.` narzędzie stoi na Z50. Dalej fragment programu płytki: (1) `G90 G54 G17`, (2) `G00 X-20. Y10.`, (3) `Z5.`, (4) `G01 Z-5. F150`, (5) `X-5. F400`. Co obowiązuje w linii 5 i gdzie stoi frez po jej wykonaniu? Numery na rysunku to numery linii.",
+    intro: "Sytuacja: po `G00 G43 H1 Z50.` narzędzie stoi na Z50. Dalej fragment programu płytki: (1) `G90 G54 G17`, (2) `G00 X-20. Y10.`, (3) `Z5.`, (4) `G01 Z-5. F150`, (5) `X-5. F400`. Co obowiązuje w linii 5 i gdzie stoi frez po jej wykonaniu? Numery na rysunku to numery linii.",
     fig: "f12-run",
     steps: [
       { x: "Linie 2 i 3: G00 z linii 2 działa też w linii 3, choć jej nie ma — dlatego zejście na Z5 jest ruchem szybkim.", code: "G00" },

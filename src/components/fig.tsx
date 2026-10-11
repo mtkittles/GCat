@@ -14,13 +14,13 @@ export type Kind = "rap" | "cut" | "arc" | "con" | "bad" | "dim" | "acc" | "cons
 const LEGEND: Record<string, string> = {
   rap: "G00 — ruch szybki", cut: "G01 — ruch roboczy", arc: "G02/G03 — łuk", con: "kontur detalu",
   bad: "błąd / kolizja", dim: "wymiar", acc: "parametr", stock: "materiał", cons: "linia pomocnicza",
-  tool: "narzędzie",
+  tool: "narzędzie", allow: "naddatek (półfabrykat)",
 };
 
 export interface Ctx { a: (k: Kind) => string; hatch: string }
 
 export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250, children }: {
-  id: string; code?: string; title: string; caption?: ReactNode; legend?: (Kind | "stock" | "tool")[];
+  id: string; code?: string; title: string; caption?: ReactNode; legend?: (Kind | "stock" | "tool" | "allow")[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
 }) {
   const a = (k: Kind) => `url(#${id}-a-${k})`;

@@ -5,9 +5,10 @@ G21 G90 G94 G17
 G40 G49 G80
 G54
 T1 M06
+G00 G43 H1 Z50.
 S2500 M03
 M08
-G00 X40. Y25. Z50. (NAD SRODKIEM PLYTKI)
+G00 X40. Y25. (NAD SRODKIEM PLYTKI)
 (DOPISZ NAJAZD NAD X-20 Y10 I ZJAZD NA Z5)
 
 M09
@@ -41,7 +42,7 @@ export const f3_1: LessonDoc = {
 
   worked: {
     title: "Najazd na start konturu płytki",
-    intro: "Sytuacja: frez Ø10 stoi w X40 Y25 Z50, nad środkiem płytki. Przy lewej krawędzi płytki stoi docisk. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10. Rysunek pokazuje widok z boku i oba możliwe najazdy.",
+    intro: "Sytuacja: frez Ø10 stoi w X40 Y25 Z50, nad środkiem płytki. Doszedł tam dwoma ruchami: po wymianie `G00 G43 H1 Z50.` ustawił go na Z50 bez ruchu w XY, a `G00 X40. Y25.` przeniósł nad płytkę na tej wysokości. Z50 jest w tym przykładzie wyżej niż docisk, szczęki i oprawka freza. Przy lewej krawędzi płytki stoi docisk. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10. Rysunek pokazuje widok z boku i oba możliwe najazdy.",
     fig: "f31-approach",
     steps: [
       { x: "Krok 1 na rysunku: zostaw Z50 i przejedź w XY. Frez leci wysoko nad detalem i dociskiem.", code: "G00 X-20. Y10." },
@@ -89,7 +90,7 @@ export const f3_1: LessonDoc = {
       ["Tor przy ruchu szybkim", "parametr: po prostej albo niezależne osie", "`RTLION` po prostej, `RTLIOF` niezależne osie"],
       ["Prędkość", "parametry maszyny + korektor", "dane maszynowe + korektor"],
     ],
-    note: "Na obu sterowaniach tor ruchu szybkiego zależy od ustawień. Program bezpieczny na każdej maszynie rozdziela ruch w XY i w Z.",
+    note: "Na obu sterowaniach tor ruchu szybkiego zależy od ustawień. Osobny ruch w XY i osobny w Z daje tor, który nie zależy od tego ustawienia. Nie zastępuje to sprawdzenia całego zespołu narzędziowego, zamocowania i zakresów osi.",
   },
 
   quiz: [
@@ -99,7 +100,7 @@ export const f3_1: LessonDoc = {
     { kind: "choice", q: "Dlaczego tor `G00` może nie być odcinkiem prostym?", options: ["osie mogą jechać niezależnie, każda z pełną prędkością", "G00 zawsze jedzie po łuku", "przez korektor posuwu", "przez G17"], answer: 0, why: "Oś z krótszą drogą kończy wcześniej." },
     { kind: "choice", q: "Po `G00 Z5.` stoi blok `Z-5.`. Co się stanie?", options: ["zejście z posuwem F", "zejście ruchem szybkim w materiał", "alarm", "nic"], answer: 1, why: "G00 jest modalne. Przed wejściem w materiał musi paść G01." },
     { kind: "gap", q: "Frez Ø10 ma przejechać obok detalu tak, by jego krawędź była 10 mm od lewej krawędzi detalu (X0). Jaki X środka?", template: "X{0}", answers: [["-15"]], why: "Krawędź w X−10, środek dalej o promień: −10 − 5 = −15." },
-    { kind: "choice", q: "Od czego liczy się wysokość bezpieczna?", options: ["od górnej powierzchni detalu", "od najwyższej przeszkody na stole", "od zera maszyny", "od Z0"], answer: 1, why: "Ruch szybki musi przejść ponad dociskami i szczękami." },
+    { kind: "choice", q: "Co wyznacza najmniejszą wysokość przejazdu ruchem szybkim?", options: ["górna powierzchnia detalu", "najwyższa przeszkoda na trasie przejazdu, z zapasem", "położenie zera maszyny", "samo Z0 detalu"], answer: 1, why: "Wartość Z zapisujesz względem zera W, ale dobierasz ją tak, żeby cały zespół narzędziowy przeszedł z zapasem nad najwyższą przeszkodą na trasie — dociskiem, szczęką, śrubą." },
   ],
 
   summary: [

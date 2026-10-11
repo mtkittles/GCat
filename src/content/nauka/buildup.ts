@@ -7,6 +7,7 @@ import type { Track } from "@/lib/course";
 
   Zapis w stylu Fanuc: wymiary z kropką dziesiętną (lekcja F1.1).
   Frezowanie: płytka 80 × 50 × 20, naroża R10, obróbka konturu frezem Ø10 na głębokość 5 mm.
+  Półfabrykat 84 × 54 — po 2 mm naddatku na bok (raport #80): tor X−5 zbiera materiał, a nie tylko styka się z krawędzią.
   Do lekcji F4.2 program prowadzi środek freza, odsunięty od konturu o promień 5 mm
   (X−5, Y55, łuki R15). Od F4.2 — wymiary z rysunku i korekcja G41 D1.
 */
@@ -21,12 +22,13 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "O1000 (PLYTKA 80X50X20 - GCAT)", since: "F1.1", note: "Numer programu i nazwa detalu w komentarzu." },
       { code: "(ZERO W: LEWY DOLNY NAROZNIK, Z0 NA GORZE)", since: "F0.1", note: "Gdzie leży zero detalu. Wszystkie współrzędne niżej liczymy od tego punktu." },
       { code: "(P1 X0 Y0 / P2 X80 Y0 / P3 X80 Y50 / P4 X0 Y50)", since: "F0.1", note: "Naroża płytki odczytane z rysunku, względem zera W." },
+      { code: "(POLFABRYKAT 84X54 - 2 MM NADDATKU NA BOK)", since: "F0.1", note: "Półfabrykat jest o 2 mm większy od gotowej płytki z każdej strony. Kontur frezowany od lekcji F3.2 zbiera ten naddatek; zero W leży na narożniku konturu gotowego." },
       { code: "G21 G90 G94 G17", since: "F1.4", note: "Milimetry, wymiary absolutne, posuw w mm/min (G94), płaszczyzna XY." },
       { code: "G40 G49 G80", since: "F1.5", note: "Kasowanie korekcji promienia, korekcji długości i cyklu — na wypadek, gdyby zostały z poprzedniego programu." },
       { code: "G54", since: "F0.3", note: "Aktywne przesunięcie zera detalu z rejestru G54." },
       { code: "(NADDATEK 1 MM NA GORNEJ POWIERZCHNI)", since: "F6.1", note: "Surówka jest o 1 mm wyższa — pierwsza operacja zbiera go do Z0." },
       { code: "T5 M06 (GLOWICA FI63 5Z 45ST)", since: "F6.1", note: "Pierwsza operacja: planowanie górnej powierzchni głowicą Ø63." },
-      { code: "G43 H5 Z50.", since: "F6.1", note: "Korekcja długości głowicy." },
+      { code: "G00 G43 H5 Z50.", since: "F6.1", note: "Korekcja długości głowicy." },
       { code: "S1000 M03", since: "F6.1", note: "vc ≈ 200 m/min dla Ø63." },
       { code: "M08", since: "F6.1", note: "Chłodziwo." },
       { code: "G00 X-40. Y25.", since: "F6.1", note: "Start poza detalem: promień głowicy 31,5 + zapas." },
@@ -37,7 +39,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "M09", since: "F6.1", note: "Chłodziwo wyłączone." },
       { code: "M05", since: "F6.1", note: "Stop wrzeciona przed wymianą na frez." },
       { code: "T1 M06 (FREZ FI10)", since: "F2.1", note: "Wymiana na narzędzie nr 1 — frez Ø10." },
-      { code: "G43 H1 Z50.", since: "F4.1", note: "Włączenie korekcji długości narzędzia nr 1 i dojazd na Z50." },
+      { code: "G00 G43 H1 Z50.", since: "F2.1", note: "Ruch szybki na Z50 z włączeniem korekcji długości narzędzia nr 1. Tryb G00 podany jawnie — blok startowy nie ustawia trybu ruchu. Korekcję długości wyjaśnia lekcja F4.1." },
       { code: "S2500 M03", since: "F2.2", note: "2500 obr/min, obroty w prawo." },
       { code: "M08", since: "F2.4", note: "Chłodziwo włączone przed dojazdem do detalu." },
       { code: "G00 X-20. Y10.", since: "F3.1", note: "Ruch szybki nad punkt startu, z boku detalu." },
@@ -113,7 +115,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "M09", since: "F2.4", note: "Chłodziwo wyłączone po obróbce." },
       { code: "M05", since: "F2.2", note: "Stop wrzeciona." },
       { code: "T2 M06 (NAWIERTAK FI10 90ST)", since: "F5.1", note: "Druga operacja: nawiercenie czterech otworów." },
-      { code: "G43 H2 Z50.", since: "F5.1", note: "Korekcja długości nawiertaka. Z50 to poziom początkowy cyklu." },
+      { code: "G00 G43 H2 Z50.", since: "F5.1", note: "Korekcja długości nawiertaka. Z50 to poziom początkowy cyklu." },
       { code: "S1900 M03", since: "F5.1", note: "vc ≈ 60 m/min dla Ø10." },
       { code: "M08", since: "F5.1", note: "Chłodziwo." },
       { code: "G82 X10. Y10. Z-3. R2. P200 F150", since: "F5.1", until: "F5.4", note: "Nawiercenie z postojem 0,2 s na dnie. Fazka Ø6 pod gwint M6." },
@@ -125,7 +127,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "M09", since: "F5.1", note: "Chłodziwo wyłączone przed wymianą." },
       { code: "M05", since: "F5.1", note: "Stop wrzeciona przed wymianą." },
       { code: "T3 M06 (WIERTLO FI5 VHM 140ST)", since: "F5.2", note: "Trzecia operacja: otwory pod gwint M6." },
-      { code: "G43 H3 Z50.", since: "F5.2", note: "Korekcja długości wiertła." },
+      { code: "G00 G43 H3 Z50.", since: "F5.2", note: "Korekcja długości wiertła." },
       { code: "S3800 M03", since: "F5.2", note: "vc ≈ 60 m/min dla Ø5." },
       { code: "M08", since: "F5.2", note: "Chłodziwo." },
       { code: "G83 X10. Y10. Z-18. R2. Q4. F380", since: "F5.2", until: "F5.4", note: "Wiercenie z wycofaniem: czubek Z−18, pełna Ø5 do Z−17,1. Od R2 pięć zagłębień po 4 mm." },
@@ -137,7 +139,7 @@ export const buildup: Record<Track, { title: string; lines: BuildLine[] }> = {
       { code: "M09", since: "F5.2", note: "Chłodziwo wyłączone." },
       { code: "M05", since: "F5.2", note: "Stop wrzeciona." },
       { code: "T4 M06 (GWINTOWNIK M6X1)", since: "F5.3", note: "Czwarta operacja: gwinty M6×1." },
-      { code: "G43 H4 Z50.", since: "F5.3", note: "Korekcja długości gwintownika." },
+      { code: "G00 G43 H4 Z50.", since: "F5.3", note: "Korekcja długości gwintownika." },
       { code: "S500 M03", since: "F5.3", note: "Obroty gwintowania." },
       { code: "M29 S500", since: "F5.3", note: "Fanuc: tryb gwintowania sztywnego — wrzeciono sprzężone z osią Z." },
       { code: "M08", since: "F5.3", note: "Chłodziwo." },
