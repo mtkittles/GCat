@@ -61,7 +61,12 @@ pitfalls:
     Pomyłka G90/G91 przy G10: zamiast dodać −0,02 do zużycia nadpiszesz je
     wartością −0,02.
   - P w G10 L2 to numer bazy, nie numer narzędzia.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G10 — wprowadzanie danych z programu; format dla korekcji geometrii i
+      zużycia na tokarce
+    loc: rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 81 (tokarka, G10 P_ X_ Z_ R_ Q_)
 example:
   src: |-
     G90 G10 L2 P1 X-250.0 Y-180.0 Z-310.0 (G54)

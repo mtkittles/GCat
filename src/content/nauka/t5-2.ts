@@ -134,7 +134,7 @@ export const t5_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykl wielokrotny G72" },
+    { id: "fanuc", where: "cykl wielokrotny G72", loc: "rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90; parametry 5132–5134 — rozdz. 7.2.22, s. 238" },
     { id: "sandvik", where: "planowanie i toczenie poprzeczne" },
   ],
 };

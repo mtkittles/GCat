@@ -105,7 +105,7 @@ export const t2_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "funkcja T na tokarce, korekcje geometrii i zużycia" },
+    { id: "fanuc", where: "funkcja T na tokarce, korekcje geometrii i zużycia", loc: "ekran korekcji — rozdz. 1.6.1, s. 31; G10 dla geometrii i zużycia — rozdz. 4, s. 81" },
     { id: "sinumerik", where: "T i D na tokarce, dane narzędzia" },
   ],
 };

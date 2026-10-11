@@ -82,7 +82,7 @@ export const t4_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "kierunek ostrza teoretycznego, tabela korekcji" },
+    { id: "fanuc", where: "kierunek ostrza teoretycznego, tabela korekcji", loc: "ekran korekcji — rozdz. 1.6.1, s. 31; zmienne korekcji (m.in. pozycja ostrza wirtualnego) — rozdz. 5.2, s. 97–99" },
     { id: "sinumerik", where: "położenie ostrza w danych narzędzia tokarskiego" },
     { id: "sandvik", where: "oznaczenia ISO płytek tokarskich" },
   ],

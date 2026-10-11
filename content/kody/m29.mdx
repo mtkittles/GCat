@@ -51,6 +51,11 @@ sources:
     where: G84 na maszynie Haas — gwintowanie sztywne bez M29
     url: >-
       https://www.haascnc.com/service/codes-settings.type%3Dgcode.machine%3Dmill.value%3DG84.html
+  - id: fanuc
+    where: M29 — kod trybu sztywnego gwintowania; numer kodu ustawia parametr
+    loc: >-
+      parametry 5200#0 i 5210 — rozdz. 7.2.23, s. 240–241; alarmy 0203–0205 —
+      rozdz. 8.1.1, s. 360
 example:
   src: |-
     G21 G90 G94 G17

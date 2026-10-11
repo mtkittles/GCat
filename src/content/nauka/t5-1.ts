@@ -157,7 +157,7 @@ export const t5_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykle wielokrotne G71 i G70 na tokarce, typy I i II konturu" },
+    { id: "fanuc", where: "cykle wielokrotne G71 i G70 na tokarce, typy I i II konturu", loc: "rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90; typy I i II — parametry 5105#1/#2, rozdz. 7.2.22, s. 236; alarm 0323 — rozdz. 8.1.1, s. 363" },
     { id: "sinumerik", where: "CYCLE95, CYCLE952 — porównanie" },
   ],
 };

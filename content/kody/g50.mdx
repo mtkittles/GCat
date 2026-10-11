@@ -45,7 +45,12 @@ pitfalls:
     G96 bez G50 S: przy planowaniu do osi wrzeciono rozpędzi się do maksimum
     maszyny. Przy niewyważonym detalu to realne zagrożenie.
   - Literówka G50 X_ zamiast G50 S_ przestawi układ współrzędnych.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G50 S_ — ograniczenie maksymalnej prędkości wrzeciona; w systemie A także
+      ustawienie układu (w B i C to G92)
+    loc: rozdz. 3.2, tab. 3.2, s. 76; rozdz. 4, s. 86
 example:
   src: |-
     G21 G18 G54

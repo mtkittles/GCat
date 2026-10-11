@@ -57,7 +57,14 @@ pitfalls:
     G74 gwintuje gwint lewy i wymaga obrotów w lewo (M04). Przy M03 gwintownik
     lewy obraca się w złą stronę — nie skrawa i zostaje przeciążony.
   - 'Na tokarce P i Q w G74 wpisuje się bez kropki, w mikrometrach: Q5000 = 5 mm.'
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G74 — gwintowanie lewe (frezarka) i wiercenie czołowe krokami (tokarka,
+      system A)
+    loc: >-
+      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 89
+      (frezarka) i s. 90 (tokarka); parametr 5139 — rozdz. 7.2.22, s. 238
 example:
   src: |-
     G21 G90 G17 G54

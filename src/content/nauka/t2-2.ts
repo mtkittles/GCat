@@ -104,7 +104,7 @@ export const t2_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G96, G97, G50 na tokarce" },
+    { id: "fanuc", where: "G96, G97, G50 na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 76 i 78; rozdz. 4, s. 86 (G50 S_) i s. 92 (G96/G97)" },
     { id: "sinumerik", where: "G96, G97, LIMS" },
     { id: "sandvik", where: "prędkość skrawania przy toczeniu" },
   ],

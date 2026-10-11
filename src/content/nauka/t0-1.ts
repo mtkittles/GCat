@@ -88,7 +88,7 @@ export const t0_1: LessonDoc = {
 
   sources: [
     { id: "iso841", where: "osie tokarki, zwroty X i Z" },
-    { id: "fanuc", where: "układ współrzędnych tokarki, płaszczyzna G18" },
+    { id: "fanuc", where: "układ współrzędnych tokarki, płaszczyzna G18", loc: "rozdz. 3.2, tab. 3.2, s. 75 (G18); układy współrzędnych — rozdz. 1.7.3, s. 44" },
     { id: "sinumerik", where: "osie i układy współrzędnych tokarki" },
   ],
 };

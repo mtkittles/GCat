@@ -38,7 +38,12 @@ pitfalls:
     Gwint toczy się przy stałych obrotach (G97). Przy G96 obroty zmieniają się
     ze średnicą i kolejne przejścia nie trafiałyby w ten sam zwój.
   - Rozbieg przed gwintem ≥ 2× skok, inaczej pierwsze zwoje są zniekształcone.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G32 (tokarka, system A) i G33 (systemy B i C) — gwintowanie ze stałym
+      skokiem
+    loc: rozdz. 3.2, tab. 3.2, s. 75; rozdz. 4, s. 84
 example:
   src: |-
     G21 G18 G40 G99

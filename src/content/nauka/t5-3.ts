@@ -96,7 +96,7 @@ export const t5_3: LessonDoc = {
 
   sources: [
     { id: "sinumerik-cycles", where: "składnia i parametry CYCLE95 (NPP, MID, FALZ, FALX, FAL, FF1–FF3, VARI, DT, DAM, _VRT)", loc: "rozdz. 4, podrozdział CYCLE95, s. 4-227" },
-    { id: "fanuc", where: "G71, G72, G70 — porównanie" },
+    { id: "fanuc", where: "G71, G72, G70 — porównanie", loc: "rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90" },
     { id: "sinumerik-iso-t", where: "G70–G76 w trybie ISO, typy G71", loc: "rozdz. 4.1.2, s. 79–85" },
   ],
 };

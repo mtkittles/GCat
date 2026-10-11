@@ -124,7 +124,7 @@ export const t6_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykl G75 na tokarce" },
+    { id: "fanuc", where: "cykl G75 na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90; parametr 5139 — rozdz. 7.2.22, s. 238" },
     { id: "sinumerik", where: "CYCLE93, CYCLE930, CYCLE96" },
     { id: "sandvik", where: "toczenie rowków i przecinanie, parametry" },
   ],

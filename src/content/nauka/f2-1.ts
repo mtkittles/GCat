@@ -98,7 +98,7 @@ export const f2_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "funkcja T, M06, tabela korekcji narzędzi" },
+    { id: "fanuc", where: "tabela korekcji narzędzi", loc: "ekran korekcji — rozdz. 1.6.1, s. 31" },
     { id: "sinumerik", where: "wywołanie T i M6, ostrza D, zarządzanie narzędziami" },
   ],
 };

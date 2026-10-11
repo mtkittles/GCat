@@ -50,7 +50,10 @@ pitfalls:
   - >-
     Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku
     kończącym się w tym narożu.
-sources: []
+sources:
+  - id: fanuc
+    where: G61 i G64 — tryb dokładnego zatrzymania i tryb skrawania (grupa 15)
+    loc: rozdz. 3.1, tab. 3.1, s. 72
 example:
   src: |-
     G21 G90 G94 G17 G54

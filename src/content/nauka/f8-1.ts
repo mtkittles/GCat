@@ -159,7 +159,7 @@ export const f8_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "korekcja promienia G41/G40, interpolacja kołowa z R" },
+    { id: "fanuc", where: "korekcja promienia G41/G40, interpolacja kołowa z R", loc: "rozdz. 3.1, tab. 3.1, s. 71–72; rozdz. 4, s. 79 i 84" },
     { id: "sinumerik", where: "G41 z D narzędzia, łuk z promieniem CR=" },
   ],
 };

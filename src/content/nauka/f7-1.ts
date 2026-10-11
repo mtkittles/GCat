@@ -64,7 +64,7 @@ export const f7_1: LessonDoc = {
     { t: "code", x: "G54\nM98 P3000     (KONTUR NA DETALU 1)\nG55\nM98 P3000     (TEN SAM KONTUR NA DETALU 2)\nM30\nO3000 (KONTUR)\n…\nM99", caption: "Ten sam podprogram w dwóch układach — połączenie z lekcją F0.3." },
 
     { t: "h", x: "Zagnieżdżanie", id: "zagniezdzanie" },
-    { t: "p", x: "Podprogram może wywołać kolejny podprogram. Liczba poziomów jest ograniczona i podana w instrukcji sterowania — na starszych Fanucach to cztery. Symulator GCat też przyjmuje cztery." },
+    { t: "p", x: "Podprogram może wywołać kolejny podprogram. Liczba poziomów jest ograniczona i podana w instrukcji sterowania: Fanuc 0i-F dopuszcza 15 poziomów wywołań podprogramów, łącznie z wywołaniami makr. Inne sterowania mogą mieć mniej. Symulator GCat przyjmuje cztery poziomy." },
   ],
 
   worked: {
@@ -141,7 +141,7 @@ export const f7_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "podprogramy M98 i M99, zagnieżdżanie, powtórzenia" },
+    { id: "fanuc", where: "podprogramy M98 i M99, zagnieżdżanie", loc: "zagnieżdżanie — rozdz. 5.6, s. 114; wywołanie kodem M — rozdz. 5.6.9, s. 116; format M98 z powtórzeniami — brak w tej instrukcji" },
     { id: "sinumerik", where: "technika podprogramów — porównanie" },
   ],
 };
