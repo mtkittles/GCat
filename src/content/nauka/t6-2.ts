@@ -122,7 +122,7 @@ export const t6_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykl G74 na tokarce" },
+    { id: "fanuc", where: "cykl G74 na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90; parametr 5139 — rozdz. 7.2.22, s. 238" },
     { id: "sinumerik", where: "cykle wiercenia na tokarce" },
     { id: "sandvik", where: "wiercenie na tokarce, prędkości skrawania" },
   ],

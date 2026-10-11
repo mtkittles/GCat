@@ -48,7 +48,12 @@ pitfalls:
   - >-
     Na tokarce w systemie A G92 to cykl gwintowania jednym przejściem, a nie
     ustawienie układu.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G92 — ustawienie układu współrzędnych albo ograniczenie prędkości; na
+      tokarce w systemie A cykl gwintowania
+    loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 76 i 78
 example:
   src: |-
     G21 G90 G94 G17 G54

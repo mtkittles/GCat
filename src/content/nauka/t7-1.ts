@@ -133,7 +133,7 @@ export const t7_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykl gwintowania G76, G32, G92 na tokarce" },
+    { id: "fanuc", where: "cykl gwintowania G76, G32, G92 na tokarce", loc: "rozdz. 3.2, tab. 3.2, s. 75, 77, 78; rozdz. 4, s. 84 (G32) i s. 90 (G76, G92); parametry 5130–5131 i 5140–5143 — rozdz. 7.2.22, s. 238" },
     { id: "sinumerik", where: "CYCLE97 / CYCLE99" },
     { id: "sandvik", where: "toczenie gwintów: wejścia, profil, metody dosuwu" },
   ],

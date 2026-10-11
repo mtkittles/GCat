@@ -35,7 +35,10 @@ params:
 pitfalls:
   - G53 tylko z G90 i tylko w jednym bloku.
   - G52 nie kasuje się samo po M30 na części sterowników.
-sources: []
+sources:
+  - id: fanuc
+    where: G52 — lokalny układ współrzędnych; G53 — ruch w układzie maszynowym
+    loc: rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 87 (G53)
 example:
   src: |-
     G21 G90 G94 G17 G54

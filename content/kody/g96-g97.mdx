@@ -38,7 +38,10 @@ pitfalls:
   - >-
     Wiercenie w osi toczy się na G97 — przy G96 i średnicy bliskiej zeru
     sterowanie dąży do obrotów na limicie (G50 albo maszyny).
-sources: []
+sources:
+  - id: fanuc
+    where: G96 S_ i G97 S_ — stała prędkość skrawania i jej wyłączenie
+    loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s. 92
 example:
   src: |-
     G18 G21 G40 G99

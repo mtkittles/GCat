@@ -36,7 +36,10 @@ pitfalls:
   - >-
     G86 w otworze na wymiar H7 może zostawić rysę od ostrza — wtedy G85 albo
     G76.
-sources: []
+sources:
+  - id: fanuc
+    where: G85 i G86 — cykle wytaczania
+    loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89
 example:
   src: |-
     G21 G90 G94 G17 G54

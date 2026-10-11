@@ -129,7 +129,7 @@ export const f6_3: LessonDoc = {
 
   sources: [
     { id: "sandvik", where: "interpolacja śrubowa, minimalna średnica otworu przy wejściu po spirali" },
-    { id: "fanuc", where: "interpolacja śrubowa G02/G03 z osią Z" },
+    { id: "fanuc", where: "interpolacja śrubowa G02/G03 z osią Z", loc: "rozdz. 3.1, tab. 3.1, s. 71 (G02/G03 — także interpolacja śrubowa)" },
     { id: "sinumerik", where: "POCKET4, G2/G3 z TURN" },
   ],
 };

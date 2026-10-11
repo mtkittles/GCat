@@ -54,7 +54,12 @@ pitfalls:
   - >-
     W głębokim otworze G73 nie wyrzuca wióra i wiertło może się zakleszczyć.
     Wtedy G83.
-sources: []
+sources:
+  - id: fanuc
+    where: G73 — wiercenie krokami Q; wartość wycofania d z parametru
+    loc: >-
+      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89 (wspólny schemat cykli);
+      parametr 5114 — rozdz. 7.2.22, s. 238; alarm 0045 — rozdz. 8.1.1, s. 351
 example:
   src: |-
     G21 G90 G94 G17 G54
