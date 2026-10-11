@@ -120,7 +120,7 @@ export const t3_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "interpolacja kołowa na tokarce, G18, I i K" },
+    { id: "fanuc", where: "interpolacja kołowa na tokarce, G18, I i K", loc: "rozdz. 3.2, tab. 3.2, s. 75; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "G2/G3 na tokarce, CR=" },
   ],
 };

@@ -34,9 +34,10 @@ export const sources: Record<string, Source> = {
   },
   fanuc: {
     id: "fanuc", short: "FANUC — instrukcja obsługi", author: "FANUC",
-    title: "Series 0i-F Plus — Operator's Manual (część wspólna dla tokarek i centrów obróbkowych)",
-    control: "Fanuc 0i-F Plus, kody ISO; tokarka w systemie A",
-    note: "Numer dokumentu oraz rozdziały i strony dla poszczególnych lekcji do uzupełnienia.",
+    title: "Series 0i-MODEL F — Operation and Maintenance Handbook (modele 0i-TF i 0i-MF)",
+    edition: "01, 10/2016", number: "B-64607EN/01",
+    control: "Fanuc 0i-F, kody ISO; tokarka w systemie A. Instrukcja nie wymienia 0i-F Plus — nowsze wersje sterowania mogą się różnić",
+    note: "Zakres: rozdz. 3 (tabele kodów G), 4 (format programu), 7 (parametry), 8 (alarmy). To zestawienie, nie opis cykli — szczegóły w instrukcji DESCRIPTIONS (B-64602EN) i PARAMETER MANUAL (B-64610EN). Miejsca (strony) dla lekcji i kart bez wpisanej strony do uzupełnienia.",
   },
   sinumerik: {
     id: "sinumerik", short: "SINUMERIK — Podstawy programowania", author: "Siemens",

@@ -123,7 +123,7 @@ export const f4_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "włączanie i wyłączanie korekcji promienia, przykłady najazdu" },
+    { id: "fanuc", where: "włączanie i wyłączanie korekcji promienia, przykłady najazdu", loc: "rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 84; parametry 5003#0/#1 SUP/SUV — rozdz. 7.2.21, s. 233" },
     { id: "sinumerik", where: "miękki najazd i odjazd G247/G347, G248/G348" },
     { id: "sandvik", where: "wejście narzędzia w materiał przy frezowaniu konturu" },
   ],

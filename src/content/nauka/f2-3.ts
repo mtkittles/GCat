@@ -96,7 +96,7 @@ export const f2_3: LessonDoc = {
   sources: [
     { id: "sandvik", where: "posuw na ostrze, pocienianie wióra, wzory na vf" },
     { id: "jemielniak", where: "parametry skrawania przy frezowaniu" },
-    { id: "fanuc", where: "F, G94 i G95, korektor posuwu" },
+    { id: "fanuc", where: "F, G94 i G95, korektor posuwu", loc: "rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 92" },
     { id: "sinumerik", where: "G94, G95, posuw na ostrze FZ" },
   ],
 };

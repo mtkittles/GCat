@@ -119,7 +119,7 @@ export const f5_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "cykle G73 i G83, adres Q" },
+    { id: "fanuc", where: "cykle G73 i G83, adres Q", loc: "rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89 (wspólny schemat cykli)" },
     { id: "haas", where: "G83 — Q jako przyrost liczony od R" },
     { id: "sinumerik", where: "CYCLE83" },
     { id: "sandvik", where: "wiercenie głębokie, usuwanie wióra, geometria wierteł" },

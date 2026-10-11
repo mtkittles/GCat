@@ -133,7 +133,7 @@ export const f5_1: LessonDoc = {
 
   sources: [
     { id: "harvey", where: "kąt nawiertaka a kąt wiertła — kontakt naroży przy kącie mniejszym niż kąt wiertła" },
-    { id: "fanuc", where: "cykle stałe G81 i G82, płaszczyzna R, poziom początkowy, G80" },
+    { id: "fanuc", where: "cykle stałe G81 i G82, płaszczyzna R, poziom początkowy, G80", loc: "rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89 (wspólny schemat cykli)" },
     { id: "sinumerik", where: "CYCLE81, CYCLE82, MCALL" },
     { id: "sandvik", where: "nawiercanie i dobór parametrów wiercenia" },
   ],

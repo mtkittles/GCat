@@ -125,7 +125,7 @@ export const f3_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "interpolacja liniowa G01, posuw" },
+    { id: "fanuc", where: "interpolacja liniowa G01, posuw", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79" },
     { id: "sinumerik", where: "G1, CHF/CHR i RND" },
     { id: "sandvik", where: "frezowanie współbieżne i przeciwbieżne" },
   ],

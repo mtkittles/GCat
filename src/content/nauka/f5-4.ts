@@ -99,7 +99,7 @@ export const f5_4: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G98 i G99, poziom początkowy, kasowanie cyklu" },
+    { id: "fanuc", where: "G98 i G99, poziom początkowy, kasowanie cyklu", loc: "rozdz. 3.1, tab. 3.1, s. 74; rozdz. 4, s. 93" },
     { id: "sinumerik", where: "parametry RTP, RFP, SDIS, MCALL" },
   ],
 };

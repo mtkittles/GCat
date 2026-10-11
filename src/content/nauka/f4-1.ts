@@ -96,7 +96,7 @@ export const f4_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "korekcja długości narzędzia G43/G44/G49, tabela korekcji" },
+    { id: "fanuc", where: "korekcja długości narzędzia G43/G44/G49, tabela korekcji", loc: "rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 85" },
     { id: "sinumerik", where: "korekcja narzędzia, ostrza D, D0" },
   ],
 };

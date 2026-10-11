@@ -135,7 +135,7 @@ export const f5_3: LessonDoc = {
 
   sources: [
     { id: "haas", where: "G84 — F, R, Z i uruchamianie wrzeciona w tym sterowaniu", url: "https://www.haascnc.com/service/codes-settings.type%3Dgcode.machine%3Dmill.value%3DG84.html" },
-    { id: "fanuc", where: "G84, G74, gwintowanie sztywne M29" },
+    { id: "fanuc", where: "G84, G74, gwintowanie sztywne M29", loc: "rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89 (wspólny schemat cykli)" },
     { id: "sinumerik", where: "CYCLE84 i CYCLE840" },
     { id: "sandvik", where: "gwintowanie, średnice otworów pod gwint" },
     { id: "vergnano", where: "formy nakroju gwintowników (C: 2–3 zwoje, E: 1,5–2)" },
