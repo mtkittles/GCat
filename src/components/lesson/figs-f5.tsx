@@ -422,35 +422,49 @@ export function RetractRun() {
 }
 
 /* ================= F5.4: G98 i G99 przy docisku ================= */
+/** Wiertło z oprawką w rzucie z boku: czubek w (x, tip), wysięg L, oprawka szerokości D. */
+function DrillAsm({ m, x, tip, L = 40, d = 6, D = 32, H = 26, bad = false }: { m: ReturnType<typeof mapper>; x: number; tip: number; L?: number; d?: number; D?: number; H?: number; bad?: boolean }) {
+  return (
+    <g>
+      <rect x={m.X(x - D / 2)} y={m.Y(tip + L + H)} width={D * m.u} height={H * m.u} rx={2} className={bad ? "holder p-bad" : "holder"} />
+      <rect x={m.X(x - d / 2)} y={m.Y(tip + L)} width={d * m.u} height={L * m.u} className="cutter" />
+      <path d={`M ${m.X(x - d / 2)} ${m.Y(tip + 1.7)} L ${m.X(x)} ${m.Y(tip)} L ${m.X(x + d / 2)} ${m.Y(tip + 1.7)}`} className="cutter" />
+    </g>
+  );
+}
+
 export function RetractLevels() {
-  const R: [number, number, number, number] = [-4, 96, -10, 38];
-  const m = mapper(R, [10, 6, 340, 208]);
+  const R: [number, number, number, number] = [-4, 96, -10, 56];
+  const m = mapper(R, [10, 6, 340, 256]);
   const holes = [15, 45, 75];
   return (
-    <Fig id="f54lv" code="G98 G99" title="Powrót do R albo do poziomu początkowego" h={232} legend={["rap", "bad", "stock"]}
-      notes={<><Code k="rap">G99 G81 X15. …</Code><Code k="rap">G98 X45.</Code><Code k="rap">G99 X75.</Code></>}
-      caption={<><b>G99</b> wraca do płaszczyzny R — krótko i szybko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego — tak przeskakuje się nad dociskiem 25 mm. Po trzecim otworze znów G99: bez niego aktywne G98 podniosłoby narzędzie na Z30.</>}>
+    <Fig id="f54lv" code="G98 G99" title="Powrót do R albo do poziomu początkowego — tor i cały zespół narzędzia" h={262} legend={["rap", "bad", "dim", "stock"]}
+      notes={<><Code k="rap">G99 G81 X15. …</Code><Code k="rap">G98 X45.</Code><Code k="rap">G99 X75.</Code><Code k="dim">wiertło Ø6, wysięg 40 · oprawka Ø32 (przykład)</Code></>}
+      caption={<><b>G99</b> wraca do płaszczyzny R — krótko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego Z30 — tak przeskakuje się nad dociskiem 25 mm. Bezpieczny tor czubka to nie wszystko: przy dnie otworu X45 oprawka Ø32 sięga nad docisk. Z wysięgiem 40 mm jej dół stoi na Z33, 8 mm nad dociskiem. Z wysięgiem 20 mm byłby na Z13 — oprawka uderzyłaby w docisk, choć tor czubka jest poprawny.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={10 * m.u} fill={c.hatch} className="p-con" />
           <rect x={m.X(56)} y={m.Y(25)} width={10 * m.u} height={25 * m.u} rx={2} className="clamp" />
           <T x={m.X(61)} y={m.Y(12)} anchor="middle" cls="t-mut t-sm">docisk</T>
           <T x={m.X(61)} y={m.Y(12) + 13} anchor="middle" cls="t-mut t-sm">25 mm</T>
-          {holes.map((h) => <rect key={h} x={m.X(h - 2)} y={m.Y(0)} width={4 * m.u} height={7 * m.u} className="panel-bg" />)}
+          {holes.map((h) => <rect key={h} x={m.X(h - 3)} y={m.Y(0)} width={6 * m.u} height={7 * m.u} className="panel-bg" />)}
           <line x1={m.X(-4)} y1={m.Y(30)} x2={m.X(96)} y2={m.Y(30)} className="p-cons" />
           <line x1={m.X(-4)} y1={m.Y(2)} x2={m.X(96)} y2={m.Y(2)} className="p-cons" />
-          <T x={m.X(95)} y={m.Y(30) - 5} anchor="end" cls="t-mut">poziom początkowy</T>
+          <T x={m.X(-3)} y={m.Y(30) - 5} cls="t-mut t-sm">poziom początkowy Z30</T>
           <T x={m.X(95)} y={m.Y(2) - 5} anchor="end" cls="t-acc t-b">R</T>
+
+          <DrillAsm m={m} x={45} tip={-7} />
+          <line x1={m.X(59)} y1={m.Y(25)} x2={m.X(59)} y2={m.Y(33)} className="p-dim" />
+          <T x={m.X(57.5)} y={m.Y(29) + 4} anchor="end" cls="t-mono t-dim t-sm">8</T>
+
           <line x1={m.X(15) + 3} y1={m.Y(2)} x2={m.X(45) - 3} y2={m.Y(2)} className="p-rap thick" markerEnd={c.a("rap")} />
-          <line x1={m.X(45)} y1={m.Y(-7)} x2={m.X(45)} y2={m.Y(30) + 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(45) + 3} y1={m.Y(30)} x2={m.X(75) - 3} y2={m.Y(30)} className="p-rap thick" markerEnd={c.a("rap")} />
-          <line x1={m.X(45) + 3} y1={m.Y(2) + 5} x2={m.X(75) - 3} y2={m.Y(2) + 5} className="p-bad" markerEnd={c.a("bad")} />
+          <line x1={m.X(45) + 3} y1={m.Y(2) + 5} x2={m.X(55)} y2={m.Y(2) + 5} className="p-bad" markerEnd={c.a("bad")} />
           <line x1={m.X(75)} y1={m.Y(30)} x2={m.X(75)} y2={m.Y(2) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
-          <line x1={m.X(77.5)} y1={m.Y(-7)} x2={m.X(77.5)} y2={m.Y(2) + 3} className="p-rap" markerEnd={c.a("rap")} />
-          <T x={m.X(79)} y={m.Y(10)} cls="t-rap t-b t-sm">G99</T>
           <T x={m.X(30)} y={m.Y(2) - 6} anchor="middle" cls="t-rap t-b">G99</T>
-          <T x={m.X(60)} y={m.Y(30) - 6} anchor="middle" cls="t-rap t-b">G98</T>
-          <T x={m.X(50)} y={m.Y(2) + 22} cls="t-bad">G99 — kolizja</T>
+          <T x={m.X(72)} y={m.Y(30) - 6} anchor="middle" cls="t-rap t-b">G98</T>
+          <T x={m.X(68)} y={m.Y(2) + 18} cls="t-bad t-sm">G99 tu — kolizja</T>
+          <T x={m.X(28)} y={m.Y(46)} anchor="end" cls="t-mut t-sm">oprawka Ø32</T>
         </g>
       )}
     </Fig>

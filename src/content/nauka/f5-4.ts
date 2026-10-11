@@ -10,7 +10,6 @@ export const f5_4: LessonDoc = {
   theory: [
     { t: "h", x: "Dwie wysokości powrotu", id: "powrot" },
     { t: "p", x: "Po każdym otworze cykl wraca w górę. [[G98]] — do **poziomu początkowego**, czyli Z sprzed cyklu. [[G99]] — tylko do **płaszczyzny R**. Kody są modalne i można je zmieniać między otworami w trakcie cyklu." },
-    { t: "diagram", id: "g98-g99" },
     { t: "diagram", id: "f54-levels" },
 
     { t: "h", x: "Kiedy który", id: "wybor" },
