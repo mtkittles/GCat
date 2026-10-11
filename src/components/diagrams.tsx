@@ -5,6 +5,7 @@ import {
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
 import { f0Figs } from "./lesson/figs-f0";
+import { pFigs } from "./lesson/figs-p";
 import { f1Figs } from "./lesson/figs-f1";
 import { f2Figs } from "./lesson/figs-f2";
 import { f3Figs } from "./lesson/figs-f3";
@@ -31,6 +32,7 @@ import { t9Figs } from "./lesson/figs-t9";
   Kody bez dopasowanego rysunku celowo nie mają żadnego — lepiej brak niż schemat od innego tematu.
 */
 export const diagrams: Record<string, () => ReactNode> = {
+  ...pFigs,
   ...f0Figs,
   ...f1Figs,
   ...f2Figs,

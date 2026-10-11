@@ -52,6 +52,7 @@ import { t7_1 } from "@/content/nauka/t7-1";
 import { t7_2 } from "@/content/nauka/t7-2";
 import { t8_1 } from "@/content/nauka/t8-1";
 import { t9_1 } from "@/content/nauka/t9-1";
+import { podstawy } from "@/content/nauka/podstawy";
 
 /*
   Plan kursu: dwie niezależne ścieżki (frezowanie, toczenie), każda z modułów i lekcji.
@@ -85,6 +86,7 @@ export const tracks: Record<Track, TrackDef> = {
     profile: "Zapis przykładów: Fanuc (ISO) · frezarka pionowa, 3 osie · milimetry, posuw na minutę (G94). SINUMERIK — w panelu „Fanuc i Sinumerik”.",
     banner: "/img/banner-mill.jpg",
     modules: [
+      { id: "P", title: "Podstawy", skill: "Wskażesz, co na maszynie się obraca i przesuwa, z czego składa się zespół narzędziowy i co ustalić przed pierwszym ruchem.", lessons: podstawy("F").map((d) => L(d.id, d.title, d)) },
       { id: "F0", title: "Maszyna", skill: "Wskażesz osie frezarki i ustawisz zero detalu w przesunięciu G54.", lessons: [
         L("F0.1", "Układ współrzędnych frezarki", f0_1),
         L("F0.2", "Punkty zerowe M, R i W", f0_2),
@@ -142,6 +144,7 @@ export const tracks: Record<Track, TrackDef> = {
     profile: "Zapis przykładów: Fanuc, system A · tokarka dwuosiowa, X w średnicy · milimetry, posuw na obrót (G99). SINUMERIK — w panelu „Fanuc i Sinumerik”.",
     banner: "/img/banner-turn.jpg",
     modules: [
+      { id: "P", title: "Podstawy", skill: "Wskażesz, co na maszynie się obraca i przesuwa, z czego składa się zespół narzędziowy i co ustalić przed pierwszym ruchem.", lessons: podstawy("T").map((d) => L(d.id, d.title, d)) },
       { id: "T0", title: "Maszyna", skill: "Odczytasz X jako średnicę i ustawisz zero Z na splanowanym czole.", lessons: [
         L("T0.1", "Układ współrzędnych tokarki", t0_1),
         L("T0.2", "Programowanie średnicowe", t0_2),

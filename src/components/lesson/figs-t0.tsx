@@ -29,8 +29,8 @@ export function LatheMachine() {
   );
   return (
     <Fig id="t01mc" code="T" title="Tokarka — z czego się składa (widok z boku, głowica tylna)" h={262} legend={["stock"]}
-      notes={<><Code k="con">obraca się: wrzeciono, uchwyt i detal</Code><Code k="acc">przesuwa się w X i Z: głowica z nożem</Code><Code k="dim">konik — opcjonalnie</Code></>}
-      caption={<>Wrzeciono obraca uchwyt, a szczęki trzymają pręt — detal kręci się w osi Z. Nóż siedzi w oprawce na głowicy narzędziowej, a głowica jeździ na saniach w X i Z. Konik z kłem podpiera koniec długiego wałka; przy krótkim detalu nie jest używany. Głowica może stać za osią (tylna, jak w kursie) albo przed nią — zależy od maszyny.</>}>
+      notes={<><Code k="con">ruch główny: wrzeciono, uchwyt i przedmiot</Code><Code k="acc">ruchy posuwowe X i Z: suport z głowicą</Code><Code k="dim">konik — wyposażenie opcjonalne</Code></>}
+      caption={<>Wrzeciono obraca uchwyt, a szczęki uchwytu mocują pręt — przedmiot obraca się wokół osi Z (ruch główny). Nóż jest zamocowany w oprawce na głowicy narzędziowej; głowica przesuwa się na suporcie w osiach X i Z (ruchy posuwowe). Konik z kłem podpiera koniec długiego wałka; przy krótkich przedmiotach nie jest potrzebny. Głowica może być umieszczona za osią obrotu (tylna, jak w kursie) albo przed nią — zależnie od maszyny.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-150)} y={m.Y(-46)} width={260 * m.u} height={10 * m.u} className="clamp" />
@@ -57,7 +57,7 @@ export function LatheMachine() {
           <line x1={m.X(-98)} y1={m.Y(-30)} x2={m.X(-98)} y2={m.Y(-35)} className="p-cons" />
           <T x={m.X(-98)} y={m.Y(-35) + 10} anchor="middle" cls="t-sm">uchwyt</T>
           {lbl(-86, 26, -74, 36, "szczęki")}
-          <T x={m.X(-46)} y={m.Y(0) - 4} anchor="middle" cls="t-sm t-b">pręt — detal</T>
+          <T x={m.X(-46)} y={m.Y(0) - 4} anchor="middle" cls="t-sm t-b">przedmiot (pręt)</T>
           <T x={m.X(14)} y={m.Y(70) - 6} anchor="middle" cls="t-sm">głowica narzędziowa</T>
           {lbl(14, 47, 40, 50, "oprawka")}
           {lbl(5, 22, -12, 32, "płytka", "end")}

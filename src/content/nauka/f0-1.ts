@@ -96,6 +96,7 @@ export const f0_1: LessonDoc = {
   },
 
   quiz: [
+    { kind: "choice", q: "Co opisują współrzędne w programie?", options: ["położenie stołu względem łoża", "położenie narzędzia względem detalu", "kąt obrotu wrzeciona", "położenie mocowania na stole"], answer: 1, why: "Program opisuje ruch narzędzia względem detalu — niezależnie od tego, który zespół maszyny się rusza.", review: "FP.1" },
     { kind: "choice", q: "Co robi narzędzie frezarki pionowej, gdy jedzie w **+Z**?",
       options: ["zbliża się do detalu", "odjeżdża od detalu w górę", "przesuwa się w prawo", "przesuwa się w stronę operatora"],
       answer: 1, why: "Wg ISO 841 ruch w +Z zwiększa odległość między narzędziem a detalem. Na frezarce pionowej to ruch w górę." },

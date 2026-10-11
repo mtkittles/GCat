@@ -10,7 +10,6 @@ export const t0_1: LessonDoc = {
   theory: [
     { t: "h", x: "Dwie osie", id: "osie" },
     { t: "p", x: "Tokarka CNC ma dwie podstawowe osie. **Z** biegnie wzdłuż osi wrzeciona: +Z prowadzi od uchwytu w stronę konika. **X** jest promieniowa, prostopadła do osi obrotu: +X prowadzi od osi na zewnątrz. Tak jak na frezarce, ruch w kierunku dodatnim oddala nóż od detalu — to zasada normy ISO 841." },
-    { t: "diagram", id: "t01-machine" },
     { t: "diagram", id: "t01-axes" },
     { t: "p", x: "Rysunki w kursie pokazują tokarkę z boku: Z w prawo, X w górę, głowica za osią obrotu (tylna). Przy widoku z innej strony zmienia się wygląd, ale nie znaczenie znaków — +X dalej prowadzi od osi, a +Z od uchwytu." },
     { t: "p", x: "Osi Y zwykła tokarka nie ma: detal się obraca, więc każdy punkt jego powierzchni sam przechodzi przed nożem. Tokarki z narzędziami napędzanymi mają dodatkowo sterowany obrót wrzeciona (oś C), a czasem także oś Y — to temat na osobną ścieżkę." },
@@ -72,6 +71,7 @@ export const t0_1: LessonDoc = {
   },
 
   quiz: [
+    { kind: "choice", q: "Co opisują współrzędne w programie?", options: ["położenie stołu względem łoża", "położenie narzędzia względem detalu", "kąt obrotu wrzeciona", "położenie mocowania na stole"], answer: 1, why: "Program opisuje ruch narzędzia względem detalu — niezależnie od tego, który zespół maszyny się rusza.", review: "TP.1" },
     { kind: "choice", q: "Wzdłuż czego biegnie oś Z na tokarce?", options: ["wzdłuż osi wrzeciona", "promieniowo", "pionowo", "w stronę operatora"], answer: 0, why: "Z pokrywa się z osią obrotu." },
     { kind: "choice", q: "Gdzie zwykle leży zero detalu na tokarce?", options: ["na osi obrotu, na czole detalu", "na szczękach uchwytu", "na końcu pręta w uchwycie", "na powierzchni Ø40"], answer: 0, why: "X0 na osi, Z0 na czole." },
     { kind: "choice", q: "Nóż ma odjechać od detalu promieniowo. W którym kierunku?", options: ["+X", "−X", "+Z", "−Z"], answer: 0, why: "+X prowadzi od osi na zewnątrz." },
