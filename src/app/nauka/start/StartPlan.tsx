@@ -16,7 +16,7 @@ export default function StartPlan({ days }: { days: Day[] }) {
           const done = d.lessons.filter((l) => isFinished(P(l.id))).length;
           return (
             <li key={d.day} className={`s7-day${done === d.lessons.length ? " is-done" : ""}`}>
-              <div className="s7-head"><span className="s7-n">Dzień {d.day}</span><b>{d.title}</b><span className="s7-m">{done}/{d.lessons.length} · {d.lessons.reduce((a, l) => a + l.minutes, 0)} min</span></div>
+              <div className="s7-head"><span className="s7-n">{d.day === 0 ? "Wstęp" : `Dzień ${d.day}`}</span><b>{d.title}</b><span className="s7-m">{done}/{d.lessons.length} · {d.lessons.reduce((a, l) => a + l.minutes, 0)} min</span></div>
               <p className="s7-goal">{d.goal}</p>
               <ul className="s7-lessons">
                 {d.lessons.map((l) => { const p = P(l.id); const st = isPassed(p) ? "✓" : isFinished(p) ? "•" : ""; return (

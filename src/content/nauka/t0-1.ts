@@ -72,6 +72,7 @@ export const t0_1: LessonDoc = {
   },
 
   quiz: [
+    { kind: "choice", q: "Co opisują współrzędne w programie?", options: ["położenie stołu względem łoża", "położenie narzędzia względem detalu", "kąt obrotu wrzeciona", "położenie mocowania na stole"], answer: 1, why: "Program opisuje ruch narzędzia względem detalu — niezależnie od tego, który zespół maszyny się rusza.", review: "TP.1" },
     { kind: "choice", q: "Wzdłuż czego biegnie oś Z na tokarce?", options: ["wzdłuż osi wrzeciona", "promieniowo", "pionowo", "w stronę operatora"], answer: 0, why: "Z pokrywa się z osią obrotu." },
     { kind: "choice", q: "Gdzie zwykle leży zero detalu na tokarce?", options: ["na osi obrotu, na czole detalu", "na szczękach uchwytu", "na końcu pręta w uchwycie", "na powierzchni Ø40"], answer: 0, why: "X0 na osi, Z0 na czole." },
     { kind: "choice", q: "Nóż ma odjechać od detalu promieniowo. W którym kierunku?", options: ["+X", "−X", "+Z", "−Z"], answer: 0, why: "+X prowadzi od osi na zewnątrz." },

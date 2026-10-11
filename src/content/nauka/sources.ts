@@ -81,6 +81,12 @@ export const sources: Record<string, Source> = {
     control: "język natywny Siemensa",
     note: "Numer dokumentu do uzupełnienia. Te same funkcje opisują instrukcje 808D/828D/840D sl.",
   },
+  "haas-basic": {
+    id: "haas-basic", short: "Haas — Basic Mill Operator", author: "Haas Automation (Haas Factory Outlet)",
+    title: "Basic Mill Operator Hand Out, ver. C — materiały szkoleniowe operatora frezarki",
+    control: "sterowanie Haas — nazwy pól i układ ekranów innych sterowań mogą się różnić",
+    url: "https://www.haascnc.com/content/dam/haascnc/hfo-microsite/hfo-allendale/training-documents/Basic_Mill_Operator_Hand_Out_verC.pdf", accessed: "10/2026",
+  },
   "haas-workbook": {
     id: "haas-workbook", short: "Haas — Mill Programming Workbook", author: "Haas Automation",
     title: "Mill Programming Workbook (frezarki VF/EC)",

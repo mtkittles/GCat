@@ -6,6 +6,7 @@
 export interface StartDay { day: number; title: string; goal: string; lessons: string[]; minutes: number }
 
 export const START7: StartDay[] = [
+  { day: 0, title: "Zanim zaczniesz", goal: "Wiesz, co na frezarce się obraca i przesuwa, jak zbudowany jest zespół narzędziowy i co ustalić przed pierwszym ruchem.", lessons: ["FP.1", "FP.2", "FP.3"], minutes: 22 },
   { day: 1, title: "Maszyna i zero detalu", goal: "Wiesz, gdzie jest X, Y, Z i skąd program liczy wymiary.", lessons: ["F0.1", "F0.2", "F0.3"], minutes: 38 },
   { day: 2, title: "Jak czytać program", goal: "Rozkładasz blok na słowa i wiesz, które działają dalej.", lessons: ["F1.1", "F1.2", "F1.3"], minutes: 38 },
   { day: 3, title: "Bezpieczny początek", goal: "Piszesz blok startowy i koniec programu, sprawdzając każdy potrzebny tryb.", lessons: ["F1.4", "F1.5", "F2.1"], minutes: 35 },

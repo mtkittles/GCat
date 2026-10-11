@@ -91,7 +91,7 @@ export type Haslo = z.infer<typeof hasloSchema>;
 
 export const lekcjaSchema = z.strictObject({
   /** F0.1 … F7.x, T0.1 … T8.x */
-  id: z.string().regex(/^[FT]\d+\.\d+$/, "id lekcji: F3.2 albo T1.4"),
+  id: z.string().regex(/^[FT](\d+|P)\.\d+$/, "id lekcji: F3.2, T1.4 albo FP.1"),
   /** = nazwa katalogu; adres lekcji */
   slug,
   title: text,
