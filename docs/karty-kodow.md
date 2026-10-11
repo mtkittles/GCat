@@ -103,6 +103,7 @@ To lista tematów do sprawdzenia, nie stwierdzenie istniejących błędów.
 | karty bez artykułu (24) | pełne czytanie: definicja, zakres, parametry z jednostkami, zależności od sterowania, przykład | przejrzane 2026-10 — bez błędów merytorycznych wymagających zmiany; poprawiono składnię Sinumerika przy G28/G27–G30 i dopisano systemy kodów | wiedza ogólna + zestawienia jak wyżej; źródła producentów dla parametrów cykli nadal do dopisania przy każdej karcie |
 | karty z artykułem (27) | przegląd uogólnień („zawsze”, „wyłącznie”, „na każdym sterowaniu”) | 2026-10: pozostałe wystąpienia dotyczą geometrii interpolacji (tor G01 jest prostą) albo zaleceń — bez zmian | — |
 | źródła kart (pole `sources`) | 23 karty: 12 ★ + G84, M29, G81–G83, G98/G99, G28, G27–G30, G71/G70, G72, G75, G76, osie A/B/C | dodane 2026-10 (sprint 20); miejsca tylko tam, gdzie sprawdzone — reszta „do uzupełnienia” | rejestr `src/content/nauka/sources.ts`; stan: `npm run audit:dzialy` |
+| język kart (paczka C) | „zawsze”, „nigdy”, „złamane narzędzie” w polach i artykułach; G33/G34/G76, G04, M30, M99, M03–M05, M07/M08, G71, G73, G85/G86 | przeredagowane 2026-10 (sprint 21) — warunki zamiast reguł, skutek opisany rzeczowo | spójność z lekcjami T7.1, T8.1, F4.2; parametry sterowania — „zależy od” |
 | pozostałe | — | nie audytowano źródłowo | — |
 
 Kontrolne przypadki kalkulatora łuku (start X20 Y20, koniec X50 Y50, R30, G03):

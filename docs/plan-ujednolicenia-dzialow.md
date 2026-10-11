@@ -36,7 +36,7 @@ Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i 
 3. Profil zapisu nad przykładem karty (Fanuc ISO / frezarka 3-osiowa / G94 albo tokarka system A / G99).
 4–5. `G94` w przykładach frezarskich, które są kompletnymi programami (karta po karcie, zgodnie z `docs/karty-kodow.md` §4: fragment ≠ program).
 
-### Paczka C — Kody: język i warunki
+### Paczka C — Kody: język i warunki — **zrobione** (sprint 21, jedna paczka)
 1–3. 10 kart ze „zawsze” i 3 z językiem „złamane narzędzie” — przeredagowanie według zasad z audytu Nauki (sytuacja → przyczyna → blok → rezultat).
 4–5. Karty bez ★ w kolejności z `docs/karty-kodow.md` §6.
 
@@ -56,6 +56,14 @@ Każda paczka to osobna tura pracy. Kolejność według ryzyka merytorycznego i 
 - `G94` w bloku startowym 24 przykładów frezarskich (pole `example`); bloki `sim` w artykułach bez zmian.
 
 Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart ★; paczka C (język).
+
+### Stan po paczce C (sprint 21)
+
+- Słowa bezwarunkowe w polach kart: 10 → 1 (G28 — opis błędnego założenia „G28 to zawsze ruch w górę”, zostaje celowo). Słownictwo alarmistyczne: 3 → 0 („złamać wiór” w G73 to termin technologiczny; audyt go pomija).
+- Artykuły kart (MDX): przeredagowane zdania o „złamanym frezie”, „zniszczeniu płytki”, „nigdy G02/G03”, „zawsze G97”, „Zawsze kończ G52”. Zostają zdania geometryczne (tor G01 jest prostą, X0 tokarki na osi, start gwintu w tym samym położeniu kątowym).
+- Poprawki merytoryczne: G33/G34/G76 — przy G96 problemem jest trafienie w ten sam zwój, nie zmiana skoku (spójnie z T7.1); G04 — X bez kropki zależy od ustawień; M30 — co kasuje, zależy od parametrów; M99 w programie głównym — opisane jak w T8.1; M03–M05 — liczba funkcji M w bloku zależy od sterowania; M07/M08 — przypisanie ustala producent; G71 — zasada bloku P dotyczy typu I.
+
+Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart ★ (potrzebny dostęp do dokumentacji).
 
 ## Zasady (bez zmian)
 
