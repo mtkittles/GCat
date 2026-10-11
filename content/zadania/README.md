@@ -12,6 +12,7 @@ level: 1                 # 1 | 2 | 3
 mode: mill               # mill | lathe
 brief: Wybierz płaszczyznę XY i zrób łuk.
 hints: [G17 to XY.]
+lessons: [F1.4]          # lekcje do powtórki przed zadaniem (link nad zadaniem)
 starter: |
   G21 G90
 reference: |             # wzorzec toru do sprawdzania

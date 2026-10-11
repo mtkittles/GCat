@@ -520,15 +520,15 @@ export function RzDiag() {
   for (let i = 0; i < 5; i++) d.push(`A ${rx} ${ry} 0 0 0 ${x0 + (i + 1) * f} ${y0}`);
   const body = `${d.join(" ")} L ${x0 + 5 * f} 196 L ${x0} 196 Z`;
   return (
-    <Fig id="rz" title="Rz — chropowatość teoretyczna po toczeniu" h={214} legend={["con", "dim", "acc"]}
-      notes={<Code k="acc">Rz ≈ f² / (8 · rε) · 1000 [µm]</Code>}
-      caption={<>Każdy obrót zostawia ślad naroża płytki. Głębokość wgłębień zależy od posuwu na obrót <b>f</b> i promienia naroża <b>rε</b>, a nie od obrotów. Skala pionowa jest mocno powiększona.</>}>
+    <Fig id="rz" title="Rt — teoretyczna wysokość nierówności po toczeniu" h={214} legend={["con", "dim", "acc"]}
+      notes={<Code k="acc">Rt ≈ f² / (8 · rε) · 1000 [µm]</Code>}
+      caption={<>Każdy obrót zostawia ślad naroża płytki. W tym modelu głębokość wgłębień zależy od posuwu na obrót <b>f</b> i promienia naroża <b>rε</b> — obroty we wzorze nie występują. Rzeczywistą chropowatość potwierdza pomiar. Skala pionowa jest mocno powiększona.</>}>
       {(c) => (
         <g>
           <path d={body} fill={c.hatch} className="p-con" />
           <line x1={x0} y1={y0} x2={x0 + 5 * f} y2={y0} className="p-cons" />
           <line x1={x0} y1={y0 + sag} x2={x0 + 5 * f} y2={y0 + sag} className="p-cons" />
-          <Dim x1={x0 + 3.5 * f} y1={y0} x2={x0 + 3.5 * f} y2={y0 + sag} label="Rz" c={c} lside={-1} cls="t-mono t-acc t-b" />
+          <Dim x1={x0 + 3.5 * f} y1={y0} x2={x0 + 3.5 * f} y2={y0 + sag} label="Rt" c={c} lside={-1} cls="t-mono t-acc t-b" />
           <Dim x1={x0 + f} y1={y0 - 20} x2={x0 + 2 * f} y2={y0 - 20} label="f" c={c} lside={-1} cls="t-mono t-acc t-b" />
           <T x={x0 + 2.5 * f} y={y0 + sag + 44} anchor="middle" cls="t-mut">materiał (przekrój)</T>
         </g>

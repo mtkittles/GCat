@@ -33,13 +33,13 @@ export const f6_1: LessonDoc = {
     { t: "p", x: "Planowanie zbiera naddatek z górnej powierzchni i robi z niej płaszczyznę, od której liczy się Z0 i wszystkie głębokości. Dlatego zwykle idzie pierwsze. Surówka płytki ma 1 mm naddatku — program planuje ją do Z0." },
 
     { t: "h", x: "Położenie głowicy", id: "polozenie" },
-    { t: "p", x: "Szerokość skrawania **ae** najlepiej dobrać na około 70–80% średnicy głowicy, z osią nad detalem. Płytka ma 50 mm szerokości, głowica Ø63: jedno przejście środkiem daje ae = 50 mm, czyli 79% D." },
+    { t: "p", x: "[[ae — szerokość skrawania|Szerokość skrawania]] **ae** najlepiej dobrać na około 70–80% średnicy głowicy, z osią nad detalem. Płytka ma 50 mm szerokości, głowica Ø63: jedno przejście środkiem daje ae = 50 mm, czyli 79% D." },
     { t: "diagram", id: "f61-pos" },
     { t: "p", x: "Start i koniec poza detalem: głowica wchodzi w materiał bokiem, a nie czołem, i nie zostawia śladu po zatrzymaniu. Odległość osi od krawędzi to promień głowicy plus kilka milimetrów zapasu." },
     { t: "code", x: "X startu = 0  − (63 / 2 + 8,5) = −40\nX końca  = 80 + (63 / 2 + 8,5) = 120" },
 
     { t: "h", x: "Kąt przystawienia i posuw", id: "posuw" },
-    { t: "p", x: "Głowice do planowania mają zwykle płytki o kącie przystawienia 45°. Wiór jest wtedy cieńszy niż posuw na ostrze — grubość wióra to fz · sin 45° ≈ 0,7 · fz. Katalog podaje więc dla takich głowic wyższe fz niż dla frezów 90°." },
+    { t: "p", x: "Głowice do planowania mają zwykle płytki o [[kąt przystawienia|kącie przystawienia]] 45°. Wiór jest wtedy cieńszy niż posuw na ostrze — grubość wióra to fz · sin 45° ≈ 0,7 · fz. Katalog podaje więc dla takich głowic wyższe fz niż dla frezów 90°." },
     { t: "code", x: "S = 1000 · 198 / (π · 63) ≈ 1000\nF = fz · z · n = 0,16 · 5 · 1000 = 800\nwiór = 0,16 · 0,71 ≈ 0,11 mm" },
     { t: "p", x: "Wydajność, czyli objętość zdejmowanego materiału na minutę:" },
     { t: "code", x: "Q = ap · ae · vf / 1000 = 1 · 50 · 800 / 1000 = 40 cm³/min" },

@@ -9,7 +9,7 @@ export const t2_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Słowo T na tokarce", id: "t" },
-    { t: "p", x: "Na tokarce Fanuc słowo T ma cztery cyfry: dwie pierwsze wybierają **pozycję w głowicy**, dwie ostatnie — **numer rejestru korekcji**. `T0101` to nóż z pozycji 1 z korekcją 1. Nie ma M06: głowica obraca się od razu po odczytaniu bloku." },
+    { t: "p", x: "Na tokarce Fanuc słowo T ma cztery cyfry: dwie pierwsze wybierają **pozycję w głowicy**, dwie ostatnie — **numer rejestru korekcji**. `T0101` to nóż z pozycji 1 z korekcją 1. Nie ma M06: [[głowica rewolwerowa|głowica]] obraca się od razu po odczytaniu bloku." },
     { t: "note", kind: "info", x: "Format czterocyfrowy to profil przyjęty w kursie i najczęstszy na tokarkach Fanuc. Liczbę cyfr i podział na pozycję i korekcję ustawia parametr sterowania — na innej maszynie sprawdź go w jej dokumentacji." },
     { t: "diagram", id: "t21-turret" },
     { t: "note", kind: "warn", x: "Głowica obraca się tam, gdzie akurat stoi. Przed każdym T nóż musi być w bezpiecznym miejscu — w punkcie referencyjnym albo w punkcie wymiany, daleko od detalu i konika. Inaczej inny nóż w głowicy może uderzyć w detal podczas obrotu." },

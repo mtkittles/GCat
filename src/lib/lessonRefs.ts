@@ -47,3 +47,26 @@ export function lessonsForCodes(codes: string[], tracks: Track[] = ["frezowanie"
   // najpierw lekcje, w których kod pada najczęściej; potem kolejność kursu
   return res.sort((a, b) => b.hits - a.hits).slice(0, limit).sort((a, b) => (a.track === b.track ? 0 : a.track === "frezowanie" ? -1 : 1) || a.id.localeCompare(b.id, "pl", { numeric: true }));
 }
+
+/**
+ * Lekcje, które odsyłają do hasła słownika znacznikiem [[hasło]] albo [[alias|etykieta]].
+ * Klucz: kotwica hasła. Liczone przy budowie strony — klient dostaje gotową mapę.
+ */
+export function lessonsForGlossary(entries: { anchor: string; term: string; aliases: string[] }[], limit = 4): Record<string, LessonRef[]> {
+  const norm = (s: string) => s.trim().toLocaleLowerCase("pl");
+  const keyOf = new Map<string, string>();
+  for (const e of entries) for (const n of [e.term, ...e.aliases]) if (!keyOf.has(norm(n))) keyOf.set(norm(n), e.anchor);
+  const out: Record<string, LessonRef[]> = {};
+  for (const l of all()) {
+    const seen = new Set<string>();
+    // [^…"[{] — tekst to JSON; bez tego dopasowanie zaczęłoby się od „[[{” na początku tablicy
+    for (const m of l.text.matchAll(/\[\[([^\]|"[{]+)(?:\|[^\]]+)?\]\]/g)) {
+      const a = keyOf.get(norm(m[1]));
+      if (!a || seen.has(a)) continue;
+      seen.add(a);
+      (out[a] ??= []).push({ href: l.href, id: l.id, title: l.title, track: l.track, hits: 1 });
+    }
+  }
+  for (const a of Object.keys(out)) out[a] = out[a].slice(0, limit);
+  return out;
+}

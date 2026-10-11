@@ -8,6 +8,8 @@ import exData from "../../content/exercises.json";
 export interface Exercise {
   slug: string; title: string; level: 1 | 2 | 3; mode: "mill" | "lathe";
   brief: string; hints: string[]; starter: string; reference: string;
+  /** lekcje do powtórki przed zadaniem (id, np. F3.2) */
+  lessons?: string[];
   tolerance?: number; requireCodes?: string[]; forbidCodes?: string[]; maxCutLength?: number;
   /** półfabrykat: frezarka — prostopadłościan z położeniem zera, tokarka — pręt */
   stock?: { x?: number; y?: number; z?: number; ox?: number; oy?: number; oz?: number; d?: number; len?: number };

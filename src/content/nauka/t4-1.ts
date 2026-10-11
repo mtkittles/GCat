@@ -55,7 +55,7 @@ export const t4_1: LessonDoc = {
     { t: "demo", mode: "lathe", title: "Bez korekcji: G40", src: demo(false), caption: "Pomarańczowy pas to ślad naroża R0,8. Na średnicach i czole dotyka konturu (linia), na fazie i obu promieniach zostaje od niego z daleka." },
 
     { t: "h", x: "Korekcja promienia ostrza", id: "g41-g42" },
-    { t: "p", x: "Z [[G42]] lub [[G41]] sterowanie prowadzi środek naroża w odległości rε od konturu z programu — jak przy frezie w module F4, tylko promieniem jest naroże płytki. Program opisuje wtedy kontur z rysunku, a kształt faz i łuków wychodzi poprawny." },
+    { t: "p", x: "Z [[G42]] lub [[G41]] sterowanie prowadzi środek naroża w odległości rε od konturu z programu — jak przy frezie w module F4, tylko promieniem jest naroże [[płytka skrawająca|płytki]]. Program opisuje wtedy kontur z rysunku, a kształt faz i łuków wychodzi poprawny." },
     { t: "diagram", id: "t41-sides" },
     { t: "demo", mode: "lathe", title: "Z korekcją: G42", src: demo(true), caption: "Ten sam program z G42 i G40. Przerywana linia to kontur z programu, zielony tor to droga punktu P. Ślad naroża przylega do konturu na całej długości — także na fazie i promieniach." },
     { t: "table", head: ["Obróbka", "Kierunek", "Kod"], rows: [

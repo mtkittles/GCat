@@ -10,6 +10,9 @@
       "Kontur musi się domknąć — wróć do punktu startu.",
       "Pamiętaj o M03 i posuwie F."
     ],
+    "lessons": [
+      "F3.2"
+    ],
     "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\n(dopisz dalszą część)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-3 F100\nG01 X80 F400\nG01 Y50\nG01 X0\nG01 Y0\nG00 Z5\nM30",
     "tolerance": 0.05,
@@ -43,6 +46,9 @@
       "Narożnik zewnętrzny obrabiany w kierunku przeciwnym do wskazówek zegara to G03.",
       "Punkt styczności leży 10 mm od narożnika.",
       "Możesz użyć R albo I/J — sprawdzane jest tylko położenie toru."
+    ],
+    "lessons": [
+      "F3.3"
     ],
     "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\n(dopisz kontur z czterema lukami R10)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\nG01 X70 F400\nG03 X80 Y10 R10\nG01 Y40\nG03 X70 Y50 R10\nG01 X10\nG03 X0 Y40 R10\nG01 Y10\nG03 X10 Y0 R10\nG00 Z5\nM30",
@@ -78,6 +84,10 @@
       "Płaszczyzna R musi leżeć nad materiałem.",
       "Bez G80 kolejny ruch też wywierci otwór."
     ],
+    "lessons": [
+      "F5.1",
+      "F5.4"
+    ],
     "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\n(dopisz cykl)\nG00 Z50\nM30",
     "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM30",
     "tolerance": 0.05,
@@ -112,6 +122,9 @@
     "hints": [
       "Pełne wycofanie do R po każdym zagłębieniu to G83, nie G73.",
       "Głębokość zagłębienia podaje adres Q."
+    ],
+    "lessons": [
+      "F5.2"
     ],
     "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\n(dopisz cykl)\nG80\nG00 Z50\nM30",
     "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\nG99 G83 X30 Y30 Z-45 R2 Q6 F100\nG80\nG00 Z50\nM30",
@@ -151,6 +164,9 @@
       "G91 obowiązuje aż do G90.",
       "Wszystkie ruchy w materiale muszą być na G01."
     ],
+    "lessons": [
+      "F1.3"
+    ],
     "starter": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\n(dopisz piec rowkow)\nG90\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG90\nG00 Z5\nM30",
     "tolerance": 0.05,
@@ -186,8 +202,11 @@
       "Kontur N10–N20 opisuj od czoła w stronę uchwytu: N10 G00 X30, G01 Z−25 F0.2, X40, Z−55, N20 X52.",
       "Na tokarce Fanuc w systemie A posuw w mm/obr włącza G99 — jest już w bloku startowym."
     ],
-    "starter": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 i G70)\nG00 X60 Z20\nM30",
-    "reference": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X30\nG01 Z-25 F0.2\nX40\nZ-55\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
+    "lessons": [
+      "T5.1"
+    ],
+    "starter": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 i G70)\nG00 X60 Z20\nM30",
+    "reference": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X30\nG01 Z-25 F0.2\nX40\nZ-55\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G71",
@@ -219,8 +238,12 @@
       "Kierunek łuku zależy od kierunku przejścia: od czoła w stronę uchwytu zaokrąglenie R5 przy stopniu z ⌀30 na ⌀40 jest zgodne z ruchem wskazówek zegara — G02. Przejechane w drugą stronę byłoby G03.",
       "Po cyklu zgrubnym dopisz G70 P10 Q20 — wykańczanie po tym samym konturze."
     ],
-    "starter": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 z faza, R5 i faza koncowa, potem G70)\nG00 X60 Z20\nM30",
-    "reference": "G18 G21 G40 G99\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X26\nG01 Z0 F0.15\nX30 Z-2\nZ-20\nG02 X40 Z-25 R5\nG01 Z-45\nX46\nX50 Z-47\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
+    "lessons": [
+      "T3.3",
+      "T5.1"
+    ],
+    "starter": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 z faza, R5 i faza koncowa, potem G70)\nG00 X60 Z20\nM30",
+    "reference": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X26\nG01 Z0 F0.15\nX30 Z-2\nZ-20\nG02 X40 Z-25 R5\nG01 Z-45\nX46\nX50 Z-47\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
     "tolerance": 0.15,
     "requireCodes": [
       "G71",
@@ -253,6 +276,9 @@
       "Kontur wewnętrzny musi się domykać.",
       "Nie podnoś narzędzia między przejściami — zejdź kolejnym G01 w Z."
     ],
+    "lessons": [
+      "F6.2"
+    ],
     "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz dwa przejscia)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG01 Z-6 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG00 Z5\nM30",
     "tolerance": 0.05,
@@ -283,9 +309,12 @@
     "mode": "mill",
     "brief": "Wyfrezuj kontur prostokąta 70 × 45 mm od X0 Y0 na głębokości 4 mm, używając kompensacji promienia G41. Dojedź z punktu X-20 Y-20, włącz kompensację w bloku dojazdowym do X0 Y0, obejdź kontur i wyłącz ją G40 w odjeździe do punktu startu.",
     "hints": [
-      "Kompensację włącza się w ruchu prostoliniowym, nigdy w łuku.",
+      "Korekcję włącza i wyłącza ruch liniowy (G00 albo G01). Blok z łukiem przy włączaniu kończy się na większości sterowań alarmem (lekcja F4.2).",
       "Blok dojazdowy musi być dłuższy niż promień narzędzia — stąd start z X-20 Y-20.",
       "Nie zapomnij G40 na końcu, inaczej kolejne narzędzie odziedziczy korekcję."
+    ],
+    "lessons": [
+      "F4.2"
     ],
     "starter": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\n(dopisz kontur z G41 i G40)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\nG41 D1 X0 Y0 F350\nG01 Y45\nG01 X70\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
@@ -316,14 +345,17 @@
     "title": "Cztery gwinty M8 z otworami",
     "level": 3,
     "mode": "mill",
-    "brief": "Wywierć cztery otwory pod gwint M8 (średnica 6,8 mm) na głębokość 20 mm w punktach X20 Y20, X70 Y20, X70 Y45, X20 Y45, a następnie nagwintuj je na głębokość 15 mm. Wiercenie cyklem G81, gwintowanie cyklem G84 przy 500 obr/min. Skok M8 wynosi 1,25 mm.",
+    "brief": "Wywierć cztery otwory pod gwint M8 (średnica 6,8 mm) na głębokość 20 mm w punktach X20 Y20, X70 Y20, X70 Y45, X20 Y45, a następnie nagwintuj je na głębokość 15 mm. Wiercenie cyklem G81, gwintowanie cyklem G84 przy 500 obr/min. Skok M8 wynosi 1,25 mm. Tryb gwintowania sztywnego (M29) jest już w starterze — na konkretnej maszynie kod może być inny albo zbędny (lekcja F5.3).",
     "hints": [
       "Posuw gwintowania w G94 to obroty razy skok: 500 × 1,25 = 625 mm/min.",
       "Płaszczyzna R przy gwintowaniu powinna być wyżej — zostaw zapas na rozbieg, np. R5.",
       "Po każdym cyklu daj G80."
     ],
-    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
-    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
+    "lessons": [
+      "F5.3"
+    ],
+    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(M29 - TRYB SZTYWNY, KOD ZALEZY OD MASZYNY)\nM29 S500\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
+    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(M29 - TRYB SZTYWNY, KOD ZALEZY OD MASZYNY)\nM29 S500\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G81",
@@ -365,6 +397,9 @@
       "Środek leży 15 mm w prawo od punktu startu, czyli I15 J0.",
       "Dodanie Z w bloku łuku zamienia go w helisę."
     ],
+    "lessons": [
+      "F6.3"
+    ],
     "starter": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\n(dopisz trzy zwoje helisy)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\nG03 X25 Y40 Z-2 I15 J0 F300\nG03 X25 Y40 Z-4 I15 J0\nG03 X25 Y40 Z-6 I15 J0\nG00 Z5\nM30",
     "tolerance": 0.1,
@@ -399,6 +434,9 @@
       "W trybie G91 jeden fragment wystarczy powtórzyć trzy razy.",
       "Rowki mają być równoległe, wszystkie w kierunku dodatnim X."
     ],
+    "lessons": [
+      "F7.1"
+    ],
     "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz trzy rowki)\nG00 Z5\nM30",
     "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y35\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y55\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nM30",
     "tolerance": 0.05,
@@ -429,9 +467,12 @@
     "mode": "mill",
     "brief": "Splanuj powierzchnię 100 × 60 mm głowicą ⌀50, zdejmując 1 mm. Wykonaj trzy przejścia wzdłuż osi X w liniach Y15, Y30 i Y45, wychodząc poza materiał po obu stronach: od X-30 do X130.",
     "hints": [
-      "Przekrycie między przejściami wynosi tu 50%, stąd rozstaw 15 mm przy głowicy ⌀50.",
+      "Rozstaw 15 mm to 30% średnicy głowicy ⌀50 — sąsiednie przejścia zachodzą na siebie o 35 mm, a skrajne (Y15 − 25 i Y45 + 25) wychodzą poza krawędzie Y0 i Y60.",
       "Wyjście poza materiał zapobiega śladowi na krawędzi.",
       "Nie podnoś narzędzia między przejściami, jeśli nie musisz."
+    ],
+    "lessons": [
+      "F6.1"
     ],
     "starter": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\n(dopisz trzy przejscia)\nG00 Z50\nM30",
     "reference": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\nG01 Z-1 F150\nG01 X130 F800\nG01 Y30\nG01 X-30\nG01 Y45\nG01 X130\nG00 Z50\nM30",
@@ -462,14 +503,18 @@
     "title": "Planowanie czoła i faza",
     "level": 2,
     "mode": "lathe",
-    "brief": "Z półfabrykatu ⌀40 splanuj czoło do osi (X0) na Z0, następnie wykonaj fazę 2×45° i wytocz ⌀36 na długości 30 mm. Posuw 0,15 mm/obr przy planowaniu, 0,25 przy toczeniu wzdłużnym.",
+    "brief": "Z półfabrykatu ⌀40 splanuj czoło na Z0 nożem z promieniem naroża 0,8 mm — przejście kończy się za osią, w X−1,6. Następnie wykonaj fazę 2×45° na ⌀36 i wytocz ⌀36 na długości 30 mm. Posuw 0,15 mm/obr przy planowaniu, 0,25 przy fazie i toczeniu wzdłużnym.",
     "hints": [
-      "Planowanie czoła to ruch w osi X przy stałym Z0, od średnicy zewnętrznej do X0.",
-      "Faza 2×45° to ruch skośny z ⌀32 przy Z2 do ⌀36 przy Z0.",
+      "Planowanie czoła to ruch w osi X przy stałym Z0. Bez korekcji promienia ostrza nóż kończy przejście za osią o 2·rε: 2 · 0,8 = 1,6, czyli X−1,6 (lekcja T2.3).",
+      "Faza 2×45° na ⌀36 biegnie z ⌀32 przy Z0 do ⌀36 przy Z−2. Najazd z Z2 przedłuża ją: start z ⌀28 przy Z2 (na 1 mm w Z średnica zmienia się o 2 mm).",
       "Pamiętaj o odjeździe przed powrotem na początek."
     ],
-    "starter": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
-    "reference": "G18 G21 G40 G99\nG97 S1200 M03\nG00 X42 Z0\nG01 X0 F0.15\nG00 X32 Z2\nG01 X36 Z0 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
+    "lessons": [
+      "T2.3",
+      "T3.2"
+    ],
+    "starter": "G18 G21 G40 G80 G99\nG54\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
+    "reference": "G18 G21 G40 G80 G99\nG54\nG97 S1200 M03\nG00 X42 Z0\nG01 X-1.6 F0.15\nG00 X28 Z2\nG01 X36 Z-2 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -500,8 +545,12 @@
       "Wycofanie i powrót wykonuj szybkim przejazdem G00.",
       "Cztery przejścia oznaczają cztery takie sekwencje."
     ],
-    "starter": "G18 G21 G40 G99\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
-    "reference": "G18 G21 G40 G99\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
+    "lessons": [
+      "T0.2",
+      "T3.1"
+    ],
+    "starter": "G18 G21 G40 G80 G99\nG54\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
+    "reference": "G18 G21 G40 G80 G99\nG54\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -529,8 +578,12 @@
     "brief": "Napisz kompletny program: T01 frezuje kontur prostokąta 90 × 55 mm od X0 Y0 na głębokość 5 mm (dojazd i odjazd przez X-10 Y-10), T02 wierci dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27 cyklem G81. Każde narzędzie ma mieć wymianę, korekcję długości G43, obroty, chłodziwo i odjazd na Z50.",
     "hints": [
       "Szkielet zabiegu: T_ M06, G43 H_ Z50, S_ M03, M08, obróbka, G00 Z50, M09, M05.",
-      "Blok bezpiecznego startu: G00 G90 G17 G54 G40 G49 G80.",
+      "Blok startowy jest w starterze: G21 G90 G94 G17 G54 G40 G49 G80 — milimetry, wymiary absolutne, posuw na minutę, płaszczyzna XY, zero detalu i kasowanie korekcji oraz cykli.",
       "Zakończ przez G91 G28 Z0, G90, M30."
+    ],
+    "lessons": [
+      "F1.5",
+      "F4.1"
     ],
     "starter": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\n(T01 — kontur)\n(T02 — otwory)\nM30",
     "reference": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-10 Y-10\nG00 Z2\nG01 Z-5 F120\nG01 X0 Y0 F400\nG01 X90\nG01 Y55\nG01 X0\nG01 Y0\nG01 X-10 Y-10\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1400 M03\nM08\nG99 G81 X25 Y27 Z-22 R2 F130\nX65\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",

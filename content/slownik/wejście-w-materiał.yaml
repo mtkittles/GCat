@@ -6,10 +6,10 @@ aliases:
   - plunge
   - zejście w Z
 def: >-
-  Ruch, którym narzędzie schodzi na głębokość skrawania. Zawsze na posuwie
-  roboczym (G01), nigdy szybkim przejazdem; posuw zejścia jest mniejszy niż
-  konturowy, bo pracują ostrza czołowe. Frez bez ostrza przez środek wymaga
-  rampy lub wejścia po spirali.
+  Ruch, którym narzędzie schodzi na głębokość skrawania. Programuje się go z
+  posuwem roboczym (G01) — ruch szybki w materiał grozi kolizją. Posuw zejścia
+  jest zwykle mniejszy niż konturowy, bo pracują ostrza czołowe. Frez bez ostrza
+  przez środek wymaga rampy albo wejścia po spirali.
 see:
   - g01
   - g00
