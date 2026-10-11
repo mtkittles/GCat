@@ -95,6 +95,6 @@ export const f7_2: LessonDoc = {
 
   sources: [
     { id: "sinumerik", where: "technika podprogramów, PROC, P, RET, M17, katalogi programów" },
-    { id: "fanuc", where: "makro użytkownika G65 — porównanie" },
+    { id: "fanuc", where: "makro użytkownika G65 — porównanie", loc: "rozdz. 4, s. 87; rozdz. 5.6.1, s. 114; argumenty — rozdz. 5.3, s. 110–111" },
   ],
 };

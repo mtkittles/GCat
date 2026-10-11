@@ -65,7 +65,12 @@ pitfalls:
     Program z tokarki w systemie A przeniesiony na frezarkę albo tokarkę w
     systemie B/C zrobi coś zupełnie innego.
   - W G92 obroty muszą być stałe (G97). Przy G96 skok gwintu się rozjedzie.
-sources: []
+sources:
+  - id: fanuc
+    where: G90, G92, G94 na tokarce — format i odpowiedniki w systemach B i C
+    loc: >-
+      rozdz. 3.2, tab. 3.2, s. 78 (B — G77/G78/G79, C — G20/G21/G24); rozdz. 4,
+      s. 90; parametry 5130–5131 — rozdz. 7.2.22, s. 238
 example:
   src: |-
     G18 G21 G40 G99

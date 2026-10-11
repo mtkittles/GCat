@@ -57,7 +57,14 @@ pitfalls:
   - >-
     Programy O9000–O9999 bywają zablokowane parametrem przed edycją — to nie
     błąd programu.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      G65 P_ L_ — wywołanie makra z argumentami; G66 — wywołanie modalne;
+      zagnieżdżanie
+    loc: >-
+      rozdz. 4, s. 87; rozdz. 5.6.1–5.6.2, s. 114; argumenty — rozdz. 5.3, s.
+      110–111
 example:
   src: |-
     O1000

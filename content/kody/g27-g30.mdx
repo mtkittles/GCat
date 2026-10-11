@@ -57,6 +57,11 @@ sources:
   - id: sinumerik-one
     where: G74 i G75 — najazd na punkt referencyjny i stały
     loc: rozdz. Reference point approach (G74) oraz Fixed point approach (G75)
+  - id: fanuc
+    where: G30 — powrót do 2., 3. i 4. punktu referencyjnego
+    loc: >-
+      rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 83; współrzędne punktów —
+      parametry 1240–1243, rozdz. 7.2.8, s. 168
 example:
   src: |-
     G91 G30 P2 Z0 (os Z do punktu wymiany)

@@ -73,7 +73,17 @@ Zostało dla Kodów: rozdziały i strony instrukcji Fanuc i SINUMERIK dla kart �
 - Instrukcja jest zestawieniem — nie opisuje cykli (G71/G70, G76, G32) ani makr; lekcje o nich zostają bez stron do czasu sięgnięcia do DESCRIPTIONS (B-64602EN).
 - Brak w dokumencie (nie wpisujemy jako faktu): definicje M00–M09, M30, M98/M99 jako funkcji standardowych; parametr G94/G95 po włączeniu dla frezarki; parametr wyboru G98/G99; alarm za pominięty G43.
 
-Zostało dla Kodów: SINUMERIK (strony kart ★), lekcje bez stron (f0-*, f1-1, f1-2, f1-5, f2-1, f2-2, f2-4, f5, f6-3, f7-*, f8-1, t0-*, t1-1, t1-3, t2-1, t2-2, t4-2, t5-*, t6-*, t7-*, t8-1, t9-1), FALX w CYCLE95.
+Zostało dla Kodów: SINUMERIK (strony kart ★), FALX w CYCLE95.
+
+### Stan po paczce E (sprint 22)
+
+- Drugi wyciąg z B-64607EN/01: spis treści, formaty tokarskie (rozdz. 4, s. 83–92), makra i podprogramy (rozdz. 5), parametry cykli (rozdz. 7.2.22–7.2.23, 7.2.32), alarmy.
+- Źródło Fanuc ze stroną w 25 kolejnych kartach (cykle frezarskie i tokarskie, G10, G28, G30, G32/G33, G50, G52/G53, G65, G96/G97, G98/G99, M29, M98/M99) i w 25 kolejnych lekcjach (oraz M29 w F5.3).
+- Poprawka F7.1: zamiast niepotwierdzonego „na starszych Fanucach cztery poziomy” — 0i-F dopuszcza 15 poziomów wywołań podprogramów razem z makrami (rozdz. 5.6, s. 114); symulator przyjmuje cztery.
+- Rejestr źródeł: opis programowania to OPERATOR'S MANUAL B-64604EN (-1 tokarka, -2 frezarka), nie DESCRIPTIONS.
+- Bez strony Fanuc zostały lekcje F1.1, F1.2, F1.5, F2.2, F2.4, T1.1 — ta instrukcja nie opisuje formatu bloku, stanu po włączeniu ani funkcji M (M00–M09, M30). Format M98 z powtórzeniami (P/L/K) też jest poza nią.
+
+Zostało dla Kodów: SINUMERIK (strony kart ★); Fanuc — formaty M98 i funkcje M z OPERATOR'S MANUAL B-64604EN; FALX w CYCLE95.
 
 ## Zasady (bez zmian)
 

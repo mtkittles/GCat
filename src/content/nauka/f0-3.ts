@@ -113,7 +113,7 @@ export const f0_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "tablica przesunięć, G54–G59, G54.1, pomiar MEASURE" },
+    { id: "fanuc", where: "tablica przesunięć, G54–G59, G54.1, pomiar MEASURE", loc: "ekran przesunięć — rozdz. 1.6.3–1.6.4, s. 36–37; G54–G59 — rozdz. 3.1, tab. 3.1, s. 72, rozdz. 4, s. 87; G54.1 — rozdz. 3.1, tab. 3.1, s. 72, rozdz. 5.2, s. 107" },
     { id: "sinumerik", where: "przesunięcia nastawne G54–G57 i G505–G599, G500, frame bazowy" },
   ],
 };

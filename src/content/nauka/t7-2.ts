@@ -118,7 +118,7 @@ export const t7_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G32 na tokarce, systemy kodów" },
+    { id: "fanuc", where: "G32 na tokarce, systemy kodów", loc: "rozdz. 3.2, tab. 3.2, s. 75 (G32 w A, G33 w B i C); rozdz. 4, s. 84; parametry 3401#6/#7 — rozdz. 7.2.16, s. 200" },
     { id: "sinumerik", where: "G33, skok K" },
     { id: "sandvik", where: "metody dosuwu przy toczeniu gwintów" },
   ],

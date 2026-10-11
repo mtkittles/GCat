@@ -95,7 +95,7 @@ export const t0_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "przesunięcie przedmiotu na tokarce, pomiar korekcji" },
+    { id: "fanuc", where: "przesunięcie przedmiotu na tokarce, pomiar korekcji", loc: "ekran przesunięć — rozdz. 1.6.3–1.6.4, s. 36–37; ekran korekcji — rozdz. 1.6.1, s. 31" },
     { id: "sinumerik", where: "punkty M i W tokarki, pomiar detalu i narzędzia" },
   ],
 };

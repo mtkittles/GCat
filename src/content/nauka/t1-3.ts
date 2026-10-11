@@ -118,7 +118,7 @@ export const t1_3: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "stan modalny, G98/G99 na tokarce, G28" },
+    { id: "fanuc", where: "stan modalny, G98/G99 na tokarce, G28", loc: "rozdz. 3.2, tab. 3.2, s. 75–78; G98/G99 — rozdz. 4, s. 92; G28 — rozdz. 4, s. 83" },
     { id: "sinumerik", where: "G95, G74, koniec programu" },
   ],
 };

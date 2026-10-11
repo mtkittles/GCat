@@ -10,3 +10,12 @@ Jedna paczka, jeden PR (`sprint-22/paczka-d`).
 | G04 | opis źródła: adresy X i P (U niepotwierdzone) |
 
 Brak nowych zmiennych środowiskowych i zależności.
+
+## Paczka E (`sprint-22/paczka-e`)
+
+| Zakres | Zmiana |
+|---|---|
+| Karty (25) | nowy wpis źródła Fanuc z rozdziałem, stroną, parametrem i alarmem |
+| Lekcje (25 + F5.3) | `loc` we wpisach Fanuc |
+| F7.1 | poziomy zagnieżdżania według 0i-F (15, rozdz. 5.6, s. 114) |
+| Rejestr | OPERATOR'S MANUAL B-64604EN jako instrukcja z opisem programowania |

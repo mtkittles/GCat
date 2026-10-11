@@ -128,7 +128,7 @@ export const f0_1: LessonDoc = {
 
   sources: [
     { id: "iso841", where: "nazewnictwo osi, układ prawoskrętny, zwrot +Z" },
-    { id: "fanuc", where: "ekran pozycji: układ absolutny, względny i maszynowy" },
+    { id: "fanuc", where: "ekran pozycji: układ absolutny, względny i maszynowy", loc: "ekrany POS — rozdz. 1.3.1–1.3.3, s. 16–20" },
     { id: "sinumerik", where: "układy MCS i WCS, komentarze w programie" },
   ],
 };

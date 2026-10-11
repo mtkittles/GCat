@@ -51,6 +51,11 @@ sources:
     where: Q, płaszczyzna R i wycofanie w G83 (Haas)
     url: >-
       https://www.haascnc.com/service/codes-settings.type%3Dgcode.machine%3Dmill.value%3DG83.html
+  - id: fanuc
+    where: G80, G81, G83 — cykle wiercenia; luz przy G83 z parametru
+    loc: >-
+      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89; parametr 5115 — rozdz.
+      7.2.22, s. 238; alarm 0045 — rozdz. 8.1.1, s. 351
 example:
   src: |-
     G21 G90 G94 G17 G54

@@ -37,7 +37,7 @@ export const sources: Record<string, Source> = {
     title: "Series 0i-MODEL F — Operation and Maintenance Handbook (modele 0i-TF i 0i-MF)",
     edition: "01, 10/2016", number: "B-64607EN/01",
     control: "Fanuc 0i-F, kody ISO; tokarka w systemie A. Instrukcja nie wymienia 0i-F Plus — nowsze wersje sterowania mogą się różnić",
-    note: "Zakres: rozdz. 3 (tabele kodów G), 4 (format programu), 7 (parametry), 8 (alarmy). To zestawienie, nie opis cykli — szczegóły w instrukcji DESCRIPTIONS (B-64602EN) i PARAMETER MANUAL (B-64610EN). Miejsca (strony) dla lekcji i kart bez wpisanej strony do uzupełnienia.",
+    note: "Zakres: rozdz. 3 (tabele kodów G), 4 (format programu), 7 (parametry), 8 (alarmy). To zestawienie, nie opis cykli — szczegóły w OPERATOR'S MANUAL (B-64604EN, część tokarska B-64604EN-1, frezarska B-64604EN-2) i PARAMETER MANUAL (B-64610EN). Miejsca (strony) dla lekcji i kart bez wpisanej strony do uzupełnienia.",
   },
   sinumerik: {
     id: "sinumerik", short: "SINUMERIK — Podstawy programowania", author: "Siemens",

@@ -162,7 +162,7 @@ export const t9_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "G71, G70, G96, G50, korekcja promienia ostrza G41/G42" },
+    { id: "fanuc", where: "G71, G70, G96, G50, korekcja promienia ostrza G41/G42", loc: "rozdz. 3.2, tab. 3.2, s. 76–78; rozdz. 4, s. 85, 86, 90 i 92" },
     { id: "sinumerik", where: "G96 z limitem LIMS, korekcja promienia ostrza — porównanie" },
   ],
 };

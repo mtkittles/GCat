@@ -97,7 +97,7 @@ export const t0_2: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "programowanie średnicowe i promieniowe osi X" },
+    { id: "fanuc", where: "programowanie średnicowe i promieniowe osi X", loc: "parametr 1006#3 DIA — rozdz. 7.2.7, s. 166" },
     { id: "sinumerik", where: "DIAMON, DIAMOF, DIAM90" },
     { id: "jemielniak", where: "toczenie: głębokość skrawania, średnice" },
   ],

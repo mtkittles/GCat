@@ -115,6 +115,6 @@ export const f0_2: LessonDoc = {
 
   sources: [
     { id: "sinumerik", where: "punkty M, R, W i baza narzędzia, bazowanie, G74, G53 i SUPA" },
-    { id: "fanuc", where: "powrót do punktu referencyjnego, G28, G53, ekran pozycji" },
+    { id: "fanuc", where: "powrót do punktu referencyjnego, G28, G53, ekran pozycji", loc: "G28 — rozdz. 3.1, tab. 3.1, s. 71, rozdz. 4, s. 83; G53 — rozdz. 4, s. 87; ekran pozycji — rozdz. 1.3, s. 16–20" },
   ],
 };

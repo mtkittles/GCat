@@ -128,7 +128,7 @@ export const t8_1: LessonDoc = {
   ],
 
   sources: [
-    { id: "fanuc", where: "podprogramy na tokarce, przyrosty U i W" },
+    { id: "fanuc", where: "podprogramy na tokarce, przyrosty U i W", loc: "adresy U i W — rozdz. 4, s. 91; zagnieżdżanie — rozdz. 5.6, s. 114" },
     { id: "sinumerik", where: "podprogramy, P, IC, RET" },
   ],
 };

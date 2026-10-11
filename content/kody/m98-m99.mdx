@@ -35,7 +35,12 @@ pitfalls:
   - >-
     Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór
     „ucieka”.
-sources: []
+sources:
+  - id: fanuc
+    where: >-
+      zagnieżdżanie podprogramów — 15 poziomów razem z makrami; formatu M98 z
+      powtórzeniami ta instrukcja nie podaje
+    loc: rozdz. 5.6, s. 114; wywołanie kodem M — rozdz. 5.6.9, s. 116
 example:
   src: |-
     G21 G90 G94 G17 G54
