@@ -94,15 +94,16 @@ export function TopView() {
   const m = mapper(R, [20, 8, 328, 236]);
   const H = { x: 60, y: 20 };
   return (
-    <Fig id="f01top" code="XY" title="Płytka 80 × 50 z góry — zero w lewym dolnym narożniku" h={256} legend={["acc", "dim", "stock"]}
+    <Fig id="f01top" code="XY" title="Płytka 80 × 50 z góry (rzut XY, mm) — zero w lewym dolnym narożniku" h={256} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">H: X60 Y20</Code><Code k="con">P2: X80 Y0</Code><Code k="con">P3: X80 Y50</Code><Code k="con">P4: X0 Y50</Code></>}
-      caption={<>Od zera <b>W</b> idziesz najpierw wzdłuż X, potem wzdłuż Y. Siatka co 5 mm, opisy co 10 mm.</>}>
+      caption={<>Od zera <b>W</b> idziesz najpierw wzdłuż X, potem wzdłuż Y. Linie przerywane prowadzą wymiary X60 i Y20 do punktu H. Wymiary w mm, siatka co 5 mm, opisy co 10 mm.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
           <line x1={m.X(H.x)} y1={m.Y(0)} x2={m.X(H.x)} y2={m.Y(H.y)} className="p-cons" />
-          <line x1={m.X(0)} y1={m.Y(H.y)} x2={m.X(H.x)} y2={m.Y(H.y)} className="p-cons" />
+          <line x1={m.X(0)} y1={m.Y(H.y)} x2={m.X(H.x) + 14} y2={m.Y(H.y)} className="p-cons" />
+          <line x1={m.X(H.x)} y1={m.Y(0)} x2={m.X(H.x)} y2={m.Y(0) + 34} className="p-cons" />
           <Dim x1={m.X(0)} y1={m.Y(0)} x2={m.X(H.x)} y2={m.Y(0)} off={30} label="X60" c={c} lside={1} cls="t-mono t-acc t-b" />
           <Dim x1={m.X(H.x) + 10} y1={m.Y(0)} x2={m.X(H.x) + 10} y2={m.Y(H.y)} label="Y20" c={c} lside={1} cls="t-mono t-acc t-b" />
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="ne" cls="t-acc t-b" />
@@ -268,8 +269,8 @@ export function TableMotion() {
 export function MachinePoints() {
   return (
     <Fig id="f02pts" code="M" title="Punkty charakterystyczne frezarki — widok z przodu" h={258} legend={["acc", "cons", "stock"]}
-      notes={<><Code k="acc">M — zero maszyny</Code><Code k="acc">R — punkt referencyjny</Code><Code k="cut">W — zero detalu</Code><Code k="con">N — baza narzędzia</Code></>}
-      caption={<>M i R ustala producent, W — programista dla każdego zamocowania. Wektor od M do W to wartość zapisywana w rejestrze przesunięcia.</>}>
+      notes={<><Code k="acc">M — zero maszyny</Code><Code k="acc">R — punkt referencyjny</Code><Code k="cut">W — zero detalu</Code><Code k="con">N — odniesienie długości narzędzia</Code></>}
+      caption={<>Jeden przykład położenia M i R — na konkretnej maszynie podaje je jej dokumentacja. M i R ustala producent, W — programista dla każdego zamocowania. Wektor od M do W to wartość zapisywana w rejestrze przesunięcia.</>}>
       {(c) => (
         <g>
           <rect x={30} y={30} width={292} height={168} className="stock-out" />
@@ -345,12 +346,14 @@ export function DatumZero() {
     );
   };
   return (
-    <Fig id="f02dat" code="W" title="Zero detalu na przecięciu baz A i B" h={236} legend={["dim", "stock"]}
-      caption={<>Wymiary otworu liczone od baz A i B. Przy W w narożniku baz trafiają do programu bez zmian: <b>X60 Y20</b>. Przy W na środku trzeba liczyć: X20 Y−5.</>}>
+    <Fig id="f02dat" code="W" title="Zero detalu na przecięciu baz A i B (rzut XY, mm)" h={236} legend={["dim", "stock", "cons"]}
+      caption={<>Widok z góry. Linie osiowe otworu prowadzą do wymiarów 60 i 20 liczonych od baz A i B. Przy W w narożniku baz trafiają do programu bez zmian: <b>X60 Y20</b>. Przy W na środku trzeba liczyć: X20 Y−5.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
           <circle cx={m.X(60)} cy={m.Y(20)} r={5 * m.u} className="hole-top" />
+          <line x1={m.X(60)} y1={m.Y(20) + 8 * m.u} x2={m.X(60)} y2={m.Y(50) - 18} className="axis-c" />
+          <line x1={m.X(60) - 8 * m.u} y1={m.Y(20)} x2={m.X(80) + 18} y2={m.Y(20)} className="axis-c" />
           {flag(m.X(20), m.Y(0), "A", "down")}
           {flag(m.X(0), m.Y(38), "B", "left")}
           <Dim x1={m.X(0)} y1={m.Y(50)} x2={m.X(60)} y2={m.Y(50)} off={-14} label="60" c={c} />
@@ -370,9 +373,9 @@ export function EdgeFind() {
   const m = mapper(R, [16, 8, 328, 226]);
   const r = 5;
   return (
-    <Fig id="f03edge" code="G54" title="Czujnik krawędzi Ø10 — dotyk od lewej i od przodu" h={250} legend={["acc", "dim", "stock"]}
+    <Fig id="f03edge" code="G54" title="Czujnik krawędzi Ø10 — dotyk od lewej i od przodu (widok z góry)" h={250} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">X: −325 + 5 = −320</Code><Code k="acc">Y: −265 + 5 = −260</Code></>}
-      caption={<>W chwili styku środek czujnika jest o promień od krawędzi, po stronie ujemnej. Krawędź = pozycja maszynowa + r.</>}>
+      caption={<>Model pomiaru ręcznego czujnikiem cylindrycznym. W chwili styku środek czujnika jest o promień od krawędzi, po stronie ujemnej osi — w X i w Y. Krawędź = pozycja maszynowa + r. Cykl sondy pomiarowej uwzględnia promień sam.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(30)} width={48 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
@@ -384,6 +387,11 @@ export function EdgeFind() {
           <circle cx={m.X(22)} cy={m.Y(-r)} r={r * m.u} className="probe" />
           <circle cx={m.X(22)} cy={m.Y(-r)} r={2} className="pt" />
           <T x={m.X(22) + r * m.u + 6} y={m.Y(-r) + 4} cls="t-mono">MASZ. Y−265</T>
+          <Dim x1={m.X(22)} y1={m.Y(-r)} x2={m.X(22)} y2={m.Y(0)} off={-r * m.u - 10} label="r = 5" c={c} cls="t-mono t-acc t-b" />
+          <line x1={m.X(34)} y1={m.Y(-14)} x2={m.X(40)} y2={m.Y(-14)} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(40) + 4} y={m.Y(-14) + 4} cls="t-sm t-mono">+X</T>
+          <line x1={m.X(34)} y1={m.Y(-14)} x2={m.X(34)} y2={m.Y(-8)} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(34) - 4} y={m.Y(-8) - 2} anchor="end" cls="t-sm t-mono">+Y</T>
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="ne" cls="t-cut t-b" dot="pt-cut" />
         </g>
       )}
@@ -398,7 +406,7 @@ export function TwoOffsets() {
   const W = [{ x: -320, y: -260, g: "G54" }, { x: -150, y: -260, g: "G55" }];
   return (
     <Fig id="f03two" code="G54 G55" title="Dwa imadła, dwa zera, jeden program" h={244} legend={["acc", "stock"]}
-      caption={<>Rejestry przechowują wektory od M do każdego W. Program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2.</>}>
+      caption={<>Widok z góry, układ przykładowy (nie w skali całego stołu). Rejestry przechowują wektory od M do każdego W. Program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2. Przejazd między detalami — z wysokości, z której cały zespół narzędziowy minie oba zamocowania.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-410)} y={m.Y(10)} width={430 * m.u} height={300 * m.u} rx={6} className="panel-bg" />
