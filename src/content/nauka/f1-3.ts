@@ -9,7 +9,7 @@ export const f1_3: LessonDoc = {
 
   theory: [
     { t: "h", x: "Dwa sposoby podawania celu", id: "dwa-sposoby" },
-    { t: "p", x: "[[G90]] — **wymiary absolutne**: każda współrzędna to położenie punktu względem zera detalu W. [[G91]] — **wymiary przyrostowe**: każda współrzędna to odległość od miejsca, w którym narzędzie stoi w tej chwili." },
+    { t: "p", x: "[[G90]] — **wymiary absolutne**: każda współrzędna to położenie punktu względem zera detalu W. [[G91]] — **wymiary przyrostowe**: każda współrzędna to przyrost ze znakiem względem miejsca, w którym narzędzie stoi w tej chwili. Minus oznacza ruch w stronę ujemną osi." },
     { t: "p", x: "Analogia: G90 to adres „Polna 80”, który prowadzi w to samo miejsce bez względu na to, skąd wychodzisz. G91 to „idź 80 m prosto”, więc cel zależy wyłącznie od punktu startu." },
     { t: "diagram", id: "f13-absinc" },
     { t: "table", head: ["Odcinek", "G90 — cel", "G91 — przyrost"], rows: [
@@ -32,7 +32,7 @@ export const f1_3: LessonDoc = {
       "Odjazd o znaną wartość. `G91 G28 Z0.` z programu płytki znaczy: odjedź osią Z do punktu referencyjnego prosto w górę, bez ruchu w bok.",
       "Ruchy ustawiane przy maszynie krok po kroku od aktualnej pozycji.",
     ] },
-    { t: "note", kind: "tip", x: "Domyślnie pisz w G90. Błąd w jednym bloku G90 psuje jeden punkt, a w G91 przesuwa wszystkie następne." },
+    { t: "note", kind: "tip", x: "Domyślnie pisz w G90. Błędna współrzędna w G90 wpływa na tor do chwili, gdy dana oś dostanie nowe, poprawne położenie — blok z samym Y po błędnym X nadal jedzie w złym X. W G91 błąd przesuwa wszystkie następne punkty, bo każdy liczy się od poprzedniego." },
 
     { t: "h", x: "Tryb jest modalny", id: "modalny" },
     { t: "p", x: "G90 i G91 tworzą jedną grupę, więc obowiązuje ostatnio wywołany kod (lekcja F1.2). Po odcinku w G91 wróć do `G90`, zanim kolejne bloki zaczną podawać współrzędne od W." },
@@ -40,13 +40,18 @@ export const f1_3: LessonDoc = {
 
   worked: {
     title: "Zamień kontur z G90 na G91",
-    intro: "Sytuacja: frez stoi w zerze W, X0 Y0. Kontur z rysunku ma kolejne cele w G90: `X20. Y0.` → `X20. Y30.` → `X50. Y30.` → `X50. Y0.`. Zapisz go w G91 — każdy ruch jako przesunięcie od punktu, w którym frez właśnie stoi. Numery odpowiadają odcinkom na rysunku.",
+    intro: "Sytuacja: kontur z rysunku ma kolejne cele w G90: `X20. Y0.` → `X20. Y30.` → `X50. Y30.` → `X50. Y0.`. Zapisz go w G91 — każdy ruch jako przyrost od punktu, w którym frez właśnie stoi. Numery odpowiadają odcinkom na rysunku.",
+    data: [
+      ["Start", "frez nad zerem W: X0 Y0, na głębokości Z−3"],
+      ["Rachunek", "poprzednie położenie + przyrost = nowe położenie"],
+      ["Cel ćwiczenia", "zapis przyrostowy; geometria ta sama co w G90"],
+    ],
     fig: "f13-run",
     steps: [
-      { x: "Odcinek 1: cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian.", code: "X20." },
-      { x: "Odcinek 2: cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30.", code: "Y30." },
-      { x: "Odcinek 3: cel X50 Y30. Przyrost X: 50 − 20 = 30.", code: "X30." },
-      { x: "Odcinek 4: cel X50 Y0. Przyrost Y: 0 − 30 = −30.", code: "Y-30." },
+      { x: "Odcinek 1: cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian. Kontrola: X0 + 20 = X20.", code: "X20." },
+      { x: "Odcinek 2: cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30. Kontrola: Y0 + 30 = Y30.", code: "Y30." },
+      { x: "Odcinek 3: cel X50 Y30. Przyrost X: 50 − 20 = 30. Kontrola: X20 + 30 = X50.", code: "X30." },
+      { x: "Odcinek 4: cel X50 Y0. Przyrost Y: 0 − 30 = −30. Kontrola: Y30 + (−30) = Y0.", code: "Y-30." },
     ],
     result: "W G91: `X20.` → `Y30.` → `X30.` → `Y-30.`. Kontrola: suma przyrostów w X (20 + 30 = 50) daje końcowe X50, a w Y (30 − 30 = 0) końcowe Y0.",
   },
@@ -80,7 +85,7 @@ export const f1_3: LessonDoc = {
     { title: "Zapomniane G90 po G91", danger: true, x: "Po `G91 G28 Z0.` program wraca do skrawania blokiem `X20.`, myśląc o punkcie od W. Sterowanie odmierzy 20 mm od bieżącej pozycji. Dlatego w programie płytki zaraz po G28 stoi `G90`." },
     { title: "Błędy się sumują", x: "W G91 każdy blok zaczyna się tam, gdzie skończył poprzedni. Pomyłka w jednym bloku przesuwa cały dalszy tor, a nie tylko jeden punkt." },
     { title: "Z w G91", x: "`G91 Z-5.` to zejście o 5 mm od miejsca, w którym frez stoi, a nie na głębokość 5 mm pod Z0. Frez stojący na Z5. skończy na Z0." },
-    { title: "Zaokrąglenia w długich łańcuchach", x: "Przyrosty zaokrąglane do 0,001 mm w wielu blokach mogą się zsumować do wartości innej niż wymiar z rysunku. Wymiary tolerowane programuj w G90, od bazy." },
+    { title: "Zaokrąglenia w długich łańcuchach", x: "Przyrosty zaokrąglane do 0,001 mm w wielu blokach mogą się zsumować do wartości innej niż wymiar z rysunku. Wymiary tolerowane czytelniej programować w G90, od bazy — łatwiej je sprawdzić z rysunkiem. To praktyka programowania i kontroli, nie sposób na większą dokładność obrabiarki." },
   ],
 
   controllers: {

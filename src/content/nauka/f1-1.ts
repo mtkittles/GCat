@@ -9,7 +9,7 @@ export const f1_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Program to lista bloków", id: "bloki" },
-    { t: "p", x: "Program CNC to zwykły tekst. Każda linia to [[blok]], czyli jedno polecenie dla maszyny. Sterowanie czyta bloki po kolei, od góry: wykonuje blok i dopiero wtedy przechodzi do następnego." },
+    { t: "p", x: "Program CNC to zwykły tekst. Każda linia to [[blok]] — jednostka programu. Blok może zawierać kilka słów: ruch, posuw, obroty, funkcje pomocnicze. Sterowanie wykonuje bloki po kolei, od góry. W jakiej kolejności zadziałają funkcje z jednego bloku — np. M08 względem ruchu — ustala sterowanie i producent maszyny; nie musi to być kolejność, w jakiej czytasz słowa." },
     { t: "demo", mode: "mill", title: "Sterowanie wykonuje blok po bloku",
       src: "N10 G21 G90 G94 G17 G54\nN20 G00 X-20. Y10.\nN30 Z5.\nN40 G01 Z-5. F150\nN50 X-5. F400\nN60 Y40.\nN70 G00 Z5.\nN80 M30",
       caption: "Podświetlona linia to blok, który sterowanie właśnie wykonuje." },
@@ -25,8 +25,8 @@ export const f1_1: LessonDoc = {
       ["**G**", "funkcja przygotowawcza: rodzaj ruchu, tryb pracy", "`G01`"],
       ["**X Y Z**", "współrzędne celu", "`X60. Y20.`"],
       ["**I J K**, **R**", "parametry łuku", "`R15.`"],
-      ["**F**", "posuw", "`F300`"],
-      ["**S**", "obroty wrzeciona", "`S2500`"],
+      ["**F**", "prędkość posuwu (w G94 — mm/min)", "`F300`"],
+      ["**S**", "prędkość obrotowa wrzeciona (w kursie — obr/min)", "`S2500`"],
       ["**T**", "numer narzędzia", "`T1`"],
       ["**M**", "funkcja pomocnicza: wrzeciono, chłodziwo, koniec programu", "`M08`"],
       ["**H**, **D**", "numer rejestru korekcji", "`H1`"],
@@ -41,13 +41,18 @@ export const f1_1: LessonDoc = {
     ] },
 
     { t: "h", x: "Liczby i kropka dziesiętna", id: "kropka" },
-    { t: "p", x: "Na Sinumeriku `X60` znaczy 60 mm. Na Fanucu zależy to od parametru: bez kropki wartość może zostać policzona w najmniejszych przyrostach, czyli `X60` to 0,060 mm. Dlatego w programach na Fanuca wymiary (X, Y, Z, I, J, K, R) pisze się z kropką: `X60.`" },
-    { t: "note", kind: "warn", x: "Brak kropki nie wywołuje alarmu. Wartość jest po prostu 1000 razy mniejsza: `Z5` zamiast 5 mm nad detalem daje 0,005 mm, a ruch szybki na takiej wysokości kończy się na imadle." },
+    { t: "p", x: "Na Sinumeriku `X60` znaczy 60 mm. Na Fanucu zależy to od parametru 3401#0 (DPI): bez kropki wartość może zostać policzona w najmniejszym przyroście wejściowym — przy przyroście 0,001 mm `X60` to 0,060 mm. Dlatego w programach na Fanuca wymiary (X, Y, Z, I, J, K, R) pisze się z kropką: `X60.`" },
+    { t: "note", kind: "warn", x: "Brak kropki nie wywołuje alarmu. Przy przyroście 0,001 mm wartość jest po prostu 1000 razy mniejsza: `Z5` zamiast 5 mm nad detalem daje 0,005 mm, a ruch szybki na takiej wysokości kończy się na imadle." },
   ],
 
   worked: {
     title: "Przeczytaj blok słowo po słowie",
-    intro: "Sytuacja: frez Ø10 stoi obok płytki w X−20 Y10, już na głębokości Z−5. Następny blok programu to `N90 G01 X-5. F400`. Przeczytaj go słowo po słowie i powiedz, gdzie stanie frez. Numery odpowiadają numerom na rysunku.",
+    intro: "Następny blok programu to `N90 G01 X-5. F400`. Przeczytaj go słowo po słowie i powiedz, gdzie stanie frez. Numery odpowiadają numerom na rysunku.",
+    data: [
+      ["Półfabrykat", "84 × 54 — 2 mm naddatku na bok płytki 80 × 50; W w lewym dolnym narożniku konturu gotowego"],
+      ["Narzędzie", "frez Ø10"],
+      ["Stan przed blokiem", "frez obok półfabrykatu w X−20 Y10, na Z−5; aktywne G90"],
+    ],
     fig: "f11-read",
     steps: [
       { x: "Krok 1: numer bloku. To tylko etykieta, na ruch nie wpływa.", code: "N90" },
@@ -55,7 +60,7 @@ export const f1_1: LessonDoc = {
       { x: "Krok 3: cel w osi X — 5 mm na lewo od zera W. Y i Z nie ma w bloku, więc zostają Y10 i Z−5.", code: "X-5." },
       { x: "Krok 4: posuw — z jaką prędkością frez pokona ten odcinek.", code: "F400" },
     ],
-    result: "Całość: frez jedzie po prostej z X−20 do X−5 z posuwem 400 mm/min i staje krawędzią przy boku płytki. Dlaczego Y i Z zostają bez zmian, wyjaśnia lekcja F1.2.",
+    result: "Całość: frez jedzie po prostej z X−20 do X−5 z posuwem 400 mm/min. Na ostatnich 2 mm krawędź freza przechodzi przez naddatek i staje na konturze gotowym X0. Dlaczego Y i Z zostają bez zmian, wyjaśnia lekcja F1.2.",
   },
 
   practice: [
@@ -67,7 +72,8 @@ export const f1_1: LessonDoc = {
         { kind: "token", q: "Wskaż **funkcję pomocniczą**.", block: "N30 S2000 M03", answer: 2, why: "M03 włącza obroty wrzeciona w prawo — to funkcja M." },
         { kind: "token", q: "Wskaż słowo, które podaje cel w osi **Z**.", block: "N40 G00 Z5. M08", answer: 2, why: "Z5. — cel 5 mm nad zerem Z." },
         { kind: "gap", q: "Uzupełnij blok: ruch roboczy do X80 Y0 z posuwem 300 mm/min.", template: "G{0} X{1}. Y0. F{2}", answers: [["01", "1"], ["80"], ["300"]], why: "G01 to ruch roboczy, X80. to cel, F300 to posuw." },
-        { kind: "choice", q: "W bloku z przykładu zgubiła się kropka: `N90 G01 X-5 F400`. Fanuc bez zapisu kalkulatorowego (ustawienie parametru) czyta X-5 jako −0,005 mm. Co się stanie, gdy frez Ø10 stoi w X−20 Y10 na Z−5?", options: ["pojedzie do X−0,005 — krawędź freza wejdzie prawie 5 mm w płytkę", "sterowanie zgłosi alarm", "pojedzie do X−5", "nie ruszy się"], answer: 0, why: "Bez kropki wartość jest 1000 razy mniejsza: cel to X−0,005. Środek freza staje prawie w X0, a krawędź Ø10 sięga X+5 — w materiał. Brak kropki nie wywołuje alarmu." },
+        { kind: "choice", q: "W bloku z przykładu zgubiła się kropka: `N90 G01 X-5 F400`. Fanuc bez zapisu kalkulatorowego (parametr 3401#0), przy przyroście 0,001 mm, czyta X-5 jako −0,005 mm. Co się stanie, gdy frez Ø10 stoi w X−20 Y10 na Z−5?", options: ["pojedzie do X−0,005 — krawędź freza wejdzie prawie 5 mm w płytkę", "sterowanie zgłosi alarm", "pojedzie do X−5", "nie ruszy się"], answer: 0, why: "Bez kropki wartość jest 1000 razy mniejsza: cel to X−0,005. Środek freza staje prawie w X0, a krawędź Ø10 sięga X+5 — w materiał. Brak kropki nie wywołuje alarmu." },
+        { kind: "choice", q: "Punkt ma X40 Y10. Ktoś zamienił adresy i napisał `G01 X10. Y40.`. Gdzie pojedzie frez?", options: ["do innego punktu: 10 mm od zera w X i 40 mm w Y", "do tego samego punktu — kolejność adresów nie ma znaczenia", "sterowanie zgłosi alarm", "frez pojedzie tylko w X"], answer: 0, why: "Adres mówi, do której osi należy liczba. Zamiana X i Y przy punkcie niesymetrycznym prowadzi do innego miejsca — tu 30 mm w lewo i 30 mm w górę od właściwego." },
         { kind: "choice", q: "Który zapis na Fanucu na pewno oznacza 60 mm?", options: ["`X60`", "`X60.`", "`X0.60`", "`X6.0`"], answer: 1, why: "Kropka dziesiętna usuwa zależność od parametru." },
       ],
     },
@@ -106,18 +112,18 @@ export const f1_1: LessonDoc = {
       why: "Adres F i wartość 250." },
     { kind: "choice", q: "Dlaczego na Fanucu pisze się `Z5.` z kropką?",
       options: ["wymaga tego ISO 841", "bez kropki `Z5` może znaczyć 0,005 mm", "kropka oznacza ruch szybki", "dla czytelności, bez znaczenia"], answer: 1,
-      why: "Zależnie od parametru wartość bez kropki liczona jest w najmniejszych przyrostach." },
+      why: "Zależnie od parametru 3401#0 wartość bez kropki liczona jest w najmniejszym przyroście wejściowym." },
   ],
 
   summary: [
-    "Program to bloki czytane od góry. Blok to słowa, słowo to adres i wartość.",
+    "Program to bloki wykonywane od góry. Blok to jednostka programu złożona ze słów; słowo to adres i wartość.",
     "G ustawia rodzaj ruchu i tryby, M steruje maszyną, X Y Z to cel, F posuw, S obroty, T narzędzie.",
     "Komentarz: `( )` na Fanucu, `;` na Sinumeriku.",
-    "Na Fanucu wymiary zawsze z kropką.",
+    "Na Fanucu wymiary pisz z kropką — bez niej znaczenie liczby zależy od parametru 3401#0.",
   ],
 
   sources: [
-    { id: "fanuc", where: "format bloku, adresy, wprowadzanie kropki dziesiętnej, pomijanie bloku" },
+    { id: "fanuc", where: "format bloku, adresy, pomijanie bloku; zapis bez kropki — parametr 3401#0 DPI", loc: "format programu — rozdz. 4, s. 79; DPI — rozdz. 7.2.16, s. 200" },
     { id: "sinumerik", where: "struktura programu i bloku, komentarze, nazwy programów" },
   ],
 };

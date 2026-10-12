@@ -9,13 +9,13 @@ export const f1_2: LessonDoc = {
 
   theory: [
     { t: "h", x: "Słowa, które zostają", id: "zostaja" },
-    { t: "p", x: "Większość kodów G, a także F i S, to [[funkcja modalna|funkcje modalne]]: po wywołaniu działają w kolejnych blokach, dopóki nie zastąpi ich inne słowo z tej samej grupy. Dzięki temu nie trzeba powtarzać `G01` i `F200` w każdej linii." },
+    { t: "p", x: "Większość kodów G to [[funkcja modalna|funkcje modalne]]: po wywołaniu działają w kolejnych blokach, dopóki nie zastąpi ich inny kod z tej samej grupy. Osobna sprawa to wartości F i S: sterowanie pamięta ostatnio zadany posuw i obroty, dopóki nie wpiszesz nowych. Dzięki temu nie trzeba powtarzać `G01` i `F200` w każdej linii." },
     { t: "diagram", id: "f12-carry" },
     { t: "code", x: "G01 X10. Y0. F200\nG01 X50. Y0. F200\nG01 X50. Y30. F200", caption: "Pełny zapis." },
     { t: "code", x: "G01 X10. Y0. F200\nX50.\nY30.", caption: "To samo krócej. Współrzędna, która się nie zmienia, też nie musi być powtarzana." },
 
     { t: "h", x: "Grupy", id: "grupy" },
-    { t: "p", x: "Kody G są podzielone na grupy. W każdej grupie aktywny jest dokładnie jeden kod, a nowy wyłącza poprzedni. Kody z różnych grup mogą stać w jednym bloku." },
+    { t: "p", x: "Kody G są podzielone na grupy. W grupie modalnej aktywny jest jeden kod, a nowy wyłącza poprzedni. Wyjątkiem jest grupa 00 — kody jednorazowe, które po swoim bloku nie zostają aktywne. Kody z różnych grup mogą stać w jednym bloku." },
     { t: "table", head: ["Grupa", "Kody", "Co wybiera"], rows: [
       ["ruch", "`G00` `G01` `G02` `G03`", "rodzaj ruchu"],
       ["wymiary", "`G90` `G91`", "absolutne czy przyrostowe"],
@@ -35,9 +35,14 @@ export const f1_2: LessonDoc = {
   worked: {
     title: "Ustal stan w linii 5",
     intro: "Sytuacja: po `G00 G43 H1 Z50.` narzędzie stoi na Z50. Dalej fragment programu płytki: (1) `G90 G54 G17`, (2) `G00 X-20. Y10.`, (3) `Z5.`, (4) `G01 Z-5. F150`, (5) `X-5. F400`. Co obowiązuje w linii 5 i gdzie stoi frez po jej wykonaniu? Numery na rysunku to numery linii.",
+    data: [
+      ["Start", "po `G00 G43 H1 Z50.` frez stoi nad W (X0 Y0) na Z50"],
+      ["Rysunek", "rzut XZ (widok z przodu); od linii 2 Y10 się nie zmienia"],
+      ["Półfabrykat", "zaczyna się na X−2 (2 mm naddatku)"],
+    ],
     fig: "f12-run",
     steps: [
-      { x: "Linie 2 i 3: G00 z linii 2 działa też w linii 3, choć jej nie ma — dlatego zejście na Z5 jest ruchem szybkim.", code: "G00" },
+      { x: "Linie 2 i 3: G00 z linii 2 działa też w linii 3, mimo że kod G00 nie został ponownie zapisany — dlatego zejście na Z5 jest ruchem szybkim.", code: "G00" },
       { x: "Linia 4: G01 zastępuje G00 w grupie ruchu, F150 ustawia posuw.", code: "G01 F150" },
       { x: "Linia 5: brak kodu ruchu — działa G01 z linii 4. F400 z tej linii zastępuje F150.", code: "G01 F400" },
       { x: "Wymiary i układ: G90 i G54 z linii 1, nic ich nie zmieniło.", code: "G90 G54" },
@@ -50,12 +55,13 @@ export const f1_2: LessonDoc = {
     {
       kind: "state",
       intro: "Wskaż dowolną linię, żeby zobaczyć stan sterowania po jej wykonaniu. Wyróżnione pola zmieniły się właśnie w tej linii.",
-      program: "G90 G54 G17\nT1 M06\nS2500 M03\nG00 X-20. Y10.\nZ5.\nG01 Z-5. F150\nX-5. F400\nY40.\nG02 X10. Y55. R15.\nG01 X70.\nG00 Z5.\nG91 G28 Z0.\nG90\nM05",
+      program: "G90 G54 G17\nT1 M06\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nZ5.\nG01 Z-5. F150\nX-5. F400\nY40.\nG02 X10. Y55. R15.\nG01 X70.\nG00 Z5.\nG91 G28 Z0.\nG90\nM05",
     },
     {
       kind: "drill",
       intro: "Sprawdź, czy przewidzisz stan bez podglądu.",
       questions: [
+        { kind: "choice", q: "W przykładzie: jaki tryb ruchu i posuw obowiązują tuż przed linią 4 (`G01 Z-5. F150`)?", options: ["G00, posuwu jeszcze nie zadano", "G01 z F150", "G01 bez posuwu", "żaden tryb nie jest aktywny"], answer: 0, why: "Przed linią 4 działa G00 z linii 2, a F jeszcze nie padło. Linia 4 sama ustawia G01 i F150 — dlatego musi je zawierać." },
         { kind: "choice", q: "Po `G01 Z-5. F150` stoi blok `X-5.`. Jakim ruchem pojedzie frez?",
           options: ["G00", "G01 z F150", "alarm — brak G w bloku", "G01 bez posuwu"], answer: 1, why: "G01 i F150 są modalne i obowiązują dalej." },
         { kind: "token", q: "W bloku `X-5. F400` wskaż słowo, które **zmienia stan modalny**.", block: "X-5. F400", answer: 1,
@@ -65,7 +71,7 @@ export const f1_2: LessonDoc = {
         { kind: "choice", q: "W przykładzie ktoś skrócił linię 5 do samego `X-5.`. Z jakim posuwem frez dojedzie do płytki?", options: ["F150 — z linii 4", "F400", "ruchem szybkim", "alarm — brak F"], answer: 0, why: "F jest modalne: bez nowego F obowiązuje ostatnie, czyli F150 z zejścia. Dojazd będzie wolniejszy, niż zakładano — to nie błąd składni, tylko wolniejsza obróbka." },
         { kind: "choice", q: "Fanuc, blok `G00 G01 X10.`. Który kod zadziała?",
           options: ["G00", "G01 — ostatni z tej samej grupy", "oba po kolei", "żaden"], answer: 1,
-          why: "Fanuc wykonuje ostatni kod z grupy. Taki zapis to jednak prawie zawsze pomyłka." },
+          why: "Fanuc 0i-F wykonuje ostatni kod z tej samej grupy (podręcznik, rozdz. 3). Inne sterowania mogą zgłosić alarm, a taki zapis to prawie zawsze pomyłka." },
       ],
     },
   ],
@@ -107,13 +113,14 @@ export const f1_2: LessonDoc = {
 
   summary: [
     "Modalne słowo działa, dopóki nie zastąpi go słowo z tej samej grupy.",
-    "W grupie aktywny jest zawsze jeden kod. Kody z różnych grup łączysz w jednym bloku.",
+    "W grupie modalnej aktywny jest jeden kod; grupa 00 to kody jednorazowe. Kody z różnych grup łączysz w jednym bloku.",
+    "F i S to zapamiętane wartości, nie grupy kodów G — obowiązują do następnego F albo S.",
     "`G04`, `G28` i `G53` działają tylko w swoim bloku.",
     "Nie polegaj na stanie sterowania — tryby ustawia program.",
   ],
 
   sources: [
-    { id: "fanuc", where: "grupy kodów G, kody modalne i jednorazowe, stan po włączeniu" },
+    { id: "fanuc", where: "grupy kodów G, kody modalne i jednorazowe (grupa 00), dwa kody jednej grupy w bloku, stan po włączeniu", loc: "rozdz. 3, s. 69; tab. 3.1, s. 71–73" },
     { id: "sinumerik", where: "tabela funkcji G, działanie modalne i blokowe" },
   ],
 };
