@@ -13,7 +13,7 @@ export const f1_4: LessonDoc = {
     { t: "diagram", id: "f14-units" },
     { t: "code", x: "1 cal = 25,4 mm\nG20 X2.        →  2 × 25,4 = 50,8 mm\nG20 G94 F10.   →  10 × 25,4 = 254 mm/min" },
     { t: "p", x: "W Polsce rysunki są prawie zawsze w milimetrach, więc programy zaczynają się od `G21`. Cale spotkasz przy detalach z rysunków amerykańskich, np. w lotnictwie." },
-    { t: "note", kind: "warn", x: "Jednostki ustawia się raz, na początku programu, zanim padnie pierwsza współrzędna. Zmiana w środku programu dotyczy wszystkich dalszych liczb, także tych w rejestrach, które program wywołuje." },
+    { t: "note", kind: "warn", x: "Jednostki ustawia się raz, na początku programu, zanim padnie pierwsza współrzędna. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak po przełączeniu są traktowane wartości w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów — na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu." },
 
     { t: "h", x: "Płaszczyzna pracy", id: "plaszczyzny" },
     { t: "p", x: "Trzy kody wybierają płaszczyznę: `G17` — XY, `G18` — ZX, `G19` — YZ. Płaszczyzna nie wpływa na ruchy po prostej (G00, G01). Decyduje o trzech rzeczach:" },
@@ -23,13 +23,18 @@ export const f1_4: LessonDoc = {
       "wzdłuż której osi pracują cykle wiercenia — prostopadle do płaszczyzny.",
     ] },
     { t: "diagram", id: "g17-g19" },
-    { t: "p", x: "Na frezarce pionowej niemal zawsze pracujesz w `G17`: łuki w widoku z góry, wiercenie w osi Z. `G18` to płaszczyzna tokarki (ścieżka Toczenie) i rzadkich łuków w pionie na frezarce." },
+    { t: "p", x: "Na frezarce pionowej najczęściej pracujesz w `G17`: łuki w widoku z góry, wiercenie w osi Z. `G18` to płaszczyzna tokarki (ścieżka Toczenie) i rzadkich łuków w pionie na frezarce. Którą płaszczyznę sterowanie wybiera po włączeniu albo resecie, ustala parametr — dlatego blok startowy w kursie ustawia `G17` jawnie (lekcja F1.2)." },
     { t: "note", kind: "info", x: "Kierunek łuku G02/G03 ocenia się, patrząc na płaszczyznę od strony dodatniej osi do niej prostopadłej: dla G17 z góry, od +Z." },
   ],
 
   worked: {
     title: "Rysunek w calach",
-    intro: "Sytuacja: rysunek z zagranicznego zamówienia jest w calach. Środek otworu leży 1,5″ od lewej krawędzi i 0,75″ od dolnej, zero W w lewym dolnym narożniku. Możesz programować w calach albo przeliczyć wymiary na milimetry — rysunek pokazuje oba zapisy.",
+    intro: "Sytuacja: rysunek z zagranicznego zamówienia jest w calach. Możesz programować w calach albo przeliczyć wymiary na milimetry — rysunek pokazuje oba zapisy.",
+    data: [
+      ["Rysunek", "w calach; środek otworu 1,5″ od lewej krawędzi i 0,75″ od dolnej"],
+      ["Zero W", "lewy dolny narożnik, widok z góry"],
+      ["Przelicznik", "1″ = 25,4 mm — dotyczy wymiarów i posuwu F"],
+    ],
     fig: "f14-hole",
     steps: [
       { x: "Wariant calowy: program zaczyna się od G20, wartości przepisujesz z rysunku.", code: "G20 … X1.5 Y0.75" },
@@ -37,7 +42,7 @@ export const f1_4: LessonDoc = {
       { x: "Wariant metryczny, Y: 0,75 × 25,4 = 19,05 mm.", code: "Y19.05" },
       { x: "Program metryczny zaczyna się od G21.", code: "G21 … X38.1 Y19.05" },
     ],
-    result: "Oba programy trafią w ten sam punkt. Wybierz jeden system dla całego programu — mieszanie jednostek daje detal 25,4 razy za mały albo za duży.",
+    result: "Oba programy trafią w ten sam punkt. Wybierz jeden system dla całego programu i przelicz także posuw: F6. w calach na minutę to 152,4 mm/min. Mieszanie jednostek daje wymiary 25,4 razy za małe albo za duże.",
   },
 
   practice: [
@@ -57,6 +62,7 @@ export const f1_4: LessonDoc = {
         { kind: "token", q: "Wskaż słowo, które ustawia **jednostki**.", block: "G90 G21 G17 G54", answer: 1, why: "G21 — milimetry." },
         { kind: "gap", q: "G20 jest aktywne. Ile milimetrów to `X3.`?", template: "{0} mm", answers: [["76.2", "76,2"]], why: "3 × 25,4 = 76,2 mm." },
         { kind: "gap", q: "Rysunek w calach: 2,0″. Zapisz to w programie z G21.", template: "X{0}", answers: [["50.8", "50,8"]], why: "2 × 25,4 = 50,8." },
+        { kind: "gap", q: "Program calowy ma posuw `F8.` (cale na minutę, G94). Jaki posuw wpiszesz po przejściu na G21?", template: "F{0}", answers: [["203.2", "203,2"]], why: "8 × 25,4 = 203,2 mm/min. Posuw przelicza się tak samo jak wymiary." },
         { kind: "choice", q: "Program z przykładu ma w bloku startowym `G21`, ale ktoś przepisał wymiary wprost z rysunku: `X1.5 Y0.75`. Gdzie stanie wiertło?", options: ["1,5 mm i 0,75 mm od narożnika W — przy samej krawędzi", "w środku otworu, jak na rysunku", "alarm — niezgodne jednostki", "38,1 mm od W"], answer: 0, why: "Sterowanie nie zna jednostek rysunku. Przy G21 słowo `X1.5` to 1,5 mm, więc otwór wypadnie przy narożniku, 25,4 razy bliżej W niż na rysunku." },
         { kind: "choice", q: "Frezarka pionowa, kontur w widoku z góry z łukami. Jaka płaszczyzna?", options: ["G17", "G18", "G19", "bez znaczenia"], answer: 0, why: "Widok z góry to płaszczyzna XY — G17." },
       ],
@@ -93,11 +99,12 @@ export const f1_4: LessonDoc = {
     "G21 — milimetry, G20 — cale. Ustawia się je raz, na początku programu.",
     "1 cal = 25,4 mm. Jednostki zmieniają też znaczenie posuwu F.",
     "G17 (XY), G18 (ZX), G19 (YZ) decydują o łukach, korekcji promienia i osi wiercenia.",
-    "Na frezarce pionowej pracujesz zwykle w G17 — blok startowy w kursie to ustawia.",
+    "Na frezarce pionowej pracujesz zwykle w G17. Stan po włączeniu ustala parametr, więc blok startowy w kursie ustawia G17 jawnie.",
   ],
 
   sources: [
-    { id: "fanuc", where: "G20/G21, wybór płaszczyzny G17–G19", loc: "rozdz. 3.1, tab. 3.1, s. 71" },
+    { id: "fanuc", where: "G20/G21, wybór płaszczyzny G17–G19; stan po włączeniu zależny od parametrów", loc: "rozdz. 3, s. 69; tab. 3.1, s. 71" },
+    { id: "haas-workbook", where: "Setting 9 — jednostki maszyny a G20/G21 programu", loc: "s. 44" },
     { id: "sinumerik", where: "G70/G71, G700/G710, płaszczyzny robocze" },
   ],
 };

@@ -24,14 +24,14 @@ export const f1_5: LessonDoc = {
     { t: "note", kind: "info", x: "Profil kursu: frezarka pionowa, trzy osie, zapis Fanuc (ISO), milimetry. Ten zestaw kodów to start programów w kursie, a nie lista bezpieczna na każdej obrabiarce. Producent maszyny może wymagać innych kodów albo innej kolejności — sprawdź to w jej instrukcji, zanim przeniesiesz program." },
 
     { t: "h", x: "Szkielet programu", id: "szkielet" },
-    { t: "p", x: "Nagłówek z komentarzami opisuje detal, zero i narzędzia — operator czyta go przed uruchomieniem. Sekcja obróbki to jedyna część, która naprawdę zmienia się z detalu na detal." },
+    { t: "p", x: "Nagłówek z komentarzami opisuje detal, zero i narzędzia — operator czyta go przed uruchomieniem. Szkielet programu jest podobny dla wielu detali; narzędzie, rejestr H, baza i wysokości dobiera się do operacji." },
 
     { t: "h", x: "Zatrzymania i koniec", id: "koniec" },
     { t: "table", head: ["Kod", "Działanie"], rows: [
       ["`M00`", "stop programu. Wznowienie przyciskiem CYCLE START."],
       ["`M01`", "stop warunkowy — tylko przy włączonym przełączniku [[Optional Stop]]."],
       ["`M02`", "koniec programu."],
-      ["`M30`", "koniec programu i powrót na jego początek. Standard w nowych programach."],
+      ["`M30`", "koniec programu. Czy kursor wraca na początek programu, ustala parametr (Fanuc 0i-F: 3404#4). Standard w nowych programach."],
     ] },
     { t: "p", x: "Przed `M30` narzędzie odjeżdża w Z na bezpieczną wysokość albo do punktu referencyjnego, wrzeciono się zatrzymuje, a jeśli program używał G91 — przywraca G90. Operator otwiera wtedy drzwi przy narzędziu daleko od detalu." },
     { t: "note", kind: "tip", x: "`M01` po każdym narzędziu to dobry zwyczaj przy pierwszej sztuce. Z włączonym Optional Stop operator sprawdza detal po każdej operacji, przy produkcji wyłącza przełącznik i program idzie bez przerw." },
@@ -39,7 +39,13 @@ export const f1_5: LessonDoc = {
 
   worked: {
     title: "Zbuduj początek i koniec programu płytki",
-    intro: "Sytuacja: nowy program płytki 80 × 50 ma działać na maszynie, na której poprzedni program mógł zostawić G91, G95 albo aktywną korekcję. Zero W w lewym dolnym narożniku, frez Ø10 jako T1, obroty 2500. Zbuduj początek i koniec programu — rysunek pokazuje kolejność sekcji.",
+    intro: "Sytuacja: nowy program płytki ma działać na maszynie, na której poprzedni program mógł zostawić G91, G95 albo aktywną korekcję. Zbuduj początek i koniec programu — rysunek pokazuje kolejność sekcji.",
+    data: [
+      ["Maszyna", "frezarka pionowa, 3 osie, zapis Fanuc — profil kursu"],
+      ["Detal", "płytka 80 × 50 (półfabrykat 84 × 54), zero W w lewym dolnym narożniku konturu gotowego"],
+      ["Narzędzie", "frez Ø10 jako T1, H1, S2500"],
+      ["Stan wejściowy", "nieznany — mógł zostać po poprzednim programie"],
+    ],
     fig: "f15-skeleton",
     steps: [
       { x: "Nagłówek: numer programu i opis w komentarzu — operator czyta go przed uruchomieniem.", code: "O1000 (PLYTKA)" },
@@ -90,7 +96,7 @@ export const f1_5: LessonDoc = {
 
   controllers: {
     rows: [
-      ["Kasowanie korekcji długości", "`G49`", "`D0` albo brak aktywnego D"],
+      ["Kasowanie korekcji długości", "`G49`", "`D0`; stan bez zapisanego D zależy od ustawień maszyny"],
       ["Kasowanie cyklu", "`G80`", "`MCALL` bez nazwy cyklu"],
       ["Koniec programu", "`M30`", "`M30` lub `M2`"],
       ["Odjazd do punktu referencyjnego", "`G91 G28 Z0.`", "`G74 Z1=0`"],
@@ -102,7 +108,7 @@ export const f1_5: LessonDoc = {
   quiz: [
     { kind: "choice", review: "F1.4", q: "Które kody ustawiają milimetry i płaszczyznę XY?", options: ["`G20 G18`", "`G21 G17`", "`G21 G19`", "`G90 G17`"], answer: 1, why: "G21 — milimetry, G17 — XY." },
     { kind: "choice", q: "Po co w bloku startowym jest `G80`?", options: ["włącza chłodziwo", "kasuje cykl wiercenia, który mógł zostać aktywny", "ustawia wymiary absolutne", "kończy program"], answer: 1, why: "Aktywny cykl wierciłby kolejny otwór przy ruchu XY zapisanym bez G00/G01." },
-    { kind: "choice", q: "Czym różni się `M30` od `M02` w nowych programach?", options: ["M30 kończy i wraca na początek programu", "M02 nie zatrzymuje wrzeciona", "M30 działa tylko na Fanucu", "nie ma różnicy"], answer: 0, why: "M30 kończy program i przewija go na początek." },
+    { kind: "choice", q: "Czym zwykle różni się `M30` od `M02` w nowych programach?", options: ["M30 kończy i wraca na początek programu", "M02 nie zatrzymuje wrzeciona", "M30 działa tylko na Fanucu", "nie ma różnicy"], answer: 0, why: "M30 kończy program i zwykle przewija go na początek. Na Fanucu 0i-F powrót kursora po M30 i M02 ustalają parametry 3404#4 i 3404#5." },
     { kind: "token", q: "Wskaż kod, który **zawsze** zatrzymuje program.", block: "M01 M05 M00 M09", answer: 2, why: "M00 — stop bezwarunkowy. M05 zatrzymuje tylko wrzeciono." },
     { kind: "order", q: "Ułóż zakończenie programu.", items: ["M30", "G00 Z5.", "G90", "M05", "G91 G28 Z0."], answer: [1, 3, 4, 2, 0],
       why: "Odjazd od detalu, stop wrzeciona, odjazd do R, powrót do G90, koniec." },

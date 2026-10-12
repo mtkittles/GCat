@@ -6,7 +6,7 @@ const COL: Record<string, string> = { N: "var(--muted)", G: "var(--cm-g)", X: "v
 
 /* ================= F1.1: anatomia bloku ================= */
 export function BlockAnatomy() {
-  const words = ["N40", "G01", "X60", "Y20", "F300", "M08"];
+  const words = ["N40", "G01", "X60.", "Y20.", "F300", "M08"];
   const cw = 9.3, pad = 12, gap = 6, y = 62, h = 30;
   const widths = words.map((w) => w.length * cw + pad);
   const total = widths.reduce((a, b) => a + b, 0) + gap * (words.length - 1);
@@ -26,7 +26,7 @@ export function BlockAnatomy() {
   const X = box[2];
   return (
     <Fig id="f11blk" code="N G X F M" title="Jeden blok, sześć słów" h={186}
-      caption={<>Każde słowo to <b>adres</b> (litera) i <b>wartość</b> (liczba). Kolejność słów w bloku nie zmienia jego znaczenia, ale przyjęty porządek ułatwia czytanie.</>}>
+      caption={<>Każde słowo to <b>adres</b> (litera) i <b>wartość</b> (liczba). Wymiary zapisane z kropką, jak w programach kursu. Zwykle kolejność słów nie zmienia znaczenia bloku, ale przyjęty porządek ułatwia czytanie; kolejność działania M08 względem ruchu ustala sterowanie.</>}>
       {() => (
         <g>
           <T x={X.x + 12} y={22} anchor="end" cls="t-acc t-sm t-b">adres</T>
@@ -136,11 +136,13 @@ export function BlockRead() {
   const m = mapper(R, [10, 8, 340, 186]);
   const r = 5;
   return (
-    <Fig id="f11rd" code="N90" title="N90 G01 X-5. F400 — co zrobi frez" h={206} legend={["cut", "stock"]}
+    <Fig id="f11rd" code="N90" title="N90 G01 X-5. F400 — co zrobi frez" h={206} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">N90 G01 X-5. F400</Code></>}
-      caption={<>Widok z góry. Przed blokiem frez Ø10 stoi w X−20 Y10 na Z−5, obok płytki. 1 — N90 to tylko etykieta. 2 — G01: ruch roboczy po prostej. 3 — X−5: cel w osi X; Y10 i Z−5 zostają, bo blok ich nie podaje. 4 — F400: prędkość ruchu 400 mm/min. Krawędź freza staje przy boku płytki w X0.</>}>
+      caption={<>Widok z góry. Przed blokiem frez Ø10 stoi w X−20 Y10 na Z−5, obok płytki. 1 — N90 to tylko etykieta. 2 — G01: ruch roboczy po prostej. 3 — X−5: cel w osi X; Y10 i Z−5 zostają, bo blok ich nie podaje. 4 — F400: prędkość ruchu 400 mm/min. Półfabrykat zaczyna się na X−2: na ostatnich 2 mm drogi krawędź freza przechodzi przez naddatek i staje na konturze gotowym X0.</>}>
       {(c) => (
         <g>
+          <rect x={m.X(-2)} y={m.Y(30)} width={32 * m.u} height={32 * m.u} className="allow" />
+          <rect x={m.X(0)} y={m.Y(30)} width={30 * m.u} height={30 * m.u} style={{ fill: "var(--panel)" }} />
           <rect x={m.X(0)} y={m.Y(30)} width={30 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
           <T x={m.X(15)} y={m.Y(22)} anchor="middle" cls="t-mut">płytka</T>
           <circle cx={m.X(-20)} cy={m.Y(10)} r={r * m.u} className="tool" opacity={0.45} />
@@ -168,18 +170,19 @@ export function ModalRun() {
   const R: [number, number, number, number] = [-34, 22, -12, 56];
   const m = mapper(R, [10, 8, 340, 336]);
   return (
-    <Fig id="f12rn" code="modal" title="Linie 2–5 — widok z przodu" h={352} legend={["rap", "cut", "stock"]}
+    <Fig id="f12rn" code="modal" title="Linie 2–5 — widok z przodu" h={352} legend={["rap", "cut", "stock", "allow"]}
       notes={<><Code k="rap">2  G00 X-20. Y10.</Code><Code k="rap">3  Z5.</Code><Code k="cut">4  G01 Z-5. F150</Code><Code k="cut">5  X-5. F400</Code></>}
-      caption={<>Narzędzie zaczyna na Z50 po <code>G43 H1 Z50.</code> 2 — G00 nad punkt X−20. 3 — linia bez kodu ruchu: działa G00 z linii 2. 4 — G01 i F150 zmieniają stan. 5 — znów bez kodu ruchu: działa G01 z linii 4, a F400 zastępuje F150.</>}>
+      caption={<>Rzut XZ (widok z przodu); od linii 2 Y10 się nie zmienia. Narzędzie zaczyna nad W (X0 Y0) na Z50 po <code>G00 G43 H1 Z50.</code> 2 — G00 nad punkt X−20 (w tym rzucie nie widać ruchu w Y). 3 — linia bez kodu ruchu: działa G00 z linii 2. 4 — G01 i F150 zmieniają stan. 5 — znów bez kodu ruchu: działa G01 z linii 4, a F400 zastępuje F150.</>}>
       {(c) => (
         <g>
+          <rect x={m.X(-2)} y={m.Y(0)} width={2 * m.u} height={12 * m.u} className="allow" />
           <rect x={m.X(0)} y={m.Y(0)} width={22 * m.u} height={12 * m.u} fill={c.hatch} className="p-con" />
           <T x={m.X(11)} y={m.Y(-6) + 4} anchor="middle" cls="t-mut t-sm">płytka</T>
           <line x1={m.X(-34)} y1={m.Y(0)} x2={m.X(22)} y2={m.Y(0)} className="p-cons" strokeDasharray="3 3" />
           <T x={m.X(21)} y={m.Y(0) - 4} anchor="end" cls="t-mut t-sm">Z0</T>
-          <line x1={m.X(14)} y1={m.Y(50)} x2={m.X(-20) + 3} y2={m.Y(50)} className="p-rap thick" markerEnd={c.a("rap")} />
+          <line x1={m.X(0)} y1={m.Y(50)} x2={m.X(-20) + 3} y2={m.Y(50)} className="p-rap thick" markerEnd={c.a("rap")} />
           <T x={m.X(15)} y={m.Y(50) + 4} cls="t-mono t-sm">Z50</T>
-          <Step x={m.X(0)} y={m.Y(50) - 13} n={2} />
+          <Step x={m.X(-10)} y={m.Y(50) - 13} n={2} />
           <line x1={m.X(-20)} y1={m.Y(50)} x2={m.X(-20)} y2={m.Y(5) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <Step x={m.X(-20) - 14} y={m.Y(28)} n={3} />
           <line x1={m.X(-20)} y1={m.Y(5)} x2={m.X(-20)} y2={m.Y(-5) - 3} className="p-cut thick" markerEnd={c.a("cut")} />
@@ -232,18 +235,20 @@ export function InchHole() {
   const R: [number, number, number, number] = [-16, 64, -14, 34];
   const m = mapper(R, [10, 8, 340, 196]);
   return (
-    <Fig id="f14ih" code="G20 G21" title="Otwór z rysunku calowego" h={214} legend={["dim", "stock"]}
+    <Fig id="f14ih" code="G20 G21" title="Otwór z rysunku calowego (wymiary: cale = mm)" h={214} legend={["dim", "stock"]}
       notes={<><Code k="acc">G20 … X1.5 Y0.75</Code><Code k="cut">G21 … X38.1 Y19.05</Code></>}
-      caption={<>Ten sam punkt w dwóch zapisach: wymiar z rysunku w calach i po przeliczeniu × 25,4 na milimetry. Program wybiera jeden system i ustawia go w bloku startowym.</>}>
+      caption={<>Widok z góry. Linie osiowe otworu prowadzą do obu wymiarów. Ten sam punkt w dwóch zapisach: wymiar z rysunku w calach i po przeliczeniu × 25,4 na milimetry. Program wybiera jeden system i ustawia go w bloku startowym; posuw F przelicza się tak samo.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(30)} width={60 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
           <circle cx={m.X(38.1)} cy={m.Y(19.05)} r={3 * m.u} className="panel-bg" style={{ stroke: "var(--ink-2)" }} />
-          <line x1={m.X(38.1) - 8} y1={m.Y(19.05)} x2={m.X(38.1) + 8} y2={m.Y(19.05)} className="p-ext" />
-          <line x1={m.X(38.1)} y1={m.Y(19.05) - 8} x2={m.X(38.1)} y2={m.Y(19.05) + 8} className="p-ext" />
+          <line x1={m.X(0) - 76} y1={m.Y(19.05)} x2={m.X(38.1) + 3 * m.u + 8} y2={m.Y(19.05)} className="axis-c" />
+          <line x1={m.X(38.1)} y1={m.Y(19.05) - 3 * m.u - 8} x2={m.X(38.1)} y2={m.Y(0) + 26} className="axis-c" />
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-b" dot="pt-cut" />
           <Dim c={c} x1={m.X(0)} y1={m.Y(0)} x2={m.X(38.1)} y2={m.Y(0)} off={22} label="1,5″ = 38,1" lside={1} />
-          <Dim c={c} x1={m.X(0)} y1={m.Y(0)} x2={m.X(0)} y2={m.Y(19.05)} off={-26} label="0,75″ = 19,05" lside={-1} />
+          <Dim c={c} x1={m.X(0)} y1={m.Y(0)} x2={m.X(0)} y2={m.Y(19.05)} off={-66} label="" lside={-1} />
+          <T x={m.X(0) - 33} y={m.Y(9.5) - 4} anchor="middle" cls="t-mono t-dim">0,75″</T>
+          <T x={m.X(0) - 33} y={m.Y(9.5) + 12} anchor="middle" cls="t-mono t-dim">= 19,05</T>
         </g>
       )}
     </Fig>
@@ -279,7 +284,7 @@ export function ProgramSkeleton() {
     { t: "Nagłówek", d: "numer, nazwa, zero", lines: ["O1000 (PLYTKA 80X50X20)", "(ZERO W: LEWY DOLNY)"], col: "var(--muted)" },
     { t: "Bezpieczny start", d: "jednostki, tryby, kasowanie", lines: ["G21 G90 G94 G17", "G40 G49 G80"], col: "var(--accent)" },
     { t: "Układ detalu", d: "zero W", lines: ["G54"], col: "var(--accent)" },
-    { t: "Narzędzie i wrzeciono", d: "wymiana, obroty", lines: ["T1 M06", "S2500 M03"], col: "var(--cm-t)" },
+    { t: "Narzędzie i wrzeciono", d: "wymiana, korekcja, obroty", lines: ["T1 M06", "G00 G43 H1 Z50.", "S2500 M03"], col: "var(--cm-t)" },
     { t: "Obróbka", d: "ruchy", lines: ["G00 X-20. Y10.", "…"], col: "var(--green)" },
     { t: "Zakończenie", d: "odjazd, stop, koniec", lines: ["G00 Z5.", "M05", "G91 G28 Z0.", "G90", "M30"], col: "var(--cm-m)" },
   ];
@@ -287,7 +292,7 @@ export function ProgramSkeleton() {
   const boxes = secs.map((s) => { const h = 22 + s.lines.length * 15; const b = { ...s, y, h }; y += h + 6; return b; });
   return (
     <Fig id="f15sk" code="O…M30" title="Szkielet programu w kursie" h={y + 4}
-      caption={<>Kolejność sekcji jest stała. Sekcja obróbki zmienia się z detalu na detal, a początek i koniec zostają prawie takie same.</>}>
+      caption={<>Uproszczony szkielet przyjęty w kursie — nie zastępuje procedury ustawienia maszyny. Kolejność sekcji jest stała; narzędzie, rejestr H, baza i wysokości dobiera się do operacji, a początek i koniec zostają podobne.</>}>
       {() => (
         <g>
           {boxes.map((b) => (

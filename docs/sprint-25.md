@@ -85,3 +85,14 @@ Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 
 | F0.2 | R: czujnik bazowania i/lub znacznik referencyjny; N: odniesienie długości zależne od maszyny; bazowanie zależne od instrukcji (pomiar absolutny), R ≠ kraniec osi; model X/Y bez transformacji, Z — korekcja długości; „program pisze się w układzie W” + wyjątki G53/G28; baza zgodna z wymiarowaniem bez obietnicy o tolerancjach; pytanie z dodatnim przesunięciem. Rysunki: jeden przykład położenia M i R, osie otworu i rzut |
 | F0.3 | dane pomiaru ręcznego w ramce; rysunek: r = 5 także w Y, strzałki +X/+Y, model pomiaru ręcznego, uwaga o cyklu sondy; dwa detale — „widok z góry, układ przykładowy” i przejazd z wysokości bezpiecznej |
 | wszystkie | ramki „Dane przykładu” w FP.1–FP.3 i F0.1–F0.3 |
+
+## Paczka P — F1 (`sprint-25/paczka-p`)
+
+| Lekcja | Zmiana |
+|---|---|
+| F1.1 | blok = jednostka programu z kilkoma słowami; kolejność działania funkcji w bloku ustala sterowanie; S — prędkość obrotowa, F — prędkość posuwu; zapis bez kropki a parametr 3401#0 DPI i przyrost 0,001 mm (s. 200); nowe pytanie: zamiana X i Y; przykład z naddatkiem (krawędź na X0 po przejściu 2 mm naddatku). Rysunki: anatomia bloku z `X60.` `Y20.`, odczyt bloku z naddatkiem |
+| F1.2 | grupy modalne kodów G osobno od zapamiętanych F i S; grupa 00 — jednorazowe; dwa kody jednej grupy: Fanuc 0i-F bierze ostatni (rozdz. 3, s. 69); „mimo że kod G00 nie został ponownie zapisany”; pytanie o stan przed linią 4; rysunek XZ: start nad W na Z50, stałe Y10, naddatek; G43 w podglądzie stanu |
+| F1.3 | G91 — przyrost ze znakiem; błąd w G90 trwa, dopóki oś nie dostanie nowego położenia; przykład z kontrolą „poprzednie + przyrost = nowe”; G90 przy tolerancjach jako praktyka, nie dokładność obrabiarki |
+| F1.4 | rejestry po zmianie jednostek zależne od sterowania, Haas Setting 9 (Workbook s. 44); G17 po włączeniu — parametr; przeliczenie posuwu w przykładzie i nowe pytanie (F8. → F203.2). Rysunek: osie otworu, wymiary bez nakładania |
+| F1.5 | szkielet „podobny”, nie „zmienia się tylko obróbka”; M30 i przewinięcie — parametr 3404#4/#5; D w Sinumeriku zależne od ustawień. Rysunek szkieletu: `G00 G43 H1 Z50.`, opis uproszczenia |
+| wszystkie | ramki „Dane przykładu” w F1.1–F1.5 |
