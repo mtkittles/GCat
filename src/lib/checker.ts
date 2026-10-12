@@ -62,8 +62,8 @@ export function checkExercise(source: string, spec: ExerciseSpec): CheckResult {
     const a = sampleCut(user.segments), b = sampleCut(ref.segments);
     const devA = maxDeviation(a, b);   // czy nie skrawasz tam, gdzie nie trzeba
     const devB = maxDeviation(b, a);   // czy nie brakuje fragmentu konturu
-    checks.push({ ok: devA <= tol, label: "Tor nie wychodzi poza zadany kontur", detail: devA <= tol ? undefined : `największe odchylenie ${devA.toFixed(2)} mm` });
-    checks.push({ ok: devB <= tol, label: "Cały kontur został obrobiony", detail: devB <= tol ? undefined : `niepokryty fragment, odchylenie ${devB.toFixed(2)} mm` });
+    checks.push({ ok: devA <= tol, label: "Tor roboczy nie wychodzi poza wymagany tor", detail: devA <= tol ? undefined : `największe odchylenie ${devA.toFixed(2)} mm` });
+    checks.push({ ok: devB <= tol, label: "Pokryto cały wymagany tor", detail: devB <= tol ? undefined : `niepokryty fragment, odchylenie ${devB.toFixed(2)} mm` });
 
     if (spec.maxCutLength) {
       const lu = cutLength(user.segments), lr = cutLength(ref.segments);

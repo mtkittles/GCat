@@ -56,10 +56,10 @@ export const f3_1: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Dopisz najazd w miejscu komentarza. Sprawdzanie ocenia pozycję i kolejność ruchów, a nie identyczny zapis.",
+      intro: "Dopisz najazd w miejscu komentarza. Sprawdzany jest cały dojazd: pozycja, kolejność ruchów i to, czy żaden ruch szybki nie łączy XY ze zjazdem w Z. Zapis może być inny niż we wzorcu.",
       starter,
       checks: [
-        { t: "approach", x: -20, y: 10, z: 5, label: "Najpierw XY wysoko, potem osobny zjazd w Z" },
+        { t: "approach", x: -20, y: 10, z: 5, label: "Najpierw XY wysoko, potem osobny zjazd w Z — bez wcześniejszego ruchu szybkiego łączącego XY i Z" },
         { t: "end", x: -20, y: 10, z: 5, label: "Narzędzie kończy nad X−20 Y10 na Z5" },
         { t: "forbid", codes: ["G01"] },
       ],

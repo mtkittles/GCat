@@ -54,10 +54,10 @@ export const f1_3: LessonDoc = {
   practice: [
     {
       kind: "task", mode: "mill",
-      intro: "Ten sam kontur, co w przykładzie rozwiązanym, ale zapisany przyrostowo. Sprawdzany jest tor roboczy — liczy się geometria, nie zapis.",
+      intro: "Ten sam kontur, co w przykładzie rozwiązanym, ale zapisany przyrostowo. Sprawdzany jest tor roboczy i to, czy ruchy konturu wykonują się przy aktywnym G91.",
       brief: ["Punkty konturu od zera detalu: X20 Y0 → X20 Y30 → X50 Y30 → X50 Y0. Start w X0 Y0.", "Zapisz je w G91 — jako przyrosty od poprzedniego punktu."],
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\n(TU TOR W G91)\nG90\nG00 Z50.\nM09\nM05\nM30",
-      checks: [{"t":"cut","reference":"G90\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG01 X20. F400\nY30.\nX50.\nY0.\nG00 Z50.","tolerance":0.05},{"t":"require","codes":["G91"]},{"t":"end","x":50,"y":0,"z":50,"label":"Koniec w X50 Y0 Z50 — przyrosty sumują się do celu"}],
+      checks: [{"t":"cut","reference":"G90\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG01 X20. F400\nY30.\nX50.\nY0.\nG00 Z50.","tolerance":0.05},{"t":"state","on":"xy","abs":false,"label":"Ruchy konturu wykonane przy aktywnym G91"},{"t":"end","x":50,"y":0,"z":50,"label":"Koniec w X50 Y0 Z50 — przyrosty sumują się do celu"}],
       hints: ["Po `G91` każda wartość to przyrost od bieżącej pozycji: X20. znaczy „20 mm dalej w X”.","Kolejno: `G01 X20. F400`, `Y30.`, `X30.`, `Y-30.`. Blok `G90` już stoi za komentarzem — wraca do wymiarów absolutnych przed odjazdem."],
       solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG91\nG01 X20. F400\nY30.\nX30.\nY-30.\nG90\nG00 Z50.\nM09\nM05\nM30",
     },

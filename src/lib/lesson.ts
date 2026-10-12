@@ -31,17 +31,35 @@ export type OffsetGoal =
 
 export type TaskCheck =
   | { t: "end"; x?: number; y?: number; z?: number; label: string }
-  /** Najazd: ruch szybki nad punkt (x, y) na wyższym Z, potem osobny ruch szybki w dół do z. */
+  /**
+   * Najazd: ruch szybki nad punkt (x, y) na wyższym Z, potem osobny ruch szybki w dół do z.
+   * Dodatkowo żaden ruch szybki przed tym zjazdem nie może łączyć zmiany XY ze zmianą Z.
+   */
   | { t: "approach"; x: number; y: number; z: number; label: string }
   /** Tor roboczy zgodny z wzorcem (bez ruchów szybkich). */
   | { t: "cut"; reference: string; tolerance?: number }
-  | { t: "require"; codes: string[] }
+  /** `before: "move"` — kody muszą stać w blokach przed pierwszym ruchem programu. */
+  | { t: "require"; codes: string[]; before?: "move" }
   | { t: "forbid"; codes: string[] }
   /**
    * Aktywny posuw F na ruchach roboczych danego rodzaju (sprawdzany stan wykonania, nie tekst):
    * "plunge" — G01 tylko w osi Z w dół, "xy" — ruchy robocze ze zmianą X/Y (G01/G02/G03).
    */
-  | { t: "feed"; on: "plunge" | "xy"; f: number; label: string }
+  | { t: "feed"; on: "plunge" | "xy"; f: number; label: string; /** dopuszczalna różnica F, domyślnie 0,001 */ tol?: number }
+  /**
+   * Stan w chwili ruchu roboczego (nie tekst programu): narzędzie we wrzecionie (po M06), rejestr H
+   * aktywnej korekcji G43, obroty, kierunek, tryb wymiarów. `at` — tylko ruchy kończące się nad
+   * punktem X Y; `on: "xy"` — tylko ruchy ze zmianą X/Y.
+   */
+  | { t: "state"; label: string; at?: { x: number; y: number }; on?: "cut" | "xy"; tool?: number; h?: number; s?: number; dir?: "cw" | "ccw"; abs?: boolean }
+  /** Każda wymiana M06 przy zatrzymanym wrzecionie (M05 wcześniej). */
+  | { t: "stopBeforeChange"; label: string }
+  /** Postój G04 w punkcie (x, y, z) trwający co najmniej `min` sekund. */
+  | { t: "dwell"; x: number; y: number; z: number; min: number; label: string }
+  /** Zapis łuków: każdy blok z G02/G03 przez R albo przez I/J. */
+  | { t: "arcFormat"; fmt: "R" | "IJ"; label: string }
+  /** Kierunek obiegu konturu w XY (ruchy robocze ze zmianą X/Y): cw — zgodnie z ruchem wskazówek zegara. */
+  | { t: "winding"; dir: "cw" | "ccw"; label: string }
   /** Chłodziwo aktywne na każdym ruchu roboczym; opcjonalnie wyłączone (M09) przed M05. */
   | { t: "coolant"; label: string; offBeforeStop?: boolean }
   /** G84: posuw zgodny ze skokiem — G94: F = S·P, G95: F = P — na każdym ruchu cyklu. */

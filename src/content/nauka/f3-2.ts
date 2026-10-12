@@ -71,11 +71,13 @@ export const f3_2: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Dopisz zejście, dojazd i obieg konturu w miejscu komentarza. Sprawdzanie porównuje tor roboczy z wzorcem — kolejność bloków i kierunek obiegu możesz wybrać sam.",
+      intro: "Dopisz zejście, dojazd i obieg konturu w miejscu komentarza. Sprawdzany jest tor roboczy, posuwy F150 i F400 oraz kierunek obiegu zgodny z ruchem wskazówek zegara (frezowanie współbieżne przy M03). Punkt startu obiegu i podział na bloki możesz wybrać sam.",
       starter,
       checks: [
         { t: "cut", reference: `G90\nG00 X-20. Y10.\nG00 Z5.\n${cut}\nG00 Z5.`, tolerance: 0.05 },
-        { t: "require", codes: ["G01"] },
+        { t: "feed", on: "plunge", f: 150, label: "Zejście w Z z aktywnym F150" },
+        { t: "feed", on: "xy", f: 400, label: "Kontur z aktywnym F400" },
+        { t: "winding", dir: "cw", label: "Obieg zgodnie z ruchem wskazówek zegara — frezowanie współbieżne przy M03" },
       ],
       hints: ["Zejście: G01 Z-5. F150 — frez stoi już nad X−20 Y10.", "Kontur: X−5, potem Y55, X85, Y−5, X−5 i powrót do Y10. Posuw F400 wpisz w pierwszym bloku konturu."],
       solution: starter.replace("(DOPISZ: ZEJSCIE NA Z-5, DOJAZD DO X-5 I OBIEG KONTURU)\n", cut),

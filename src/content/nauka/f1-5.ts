@@ -57,7 +57,7 @@ export const f1_5: LessonDoc = {
       intro: "Program ma obróbkę, ale nie ma bezpiecznego początku ani zakończenia. Dopisz oba w miejscu komentarzy.",
       brief: ["Pierwszy komentarz: jednostki, wymiarowanie, posuw mm/min, płaszczyzna; kasowanie korekcji i cykli; zero detalu.", "Drugi komentarz: stop wrzeciona i koniec programu z przewinięciem."],
       starter: "O1000 (PLYTKA)\n(TU START)\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(TU KONIEC)",
-      checks: [{"t":"require","codes":["G21","G90","G94","G17","G40","G49","G80","G54","M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
+      checks: [{"t":"require","codes":["G21","G90","G94","G17","G40","G49","G80","G54"],"before":"move"},{"t":"require","codes":["M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["Blok startowy z lekcji: `G21 G90 G94 G17`, potem `G40 G49 G80`, a na końcu wybór zera `G54`.","Zakończenie: `M05` zatrzymuje wrzeciono, `M30` kończy program i przewija go na początek."],
       solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30",
     },
