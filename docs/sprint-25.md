@@ -96,3 +96,13 @@ Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 
 | F1.4 | rejestry po zmianie jednostek zależne od sterowania, Haas Setting 9 (Workbook s. 44); G17 po włączeniu — parametr; przeliczenie posuwu w przykładzie i nowe pytanie (F8. → F203.2). Rysunek: osie otworu, wymiary bez nakładania |
 | F1.5 | szkielet „podobny”, nie „zmienia się tylko obróbka”; M30 i przewinięcie — parametr 3404#4/#5; D w Sinumeriku zależne od ustawień. Rysunek szkieletu: `G00 G43 H1 Z50.`, opis uproszczenia |
 | wszystkie | ramki „Dane przykładu” w F1.1–F1.5 |
+
+## Paczka Q — F2 (`sprint-25/paczka-q`)
+
+| Lekcja | Zmiana |
+|---|---|
+| F2.1 | preselekcja zależna od magazynu; przebieg wymiany ustala konstruktor (nie „makro”); numer T / kieszeń / rejestr H; samo T nie włącza korekcji; nawiertak 90° z wiertłem 140° — „do przykładu”, dobór według producenta; układanka z `G00 Z50.` i opisem procedury M06. Oś czasu: „schemat kolejności”, „T2 przygotowuje / M06 wymienia” |
+| F2.2 | „prędkość obrotowa n” i „prędkość skrawania vc”; limit obrotów: wrzeciono, oprawka i narzędzie; G97/G96 zależne od profilu sterowania (Haas — lista kodów); M04 „może się wykruszyć”; „trzy razy za wolno” przy tym samym vc. Wykres: jednostka obr/min, limit przyjęty dla zespołu |
+| F2.3 | G95 a system A tokarki (G99); z — liczba efektywnych ostrzy; „może trzeć” zamiast „trze”; nowa część ap/ae (ap = 5, ae = 2 mm na płytce, pocienianie wióra) z rysunkiem `apae` w bloku zwijanym; rysunek fz jako model uproszczony (rzeczywisty tor — trochoida); źródło Kuryjański s. 54 |
+| F2.4 | M09 → M05 jako kolejność przyjęta w kursie, bez „zalanego wrzeciona”; przerywany strumień — zalecenie producenta zamiast „lepiej na sucho”; oś czasu z rozsuniętymi etykietami |
+| wszystkie | ramki „Dane przykładu” w F2.1–F2.4 (F2.3 — z paczki N) |
