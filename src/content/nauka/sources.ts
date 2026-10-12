@@ -93,6 +93,12 @@ export const sources: Record<string, Source> = {
     control: "maszyny Haas — nie dowolny Fanuc",
     note: "Dokument w materiałach projektu (145 stron PDF). Data w nagłówku wydruku nie jest datą wydania. Strony: drukowana / PDF.",
   },
+  kuryjanski: {
+    id: "kuryjanski", short: "Kuryjański, Obróbka skrawaniem i obrabiarki", author: "R. Kuryjański",
+    title: "Obróbka skrawaniem i obrabiarki, Politechnika Warszawska, Warszawa",
+    edition: "2011", number: "ISBN 83-89703-72-6",
+    note: "Dokument w materiałach projektu (raport #80, S1). Strony — numeracja drukowana.",
+  },
   jemielniak: {
     id: "jemielniak", short: "Jemielniak, Obróbka skrawaniem", author: "K. Jemielniak",
     title: "Obróbka skrawaniem, Oficyna Wydawnicza Politechniki Warszawskiej",

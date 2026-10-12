@@ -32,7 +32,13 @@ export const f0_3: LessonDoc = {
 
   worked: {
     title: "Ustal G54 czujnikiem krawędzi",
-    intro: "Sytuacja: płytka leży w imadle, a jej zero W ma być w lewym przednim narożniku. Pomiar ręczny: operator dotyka krawędzi cylindrycznym czujnikiem Ø10 i odczytuje pozycję maszynową w chwili styku: lewej krawędzi od lewej strony przy MASZYNA X−325.000, przedniej od przodu przy Y−265.000. Co wpisać do G54?",
+    intro: "Sytuacja: płytka leży w imadle, a jej zero W ma być w lewym przednim narożniku. Co wpisać do G54?",
+    data: [
+      ["Pomiar", "ręczny, cylindryczny czujnik krawędzi Ø10 (r = 5)"],
+      ["Lewa krawędź", "dotyk od lewej strony przy MASZYNA X−325.000"],
+      ["Przednia krawędź", "dotyk od przodu przy MASZYNA Y−265.000"],
+      ["Z", "poza zakresem tej lekcji — Z0 i długość narzędzia ustala lekcja F4.1"],
+    ],
     fig: "f03-edge",
     steps: [
       { x: "Na rysunku: w chwili styku środek czujnika jest o promień 5 mm od krawędzi, po stronie ujemnej osi — z lewej i z przodu detalu." },

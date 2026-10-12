@@ -16,9 +16,9 @@ function Spindle({ x, y, c }: { x: number; y: number; c: { a: (k: "acc") => stri
 
 export function MillMachine() {
   return (
-    <Fig id="p1mill" code="XYZ" title="Frezarka pionowa — dwie budowy, ten sam program" h={250} legend={["acc", "stock"]}
+    <Fig id="p1mill" code="XYZ" title="Frezarka pionowa — dwie budowy, ten sam tor" h={250} legend={["acc", "stock"]}
       notes={<><Code k="con">ruch główny: obrót wrzeciona z narzędziem</Code><Code k="acc">A: stół — X i Y, wrzeciennik — Z</Code><Code k="acc">B: stół nieruchomy, stojak — X i Y, wrzeciennik — Z</Code></>}
-      caption={<>W obu budowach ruch główny wykonuje wrzeciono z narzędziem. Różnią się ruchy posuwowe: <b>A</b> — frezarka ze stołem krzyżowym, stół przesuwa się w X i Y, wrzeciennik w Z; <b>B</b> — frezarka z ruchomym stojakiem: stół jest nieruchomy, stojak przesuwa się w X i Y, a wrzeciennik w Z. Program jest w obu przypadkach taki sam.</>}>
+      caption={<>W obu budowach ruch główny wykonuje wrzeciono z narzędziem. Różnią się ruchy posuwowe: <b>A</b> — frezarka ze stołem krzyżowym, stół przesuwa się w X i Y, wrzeciennik w Z; <b>B</b> — frezarka z ruchomym stojakiem: stół jest nieruchomy, stojak przesuwa się w X i Y, a wrzeciennik w Z. Tor zapisany w programie jest w obu przypadkach taki sam; podział osi na rysunku B to jeden z modeli tej budowy.</>}>
       {(c) => (
         <g>
           {/* A — stół krzyżowy */}
@@ -67,27 +67,34 @@ export function MillMachine() {
 /* ================= P.2 — zespół narzędziowy: punkt prowadzony a cała bryła ================= */
 export function ToolAssembly() {
   return (
-    <Fig id="p2asm" code="L Ø" title="Zespół narzędziowy — wymiary i punkt opisany w programie" h={262} legend={["acc", "dim"]}
-      notes={<><Code k="acc">program opisuje czubek na osi narzędzia</Code><Code k="dim">L — od czoła wrzeciona N do czubka</Code><Code k="dim">wysięg i Ø — odstęp od przeszkód</Code></>}
-      caption={<>Czoło wrzeciona <b>N</b> to punkt bazowy, od którego mierzy się długość narzędzia <b>L</b>. Program opisuje położenie jednego punktu — czubka na osi narzędzia. Oprawka, część chwytowa i ostrza mają swoje wymiary, ale współrzędne ich nie opisują: o odstępie od docisku czy imadła decyduje cały zespół.</>}>
+    <Fig id="p2asm" code="L Ø" title="Zespół narzędziowy — wymiary i punkt programowany" h={262} legend={["acc", "dim", "cons"]}
+      notes={<><Code k="acc">punkt programowany: oś freza, płaszczyzna czoła</Code><Code k="dim">L — od płaszczyzny odniesienia N</Code><Code k="dim">wysięg — od czoła oprawki</Code></>}
+      caption={<>Płaszczyzna odniesienia <b>N</b> — w kursie czoło wrzeciona — to miejsce, od którego mierzy się długość narzędzia <b>L</b>; na maszynie zależy od sposobu pomiaru. Program opisuje jeden punkt: punkt programowany na osi freza, w płaszczyźnie czoła. Wysięg liczy się od czoła oprawki. Oprawka, część chwytowa i ostrza mają swoje wymiary, ale współrzędne ich nie opisują: o odstępie od docisku czy imadła decyduje cały zespół.</>}>
       {(c) => (
         <g>
           <rect x={120} y={10} width={100} height={46} rx={3} className="holder" />
           <line x1={104} y1={56} x2={236} y2={56} className="p-acc thick" />
           <T x={240} y={60} cls="t-acc t-b">N</T>
+          <T x={240} y={74} cls="t-sm t-mut">odniesienie L</T>
           <rect x={136} y={56} width={68} height={40} rx={3} className="clamp" />
           <rect x={156} y={96} width={28} height={16} className="holder" />
           <rect x={160} y={112} width={20} height={44} className="holder" />
           <rect x={160} y={156} width={20} height={58} className="cutter" />
           {[164, 176, 188, 200].map((y) => <line key={y} x1={160} y1={y} x2={180} y2={y + 10} className="p-cons" />)}
           <circle cx={170} cy={214} r={3.4} className="pt-rap" />
-          <T x={178} y={230} cls="t-acc t-b t-sm">czubek — punkt z programu</T>
+          <T x={186} y={232} cls="t-acc t-b t-sm">punkt programowany</T>
+          {/* linie pomocnicze wymiarów */}
+          <line x1={88} y1={214} x2={160} y2={214} className="p-cons" />
+          <line x1={180} y1={214} x2={254} y2={214} className="p-cons" />
+          <line x1={184} y1={112} x2={254} y2={112} className="p-cons" />
+          <line x1={160} y1={214} x2={160} y2={250} className="p-cons" />
+          <line x1={180} y1={214} x2={180} y2={250} className="p-cons" />
           <Dim c={c} x1={92} y1={56} x2={92} y2={214} label="L" lside={-1} />
           <Dim c={c} x1={250} y1={112} x2={250} y2={214} label="wysięg" lside={1} />
           <Dim c={c} x1={160} y1={246} x2={180} y2={246} label="Ø" />
           <line x1={170} y1={4} x2={170} y2={222} className="p-cons" strokeDasharray="8 3 2 3" />
           <T x={226} y={30} cls="t-sm">wrzeciono</T>
-          <T x={210} y={80} cls="t-sm">oprawka</T>
+          <T x={208} y={92} cls="t-sm">oprawka</T>
           <T x={188} y={134} cls="t-sm">część chwytowa</T>
           <T x={188} y={186} cls="t-sm">część robocza</T>
         </g>
@@ -101,13 +108,17 @@ export function SetupSide() {
   const k = 2.6, X = (x: number) => 74 + x * k, Y = (z: number) => 18 + (46 - z) * k;
   const jaw = (x0: number) => <rect x={X(x0)} y={Y(-6)} width={12 * k} height={22 * k} className="clamp" />;
   return (
-    <Fig id="p3set" code="W" title="Płytka w imadle — zero, szczęki i głębokość (widok z przodu)" h={236} legend={["acc", "dim", "stock", "bad"]}
-      notes={<><Code k="acc">W — punkt zerowy w lewym górnym narożniku</Code><Code k="dim">szczęki od Z−6 w dół</Code><Code k="bad">kontur na Z−8 przecina szczękę</Code></>}
-      caption={<>Płytka 80 × 50 × 20 zamocowana w imadle na wysokości 14 mm: górna krawędź szczęk leży 6 mm pod górną powierzchnią, czyli na Z−6. Przy konturze zewnętrznym frez Ø12 przechodzi tuż obok płytki, nad szczęką. Na głębokości Z−5 zostaje 1 mm odstępu (po lewej). Ten sam kontur na Z−8 przecina szczękę (po prawej).</>}>
+    <Fig id="p3set" code="W" title="Płytka w imadle — zero, szczęki i głębokość (rzut XZ, widok z przodu)" h={236} legend={["acc", "dim", "stock", "bad"]}
+      notes={<><Code k="acc">W — lewy przedni narożnik górnej powierzchni</Code><Code k="dim">szczęki od Z−6 w dół</Code><Code k="bad">kontur na Z−8 przecina szczękę</Code></>}
+      caption={<>Płytka 80 × 50 × 20 leży na podkładkach i jest zamocowana w imadle na wysokości 14 mm: górna krawędź szczęk leży 6 mm pod górną powierzchnią, czyli na Z−6. Podkładki ustalają wysokość i przenoszą siłę skrawania w dół. Przy konturze zewnętrznym frez Ø12 przechodzi tuż obok płytki, nad szczęką. Na głębokości Z−5 zostaje 1 mm odstępu (po lewej). Ten sam kontur na Z−8 przecina szczękę (po prawej).</>}>
       {(c) => (
         <g>
           <rect x={X(-12)} y={Y(-28)} width={104 * k} height={4 * k} className="clamp" />
           {jaw(-12)}{jaw(80)}
+          {/* podkładki między dnem płytki (Z−20) a dnem imadła (Z−28) */}
+          <rect x={X(1)} y={Y(-20)} width={10 * k} height={8 * k} className="holder" />
+          <rect x={X(69)} y={Y(-20)} width={10 * k} height={8 * k} className="holder" />
+          <T x={X(40)} y={Y(-24) + 4} anchor="middle" cls="t-sm t-mut">podkładki</T>
           <rect x={X(0)} y={Y(0)} width={80 * k} height={20 * k} fill={c.hatch} className="p-con" />
           <line x1={X(-14)} y1={Y(-6)} x2={X(104)} y2={Y(-6)} className="p-cons" />
           <T x={X(6)} y={Y(-6) - 4} cls="t-mono t-sm t-mut">szczęki od Z−6</T>

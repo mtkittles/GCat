@@ -73,3 +73,15 @@ Nowe warunki w `src/lib/taskCheck.ts` (typy w `lesson.ts`, schemat w `mdx/schema
 | — | tabela „Fanuc i Sinumerik”: wersja „Series 0i-F” zamiast „0i-F Plus” (zgodnie z bibliografią — instrukcja B-64607EN nie wymienia Plus) |
 
 Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 stron): kontrast 0, przewijanie poziome 0; zostaje znany fałszywy alarm `.cm-scroller` w edytorze symulatora.
+
+## Paczka O — Podstawy i F0 (`sprint-25/paczka-o`)
+
+| Lekcja | Zmiana |
+|---|---|
+| FP.1 | ruch główny obrotowy we frezowaniu i toczeniu (w struganiu i dłutowaniu prostoliniowy; Kuryjański s. 51–54 — nowe źródło `kuryjanski`); „ten sam tor” zamiast „ten sam program” + zdanie o dostosowaniu M-kodów, wymiany i korekcji; ruchomy stojak „w pokazanym modelu”; przykład jako fragment z danymi (G90, mm, start X20) i odczytem na ekranie współrzędnych przedmiotu |
+| FP.2 | „punkt programowany” (oś freza, płaszczyzna czoła; wiertło — wierzchołek) zamiast „czubka”; płaszczyzna odniesienia długości (w kursie czoło wrzeciona N) i ramka modelu N = Z + L; wysięg krótki, ale z zapasem — sztywność; nowe pytanie: wysięg 15 / 30 mm przy docisku; nawiertak ≠ nakiełek, kąt według producenta; nóż składany jako przykład. Rysunek: linie pomocnicze L, wysięgu i Ø, opis płaszczyzny odniesienia, „punkt programowany” |
+| FP.3 | ustalenie, podparcie, zamocowanie; wynik 1 mm „dla pokazanej geometrii”; lista jako fragment przygotowania; pytanie o podkładki. Rysunek: podkładki, rzut XZ, opis W w obu rzutach |
+| F0.1 | współrzędne „ze znakiem, względem zera” zamiast „odległości”; „ten sam tor” na maszynach z ruchomym stołem i stojakiem; reguła prawej dłoni w bloku zwijanym; cel JOG „ustaw punkt programowany na X40 Y20 Z−5” + zdanie, że to ćwiczenie współrzędnych. Rysunek z góry: rzut, mm, linie wymiarowe do H |
+| F0.2 | R: czujnik bazowania i/lub znacznik referencyjny; N: odniesienie długości zależne od maszyny; bazowanie zależne od instrukcji (pomiar absolutny), R ≠ kraniec osi; model X/Y bez transformacji, Z — korekcja długości; „program pisze się w układzie W” + wyjątki G53/G28; baza zgodna z wymiarowaniem bez obietnicy o tolerancjach; pytanie z dodatnim przesunięciem. Rysunki: jeden przykład położenia M i R, osie otworu i rzut |
+| F0.3 | dane pomiaru ręcznego w ramce; rysunek: r = 5 także w Y, strzałki +X/+Y, model pomiaru ręcznego, uwaga o cyklu sondy; dwa detale — „widok z góry, układ przykładowy” i przejazd z wysokości bezpiecznej |
+| wszystkie | ramki „Dane przykładu” w FP.1–FP.3 i F0.1–F0.3 |

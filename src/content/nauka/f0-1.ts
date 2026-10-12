@@ -11,8 +11,8 @@ export const f0_1: LessonDoc = {
     { t: "h", x: "Trzy osie liniowe", id: "osie" },
     { t: "p", x: "Stoisz przed typową frezarką pionową z trzema osiami liniowymi. **X** to ruch w prawo i w lewo — zwykle najdłuższy przesuw. **Y** to ruch od operatora i do niego. **Z** to ruch w górę i w dół, wzdłuż osi wrzeciona." },
     { t: "diagram", id: "f01-axes" },
-    { t: "diagram", id: "f01-hand" },
     { t: "p", x: "Zwroty dodatnie wyznacza [[reguła prawej dłoni]]: kciuk to +X, palec wskazujący +Y, środkowy +Z. Tak ustawione osie tworzą [[układ współrzędnych|układ prawoskrętny]] opisany w normie ISO 841. Fanuc i SINUMERIK stosują tę konwencję, więc kierunki osi są u nich takie same." },
+    { t: "more", title: "Reguła prawej dłoni — rysunek", blocks: [{ t: "diagram", id: "f01-hand" }] },
 
     { t: "h", x: "+Z znaczy: od detalu", id: "plus-z" },
     { t: "p", x: "Wg ISO 841 **ruch w +Z zwiększa odległość narzędzia od detalu** — na frezarce pionowej to ruch w górę." },
@@ -20,11 +20,11 @@ export const f0_1: LessonDoc = {
     { t: "diagram", id: "f01-side" },
 
     { t: "h", x: "Programujesz ruch narzędzia", id: "ruch-narzedzia" },
-    { t: "p", x: "Na wielu frezarkach w X i Y jeździ stół, a wrzeciono stoi w miejscu. Program opisuje jednak ruch narzędzia względem detalu — tak przyjmuje ISO 841. Dzięki temu ten sam program działa na maszynie z ruchomym stołem i na maszynie z ruchomą kolumną. Gdy stół jedzie w lewo, narzędzie przesuwa się po detalu w prawo, w +X." },
+    { t: "p", x: "Na wielu frezarkach w X i Y jeździ stół, a wrzeciono stoi w miejscu. Program opisuje jednak ruch narzędzia względem detalu — tak przyjmuje ISO 841. Dzięki temu ten sam tor ma te same współrzędne na maszynie z ruchomym stołem i na maszynie z ruchomym stojakiem. Gdy stół jedzie w lewo, narzędzie przesuwa się po detalu w prawo, w +X." },
     { t: "diagram", id: "f01-relative" },
 
     { t: "h", x: "Współrzędne punktu", id: "wspolrzedne" },
-    { t: "p", x: "Położenie punktu to trzy liczby: odległości od [[zero detalu|zera detalu]] mierzone wzdłuż X, Y i Z. Przy zerze w lewym dolnym narożniku płytki zapis `X60 Y20 Z5` znaczy: 60 mm w prawo od zera, 20 mm od operatora i 5 mm nad górną powierzchnią." },
+    { t: "p", x: "Położenie punktu to trzy liczby: współrzędne X, Y i Z mierzone względem [[zero detalu|zera detalu]], ze znakiem. Odległość jest zawsze dodatnia; znak współrzędnej mówi, po której stronie zera leży punkt. Przy zerze w lewym dolnym narożniku płytki zapis `X60 Y20 Z5` znaczy: 60 mm w prawo od zera, 20 mm od operatora i 5 mm nad górną powierzchnią." },
     { t: "diagram", id: "f01-zero" },
     { t: "p", x: "Miejsce zera wybiera programista. Narożnik daje same dodatnie X i Y, więc łatwo czytać program. Środek wymaga minusów, ale jest wygodny przy detalach symetrycznych i okrągłych. Jak zero ustawia się na maszynie — w lekcji F0.2." },
     { t: "note", kind: "info", x: "Obroty wokół X, Y i Z to osie **A**, **B** i **C**. Spotkasz je na maszynach 4- i 5-osiowych. Ten kurs zostaje przy trzech osiach liniowych." },
@@ -32,7 +32,12 @@ export const f0_1: LessonDoc = {
 
   worked: {
     title: "Odczytaj pozycję nad punktem H",
-    intro: "Płytka 80 × 50 × 20, zero W w lewym dolnym narożniku, Z0 na górnej powierzchni. Frez ma stanąć 5 mm nad punktem H.",
+    intro: "Frez ma stanąć 5 mm nad punktem H.",
+    data: [
+      ["Przedmiot", "płytka 80 × 50 × 20, wymiary w mm"],
+      ["Zero W", "lewy dolny narożnik w widoku z góry, Z0 na górnej powierzchni"],
+      ["Punkt H", "60 mm od lewej krawędzi, 20 mm od dolnej"],
+    ],
     fig: "f01-top",
     steps: [
       { x: "Znajdź zero **W**. Od niego liczysz wszystkie trzy współrzędne." },
@@ -47,11 +52,11 @@ export const f0_1: LessonDoc = {
   practice: [
     {
       kind: "jog",
-      intro: "Przyciski działają jak ręczny przesuw osi na maszynie. Dojedź narzędziem do kolejnych punktów; skok 1 mm przyda się przy ostatnim.",
+      intro: "Przyciski działają jak ręczny przesuw osi na maszynie. Dojedź narzędziem do kolejnych punktów; skok 1 mm przyda się przy ostatnim. To ćwiczenie współrzędnych, a nie symulacja poprawnej operacji skrawania.",
       goals: [
         { x: 80, y: 0, z: 10, label: "10 mm nad prawym przednim narożnikiem" },
         { x: 0, y: 50, z: 0, label: "dotknij lewego tylnego narożnika" },
-        { x: 40, y: 20, z: -5, label: "zejdź 5 mm w materiał" },
+        { x: 40, y: 20, z: -5, label: "ustaw punkt programowany na X40 Y20 Z−5" },
       ],
     },
     {
@@ -126,7 +131,7 @@ export const f0_1: LessonDoc = {
     "Na typowej frezarce pionowej: +X w prawo, +Y od operatora, +Z w górę. Zwroty dodatnie daje reguła prawej dłoni (ISO 841).",
     "+Z odsuwa narzędzie od detalu. Przy Z0 na górze minus oznacza „poniżej górnej powierzchni” — w materiale tylko wtedy, gdy frez jest nad detalem.",
     "Program opisuje ruch narzędzia, nawet jeśli na maszynie jeździ stół.",
-    "Współrzędne liczysz od zera detalu, a nie od krawędzi, od której zwymiarowano rysunek.",
+    "Współrzędne liczysz od zera detalu, a nie od krawędzi, od której zwymiarowano rysunek. Znak współrzędnej mówi, po której stronie zera leży punkt.",
   ],
 
   sources: [

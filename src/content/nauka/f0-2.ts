@@ -12,32 +12,37 @@ export const f0_2: LessonDoc = {
     { t: "p", x: "Na obrabiarce działają jednocześnie dwa układy współrzędnych: **maszynowy**, związany z konstrukcją, i **układ detalu**, w którym piszesz program. Opisują je punkty charakterystyczne:" },
     { t: "table", head: ["Punkt", "Nazwa", "Kto go ustala"], rows: [
       ["**M**", "zero maszyny, początek układu maszynowego", "producent — stały"],
-      ["**R**", "punkt referencyjny, na który najeżdża się przy bazowaniu", "producent — krańcówki lub znaczniki liniałów"],
+      ["**R**", "punkt referencyjny, na który najeżdża się przy bazowaniu", "producent — czujnik bazowania i/lub znacznik referencyjny układu pomiarowego, zależnie od konstrukcji"],
       ["**W**", "[[zero detalu]], początek układu programu", "programista i operator — dla każdego zamocowania"],
-      ["**N**", "baza narzędzia na czole wrzeciona", "producent — od niej mierzy się długość narzędzia"],
+      ["**N**", "płaszczyzna odniesienia długości narzędzia — w kursie czoło wrzeciona", "zależy od maszyny i sposobu pomiaru narzędzi"],
     ] },
     { t: "diagram", id: "f02-points" },
 
     { t: "h", x: "Bazowanie osi", id: "bazowanie" },
-    { t: "p", x: "Maszyna z enkoderami przyrostowymi po włączeniu nie wie, gdzie są osie. Operator wykonuje **bazowanie**: każda oś dojeżdża do punktu R i dopiero wtedy pozycja maszynowa ma sens. Maszyny z enkoderami absolutnymi pamiętają położenie i bazowania po włączeniu nie wymagają." },
+    { t: "p", x: "Maszyna z przyrostowym pomiarem położenia po włączeniu nie wie, gdzie są osie. Operator wykonuje **bazowanie**: każda oś dojeżdża do punktu R i dopiero wtedy pozycja maszynowa ma sens. Przy absolutnym pomiarze położenia odniesienie zostaje zachowane i klasyczne bazowanie po włączeniu nie jest potrzebne, dopóki odniesienie jest ważne. Kiedy i jak bazować — mówi instrukcja maszyny. Punkt R nie musi leżeć na końcu zakresu osi." },
     { t: "note", kind: "warn", x: "Przed bazowaniem nie uruchamiaj programu. Sterowanie nie zna położenia osi, a programowe wyłączniki krańcowe zaczynają działać dopiero po bazowaniu." },
 
     { t: "h", x: "Dlaczego pozycje maszynowe są ujemne", id: "ujemne" },
     { t: "p", x: "Na wielu centrach pionowych M leży w skrajnym położeniu osi: wrzeciono najwyżej, stół odsunięty maksymalnie w jedną stronę. Każde inne miejsce przestrzeni roboczej leży od M w stronę minusa, więc pozycje maszynowe są ujemne. Na innych obrabiarkach M bywa w innym miejscu — mówi o tym dokumentacja maszyny." },
 
     { t: "h", x: "Jak łączą się układy", id: "lancuch" },
-    { t: "p", x: "Pozycja maszynowa to suma przesunięcia zera detalu i współrzędnej z programu. Dla każdej osi osobno:" },
+    { t: "p", x: "W uproszczonym modelu dla osi X i Y — bez dodatkowych przesunięć i transformacji — pozycja maszynowa to suma przesunięcia zera detalu i współrzędnej z programu. W osi Z dochodzi jeszcze korekcja długości narzędzia (lekcja F4.1)." },
     { t: "code", x: "X maszyny = X przesunięcia + X z programu\n  −260    =     −320      +     60", caption: "Przesunięcie to wektor od M do W. Zapisuje się je w rejestrze G54 — lekcja F0.3." },
-    { t: "p", x: "Program zna tylko W. Dzięki temu ten sam program pasuje do detalu w dowolnym miejscu stołu — zmienia się tylko przesunięcie." },
+    { t: "p", x: "Program pisze się w układzie W. Dzięki temu ten sam program pasuje do detalu w dowolnym miejscu stołu — zmienia się tylko przesunięcie. Wyjątki, np. ruch w układzie maszyny (G53) albo przejazd do punktu referencyjnego (G28), poznasz w dalszych lekcjach." },
 
     { t: "h", x: "Gdzie postawić W", id: "gdzie-w" },
-    { t: "p", x: "Najlepiej w punkcie, od którego zwymiarowano rysunek, czyli na przecięciu baz. Wymiary przechodzą wtedy do programu bez przeliczania, a tolerancje się nie sumują." },
+    { t: "p", x: "Najlepiej w punkcie, od którego zwymiarowano rysunek, czyli na przecięciu baz. Baza zgodna z wymiarowaniem ułatwia odczyt współrzędnych i ogranicza przeliczenia. Dobór baz technologicznych i łańcuch wymiarowy wymagają osobnej oceny." },
     { t: "diagram", id: "f02-datum" },
   ],
 
   worked: {
     title: "Przelicz pozycję maszynową na współrzędną programu",
-    intro: "Sytuacja: po bazowaniu narzędzie stoi gdzieś nad płytką. Ekran pozycji maszynowej pokazuje X−260.000 Y−240.000, a w rejestrze G54 zapisano X−320 Y−260 — wektor od M do W. Gdzie stoi narzędzie w układzie detalu, czyli jaką współrzędną ma w programie? Rysunek pokazuje oś X.",
+    intro: "Sytuacja: po bazowaniu narzędzie stoi gdzieś nad płytką. Gdzie stoi w układzie detalu, czyli jaką współrzędną ma w programie? Rysunek pokazuje oś X.",
+    data: [
+      ["Ekran MASZYNA", "X−260.000 Y−240.000"],
+      ["Rejestr G54", "X−320 Y−260 — wektor od M do W"],
+      ["Model", "tylko X i Y; bez przesunięć lokalnych, obrotów i korekcji"],
+    ],
     fig: "f02-chain",
     steps: [
       { x: "Dla każdej osi: pozycja maszynowa = przesunięcie + współrzędna z programu. Szukasz współrzędnej z programu, więc odejmujesz przesunięcie od pozycji maszynowej." },
@@ -72,7 +77,7 @@ export const f0_2: LessonDoc = {
   pitfalls: [
     { title: "Program przed bazowaniem", danger: true, x: "Po awarii zasilania albo wyłączeniu maszyny z enkoderami przyrostowymi pozycja maszynowa jest nieznana. Program uruchomiony w takim stanie jedzie od przypadkowego punktu, a krańcówki programowe nie chronią osi." },
     { title: "Pozycja maszynowa w programie", x: "Operator odczytuje z ekranu MACHINE `X-260` i wpisuje to do programu. Program liczy od W, więc potrzebne jest `X60`. Pozycje maszynowe pojawiają się w programie tylko wyjątkowo, z kodem `G53`." },
-    { title: "Zero detalu poza bazami", x: "W postawione na środku, choć rysunek wymiarowano od krawędzi A i B. Każdy wymiar trzeba przeliczać, a wynik przeliczenia sumuje tolerancje dwóch wymiarów." },
+    { title: "Zero detalu poza bazami", x: "W postawione na środku, choć rysunek wymiarowano od krawędzi A i B. Każdy wymiar trzeba przeliczać — to dodatkowa okazja do pomyłki przy pisaniu i sprawdzaniu programu." },
     { title: "R to nie zawsze M", x: "R to punkt najazdu przy bazowaniu, M to początek układu maszynowego. Często leżą w tym samym miejscu, ale nie muszą — wtedy R ma w układzie maszynowym współrzędne zapisane w parametrach maszyny." },
   ],
 
@@ -98,6 +103,8 @@ export const f0_2: LessonDoc = {
       template: "X{0} Y{1}", answers: [["-290"], ["-250"]], why: "Przesunięcie + program: −320 + 30 = −290 oraz −260 + 10 = −250." },
     { kind: "gap", q: "G54: X−320 Y−260. Ekran MASZYNA: X−240 Y−215. Gdzie jest narzędzie w układzie **detalu**?",
       template: "X{0} Y{1}", answers: [["80"], ["45"]], why: "Maszyna − przesunięcie: −240 − (−320) = 80 oraz −215 − (−260) = 45." },
+    { kind: "gap", q: "Na innej maszynie M leży po lewej stronie przestrzeni roboczej, więc pozycje maszynowe X są dodatnie. G54: X150. Ekran MASZYNA: X210. Gdzie jest narzędzie w układzie detalu?",
+      template: "X{0}", answers: [["60"]], why: "Ta sama zależność: 210 − 150 = 60. Znak pozycji maszynowej zależy od tego, gdzie producent umieścił M." },
     { kind: "choice", q: "Dlaczego na wielu frezarkach pozycje maszynowe w przestrzeni roboczej są ujemne?",
       options: ["sterowanie liczy w calach", "M leży w skrajnym położeniu osi, a przestrzeń robocza jest od niego w stronę minusa", "wymaga tego G54", "to objaw źle wykonanego bazowania"],
       answer: 1, why: "Zero maszyny leży na końcu zakresu ruchu, więc każda inna pozycja ma znak minus." },
@@ -108,8 +115,8 @@ export const f0_2: LessonDoc = {
 
   summary: [
     "M to stałe zero maszyny, R to punkt bazowania, W to zero detalu ustalane dla każdego zamocowania.",
-    "Bez bazowania pozycja maszynowa nie ma sensu, więc programu się nie uruchamia.",
-    "Pozycja maszynowa = przesunięcie zera detalu + współrzędna z programu.",
+    "Bez ważnego odniesienia (bazowania) pozycja maszynowa nie ma sensu, więc programu się nie uruchamia. Kiedy bazować — mówi instrukcja maszyny.",
+    "W uproszczonym modelu X i Y: pozycja maszynowa = przesunięcie zera detalu + współrzędna z programu. W Z dochodzi korekcja długości.",
     "W stawiaj na bazach z rysunku — wymiary przechodzą do programu bez przeliczania.",
   ],
 
