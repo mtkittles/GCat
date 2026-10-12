@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import FigZoom from "@/components/FigZoom";
 
 /*
   Jeden styl dla wszystkich rysunków technicznych GCat.
@@ -28,6 +29,7 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
+      <FigZoom title={title}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
         <defs>
           <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
@@ -42,6 +44,7 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
         </defs>
         {children({ a, hatch: `url(#${id}-h)` })}
       </svg>
+      </FigZoom>
       {notes && <div className="fig-notes">{notes}</div>}
       {legend && legend.length > 0 && (
         <div className="fig-legend">

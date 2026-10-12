@@ -26,6 +26,14 @@ export const f2_3: LessonDoc = {
   worked: {
     title: "Posuwy dla płytki",
     intro: "Sytuacja: półfabrykat ze stali C45 ma wymiary 84 × 54 × 20 — po 2 mm naddatku na każdy bok gotowej płytki 80 × 50. Zero W leży w lewym dolnym narożniku konturu gotowego, Z0 na górnej powierzchni. Frez VHM Ø10 z 4 ostrzami stoi nad X−20 Y10. Z lekcji F2.2: S2500. Do przykładu przyjmujemy fz = 0,04 mm/ostrze. Program ma zejść na Z−5 i zebrać naddatek z lewego boku.",
+    data: [
+      ["Maszyna", "frezarka pionowa, 3 osie, zapis Fanuc (profil kursu)"],
+      ["Jednostki", "mm, posuw w mm/min (G21, G94)"],
+      ["Zero W", "lewy dolny narożnik konturu gotowego, Z0 na górnej powierzchni"],
+      ["Półfabrykat", "84 × 54 × 20, stal C45 — po 2 mm naddatku na bok płytki 80 × 50"],
+      ["Narzędzie", "frez VHM Ø10, 4 ostrza; S2500 (lekcja F2.2); fz = 0,04 mm/ostrze — przyjęte do przykładu"],
+      ["Stan początkowy", "frez nad X−20 Y10, Z5, wrzeciono i chłodziwo włączone"],
+    ],
     fig: "f23-feeds",
     steps: [
       { x: "Posuw konturowy z przyjętego fz: vf = fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },

@@ -94,7 +94,11 @@ export interface LessonDoc {
   /** Jedno zdanie: co uczeń umie po lekcji. */
   goal: string;
   theory: Block[];
-  worked: { title: string; intro: string; fig?: string; steps: WorkedStep[]; result: string };
+  /**
+   * `data` — ramka „Dane przykładu”: pary [nazwa, wartość] — maszyna, jednostki, zero W, półfabrykat,
+   * narzędzie, stan początkowy. Jedno miejsce na założenia zamiast rozrzucenia po tekście (#80 §5).
+   */
+  worked: { title: string; intro: string; data?: [string, string][]; fig?: string; steps: WorkedStep[]; result: string };
   practice: Practice[];
   /** danger: kolizja, uszkodzenie narzędzia albo zagrożenie dla operatora — czerwona karta; reszta neutralna. */
   pitfalls: { title: string; x: string; fig?: string; danger?: boolean }[];

@@ -169,7 +169,7 @@ export const practiceSchema = z.discriminatedUnion("kind", [
 /** cwiczenia.yaml — dane strukturalne lekcji (bez MDX: `{0}` w lukach byłoby dla MDX wyrażeniem JS). */
 export const cwiczeniaSchema = z.strictObject({
   worked: z.strictObject({
-    title: text, intro: text, fig: z.string().optional(),
+    title: text, intro: text, data: z.array(z.tuple([text, text])).optional(), fig: z.string().optional(),
     steps: z.array(z.strictObject({ x: text, code: z.string().optional() })).min(1),
     result: text,
   }),

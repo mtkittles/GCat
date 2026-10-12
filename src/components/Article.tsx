@@ -53,6 +53,12 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;
           case "widget": return b.id === "jog" ? <JogDemo key={i} /> : <div key={i} id="kalkulator-zamiany-r-i-j">{b.id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
+          case "more": return (
+            <details key={i} className="more">
+              <summary>{rich(b.title)}</summary>
+              <Article blocks={b.blocks} />
+            </details>
+          );
         }
       })}
     </div>

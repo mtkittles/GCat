@@ -58,6 +58,13 @@ export const f3_2: LessonDoc = {
   worked: {
     title: "Policz tor środka dla konturu płytki",
     intro: "Sytuacja: półfabrykat 84 × 54, kontur gotowy 80 × 50, zero W w lewym dolnym narożniku konturu gotowego. Frez Ø10 (r = 5) zszedł obok półfabrykatu w X−20 Y10 na Z−5. Ma obejść cały obwód zgodnie z zegarem. Program podaje środek freza, a rysunek ma wymiary konturu gotowego — trzeba je przeliczyć. Numery odpowiadają krawędziom na rysunku.",
+    data: [
+      ["Zero W", "lewy dolny narożnik konturu gotowego, Z0 na górnej powierzchni"],
+      ["Półfabrykat", "84 × 54 × 20 — po 2 mm naddatku na bok płytki 80 × 50"],
+      ["Narzędzie", "frez Ø10 (r = 5), S2500 M03"],
+      ["Stan początkowy", "frez zszedł obok półfabrykatu: X−20 Y10 Z−5, aktywne G01 F150"],
+      ["Posuw konturu", "F400 (lekcja F2.3)"],
+    ],
     fig: "f32-path",
     steps: [
       { x: "Krok 1, lewa krawędź X0: frez na zewnątrz, czyli 0 − 5.", code: "X-5." },

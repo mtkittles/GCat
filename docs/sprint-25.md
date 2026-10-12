@@ -58,3 +58,18 @@ Nowe warunki w `src/lib/taskCheck.ts` (typy w `lesson.ts`, schemat w `mdx/schema
 - Komunikaty porównania torów: „Pokryto cały wymagany tor”, „Tor roboczy nie wychodzi poza wymagany tor” (zamiast „cały kontur obrobiony”).
 - F2.4: warunek chłodziwa nazwany jako warunek ćwiczenia (także zejście w powietrzu).
 - Testy `tests/taskCheck80.test.ts`: R1–R6 odrzucane (programy z raportu bez zmian), wzorce zaliczane, równoważne zapisy zaliczane (F150, G91 w bloku ruchu, start w jednej linii, M05 przed odjazdem, obieg w krótszych blokach), błędy celu odrzucane (M06 przy obrotach, S/M03 po obróbce, obieg przeciwny, I/J zamiast R, okrąg z dwóch R).
+
+## Paczka N — szablon lekcji (`sprint-25/paczka-n`)
+
+| Element (#80 §5) | Zmiana |
+|---|---|
+| dane przykładu rozrzucone po tekście, rysunku i kodzie | `worked.data` — ramka „Dane przykładu” (maszyna, jednostki, W, półfabrykat, narzędzie, stan początkowy); pilotażowo F2.3 i F3.2, dalsze lekcje w paczkach O–R |
+| duże porównania odsuwają zadanie | blok zwijany `{ t: "more", title, blocks }` (`<details>`); `flatBlocks()` dla audytów, wyszukiwarki i liczenia rysunków. FP.1/TP.1: maszyna drugiej ścieżki w „Porównanie z toczeniem / z frezowaniem” |
+| etykiety SVG maleją na telefonie | przycisk powiększenia na każdym rysunku `Fig` — okno na cały ekran, rysunek co najmniej 760 px szerokości, przesuwany palcem; Esc zamyka; kopia rysunku powstaje dopiero po otwarciu |
+| podpisy ok. 13 px | podpis 14,5 px, legenda 13 px |
+| pusta sekcja „Program detalu” (Podstawy) | sekcja i pozycja w spisie treści tylko, gdy program ma linie z tej lub wcześniejszych lekcji |
+| powtarzalne metadane źródeł | w lekcjach lista skrótów, pełne opisy (wydanie, rozdział, strona) pod „pokaż”; karty kodów bez zmian |
+| zdjęcie banera przyciąga wzrok | baner lekcji (`slim`): zdjęcie przygaszone (nasycenie 35%, jasność 75%) |
+| — | tabela „Fanuc i Sinumerik”: wersja „Series 0i-F” zamiast „0i-F Plus” (zgodnie z bibliografią — instrukcja B-64607EN nie wymienia Plus) |
+
+Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 stron): kontrast 0, przewijanie poziome 0; zostaje znany fałszywy alarm `.cm-scroller` w edytorze symulatora.
