@@ -29,13 +29,18 @@ export const f2_4: LessonDoc = {
 
   worked: {
     title: "Chłodziwo w programie płytki",
-    intro: "Sytuacja: frez VHM Ø10 obrabia kontur płytki ze stali C45 na pełną głębokość 5 mm. Chłodziwo zalewowe ma płynąć przez całe skrawanie, ale nie podczas wymiany ani po zatrzymaniu wrzeciona. Numery kroków odpowiadają numerom na osi czasu.",
+    intro: "Sytuacja: chłodziwo zalewowe ma płynąć przez całe skrawanie, ale nie podczas wymiany ani po zatrzymaniu wrzeciona. Numery kroków odpowiadają numerom na osi czasu.",
+    data: [
+      ["Narzędzie", "frez VHM Ø10 (węglik), zalecane chłodzenie zalewowe — założenie przykładu"],
+      ["Materiał", "stal C45, półfabrykat 84 × 54 (2 mm naddatku na bok)"],
+      ["Operacja", "kontur na Z−5: ap = 5, ae = 2 mm"],
+    ],
     fig: "f24-time",
     steps: [
       { x: "Krok 1: po wymianie narzędzia włączasz obroty.", code: "S2500 M03" },
       { x: "Krok 2: chłodziwo włączone przed najazdem — ciecz jest na ostrzu, zanim frez dotknie materiału.", code: "M08" },
       { x: "Krok 3: po konturze odjazd w Z.", code: "G00 Z5." },
-      { x: "Krok 4: chłodziwo wyłączone przed zatrzymaniem wrzeciona.", code: "M09 → M05" },
+      { x: "Krok 4: chłodziwo wyłączone przed zatrzymaniem wrzeciona — kolejność przyjęta w kursie na koniec operacji.", code: "M09 → M05" },
     ],
     result: "Pas „ciecz płynie” obejmuje cały najazd i kontur. Oba kody są już w programie płytki poniżej.",
   },
@@ -62,7 +67,7 @@ export const f2_4: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Przerywany strumień przy frezowaniu", x: "Dysza ustawiona tak, że strumień trafia w ostrze tylko co jakiś czas. Lepiej pracować na sucho niż z takim chłodzeniem." },
+    { title: "Przerywany strumień przy frezowaniu", x: "Dysza ustawiona tak, że strumień trafia w ostrze tylko co jakiś czas. Przerywane chłodzenie pogłębia skoki temperatury ostrza; producenci narzędzi często zalecają wtedy pracę na sucho z nadmuchem. Rozstrzyga zalecenie dla konkretnego narzędzia." },
     { title: "Dysza ustawiona pod inne narzędzie", x: "Po wymianie na dłuższe albo krótsze narzędzie strumień trafia obok ostrza. Na maszynach z ręcznymi dyszami sprawdź ich ustawienie przy pierwszej sztuce." },
     { title: "Chłodziwo przy pomiarze", x: "Detal zmierzony zaraz po obróbce na sucho jest cieplejszy i większy niż w temperaturze odniesienia 20 °C. Przy wąskich tolerancjach to różnica, którą widać na maszynie pomiarowej." },
   ],

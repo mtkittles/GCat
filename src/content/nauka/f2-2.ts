@@ -5,28 +5,33 @@ export const f2_2: LessonDoc = {
   slug: "f2-2-obroty-s-m03",
   title: "Obroty: S i M03/M04/M05",
   minutes: 12,
-  goal: "Obliczysz obroty wrzeciona z prędkości skrawania i włączysz je we właściwym kierunku.",
+  goal: "Obliczysz prędkość obrotową wrzeciona n z prędkości skrawania vc i włączysz obroty we właściwym kierunku.",
 
   theory: [
     { t: "h", x: "S i kierunek", id: "s-kierunek" },
-    { t: "p", x: "Adres **S** podaje obroty wrzeciona na minutę, np. `S2500`. Samo S niczego nie włącza — obroty startują dopiero z kodem kierunku: [[M03]] w prawo, [[M04]] w lewo. [[M05]] zatrzymuje wrzeciono." },
+    { t: "p", x: "Adres **S** podaje zadaną prędkość obrotową wrzeciona — w kursie w obr/min, np. `S2500`. Samo S niczego nie włącza — obroty startują dopiero z kodem kierunku: [[M03]] w prawo, [[M04]] w lewo. [[M05]] zatrzymuje wrzeciono." },
     { t: "diagram", id: "f22-dir" },
     { t: "p", x: "Prawie wszystkie frezy i wiertła są prawoskrętne i pracują na `M03`. `M04` służy narzędziom lewoskrętnym i specjalnym operacjom, np. wytaczaniu wstecznemu." },
 
     { t: "h", x: "Skąd wziąć S", id: "obliczanie" },
     { t: "p", x: "Producent narzędzia podaje [[vc|prędkość skrawania vc]] w m/min — prędkość ostrza względem materiału. Obroty zależą od średnicy: im mniejszy frez, tym szybciej musi się kręcić, żeby ostrze miało tę samą prędkość." },
-    { t: "code", x: "n = 1000 · vc / (π · D)\n\nvc — prędkość skrawania [m/min]\nD  — średnica narzędzia [mm]\nn  — obroty [obr/min]", caption: "1000 zamienia metry na milimetry. Kalkulator obróbki liczy to samo." },
+    { t: "code", x: "n = 1000 · vc / (π · D)\n\nvc — prędkość skrawania [m/min]\nD  — średnica narzędzia [mm]\nn  — prędkość obrotowa [obr/min]", caption: "1000 zamienia metry na milimetry. Kalkulator obróbki liczy to samo." },
     { t: "diagram", id: "vc" },
-    { t: "p", x: "W kursie wynik zaokrąglamy w dół do okrągłej wartości — rzeczywista vc wychodzi wtedy nieco niższa od katalogowej. Jeśli wynik przekracza maksymalne obroty maszyny, programujesz maksimum. Rzeczywista prędkość skrawania jest wtedy niższa: vc = π · D · n / 1000. Posuw liczysz od nowa dla tych obrotów (lekcja F2.3) — zwiększenie F nie przywraca vc, tylko zwiększa obciążenie ostrza." },
+    { t: "p", x: "W kursie wynik zaokrąglamy w dół do okrągłej wartości — rzeczywista vc wychodzi wtedy nieco niższa od katalogowej. Jeśli wynik przekracza dopuszczalne obroty — wrzeciona, ale też oprawki i narzędzia — programujesz mniejszą z tych granic. Rzeczywista prędkość skrawania jest wtedy niższa: vc = π · D · n / 1000. Posuw liczysz od nowa dla tych obrotów (lekcja F2.3) — zwiększenie F nie przywraca vc, tylko zwiększa obciążenie ostrza." },
 
     { t: "h", x: "Miejsce w programie", id: "miejsce" },
     { t: "p", x: "Obroty włącza się po wymianie narzędzia, przed pierwszym ruchem w stronę detalu: `S2500 M03`. Kolejność słów S i M w bloku nie ma znaczenia. Przed zakończeniem pracy narzędzia wrzeciono zatrzymuje `M05`." },
-    { t: "note", kind: "info", x: "Na frezarce obroty są stałe — domyślny tryb `G97`. Stała prędkość skrawania `G96`, przy której obroty zmieniają się ze średnicą, to temat ścieżki Toczenie." },
+    { t: "note", kind: "info", x: "W kursie S oznacza obr/min. Stała prędkość skrawania `G96`, przy której obroty zmieniają się ze średnicą, to temat ścieżki Toczenie. Czy frezarka w ogóle ma G96 i jaki tryb obowiązuje po włączeniu, zależy od profilu sterowania — lista kodów G zwykłej frezarki Haas jest inna niż frezarko-tokarki." },
   ],
 
   worked: {
     title: "Oblicz S dla dwóch materiałów",
-    intro: "Sytuacja: ten sam frez VHM Ø10 ma obrabiać detal ze stali C45 (vc = 80 m/min) i z aluminium (vc = 300 m/min). Wartości vc to założenie przykładu. Maszyna daje najwyżej 8000 obr/min. Rysunek porównuje wyliczone obroty z tym limitem.",
+    intro: "Sytuacja: ten sam frez ma obrabiać detal ze stali i z aluminium. Rysunek porównuje wyliczone obroty z limitem.",
+    data: [
+      ["Narzędzie", "frez VHM Ø10, prawoskrętny"],
+      ["vc", "stal C45 — 80 m/min, aluminium — 300 m/min (założenie przykładu)"],
+      ["Limit", "8000 obr/min — przyjmujemy, że dopuszczają go wrzeciono, oprawka i frez"],
+    ],
     fig: "f22-limit",
     steps: [
       { x: "Stal: 1000 · 80 / (π · 10) ≈ 2546 obr/min. Zaokrąglasz w dół.", code: "S2500" },
@@ -65,16 +70,16 @@ export const f2_2: LessonDoc = {
 
   pitfalls: [
     { title: "Promień zamiast średnicy", x: "We wzorze stoi średnica D. Wstawienie promienia daje obroty dwa razy za duże — ostrza szybko się przegrzewają." },
-    { title: "M04 z narzędziem prawoskrętnym", danger: true, x: "Ostrza trą grzbietem zamiast skrawać. Narzędzie się grzeje, a po chwili pęka." },
+    { title: "M04 z narzędziem prawoskrętnym", danger: true, x: "Ostrza trą grzbietem zamiast skrawać. Narzędzie się grzeje i może się wykruszyć albo pęknąć." },
     { title: "S bez M03", danger: true, x: "Po wymianie narzędzia program ustawia `S3000`, ale bez `M03`. Wrzeciono stoi, a następny ruch roboczy wprowadza nieruchome narzędzie w materiał." },
-    { title: "Obroty dla poprzedniego narzędzia", x: "S jest modalne. Po wymianie frezu Ø10 na wiertło Ø3 bez nowego S wiertło pracuje z obrotami frezu — ponad trzy razy za wolno." },
+    { title: "Obroty dla poprzedniego narzędzia", x: "S jest modalne. Po wymianie frezu Ø10 na wiertło Ø3 bez nowego S wiertło pracuje z obrotami frezu. Przy tym samym zalecanym vc to ponad trzy razy za wolno; różne narzędzia mają jednak różne zalecenia, więc S liczy się dla każdego od nowa." },
   ],
 
   controllers: {
     rows: [
       ["Obroty", "`S2500`", "`S2500` (dla wrzeciona głównego)"],
       ["Kierunek i stop", "`M03` `M04` `M05`", "`M3` `M4` `M5`"],
-      ["Obroty stałe", "`G97` — domyślne na frezarce", "`G97` — domyślne na frezarce"],
+      ["Obroty stałe", "`G97`, jeśli sterowanie ma tryb G96; stan po włączeniu — parametr", "`G97`; stan po włączeniu — dane maszynowe"],
     ],
     note: "Na maszynach z kilkoma wrzecionami Sinumerik adresuje je numerem: `S1=…`, `M1=3`. Na zwykłej frezarce wystarczy `S` i `M3`.",
   },
@@ -92,7 +97,7 @@ export const f2_2: LessonDoc = {
   summary: [
     "S ustawia obroty, M03/M04 je uruchamiają, M05 zatrzymuje.",
     "n = 1000 · vc / (π · D). Mniejsza średnica — większe obroty.",
-    "Wynik zaokrąglasz w dół i ograniczasz do maksimum maszyny. Przy ograniczonych obrotach vc spada, a F liczysz od nowa.",
+    "Wynik zaokrąglasz w dół i ograniczasz do dopuszczalnych obrotów wrzeciona, oprawki i narzędzia. Przy ograniczonych obrotach vc spada, a F liczysz od nowa.",
     "Obroty włączasz po każdej wymianie narzędzia, przed ruchem do detalu.",
   ],
 
@@ -101,5 +106,7 @@ export const f2_2: LessonDoc = {
     { id: "sandvik", where: "zalecane prędkości skrawania dla frezów VHM" },
     { id: "fanuc", where: "funkcja S, M03/M04/M05" },
     { id: "sinumerik", where: "S, M3/M4/M5, adresowanie wrzecion" },
+    { id: "haas", where: "lista kodów G frezarki Haas (profil sterowania)" },
+    { id: "kuryjanski", where: "prędkość skrawania i prędkość obrotowa, wzór n = 1000 · vc / (π · D)", loc: "s. 53" },
   ],
 };

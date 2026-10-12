@@ -96,7 +96,7 @@ export function ToothFeed() {
   return (
     <Fig id="f23fz" code="fz" title="fz to przesunięcie, h to grubość wióra" h={262} legend={["cut", "acc"]}
       notes={<Code k="acc">vf = fz · z · n</Code>}
-      caption={<>Widok z góry, skala przesadzona. Punkty 1 i 2 to środek freza w chwili pracy dwóch kolejnych ostrzy — dzieli je <b>fz</b>, czyli droga, a nie grubość wióra. Ostrze 2 zbiera sierp materiału między swoim torem a torem ostrza 1. Grubość sierpa <b>h</b> zależy od miejsca: w kierunku posuwu h = fz, w stronę boku freza maleje do zera. Przy małym ae ostrza pracują tylko w pasie nad przerywaną linią, więc największe h jest mniejsze niż fz — to pocienianie wióra.</>}>
+      caption={<>Model uproszczony: widok z góry, skala przesadzona, ostrza po okręgach przesuniętych o fz (rzeczywisty tor ostrza jest trochoidą). Punkty 1 i 2 to środek freza w chwili pracy dwóch kolejnych ostrzy — dzieli je <b>fz</b>, czyli droga, a nie grubość wióra. Ostrze 2 zbiera sierp materiału między swoim torem a torem ostrza 1. Grubość sierpa <b>h</b> zależy od miejsca: w kierunku posuwu h = fz, w stronę boku freza maleje do zera. Przy małym ae ostrza pracują tylko w pasie nad przerywaną linią, więc największe h jest mniejsze niż fz — to pocienianie wióra.</>}>
       {(c) => (
         <g>
           <path d={`M ${ix} ${c1.y - iy} A ${r} ${r} 0 1 1 ${ix} ${c1.y + iy} A ${r} ${r} 0 0 0 ${ix} ${c1.y - iy} Z`} className="p-fill-acc" />
@@ -232,7 +232,7 @@ export function ToolTimeline() {
   return (
     <Fig id="f21tl" code="T M06" title="Wymiana i przygotowanie narzędzia w czasie" h={176}
       notes={<><Code k="acc">T1 M06 → T2 → … M05 → M06</Code></>}
-      caption={<>Oś pozioma to kolejność bloków programu. 1 — wymiana na T1. 2 — <code>T2</code> obraca magazyn i ustawia nawiertak w pozycji wymiany, podczas gdy frez T1 już skrawa. 3 — po obróbce odjazd i stop wrzeciona. 4 — <code>M06</code> zamienia narzędzia od razu, bez czekania na magazyn.</>}>
+      caption={<>Schemat kolejności, nie pełny program skrawania. Oś pozioma to kolejność bloków programu. <b>T2 przygotowuje</b> (jeśli magazyn obsługuje preselekcję), <b>M06 wymienia</b>. 1 — wymiana na T1. 2 — <code>T2</code> obraca magazyn i ustawia nawiertak w pozycji wymiany, podczas gdy frez T1 już skrawa. 3 — po obróbce odjazd i stop wrzeciona. 4 — <code>M06</code> zamienia narzędzia od razu, bez czekania na magazyn.</>}>
       {() => (
         <Timeline rows={["wrzeciono", "magazyn"]}
           bars={[
@@ -254,16 +254,16 @@ export function CoolantTimeline() {
   return (
     <Fig id="f24tl" code="M08 M09" title="Chłodziwo w programie płytki" h={222}
       notes={<><Code k="acc">S2500 M03 → M08 → … → G00 Z5. → M09 → M05</Code></>}
-      caption={<>Oś pozioma to kolejność bloków. 1 — obroty. 2 — chłodziwo płynie, zanim frez dojedzie do materiału. 3 — po konturze odjazd w Z. 4 — najpierw M09, potem M05: wrzeciono nie stoi zalane, a ostatnie obroty zrzucają ciecz z narzędzia.</>}>
+      caption={<>Oś pozioma to kolejność bloków. 1 — obroty. 2 — chłodziwo płynie, zanim frez dojedzie do materiału. 3 — po konturze odjazd w Z. 4 — najpierw M09, potem M05 — kolejność przyjęta w kursie na koniec operacji.</>}>
       {() => (
         <Timeline rows={["wrzeciono", "ruch", "chłodziwo"]}
           bars={[
-            { row: 0, x0: 0, x1: 86, t: "obroty M03", cls: "p-fill-acc" },
-            { row: 1, x0: 22, x1: 66, t: "najazd i kontur", cls: "p-fill-cut" },
-            { row: 2, x0: 10, x1: 76, t: "M08 — ciecz płynie", cls: "p-fill-cut" },
+            { row: 0, x0: 0, x1: 90, t: "obroty M03", cls: "p-fill-acc" },
+            { row: 1, x0: 28, x1: 62, t: "najazd i kontur", cls: "p-fill-cut" },
+            { row: 2, x0: 13, x1: 76, t: "M08 — ciecz płynie", cls: "p-fill-cut" },
           ]}
-          ticks={[[0, "M03"], [10, "M08"], [22, "najazd"], [66, "Z5."], [76, "M09"], [86, "M05"]]}
-          steps={[[3, 0, 1], [10, 2, 2], [66, 1, 3], [76, 2, 4]]} />
+          ticks={[[0, "M03"], [13, "M08"], [28, "najazd"], [62, "Z5."], [76, "M09"], [90, "M05"]]}
+          steps={[[3, 0, 1], [13, 2, 2], [62, 1, 3], [76, 2, 4]]} />
       )}
     </Fig>
   );
@@ -276,7 +276,7 @@ export function SpindleLimit() {
   return (
     <Fig id="f22lm" code="S" title="Wyliczone S a maksimum wrzeciona" h={150}
       notes={<><Code k="acc">stal: S2500 M03</Code><Code k="acc">aluminium: S8000 M03 → vc ≈ 251</Code></>}
-      caption={<>Słupek — obroty z wzoru n = 1000 · vc / (π · D) dla freza Ø10. Pionowa kreska — maksimum maszyny 8000 obr/min. Część ponad limitem (czerwona) jest nieosiągalna, więc w programie stoi S8000, a skrawanie idzie z mniejszą vc.</>}>
+      caption={<>Słupek — prędkość obrotowa n [obr/min] z wzoru n = 1000 · vc / (π · D) dla freza Ø10. Pionowa kreska — przyjęty limit 8000 obr/min (wrzeciono, oprawka i frez). Część ponad limitem (czerwona) jest nieosiągalna, więc w programie stoi S8000, a skrawanie idzie z mniejszą vc.</>}>
       {() => (
         <g>
           {rows.map(([n, v, s], i) => {
@@ -292,7 +292,7 @@ export function SpindleLimit() {
             );
           })}
           <line x1={X(8000)} y1={14} x2={X(8000)} y2={112} className="p-bad" />
-          <T x={X(8000)} y={126} anchor="middle" cls="t-bad t-sm t-b">max 8000</T>
+          <T x={X(8000)} y={126} anchor="middle" cls="t-bad t-sm t-b">max 8000 obr/min</T>
         </g>
       )}
     </Fig>
