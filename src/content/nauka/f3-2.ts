@@ -37,7 +37,7 @@ export const f3_2: LessonDoc = {
     { t: "h", x: "Ruch po prostej z posuwem", id: "g01" },
     { t: "p", x: "[[G01]] prowadzi narzędzie po odcinku prostym z posuwem F. Wszystkie osie podane w bloku ruszają i kończą razem, więc tor jest prosty także przy ruchu ukośnym albo w trzech osiach naraz. To podstawowy ruch skrawający." },
     { t: "diagram", id: "g01" },
-    { t: "p", x: "G01 potrzebuje posuwu. Jeśli w programie nie padło jeszcze żadne F, pierwszy blok G01 kończy się alarmem. Dalej F jest modalne — obowiązuje, dopóki nie wpiszesz nowego." },
+    { t: "p", x: "Przed ruchem G01 trzeba zadać właściwy dodatni posuw F — w tym bloku albo wcześniej. F jest modalne: obowiązuje, dopóki nie wpiszesz nowej wartości. Sam początek nowego programu nie gwarantuje, że wcześniejszy posuw został skasowany. W ćwiczeniach o brakującym F przyjmujemy brak aktywnego dodatniego posuwu i profil zgłaszający wtedy alarm." },
 
     { t: "h", x: "Zejście na głębokość i wejście w materiał", id: "wejscie" },
     { t: "p", x: "W programie płytki zejście na głębokość odbywa się obok półfabrykatu, w powietrzu: frez schodzi w X−20 na `Z-5.` z `F150` (założenie z lekcji F2.3). Ten ruch niczego nie skrawa. W materiał frez wchodzi dopiero w następnym bloku, `G01 X-5. F400` — na ostatnich 2 mm drogi krawędź freza wchodzi bokiem w naddatek. Zejście pionowo nad materiałem wymaga posuwu wgłębnego z katalogu freza i ostrzy dochodzących do środka; lekcja F6.2 pokazuje wejście rampą." },
@@ -50,7 +50,8 @@ export const f3_2: LessonDoc = {
       ["prawa, X80", "X85", "`G01 Y-5.`"],
       ["dolna, Y0", "Y−5", "`G01 X-5.`"],
     ] },
-    { t: "p", x: "Kierunek obiegu zgodny z ruchem wskazówek zegara przy obrotach M03 daje [[frezowanie współbieżne]] — lepszą powierzchnię i dłuższą trwałość ostrza przy obróbce konturu zewnętrznego." },
+    { t: "p", x: "W pokazanej obróbce konturu zewnętrznego obieg narzędzia zgodny z ruchem wskazówek zegara przy M03 daje [[frezowanie współbieżne]]. Grubość warstwy skrawanej przez ostrze maleje od największej do zera. Taki sposób jest zwykle zalecany na CNC, ale jakość powierzchni i trwałość narzędzia zależą też od materiału, parametrów i sztywności układu." },
+    { t: "more", title: "Kontur zewnętrzny a wewnętrzny — kierunek obiegu", blocks: [{ t: "diagram", id: "f32-winding" }] },
     { t: "demo", mode: "mill", title: "Kontur płytki z odcinków", src: "G21 G90 G94 G17 G54\nG00 Z50.\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nY55.\nX85.\nY-5.\nX-5.\nY10.\nG00 Z5.\nM30",
       caption: "Zielone odcinki to G01, bursztynowe przerywane — G00." },
   ],
@@ -59,6 +60,7 @@ export const f3_2: LessonDoc = {
     title: "Policz tor środka dla konturu płytki",
     intro: "Sytuacja: półfabrykat 84 × 54, kontur gotowy 80 × 50, zero W w lewym dolnym narożniku konturu gotowego. Frez Ø10 (r = 5) zszedł obok półfabrykatu w X−20 Y10 na Z−5. Ma obejść cały obwód zgodnie z zegarem. Program podaje środek freza, a rysunek ma wymiary konturu gotowego — trzeba je przeliczyć. Numery odpowiadają krawędziom na rysunku.",
     data: [
+      ["Profil", "frezarka pionowa, Fanuc 0i-F; G21, G90, G94, G17, G54; G43 H1"],
       ["Zero W", "lewy dolny narożnik konturu gotowego, Z0 na górnej powierzchni"],
       ["Półfabrykat", "84 × 54 × 20 — po 2 mm naddatku na bok płytki 80 × 50"],
       ["Narzędzie", "frez Ø10 (r = 5), S2500 M03"],
@@ -99,7 +101,7 @@ export const f3_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G01 bez F", x: "Pierwszy G01 w programie bez posuwu: alarm. Gorzej, gdy F zostało z poprzedniego narzędzia — maszyna pojedzie, ale z posuwem, który do tego narzędzia nie pasuje." },
+    { title: "G01 bez właściwego F", x: "Nie polegaj na wartości pozostawionej przez poprzednią operację. Jeśli nie ma aktywnego dodatniego F, profil z tego ćwiczenia zgłosi alarm; jeśli F zostało zachowane, ruch może odbyć się z niewłaściwą prędkością." },
     { title: "Zapomniany promień", x: "Tor poprowadzony po samym konturze, X0…X80, a nie X−5…X85. Frez zbiera po 5 mm z każdej strony i detal wychodzi 10 mm mniejszy." },
     { title: "Wejście nad detalem", danger: true, x: "`G01 Z-5.` wpisane, gdy frez stoi nad płytką, a nie obok niej. Frez wchodzi pionowo w pełny materiał — wiele frezów nie ma ostrza przez środek i tak nie skrawa." },
     { title: "Wejście z posuwem konturowym", danger: true, x: "Jedno F400 także dla zejścia w Z nad materiałem — ostrza czołowe dostają posuw dobrany dla obwodu i są przeciążone. Zejście w powietrzu, obok półfabrykatu, ostrzy nie obciąża." },
@@ -115,13 +117,13 @@ export const f3_2: LessonDoc = {
   },
 
   quiz: [
-    {"kind":"bughunt","q":"Pierwszy ruch roboczy w programie. Który blok zgłosi alarm?","program":"G00 X-20. Y10.\nG00 Z5.\nG01 Z-5.\nG01 X-5. F400\nG01 Y55.","answer":2,"why":"Pierwszy G01 bez posuwu F — sterowanie nie wie, jak szybko zejść i zgłasza alarm. Zejście potrzebuje własnego F, np. F150."},
+    {"kind":"bughunt","q":"Nie ma aktywnego dodatniego F; sterowanie z przykładu zgłasza wtedy alarm. Wskaż blok, który go wywoła.","program":"G00 X-20. Y10.\nG00 Z5.\nG01 Z-5.\nG01 X-5. F400\nG01 Y55.","answer":2,"why":"Pierwszy G01 nie ma zadanego dodatniego posuwu. Wpisz F dla tego zejścia, np. F150. Późniejsze F400 nie działa wstecz."},
     {"kind":"choice","q":"Gdzie skończy frez po tym fragmencie?","code":"G90 G00 X10. Y10. Z5.\nG01 Z-2. F100\nX40.\nY30.\nG00 Z5.","options":["X40 Y30 Z5","X40 Y30 Z−2","X10 Y30 Z5","X40 Y10 Z5"],"answer":0,"why":"Bloki `X40.` i `Y30.` dziedziczą G01; ostatni blok podnosi Z do 5, X i Y zostają."},
 
     { kind: "choice", review: "F3.1", q: "Po `G00 Z5.` programista chce zejść na Z−5. Który blok?", options: ["`Z-5.`", "`G01 Z-5. F150`", "`G00 Z-5.`", "`G28 Z-5.`"], answer: 1, why: "Bez G01 obowiązuje G00 z poprzedniego bloku." },
     { kind: "choice", q: "Czym G01 różni się od G00?", options: ["jedzie z posuwem F po odcinku prostym", "jedzie szybciej", "działa tylko w Z", "nie wymaga współrzędnych"], answer: 0, why: "G01 to ruch roboczy z posuwem." },
     { kind: "gap", q: "Frez Ø12, prawa krawędź detalu w X60. Jaki X środka dla obróbki tej krawędzi z zewnątrz?", template: "X{0}", answers: [["66"]], why: "60 + 6 = 66." },
-    { kind: "choice", q: "Program bez żadnego F ma blok `G01 X50.`. Co się stanie?", options: ["alarm — brak posuwu", "ruch z maksymalną prędkością", "ruch z F100", "ruch G00"], answer: 0, why: "G01 wymaga posuwu." },
+    { kind: "choice", q: "Nie ma aktywnego dodatniego F. Co zrobi profil z ćwiczenia przy `G01 X50.`?", options: ["alarm — brak posuwu", "ruch z maksymalną prędkością", "ruch z F100", "ruch G00"], answer: 0, why: "W tym ćwiczeniu sterowanie wymaga dodatniego posuwu i zgłasza alarm, gdy go brakuje. Stan po poprzednim programie trzeba sprawdzić osobno." },
     { kind: "choice", q: "Obieg konturu zewnętrznego zgodnie z zegarem przy M03 — jakie to frezowanie?", options: ["frezowanie współbieżne", "frezowanie przeciwbieżne", "wiercenie", "bez znaczenia"], answer: 0, why: "Ostrze wchodzi w materiał od najgrubszego wióra." },
     { kind: "token", q: "Który blok ustawia narzędzie na głębokości Z−5?", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 1, why: "`G01 Z-5. F150` — zejście na głębokość obok półfabrykatu, w powietrzu." },
     { kind: "token", q: "Który blok jako pierwszy **skrawa** — wprowadza frez w naddatek?", block: "G00 Z5. | G01 Z-5. F150 | G01 X-5. F400", answer: 2, why: "Półfabrykat zaczyna się na X−2. Przy dojeździe do X−5 krawędź freza przechodzi z X−15 do X0 i na ostatnich 2 mm wchodzi w materiał." },
@@ -130,13 +132,13 @@ export const f3_2: LessonDoc = {
 
   summary: [
     "G01 — odcinek prosty z posuwem F. Wszystkie osie ruszają i kończą razem.",
-    "Pierwsze G01 potrzebuje F, dalej F jest modalne.",
+    "G01 potrzebuje właściwego aktywnego F. Posuw jest modalny — zadawaj go świadomie dla każdej operacji.",
     "Zejście w Z obok półfabrykatu, w powietrzu. Pierwszy ruch w materiale to dojazd do konturu z posuwem konturowym.",
     "Program prowadzi środek freza — o promień od konturu gotowego. Naddatek zbiera krawędź freza.",
   ],
 
   sources: [
-    { id: "fanuc", where: "interpolacja liniowa G01, posuw", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79" },
+    { id: "fanuc", where: "interpolacja liniowa G01, posuw; zachowanie przy F0 zależne od 1404#7 FC0", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79; rozdz. 7.2.11, s. 171" },
     { id: "sinumerik", where: "G1, CHF/CHR i RND" },
     { id: "sandvik", where: "frezowanie współbieżne i przeciwbieżne" },
   ],

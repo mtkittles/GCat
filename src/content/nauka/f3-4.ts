@@ -26,18 +26,18 @@ export const f3_4: LessonDoc = {
 
   theory: [
     { t: "h", x: "Środek zamiast promienia", id: "srodek" },
-    { t: "p", x: "Zamiast R można podać położenie środka łuku. **I** to odległość w osi X, a **J** w osi Y — liczone od punktu startu łuku do jego środka. Na Fanucu I i J są zawsze przyrostowe, także przy aktywnym G90." },
+    { t: "p", x: "Zamiast R można podać środek łuku. W G17 **I** i **J** to przyrostowe składowe wektora od punktu początkowego łuku do jego środka: I w osi X, J w osi Y. Składowe mają znak. W przyjętym profilu Fanuc 0i-F liczymy je od startu także przy aktywnym G90 — G90 określa zapis punktu końcowego, nie tych składowych." },
     { t: "code", x: "I = X środka − X startu\nJ = Y środka − Y startu" },
     { t: "diagram", id: "g03" },
 
     { t: "h", x: "Pełny okrąg", id: "okrag" },
-    { t: "p", x: "Środek wyznacza łuk jednoznacznie, więc I i J pozwalają zapisać pełny okrąg: blok bez X i Y kończy łuk w punkcie startu. Tak frezuje się rowki pierścieniowe, obwiednie otworów i kieszeni okrągłych." },
+    { t: "p", x: "Punkt początkowy, środek i kierunek określają okrąg. W profilu kursu blok G02/G03 z I/J bez X i Y wraca do punktu startu po pełnym obrocie. Można tak prowadzić oś freza po rowku pierścieniowym lub po konturze otworu. Jeden obieg nie oznacza wybrania całego materiału kieszeni." },
     { t: "diagram", id: "f34-circle" },
 
     { t: "h", x: "R czy I, J", id: "r-czy-ij" },
     { t: "ul", items: [
       "**R** jest krótsze i łatwiejsze do sprawdzenia z rysunkiem. Nie zapisze pełnego okręgu.",
-      "**I, J** działają dla każdego łuku, także pełnego. Przy łukach bliskich 180° są dokładniejsze — tam małe zaokrąglenie punktu końcowego mocno przesuwa środek wyliczony z R.",
+      "**I, J** jawnie określają środek i pozwalają zapisać pełny okrąg. Przy łukach bliskich 180° ograniczają problem dużej zmiany wyliczonego środka wskutek małego zaokrąglenia danych R i końca łuku. Nadal trzeba podać zgodne punkty i środek.",
       "Programy z CAM używają zwykle I, J. Przy pisaniu ręcznym wygodniejsze bywa R.",
     ] },
     { t: "widget", id: "rij" },
@@ -46,6 +46,12 @@ export const f3_4: LessonDoc = {
   worked: {
     title: "Naroże płytki przez I, J",
     intro: "Sytuacja: to samo naroże co w F3.3 — start łuku X−5 Y40, koniec X10 Y55, środek X10 Y40. Tym razem zamiast R podajesz położenie środka: I i J to przesunięcie od startu łuku do środka. Numery odpowiadają rysunkowi.",
+    data: [
+      ["Profil", "Fanuc 0i-F; G21, G90, G94, G17, G54; G43 H1"],
+      ["Narzędzie", "frez Ø10, S2500 M03; łuk na Z−5 z aktywnym F400"],
+      ["Punkty XY", "start (−5; 40), koniec (10; 55), środek (10; 40) — współrzędne w mm"],
+      ["Wektor do środka", "I = 10 − (−5) = 15 mm; J = 40 − 40 = 0 mm"],
+    ],
     fig: "f34-ij",
     steps: [
       { x: "Krok 1, I: X środka − X startu = 10 − (−5).", code: "I15." },
@@ -59,7 +65,7 @@ export const f3_4: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Rowek pierścieniowy: pełny okrąg o promieniu 10 mm wokół X40 Y25, 2 mm w głąb. Frez stoi już nad punktem X50 Y25.",
+      intro: "Zaprogramuj przez I/J pełny okrąg toru osi freza R10 o środku X40 Y25, na Z−2. Frez Ø10 stoi nad X50 Y25. W modelu tworzy rowek pierścieniowy szerokości 10 mm: promień wewnętrzny 5 mm, zewnętrzny 15 mm. R10 dotyczy toru osi, nie żadnej ze ścianek rowka.",
       starter,
       checks: [
         { t: "cut", reference: "G90\nG00 X50. Y25.\nG00 Z5.\nG01 Z-2. F100\nG02 I-10. J0. F300\nG00 Z5.", tolerance: 0.05 },
@@ -83,15 +89,15 @@ export const f3_4: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "I, J liczone od zera W", x: "Wpisanie współrzędnych środka zamiast odległości od startu: `I40. J25.` zamiast `I-10. J0.`. Środek ląduje daleko od detalu, a sterowanie zgłasza błąd promienia albo jedzie ogromnym łukiem." },
+    { title: "I, J liczone od zera W", x: "Wpisanie współrzędnych środka zamiast przyrostów od startu: `I40. J25.` zamiast `I-10. J0.`. Ze startu X50 Y25 otrzymasz środek X90 Y50. Przy pełnym okręgu tor będzie znacznie większy od wymaganego, a przy zadanym końcu może wystąpić błąd zgodności promieni." },
     { title: "Pominięty znak", x: "Środek na lewo od startu ma ujemne I. Bez minusa środek przeskakuje na drugą stronę i łuk wychodzi po przeciwnej stronie punktu startu." },
     { title: "Punkt końcowy poza okręgiem", x: "Koniec łuku zaokrąglony tak, że nie leży dokładnie na okręgu o danym środku. Małą różnicę sterowanie przyjmie, większą odrzuci alarmem." },
   ],
 
   controllers: {
     rows: [
-      ["Środek łuku", "`I J K`, zawsze przyrostowo od startu", "`I J K`, domyślnie przyrostowo od startu"],
-      ["Środek absolutnie", "brak na frezarce", "`I=AC(40) J=AC(25)`"],
+      ["Środek łuku", "`I J K`, przyrostowo od startu w profilu kursu", "`I J K`, domyślnie przyrostowo od startu"],
+      ["Środek absolutnie", "w profilu kursu stosujemy przyrostowe I/J", "`I=AC(40) J=AC(25)`"],
       ["Pełny okrąg", "`G02 I… J…` bez X i Y", "`G2 I… J…` bez X i Y"],
     ],
     note: "Na obu sterowaniach I i J domyślnie liczą się od punktu startu. Sinumerik pozwala podać środek w układzie detalu przez `AC`.",
@@ -99,18 +105,18 @@ export const f3_4: LessonDoc = {
 
   quiz: [
     { kind: "gap", review: "F3.3", q: "Naroże detalu R5, frez Ø6, obróbka z zewnątrz. Jaki promień ma łuk toru środka freza?", template: "R{0}", answers: [["8"]], why: "5 + 3 = 8." },
-    { kind: "choice", q: "Od czego liczy się I i J na Fanucu?", options: ["od punktu startu łuku", "od zera W", "od końca łuku", "zależnie od G90/G91"], answer: 0, why: "I i J są przyrostowe od startu, niezależnie od G90." },
+    { kind: "choice", q: "Od czego liczy się I i J w profilu Fanuc 0i-F tego kursu?", options: ["od punktu startu łuku", "od zera W", "od końca łuku", "zależnie od G90/G91"], answer: 0, why: "I i J są przyrostowe od startu także przy G90. Zachowanie innych profili sprawdzasz w ich dokumentacji." },
     { kind: "gap", q: "Start X30 Y20, środek X30 Y5. Podaj I i J.", template: "I{0} J{1}", answers: [["0"], ["-15"]], why: "I = 0, J = 5 − 20 = −15." },
     { kind: "choice", q: "Który zapis da pełny okrąg?", options: ["`G02 X50. Y25. R10.` ze startem w X50 Y25", "`G02 I-10.` ze startem w X50 Y25", "`G01 I-10.`", "`G02 R-10.`"], answer: 1, why: "Blok z I i bez X, Y kończy łuk w punkcie startu." },
     { kind: "choice", q: "Kiedy I, J są wyraźnie lepsze od R?", options: ["przy łukach bliskich 180° i pełnych okręgach", "przy krótkich łukach 90°", "nigdy", "tylko w G91"], answer: 0, why: "Środek wyliczany z R jest tam bardzo czuły na zaokrąglenia." },
-    { kind: "token", q: "Wskaż słowo, które podaje **odległość do środka w osi Y**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka." },
+    { kind: "token", q: "Wskaż słowo, które podaje **składową Y wektora do środka**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka, z uwzględnieniem znaku." },
   ],
 
   summary: [
-    "I, J — odległość od startu łuku do środka, w osiach X i Y.",
-    "Na Fanucu I, J są zawsze przyrostowe.",
+    "I, J — przyrostowe składowe wektora od startu łuku do środka, w osiach X i Y, ze znakiem.",
+    "W profilu Fanuc 0i-F kursu I/J są przyrostowe także przy G90.",
     "Pełny okrąg: G02/G03 z I, J, bez X i Y.",
-    "R jest wygodne przy ręcznym pisaniu, I, J — dokładniejsze i uniwersalne.",
+    "R jest wygodne przy ręcznym pisaniu. I/J jawnie określają środek i pozwalają zapisać pełny okrąg; nie zastępują kontroli geometrii.",
   ],
 
   sources: [

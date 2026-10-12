@@ -45,7 +45,7 @@ export const f3_3: LessonDoc = {
     { t: "h", x: "Znak R", id: "znak-r" },
     { t: "p", x: "Między dwoma punktami przechodzą dwa łuki o tym samym promieniu i kierunku: krótki i długi. Dodatnie R wybiera łuk do 180°, ujemne — ponad 180°." },
     { t: "diagram", id: "f33-rsign" },
-    { t: "p", x: "Jeśli odległość między punktami jest większa niż średnica 2R, takiego łuku nie ma — sterowanie zgłosi alarm. Pełnego okręgu przez R zapisać się nie da, bo start i koniec są w tym samym miejscu. Do tego służą I i J (lekcja F3.4)." },
+    { t: "p", x: "Jeśli odległość między punktami jest większa niż 2 · |R|, takiego łuku nie ma: cięciwa nie może być dłuższa od średnicy. Wartość bezwzględna jest potrzebna, bo ujemne R wybiera długi łuk, a nie ujemną średnicę. Sterowanie zgłosi błąd zgodnie ze swoją diagnostyką i tolerancją. W profilu kursu pełny okrąg w jednym bloku zapisujesz przez I i J, nie R (lekcja F3.4)." },
 
     { t: "h", x: "Naroża płytki", id: "naroza" },
     { t: "p", x: "Płytka dostaje naroża R10. Frez Ø10 jedzie środkiem o 5 mm dalej od konturu, więc na narożu wypukłym promień jego toru to 10 + 5 = 15. Środek łuku narzędzia pokrywa się ze środkiem naroża detalu." },
@@ -56,6 +56,13 @@ export const f3_3: LessonDoc = {
   worked: {
     title: "Pierwsze naroże konturu",
     intro: "Sytuacja: frez Ø10 jedzie w górę lewą krawędzią płytki, X−5. Naroże detalu ma promień R10 i środek w X10 Y40. Tor środka freza musi to naroże obejść łukiem — rysunek pokazuje detal, tor i oba punkty styku.",
+    data: [
+      ["Profil", "Fanuc 0i-F, frezarka pionowa; G21, G90, G94, G17, G54; G43 H1"],
+      ["Kontur gotowy", "80 × 50, naroża R10; W w lewym dolnym narożniku obrysu, Z0 na górze"],
+      ["Narzędzie", "frez Ø10 (r = 5), S2500 M03; tor osi odsunięty od konturu o 5 mm"],
+      ["Łuk", "start X−5 Y40 Z−5; koniec X10 Y55 Z−5; środek X10 Y40, promień toru R15"],
+      ["Stan ruchu", "po dojeździe w G01 z F400; następny łuk dziedziczy F400"],
+    ],
     fig: "f33-corner",
     steps: [
       { x: "Odcinek kończy się na wysokości środka naroża — tu zaczyna się łuk.", code: "G01 Y40." },
@@ -92,7 +99,7 @@ export const f3_3: LessonDoc = {
 
   pitfalls: [
     { title: "G02 zamiast G03", x: "Pomylony kierunek daje łuk wygięty w drugą stronę — na narożu wypukłym frez wcina się w detal. Sprawdzaj kierunek, patrząc z góry." },
-    { title: "Promień naroża zamiast toru", x: "`R10.` zamiast `R15.` przy torze odsuniętym o promień freza. Punkt końcowy i promień do siebie nie pasują — alarm albo łuk o innym środku." },
+    { title: "Promień naroża zamiast toru", x: "Dla startu X−5 Y40 i końca X10 Y55 cięciwa ma √(15² + 15²) ≈ 21,21 mm. R10 daje średnicę 20 mm, więc nie może połączyć tych punktów rzeczywistym łukiem. To błąd geometrii, nie wybór innego środka. Prawidłowy promień toru wynosi R15." },
     { title: "Odcinek do rogu przed łukiem", x: "`G01 Y55.` zamiast `G01 Y40.`, a potem łuk. Frez dojechał już do narożnika toru, więc łuk zaczyna się w złym miejscu." },
     { title: "Pełny okrąg przez R", x: "`G02 X50. Y25. R10.` ze startem w X50 Y25 — start i koniec w tym samym punkcie. Sterowanie nie wykona okręgu. Pełny okrąg zapisuje się przez I i J." },
   ],

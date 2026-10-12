@@ -11,7 +11,7 @@ export function SafeApproach() {
   return (
     <Fig id="f31ap" code="G00" title="Najazd ruchem szybkim — widok z boku" h={250} legend={["rap", "bad", "stock"]}
       notes={<><Code k="rap">G00 X-20. Y10.</Code><Code k="rap">G00 Z5.</Code><Code k="bad">G00 X-20. Y10. Z5.</Code></>}
-      caption={<>Przy ruchu szybkim osie często jadą niezależnie, każda z pełną prędkością. Oś Z kończy wcześniej i reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół. Frez Ø10 w X−20 ma krawędzie w X−25 i X−15, więc do detalu (X0) zostaje 15 mm. Docisk i szczęki trzeba sprawdzić osobno — ich położenie wynika z ustawienia detalu.</>}>
+      caption={<>Rzut toru na XZ; Y zmienia się z 25 na 10. Czerwona łamana pokazuje możliwy wariant przy niezależnych osiach i jednakowych prędkościach X/Z, z pominięciem dynamiki: Z kończy wcześniej, a dalszy ruch przebiega przez docisk. Dokładne załamanie zależy od maszyny. W tym przykładzie przejazd XY na Z50, a potem osobny zjazd w Z omija przeszkodę. Frez Ø10 w X−20 ma krawędzie X−25 i X−15 — do X0 jest 15 mm. Schemat pokazuje fragment zamocowania; prześwit oprawki i szczęk sprawdzasz osobno.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={60 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -19,6 +19,10 @@ export function SafeApproach() {
           <T x={m.X(-1)} y={m.Y(4.5) + 4} anchor="middle" cls="t-mut t-sm">docisk</T>
           <line x1={m.X(-36)} y1={m.Y(0)} x2={m.X(66)} y2={m.Y(0)} className="p-cons" />
           <T x={m.X(64)} y={m.Y(0) - 5} anchor="end" cls="t-mut t-mono">Z0</T>
+          <line x1={m.X(52)} y1={m.Y(30)} x2={m.X(62)} y2={m.Y(30)} className="p-dim" markerEnd={c.a("dim")} />
+          <line x1={m.X(52)} y1={m.Y(30)} x2={m.X(52)} y2={m.Y(40)} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(64)} y={m.Y(30) + 4} cls="t-ax">X</T>
+          <T x={m.X(52) + 5} y={m.Y(41)} cls="t-ax">Z</T>
           <line x1={m.X(S.x)} y1={m.Y(S.z)} x2={m.X(E.x) + 3} y2={m.Y(S.z)} className="p-rap thick" markerEnd={c.a("rap")} />
           <line x1={m.X(E.x)} y1={m.Y(S.z)} x2={m.X(E.x)} y2={m.Y(E.z) - 3} className="p-rap thick" markerEnd={c.a("rap")} />
           <polyline points={`${m.X(S.x)},${m.Y(S.z)} ${m.X(knee.x)},${m.Y(knee.z)} ${m.X(E.x) + 3},${m.Y(E.z)}`} className="p-bad" markerEnd={c.a("bad")} />
@@ -31,7 +35,7 @@ export function SafeApproach() {
           <Pt x={m.X(E.x)} y={m.Y(E.z)} label="X−20 Z5" pos="sw" cls="t-mono t-b" dot="pt-rap" />
           <line x1={m.X(-25)} y1={m.Y(E.z)} x2={m.X(-25)} y2={m.Y(-12)} className="p-ext" />
           <line x1={m.X(-15)} y1={m.Y(E.z)} x2={m.X(-15)} y2={m.Y(-12)} className="p-ext" />
-          <Dim c={c} x1={m.X(-15)} y1={m.Y(-10)} x2={m.X(0)} y2={m.Y(-10)} label="15" lside={1} />
+          <Dim c={c} x1={m.X(-15)} y1={m.Y(-10)} x2={m.X(0)} y2={m.Y(-10)} label="15 mm" lside={1} />
           <T x={m.X(-25)} y={m.Y(-12) + 13} anchor="middle" cls="t-mono t-sm">X−25</T>
           <T x={m.X(-15)} y={m.Y(-12) + 13} anchor="middle" cls="t-mono t-sm">X−15</T>
         </g>
@@ -79,9 +83,11 @@ export function CornerArc() {
           <path d={`M ${m.X(-5)} ${m.Y(40)} A ${15 * m.u} ${15 * m.u} 0 0 1 ${m.X(10)} ${m.Y(55)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(10)} y1={m.Y(55)} x2={m.X(36)} y2={m.Y(55)} className="p-cut thick" />
           <circle cx={m.X(-5)} cy={m.Y(40)} r={5 * m.u} className="tool" />
-          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 15 * m.u * Math.cos(Math.PI / 4)} y2={m.Y(C.y) - 15 * m.u * Math.sin(Math.PI / 4)} className="p-dim" />
+          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 15 * m.u * Math.cos(Math.PI / 4)} y2={m.Y(C.y) - 15 * m.u * Math.sin(Math.PI / 4)} className="p-dim" markerEnd={c.a("dim")} />
           <T x={m.X(C.x) - 7.5 * m.u * Math.cos(Math.PI / 4) + 6} y={m.Y(C.y) - 7.5 * m.u * Math.sin(Math.PI / 4) + 12} cls="t-arc t-b t-mono">R15</T>
-          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 10 * m.u * Math.cos(Math.PI / 3)} y2={m.Y(C.y) - 10 * m.u * Math.sin(Math.PI / 3)} className="p-cons" />
+          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 10 * m.u * Math.cos(Math.PI / 3)} y2={m.Y(C.y) - 10 * m.u * Math.sin(Math.PI / 3)} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(C.x) + 12} y={m.Y(C.y) - 10 * m.u * Math.sin(Math.PI / 3) + 4} cls="t-mono t-b">R10</T>
+          <Dim c={c} x1={m.X(-10)} y1={m.Y(40)} x2={m.X(0)} y2={m.Y(40)} off={40} label="Ø10" lside={1} />
           <Pt x={m.X(C.x)} y={m.Y(C.y)} label="środek X10 Y40" pos="se" cls="t-mono" />
           <Pt x={m.X(-5)} y={m.Y(40)} label="X−5 Y40" pos="w" cls="t-mono t-b" dot="pt-cut" />
           <Pt x={m.X(10)} y={m.Y(55)} label="X10 Y55" pos="n" cls="t-mono t-b" dot="pt-cut" />
@@ -97,16 +103,24 @@ export function FullCircle() {
   const m = mapper(R, [12, 6, 336, 214]);
   const C = { x: 40, y: 25 }, r = 10;
   return (
-    <Fig id="f34fc" code="I J" title="Pełny okrąg: start = koniec, środek przez I i J" h={236} legend={["arc", "acc", "stock"]}
+    <Fig id="f34fc" code="I J" title="Tor osi R10 i rowek wykonany frezem Ø10" h={236} legend={["arc", "acc", "stock", "tool"]}
       notes={<><Code k="arc">G02 I-10. J0.</Code><Code k="acc">I = X środka − X startu</Code></>}
-      caption={<>Frez startuje w X50 Y25. Środek okręgu leży 10 mm w lewo, więc I−10, J0. Blok bez X i Y kończy łuk w punkcie startu — powstaje pełny okrąg.</>}>
+      caption={<>Frez startuje w X50 Y25. Środek okręgu leży 10 mm w lewo, więc I−10, J0. Niebieska linia to tor osi R10; pas wokół niego to model rowka po frezie Ø10: promień wewnętrzny 5 mm, zewnętrzny 15 mm. Materiał wewnątrz R5 pozostaje. Blok bez X/Y wraca do startu po pełnym obrocie.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
+          <circle cx={m.X(C.x)} cy={m.Y(C.y)} r={15 * m.u} className="p-con" style={{ fill: "var(--panel)" }} />
+          <circle cx={m.X(C.x)} cy={m.Y(C.y)} r={5 * m.u} fill={c.hatch} className="p-con" />
+          <circle cx={m.X(50)} cy={m.Y(25)} r={5 * m.u} className="tool" />
           <circle cx={m.X(C.x)} cy={m.Y(C.y)} r={r * m.u} className="p-arc thick" />
           <path d={`M ${m.X(50)} ${m.Y(25)} A ${r * m.u} ${r * m.u} 0 0 1 ${m.X(40)} ${m.Y(15)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(50)} y1={m.Y(25) - 14} x2={m.X(40) + 2} y2={m.Y(25) - 14} className="p-acc" markerEnd={c.a("acc")} />
           <T x={m.X(45)} y={m.Y(25) - 20} anchor="middle" cls="t-acc t-b t-mono">I−10</T>
+          <line x1={m.X(40)} y1={m.Y(40)} x2={m.X(30)} y2={m.Y(46)} className="p-dim" />
+          <T x={m.X(29)} y={m.Y(46) + 4} anchor="end" cls="t-mono t-sm">R15 — ściana</T>
+          <line x1={m.X(40)} y1={m.Y(30)} x2={m.X(23)} y2={m.Y(35)} className="p-dim" />
+          <T x={m.X(22)} y={m.Y(35) + 4} anchor="end" cls="t-mono t-sm">R5 — ściana</T>
+          <T x={m.X(55)} y={m.Y(12)} cls="t-arc t-b t-mono">R10 — tor osi</T>
           <Pt x={m.X(C.x)} y={m.Y(C.y)} label="środek X40 Y25" pos="sw" cls="t-mono" />
           <Pt x={m.X(50)} y={m.Y(25)} label="start = koniec" pos="e" cls="t-mono t-b" dot="pt-cut" />
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-b" />
@@ -168,11 +182,14 @@ export function CornerIJ() {
           <path d={`M ${m.X(-5)} ${m.Y(40)} A ${15 * m.u} ${15 * m.u} 0 0 1 ${m.X(10)} ${m.Y(55)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(-5)} y1={m.Y(40)} x2={m.X(10) - 3} y2={m.Y(40)} className="p-acc thick" markerEnd={c.a("acc")} />
           <T x={m.X(2.5)} y={m.Y(40) - 8} anchor="middle" cls="t-acc t-b t-mono">I15</T>
-          <Step x={m.X(2.5)} y={m.Y(40) + 16} n={1} />
+          <Step x={m.X(2.5)} y={m.Y(40) + 34} n={1} />
           <T x={m.X(10) + 6} y={m.Y(40) - 8} cls="t-acc t-b t-mono">J0</T>
           <Step x={m.X(10) + 34} y={m.Y(40) - 12} n={2} />
           <Step x={m.X(-3)} y={m.Y(52)} n={3} />
-          <Pt x={m.X(10)} y={m.Y(40)} label="środek X10 Y40" pos="s" cls="t-mono t-sm" />
+          <Pt x={m.X(10)} y={m.Y(40)} cls="t-mono t-sm" />
+          <line x1={m.X(10) + 5} y1={m.Y(40) + 4} x2={m.X(17)} y2={m.Y(34)} className="p-cons" />
+          <T x={m.X(17)} y={m.Y(34) + 12} cls="t-mono t-sm">środek</T>
+          <T x={m.X(17)} y={m.Y(34) + 25} cls="t-mono t-sm">X10 Y40</T>
           <Pt x={m.X(-5)} y={m.Y(40)} label="start X−5 Y40" pos="w" cls="t-mono t-b t-sm" dot="pt-cut" />
           <Pt x={m.X(10)} y={m.Y(55)} label="X10 Y55" pos="n" cls="t-mono t-b" dot="pt-cut" />
           <Step x={m.X(10) + 52} y={m.Y(55) - 14} n={4} />
@@ -205,7 +222,40 @@ export function DwellTime() {
           <Step x={X(0.1)} y={Y(2)} n={1} />
           <Step x={X(0.36)} y={Y(-2) - 14} n={2} />
           <Step x={X(0.56)} y={Y(2)} n={3} />
-          <T x={X(1)} y={Y(-3) + 18} anchor="end" cls="t-mut t-sm">czas →</T>
+          <T x={X(1)} y={Y(-3) + 18} anchor="end" cls="t-mut t-sm">czas → (przejazdy poglądowe)</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= F3.2: kierunek obiegu dla M03 ================= */
+export function ContourWinding() {
+  return (
+    <Fig id="f32cw" code="M03" title="Frezowanie współbieżne: obieg zewnętrzny i wewnętrzny" h={224} legend={["cut", "stock", "tool"]}
+      caption={<>Widok od +Z. Białe linie oznaczają granice materiału, zielone — ruch osi freza względem przedmiotu. Przy M03 współbieżny obieg zewnętrzny jest zgodny z zegarem, a wewnętrzny przeciwny. Cienkie strzałki przy frezach pokazują obrót, nie posuw. Schemat służy porównaniu kierunków; nie jest programem dojazdu ani rysunkiem wymiarowym.</>}>
+      {(c) => (
+        <g>
+          <T x={88} y={20} anchor="middle" cls="t-b">Kontur zewnętrzny</T>
+          <T x={268} y={20} anchor="middle" cls="t-b">Kontur wewnętrzny</T>
+          <line x1={180} y1={32} x2={180} y2={212} className="p-cons" />
+          <rect x={28} y={64} width={126} height={108} fill={c.hatch} className="p-con" />
+          <rect x={18} y={54} width={146} height={128} fill="none" className="p-cut" />
+          <line x1={56} y1={54} x2={119} y2={54} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={164} y1={83} x2={164} y2={146} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={18} y1={148} x2={18} y2={92} className="p-cut thick" markerEnd={c.a("cut")} />
+          <circle cx={18} cy={120} r={10} className="tool" />
+          <path d="M 8 110 A 14 14 0 0 1 30 114" className="rot" markerEnd={c.a("dim")} />
+          <T x={91} y={201} anchor="middle" cls="t-cut t-b">zgodnie z zegarem</T>
+          <rect x={202} y={54} width={142} height={128} fill={c.hatch} className="p-con" />
+          <rect x={220} y={72} width={106} height={92} style={{ fill: "var(--panel)" }} className="p-con" />
+          <rect x={230} y={82} width={86} height={72} fill="none" className="p-cut" />
+          <line x1={306} y1={82} x2={246} y2={82} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={230} y1={93} x2={230} y2={147} className="p-cut thick" markerEnd={c.a("cut")} />
+          <line x1={316} y1={145} x2={316} y2={94} className="p-cut thick" markerEnd={c.a("cut")} />
+          <circle cx={230} cy={120} r={10} className="tool" />
+          <path d="M 220 110 A 14 14 0 0 1 242 114" className="rot" markerEnd={c.a("dim")} />
+          <T x={273} y={201} anchor="middle" cls="t-cut t-b">przeciwnie do zegara</T>
         </g>
       )}
     </Fig>
@@ -218,6 +268,7 @@ export const f3Figs = {
   "f33-corner": () => <CornerArc />,
   "f34-circle": () => <FullCircle />,
   "f32-path": () => <PlatePath />,
+  "f32-winding": () => <ContourWinding />,
   "f34-ij": () => <CornerIJ />,
   "f35-dwell": () => <DwellTime />,
 };

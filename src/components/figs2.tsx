@@ -9,7 +9,7 @@ export function RapidPath() {
   return (
     <Fig id="rpath" code="G00" title="Dlaczego G00 nie musi jechać po prostej" h={250} legend={["rap", "cons"]}
       notes={<Code k="rap">G00 X80 Y50</Code>}
-      caption={<>Każda oś rusza ze swoją maksymalną prędkością. Krótsza droga kończy się pierwsza i dalej jedzie już jedna oś. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
+      caption={<>Poglądowy wariant niezależnego ruchu osi przy jednakowych prędkościach X/Y, z pominięciem dynamiki: Y kończy wcześniej, potem jedzie samo X. Rzeczywisty tor zależy także od prędkości i dynamiki osi. Część sterowań pozwala wybrać G00 po prostej — <b>sprawdź ustawienie konkretnej maszyny</b>.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -35,7 +35,7 @@ export function RapidClamp() {
   return (
     <Fig id="rclamp" code="G00" title="Dojazd na skos kontra dwa ruchy" h={258} legend={["rap", "bad"]}
       notes={<><Code k="bad">G00 X90 Y70</Code><Code k="rap">G00 X90</Code><Code k="rap">G00 Y70</Code></>}
-      caption={<>Ten sam punkt docelowy. Ruch na skos przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą — czas przejazdu jest podobny.</>}>
+      caption={<>Ten sam punkt docelowy. Pokazany tor na skos przechodzi przez zacisk. Dwa osobne ruchy osi omijają go w tej geometrii. Czas i rzeczywisty tor G00 zależą od ustawień oraz dynamiki maszyny; należy sprawdzić także gabaryt całego zespołu narzędziowego.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />

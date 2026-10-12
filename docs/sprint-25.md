@@ -106,3 +106,38 @@ Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 
 | F2.3 | G95 a system A tokarki (G99); z — liczba efektywnych ostrzy; „może trzeć” zamiast „trze”; nowa część ap/ae (ap = 5, ae = 2 mm na płytce, pocienianie wióra) z rysunkiem `apae` w bloku zwijanym; rysunek fz jako model uproszczony (rzeczywisty tor — trochoida); źródło Kuryjański s. 54 |
 | F2.4 | M09 → M05 jako kolejność przyjęta w kursie, bez „zalanego wrzeciona”; przerywany strumień — zalecenie producenta zamiast „lepiej na sucho”; oś czasu z rozsuniętymi etykietami |
 | wszystkie | ramki „Dane przykładu” w F2.1–F2.4 (F2.3 — z paczki N) |
+
+## Paczka R — F3 (`sprint-25/paczka-r`)
+
+Punkt wyjścia: `161258d` — merge Q (#86). Ostatnia paczka raportu #80; bez zmian w parserze, symulatorze, programach demonstracyjnych i warunkach zaliczania z paczki M.
+
+| Lekcja | Zmiana |
+|---|---|
+| F3.1 | czas zakończenia ruchu osi zależy także od prędkości i dynamiki; jawny profil i stan początkowy; prześwit dotyczy całego zespołu, nie porównania Z z „wysokością oprawki”; rozdzielono współrzędną Z i dobór wysokości; zjazd w powietrzu nie jest wejściem w materiał; 25% korektora to przykład, nie gwarancja bezpieczeństwa |
+| F3.2 | F jest aktywną wartością modalną; pytania o brak F mają jawne założenie profilu zgłaszającego alarm; współbieżność bez gwarantowania jakości i trwałości; rozwijany schemat obiegu zewnętrznego/wewnętrznego przy M03 |
+| F3.3 | warunek cięciwy `d ≤ 2·|R|`; dla przykładu cięciwa ≈ 21,21 mm wyklucza R10; ramka danych; groty R15/R10 i wymiar Ø10 w schemacie naroża |
+| F3.4 | I/J jako składowe wektora ze znakiem, reguła zawężona do profilu 0i-F; brak ogólnego zakazu absolutnego środka na każdej frezarce; tor R10 ≠ ściany rowka R5/R15; schemat pasa rowka i przesunięty opis środka I/J |
+| F3.5 | czas zależy od operacji; 0,12 s / 0,2 s / 0,5 s rozdzielone; G04 nie potwierdza stanu wrzeciona/chłodziwa; postój w obrotach zależy od G95 i DWL; schemat frezowania pierwszy, toczenie w porównaniu zwijanym; usunięte bezwarunkowe „wypala” i „umacnia materiał” |
+
+Ramki „Dane przykładu” uzupełniono w F3.1, F3.3–F3.5, a w F3.2 dodano profil. Wspólne podpisy `RapidPath`/`RapidClamp` doprecyzowano, ponieważ F3.1 korzysta z tych diagramów: poglądowe załamanie i brak gwarancji czasu przejazdu. Geometria tych dwóch wspólnych diagramów pozostaje bez zmian.
+
+### Podstawa techniczna sprawdzona podczas R
+
+- FANUC *Operation and Maintenance Handbook*, B-64607EN/01, 10/2016, s. 171 (strona PDF 196): 1401#1 LRP — interpolacja G00; 1404#7 FC0 — zachowanie przy F0.
+- Ten sam dokument, s. 201 (strona PDF 226): 3405#1 DWL — sekundy albo zależność od G94/G95. Parametr nie jest instrukcją do samodzielnej zmiany konfiguracji maszyny.
+- Siemens *Fundamentals*, 10/2015, 6FC5398-1BP40-5BA3: rozdz. 10.4, 10.6.2–10.6.3 i 15.7 — potwierdzenie istniejących porównań G0, środka/prędkości łuku i G4. Nie wykonywano odłożonego uzupełniania stron SINUMERIK w całej bazie kart/lekcji.
+- Obliczenia geometrii: R10 + Ø10/2 = R15; cięciwa naroża √450 ≈ 21,21; rowek po torze R10 frezem Ø10 ma w modelu promienie ścian 5 i 15 mm. Obliczenia czasu: przy S1500 obrót trwa 0,04 s, więc 0,2 s daje 5 obrotów.
+
+### Kontrole R
+
+- TypeScript: `npx tsc --noEmit` — OK.
+- `npm run lint` — OK.
+- Vitest — 319/319, 27 plików testów; w tym regresje raportu #80.
+- `audit:nauka` — 0 uwag.
+- `audit:programy` — 221 programów, 0 błędów; 18 programów z 19 wcześniejszymi ostrzeżeniami. Ostrzeżenia fragmentów/starterów nie zostały zamienione w deklarację „bez ostrzeżeń”.
+- Build Next.js 16.3.4 (Turbopack) — OK, 180 wygenerowanych stron.
+- `git diff --check` — OK.
+
+W tym środowisku CLI `tsx` nie mogło utworzyć swojego gniazda IPC. Generator treści i oba audyty uruchomiono bezpośrednio przez `node --import tsx`; te same skrypty zakończyły się powodzeniem. Test i build uruchomiono przez npm z pominięciem automatycznych hooków, po ręcznym wykonaniu generatora. Bez zmian w skryptach repo, zależnościach ani zmiennych aplikacji.
+
+Lokalny przegląd Playwright nie wystartował: brak binarnego Chromium, a pobranie przeglądarki zwracało niepoprawne archiwum. Przegląd podglądu Vercel i jego ograniczenia zostaną podane w PR; powyższe wyniki nie są deklaracją przeglądu mobilnego.
