@@ -63,6 +63,7 @@ export const f3_4: LessonDoc = {
       starter,
       checks: [
         { t: "cut", reference: "G90\nG00 X50. Y25.\nG00 Z5.\nG01 Z-2. F100\nG02 I-10. J0. F300\nG00 Z5.", tolerance: 0.05 },
+        { t: "arcFormat", fmt: "IJ", label: "Okrąg zapisany przez I/J (bez R)" },
       ],
       hints: ["Start X50 Y25, środek X40 Y25: I = 40 − 50.", "Pełny okrąg: G02 I-10. bez X i Y, z posuwem, np. F300."],
       solution: starter.replace("(DOPISZ: G01 Z-2. F100 I PELNY OKRAG WOKOL X40 Y25)\n", "G01 Z-2. F100\nG02 I-10. J0. F300"),

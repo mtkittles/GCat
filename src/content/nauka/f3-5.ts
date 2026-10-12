@@ -58,11 +58,11 @@ export const f3_5: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Dopisz nawiercenie z postojem na dnie i odjazdem. Sprawdzany jest tor, użycie G04 i położenie końcowe.",
+      intro: "Dopisz nawiercenie z postojem na dnie i odjazdem. Sprawdzany jest tor, postój co najmniej 0,5 s na dnie (Z−2) i położenie końcowe. 0,5 s to warunek tego zadania — dłużej niż minimum trzech obrotów z przykładu (0,12 s).",
       starter,
       checks: [
         { t: "cut", reference: "G90\nG00 X20. Y25.\nG00 Z5.\nG01 Z-2. F80\nG00 Z5.", tolerance: 0.05 },
-        { t: "require", codes: ["G04"] },
+        { t: "dwell", x: 20, y: 25, z: -2, min: 0.5, label: "Postój co najmniej 0,5 s na dnie, w X20 Y25 Z−2" },
         { t: "end", x: 20, y: 25, z: 5, label: "Narzędzie kończy nad otworem na Z5" },
       ],
       hints: ["Trzy bloki: G01 Z-2. F80, G04 X0.5, G00 Z5."],

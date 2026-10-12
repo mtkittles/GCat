@@ -122,12 +122,20 @@ const taskCheck = z.discriminatedUnion("t", [
   z.strictObject({ t: z.literal("end"), x: z.number().optional(), y: z.number().optional(), z: z.number().optional(), label: text }),
   z.strictObject({ t: z.literal("approach"), x: z.number(), y: z.number(), z: z.number(), label: text }),
   z.strictObject({ t: z.literal("cut"), reference: text, tolerance: z.number().optional() }),
-  z.strictObject({ t: z.literal("require"), codes: z.array(text).min(1) }),
+  z.strictObject({ t: z.literal("require"), codes: z.array(text).min(1), before: z.literal("move").optional() }),
   z.strictObject({ t: z.literal("forbid"), codes: z.array(text).min(1) }),
-  z.strictObject({ t: z.literal("feed"), on: z.enum(["plunge", "xy"]), f: z.number().positive(), label: text }),
+  z.strictObject({ t: z.literal("feed"), on: z.enum(["plunge", "xy"]), f: z.number().positive(), label: text, tol: z.number().positive().optional() }),
   z.strictObject({ t: z.literal("coolant"), label: text, offBeforeStop: z.boolean().optional() }),
   z.strictObject({ t: z.literal("tapFeed"), pitch: z.number().positive(), label: text }),
   z.strictObject({ t: z.literal("rapidAbove"), x0: z.number(), x1: z.number(), z: z.number(), label: text }),
+  z.strictObject({
+    t: z.literal("state"), label: text, at: z.strictObject({ x: z.number(), y: z.number() }).optional(), on: z.enum(["cut", "xy"]).optional(),
+    tool: z.number().int().optional(), h: z.number().int().optional(), s: z.number().positive().optional(), dir: z.enum(["cw", "ccw"]).optional(), abs: z.boolean().optional(),
+  }),
+  z.strictObject({ t: z.literal("stopBeforeChange"), label: text }),
+  z.strictObject({ t: z.literal("dwell"), x: z.number(), y: z.number(), z: z.number(), min: z.number().positive(), label: text }),
+  z.strictObject({ t: z.literal("arcFormat"), fmt: z.enum(["R", "IJ"]), label: text }),
+  z.strictObject({ t: z.literal("winding"), dir: z.enum(["cw", "ccw"]), label: text }),
 ]);
 const reg = z.enum(["G54", "G55"]);
 export const practiceSchema = z.discriminatedUnion("kind", [

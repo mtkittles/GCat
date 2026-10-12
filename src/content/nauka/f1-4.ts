@@ -44,11 +44,11 @@ export const f1_4: LessonDoc = {
     {
       kind: "task", mode: "mill",
       intro: "Program z rysunku calowego ma trafić w ten sam punkt w milimetrach. Zamień jednostki i przelicz wszystkie wartości (1″ = 25,4 mm).",
-      brief: ["G21 zamiast G20.", "X1.5 Y0.75 → X38.1 Y19.05; Z0.1 → Z2.54; Z−0.1 → Z−2.54; Z2. → Z50.8."],
+      brief: ["G21 zamiast G20.", "X1.5 Y0.75 → X38.1 Y19.05; Z0.1 → Z2.54; Z−0.1 → Z−2.54; Z2. → Z50.8.", "Posuw też: F6. to 6 in/min = 152,4 mm/min. Dopuszczalne świadome zaokrąglenie w dół do F150."],
       starter: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISZ NA MM)\nG20 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG00 G43 H2 Z2.\nS1800 M03\nG00 X1.5 Y0.75\nG00 Z0.1\nG01 Z-0.1 F6.\nG00 Z2.\nM05\nM30",
-      checks: [{"t":"require","codes":["G21"]},{"t":"forbid","codes":["G20"]},{"t":"cut","reference":"G21 G90\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F150\nG00 Z50.8","tolerance":0.05},{"t":"end","x":38.1,"y":19.05,"z":50.8,"label":"Koniec w X38,1 Y19,05 Z50,8"}],
-      hints: ["Zamień `G20` na `G21` i pomnóż każdą współrzędną przez 25,4: 1,5 × 25,4 = 38,1; 0,75 × 25,4 = 19,05.","Z0.1 → Z2.54, Z-0.1 → Z-2.54, Z2. → Z50.8. Posuw F6 cali/min to ok. F150 mm/min."],
-      solution: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISANE NA MILIMETRY)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG00 G43 H2 Z50.8\nS1800 M03\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F150\nG00 Z50.8\nM05\nM30",
+      checks: [{"t":"require","codes":["G21"]},{"t":"forbid","codes":["G20"]},{"t":"feed","on":"plunge","f":151.2,"tol":1.25,"label":"Posuw przeliczony na mm/min: F152.4 (albo zaokrąglony do F150)"},{"t":"cut","reference":"G21 G90\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F152.4\nG00 Z50.8","tolerance":0.05},{"t":"end","x":38.1,"y":19.05,"z":50.8,"label":"Koniec w X38,1 Y19,05 Z50,8"}],
+      hints: ["Zamień `G20` na `G21` i pomnóż każdą współrzędną przez 25,4: 1,5 × 25,4 = 38,1; 0,75 × 25,4 = 19,05.","Z0.1 → Z2.54, Z-0.1 → Z-2.54, Z2. → Z50.8. Posuw też: 6 × 25,4 = 152,4 → `F152.4`; świadome zaokrąglenie do `F150` jest dopuszczone."],
+      solution: "O1000 (OTWOR Z RYSUNKU CALOWEGO)\n(PRZEPISANE NA MILIMETRY)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT2 M06 (NAWIERTAK)\nG00 G43 H2 Z50.8\nS1800 M03\nG00 X38.1 Y19.05\nG00 Z2.54\nG01 Z-2.54 F152.4\nG00 Z50.8\nM05\nM30",
     },
     {
       kind: "drill",

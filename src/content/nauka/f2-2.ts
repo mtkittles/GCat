@@ -44,7 +44,7 @@ export const f2_2: LessonDoc = {
       intro: "Oblicz obroty i włącz wrzeciono. Frez VHM Ø10, stal C45, vc = 80 m/min, frez prawoskrętny.",
       brief: ["n = 1000 · vc / (π · D), zaokrąglone w dół do pełnych setek.", "Kierunek obrotów: w prawo."],
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\n(TU OBROTY)\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
-      checks: [{"t":"require","codes":["S2500","M03"]},{"t":"forbid","codes":["M04"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
+      checks: [{"t":"state","s":2500,"dir":"cw","label":"Każdy ruch roboczy przy S2500 i obrotach w prawo (M03)"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.","tolerance":0.05}],
       hints: ["1000 · 80 / (π · 10) ≈ 2546 obr/min. W kursie zaokrąglamy w dół do pełnych setek.","Frez prawoskrętny skrawa przy obrotach w prawo: `S2500 M03` w jednym bloku."],
       solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG00 Z50.\nM09\nM05\nM30",
     },

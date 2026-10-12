@@ -69,11 +69,11 @@ export const f3_3: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Dopisz kontur z zaokrąglonymi narożami w miejscu komentarza. Sprawdzany jest tor roboczy, nie zapis.",
+      intro: "Dopisz kontur z zaokrąglonymi narożami w miejscu komentarza. Ćwiczysz zapis łuku przez R: sprawdzany jest tor roboczy i to, że każdy łuk ma adres R.",
       starter,
       checks: [
         { t: "cut", reference: `G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\n${contour}\nG00 Z5.`, tolerance: 0.05 },
-        { t: "require", codes: ["G02"] },
+        { t: "arcFormat", fmt: "R", label: "Każdy łuk zapisany przez R" },
       ],
       hints: ["Lewa krawędź kończy się w Y40, potem G02 X10. Y55. R15.", "Kolejne naroża: X85 Y40, X70 Y−5, X−5 Y10 — każde z R15."],
       solution: starter.replace("(DOPISZ KONTUR Z NAROZAMI R10 NA DETALU)\n", contour),

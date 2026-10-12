@@ -26,7 +26,7 @@ describe("checkExercise", () => {
 
 describe("runTaskChecks", () => {
   it("sprawdza punkt końcowy, najazd i użyte kody", () => {
-    const src = "S1000 M03\nG00 X0 Y0 Z50\nG00 X10 Y10 Z5\nG00 Z2\nG01 Z-3 F100\nG00 Z5\nM30";
+    const src = "S1000 M03\nG00 X0 Y0 Z50\nG00 X10 Y10\nG00 Z5\nG00 Z2\nG01 Z-3 F100\nG00 Z5\nM30";
     const r = runTaskChecks(src, [
       { t: "end", x: 10, y: 10, z: 5, label: "koniec" },
       { t: "approach", x: 10, y: 10, z: 2, label: "najazd" },
@@ -34,6 +34,11 @@ describe("runTaskChecks", () => {
       { t: "forbid", codes: ["G02"] },
     ], "mill");
     expect(r.passed).toBe(true);
+  });
+  it("najazd: ruch szybki łączący XY ze zjazdem w Z przed zjazdem nie przechodzi (raport #80)", () => {
+    const src = "S1000 M03\nG00 X0 Y0 Z50\nG00 X10 Y10 Z5\nG00 Z2\nG01 Z-3 F100\nG00 Z5\nM30";
+    const r = runTaskChecks(src, [{ t: "approach", x: 10, y: 10, z: 2, label: "najazd" }], "mill");
+    expect(r.passed).toBe(false);
   });
   it("tokarka: punkt końcowy w średnicy", () => {
     const r = runTaskChecks("G18 G99\nG97 S1000 M03\nG00 X80 Z50\nG00 X40 Z2\nM30", [{ t: "end", x: 40, z: 2, label: "koniec" }], "lathe");
