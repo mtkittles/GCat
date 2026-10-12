@@ -10,7 +10,7 @@ import { parseProgram } from "@/lib/parser";
 import { validate } from "@/lib/parser/validate";
 import { runTaskChecks } from "@/lib/taskCheck";
 import type { LessonDoc, Question } from "@/lib/lesson";
-import type { Block } from "@/lib/article";
+import { flatBlocks, type Block } from "@/lib/article";
 
 const issues: string[] = [];
 const warn = (where: string, msg: string) => issues.push(`${where}: ${msg}`);
@@ -25,7 +25,7 @@ const lookup = (key: string) => {
 function texts(doc: LessonDoc): string[] {
   const out: string[] = [doc.goal, doc.worked.intro, doc.worked.result, ...doc.worked.steps.map((s) => s.x), ...doc.summary];
   const blk = (b: Block) => { const a = b as unknown as Record<string, unknown>; if (b.t === "code" || b.t === "demo" || b.t === "sim") { if (typeof a.caption === "string") out.push(a.caption as string); return; } for (const k of ["x", "caption"]) if (typeof a[k] === "string") out.push(a[k] as string); if (Array.isArray(a.items)) out.push(...(a.items as string[])); if (Array.isArray(a.rows)) (a.rows as string[][]).forEach((r) => out.push(...r)); };
-  doc.theory.forEach(blk);
+  flatBlocks(doc.theory).forEach(blk);
   doc.pitfalls.forEach((p) => out.push(p.title, p.x));
   doc.controllers?.rows.forEach((r) => out.push(...r));
   if (doc.controllers?.note) out.push(doc.controllers.note);
@@ -76,7 +76,7 @@ for (const track of ["frezowanie", "toczenie"] as Track[]) {
     if (doc.id !== l.id) warn(W, `id w treści ${doc.id} ≠ ${l.id}`);
     if (doc.title !== l.title) warn(W, `tytuł w planie „${l.title}” ≠ w lekcji „${doc.title}”`);
     // rysunki
-    const figIds = [...doc.theory.filter((b) => b.t === "diagram").map((b) => (b as { id: string }).id), doc.worked.fig, ...doc.pitfalls.map((p) => p.fig)].filter(Boolean) as string[];
+    const figIds = [...flatBlocks(doc.theory).filter((b) => b.t === "diagram").map((b) => (b as { id: string }).id), doc.worked.fig, ...doc.pitfalls.map((p) => p.fig)].filter(Boolean) as string[];
     figIds.forEach((f) => { if (!diagrams[f]) warn(W, `brak rysunku ${f}`); });
     doc.sources.forEach((s) => { if (!sources[s.id]) warn(W, `brak źródła ${s.id}`); });
     // pytania

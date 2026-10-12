@@ -1,3 +1,4 @@
+import type { Block } from "@/lib/article";
 import type { LessonDoc } from "@/lib/lesson";
 
 /*
@@ -9,6 +10,17 @@ import type { LessonDoc } from "@/lib/lesson";
 */
 
 type P = "F" | "T";
+
+const mill = (h?: string): Block[] => [
+  ...(h ? [{ t: "h" as const, x: h, id: "frezarka" }] : []),
+  { t: "p", x: "We frezarce pionowej ze stołem krzyżowym stół przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. We frezarce z ruchomym stojakiem stół jest nieruchomy: stojak przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. Podobnie we frezarce bramowej ruchy wykonuje brama z wrzeciennikiem. Spotyka się też układy mieszane." },
+  { t: "diagram", id: "p1-mill" },
+];
+const lathe = (h?: string): Block[] => [
+  ...(h ? [{ t: "h" as const, x: h, id: "tokarka" }] : []),
+  { t: "p", x: "Wrzeciono tokarki obraca uchwyt, a szczęki uchwytu trzymają przedmiot. Nóż jest zamocowany w oprawce na głowicy narzędziowej, a głowica przesuwa się na suporcie w osiach X i Z. Długi wałek podpiera kieł konika." },
+  { t: "diagram", id: "t01-machine" },
+];
 
 const p1 = (k: P): LessonDoc => ({
   id: `${k}P.1`,
@@ -25,13 +37,10 @@ const p1 = (k: P): LessonDoc => ({
       "**Tokarka** — ruch główny wykonuje przedmiot: obraca się wrzeciono z uchwytem i prętem. Ruchy posuwowe w osiach X i Z wykonuje suport z głowicą narzędziową.",
     ] },
 
-    { t: "h", x: "Budowa frezarki decyduje, co się przesuwa", id: "frezarka" },
-    { t: "p", x: "We frezarce pionowej ze stołem krzyżowym stół przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. We frezarce z ruchomym stojakiem stół jest nieruchomy: stojak przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. Podobnie we frezarce bramowej ruchy wykonuje brama z wrzeciennikiem. Spotyka się też układy mieszane." },
-    { t: "diagram", id: "p1-mill" },
-
-    { t: "h", x: "Tokarka", id: "tokarka" },
-    { t: "p", x: "Wrzeciono tokarki obraca uchwyt, a szczęki uchwytu trzymają przedmiot. Nóż jest zamocowany w oprawce na głowicy narzędziowej, a głowica przesuwa się na suporcie w osiach X i Z. Długi wałek podpiera kieł konika." },
-    { t: "diagram", id: "t01-machine" },
+    // Maszyna własnej ścieżki w treści, druga — w zwijanym porównaniu (#80, FP.1).
+    ...(k === "F"
+      ? [...mill("Budowa frezarki decyduje, co się przesuwa"), { t: "more" as const, title: "Porównanie z toczeniem: tokarka", blocks: lathe() }]
+      : [...lathe("Tokarka"), { t: "more" as const, title: "Porównanie z frezowaniem: budowa frezarki", blocks: mill() }]),
 
     { t: "h", x: "Program opisuje ruch narzędzia względem przedmiotu", id: "wzgledny" },
     { t: "p", x: "Niezależnie od budowy maszyny współrzędne w programie opisują położenie narzędzia względem przedmiotu — tak definiuje to norma ISO 841. Jeżeli w danej osi przesuwa się stół, jego ruch ma zwrot przeciwny: przesunięcie stołu w lewo oznacza ruch narzędzia względem przedmiotu w prawo, czyli X+. Dzięki temu ten sam program można wykonać na maszynach o różnej budowie. O tym, który zespół wykona ruch, decyduje sterowanie." },

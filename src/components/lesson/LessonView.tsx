@@ -33,7 +33,7 @@ function Sec({ id, n, title, children }: { id: string; n?: number; title: string
 }
 
 /* Wersje sterowań, do których odnoszą się tabele porównawcze (bibliografia: src/content/nauka/sources.ts). */
-const FANUC_VER = { frezowanie: "Series 0i-F Plus, frezarka", toczenie: "Series 0i-F Plus, tokarka, system A" } as const;
+const FANUC_VER = { frezowanie: "Series 0i-F, frezarka", toczenie: "Series 0i-F, tokarka, system A" } as const;
 const SIEMENS_VER = "840D sl / 828D, wyd. 10/2015";
 
 export default function LessonView({ track, slug }: { track: Track; slug: string }) {
@@ -60,6 +60,9 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       return [{ ...l, state, sinceTitle: all[o]?.title }];
     });
 
+  // Program detalu pokazujemy dopiero, gdy ma linie z tej albo wcześniejszych lekcji (moduł Podstawy: brak).
+  const hasProgram = lines.some((l) => l.state !== "future");
+
   const quizFigs: Record<string, ReactNode> = {};
   doc.quiz.forEach((q) => { if (q.kind === "choice" && q.fig && diagrams[q.fig]) quizFigs[q.fig] = diagrams[q.fig](); });
 
@@ -71,7 +74,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
     { id: "bledy", label: "Typowe błędy" },
     ...(doc.controllers ? [{ id: "sterowania", label: "Fanuc i Sinumerik" }] : []),
     { id: "test", label: "Sprawdź się" },
-    { id: "program", label: "Program detalu" },
+    ...(hasProgram ? [{ id: "program", label: "Program detalu" }] : []),
     { id: "podsumowanie", label: "Podsumowanie" },
   ];
   let n = 0;
@@ -104,6 +107,12 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
       <Sec id="przyklad" n={++n} title="Przykład rozwiązany">
         <h3 className="ls-sub">{doc.worked.title}</h3>
         <p className="ls-p">{rich(doc.worked.intro)}</p>
+        {doc.worked.data && (
+          <div className="ls-data" role="group" aria-label="Dane przykładu">
+            <span className="ls-data-k">Dane przykładu</span>
+            <dl>{doc.worked.data.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{rich(v)}</dd></div>)}</dl>
+          </div>
+        )}
         {doc.worked.fig && diagrams[doc.worked.fig]?.()}
         <ol className="ls-steps">
           {doc.worked.steps.map((s, i) => (
@@ -170,17 +179,19 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
       <Sec id="test" n={++n} title="Sprawdź się"><Quiz questions={doc.quiz} figs={quizFigs} progressKey={`${track}/${doc.id}`} /></Sec>
 
-      <Sec id="program" n={++n} title="Program detalu">
-        <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Wybierz linię, żeby zobaczyć, co robi.</p>
-        <PartState track={track} lessonId={doc.id} />
-        <Buildup title={bu.title} lines={lines} lessonId={doc.id} mode={T.mode} />
-      </Sec>
+      {hasProgram && (
+        <Sec id="program" n={++n} title="Program detalu">
+          <p className="ls-p">Detal przewodni ścieżki: {T.part.toLowerCase()}. Każda lekcja dopisuje do programu to, czego właśnie się nauczyłeś. Wybierz linię, żeby zobaczyć, co robi.</p>
+          <PartState track={track} lessonId={doc.id} />
+          <Buildup title={bu.title} lines={lines} lessonId={doc.id} mode={T.mode} />
+        </Sec>
+      )}
 
       <Sec id="podsumowanie" n={++n} title="Podsumowanie">
         <ul className="ls-sum">{doc.summary.map((s) => <li key={s}>{rich(s)}</li>)}</ul>
       </Sec>
 
-      <SourceList items={doc.sources} />
+      <SourceList items={doc.sources} fold />
 
       <LessonStatus track={track} id={doc.id} inline />
       <LessonPager pos={idx + 1} total={all.length} prev={prevLink} next={nextLink} />

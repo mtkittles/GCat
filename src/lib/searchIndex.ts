@@ -3,7 +3,7 @@ import { exercises, glossary } from "./content";
 // tekst artykułów kart (content/kody/*.mdx), wygenerowany przez npm run tresci
 import articleText from "../../content/.generated/szukaj.json";
 import { readyLessons, lessonHref, tracks } from "./course";
-import type { Block } from "./article";
+import { flatBlocks, type Block } from "./article";
 
 export interface SearchDoc {
   kind: "kod" | "lekcja" | "zadanie" | "pojęcie";
@@ -11,7 +11,7 @@ export interface SearchDoc {
 }
 
 const blockText = (bs: Block[] | undefined) =>
-  (bs ?? []).map((b) => {
+  flatBlocks(bs ?? []).map((b) => {
     switch (b.t) {
       case "p": case "h": return b.x;
       case "note": return b.x;
