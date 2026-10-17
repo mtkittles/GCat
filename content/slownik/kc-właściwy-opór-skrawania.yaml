@@ -3,10 +3,23 @@ anchor: kc-właściwy-opór-skrawania
 order: 220
 aliases:
   - kc
+  - kc1
   - opór skrawania
+  - właściwa siła skrawania
 def: >-
-  Siła potrzebna do zebrania wióra o przekroju 1 mm², w N/mm². Zależy od
-  materiału: aluminium około 600, stal konstrukcyjna 1500, Inconel 2600. Służy
-  do obliczenia mocy skrawania.
+  Siła skrawania przypadająca na 1 mm² przekroju warstwy skrawanej, w N/mm².
+  Zależy od materiału i od grubości wióra: im cieńszy wiór, tym większe kc.
+  Producent narzędzi podaje ją wzorem kc = kc1 · hm^(−mc), gdzie kc1 to wartość
+  dla wióra grubości 1 mm, hm — średnia grubość wióra, a mc — wykładnik dla
+  danego materiału. Z kc liczy się moc przy frezowaniu: Pc = ap · ae · vf · kc /
+  (60 · 10⁶ · η) w kW, gdzie vf w mm/min, a η to sprawność. Kalkulator GCat
+  przyjmuje kc1 bez przeliczenia na grubość wióra, więc przy wiórze cieńszym niż
+  1 mm podaje moc zaniżoną.
 see: []
 diagram: ''
+sources:
+  - id: sandvik-tg-d
+    where: >-
+      kc = kc1 · hm^(−mc); kc1 dla grubości wióra 1 mm; mc — wzrost kc w funkcji
+      grubości wióra; wzór na moc Pc
+    loc: Ogólne wzory frezowania, s. D 23

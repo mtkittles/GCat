@@ -14,6 +14,14 @@ import { sources as zrodla } from "./src/content/nauka/sources";
 // NODE_ENV jest wstawiany przy buildzie po obu stronach (panel w przeglądarce i API) — ten sam tryb wszędzie
 const isLocal = process.env.NODE_ENV === "development";
 
+/** Źródła karty i hasła — pozycje z rejestru src/content/nauka/sources.ts. */
+const zrodlaPole = fields.array(fields.object({
+  id: fields.select({ label: "Dokument", options: Object.values(zrodla).map((z) => ({ label: z.short, value: z.id })), defaultValue: "fanuc" }),
+  where: fields.text({ label: "Co potwierdza", multiline: true }),
+  loc: fields.text({ label: "Miejsce: rozdział i strona (puste = do uzupełnienia)" }),
+  url: fields.text({ label: "Link do konkretnej strony (puste = link dokumentu)" }),
+}), { label: "Źródła — tylko sprawdzone miejsca", itemLabel: (p) => `${p.fields.id.value}: ${p.fields.where.value.slice(0, 50)}` });
+
 const mode = fields.select({ label: "Maszyna", options: [{ label: "frezarka", value: "mill" }, { label: "tokarka", value: "lathe" }], defaultValue: "mill" });
 
 /** Komponenty w treści MDX karty — te same co w src/lib/mdx/components.tsx. */
@@ -80,12 +88,7 @@ export default config({
         sinumerik: fields.text({ label: "Różnice w Sinumeriku", multiline: true }),
         params: fields.array(fields.object({ key: fields.text({ label: "Adres" }), desc: fields.text({ label: "Znaczenie", multiline: true }) }), { label: "Adresy", itemLabel: (p) => p.fields.key.value }),
         pitfalls: fields.array(fields.text({ label: "Uwaga", multiline: true }), { label: "Na co uważać", itemLabel: (p) => p.value.slice(0, 60) }),
-        sources: fields.array(fields.object({
-          id: fields.select({ label: "Dokument", options: Object.values(zrodla).map((z) => ({ label: z.short, value: z.id })), defaultValue: "fanuc" }),
-          where: fields.text({ label: "Co potwierdza", multiline: true }),
-          loc: fields.text({ label: "Miejsce: rozdział i strona (puste = do uzupełnienia)" }),
-          url: fields.text({ label: "Link do konkretnej strony (puste = link dokumentu)" }),
-        }), { label: "Źródła — tylko sprawdzone miejsca", itemLabel: (p) => `${p.fields.id.value}: ${p.fields.where.value.slice(0, 50)}` }),
+        sources: zrodlaPole,
         example: fields.object({
           src: fields.text({ label: "Program", multiline: true }),
           simulate: fields.checkbox({ label: "Symulować", defaultValue: true }),
@@ -122,6 +125,7 @@ export default config({
         def: fields.text({ label: "Definicja", multiline: true, validation: { isRequired: true } }),
         see: fields.array(fields.relationship({ label: "Karta", collection: "kody" }), { label: "Zobacz (karty)", itemLabel: (p) => p.value ?? "" }),
         diagram: fields.select({ label: "Rysunek", options: [{ label: "— brak —", value: "" }, ...diagramy.map((d: string) => ({ label: d, value: d }))], defaultValue: "" }),
+        sources: zrodlaPole,
       },
     }),
   },

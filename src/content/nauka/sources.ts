@@ -114,6 +114,12 @@ export const sources: Record<string, Source> = {
     title: "Poradnik techniczny obróbki skrawaniem (toczenie, frezowanie, wiercenie)",
     note: "Wydanie i strony do uzupełnienia. Wartości skrawania obowiązują dla konkretnej płytki i materiału z katalogu.",
   },
+  "sandvik-tg-d": {
+    id: "sandvik-tg-d", short: "Sandvik Coromant — poradnik, D Frezowanie", author: "Sandvik Coromant",
+    title: "Metalcutting Technical Guide, część D — Milling (wyciąg z katalogu)",
+    url: "https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf", accessed: "10/2026",
+    note: "Wyciąg (strony D 22–D 40) udostępniony przez dystrybutora; tytułu całości, wydania i numeru dokumentu nie potwierdzono. Strony — numeracja drukowana.",
+  },
   "sandvik-ceramic": {
     id: "sandvik-ceramic", short: "Sandvik Coromant — frezy ceramiczne do HRSA", author: "Sandvik Coromant",
     title: "Ceramic end mills take the heat in HRSA machining — informacja producenta o frezach ceramicznych do stopów żaroodpornych (HRSA)",
