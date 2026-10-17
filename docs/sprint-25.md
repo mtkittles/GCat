@@ -11,6 +11,7 @@ Plan wdrożenia raportu z PR #80 w paczkach:
 | P | F1 |
 | Q | F2 |
 | R | F3 |
+| S | po raporcie: G00 przed G43 w kartach i galerii, hasło `kc` |
 
 ## Paczka L — spójność techniczna (`sprint-25/paczka-l`)
 
@@ -117,3 +118,18 @@ Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 
 | F3.4 | I/J — przyrostowe składowe wektora (mogą być ujemne), absolutny tryb środka na innych sterowaniach; zadanie: tor osi R10, rowek szer. 10 mm (5–15). Rysunki: krok 1 nie zasłania środka, J0 bez strzałki, pierścień rowka |
 | F3.5 | rysunek toczenia rowka w bloku zwijanym; czas postoju według operacji („w przykładzie co najmniej 3 obroty”); ślady na konturze „może”; umacnianie materiału warunkowo; Fanuc — postój w obrotach przy G95 zależnie od 3405#1 DWL; SINUMERIK G4 — rozdz. 15.7, s. 363 |
 | wszystkie | ramki „Dane przykładu” w F3.1–F3.5 (F3.2 — z paczki N) |
+
+## Paczka S — G00 przed G43 i hasło kc (`sprint-25/paczka-s`)
+
+| Obszar | Zmiana |
+|---|---|
+| karty kodów | `G00 G43 Hn Z..` jako pierwszy ruch po wymianie w 28 blokach (21 kart: przykłady i symulacje). Bez zmian tam, gdzie przed G43 stoi już jawny `G00 X.. Y..`: G73, G82, G84 (druga symulacja), G85/G86, G98/G99, M06, G00 (druga symulacja) |
+| karta G43 | tekst: tryb ruchu jest modalny — bez G00 w bloku obowiązuje tryb poprzedni (np. G01 z ostatniego ruchu poprzedniego narzędzia); dobra praktyka `G00 G43 H_ Z_` |
+| galeria programów | `G00 G43` po każdej wymianie w `programy/index.ts`, `detale.ts`, `cam.ts` (53 bloki); demo na stronie głównej; szablony „Nowe narzędzie” i „Płaszczyzna 3+2” w klawiaturze G-kodu (tylko tekst wstawki) |
+| słownik | hasło `kc`: definicja z zależnością od grubości wióra (kc = kc1 · hm^(−mc)), wzór na moc, uwaga o kalkulatorze (kc1 bez przeliczenia — moc zaniżona przy cienkim wiórze); usunięte wartości dla materiałów bez źródła |
+| źródła haseł | pole `sources` w schemacie hasła i w panelu Keystatic (wspólne z kartami), wiersz „Źródło” pod hasłem; `sources: []` w pozostałych hasłach (format zapisu Keystatic); nowa pozycja `sandvik-tg-d` (Technical Guide, D Milling, s. D 23) |
+| kalkulator | „Właściwy opór skrawania” → odnośnik do hasła, wartość opisana jako kc1 |
+
+Audyt programów: 221 programów, 0 błędów, ostrzeżenia bez zmian względem `main` (19, startery zadań).
+
+Bez zmian (poza zakresem): rysunek `tlen` na karcie G43 (`G43 Z10 H01` w opisie rysunku, nie program); nieużywane `src/content/articles-*.ts` i `content/gcodes.json`; wartości kc1 materiałów w kalkulatorze i wzory mocy — pozycja „Źródła wzorów w kalkulatorach”.

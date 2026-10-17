@@ -37,7 +37,7 @@ example:
   src: |-
     G21 G90 G94 G17 G54
     T01 M06
-    G43 H01 Z50.
+    G00 G43 H01 Z50.
     S2000 M03
     G00 X0 Y0 Z5
     G01 Z-1 F100
@@ -120,7 +120,7 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem 
   ```
   G21 G90 G17 G54
   T1 M06 (FREZ FI10)
-  G43 H1 Z50.
+  G00 G43 H1 Z50.
   S2000 M03
   G00 X0. Y0. Z5.
   G01 Z-2. F120

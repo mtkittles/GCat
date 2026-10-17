@@ -319,7 +319,7 @@ export default function Calc() {
         <p><b>W lekcjach:</b> <Link href="/nauka/frezowanie/f2-2-obroty-s-m03">F2.2 obroty</Link> · <Link href="/nauka/frezowanie/f2-3-posuw-f-g94">F2.3 posuw na ostrze</Link> · <Link href="/nauka/frezowanie/f5-3-g84-gwintowanie">F5.3 gwintowanie</Link> · <Link href="/nauka/toczenie/t2-2-g96-g97-limit-obrotow">T2.2 G96 i limit obrotów</Link> · <Link href="/nauka/toczenie/t2-3-posuw-na-obrot">T2.3 posuw na obrót i Rt</Link></p>
         <p><b>Źródła:</b> definicje prędkości skrawania i posuwu na ostrze (z nich wzory na n i Vf) — R. Kuryjański, <i>Obróbka skrawaniem i obrabiarki</i>, Warszawa 2011, rozdz. 3, s. 53–54 (wzory 3.1 i 3.4); dobór parametrów jako kompromis dokładności, wydajności i kosztu — B. Storch, <i>Podstawy obróbki skrawaniem</i>, Koszalin (rok wydania nieustalony), rozdz. 4.1, s. 168. Wzory na wydajność, moc, Rt i otwór pod gwint — źródło do uzupełnienia.</p>
       </div>
-      <p className="text-sm text-muted max-w-prose">Zakres dla wybranego materiału i węglika: frezowanie Vc {mat.vcMill[0]}–{mat.vcMill[1]}, toczenie {mat.vcTurn[0]}–{mat.vcTurn[1]}, wiercenie {mat.vcDrill[0]}–{mat.vcDrill[1]} m/min. Właściwy opór skrawania kc {mat.kc} N/mm². Przed obróbką porównaj je z katalogiem producenta narzędzia.</p>
+      <p className="text-sm text-muted max-w-prose">Zakres dla wybranego materiału i węglika: frezowanie Vc {mat.vcMill[0]}–{mat.vcMill[1]}, toczenie {mat.vcTurn[0]}–{mat.vcTurn[1]}, wiercenie {mat.vcDrill[0]}–{mat.vcDrill[1]} m/min. <Link href="/slownik#kc-właściwy-opór-skrawania" className="underline">Właściwy opór skrawania</Link> kc1 {mat.kc} N/mm² (dla wióra grubości 1 mm). Przed obróbką porównaj je z katalogiem producenta narzędzia.</p>
     </div>
   );
 }
