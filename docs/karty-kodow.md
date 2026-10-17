@@ -114,7 +114,7 @@ długi łuk — środek (50, 20), I30 J0, 270°, 141,37 mm, strzałka 51,21 mm.
 
 Lekcja rozwija umiejętność, karta kodu jest referencją — dane techniczne zgodne, bez kopiowania opisów. Kolejność: cel („po lekcji potrafisz…”) → wymagania wstępne → wyjaśnienie z rysunkiem → przykład rozwiązany → ćwiczenie częściowo uzupełnione → zadanie samodzielne → analiza typowego błędu → test (wyjaśnienie poprawnej odpowiedzi i błędu rozumowania) → podsumowanie i odnośniki. Każdy niezależny przykład podaje kontekst: jednostki, płaszczyznę, tryb współrzędnych, jednostkę posuwu, punkt początkowy i aktywne korekcje.
 
-Raport z audytu treści: `docs/audyt-tresci-2026-10.md`.
+Raport z audytu treści: `docs/audyt-tresci-2026-10.md`. Audyt sekcji Kody G i M (karty, programy, rysunki, układ): `docs/audyt-kody-gm-2026-10-17.md`.
 
 ## 7b. Audyt 2026-10 — zakres i metoda
 
