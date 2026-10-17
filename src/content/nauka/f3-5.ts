@@ -27,24 +27,30 @@ export const f3_5: LessonDoc = {
     { t: "h", x: "Czekanie w miejscu", id: "postoj" },
     { t: "p", x: "[[G04]] zatrzymuje ruch osi na podany czas. Wrzeciono i chłodziwo pracują dalej. Kod jest jednorazowy — działa tylko w swoim bloku (lekcja F1.2)." },
     { t: "code", x: "G04 X0.5    (0,5 s — X z kropką to sekundy)\nG04 P500    (500 ms — P bez kropki)", caption: "Na Fanucu X albo P. Przy X bez kropki wartość zależy od parametru, tak jak przy wymiarach (lekcja F1.1)." },
-    { t: "diagram", id: "g04" },
+    { t: "more", title: "Porównanie: postój na tokarce (rowek)", blocks: [{ t: "diagram", id: "g04" }] },
 
     { t: "h", x: "Do czego służy", id: "zastosowania" },
     { t: "ul", items: [
       "**Dno nawiercenia, pogłębienia, wytoczenia** — kilka obrotów w miejscu wyrównuje powierzchnię dna.",
-      "**Łamanie wióra** przy wierceniu bez cyklu — krótkie zatrzymanie przerywa ciągły wiór.",
+      "**Łamanie wióra** przy wierceniu bez cyklu — krótkie zatrzymanie może przerwać ciągły wiór; skuteczność zależy od materiału.",
       "**Czekanie na maszynę** — na starszych obrabiarkach po M03 albo M08, żeby wrzeciono osiągnęło obroty, a chłodziwo doszło do ostrza.",
     ] },
     { t: "demo", mode: "mill", title: "Nawiercenie z postojem na dnie", src: "G21 G90 G94 G17 G54\nG00 Z50.\nG00 X20. Y25.\nG00 Z5.\nG01 Z-2. F80\nG04 X0.5\nG00 Z5.\nM30", caption: "Symulator zaznacza postój pierścieniem i odlicza czas." },
 
     { t: "h", x: "Ile czekać", id: "ile" },
-    { t: "p", x: "Na dnie wystarczą 2–3 obroty wrzeciona. Przy S1500 jeden obrót trwa 60 / 1500 = 0,04 s, więc trzy obroty to około 0,12 s. Dłuższy postój nie poprawia dna, tylko grzeje ostrze i materiał." },
-    { t: "note", kind: "warn", x: "Postój z narzędziem opartym o ścianę konturu zostawia na niej ślad — przyciemnienie albo wgłębienie. Na konturze G04 nie stosuje się." },
+    { t: "p", x: "Czas postoju dobiera się do operacji, narzędzia i wymagań powierzchni. W tym przykładzie wymagamy co najmniej trzech obrotów: przy S1500 jeden obrót trwa 60 / 1500 = 0,04 s, więc trzy obroty to około 0,12 s. Niepotrzebnie długi postój może zwiększać nagrzewanie i zostawiać ślady." },
+    { t: "note", kind: "warn", x: "Postój z narzędziem opartym o ścianę konturu może zostawić na niej ślad — przebarwienie albo wgłębienie. Na ścianach konturu G04 zwykle się nie stosuje." },
   ],
 
   worked: {
     title: "Postój na trzy obroty",
-    intro: "Sytuacja: nawiertak przy S1500 schodzi na Z−2. Dno nawiercenia ma być gładkie, więc narzędzie ma na dnie wykonać co najmniej trzy pełne obroty bez posuwu. Rysunek pokazuje Z w czasie: wejście, postój i wyjście.",
+    intro: "Sytuacja: dno nawiercenia ma być gładkie, więc narzędzie ma na dnie wykonać co najmniej trzy pełne obroty bez posuwu. Rysunek pokazuje Z w czasie: wejście, postój i wyjście.",
+    data: [
+      ["Narzędzie", "nawiertak T2, S1500 M03"],
+      ["Otwór", "X20 Y25, dno Z−2, posuw F80"],
+      ["Wymaganie", "co najmniej 3 obroty na dnie (założenie przykładu)"],
+      ["Postój", "w sekundach, profil Fanuc z G94"],
+    ],
     fig: "f35-dwell",
     steps: [
       { x: "Czas jednego obrotu: 60 s / 1500 obr.", code: "0,04 s" },
@@ -79,15 +85,15 @@ export const f3_5: LessonDoc = {
 
   pitfalls: [
     { title: "P z kropką albo X bez kropki", x: "`G04 P0.5` albo `G04 X500` na Fanucu z najmniejszym przyrostem wejściowym — czas zupełnie inny niż zamierzony. Zapamiętaj: X z kropką w sekundach, P bez kropki w milisekundach." },
-    { title: "Postój na konturze", x: "`G04` wpisane w narożu konturu, żeby „wyrównać” łuk. Frez oparty o ścianę wypala na niej ślad." },
-    { title: "Za długo na dnie", x: "Kilka sekund postoju w stali nierdzewnej umacnia materiał na dnie — następne narzędzie wchodzi w warstwę twardszą niż rdzeń." },
+    { title: "Postój na konturze", x: "`G04` wpisane w narożu konturu, żeby „wyrównać” łuk. Frez oparty o ścianę może zostawić na niej przebarwienie albo wgłębienie." },
+    { title: "Za długo na dnie", x: "Długi postój w materiale skłonnym do umacniania się (np. w części stali nierdzewnych) może utwardzić powierzchnię dna — następne narzędzie wchodzi wtedy w twardszą warstwę." },
   ],
 
   controllers: {
     rows: [
       ["Postój w sekundach", "`G04 X0.5`", "`G4 F0.5`"],
       ["Postój w milisekundach", "`G04 P500`", "—"],
-      ["Postój w obrotach wrzeciona", "—", "`G4 S3`"],
+      ["Postój w obrotach wrzeciona", "możliwy przy G95, jeśli tak ustawiono parametr 3405#1 (DWL); kurs używa sekund", "`G4 S3`"],
     ],
     note: "Uwaga na adres F w Sinumeriku: w bloku `G4` oznacza czas postoju, a nie posuw. Posuw modalny nie zmienia się.",
   },
@@ -97,19 +103,19 @@ export const f3_5: LessonDoc = {
     { kind: "choice", q: "Co robi `G04 X1.`?", options: ["postój 1 s", "ruch do X1", "postój 1 obrót", "zmianę osi X"], answer: 0, why: "Z kropką X w bloku G04 to sekundy." },
     { kind: "choice", q: "Czy `G04` jest modalne?", options: ["nie, działa tylko w swoim bloku", "tak, do G00", "tak, do końca programu", "zależy od P"], answer: 0, why: "Postój jest jednorazowy." },
     { kind: "gap", q: "S2000. Ile sekund trwają 4 obroty?", template: "{0} s", answers: [["0.12", "0,12"]], why: "60 / 2000 = 0,03 s na obrót, razy 4." },
-    { kind: "choice", q: "Gdzie postój G04 szkodzi?", options: ["na ścianie konturu", "na dnie nawiercenia", "przy łamaniu wióra", "po M08 na starszej maszynie"], answer: 0, why: "Frez oparty o ścianę zostawia ślad." },
+    { kind: "choice", q: "Gdzie postój G04 szkodzi?", options: ["na ścianie konturu", "na dnie nawiercenia", "przy łamaniu wióra", "po M08 na starszej maszynie"], answer: 0, why: "Frez oparty o ścianę może zostawić na niej ślad." },
     { kind: "token", q: "Wskaż zapis postoju **500 ms**.", block: "G04 X500 | G04 P500 | G04 X5.", answer: 1, why: "P bez kropki — milisekundy." },
   ],
 
   summary: [
     "G04 zatrzymuje osie, wrzeciono pracuje dalej. Działa tylko w swoim bloku.",
     "Fanuc: X z kropką w sekundach, P w milisekundach.",
-    "Na dnie wystarczą 2–3 obroty wrzeciona.",
-    "Na ścianie konturu postoju nie stosuje się.",
+    "Czas postoju dobiera się do operacji; w przykładzie — co najmniej 3 obroty na dnie.",
+    "Na ścianie konturu postój może zostawić ślad.",
   ],
 
   sources: [
     { id: "fanuc", where: "G04, adresy X i P", loc: "rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79; parametr 3405#1 DWL — rozdz. 7.2.16, s. 201" },
-    { id: "sinumerik", where: "G4 z F i S" },
+    { id: "sinumerik", where: "G4 z F i S", loc: "rozdz. 15.7, s. 363" },
   ],
 };

@@ -24,7 +24,7 @@ export const f3_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Najszybciej, jak maszyna potrafi", id: "szybko" },
-    { t: "p", x: "[[G00]] przesuwa narzędzie z maksymalną prędkością osi, zapisaną w parametrach maszyny — zwykle 20–50 m/min. Adres F nie ma tu znaczenia. Operator może ograniczyć ruch szybki korektorem, np. do 25% przy pierwszym uruchomieniu programu." },
+    { t: "p", x: "[[G00]] przesuwa narzędzie z prędkością ruchu szybkiego zapisaną w parametrach maszyny — często kilkadziesiąt m/min; wartość podaje dokumentacja maszyny. Adres F nie ma tu znaczenia. Operator może ograniczyć ruch szybki korektorem, np. do 25% przy pierwszym uruchomieniu programu." },
     { t: "p", x: "G00 służy wyłącznie do przejazdów w powietrzu: dojazd nad miejsce pracy, odjazd, przejście między operacjami. Każdy ruch w materiale to G01, G02 albo G03 z posuwem." },
 
     { t: "h", x: "Tor nie zawsze jest prosty", id: "tor" },
@@ -42,11 +42,17 @@ export const f3_1: LessonDoc = {
 
   worked: {
     title: "Najazd na start konturu płytki",
-    intro: "Sytuacja: frez Ø10 stoi w X40 Y25 Z50, nad środkiem płytki. Doszedł tam dwoma ruchami: po wymianie `G00 G43 H1 Z50.` ustawił go na Z50 bez ruchu w XY, a `G00 X40. Y25.` przeniósł nad płytkę na tej wysokości. Z50 jest w tym przykładzie wyżej niż docisk, szczęki i oprawka freza. Przy lewej krawędzi płytki stoi docisk. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10. Rysunek pokazuje widok z boku i oba możliwe najazdy.",
+    intro: "Sytuacja: frez stoi nad środkiem płytki i ma dojechać do startu konturu obok lewej krawędzi. Przy lewej krawędzi płytki stoi docisk. Kontur zaczyna się obok lewej krawędzi, w X−20 Y10. Rysunek pokazuje widok z boku i oba możliwe najazdy.",
+    data: [
+      ["Start", "X40 Y25 Z50 — po `G00 G43 H1 Z50.` (sam Z) i `G00 X40. Y25.` na tej wysokości"],
+      ["Przeszkody", "docisk przy lewej krawędzi płytki; Z50 leży wyżej niż docisk, szczęki i oprawka (założenie przykładu)"],
+      ["Narzędzie", "frez Ø10; półfabrykat zaczyna się na X−2"],
+      ["Cel", "X−20 Y10, płaszczyzna zbliżenia Z5"],
+    ],
     fig: "f31-approach",
     steps: [
       { x: "Krok 1 na rysunku: zostaw Z50 i przejedź w XY. Frez leci wysoko nad detalem i dociskiem.", code: "G00 X-20. Y10." },
-      { x: "Sprawdź odstęp. Promień freza to 5 mm, więc krawędź bliższa płytce leży w X−20 + 5 = X−15, a druga w X−25. Płytka zaczyna się w X0 — zostaje 15 mm. Docisk i szczęki sprawdzasz osobno.", code: "−20 + 5 = −15" },
+      { x: "Sprawdź odstęp. Promień freza to 5 mm, więc krawędź bliższa płytce leży w X−20 + 5 = X−15, a druga w X−25. Półfabrykat zaczyna się w X−2 — zostaje 13 mm. Docisk i szczęki sprawdzasz osobno.", code: "−20 + 5 = −15" },
       { x: "Krok 2: teraz sam Z w dół, do płaszczyzny zbliżenia 5 mm nad powierzchnią.", code: "G00 Z5." },
       { x: "Dalej zejście na głębokość — obok płytki, w powietrzu — już z posuwem (lekcja F3.2).", code: "G01 Z-5. F150" },
     ],

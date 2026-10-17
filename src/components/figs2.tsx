@@ -9,7 +9,7 @@ export function RapidPath() {
   return (
     <Fig id="rpath" code="G00" title="Dlaczego G00 nie musi jechać po prostej" h={250} legend={["rap", "cons"]}
       notes={<Code k="rap">G00 X80 Y50</Code>}
-      caption={<>Każda oś rusza ze swoją maksymalną prędkością. Krótsza droga kończy się pierwsza i dalej jedzie już jedna oś. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
+      caption={<>Każda oś rusza ze swoją prędkością ruchu szybkiego. Przy porównywalnych prędkościach osi krótsza droga kończy się pierwsza i dalej jedzie już jedna oś; na maszynie liczą się też prędkość i dynamika każdej osi. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -35,7 +35,7 @@ export function RapidClamp() {
   return (
     <Fig id="rclamp" code="G00" title="Dojazd na skos kontra dwa ruchy" h={258} legend={["rap", "bad"]}
       notes={<><Code k="bad">G00 X90 Y70</Code><Code k="rap">G00 X90</Code><Code k="rap">G00 Y70</Code></>}
-      caption={<>Ten sam punkt docelowy. Ruch na skos przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą — czas przejazdu jest podobny.</>}>
+      caption={<>Ten sam punkt docelowy. Ruch na skos przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />
