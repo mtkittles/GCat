@@ -26,7 +26,7 @@ export const f3_4: LessonDoc = {
 
   theory: [
     { t: "h", x: "Środek zamiast promienia", id: "srodek" },
-    { t: "p", x: "Zamiast R można podać położenie środka łuku. **I** to odległość w osi X, a **J** w osi Y — liczone od punktu startu łuku do jego środka. Na Fanucu I i J są zawsze przyrostowe, także przy aktywnym G90." },
+    { t: "p", x: "Zamiast R można podać położenie środka łuku. **I** i **J** to przyrostowe składowe wektora od punktu startu łuku do jego środka — I w osi X, J w osi Y. Mogą być ujemne. W profilu kursu (Fanuc, frezarka) I i J są przyrostowe także przy aktywnym G90; niektóre sterowania mają też tryb podawania środka w wymiarach absolutnych." },
     { t: "code", x: "I = X środka − X startu\nJ = Y środka − Y startu" },
     { t: "diagram", id: "g03" },
 
@@ -45,7 +45,11 @@ export const f3_4: LessonDoc = {
 
   worked: {
     title: "Naroże płytki przez I, J",
-    intro: "Sytuacja: to samo naroże co w F3.3 — start łuku X−5 Y40, koniec X10 Y55, środek X10 Y40. Tym razem zamiast R podajesz położenie środka: I i J to przesunięcie od startu łuku do środka. Numery odpowiadają rysunkowi.",
+    intro: "Sytuacja: to samo naroże co w F3.3 — start łuku X−5 Y40, koniec X10 Y55, środek X10 Y40. Tym razem zamiast R podajesz położenie środka: I i J to składowe wektora od startu łuku do środka. Numery odpowiadają rysunkowi.",
+    data: [
+      ["Łuk", "start X−5 Y40, koniec X10 Y55, środek X10 Y40, G02"],
+      ["Tryb", "G90; I i J przyrostowe od startu łuku (profil kursu)"],
+    ],
     fig: "f34-ij",
     steps: [
       { x: "Krok 1, I: X środka − X startu = 10 − (−5).", code: "I15." },
@@ -59,7 +63,7 @@ export const f3_4: LessonDoc = {
   practice: [
     {
       kind: "task",
-      intro: "Rowek pierścieniowy: pełny okrąg o promieniu 10 mm wokół X40 Y25, 2 mm w głąb. Frez stoi już nad punktem X50 Y25.",
+      intro: "Rowek pierścieniowy: tor osi narzędzia to okrąg R10 o środku X40 Y25, 2 mm w głąb. W modelu frez Ø10 tworzy rowek szerokości 10 mm — od promienia 5 do 15 mm. Frez stoi już nad punktem X50 Y25.",
       starter,
       checks: [
         { t: "cut", reference: "G90\nG00 X50. Y25.\nG00 Z5.\nG01 Z-2. F100\nG02 I-10. J0. F300\nG00 Z5.", tolerance: 0.05 },
@@ -83,7 +87,7 @@ export const f3_4: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "I, J liczone od zera W", x: "Wpisanie współrzędnych środka zamiast odległości od startu: `I40. J25.` zamiast `I-10. J0.`. Środek ląduje daleko od detalu, a sterowanie zgłasza błąd promienia albo jedzie ogromnym łukiem." },
+    { title: "I, J liczone od zera W", x: "Wpisanie współrzędnych środka zamiast składowych wektora od startu: `I40. J25.` zamiast `I-10. J0.`. Środek ląduje daleko od detalu, a sterowanie zgłasza błąd promienia albo jedzie ogromnym łukiem." },
     { title: "Pominięty znak", x: "Środek na lewo od startu ma ujemne I. Bez minusa środek przeskakuje na drugą stronę i łuk wychodzi po przeciwnej stronie punktu startu." },
     { title: "Punkt końcowy poza okręgiem", x: "Koniec łuku zaokrąglony tak, że nie leży dokładnie na okręgu o danym środku. Małą różnicę sterowanie przyjmie, większą odrzuci alarmem." },
   ],
@@ -103,11 +107,11 @@ export const f3_4: LessonDoc = {
     { kind: "gap", q: "Start X30 Y20, środek X30 Y5. Podaj I i J.", template: "I{0} J{1}", answers: [["0"], ["-15"]], why: "I = 0, J = 5 − 20 = −15." },
     { kind: "choice", q: "Który zapis da pełny okrąg?", options: ["`G02 X50. Y25. R10.` ze startem w X50 Y25", "`G02 I-10.` ze startem w X50 Y25", "`G01 I-10.`", "`G02 R-10.`"], answer: 1, why: "Blok z I i bez X, Y kończy łuk w punkcie startu." },
     { kind: "choice", q: "Kiedy I, J są wyraźnie lepsze od R?", options: ["przy łukach bliskich 180° i pełnych okręgach", "przy krótkich łukach 90°", "nigdy", "tylko w G91"], answer: 0, why: "Środek wyliczany z R jest tam bardzo czuły na zaokrąglenia." },
-    { kind: "token", q: "Wskaż słowo, które podaje **odległość do środka w osi Y**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka." },
+    { kind: "token", q: "Wskaż słowo, które podaje **składową Y wektora do środka łuku**.", block: "G03 X20. Y40. I-10. J5.", answer: 4, why: "J — składowa Y wektora od startu do środka." },
   ],
 
   summary: [
-    "I, J — odległość od startu łuku do środka, w osiach X i Y.",
+    "I, J — przyrostowe składowe wektora od startu łuku do środka, w osiach X i Y; mogą być ujemne.",
     "Na Fanucu I, J są zawsze przyrostowe.",
     "Pełny okrąg: G02/G03 z I, J, bez X i Y.",
     "R jest wygodne przy ręcznym pisaniu, I, J — dokładniejsze i uniwersalne.",

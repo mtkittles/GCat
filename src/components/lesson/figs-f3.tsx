@@ -11,7 +11,7 @@ export function SafeApproach() {
   return (
     <Fig id="f31ap" code="G00" title="Najazd ruchem szybkim — widok z boku" h={250} legend={["rap", "bad", "stock"]}
       notes={<><Code k="rap">G00 X-20. Y10.</Code><Code k="rap">G00 Z5.</Code><Code k="bad">G00 X-20. Y10. Z5.</Code></>}
-      caption={<>Przy ruchu szybkim osie często jadą niezależnie, każda z pełną prędkością. Oś Z kończy wcześniej i reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół. Frez Ø10 w X−20 ma krawędzie w X−25 i X−15, więc do detalu (X0) zostaje 15 mm. Docisk i szczęki trzeba sprawdzić osobno — ich położenie wynika z ustawienia detalu.</>}>
+      caption={<>Widok z boku (rzut XZ). Przy ruchu szybkim osie mogą jechać niezależnie, każda ze swoją prędkością. Czerwony tor to jeden z możliwych przebiegów — położenie załamania jest poglądowe i zależy od prędkości i dynamiki osi. Jeśli Z skończy wcześniej, reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół. Frez Ø10 w X−20 ma krawędzie w X−25 i X−15, więc do półfabrykatu (X−2) zostaje 13 mm. Docisk i szczęki trzeba sprawdzić osobno — ich położenie wynika z ustawienia detalu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={60 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -69,19 +69,23 @@ export function CornerArc() {
   const C = { x: 10, y: 40 };
   const part = `M ${m.X(0)} ${m.Y(20)} L ${m.X(0)} ${m.Y(40)} A ${10 * m.u} ${10 * m.u} 0 0 1 ${m.X(10)} ${m.Y(50)} L ${m.X(36)} ${m.Y(50)} L ${m.X(36)} ${m.Y(20)} Z`;
   return (
-    <Fig id="f33co" code="R15" title="Naroże R10 detalu i tor środka freza Ø10" h={248} legend={["cut", "arc", "stock"]}
+    <Fig id="f33co" code="R15" title="Naroże R10 detalu i tor środka freza Ø10" h={248} legend={["cut", "arc", "stock", "allow"]}
       notes={<><Code k="con">naroże detalu R10</Code><Code k="arc">G02 X10. Y55. R15.</Code></>}
-      caption={<>Środek łuku narzędzia leży w środku naroża detalu. Promień toru to promień naroża plus promień freza: 10 + 5 = 15. Łuk styka się z odcinkami w X−5 Y40 i X10 Y55.</>}>
+      caption={<>Rozróżnij dwa promienie: <b>R10</b> to promień powierzchni gotowej (naroże detalu), <b>R15</b> — promień toru środka freza. Środek obu łuków to środek naroża X10 Y40; 15 = 10 + promień freza 5. Łuk toru styka się z odcinkami w X−5 Y40 i X10 Y55.</>}>
       {(c) => (
         <g>
+          <rect x={m.X(-2)} y={m.Y(52)} width={38 * m.u} height={32 * m.u} className="allow" />
+          <path d={part} style={{ fill: "var(--panel)" }} />
           <path d={part} fill={c.hatch} className="p-con" />
           <line x1={m.X(-5)} y1={m.Y(20)} x2={m.X(-5)} y2={m.Y(40)} className="p-cut thick" />
           <path d={`M ${m.X(-5)} ${m.Y(40)} A ${15 * m.u} ${15 * m.u} 0 0 1 ${m.X(10)} ${m.Y(55)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(10)} y1={m.Y(55)} x2={m.X(36)} y2={m.Y(55)} className="p-cut thick" />
           <circle cx={m.X(-5)} cy={m.Y(40)} r={5 * m.u} className="tool" />
-          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 15 * m.u * Math.cos(Math.PI / 4)} y2={m.Y(C.y) - 15 * m.u * Math.sin(Math.PI / 4)} className="p-dim" />
+          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 15 * m.u * Math.cos(Math.PI / 4) + 2} y2={m.Y(C.y) - 15 * m.u * Math.sin(Math.PI / 4) + 2} className="p-dim" markerEnd={c.a("dim")} />
           <T x={m.X(C.x) - 7.5 * m.u * Math.cos(Math.PI / 4) + 6} y={m.Y(C.y) - 7.5 * m.u * Math.sin(Math.PI / 4) + 12} cls="t-arc t-b t-mono">R15</T>
-          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 10 * m.u * Math.cos(Math.PI / 3)} y2={m.Y(C.y) - 10 * m.u * Math.sin(Math.PI / 3)} className="p-cons" />
+          <line x1={m.X(C.x)} y1={m.Y(C.y)} x2={m.X(C.x) - 10 * m.u * Math.cos(Math.PI / 2.4) + 1} y2={m.Y(C.y) - 10 * m.u * Math.sin(Math.PI / 2.4) + 2} className="p-dim" markerEnd={c.a("dim")} />
+          <T x={m.X(C.x) - 5 * m.u * Math.cos(Math.PI / 2.4) + 6} y={m.Y(C.y) - 5 * m.u * Math.sin(Math.PI / 2.4)} cls="t-b t-mono">R10</T>
+          <T x={m.X(-5)} y={m.Y(40) + 5 * m.u + 14} anchor="middle" cls="t-mono t-sm">Ø10</T>
           <Pt x={m.X(C.x)} y={m.Y(C.y)} label="środek X10 Y40" pos="se" cls="t-mono" />
           <Pt x={m.X(-5)} y={m.Y(40)} label="X−5 Y40" pos="w" cls="t-mono t-b" dot="pt-cut" />
           <Pt x={m.X(10)} y={m.Y(55)} label="X10 Y55" pos="n" cls="t-mono t-b" dot="pt-cut" />
@@ -99,10 +103,11 @@ export function FullCircle() {
   return (
     <Fig id="f34fc" code="I J" title="Pełny okrąg: start = koniec, środek przez I i J" h={236} legend={["arc", "acc", "stock"]}
       notes={<><Code k="arc">G02 I-10. J0.</Code><Code k="acc">I = X środka − X startu</Code></>}
-      caption={<>Frez startuje w X50 Y25. Środek okręgu leży 10 mm w lewo, więc I−10, J0. Blok bez X i Y kończy łuk w punkcie startu — powstaje pełny okrąg.</>}>
+      caption={<>Frez startuje w X50 Y25. Środek okręgu leży 10 mm w lewo, więc I−10, J0. Blok bez X i Y kończy łuk w punkcie startu — powstaje pełny okrąg. Pomarańczowy pierścień to idealizowany rowek po frezie Ø10: od promienia 5 do 15 mm wokół środka.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
+          <circle cx={m.X(C.x)} cy={m.Y(C.y)} r={10 * m.u} className="allow" style={{ fill: "none", strokeWidth: 10 * m.u, stroke: "color-mix(in srgb, var(--accent) 30%, transparent)", strokeDasharray: "none" }} />
           <circle cx={m.X(C.x)} cy={m.Y(C.y)} r={r * m.u} className="p-arc thick" />
           <path d={`M ${m.X(50)} ${m.Y(25)} A ${r * m.u} ${r * m.u} 0 0 1 ${m.X(40)} ${m.Y(15)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(50)} y1={m.Y(25) - 14} x2={m.X(40) + 2} y2={m.Y(25) - 14} className="p-acc" markerEnd={c.a("acc")} />
@@ -161,14 +166,14 @@ export function CornerIJ() {
   return (
     <Fig id="f34ij" code="I J" title="Naroże przez I, J: wektor od startu do środka" h={248} legend={["arc", "acc", "stock"]}
       notes={<><Code k="arc">G02 X10. Y55. I15. J0.</Code></>}
-      caption={<>I i J to przesunięcie od punktu startu łuku (X−5 Y40) do jego środka (X10 Y40): w X o 15, w Y o 0. 1 — I = 10 − (−5). 2 — J = 40 − 40. 3 — kierunek G02. 4 — punkt końcowy X10 Y55.</>}>
+      caption={<>I i J to składowe wektora od punktu startu łuku (X−5 Y40) do jego środka (X10 Y40): w X o 15, w Y o 0 — J0 nie ma długości, więc nie ma strzałki. 1 — I = 10 − (−5). 2 — J = 40 − 40. 3 — kierunek G02. 4 — punkt końcowy X10 Y55.</>}>
       {(c) => (
         <g>
           <path d={part} fill={c.hatch} className="p-con" />
           <path d={`M ${m.X(-5)} ${m.Y(40)} A ${15 * m.u} ${15 * m.u} 0 0 1 ${m.X(10)} ${m.Y(55)}`} className="p-arc thick" markerEnd={c.a("arc")} />
           <line x1={m.X(-5)} y1={m.Y(40)} x2={m.X(10) - 3} y2={m.Y(40)} className="p-acc thick" markerEnd={c.a("acc")} />
           <T x={m.X(2.5)} y={m.Y(40) - 8} anchor="middle" cls="t-acc t-b t-mono">I15</T>
-          <Step x={m.X(2.5)} y={m.Y(40) + 16} n={1} />
+          <Step x={m.X(2.5)} y={m.Y(40) - 26} n={1} />
           <T x={m.X(10) + 6} y={m.Y(40) - 8} cls="t-acc t-b t-mono">J0</T>
           <Step x={m.X(10) + 34} y={m.Y(40) - 12} n={2} />
           <Step x={m.X(-3)} y={m.Y(52)} n={3} />

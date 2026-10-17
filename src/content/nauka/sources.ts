@@ -99,6 +99,11 @@ export const sources: Record<string, Source> = {
     edition: "2011", number: "ISBN 83-89703-72-6",
     note: "Dokument w materiałach projektu (raport #80, S1). Strony — numeracja drukowana.",
   },
+  storch: {
+    id: "storch", short: "Storch, Podstawy obróbki skrawaniem", author: "B. Storch",
+    title: "Podstawy obróbki skrawaniem",
+    note: "Dokument w materiałach projektu (raport #80, S2). Wydania nie potwierdzono.",
+  },
   jemielniak: {
     id: "jemielniak", short: "Jemielniak, Obróbka skrawaniem", author: "K. Jemielniak",
     title: "Obróbka skrawaniem, Oficyna Wydawnicza Politechniki Warszawskiej",

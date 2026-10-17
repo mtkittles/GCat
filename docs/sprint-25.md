@@ -106,3 +106,14 @@ Przegląd dostępności (`scripts/audit-a11y.py`, 390 i 1363 px, oba motywy, 18 
 | F2.3 | G95 a system A tokarki (G99); z — liczba efektywnych ostrzy; „może trzeć” zamiast „trze”; nowa część ap/ae (ap = 5, ae = 2 mm na płytce, pocienianie wióra) z rysunkiem `apae` w bloku zwijanym; rysunek fz jako model uproszczony (rzeczywisty tor — trochoida); źródło Kuryjański s. 54 |
 | F2.4 | M09 → M05 jako kolejność przyjęta w kursie, bez „zalanego wrzeciona”; przerywany strumień — zalecenie producenta zamiast „lepiej na sucho”; oś czasu z rozsuniętymi etykietami |
 | wszystkie | ramki „Dane przykładu” w F2.1–F2.4 (F2.3 — z paczki N) |
+
+## Paczka R — F3 (`sprint-25/paczka-r`)
+
+| Lekcja | Zmiana |
+|---|---|
+| F3.1 | prędkość ruchu szybkiego z dokumentacji maszyny; odstęp od półfabrykatu (X−2) 13 mm; ramka danych ze startem i założeniem wysokości. Rysunki: rzut XZ, załamanie toru „poglądowe”; `rapid-path` — „przy porównywalnych prędkościach osi”; `rapid-clamp` bez obietnicy „podobnego czasu” |
+| F3.2 | brak F zależny od stanu sterowania — F jawnie w pierwszym G01; współbieżność dla konturu zewnętrznego i wewnętrznego (zasada, nie strzałka) + nowe pytanie o kieszeń; źródło Storch s. 77–79 |
+| F3.3 | „Dodatnie/ujemne R” w profilu Fanuc; warunek 2·\|R\| i błąd „zgodnie z tolerancją sterowania”; R10 przy cięciwie 21,2 mm — łuk nie istnieje. Rysunek: groty R15 i R10, Ø10, naddatek, opis dwóch promieni |
+| F3.4 | I/J — przyrostowe składowe wektora (mogą być ujemne), absolutny tryb środka na innych sterowaniach; zadanie: tor osi R10, rowek szer. 10 mm (5–15). Rysunki: krok 1 nie zasłania środka, J0 bez strzałki, pierścień rowka |
+| F3.5 | rysunek toczenia rowka w bloku zwijanym; czas postoju według operacji („w przykładzie co najmniej 3 obroty”); ślady na konturze „może”; umacnianie materiału warunkowo; Fanuc — postój w obrotach przy G95 zależnie od 3405#1 DWL; SINUMERIK G4 — rozdz. 15.7, s. 363 |
+| wszystkie | ramki „Dane przykładu” w F3.1–F3.5 (F3.2 — z paczki N) |
