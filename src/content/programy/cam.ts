@@ -38,7 +38,7 @@ export function camForma(): string {
     "G54",
     "(--- ZGRUBNIE: WARSTWY CO 3 MM, NADDATEK 0.8 ---)",
     "T1 M06 (FREZ FI10)",
-    "G43 H1 Z50.",
+    "G00 G43 H1 Z50.",
     "S6000 M03",
     "M08",
   ];
@@ -53,7 +53,7 @@ export function camForma(): string {
   }
   out.push("G00 Z50.", "M09", "M05",
     "(--- WYKANCZANIE: KULISTY FI6, KROK 1 MM ---)",
-    "T2 M06 (FREZ KULISTY FI6)", "G43 H2 Z50.", "S12000 M03", "M08",
+    "T2 M06 (FREZ KULISTY FI6)", "G00 G43 H2 Z50.", "S12000 M03", "M08",
     "G00 X-1. Y0", `G00 Z5.`, `G01 Z${f3(toolZ(-1, 0, 3, true, 0))} F400`, "F2500");
   let row = 0;
   for (let y = 0; y <= 60.01; y += 1, row++) {
@@ -81,7 +81,7 @@ export function camKopula(): string {
     "G54",
     "(--- ZGRUBNIE: OKREGI WOKOL KOPULY, WARSTWY CO 3 MM ---)",
     "T1 M06 (FREZ FI12)",
-    "G43 H1 Z60.",
+    "G00 G43 H1 Z60.",
     "S5000 M03",
     "M08",
   ];

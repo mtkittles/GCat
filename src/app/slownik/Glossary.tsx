@@ -5,6 +5,7 @@ import PageBanner from "@/components/ui/PageBanner";
 import { glossary } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
+import { sources } from "@/content/nauka/sources";
 
 const first = (t: string) => t.trim().charAt(0).toLocaleUpperCase("pl");
 
@@ -44,6 +45,15 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
                   W lekcjach: {lessons[e.anchor].map((l, i) => <span key={l.href}>{i > 0 && " · "}<Link href={l.href} title={l.title} className="underline">{l.id}</Link></span>)}
                 </p>
               )}
+              {e.sources?.length ? (
+                <p className="text-sm text-muted gl-sources">
+                  Źródło: {e.sources.map((r, i) => {
+                    const src = sources[r.id], url = r.url || src?.url;
+                    const label = [src?.short ?? r.id, r.loc].filter(Boolean).join(", ");
+                    return <span key={r.id + r.where} title={r.where}>{i > 0 && " · "}{url ? <a href={url} target="_blank" rel="noopener noreferrer" className="underline">{label} ↗</a> : label}</span>;
+                  })}
+                </p>
+              ) : null}
               {e.see.length > 0 && (
                 <p className="text-sm text-muted">
                   Zobacz: {e.see.map((s, i) => { const g = bySlug(s); return g ? <span key={s}>{i > 0 && ", "}<Link href={`/kody/${s}`} className="underline">{g.code}</Link></span> : null; })}

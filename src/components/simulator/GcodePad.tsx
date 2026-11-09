@@ -78,10 +78,10 @@ const GROUPS: { name: string; keys: { l: string; ins: string; hint?: string }[] 
 
 const SNIPPETS: { l: string; ins: string }[] = [
   { l: "Blok startowy", ins: "G21 G90 G17 G54 G40 G49 G80\n" },
-  { l: "Nowe narzędzie", ins: "T01 M06\nG43 H01 Z50\nS2000 M03\nM08\n" },
+  { l: "Nowe narzędzie", ins: "T01 M06\nG00 G43 H01 Z50\nS2000 M03\nM08\n" },
   { l: "Zakończenie", ins: "G00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30\n" },
   { l: "Komentarz", ins: "( )\n" },
-  { l: "Płaszczyzna 3+2", ins: "G00 Z100\nG68.2 X0 Y0 Z0 I0 J90 K0\nG53.1\nG43 H1 Z50\n" },
+  { l: "Płaszczyzna 3+2", ins: "G00 Z100\nG68.2 X0 Y0 Z0 I0 J90 K0\nG53.1\nG00 G43 H1 Z50\n" },
 ];
 
 export default function GcodePad({ onInsert }: { onInsert: (text: string) => void }) {

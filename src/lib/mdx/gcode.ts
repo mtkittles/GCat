@@ -22,5 +22,7 @@ export function kodToGcode(k: Kod, hasArticle: boolean): GCode {
 
 /** Hasło z pliku → wpis słownika strony (bez `order` — lista jest już posortowana). */
 export function hasloToEntry(h: Haslo): GlossaryEntry {
-  return { term: h.term, anchor: h.anchor, aliases: h.aliases, def: h.def, see: h.see, ...(h.diagram ? { diagram: h.diagram } : {}) };
+  return { term: h.term, anchor: h.anchor, aliases: h.aliases, def: h.def, see: h.see, ...(h.diagram ? { diagram: h.diagram } : {}),
+    ...(h.sources.length ? { sources: h.sources.map((x) => ({ id: x.id, where: x.where, ...(x.loc ? { loc: x.loc } : {}), ...(x.url ? { url: x.url } : {}) })) } : {}),
+  };
 }

@@ -84,6 +84,8 @@ export const hasloSchema = z.strictObject({
   see: z.array(slug).default([]),
   /** id rysunku z rejestru diagrams.tsx; "" = brak */
   diagram: z.string().default(""),
+  /** źródła jak w kartach (src/content/nauka/sources.ts) */
+  sources: z.array(z.strictObject({ id: text, where: text, loc: z.string().default(""), url: z.string().default("") })).default([]),
 });
 export type Haslo = z.infer<typeof hasloSchema>;
 
