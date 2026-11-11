@@ -31,12 +31,15 @@ desc: >-
   bloku.
 syntax:
   fanuc: |-
-    G91 G30 P2 Z0
+    G91 G30 P2 Z0.
     G27 X_ Y_ Z_
     G29 X_ Y_ Z_
   sinumerik: |-
-    G75 FP=2 X=0 Z=0   ; punkt stały 2 (wartości osi wymagane, ale ignorowane)
-    G74 X=0 Z=0        ; najazd na punkt referencyjny
+    ; punkt stały 2 (wartości osi wymagane,
+    ; ale ignorowane)
+    G75 FP=2 X=0 Z=0
+    ; najazd na punkt referencyjny
+    G74 X=0 Z=0
 sinumerik: >-
   Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi —
   **G74**.
@@ -63,12 +66,23 @@ sources:
       parametry 1240–1243, rozdz. 7.2.8, s. 168
 example:
   src: |-
-    G91 G30 P2 Z0 (os Z do punktu wymiany)
-    G30 P2 X0 Y0
-    T05 M06
-    G90 G54 G00 X50.0 Y30.0
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    G91 G30 P2 Z0. (os Z do punktu wymiany)
+    G30 P2 X0. Y0.
+    G90
+    T5 M06
+    G00 G43 H5 Z50.
+    S2000 M03
+    G00 X50. Y30.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X70. F200
+    G00 Z50.
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

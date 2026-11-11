@@ -48,13 +48,16 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G18 G40 G99
+    G18 G21 G40 G80 G99
+    G54
+    T0303 (NOZ DO GWINTU)
     G97 S300 M03
     G00 X44. Z5.
     G00 X39.2
     G34 Z-60. F6. K0.05
     G00 X44.
-    Z5.
+    G00 Z5.
+    M05
     M30
   simulate: false
   mode: ''

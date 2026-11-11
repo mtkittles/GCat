@@ -66,15 +66,17 @@ sources:
       parametr 5139 — rozdz. 7.2.22, s. 238
 example:
   src: |-
-    G21 G18 G54
+    G18 G21 G40 G80 G99
+    G54
     T0404 (noz do rowkow 3 mm)
     G97 S600 M03
     G00 X42.0 Z-20.0
     G75 R0.5
     G75 X30.0 Z-26.0 P2000 Q2500 F0.08
     G00 X100.0 Z100.0
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

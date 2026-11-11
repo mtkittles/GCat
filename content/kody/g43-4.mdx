@@ -66,7 +66,8 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G90 G94 G17 G40 G49 G80
+    G21 G90 G94 G17
+    G40 G49 G80
     G54
     T1 M06 (FREZ FI10)
     S4500 M03
@@ -80,6 +81,7 @@ example:
     G00 Z50.
     G49
     G00 A0 C0
+    M05
     M30
   simulate: true
   mode: ''

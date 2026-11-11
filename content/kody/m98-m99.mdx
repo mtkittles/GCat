@@ -43,27 +43,30 @@ sources:
     loc: rozdz. 5.6, s. 114; wywołanie kodem M — rozdz. 5.6.9, s. 116
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X10 Y10 Z5
-    G91
-    G01 Z-6 F100
-    G01 X20 F200
-    G01 Y10
-    G01 X-20
-    G01 Y-10
-    G00 Z6
-    G00 X40
-    G01 Z-6 F100
-    G01 X20 F200
-    G01 Y10
-    G01 X-20
-    G01 Y-10
-    G00 Z6
-    G90
+    G00 X10. Y10.
+    G00 Z5.
+    M98 P1001
+    G00 X50. Y10.
+    M98 P1001
+    G00 Z50.
+    M05
     M30
+    O1001 (kieszen 20 x 10)
+    G91
+    G01 Z-6. F100
+    G01 X20. F200
+    G01 Y10.
+    G01 X-20.
+    G01 Y-10.
+    G00 Z6.
+    G90
+    M99
   simulate: true
   mode: ''
   dialect: ''
@@ -77,27 +80,30 @@ example:
 <Code>
   ```
   O0100 (PROGRAM GLOWNY)
-  G21 G90 G17 G54 G40 G49 G80
-  T01 M06
-  G00 G43 H01 Z50
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2000 M03
-  M98 P1001          ; wywołanie podprogramu O1001
+  M98 P1001 (wywołanie podprogramu O1001)
   G55
-  M98 P1001          ; ten sam kształt w drugim zamocowaniu
-  G91 G28 Z0
+  M98 P1001 (to samo w drugim zamocowaniu)
+  G91 G28 Z0.
   G90
+  M05
   M30
 
   O1001 (PODPROGRAM — KIESZEN)
-  G00 X10 Y10
-  G00 Z2
-  G01 Z-3 F120
-  G01 X50 F400
-  G01 Y30
-  G01 X10
-  G01 Y10
-  G00 Z50
-  M99                ; powrót do programu głównego
+  G00 X10. Y10.
+  G00 Z2.
+  G01 Z-3. F120
+  G01 X50. F400
+  G01 Y30.
+  G01 X10.
+  G01 Y10.
+  G00 Z50.
+  M99 (powrót do programu głównego)
   ```
 </Code>
 
@@ -120,20 +126,26 @@ Największą siłę podprogramy pokazują w połączeniu z G91. Podprogram wykon
 <Code caption="Podprogram kończy się dokładnie o jeden krok dalej niż zaczął — to warunek poprawnego powtarzania.">
   ```
   O0200
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2200 M03
-  G00 X10 Y10 Z5
+  G00 X10. Y10.
+  G00 Z5.
   G91
-  M98 P51002        ; pięć rowków co 15 mm
+  M98 P51002 (pięć rowków co 15 mm)
   G90
-  G00 Z50
+  G00 Z50.
+  M05
   M30
 
   O1002
-  G01 Z-7 F120
-  G01 X20 F400
-  G00 Z7
-  G00 X-20 Y15     ; powrót i przesunięcie o krok
+  G01 Z-7. F120
+  G01 X20. F400
+  G00 Z7.
+  G00 X-20. Y15. (powrót i krok w Y)
   M99
   ```
 </Code>

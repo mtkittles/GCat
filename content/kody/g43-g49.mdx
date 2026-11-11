@@ -45,11 +45,18 @@ sources:
     where: korekcja długości aktywowana przez T i D
 example:
   src: |-
-    G21 G90 G17 G54
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
     T1 M06
-    G00 G43 H1 Z50
-    G00 X0 Y0
-    G00 Z5
+    G00 G43 H1 Z50.
+    S2000 M03
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X30. F200
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -67,8 +74,10 @@ Pozycja maszynowa **czoła wrzeciona N** — płaszczyzny, od której mierzy si�
 
 <Code caption="Model z długością mierzoną od czoła wrzeciona. Dłuższe narzędzie (większe H) zatrzymuje wrzeciono wyżej — koniec narzędzia i tak trafia w Z−5.">
   ```
-  Z maszynowe N = Z przesunięcia (G54) + Z z programu + H
-  przykład:      −400,000     +   (−5,000)    + 150,000 = −255,000
+  Z maszynowe N = Z przesunięcia (G54)
+                + Z z programu + H
+  przykład: −400,000 + (−5,000) + 150,000
+          = −255,000
   ```
 </Code>
 
@@ -96,10 +105,13 @@ Pozycja maszynowa **czoła wrzeciona N** — płaszczyzny, od której mierzy si�
 <Code>
   ```
   T2 M06
-  G00 G43 H2 Z50.   (korekcja razem z ruchem na wysokość bezpieczną)
+  (korekcja razem z ruchem na Z bezpieczne)
+  G00 G43 H2 Z50.
   S2000 M03
   …
-  G49               (wyłączenie — w bloku startowym i przed powrotem na referencję)
+  (wyłączenie: w bloku startowym)
+  (i przed powrotem na punkt referencyjny)
+  G49
   ```
 </Code>
 
@@ -109,7 +121,9 @@ Samo `G43 H2` bez Z na wielu sterownikach nic nie zmienia aż do następnego ruc
 
 <Sim mode="mill" caption="Szkielet obróbki jednym narzędziem: wymiana, korekcja długości z ruchem na Z50, obróbka i odjazd na referencję.">
   ```
-  G21 G90 G17 G54 G40 G49 G80
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
   T2 M06 (FREZ FI10)
   G00 G43 H2 Z50.
   S2000 M03

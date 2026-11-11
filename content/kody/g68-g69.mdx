@@ -17,7 +17,7 @@ desc: >-
   kątem i do powtarzania kieszeni co 60°.
 syntax:
   fanuc: |-
-    G68 X0 Y0 R30
+    G68 X0. Y0. R30.
     ...program...
     G69
   sinumerik: |-
@@ -85,9 +85,9 @@ example:
 
 <Code>
   ```
-  G68 X0 Y0 R30      ; obrót o 30° wokół punktu (0,0)
-  M98 P1002          ; obrabiany element
-  G69                ; kasowanie obrotu
+  G68 X0. Y0. R30. (obrót o 30° wokół 0,0)
+  M98 P1002 (obrabiany element)
+  G69 (kasowanie obrotu)
   ```
 </Code>
 
@@ -99,13 +99,13 @@ example:
 <Code caption="Trzy identyczne elementy rozmieszczone co 60° wokół środka detalu.">
   ```
   G54
-  G68 X0 Y0 R0
+  G68 X0. Y0. R0.
   M98 P1002
   G69
-  G68 X0 Y0 R60
+  G68 X0. Y0. R60.
   M98 P1002
   G69
-  G68 X0 Y0 R120
+  G68 X0. Y0. R120.
   M98 P1002
   G69
   ```

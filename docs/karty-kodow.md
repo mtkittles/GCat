@@ -67,6 +67,37 @@ Rozróżniamy wprost:
 Fragmentu nie przedstawiamy jako programu produkcyjnego. Nie dopisujemy uniwersalnego
 „bezpiecznego nagłówka” bez określenia maszyny i sterowania.
 
+### 4a. Profil zapisu programów w kartach (paczka U)
+
+Program w karcie (przykład z frontmattera, `<Sim>`, `<Demo>`, blok ``` z wymianą narzędzia i M30)
+ma ten sam profil co lekcje F1.5 i T1.3 — maszyna i sterowanie są określone w linii „Zapis
+przykładów” nad kartą (Fanuc, frezarka pionowa albo tokarka w systemie A).
+
+| | frezarka | tokarka |
+|---|---|---|
+| start | `G21 G90 G94 G17` / `G40 G49 G80` / `G54` | `G18 G21 G40 G80 G99` / `G54` |
+| narzędzie | `T1 M06` → `G00 G43 H1 Z50.` → `S… M03` | `T0101` → `G50 S…` + `G96 S… M03` albo `G97 S… M03` |
+| dojazd | `G00 X… Y…`, potem `G00 Z…` | `G00 X… Z…` |
+| koniec | `M05` przed `M30` | `M05` przed `M30` |
+
+Karta może zmienić kod swojej grupy w bloku startowym (G20, G91, G95, G18/G19, G55…).
+Programy 5-osiowe (G43.4, G68.2) mają kolejność opisaną na swojej karcie.
+
+Zapis w każdym bloku kodu Fanuc (też we fragmentach i składni):
+- współrzędne X Y Z I J K R U W z kropką (`X20.`); na frezarce także Q cykli (`Q4.` — bez kropki
+  to 0,004 mm); na tokarce P i Q cykli bez kropki (mikrometry albo numery bloków),
+- komentarz w nawiasach `( )` — `;` tylko w sekcji Sinumerika,
+- linia z komentarzem, komentarz i linia obliczeń najwyżej **42 znaki** (blok kodu na telefonie
+  390 px); dłuższy komentarz idzie w osobnej linii nad kodem,
+- łącznik `-` w kodzie, także w notkach `<Code>` rysunków; minus typograficzny `−` tylko w zdaniach,
+  obliczeniach i wymiarach.
+
+Fragment (bez M30) zaczyna się od komentarza z założeniami, np. `(fragment: sonda w wrzecionie, G54)`.
+Przykład bez podglądu (`simulate: false`) dostaje podpis z `src/lib/simGaps.ts` — wynika z opisów
+parsera: kody pominięte, kody odtwarzane w przybliżeniu albo brak ruchu. Jeśli symulator odtwarza
+program w całości i bez ostrzeżeń, przykład ma mieć podgląd. Wszystko to sprawdza `npm run audit:programy`
+(sekcja „profil kart”, `scripts/lib/profil-kursu.ts`) i test `tests/profil-kart.test.ts`.
+
 ## 5. Źródła i status
 
 - Treść weryfikujemy w dokumentacji producentów. Podajemy dokument, wersję, rozdział
@@ -109,6 +140,7 @@ To lista tematów do sprawdzenia, nie stwierdzenie istniejących błędów.
 | źródła kart (pole `sources`) | 23 karty: 12 ★ + G84, M29, G81–G83, G98/G99, G28, G27–G30, G71/G70, G72, G75, G76, osie A/B/C | dodane 2026-10 (sprint 20); miejsca tylko tam, gdzie sprawdzone — reszta „do uzupełnienia” | rejestr `src/content/nauka/sources.ts`; stan: `npm run audit:dzialy` |
 | język kart (paczka C) | „zawsze”, „nigdy”, „złamane narzędzie” w polach i artykułach; G33/G34/G76, G04, M30, M99, M03–M05, M07/M08, G71, G73, G85/G86 | przeredagowane 2026-10 (sprint 21) — warunki zamiast reguł, skutek opisany rzeczowo | spójność z lekcjami T7.1, T8.1, F4.2; parametry sterowania — „zależy od” |
 | paczka T (błędy P1 z audytu sekcji) | G71/G70, G72, G32/G33, G76 (tok.), G90/G92/G94 (tok.), G92, G96/G97, G04, G00, G01, G27/G29/G30, G43/G49, G68/G69, G80–G83, M03–M05, M08/M09 | poprawione 2026-11: tryb tokarki w symulacjach, prawdziwe cykle G71/G76/G83 i G68 zamiast rozpisań, gwint blokami G32 do rdzenia 22,16, kryterium G72, G27 bez punktu pośredniego, G92 według systemów kodów, czoło wrzeciona N w G43, tor G00 warunkowo, jedna zasada o liczbie M w bloku | jak w polach `sources` kart; liczba M w bloku (parametr 3404#7) i G92.1 — do weryfikacji w B-64604EN |
+| paczka U (programy wg profilu kursu) | wszystkie 56 kart: 56 przykładów, 21 `<Sim>`, 16 `<Demo>`, 35 bloków kodu i pola składni | poprawione 2026-11: profil §4a; przykłady G52, G68, G92, M98 używają kodu karty; podgląd dla G27–G30, G50, G74, G75, G76/G87–G89, G93, M00/M01, M06, M29; podpis przykładów bez podglądu wg `simGaps`; tor roboczy bez zmian poza przykładami dopisanymi od nowa | profil: lekcje F1.5, T1.3 |
 | pozostałe | — | nie audytowano źródłowo | — |
 
 Kontrolne przypadki kalkulatora łuku (start X20 Y20, koniec X50 Y50, R30, G03):

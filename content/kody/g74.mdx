@@ -67,15 +67,20 @@ sources:
       (frezarka) i s. 90 (tokarka); parametr 5139 — rozdz. 7.2.22, s. 238
 example:
   src: |-
-    G21 G90 G17 G54
-    T07 M06 (gwintownik M10x1.5 lewy)
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T7 M06 (gwintownik M10x1.5 lewy)
+    G00 G43 H7 Z50.
     S400 M04
-    G00 X30 Y20 Z20
-    G99 G74 Z-15 R3 F600
+    G00 X30. Y20.
+    G00 Z20.
+    G99 G74 Z-15. R3. F600
     G80
-    G00 Z50
+    G00 Z50.
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

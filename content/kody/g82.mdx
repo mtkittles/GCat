@@ -49,16 +49,20 @@ sources:
     loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T02 M06 (nawiertak 90)
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T2 M06 (nawiertak 90)
+    G00 G43 H2 Z50.
     S1800 M03
-    G00 X15 Y15
-    G43 Z20 H02
-    G99 G82 Z-3 R2 P300 F150
-    X45
-    X75
+    G00 X15. Y15.
+    G00 Z20.
+    G99 G82 Z-3. R2. P300 F150
+    X45.
+    X75.
     G80
-    G00 Z50
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''

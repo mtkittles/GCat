@@ -44,18 +44,22 @@ sources:
     where: G3, CR= oraz I J K
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-2 F100
-    G01 X40 F200
-    G03 X60 Y20 R20
-    G03 X40 Y40 R20
-    G01 X0
-    G01 Y0
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-2. F100
+    G01 X40. F200
+    G03 X60. Y20. R20.
+    G03 X40. Y40. R20.
+    G01 X0.
+    G01 Y0.
+    G00 Z5.
+    M05
     M30
   simulate: true
   mode: ''
@@ -83,8 +87,10 @@ Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej 
 
 <Code caption="Obie postacie są równoważne dla łuków do 180°; powyżej różnią się jednoznacznością.">
   ```
-  G03 X_ Y_ I_ J_ F_      (zapis wektorowy — środek względem punktu startu)
-  G03 X_ Y_ R_ F_          (zapis promieniowy)
+  (wektor I, J: środek względem startu)
+  G03 X_ Y_ I_ J_ F_
+  (promień R)
+  G03 X_ Y_ R_ F_
   ```
 </Code>
 
@@ -115,12 +121,18 @@ Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej 
 
 <Demo mode="mill" title="G03 z wektorem I, J" caption="Narzędzie startuje w punkcie (20, 20) i kończy w (50, 50). Wektor I0 J30 prowadzi do środka w punkcie (20, 50) — stąd promień 30 mm. Zwróć uwagę na podpisy współrzędnych pojawiające się na torze.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2200 M03
-  G00 X20 Y20 Z2
-  G01 Z-2 F120
-  G03 X50 Y50 I0 J30 F350
-  G00 Z10
+  G00 X20. Y20.
+  G00 Z2.
+  G01 Z-2. F120
+  G03 X50. Y50. I0. J30. F350
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
@@ -129,12 +141,18 @@ Kierunek określa się **patrząc na płaszczyznę roboczą od strony dodatniej 
 
 <Demo mode="mill" title="G03 z promieniem R" caption="Ten sam łuk zapisany krócej. Sterownik sam liczy środek, wybierając wariant krótszy niż półokrąg. Zapis czytelniejszy, ale ograniczony — dlaczego, wyjaśnia następny przykład.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2200 M03
-  G00 X20 Y20 Z2
-  G01 Z-2 F120
-  G03 X50 Y50 R30 F350
-  G00 Z10
+  G00 X20. Y20.
+  G00 Z2.
+  G01 Z-2. F120
+  G03 X50. Y50. R30. F350
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
@@ -145,12 +163,18 @@ Przez dwa punkty i zadany promień przechodzą **dwa różne łuki** w tym samym
 
 <Demo mode="mill" title="G03 z promieniem ujemnym" caption="Te same punkty, ten sam promień, znak przy R zmieniony na ujemny — narzędzie obiega detal drugą stroną. Porównaj z poprzednią animacją.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2200 M03
-  G00 X20 Y20 Z2
-  G01 Z-2 F120
-  G03 X50 Y50 R-30 F350
-  G00 Z10
+  G00 X20. Y20.
+  G00 Z2.
+  G01 Z-2. F120
+  G03 X50. Y50. R-30. F350
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
@@ -161,18 +185,24 @@ Gdy punkt początkowy pokrywa się z końcowym, promień przestaje wystarczać: 
 
 <Demo mode="mill" title="Pełny okrąg jednym blokiem" caption="Brak X i Y w bloku łuku oznacza dla sterownika: wróć do punktu, z którego wyszedłeś. Pierwsze dwa okręgi o promieniu 20 mm wykonują dwa przejścia na różnych głębokościach, trzeci o promieniu 12 mm pokazuje ten sam zapis w innym miejscu detalu.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2400 M03
-  G00 X30 Y30 Z5
-  G01 Z-2 F120
-  G03 I20 J0 F320
-  G01 Z-4 F120
-  G03 I20 J0 F320
-  G00 X30 Y30 Z5
-  G00 X70 Y30
-  G01 Z-2 F120
-  G03 I12 J0 F320
-  G00 Z10
+  G00 X30. Y30.
+  G00 Z5.
+  G01 Z-2. F120
+  G03 I20. J0. F320
+  G01 Z-4. F120
+  G03 I20. J0. F320
+  G00 Z5.
+  G00 X70. Y30.
+  G01 Z-2. F120
+  G03 I12. J0. F320
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
@@ -207,14 +237,20 @@ Jeżeli oprócz łuku w płaszczyźnie roboczej podasz również przesunięcie w
 
 <Demo mode="mill" title="Wejście po helisie" caption="Trzy pełne obroty, każdy o 2 mm głębiej. W rzucie z góry widać okrąg — włącz widok 3D w symulatorze, żeby zobaczyć powstający rowek kołowy.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S3000 M03
-  G00 X10 Y30 Z2
-  G01 Z0 F150
-  G03 X10 Y30 Z-2 I20 J0 F300
-  G03 X10 Y30 Z-4 I20 J0
-  G03 X10 Y30 Z-6 I20 J0
-  G00 Z10
+  G00 X10. Y30.
+  G00 Z2.
+  G01 Z0. F150
+  G03 X10. Y30. Z-2. I20. J0. F300
+  G03 X10. Y30. Z-4. I20. J0.
+  G03 X10. Y30. Z-6. I20. J0.
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>

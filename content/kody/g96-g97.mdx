@@ -45,6 +45,7 @@ sources:
 example:
   src: |-
     G18 G21 G40 G80 G99
+    G54
     T0101 (NOZ ZEWN. R0.8)
     G50 S3000
     G96 S220 M03
@@ -83,10 +84,11 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 
 <Code caption="W Sinumerik ograniczenie zapisuje się jako `LIMS=3000`.">
   ```
-  G50 S3000          (Fanuc: ograniczenie obrotów — obowiązkowe przed G96)
-  G96 S220 M03       (stała prędkość skrawania 220 m/min)
-  ...toczenie...
-  G97 S1500          (powrót do stałych obrotów)
+  (Fanuc: limit obrotów przed G96)
+  G50 S3000
+  G96 S220 M03 (stała vc 220 m/min)
+  (…toczenie…)
+  G97 S1500 (powrót do stałych obrotów)
   ```
 </Code>
 
@@ -106,6 +108,7 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 <Sim mode="lathe" caption="Planowanie czoła przy stałej prędkości skrawania: w miarę zbliżania się do osi obroty rosną do limitu G50. Potem dwa przejścia wzdłużne i powrót do stałych obrotów przed odjazdem.">
   ```
   G18 G21 G40 G80 G99
+  G54
   T0101 (NOZ ZEWN. R0.8)
   G50 S3000
   G96 S220 M03

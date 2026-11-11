@@ -11,10 +11,10 @@ export function ArcIJ({ dir }: { dir: 2 | 3 }) {
   const short = `M ${m.X(A.x)} ${m.Y(A.y)} A ${r} ${r} 0 0 ${sw} ${m.X(B.x)} ${m.Y(B.y)}`;
   const long = `M ${m.X(A.x)} ${m.Y(A.y)} A ${r} ${r} 0 1 ${sw} ${m.X(B.x)} ${m.Y(B.y)}`;
   const g = dir === 2 ? "G02" : "G03";
-  const ij = dir === 2 ? "I30 J0" : "I0 J30";
+  const ij = dir === 2 ? "I30. J0." : "I0. J30.";
   return (
     <Fig id={`arc${dir}`} code={g} title="Łuk: środek I/J albo promień R" h={276} legend={["arc", "bad", "acc"]}
-      notes={<><Code k="arc">{g} X50 Y50 {ij}</Code><Code k="arc">{g} X50 Y50 R30</Code><Code k="bad">{g} X50 Y50 R−30</Code></>}
+      notes={<><Code k="arc">{g} X50. Y50. {ij}</Code><Code k="arc">{g} X50. Y50. R30.</Code><Code k="bad">{g} X50. Y50. R-30.</Code></>}
       caption={<>Start A, koniec B, środek S. I i J to odległość od <b>punktu startu</b> do środka. Dodatnie R wybiera łuk do 180°, ujemne R — dłuższy.</>}>
       {(c) => (
         <g>
@@ -311,7 +311,7 @@ export function LatheSingle() {
   const A = { z: 2, r: 26.5 }, D = 23, Ze = -40;
   return (
     <Fig id="g90t" code="G90 (tokarka)" title="Jeden blok cyklu — cztery ruchy" h={226} legend={["rap", "cut", "con"]}
-      notes={<Code>G90 X46 Z−40 F0.25</Code>}
+      notes={<Code>G90 X46. Z-40. F0.25</Code>}
       caption={<>Z punktu startu: <b>1</b> dojazd na średnicę, <b>2</b> toczenie do Z, <b>3</b> wyjście w X, <b>4</b> powrót szybki. Kolejny blok z samym X powtarza cykl głębiej.</>}>
       {(c) => (
         <g>

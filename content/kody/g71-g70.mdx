@@ -19,7 +19,7 @@ desc: >-
   konturze na czysto.
 syntax:
   fanuc: |-
-    G71 U2 R1
+    G71 U2. R1.
     G71 P10 Q20 U0.5 W0.1 F0.3
     N10 ...kontur...
     N20 ...
@@ -55,6 +55,7 @@ sources:
 example:
   src: |-
     G18 G21 G40 G80 G99
+    G54
     T0101
     G50 S2500
     G96 S200 M03
@@ -87,15 +88,15 @@ Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości
 
 <Code>
   ```
-  G71 U2.0 R1.0                    ; głębokość przejścia i wycofanie
-  G71 P100 Q200 U0.5 W0.1 F0.3     ; zakres bloków konturu i naddatki
-  N100 G00 X30                     ; pierwszy blok konturu — tylko ruch w X
-  G01 Z-25 F0.15                   ; posuw wykańczający — użyje go G70
-  X40 Z-35
-  Z-55
-  X50
-  N200 X62                         ; ostatni blok konturu
-  G70 P100 Q200                    ; przejście wykańczające
+  G71 U2. R1. (głębokość i wycofanie)
+  G71 P100 Q200 U0.5 W0.1 F0.3
+  N100 G00 X30. (pierwszy blok: tylko X)
+  G01 Z-25. F0.15 (posuw dla G70)
+  X40. Z-35.
+  Z-55.
+  X50.
+  N200 X62. (ostatni blok konturu)
+  G70 P100 Q200 (przejście wykańczające)
   ```
 </Code>
 
@@ -115,6 +116,7 @@ Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości
 <Sim mode="lathe" caption="Ten sam program co wyżej, z nagłówkiem. Siedem przejść zgrubnych po 2 mm na stronę, przejście po konturze z naddatkiem i wykończenie G70.">
   ```
   G18 G21 G40 G80 G99
+  G54
   T0101
   G50 S2500
   G96 S200 M03
