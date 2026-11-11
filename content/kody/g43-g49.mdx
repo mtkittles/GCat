@@ -61,14 +61,14 @@ example:
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
-Pozycja maszynowa końca narzędzia to suma trzech składników: przesunięcia zera detalu w Z, współrzędnej Z z programu i długości narzędzia z rejestru H. Po G43 sterownik przelicza wszystkie kolejne ruchy w Z tak, żeby **koniec narzędzia** — a nie czoło wrzeciona — trafiał w zaprogramowane Z.
+Pozycja maszynowa **czoła wrzeciona N** — płaszczyzny, od której mierzy się długość narzędzia — to suma trzech składników: przesunięcia zera detalu w Z, współrzędnej Z z programu i długości narzędzia z rejestru H. Po G43 sterownik przelicza wszystkie kolejne ruchy w Z tak, żeby **koniec narzędzia** — a nie czoło wrzeciona — trafiał w zaprogramowane Z.
 
 <Diagram id="f41-length" />
 
-<Code caption="Dłuższe narzędzie (większe H) zatrzymuje wrzeciono wyżej — koniec narzędzia i tak trafia w Z−5.">
+<Code caption="Model z długością mierzoną od czoła wrzeciona. Dłuższe narzędzie (większe H) zatrzymuje wrzeciono wyżej — koniec narzędzia i tak trafia w Z−5.">
   ```
-  Z maszynowe = Z przesunięcia (G54) + Z z programu + H
-  przykład:    −400,000     +   (−5,000)    + 150,000 = −255,000
+  Z maszynowe N = Z przesunięcia (G54) + Z z programu + H
+  przykład:      −400,000     +   (−5,000)    + 150,000 = −255,000
   ```
 </Code>
 

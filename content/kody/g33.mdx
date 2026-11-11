@@ -14,10 +14,10 @@ short: >-
   Ruch zsynchronizowany z obrotami: jedna nitka gwintu na przejście. G76 robi to
   samo wielokrotnie.
 desc: >-
-  G33 (Sinumerik i część Fanuc) / G32 (Fanuc) prowadzi narzędzie ze skokiem F na
-  obrót, startując za każdym razem od tego samego położenia kątowego wrzeciona —
-  dzięki temu kolejne przejścia trafiają w tę samą nitkę. Głębokość dobierasz
-  sam w każdym przejściu.
+  G32 (tokarka Fanuc w systemie A) / G33 (Fanuc w systemach B i C, Sinumerik)
+  prowadzi narzędzie ze skokiem F na obrót, startując za każdym razem od tego
+  samego położenia kątowego wrzeciona — dzięki temu kolejne przejścia trafiają w
+  tę samą nitkę. Głębokość dobierasz sam w każdym przejściu.
 syntax:
   fanuc: |-
     G00 X23.2
@@ -46,21 +46,27 @@ sources:
     loc: rozdz. 3.2, tab. 3.2, s. 75; rozdz. 4, s. 84
 example:
   src: |-
-    G21 G18 G40 G99
-    G97 S600 M03
-    G00 X24. Z3.
-    G00 X19.4
+    G18 G21 G40 G80 G99
+    T0303 (NOZ DO GWINTU 60 ST.)
+    G97 S700 M03
+    G00 X26. Z6.
+    G00 X23.3
     G32 Z-25. F1.5
-    G00 X24.
-    Z3.
-    G00 X18.9
+    G00 X26.
+    G00 Z6.
+    G00 X22.8
     G32 Z-25. F1.5
-    G00 X24.
-    Z3.
-    G00 X18.4
+    G00 X26.
+    G00 Z6.
+    G00 X22.4
     G32 Z-25. F1.5
-    G00 X24.
-    Z3.
+    G00 X26.
+    G00 Z6.
+    G00 X22.16
+    G32 Z-25. F1.5
+    G00 X26.
+    G00 Z6.
+    M05
     M30
   simulate: true
   mode: ''
@@ -68,14 +74,14 @@ example:
   stock:
     discriminant: false
 ---
-**G33** (na części sterowników Fanuc **G32**) wykonuje **jedno przejście gwintu**, prowadząc narzędzie ze skokiem zsynchronizowanym z obrotami wrzeciona. Podział na przejścia i dobór głębokości należą do programisty — w odróżnieniu od cyklu G76, który robi to sam.
+**G32** na tokarce Fanuc w systemie A — w systemach B i C oraz w Sinumeriku **G33** — wykonuje **jedno przejście gwintu**, prowadząc narzędzie ze skokiem zsynchronizowanym z obrotami wrzeciona. Podział na przejścia i dobór głębokości należą do programisty — w odróżnieniu od cyklu G76, który robi to sam.
 
 ## Na czym polega synchronizacja \{#na-czym-polega-synchronizacja}
 
 Sterownik odczytuje sygnał z enkodera wrzeciona i startuje ruch osi zawsze **w tym samym położeniu kątowym**. Dzięki temu kolejne przejścia trafiają dokładnie w tę samą nitkę. Gdyby start nie był zsynchronizowany, każde przejście nacinałoby gwint w innym miejscu obwodu.
 
 <Note kind="warn">
-  Z tego samego powodu gwintowanie musi odbywać się przy **G97** — stałych obrotach. Przy G96 obroty zmieniają się wraz ze średnicą, a wraz z nimi rzeczywisty skok.
+  Z tego samego powodu gwintowanie musi odbywać się przy **G97** — stałych obrotach. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój. Sam skok się nie zmienia — jest zadany na obrót.
 </Note>
 
 ## Rozbieg i wybieg \{#rozbieg-i-wybieg}
@@ -100,27 +106,29 @@ Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skoko
   ```
 </Code>
 
-<Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 o malejącym przyroście głębokości: 0,4 / 0,3 / 0,25 / 0,15 mm.">
+<Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 blokami G32. Wejścia na stronę: 0,35 / 0,25 / 0,2 / 0,12 mm — razem 0,92 mm, do średnicy rdzenia 22,16.">
   ```
-  G18 G21 G40 G99
+  G18 G21 G40 G80 G99
+  T0303 (NOZ DO GWINTU 60 ST.)
   G97 S700 M03
-  G00 X26 Z6
-  G00 X23.2
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z6
-  G00 X22.6
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z6
-  G00 X22.1
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z6
-  G00 X21.8
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z6
+  G00 X26. Z6.
+  G00 X23.3
+  G32 Z-25. F1.5
+  G00 X26.
+  G00 Z6.
+  G00 X22.8
+  G32 Z-25. F1.5
+  G00 X26.
+  G00 Z6.
+  G00 X22.4
+  G32 Z-25. F1.5
+  G00 X26.
+  G00 Z6.
+  G00 X22.16
+  G32 Z-25. F1.5
+  G00 X26.
+  G00 Z6.
+  M05
   M30
   ```
 </Sim>

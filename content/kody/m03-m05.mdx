@@ -53,7 +53,7 @@ example:
 
 ## Który kierunek \{#który-kierunek}
 
-Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M03 to obrót zgodny z ruchem wskazówek zegara — kierunek właściwy dla zdecydowanej większości narzędzi prawotnących: frezów, wierteł, gwintowników prawych i standardowych noży tokarskich.
+Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M03 to obrót zgodny z ruchem wskazówek zegara — kierunek właściwy dla narzędzi prawotnących na frezarce: frezów, wierteł i gwintowników prawych. Na tokarce kierunek zależy od położenia głowicy i od tego, czy nóż jest prawy, czy lewy — wynika z dokumentacji maszyny i oprawki.
 
 * **M04 na frezarce** — gwintowniki lewe, frezy lewotnące, wykręcanie gwintownika w cyklu G84.
 * **M04 na tokarce** — noże lewe, obróbka od strony wrzeciona, narzędzia napędzane w konfiguracji odwrotnej.
@@ -86,5 +86,5 @@ Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obro
 </Sim>
 
 <Note kind="info">
-  **Tylko jedna funkcja M w bloku** — to ograniczenie większości sterowników Fanuc. Zapis `M03 M08` w jednej linii kończy się alarmem albo wykonaniem tylko jednej z funkcji. Sinumerik dopuszcza kilka M w bloku, ale trzymanie się reguły „jedno M na linię” zapewnia przenośność programu.
+  **Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów** — na części sterowań Fanuc dozwolona jest jedna. W kursie `S2400 M03` i `M08` stoją w osobnych blokach; taki zapis działa niezależnie od ustawienia.
 </Note>

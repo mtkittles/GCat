@@ -18,18 +18,17 @@ short: >-
   G30 jedzie do drugiego punktu referencyjnego (np. wymiany narzędzia), G27
   sprawdza powrót do bazy, G29 wraca z bazy do wskazanego punktu.
 desc: >-
-  Działają jak **G28**: najpierw ruch szybki do punktu pośredniego z bloku,
-  potem do punktu referencyjnego.
+  **G30** działa jak **G28**: najpierw ruch szybki do punktu pośredniego z
+  bloku, potem do punktu referencyjnego. **G30 P2** jedzie do drugiego punktu
+  (P2 można pominąć), **P3** i **P4** do trzeciego i czwartego. Ich położenie
+  ustawia producent w parametrach — często to pozycja wymiany narzędzia albo
+  zmiany palety.
 
 
-  **G30 P2** jedzie do drugiego punktu (P2 można pominąć), **P3** i **P4** do
-  trzeciego i czwartego. Ich położenie ustawia producent w parametrach — często
-  to pozycja wymiany narzędzia albo zmiany palety.
-
-
-  **G27** jedzie do podanej pozycji i sprawdza, czy to punkt referencyjny; jeśli
-  nie — alarm. **G29** wraca z punktu referencyjnego przez punkt pośredni
-  zapamiętany przy G28/G30 do pozycji z bloku.
+  **G27** nie ma punktu pośredniego: jedzie wprost do pozycji z bloku i
+  sprawdza, czy to punkt referencyjny; jeśli nie — alarm. **G29** wraca z punktu
+  referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji z
+  bloku.
 syntax:
   fanuc: |-
     G91 G30 P2 Z0

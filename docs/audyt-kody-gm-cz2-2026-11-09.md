@@ -360,6 +360,21 @@ Pięć decyzji z części 1 (§8) pozostaje otwartych. Nowe:
 9. **„Kody” w pasku dolnym** zamiast jednej z pozycji (np. „Kalkulatory” do „Więcej”) — czy zostaje jak jest?
 10. **Źródła na telefonie:** zwinięte domyślnie — tak?
 
+## 12. Decyzje podjęte (9 listopada 2026 r.)
+
+| Nr | Pytanie | Decyzja | Paczka |
+|---|---|---|---|
+| 1 | Ukryte pola kart z artykułem (pitfalle, notka Sinumerika, przykład) | **Pokazać** pod artykułem; ukryte przykłady i pitfalle poprawić przed pokazaniem | W (błędy P1 w tych polach — T) |
+| 2 | G02 i G03 | **Połączyć** w jedną kartę; adres `/kody/g03` zostaje jako przekierowanie | W |
+| 3 | Zasada „symulacje chronione” | **Zmienić** na „zmiany symulacji w kartach z kontrolą skryptem i audytem” | T (wpis w `docs/karty-kodow.md`) |
+| 4 | Heidenhain w tabelach G00–G04 | **Usunąć** | X |
+| 5 | Adres `g76-g89` | Adres zostaje, **zmienić nazwę wyświetlaną** | W |
+| 6 | Rejestr docelowy | **Głos B** dla całej sekcji | X2 |
+| 7 | Symulator w karcie | **`Demo` domyślnie**, pełny warsztat pod przyciskiem „Otwórz w symulatorze” | Z (b) |
+| 8 | Baner ze zdjęciem na kartach kodów | **Bez zdjęcia wszędzie** (telefon i szeroki ekran) | Z (a) |
+| 9 | „Kody” w pasku dolnym | **Tak**; do „Więcej” przechodzą „Kalkulatory” (propozycja z §11 — do potwierdzenia przy paczce Z) | Z (c) |
+| 10 | Źródła na telefonie | **Zwinięte domyślnie** | W |
+
 ## Załącznik A — karty w liczbach (telefon 390 px)
 
 Kolumny: słowa widocznej prozy · wysokość w ekranach 844 px · ozdobniki na 1000 słów (tylko artykuły powyżej 150 słów) · głos · rysunki (w nawiasie: ile ma etykietę poniżej 9 px) · pełne symulatory / animacje · tabele ułożone w karty / przewijane w bok · bloki kodu przewijane w bok.
