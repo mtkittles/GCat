@@ -6,11 +6,15 @@ zaudytowana — status poszczególnych kart jest w tabeli na końcu.
 
 ## Ograniczenia obowiązujące przy pracy nad kartami
 
-1. **Symulator jest chroniony.** Nie zmieniamy przy pracy nad treścią: `/symulator`, parsera
-   (`src/lib/parser/`), silnika i renderowania (`src/components/simulator/`), osadzonych
-   symulacji (bloki `sim` / `demo` w artykułach, lekcjach i na stronie głównej) ani programów
-   demonstracyjnych. Rozbieżność w chronionym przykładzie **zapisujemy** w sekcji
-   „Tematy do osobnego zlecenia”, a nie poprawiamy przy okazji.
+1. **Symulator zmieniamy świadomie** (decyzja z 9 listopada 2026 r., zastępuje zasadę
+   „symulator jest chroniony”). Przy pracy nad treścią nie zmieniamy `/symulator`, parsera
+   (`src/lib/parser/`) ani silnika i renderowania (`src/components/simulator/`) — to osobna
+   paczka, z testem w `tests/` i przebiegiem `audit:programy`. Osadzone symulacje i programy
+   w treści (bloki `sim` / `demo` w kartach, lekcjach i na stronie głównej) **wolno poprawiać**,
+   jeśli spełnione są trzy warunki: program przechodzi parser i walidator bez błędów i
+   ostrzeżeń (`npm run audit:programy`), tryb maszyny (`mode`) zgadza się z programem, a tor
+   obejrzano w symulatorze i zgadza się on z opisem i podpisem. Zmianę symulacji wymieniamy
+   w opisie PR.
 2. **Odnośniki są chronione.** Znaczniki `[[G17]]`, `[[hasło|etykieta]]`, slugi kart, kotwice
    i odnośniki do materiałów planowanych zostają w dotychczasowej postaci — także te, które
    dziś prowadzą donikąd. Poprawiamy tylko tekst wokół nich.
@@ -50,7 +54,7 @@ wynikiem kalkulatora i pozostałymi sekcjami tej samej karty.
 
 - Geometria: punkt startu i końca, kierunek, promień, środek, znaki.
 - Cykle: kolejność ruchów, płaszczyzny powrotu, interpretacja parametrów i ich jednostek.
-- Nie dopasowujemy teorii do błędnej wizualizacji — rozbieżność z chronioną symulacją zapisujemy.
+- Nie dopasowujemy teorii do błędnej wizualizacji — błędną symulację poprawiamy na warunkach z pkt 1 ograniczeń albo zapisujemy rozbieżność w §8.
 
 ## 4. Przykład edukacyjny a kompletny program
 
@@ -104,6 +108,7 @@ To lista tematów do sprawdzenia, nie stwierdzenie istniejących błędów.
 | karty z artykułem (27) | przegląd uogólnień („zawsze”, „wyłącznie”, „na każdym sterowaniu”) | 2026-10: pozostałe wystąpienia dotyczą geometrii interpolacji (tor G01 jest prostą) albo zaleceń — bez zmian | — |
 | źródła kart (pole `sources`) | 23 karty: 12 ★ + G84, M29, G81–G83, G98/G99, G28, G27–G30, G71/G70, G72, G75, G76, osie A/B/C | dodane 2026-10 (sprint 20); miejsca tylko tam, gdzie sprawdzone — reszta „do uzupełnienia” | rejestr `src/content/nauka/sources.ts`; stan: `npm run audit:dzialy` |
 | język kart (paczka C) | „zawsze”, „nigdy”, „złamane narzędzie” w polach i artykułach; G33/G34/G76, G04, M30, M99, M03–M05, M07/M08, G71, G73, G85/G86 | przeredagowane 2026-10 (sprint 21) — warunki zamiast reguł, skutek opisany rzeczowo | spójność z lekcjami T7.1, T8.1, F4.2; parametry sterowania — „zależy od” |
+| paczka T (błędy P1 z audytu sekcji) | G71/G70, G72, G32/G33, G76 (tok.), G90/G92/G94 (tok.), G92, G96/G97, G04, G00, G01, G27/G29/G30, G43/G49, G68/G69, G80–G83, M03–M05, M08/M09 | poprawione 2026-11: tryb tokarki w symulacjach, prawdziwe cykle G71/G76/G83 i G68 zamiast rozpisań, gwint blokami G32 do rdzenia 22,16, kryterium G72, G27 bez punktu pośredniego, G92 według systemów kodów, czoło wrzeciona N w G43, tor G00 warunkowo, jedna zasada o liczbie M w bloku | jak w polach `sources` kart; liczba M w bloku (parametr 3404#7) i G92.1 — do weryfikacji w B-64604EN |
 | pozostałe | — | nie audytowano źródłowo | — |
 
 Kontrolne przypadki kalkulatora łuku (start X20 Y20, koniec X50 Y50, R30, G03):
@@ -124,6 +129,6 @@ Raport z audytu treści: `docs/audyt-tresci-2026-10.md`. Audyt sekcji Kody G i M
 - Komunikat walidatora o G28 na Sinumeriku zgodny z kartą (tryb ISO / G74, G75) — temat z audytu §4 zamknięty.
 - Weryfikacja źródeł online: dostęp do dokumentów producentów bywa ograniczony; w tabeli podano tytuł, wydanie i rozdział, a gdzie źródłem jest zestawienie niezależne — zaznaczono to wprost.
 
-## 8. Tematy do osobnego zlecenia (chronione elementy — nie zmieniono)
+## 8. Tematy do osobnego zlecenia
 
 - ~~Pokazowy program na stronie głównej~~ — poprawiony 2026-10 (sprint 0): dwa współśrodkowe przejścia wokół (40, 25).

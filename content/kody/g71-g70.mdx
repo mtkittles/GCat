@@ -23,7 +23,7 @@ syntax:
     G71 P10 Q20 U0.5 W0.1 F0.3
     N10 ...kontur...
     N20 ...
-    G70 P10 Q20 F0.15
+    G70 P10 Q20
   sinumerik: CYCLE95("KONTUR", 2, 0.5, 0.1, ...)
 sinumerik: >-
   Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to
@@ -49,18 +49,27 @@ sources:
     loc: >-
       rozdz. 3.2, tab. 3.2, s. 77 (w systemie C — G73 i G72); rozdz. 4, s. 90;
       parametry 5132–5134 — rozdz. 7.2.22, s. 238; 5105#1/#2 RF1/RF2 — s. 236
+  - id: sinumerik-cycles
+    where: CYCLE93 (rowki), CYCLE94 (podcięcia), CYCLE95 (kontur), CYCLE97 (gwint)
+    loc: rozdz. 4 — cykle tokarskie
 example:
   src: |-
-    G18 G21 G40 G99
+    G18 G21 G40 G80 G99
     T0101
-    G97 S1200 M03
-    G00 X62 Z2
-    G01 X40 F0.3
-    G01 Z-20
-    G01 X50
-    G01 Z-40
-    G01 X62
-    G00 Z2
+    G50 S2500
+    G96 S200 M03
+    G00 X62. Z2.
+    G71 U2. R1.
+    G71 P100 Q200 U0.5 W0.1 F0.3
+    N100 G00 X30.
+    G01 Z-25. F0.15
+    X40. Z-35.
+    Z-55.
+    X50.
+    N200 X62.
+    G70 P100 Q200
+    G00 X100. Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -81,52 +90,46 @@ Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości
   G71 U2.0 R1.0                    ; głębokość przejścia i wycofanie
   G71 P100 Q200 U0.5 W0.1 F0.3     ; zakres bloków konturu i naddatki
   N100 G00 X30                     ; pierwszy blok konturu — tylko ruch w X
-  G01 Z-25 F0.2
+  G01 Z-25 F0.15                   ; posuw wykańczający — użyje go G70
   X40 Z-35
   Z-55
   X50
   N200 X62                         ; ostatni blok konturu
-  G70 P100 Q200 F0.15              ; przejście wykańczające
+  G70 P100 Q200                    ; przejście wykańczające
   ```
 </Code>
 
-| Adres          | Znaczenie                                          |
-| -------------- | -------------------------------------------------- |
-| **U** (blok 1) | Głębokość skrawania jednego przejścia, promieniowo |
-| **R** (blok 1) | Wycofanie narzędzia po każdym przejściu            |
-| **P, Q**       | Numery pierwszego i ostatniego bloku opisu konturu |
-| **U** (blok 2) | Naddatek na wykańczanie w osi X, **średnicowo**    |
-| **W** (blok 2) | Naddatek na wykańczanie w osi Z                    |
-| **F**          | Posuw zgrubny; w bloku G70 — posuw wykańczający    |
+| Adres          | Znaczenie                                                        |
+| -------------- | ---------------------------------------------------------------- |
+| **U** (blok 1) | Głębokość skrawania jednego przejścia, promieniowo               |
+| **R** (blok 1) | Wycofanie narzędzia po każdym przejściu                          |
+| **P, Q**       | Numery pierwszego i ostatniego bloku opisu konturu               |
+| **U** (blok 2) | Naddatek na wykańczanie w osi X, **średnicowo**                  |
+| **W** (blok 2) | Naddatek na wykańczanie w osi Z                                  |
+| **F**          | Posuw zgrubny. F zapisane w blokach konturu działa dopiero w G70 |
 
 <Note kind="warn">
   W typie I blok wskazany przez **P zawiera tylko ruch w osi X** — bez współrzędnej Z. Naruszenie tej zasady to najczęstsza przyczyna alarmu przy G71. Kontur musi też być **monotoniczny**: średnica może tylko rosnąć albo tylko maleć wzdłuż Z (typ I). Kontury z podcięciami wymagają typu II lub cyklu G73.
 </Note>
 
-<Sim mode="mill" caption="Rozpisane ręcznie przejścia zgrubne — dokładnie to, co cykl G71 generuje wewnętrznie. Widać, jak kolejne przejścia stopniowo odsłaniają zarys stopnia.">
+<Sim mode="lathe" caption="Ten sam program co wyżej, z nagłówkiem. Siedem przejść zgrubnych po 2 mm na stronę, przejście po konturze z naddatkiem i wykończenie G70.">
   ```
-  G18 G21 G40 G99
+  G18 G21 G40 G80 G99
+  T0101
   G50 S2500
   G96 S200 M03
-  G00 X62 Z2
-  G01 X56 F0.3
-  G01 Z-55
-  G00 X64
-  G00 Z2
-  G01 X50
-  G01 Z-55
-  G00 X64
-  G00 Z2
-  G01 X44
-  G01 Z-35
-  G01 X50 Z-45
-  G00 X64
-  G00 Z2
-  G01 X38
-  G01 Z-25
-  G01 X44 Z-30
-  G00 X64
-  G00 Z2
+  G00 X62. Z2.
+  G71 U2. R1.
+  G71 P100 Q200 U0.5 W0.1 F0.3
+  N100 G00 X30.
+  G01 Z-25. F0.15
+  X40. Z-35.
+  Z-55.
+  X50.
+  N200 X62.
+  G70 P100 Q200
+  G00 X100. Z50.
+  M05
   M30
   ```
 </Sim>
@@ -145,4 +148,4 @@ Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości
 
 ## Sinumerik \{#sinumerik}
 
-Odpowiednikiem G71/G70 jest **CYCLE95**, w którym kontur zapisuje się w osobnym podprogramie, a parametry (naddatki, głębokość, rodzaj obróbki) przekazuje w wywołaniu. Rowkowanie realizują CYCLE93–95, gwintowanie — CYCLE97 i CYCLE99.
+Odpowiednikiem G71/G70 jest **CYCLE95**, w którym kontur zapisuje się w osobnym podprogramie, a parametry (naddatki, głębokość, rodzaj obróbki) przekazuje w wywołaniu. Rowki toczy CYCLE93, podcięcia CYCLE94, gwinty CYCLE97. Zestaw cykli i ich parametry zależą od wersji sterowania.

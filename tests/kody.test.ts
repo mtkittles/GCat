@@ -61,7 +61,7 @@ describe("karty i słownik z content/", () => {
       expect(mdxPrograms(readFileSync(k.file, "utf8")), k.file).toEqual(k.meta.programs);
       n += k.meta.programs.length;
     }
-    expect(n).toBe(36); // = bloki sim/demo w dawnych artykułach (audit:programy: 217 programów bez zmian)
+    expect(n).toBe(37); // 36 bloków sim/demo z dawnych artykułów + Sim z G68 na karcie G68/G69 (paczka T)
   });
 
   it("artykuły wszystkich kart renderują się: kotwice h2 = spis treści, bez surowych markerów", async () => {

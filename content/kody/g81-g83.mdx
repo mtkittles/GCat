@@ -42,7 +42,9 @@ params:
   - key: F
     desc: Posuw
 pitfalls:
-  - Zapomniane G80 → następny ruch X Y też wywierci otwór.
+  - >-
+    Zapomniane G80 → następny blok z X Y zapisany bez G00/G01 też wywierci
+    otwór.
   - >-
     G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w
     zacisk.
@@ -54,8 +56,11 @@ sources:
   - id: fanuc
     where: G80, G81, G83 — cykle wiercenia; luz przy G83 z parametru
     loc: >-
-      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89; parametr 5115 — rozdz.
-      7.2.22, s. 238; alarm 0045 — rozdz. 8.1.1, s. 351
+      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89; kasowanie cyklu kodem grupy
+      01 — rozdz. 3, s. 69; parametr 5115 — rozdz. 7.2.22, s. 238; alarm 0045 —
+      rozdz. 8.1.1, s. 351
+  - id: sinumerik-iso-m
+    where: cykle G81–G89 w trybie ISO na frezarce
 example:
   src: |-
     G21 G90 G94 G17 G54
@@ -97,7 +102,7 @@ example:
 | **G73** | Wiercenie głębokie z **krótkim wycofaniem**     | Szybsze niż G83, ale gorzej usuwa wiór                 |
 | **G84** | Gwintowanie gwintownikiem                       | Posuw sprzężony z obrotami                             |
 | **G85** | Wytaczanie z wyjściem na posuwie                | Otwory dokładne — brak śladu przy wyjściu              |
-| **G80** | Anulowanie cyklu                                | Obowiązkowe po ostatnim otworze                        |
+| **G80** | Anulowanie cyklu                                | Po ostatnim otworze i w bloku startowym                |
 
 ## Składnia \{#składnia}
 
@@ -132,35 +137,31 @@ Te dwie funkcje decydują, dokąd narzędzie wraca po każdym otworze. **G99** w
 
 ## Wiercenie głębokie \{#wiercenie-głębokie}
 
-Powyżej trzech średnic wiór przestaje samodzielnie wychodzić z otworu — zaczyna się zakleszczać, rosną opory i temperatura. **G83** wycofuje wiertło **całkowicie do płaszczyzny R** po każdym zagłębieniu o Q, dzięki czemu wiór jest łamany i usuwany, a chłodziwo dociera do dna. Kosztem jest czas. **G73** wycofuje tylko o niewielką wartość (parametr maszynowy, zwykle 0,5–1 mm) — szybciej, ale wiór zostaje w otworze.
+Powyżej trzech średnic wiór przestaje samodzielnie wychodzić z otworu — zaczyna się zakleszczać, rosną opory i temperatura. **G83** wycofuje wiertło **całkowicie do płaszczyzny R** po każdym zagłębieniu o Q, dzięki czemu wiór jest łamany i usuwany, a chłodziwo dociera do dna. Kosztem jest czas. **G73** wycofuje tylko o niewielką wartość d ustawioną w parametrze sterowania — szybciej, ale wiór zostaje w otworze.
 
-<Sim mode="mill" caption="Ręcznie rozpisany odpowiednik cyklu G83 z Q6 dla dwóch otworów — dokładnie to, co sterownik robi wewnętrznie. Symulator nie interpretuje jeszcze cykli stałych, więc przykłady rozpisujemy jawnie.">
+<Sim mode="mill" caption="Dwa otwory cyklem G83 z Q6. Krok liczy się od płaszczyzny R, więc głębokości to Z−4, Z−10, Z−16 i Z−18. Po każdym kroku wiertło wraca do R, a potem zjeżdża ruchem szybkim tuż nad poprzednią głębokość — odstęp ustawia parametr sterowania.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (WIERTLO FI8)
+  G00 G43 H1 Z50.
   S1200 M03
-  G00 X20 Y20 Z10
   M08
-  G01 Z-6 F100
-  G00 Z2
-  G01 Z-12 F100
-  G00 Z2
-  G01 Z-18 F100
-  G00 Z10
-  G00 X50 Y20
-  G01 Z-6 F100
-  G00 Z2
-  G01 Z-12 F100
-  G00 Z2
-  G01 Z-18 F100
-  G00 Z10
+  G00 X20. Y20.
+  G99 G83 Z-18. R2. Q6. F100
+  X50.
+  G80
+  G00 Z50.
   M09
+  M05
   M30
   ```
 </Sim>
 
 ## Sinumerik: cykle parametryczne \{#sinumerik-cykle-parametryczne}
 
-Sinumerik nie używa G81–G89, tylko wywołań z listą parametrów: `CYCLE81`, `CYCLE82`, `CYCLE83`, `CYCLE84` (gwintowanie), `CYCLE85`. Powtarzanie w kolejnych punktach realizuje modalne wywołanie `MCALL`:
+W języku natywnym Sinumerika zamiast G81–G89 są wywołania z listą parametrów: `CYCLE81`, `CYCLE82`, `CYCLE83`, `CYCLE84` (gwintowanie), `CYCLE85`. W trybie ISO sterowanie rozumie także zapis G81–G89 — zakres zależy od wersji. Powtarzanie w kolejnych punktach realizuje modalne wywołanie `MCALL`:
 
 <Code caption="Odpowiednik cyklu G81 z czterema otworami w składni Sinumerik.">
   ```
@@ -174,7 +175,7 @@ Sinumerik nie używa G81–G89, tylko wywołań z listą parametrów: `CYCLE81`,
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Brak G80 na końcu.** Kolejny blok ze współrzędnymi X Y — na przykład dojazd do frezowania — wykona jeszcze jeden otwór.
+* **Brak G80 na końcu.** Kolejny blok z X Y zapisany bez kodu ruchu wykona jeszcze jeden otwór. Jawne G00 albo G01 kasuje cykl na Fanucu 0i-F, ale program nie powinien na tym polegać — G80 stoi po ostatnim otworze i w bloku startowym.
 * **Płaszczyzna R poniżej powierzchni materiału.** Szybki zjazd do R oznacza wtedy wjazd wiertła w detal z prędkością szybką.
 * **G99 przy zaciskach między otworami.** Klasyczna kolizja: narzędzie wraca tylko 2 mm nad materiał i uderza w zacisk.
 * **Q większe od pozostałej głębokości** w ostatnim zagłębieniu — na części sterowników powoduje przekroczenie zadanego Z.

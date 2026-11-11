@@ -26,8 +26,9 @@ desc: >-
   wykańcza **G70 P_ Q_**.
 
 
-  Wybierz G72, gdy materiału jest więcej w osi Z niż w X — tarcze, kołnierze,
-  krótkie czopy.
+  G72 pasuje do detali krótkich o dużej różnicy średnic — tarcz i kołnierzy.
+  Naddatek jest tam głęboki w X i krótki w Z, więc przejścia poprzeczne są
+  dłuższe i jest ich mniej niż w G71.
 syntax:
   fanuc: |-
     G72 W_ R_
@@ -71,7 +72,8 @@ sources:
       parametry 5132–5134 — rozdz. 7.2.22, s. 238
 example:
   src: |-
-    G21 G18 G54
+    G18 G21 G40 G80 G99
+    G54
     T0101
     G50 S2500
     G96 S180 M03
@@ -87,7 +89,7 @@ example:
     G70 P10 Q20
     G00 X100.0 Z100.0
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

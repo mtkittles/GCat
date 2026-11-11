@@ -14,9 +14,9 @@ related: []
 short: Przemieszczenie z maksymalną prędkością, bez skrawania.
 desc: >-
   G00 przesuwa narzędzie do zadanego punktu z maksymalną prędkością osi. Nie
-  służy do skrawania — tylko do dojazdów i odjazdów. Uwaga: osie ruszają
-  niezależnie, więc tor nie musi być linią prostą (typowo: najpierw ruch skośny
-  45°, potem prosto).
+  służy do skrawania — tylko do dojazdów i odjazdów. Na wielu maszynach osie
+  ruszają niezależnie, więc tor nie musi być linią prostą — decyduje parametr
+  sterowania.
 syntax:
   fanuc: G00 X_ Y_ Z_
   sinumerik: G0 X_ Y_ Z_
@@ -30,7 +30,7 @@ pitfalls:
   - >-
     Zejście ruchem G00 w materiał w osi Z to częsta przyczyna kolizji. G00 kończ
     na wysokości bezpiecznej nad detalem, a na głębokość schodź z posuwem (G01).
-  - Tor G00 nie jest prostą — nie zakładaj, że ominie zacisk.
+  - Tor G00 nie musi być prostą — nie zakładaj, że ominie zacisk.
 sources:
   - id: haas-workbook
     where: G00 a G01 — rozdzielenie toru szybkiego i interpolacji (Haas)
@@ -52,7 +52,7 @@ example:
     G00 X80 Y30
     G00 Z2
     G01 Z-3 F100
-    G01 X80 Y30 F200
+    G01 X20 F200
     G00 Z10
     M30
   simulate: true
@@ -65,12 +65,12 @@ example:
 
 ## Czym różni się od ruchu roboczego \{#czym-różni-się-od-ruchu-roboczego}
 
-Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość końcówki narzędzia była dokładnie taka, jak zapisałeś. Przy G00 nie decydujesz o prędkości — jest ona ustawiona przez producenta maszyny i zwykle wynosi od kilkunastu do kilkudziesięciu metrów na minutę. Adres `F` w bloku z G00 jest ignorowany.
+Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość końcówki narzędzia była dokładnie taka, jak zapisałeś. Przy G00 nie decydujesz o prędkości — jest ona ustawiona przez producenta maszyny i zwykle wynosi od kilkunastu do kilkudziesięciu metrów na minutę. Adres `F` w bloku z G00 nie zmienia prędkości ruchu szybkiego, ale wartość zostaje zapamiętana jako posuw dla następnego ruchu roboczego.
 
 |              | G00                                          | G01                                |
 | ------------ | -------------------------------------------- | ---------------------------------- |
 | Prędkość     | Maksymalna maszyny, niezmienialna z programu | Zadana adresem F                   |
-| Tor          | Zależny od maszyny, zwykle łamany            | Linia prosta                       |
+| Tor          | Prosta albo łamana — zależnie od parametru   | Linia prosta                       |
 | Zastosowanie | Dojazdy i odjazdy w powietrzu                | Skrawanie                          |
 | Ryzyko       | Kolizja przy błędzie we współrzędnych        | Przeciążenie narzędzia przy złym F |
 
@@ -86,7 +86,7 @@ Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość k
 | ------- | --------------------------------------------------------------------------------------------------------- |
 | X, Y, Z | Współrzędne punktu docelowego. Interpretowane bezwzględnie przy \[\[G90]] albo przyrostowo przy \[\[G91]] |
 | A, B, C | Osie obrotowe na maszynach cztero- i pięcioosiowych                                                       |
-| F       | Ignorowany — prędkość szybkiego przejazdu jest parametrem maszyny                                         |
+| F       | Nie wpływa na G00 — prędkość ruchu szybkiego jest parametrem maszyny. Wartość zostaje zapamiętana dla G01 |
 
 Nie musisz podawać wszystkich osi. Blok `G00 Z50` przesunie wyłącznie oś Z, pozostałe zostaną na swoich miejscach. To bardzo częsty zapis przy odjeździe na wysokość bezpieczną.
 
@@ -115,15 +115,15 @@ Sam blok `G00`, bez współrzędnych, nie wykonuje żadnego ruchu. Ustawia tylko
 * **Odjazd na wysokość bezpieczną** po zakończeniu przejścia.
 * **Przejazd między obszarami obróbki**, na przykład od jednej kieszeni do drugiej.
 * **Dojazd do pozycji wymiany narzędzia** przed obrotem magazynu albo \[\[głowica rewolwerowa|głowicy rewolwerowej]].
-* **Wycofanie w cyklach stałych** — sterownik używa G00 wewnętrznie, wracając z dna otworu do płaszczyzny R.
+* **Wycofanie w cyklach wiercenia** — w \[\[G81]], G82, G83 i G73 narzędzie wraca z dna otworu ruchem szybkim. W G84, G85 i G89 wyjeżdża posuwem roboczym.
 
-## Tor nie jest linią prostą \{#tor-nie-jest-linią-prostą}
+## Tor nie musi być linią prostą \{#tor-nie-jest-linią-prostą}
 
-To najważniejsza rzecz do zrozumienia przy G00. Sterownik uruchamia wszystkie osie **jednocześnie, każdą z jej własną maksymalną prędkością**. Oś, która ma do pokonania krótszą drogę, kończy ruch wcześniej — od tego momentu porusza się już tylko druga oś.
+Na wielu maszynach sterowanie uruchamia przy G00 wszystkie osie **jednocześnie, każdą z jej własną prędkością ruchu szybkiego**. Oś, która ma do pokonania krótszą drogę, kończy ruch wcześniej — od tego momentu porusza się już tylko druga oś.
 
 <Diagram id="rapid-path" />
 
-Efekt: tor wypadkowy składa się z odcinka skośnego i dobiegu wzdłuż jednej osi. Przekątna, którą podpowiada intuicja, to tor, którego maszyna **nie** wykona. Część sterowników potrafi wymusić ruch prostoliniowy — w Fanuc odpowiada za to parametr maszynowy, w Sinumerik polecenia `RTLION` i `RTLIOF` — ale nie zakładaj tego z góry.
+Tor składa się wtedy z odcinka skośnego i dobiegu wzdłuż jednej osi. Czy tak jest na danej maszynie, decyduje ustawienie sterowania: w Fanucu parametr LRP (1401#1) wybiera pozycjonowanie nieliniowe albo po prostej, w Sinumeriku `RTLION` włącza ruch po prostej, a `RTLIOF` — niezależne osie. Program pisz tak, żeby był bezpieczny w obu przypadkach.
 
 ## Bezpieczny dojazd \{#bezpieczny-dojazd}
 
@@ -189,7 +189,7 @@ Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować dr
 ## Typowe błędy \{#typowe-błędy}
 
 * **Zagłębienie na G00 zamiast G01.** Jedna cyfra różnicy, a narzędzie wbija się w detal z pełną prędkością.
-* **Założenie prostoliniowego toru.** Przejazd tuż obok zacisku po przekątnej kończy się jego zaczepieniem.
+* **Założenie prostoliniowego toru.** Przy niezależnych osiach przejazd tuż obok zacisku po przekątnej może skończyć się jego zaczepieniem.
 * **Odziedziczone G00 przed konturem.** Blok z samymi współrzędnymi po wcześniejszym G00 nadal jest szybkim przejazdem.
 * **`G90 G28 Z0` zamiast `G91 G28 Z0`.** Maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Opisane szerzej na karcie \[\[G28]].
 * **Brak odjazdu przed wymianą narzędzia.** Magazyn albo głowica potrzebują określonej pozycji — inaczej dojdzie do kolizji przy obrocie.

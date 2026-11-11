@@ -34,21 +34,38 @@ params:
     desc: Kąt (dodatni = przeciwnie do wskazówek zegara)
 pitfalls:
   - Zapomniane G69 → następne narzędzie pracuje w obróconym układzie.
-  - Symulator nie obsługuje jeszcze G68 — przykład pokazuje kontur bazowy.
 sources: []
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
-    S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-1 F100
-    G01 X30 F200
-    G01 Y15
-    G01 X0
-    G01 Y0
-    G00 Z5
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06 (FREZ FI6)
+    G00 G43 H1 Z50.
+    S3000 M03
+    G68 X0. Y0. R0.
+    G00 X15. Y0.
+    G00 Z2.
+    G01 Z-2. F100
+    G01 X35. F300
+    G00 Z2.
+    G69
+    G68 X0. Y0. R60.
+    G00 X15. Y0.
+    G00 Z2.
+    G01 Z-2. F100
+    G01 X35. F300
+    G00 Z2.
+    G69
+    G68 X0. Y0. R120.
+    G00 X15. Y0.
+    G00 Z2.
+    G01 Z-2. F100
+    G01 X35. F300
+    G00 Z2.
+    G69
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -98,9 +115,40 @@ example:
   Zapomniane **G69** zostaje aktywne dla kolejnych narzędzi — cała reszta programu wykona się w obróconym układzie. Dlatego G69 warto umieścić także w bloku bezpiecznego startu po każdej wymianie narzędzia.
 </Note>
 
-<Note kind="info">
-  Symulator nie interpretuje jeszcze G68 — pokazuje kontur bazowy, bez obrotu. Na maszynie obrót zadziała normalnie.
-</Note>
+<Sim mode="mill" caption="Ten sam rowek X15–X35 zapisany trzy razy, z obrotem układu o 0°, 60° i 120° wokół zera detalu. Współrzędne w blokach ruchu się nie zmieniają.">
+  ```
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (FREZ FI6)
+  G00 G43 H1 Z50.
+  S3000 M03
+  G68 X0. Y0. R0.
+  G00 X15. Y0.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X35. F300
+  G00 Z2.
+  G69
+  G68 X0. Y0. R60.
+  G00 X15. Y0.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X35. F300
+  G00 Z2.
+  G69
+  G68 X0. Y0. R120.
+  G00 X15. Y0.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X35. F300
+  G00 Z2.
+  G69
+  G00 Z50.
+  M05
+  M30
+  ```
+</Sim>
 
 ## Sinumerik \{#sinumerik}
 

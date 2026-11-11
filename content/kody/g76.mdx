@@ -36,7 +36,9 @@ pitfalls:
   - >-
     P010060 to trzy liczby sklejone: 01 przejście wykańczające, 00 wybieg, 60°
     kąt.
-  - Skok F musi zgadzać się z obrotami — gwint zaczynaj z rozbiegiem Z ≥ 2×skok.
+  - >-
+    Posuw osi przy gwintowaniu to obroty × skok (700 obr/min × 1,5 mm = 1050
+    mm/min). Gwint zaczynaj z rozbiegiem Z ≥ 2×skok.
   - Na frezarce G76 to cykl wytaczania dokładnego z orientacją wrzeciona.
 sources:
   - id: sinumerik-iso-t
@@ -49,12 +51,14 @@ sources:
       parametry 5140–5143 — rozdz. 7.2.22, s. 238
 example:
   src: |-
-    G18 G21 G40 G99
-    G97 S800 M03
-    G00 X24 Z5
-    G01 Z-25 F1.5
-    G00 X30
-    G00 Z5
+    G18 G21 G40 G80 G99
+    T0303 (NOZ DO GWINTU 60 ST.)
+    G97 S700 M03
+    G00 X26. Z6.
+    G76 P010060 Q50 R0.05
+    G76 X22.16 Z-25. P920 Q300 F1.5
+    G00 X100. Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -99,23 +103,16 @@ Dla gwintu zewnętrznego o skoku P wysokość zarysu wynosi w praktyce **h ≈ 0
 
 Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**; przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku.
 
-<Sim mode="lathe" caption="Trzy przejścia gwintu M24×1,5 rozpisane ręcznie, o malejącym przyroście głębokości — odpowiednik tego, co robi cykl G76.">
+<Sim mode="lathe" caption="Gwint M24×1,5 cyklem G76: rdzeń Ø22,16, wysokość zwoju 0,92 mm (P920), pierwsze wejście 0,3 mm (Q300). Symulator rozkłada wejścia według opisu G76 w instrukcji Fanuc; liczbę przejść na maszynie sprawdź w symulacji sterowania.">
   ```
-  G18 G21 G40 G99
+  G18 G21 G40 G80 G99
+  T0303 (NOZ DO GWINTU 60 ST.)
   G97 S700 M03
-  G00 X26 Z5
-  G00 X23.2
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z5
-  G00 X22.6
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z5
-  G00 X22.1
-  G01 Z-25 F1.5
-  G00 X30
-  G00 Z5
+  G00 X26. Z6.
+  G76 P010060 Q50 R0.05
+  G76 X22.16 Z-25. P920 Q300 F1.5
+  G00 X100. Z50.
+  M05
   M30
   ```
 </Sim>

@@ -32,14 +32,14 @@ desc: >-
 syntax:
   fanuc: |-
     G92 X0 Y0 Z100
-    G92 S2500 (tokarka, limit)
+    G92 S2500 (tokarka, systemy B i C: limit)
   sinumerik: brak (TRANS / LIMS=)
 sinumerik: 'Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.'
 params:
   - key: X Y Z
     desc: Współrzędne przypisane aktualnej pozycji
   - key: S
-    desc: Limit obrotów (tokarka)
+    desc: Limit obrotów (tokarka, systemy B i C)
 pitfalls:
   - >-
     G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z
@@ -83,11 +83,11 @@ Ustawiasz narzędzie w narożniku detalu i piszesz `G92 X0 Y0 Z0`. Od tej chwili
 
 ## G92 na tokarce \{#g92-na-tokarce}
 
-Na tokarkach Fanuc starszych serii `G92 S2500` pełni zupełnie inną funkcję: **ogranicza maksymalne obroty** przy stałej prędkości skrawania G96. W nowszych sterownikach ten sam limit zapisuje się jako `G50 S2500`. Ten sam kod, dwa różne znaczenia zależnie od typu maszyny — kolejna pułapka przy przenoszeniu programów.
+Na tokarce Fanuc znaczenie G92 zależy od **systemu kodów G**. W systemie A G92 to cykl gwintowania, a limit obrotów przy stałej prędkości skrawania G96 i ustawienie układu zapisuje G50: `G50 S2500`. W systemach B i C tę rolę ma G92: `G92 S2500` **ogranicza maksymalne obroty**. Ten sam kod ma więc różne znaczenia zależnie od systemu kodów — przed przeniesieniem programu sprawdź, w którym pracuje maszyna.
 
 ## Kiedy jeszcze się przydaje \{#kiedy-jeszcze-się-przydaje}
 
-* Maszyny bez rejestrów układów współrzędnych (proste sterowniki, obrabiarki hobbystyczne, GRBL).
+* Sterowania bez rejestrów układów współrzędnych.
 * Tymczasowe przesunięcie zera wewnątrz programu przy pracy z podprogramami.
 * Programy generowane przez starsze postprocesory.
 

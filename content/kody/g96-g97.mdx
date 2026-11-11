@@ -44,14 +44,24 @@ sources:
     loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s. 92
 example:
   src: |-
-    G18 G21 G40 G99
-    G97 S1500 M03
-    G00 X62 Z2
-    G96 S200
-    G01 Z-30 F0.2
-    G01 X70
-    G00 Z2
+    G18 G21 G40 G80 G99
+    T0101 (NOZ ZEWN. R0.8)
+    G50 S3000
+    G96 S220 M03
+    G00 X62. Z0.
+    G01 X-1.6 F0.15
+    G00 Z2.
+    G00 X56.
+    G01 Z-30. F0.3
+    G01 X62.
+    G00 Z2.
+    G00 X52.
+    G01 Z-30.
+    G01 X62.
+    G00 Z2.
     G97 S1500
+    G00 X100. Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -86,43 +96,49 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 
 ## Kiedy G97 jest konieczne \{#kiedy-g97-jest-konieczne}
 
-* **Gwintowanie** (G32, G33, G76) — skok gwintu wynika ze sprzężenia posuwu z obrotami; zmienne obroty zniekształciłyby gwint.
+* **Gwintowanie** (G32, G33, G76) — przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.
 * **Wiercenie w osi** — wiertło pracuje na stałej średnicy niezależnie od pozycji Z, a przy G96 sterownik liczyłby obroty ze współrzędnej X równej zeru.
 * **Rowkowanie i przecinanie w pobliżu osi** — obroty rosłyby lawinowo.
 * **Detale niewyważone, mimośrodowe, w uchwycie szczękowym** — bezpieczniej trzymać stałe, umiarkowane obroty.
 
 ## Przykład \{#przykład}
 
-<Sim mode="mill" caption="Planowanie czoła do osi przy stałej Vc, następnie toczenie wzdłużne, na końcu powrót do stałych obrotów przed odjazdem. Panel stanu pokazuje aktualną pozycję średnicową.">
+<Sim mode="lathe" caption="Planowanie czoła przy stałej prędkości skrawania: w miarę zbliżania się do osi obroty rosną do limitu G50. Potem dwa przejścia wzdłużne i powrót do stałych obrotów przed odjazdem.">
   ```
-  G18 G21 G40 G99
+  G18 G21 G40 G80 G99
+  T0101 (NOZ ZEWN. R0.8)
   G50 S3000
-  G97 S1500 M03
-  G00 X62 Z2
-  G96 S220
-  G01 X0 Z0 F0.15
-  G00 X60 Z2
-  G01 X40 F0.3
-  G01 Z-30
-  G01 X62
-  G00 Z2
+  G96 S220 M03
+  G00 X62. Z0.
+  G01 X-1.6 F0.15
+  G00 Z2.
+  G00 X56.
+  G01 Z-30. F0.3
+  G01 X62.
+  G00 Z2.
+  G00 X52.
+  G01 Z-30.
+  G01 X62.
+  G00 Z2.
   G97 S1500
+  G00 X100. Z50.
+  M05
   M30
   ```
 </Sim>
 
 ## Dobór prędkości skrawania \{#dobór-prędkości-skrawania}
 
-<Table caption="Wartości orientacyjne dla płytek z węglika z powłoką. Przed obróbką sprawdź je w katalogu producenta narzędzia dla konkretnego gatunku i geometrii.">
+<Table caption="Te same wartości orientacyjne co w kalkulatorze parametrów skrawania (toczenie, węglik z powłoką). To punkty startowe, nie dane katalogowe — przed obróbką sprawdź katalog producenta narzędzia dla konkretnego gatunku i geometrii.">
   | Materiał                       | Vc dla węglika \[m/min] | Uwagi                                                |
   | ------------------------------ | ----------------------- | ---------------------------------------------------- |
-  | Aluminium                      | 300–1000                | Ograniczeniem są zwykle obroty maszyny, nie materiał |
-  | Stal konstrukcyjna (S235, C45) | 150–300                 | Najszerszy zakres zastosowań                         |
-  | Stal stopowa ulepszana         | 100–200                 | Niższe wartości przy większej twardości              |
-  | Stal nierdzewna austenityczna  | 80–160                  | Skłonność do umocnienia — nie schodź poniżej zakresu |
-  | Żeliwo szare                   | 150–350                 | Wiór kruchy, mała siła skrawania                     |
-  | Tytan                          | 30–70                   | Niska przewodność cieplna, ciepło zostaje w ostrzu   |
-  | Stopy niklu (Inconel)          | 20–50                   | Wymaga obfitego chłodzenia                           |
+  | Aluminium 6061 / AW-6082       | 450–1000                | Ograniczeniem są zwykle obroty maszyny, nie materiał |
+  | Stal konstrukcyjna (S235, C45) | 150–300                 | S235: 180–300, C45: 150–260                          |
+  | Stal stopowa 42CrMo4 ulepszana | 110–200                 | Niższe wartości przy większej twardości              |
+  | Stal nierdzewna 1.4301 (304)   | 90–170                  | Skłonność do umocnienia — nie schodź poniżej zakresu |
+  | Żeliwo szare GJL-250           | 180–350                 | Wiór kruchy, mała siła skrawania                     |
+  | Tytan Ti-6Al-4V                | 40–80                   | Niska przewodność cieplna, ciepło zostaje w ostrzu   |
+  | Inconel 718                    | 25–55                   | Wymaga obfitego chłodzenia                           |
 </Table>
 
 ## Typowe błędy \{#typowe-błędy}
