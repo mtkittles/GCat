@@ -589,11 +589,11 @@ export function Dwell() {
   const zx = (v: number) => 180 + v * 9, xx = (v: number) => 118 - (v - 14) * 11;
   const t0 = 30, t1 = 330, TMAX = 1.0;              // oś czasu: 0 … 1,0 s
   const tx = (s: number) => t0 + (s / TMAX) * (t1 - t0);
-  const cut = 0.56, dw = 0.2, ret = 0.12;            // czasy etapów [s]
+  const cut = 0.5, dw = 0.3, ret = 0.12;             // czasy etapów [s]
   return (
     <Fig id="g04" code="G04" title="Postój na dnie rowka: osie stoją, wrzeciono się kręci" h={250} legend={["cut", "rap", "acc", "stock"]}
-      notes={<><Code>G01 X30 F0.05</Code><Code k="acc">G04 X0.2</Code><Code k="rap">G00 X44</Code></>}
-      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,2 s</b> — przy 600 obr/min to <b>dwa obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je.</>}>
+      notes={<><Code>G01 X30. F0.05</Code><Code k="acc">G04 X0.3</Code><Code k="rap">G00 X44.</Code></>}
+      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,3 s</b> — przy 600 obr/min to <b>trzy obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je.</>}>
       {(c) => (
         <g>
           <polygon points={[[-14, 22], [-1.5, 22], [-1.5, 15], [1.5, 15], [1.5, 22], [14, 22], [14, 14.4], [-14, 14.4]].map(([z, r]) => `${zx(z)},${xx(r)}`).join(" ")} fill={c.hatch} className="p-con" />
@@ -601,7 +601,7 @@ export function Dwell() {
           <line x1={zx(0)} y1={xx(24)} x2={zx(0)} y2={xx(15.4)} className="p-cut thick" markerEnd={c.a("cut")} />
           <line x1={zx(0) + 8} y1={xx(15.4)} x2={zx(0) + 8} y2={xx(24)} className="p-rap" markerEnd={c.a("rap")} />
           <path d={`M ${zx(0) - 26} ${xx(15) - 2} a 12 7 0 1 1 0.1 0`} className="p-acc" markerEnd={c.a("acc")} />
-          <T x={zx(0) - 42} y={xx(15) + 2} anchor="end" cls="t-acc t-b">2 obroty</T>
+          <T x={zx(0) - 42} y={xx(15) + 2} anchor="end" cls="t-acc t-b">3 obroty</T>
           <T x={zx(0) + 16} y={xx(23.4)} cls="t-rap">wyjazd G00</T>
           <T x={zx(-10)} y={xx(18.5)} anchor="middle" cls="t-b">Ø44</T>
           <T x={zx(0)} y={xx(15) + 16} anchor="middle" cls="t-mono t-b">Ø30</T>

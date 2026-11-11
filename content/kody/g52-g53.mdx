@@ -28,7 +28,9 @@ syntax:
   sinumerik: |-
     TRANS X50 Y0 / ATRANS
     SUPA G0 Z0
-sinumerik: TRANS/ATRANS zamiast G52; SUPA zamiast G53.
+sinumerik: >-
+  TRANS/ATRANS zamiast G52. Zamiast G53: G53, G153 albo SUPA — każdy pomija inny
+  zakres przesunięć.
 params:
   - key: X Y Z
     desc: Przesunięcie (G52) lub pozycja maszynowa (G53)
@@ -39,6 +41,9 @@ sources:
   - id: fanuc
     where: G52 — lokalny układ współrzędnych; G53 — ruch w układzie maszynowym
     loc: rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 87 (G53)
+  - id: sinumerik
+    where: TRANS, ATRANS; G53, G153 i SUPA
+    loc: G53, G153, SUPA — rozdz. 13.10, s. 334
 example:
   src: |-
     G21 G90 G94 G17
@@ -108,9 +113,9 @@ G53 obowiązuje **wyłącznie w bloku, w którym stoi**. Współrzędne odnoszą
 
 ## Sinumerik \{#sinumerik}
 
-| Funkcja               | Fanuc       | Sinumerik                                      |
-| --------------------- | ----------- | ---------------------------------------------- |
-| Układ lokalny         | G52         | `TRANS` (bezwzględnie), `ATRANS` (przyrostowo) |
-| Współrzędne maszynowe | G53         | `SUPA` (dawniej `G153`)                        |
-| Skalowanie            | G50/G51     | `SCALE`, `ASCALE`                              |
-| Odbicie lustrzane     | G50.1/G51.1 | `MIRROR`, `AMIRROR`                            |
+| Funkcja               | Fanuc       | Sinumerik                                                                    |
+| --------------------- | ----------- | ---------------------------------------------------------------------------- |
+| Układ lokalny         | G52         | `TRANS` (bezwzględnie), `ATRANS` (przyrostowo)                               |
+| Współrzędne maszynowe | G53         | `G53`, `G153` lub `SUPA` — każdy pomija inny zakres przesunięć (lekcja F0.2) |
+| Skalowanie            | G50/G51     | `SCALE`, `ASCALE`                                                            |
+| Odbicie lustrzane     | G50.1/G51.1 | `MIRROR`, `AMIRROR`                                                          |

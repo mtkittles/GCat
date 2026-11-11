@@ -32,7 +32,11 @@ pitfalls:
     Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów — na
     części Fanuców dozwolona jest jedna. Bezpieczniej pisać M03 i M08 w osobnych
     blokach, jak w przykładach kursu.
-sources: []
+sources:
+  - id: fanuc
+    where: funkcja S, M03, M04, M05
+  - id: sinumerik
+    where: S, M3, M4, M5, adresowanie wrzecion
 example:
   src: |-
     G21 G90 G94 G17
@@ -64,7 +68,7 @@ Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M0
 * **M04 na tokarce** — noże lewe, obróbka od strony wrzeciona, narzędzia napędzane w konfiguracji odwrotnej.
 
 <Note kind="warn">
-  Zły kierunek obrotów oznacza, że ostrze pracuje powierzchnią przyłożenia zamiast natarcia. Narzędzie nie skrawa — gniecie materiał, grzeje się i najczęściej wykrusza w ciągu kilku sekund.
+  Zły kierunek obrotów oznacza, że ostrze pracuje powierzchnią przyłożenia zamiast natarcia. Narzędzie nie skrawa, tylko trze grzbietem: grzeje się, szybko tępi i może się wykruszyć albo pęknąć (lekcja F2.2).
 </Note>
 
 ## Kolejność w bloku \{#kolejność-w-bloku}

@@ -58,6 +58,7 @@ sources:
       7.2.16, s. 201
   - id: sinumerik
     where: G4 F (sekundy) i G4 S (obroty)
+    loc: rozdz. 15.7, s. 363
 example:
   src: |-
     G21 G90 G94 G17
@@ -69,7 +70,7 @@ example:
     G00 X30. Y20.
     G00 Z2.
     G01 Z-6. F80
-    G04 X0.1
+    G04 X0.15
     G00 Z50.
     M05
     M30
@@ -119,25 +120,25 @@ Tu kryje się najwięcej błędów. Ta sama liczba znaczy co innego zależnie od
 
 ## Postój liczony w obrotach \{#postój-liczony-w-obrotach}
 
-Na dnie rowka czy otworu nie liczy się czas, tylko to, **ile razy ostrze obejdzie powierzchnię**. Dwa pełne obroty wystarczą, żeby wyrównać dno. Czas jednego obrotu to 60 / n sekund, więc postój k obrotów przy obrotach n \[obr/min] trwa:
+Na dnie rowka czy otworu liczy się to, **ile razy ostrze obejdzie powierzchnię**. Ile obrotów potrzeba, zależy od operacji, narzędzia i wymagań powierzchni. W przykładach tej karty, jak w lekcji F3.5, wymagamy co najmniej trzech obrotów. Czas jednego obrotu to 60 / n sekund, więc postój k obrotów przy obrotach n \[obr/min] trwa:
 
-<Code caption="Sinumerik liczy obroty sam — G4 S2 odczeka dwa obroty niezależnie od zaprogramowanych obrotów.">
+<Code caption="Sinumerik liczy obroty sam — G4 S3 odczeka trzy obroty niezależnie od zaprogramowanych obrotów.">
   ```
   t = 60 · k / n    [s]
 
-  k = 2 obroty, n = 600 obr/min
-  t = 60 · 2 / 600 = 0,2 s
-  Fanuc:     G04 X0.2   albo   G04 P200
-  Sinumerik: G4 S2
+  k = 3 obroty, n = 600 obr/min
+  t = 60 · 3 / 600 = 0,3 s
+  Fanuc:     G04 X0.3   albo   G04 P300
+  Sinumerik: G4 S3
   ```
 </Code>
 
-| Obroty n     | 2 obroty trwają | Zapis Fanuc |
+| Obroty n     | 3 obroty trwają | Zapis Fanuc |
 | ------------ | --------------- | ----------- |
-| 300 obr/min  | 0,4 s           | `G04 X0.4`  |
-| 600 obr/min  | 0,2 s           | `G04 X0.2`  |
-| 1200 obr/min | 0,1 s           | `G04 X0.1`  |
-| 3000 obr/min | 0,04 s          | `G04 P40`   |
+| 300 obr/min  | 0,6 s           | `G04 X0.6`  |
+| 600 obr/min  | 0,3 s           | `G04 X0.3`  |
+| 1200 obr/min | 0,15 s          | `G04 X0.15` |
+| 3000 obr/min | 0,06 s          | `G04 P60`   |
 
 Na części tokarek Fanuc producent włącza parametr **DWL**. Wtedy w trybie posuwu na obrót (\[\[G99]] na tokarce, \[\[G95]] na frezarce) liczba przy X lub U oznacza **obroty**, a nie sekundy. `G04 U2.0` to wtedy dwa obroty. Adres P jest wtedy zwykle nadal w milisekundach — potwierdź to w dokumentacji maszyny.
 
@@ -145,7 +146,7 @@ Na części tokarek Fanuc producent włącza parametr **DWL**. Wtedy w trybie po
 
 ## Do czego się go używa \{#do-czego-się-go-używa}
 
-* **Dno rowka i przecinanie na tokarce.** Nóż zatrzymany na średnicy dna wykonuje jeszcze jeden–dwa obroty i zbiera nierówność. Przy przecinaniu krótki postój przed końcem przerywa ciągły \[\[wiór]].
+* **Dno rowka i przecinanie na tokarce.** Nóż zatrzymany na średnicy dna wykonuje jeszcze kilka obrotów i zbiera nierówność. Przy przecinaniu krótki postój przed końcem przerywa ciągły \[\[wiór]].
 * **Dno otworu lub pogłębienia bez cyklu.** Gdy narzędzie schodzi zwykłym G01, a nie cyklem \[\[G82]], postój na dnie wyrównuje czoło pogłębienia i fazę.
 * **Łamanie wióra.** Materiały ciągliwe (stal nierdzewna, aluminium) dają długi wiór, który owija się wokół narzędzia. Krótka przerwa w posuwie zmienia grubość wióra do zera i wiór pęka.
 * **Odprężenie narzędzia.** Na końcu przejścia narzędzie ugięte siłą skrawania wraca do pozycji i zbiera cienką warstwę, która w przeciwnym razie zostałaby na ściance.
@@ -153,17 +154,17 @@ Na części tokarek Fanuc producent włącza parametr **DWL**. Wtedy w trybie po
 
 ## Ile czekać \{#ile-czekać}
 
-Tak krótko, jak się da. Ostrze stojące w jednym miejscu nie skrawa, tylko trze: grzeje się, poleruje powierzchnię i zostawia na niej widoczny ślad. Stal nierdzewna i stopy żarowytrzymałe dodatkowo się przy tym utwardzają, więc następne narzędzie trafi na twardszą warstwę.
+Czas postoju dobiera się do operacji, narzędzia i wymagań powierzchni. Ostrze stojące w jednym miejscu nie skrawa, tylko trze, więc niepotrzebnie długi postój może zwiększać nagrzewanie i zostawiać ślady.
 
 <Note kind="tip">
-  Zasada z praktyki: **jeden do dwóch obrotów wrzeciona**. Dłuższy postój nie poprawia już powierzchni, a skraca trwałość ostrza.
+  Długi postój w materiale skłonnym do umacniania się (np. w części stali nierdzewnych) może utwardzić powierzchnię dna — następne narzędzie wchodzi wtedy w twardszą warstwę (lekcja F3.5).
 </Note>
 
 Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie zdążyły dojechać do punktu. Nowe sterowania robią to lepiej funkcją dokładnego zatrzymania \[\[G09]] albo trybem \[\[G61]], które nie zostawiają śladu postoju na ściance.
 
 ## Przykład — frezarka \{#przykład-frezarka}
 
-<Sim mode="mill" caption="Pogłębienie na Z−6 i postój 0,1 s — przy 1200 obr/min to dokładnie dwa obroty. Czas postoju widać w statystykach programu.">
+<Sim mode="mill" caption="Pogłębienie na Z−6 i postój 0,15 s — przy 1200 obr/min to trzy obroty. Czas postoju widać w statystykach programu.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -174,7 +175,7 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
   G00 X30. Y20.
   G00 Z2.
   G01 Z-6. F80
-  G04 X0.1
+  G04 X0.15
   G00 Z50.
   M05
   M30
@@ -183,7 +184,7 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
 
 ## Przykład — tokarka \{#przykład-tokarka}
 
-<Sim mode="lathe" caption="Rowek do średnicy 30 i dwa obroty postoju na dnie (0,2 s przy 600 obr/min). Obroty są stałe (G97), więc czas obrotu się nie zmienia.">
+<Sim mode="lathe" caption="Rowek do średnicy 30 i trzy obroty postoju na dnie (0,3 s przy 600 obr/min). Obroty są stałe (G97), więc czas obrotu się nie zmienia.">
   ```
   G18 G21 G40 G80 G99
   G54
@@ -191,7 +192,7 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
   G97 S600 M03
   G00 X44. Z-22.
   G01 X30. F0.05
-  G04 X0.2
+  G04 X0.3
   G00 X44.
   G00 X100. Z100.
   M05
@@ -216,6 +217,6 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
 * **`G04 X1` bez kropki na Fanucu.** Zależnie od ustawień sterowania to jedna sekunda albo jedna tysięczna.
 * **`G04 P0.5` na Fanucu.** Kropka przy P jest niedozwolona — alarm albo zła wartość.
 * **G04 w jednym bloku z ruchem.** X zostanie potraktowany jako czas, a zamierzony ruch się nie wykona. Pisz G04 w osobnym bloku.
-* **Za długi postój na dnie.** Ostrze trze, grzeje materiał i zostawia ślad, a w stali nierdzewnej utwardza powierzchnię.
+* **Za długi postój na dnie.** Ostrze trze, grzeje materiał i może zostawić ślad, a w materiale skłonnym do umacniania się — utwardzić powierzchnię.
 * **Postój zamiast dokładnego zatrzymania.** Do ostrych naroży służy G09 lub G61, nie G04.
 * **Haas: G04 P w trakcie aktywnego cyklu.** Wartość P zostaje przejęta także przez cykl, np. jako postój na dnie kolejnych otworów.
