@@ -199,7 +199,7 @@ export function Groove() {
   const plunges = [-20, -22.5, -25, -26];
   return (
     <Fig id="g75" code="G75" title="Rowek kilkoma wgłębieniami z łamaniem wióra" h={256} legend={["cut", "rap", "con", "dim"]}
-      notes={<><Code k="acc">G75 R0.5</Code><Code>G75 X30 Z−26 P2000 Q2500 F0.08</Code></>}
+      notes={<><Code k="acc">G75 R0.5</Code><Code>G75 X30. Z-26. P2000 Q2500 F0.08</Code></>}
       caption={<>Nóż wcina się w X krokami <b>P</b>, po każdym cofa o <b>R</b>. Na dnie wraca na średnicę startową, przesuwa się w Z o <b>Q</b> i powtarza. Q mniejsze od szerokości płytki daje ciągłe dno.</>}>
       {(c) => (
         <g>
@@ -259,7 +259,7 @@ export function Zone() {
   const m = mapper(R, [26, 10, 322, 220]);
   return (
     <Fig id="g22" code="G22" title="Strefa zabroniona wokół uchwytu" h={244} legend={["rap", "bad"]}
-      notes={<Code k="acc">G22 X20 Y40 Z−50 I55 J65 K20</Code>}
+      notes={<Code k="acc">G22 X20. Y40. Z-50. I55. J65. K20.</Code>}
       caption={<>Dwa naroża prostopadłościanu (<b>X Y Z</b> i <b>I J K</b>, układ maszyny) wyznaczają obszar, do którego punkt narzędzia nie może wjechać. Ruch zatrzymuje się z alarmem na granicy.</>}>
       {(c) => (
         <g>
@@ -285,7 +285,7 @@ export function Probe() {
   const ball = z(0) - 5;
   return (
     <Fig id="g31" code="G31" title="Ruch do styku i zapis pozycji" h={236} legend={["cut", "cons", "acc", "stock"]}
-      notes={<><Code>G31 Z−5 F150</Code><Code k="acc">#100 = #5063</Code></>}
+      notes={<><Code>G31 Z-5. F150</Code><Code k="acc">#100 = #5063</Code></>}
       caption={<>Sonda jedzie do <b>Z−5</b>, ale zatrzymuje się w chwili styku. Pozycja z tej chwili trafia do <b>#5063</b> (oś Z). Bez styku blok kończy się w punkcie docelowym — makro musi to sprawdzić.</>}>
       {(c) => (
         <g>
@@ -313,7 +313,7 @@ export function HelixTop() {
   const cx = 45, cy = 25, r = 20;
   return (
     <Fig id="helix" code="G03 Z" title="Śruba: łuk i jednocześnie ruch w Z" h={246} legend={["arc", "acc"]}
-      notes={<><Code k="arc">G03 X25 Y25 Z−2 I20 J0</Code><Code k="arc">G03 X25 Y25 Z−4 I20 J0</Code><Code k="arc">G03 X25 Y25 Z−6 I20 J0</Code></>}
+      notes={<><Code k="arc">G03 X25. Y25. Z-2. I20. J0.</Code><Code k="arc">G03 X25. Y25. Z-4. I20. J0.</Code><Code k="arc">G03 X25. Y25. Z-6. I20. J0.</Code></>}
       caption={<>Z góry widać zwykły okrąg, ale każdy blok schodzi o 2 mm w Z. Narzędzie wchodzi w materiał łagodnie, bez wiercenia frezem w pionie.</>}>
       {(c) => (
         <g>
@@ -371,7 +371,7 @@ export function CompEntry() {
   const r = 8;
   return (
     <Fig id="compin" code="G41 G40" title="Kompensacja: dojazd, kontur, odjazd" h={256} legend={["cut", "con", "stock", "dim"]}
-      notes={<><Code>G41 D1 X0 Y0</Code><Code>… kontur …</Code><Code>G40 X−25 Y−25</Code></>}
+      notes={<><Code>G41 D1 X0. Y0.</Code><Code>… kontur …</Code><Code>G40 X-25. Y-25.</Code></>}
       caption={<>Kompensację włącza blok dojazdowy, a wyłącza odjazdowy — oba muszą być ruchami liniowymi dłuższymi niż promień narzędzia. Na końcu dojazdu środek freza stoi już <b>r</b> od konturu.</>}>
       {(c) => (
         <g>

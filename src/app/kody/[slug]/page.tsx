@@ -13,6 +13,7 @@ import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
 import { bannerFor, bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
 import { kartaMdx } from "@/lib/mdx/kody";
+import { readOnlyCaption } from "@/lib/simGaps";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
@@ -190,7 +191,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
         {g.simulate === false ? (
           <figure className="grid gap-1">
             <pre tabIndex={0} className="syntax">{g.example}</pre>
-            <figcaption className="cap">Program do przeczytania — symulator nie odtwarza tej funkcji.</figcaption>
+            <figcaption className="cap">{readOnlyCaption(g.example, mode)}</figcaption>
           </figure>
         ) : (
           <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
