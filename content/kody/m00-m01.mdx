@@ -43,17 +43,29 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G90 G17 G54
-    T01 M06
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-2 F100
-    G01 X40 F400
-    G00 Z20
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-2. F100
+    G01 X40. F400
+    G00 Z50.
+    M05
     M01 (sprawdz pierwsza sztuke)
-    T02 M06
+    T2 M06
+    G00 G43 H2 Z50.
+    S1800 M03
+    G00 X40. Y20.
+    G00 Z5.
+    G01 Z-2. F100
+    G00 Z50.
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

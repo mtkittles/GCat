@@ -68,8 +68,18 @@ sources:
 example:
   src: |-
     O1000
-    G90 G54 G00 X0 Y0 Z20
-    G65 P9100 X20.0 Y15.0 R4.0 Z-3.0 (kieszen okragla)
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
+    S2000 M03
+    G00 X0. Y0.
+    G00 Z20.
+    (kieszen okragla)
+    G65 P9100 X20. Y15. R4. Z-3.
+    G00 Z50.
+    M05
     M30
 
     O9100 (#24=X #25=Y #18=R #26=Z)
@@ -77,7 +87,7 @@ example:
     G01 Z#26 F100
     G01 X[#24+#18] F300
     G02 I-#18
-    G00 Z20.0
+    G00 Z20.
     M99
   simulate: false
   mode: ''

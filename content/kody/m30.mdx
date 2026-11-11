@@ -32,8 +32,18 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G90 G17
-    G00 X0 Y0
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
+    S2000 M03
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X30. F200
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -57,12 +67,12 @@ Samo M30 nie odsuwa narzędzia. Pełne, bezpieczne zakończenie wygląda tak:
 
 <Code caption="Kolejność ma znaczenie: najpierw wyjdź z materiału, potem wyłączaj.">
   ```
-  G00 Z50          ; odjazd na wysokość bezpieczną
-  M09              ; chłodziwo wyłączone
-  M05              ; wrzeciono zatrzymane
-  G91 G28 Z0       ; oś Z do bazy
-  G90              ; powrót do trybu absolutnego
-  M30              ; koniec programu
+  G00 Z50.    (odjazd na Z bezpieczne)
+  M09         (chłodziwo wyłączone)
+  M05         (wrzeciono zatrzymane)
+  G91 G28 Z0. (Z do punktu referencyjnego)
+  G90         (powrót do trybu absolutnego)
+  M30         (koniec programu)
   ```
 </Code>
 

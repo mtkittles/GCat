@@ -69,18 +69,21 @@ sources:
     where: osie obrotowe A, B, C wokół X, Y, Z i ich zwroty
 example:
   src: |-
-    G21 G90 G94 G17 G40 G49 G80
+    G21 G90 G94 G17
+    G40 G49 G80
     G54
     T1 M06 (FREZ FI8)
     G00 G43 H1 Z60.
     S3500 M03
     G00 A0
-    G00 X6. Y0 Z25.
+    G00 X6. Y0.
+    G00 Z25.
     G01 Z18. F200
     G01 X54. F450
     G00 Z40. (ODJAZD PRZED OBROTEM)
     G00 A90.
-    G00 X6. Y0 Z25.
+    G00 X6. Y0.
+    G00 Z25.
     G01 Z18. F200
     G01 X54. F450
     G00 Z40.

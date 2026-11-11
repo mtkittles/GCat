@@ -21,11 +21,11 @@ desc: >-
 syntax:
   fanuc: |-
     G00 X23.2
-    G32 Z-25 F1.5
-    G00 X30
-    G00 Z3
+    G32 Z-25. F1.5
+    G00 X30.
+    G00 Z3.
     G00 X22.8
-    G32 Z-25 F1.5 ...
+    G32 Z-25. F1.5 ...
   sinumerik: G33 Z-25 K1.5
 sinumerik: 'G33 z K (skok w Z). Cykl wieloprzejściowy: CYCLE97.'
 params:
@@ -47,6 +47,7 @@ sources:
 example:
   src: |-
     G18 G21 G40 G80 G99
+    G54
     T0303 (NOZ DO GWINTU 60 ST.)
     G97 S700 M03
     G00 X26. Z6.
@@ -92,11 +93,11 @@ Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skoko
 
 <Code caption="Jedno przejście. Pełny gwint wymaga powtórzenia tego bloku z coraz mniejszą średnicą X.">
   ```
-  ; Fanuc
-  G00 X23.2 Z5
-  G32 Z-25 F1.5
-  G00 X30
-  G00 Z5
+  (Fanuc)
+  G00 X23.2 Z5.
+  G32 Z-25. F1.5
+  G00 X30.
+  G00 Z5.
 
   ; Sinumerik
   G0 X23.2 Z5
@@ -109,6 +110,7 @@ Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skoko
 <Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 blokami G32. Wejścia na stronę: 0,35 / 0,25 / 0,2 / 0,12 mm — razem 0,92 mm, do średnicy rdzenia 22,16.">
   ```
   G18 G21 G40 G80 G99
+  G54
   T0303 (NOZ DO GWINTU 60 ST.)
   G97 S700 M03
   G00 X26. Z6.

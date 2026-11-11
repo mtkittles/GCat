@@ -35,19 +35,23 @@ sources:
     where: przesunięcia nastawne G54–G57 i dalsze, TRANS i ATRANS
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-1 F100
-    G01 X20 F200
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X20. F200
+    G00 Z5.
     G55
-    G00 X0 Y0
-    G01 Z-1 F100
-    G01 X20 F200
-    G00 Z5
+    G00 X0. Y0.
+    G01 Z-1. F100
+    G01 X20. F200
+    G00 Z5.
+    M05
     M30
   simulate: true
   mode: ''
@@ -65,8 +69,9 @@ Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i
 
 <Code caption="Ekran pozycji pokazuje obie wartości: „Maszynowe” i „Absolutne” (w układzie detalu).">
   ```
-  X maszynowe = X z rejestru G54 + X z programu
-                −320,000       +   40,000   = −280,000
+  X maszynowe = X rejestru G54 + X programu
+              = −320,000 + 40,000
+              = −280,000
   ```
 </Code>
 
@@ -84,8 +89,10 @@ Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sond�
 
 <Code caption="Końcówka dotyka krawędzi bokiem, więc do odczytu dodaje się jej promień (w stronę materiału).">
   ```
-  czujnik ⌀10 dotyka lewej krawędzi w X maszynowym −325,000
-  krawędź = −325,000 + 5,000 = −320,000   → G54 X = −320,000
+  czujnik ⌀10 dotyka lewej krawędzi
+  w X maszynowym −325,000
+  krawędź = −325,000 + 5,000 = −320,000
+  → G54 X = −320,000
   ```
 </Code>
 
@@ -118,17 +125,21 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem 
 
 <Sim mode="mill" caption="Kontur względem zera detalu. Ten sam program z G55 zamiast G54 frezuje w innym miejscu stołu, bez zmiany żadnej współrzędnej.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
   T1 M06 (FREZ FI10)
   G00 G43 H1 Z50.
   S2000 M03
-  G00 X0. Y0. Z5.
+  G00 X0. Y0.
+  G00 Z5.
   G01 Z-2. F120
   G01 X30. F350
   Y20.
   X0.
   Y0.
   G00 Z5.
+  M05
   M30
   ```
 </Sim>

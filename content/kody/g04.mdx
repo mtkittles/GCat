@@ -60,15 +60,18 @@ sources:
     where: G4 F (sekundy) i G4 S (obroty)
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 Z50 H01
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S1200 M03
-    G00 X30 Y20
-    G00 Z2
-    G01 Z-6 F80
+    G00 X30. Y20.
+    G00 Z2.
+    G01 Z-6. F80
     G04 X0.1
-    G00 Z50
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''
@@ -122,7 +125,8 @@ Na dnie rowka czy otworu nie liczy się czas, tylko to, **ile razy ostrze obejdz
   ```
   t = 60 · k / n    [s]
 
-  k = 2 obroty, n = 600 obr/min  →  t = 60 · 2 / 600 = 0,2 s
+  k = 2 obroty, n = 600 obr/min
+  t = 60 · 2 / 600 = 0,2 s
   Fanuc:     G04 X0.2   albo   G04 P200
   Sinumerik: G4 S2
   ```
@@ -161,15 +165,18 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
 
 <Sim mode="mill" caption="Pogłębienie na Z−6 i postój 0,1 s — przy 1200 obr/min to dokładnie dwa obroty. Czas postoju widać w statystykach programu.">
   ```
-  G21 G90 G17 G54
-  T01 M06
-  G00 G43 Z50 H01
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S1200 M03
-  G00 X30 Y20
-  G00 Z2
-  G01 Z-6 F80
+  G00 X30. Y20.
+  G00 Z2.
+  G01 Z-6. F80
   G04 X0.1
-  G00 Z50
+  G00 Z50.
+  M05
   M30
   ```
 </Sim>
@@ -179,13 +186,15 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
 <Sim mode="lathe" caption="Rowek do średnicy 30 i dwa obroty postoju na dnie (0,2 s przy 600 obr/min). Obroty są stałe (G97), więc czas obrotu się nie zmienia.">
   ```
   G18 G21 G40 G80 G99
+  G54
   T0404 (NOZ DO ROWKOW)
   G97 S600 M03
-  G00 X44 Z-22
-  G01 X30 F0.05
+  G00 X44. Z-22.
+  G01 X30. F0.05
   G04 X0.2
-  G00 X44
-  G00 X100 Z100
+  G00 X44.
+  G00 X100. Z100.
+  M05
   M30
   ```
 </Sim>

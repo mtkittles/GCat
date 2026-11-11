@@ -26,13 +26,15 @@ desc: >-
   detalu (G90 G28 Z0 — najpierw do Z0 detalu).
 syntax:
   fanuc: |-
-    G91 G28 Z0
-    G28 X0 Y0
+    G91 G28 Z0.
+    G28 X0. Y0.
   sinumerik: |-
-    ; tryb ISO (dialekt Fanuc): G28 z punktem pośrednim
+    ; tryb ISO (dialekt Fanuc):
+    ; G28 z punktem pośrednim
     G291
-    G91 G28 Z0
-    ; język natywny: najazd na punkt referencyjny / stały
+    G91 G28 Z0.
+    ; język natywny: najazd na punkt
+    ; referencyjny / stały
     G74 X=0 Z=0
     G75 FP=1 X=0 Z=0
 sinumerik: >-
@@ -73,10 +75,20 @@ sources:
       7.2.7, s. 167; 1401#1 LRP — rozdz. 7.2.11, s. 171
 example:
   src: |-
-    G21 G90 G17
-    G00 X30 Y20 Z5
-    G91 G28 Z0
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
+    S2000 M03
+    G00 X30. Y20.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X50. F200
+    G00 Z5.
+    G91 G28 Z0.
     G90
+    M05
     M30
   simulate: true
   mode: ''
@@ -98,9 +110,12 @@ Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy
 
 <Code caption="Fragment ilustrujący — nie kompletny program.">
   ```
-  ; założenia: frezarka pionowa, Fanuc, G21, G54 z Z0 na górze detalu
-  G91 G28 Z0     ; punkt pośredni = bieżąca pozycja, potem punkt referencyjny Z
-  G90            ; powrót do trybu absolutnego
+  (założenia: frezarka pionowa, Fanuc, G21,)
+  (G54 z Z0 na górze detalu)
+  (punkt pośredni = bieżąca pozycja,)
+  (potem punkt referencyjny Z)
+  G91 G28 Z0.
+  G90 (powrót do trybu absolutnego)
   ```
 </Code>
 

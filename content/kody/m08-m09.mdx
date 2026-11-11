@@ -26,13 +26,19 @@ sources: []
 example:
   src: |-
     G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S1500 M03
-    G00 X0 Y0 Z5
+    G00 X0. Y0.
+    G00 Z5.
     M08
-    G01 Z-2 F100
-    G01 X40 F200
-    G00 Z5
+    G01 Z-2. F100
+    G01 X40. F200
+    G00 Z5.
     M09
+    M05
     M30
   simulate: true
   mode: ''

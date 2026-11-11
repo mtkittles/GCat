@@ -54,20 +54,24 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S1200 M03
-    G00 X0 Y0 Z20
+    G00 X0. Y0.
+    G00 Z20.
     G16
-    G99 G81 X40 Y0 Z-12 R2 F120
-    Y60
-    Y120
-    Y180
-    Y240
-    Y300
+    G99 G81 X40. Y0. Z-12. R2. F120
+    Y60.
+    Y120.
+    Y180.
+    Y240.
+    Y300.
     G80 G15
-    G00 Z50
+    G00 Z50.
+    M05
     M30
   simulate: true
   mode: ''

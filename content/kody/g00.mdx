@@ -44,16 +44,18 @@ sources:
     where: G0, RTLION i RTLIOF
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z10
-    G00 X80 Y30
-    G00 Z2
-    G01 Z-3 F100
-    G01 X20 F200
-    G00 Z10
+    G00 X80. Y30.
+    G00 Z2.
+    G01 Z-3. F100
+    G01 X20. F200
+    G00 Z10.
+    M05
     M30
   simulate: true
   mode: ''
@@ -96,10 +98,11 @@ Raz włączone G00 obowiązuje aż do wywołania innej funkcji ruchu z tej samej
 
 <Code caption="Bloki N20 i N30 nie zawierają G00, ale wykonują się jako szybkie przejazdy, bo funkcja pozostaje aktywna.">
   ```
-  N10 G00 X20 Y15      (szybki przejazd nad punkt startu)
-  N20 Z5               (nadal G00 — tylko oś Z)
-  N30 X60              (nadal G00 — tylko oś X)
-  N40 G01 Z-3 F120     (dopiero tu przechodzimy na posuw roboczy)
+  N10 G00 X20. Y15. (nad punkt startu)
+  N20 Z5.           (nadal G00, tylko oś Z)
+  N30 X60.          (nadal G00, tylko oś X)
+  (dopiero tu posuw roboczy)
+  N40 G01 Z-3. F120
   ```
 </Code>
 
@@ -138,10 +141,10 @@ Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować dr
 
 <Code caption="Kolejność, która eliminuje większość kolizji przy dojeździe.">
   ```
-  G00 Z50          (najpierw wysoko)
-  G00 X40 Y25      (potem nad miejsce obróbki)
-  G00 Z2           (dopiero teraz w dół, nad materiał)
-  G01 Z-3 F120     (zagłębienie na posuwie roboczym)
+  G00 Z50.      (najpierw wysoko)
+  G00 X40. Y25. (nad miejsce obróbki)
+  G00 Z2.       (w dół, nad materiał)
+  G01 Z-3. F120 (zagłębienie z posuwem)
   ```
 </Code>
 
@@ -157,18 +160,20 @@ Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować dr
 
 <Sim mode="mill" caption="Uruchom i prześledź krokami. Żółte linie przerywane to szybkie przejazdy, zielone ciągłe — ruch roboczy. Zwróć uwagę, że zagłębienie na Z−3 wykonuje G01, a nie G00.">
   ```
-  G21 G90 G17 G54
-  T01 M06
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2200 M03
-  G43 G00 Z50 H01
-  G00 X20 Y15
-  G00 Z2
-  G01 Z-3 F120
-  G01 X80 F400
-  G01 Y45
-  G01 X20
-  G01 Y15
-  G00 Z50
+  G00 X20. Y15.
+  G00 Z2.
+  G01 Z-3. F120
+  G01 X80. F400
+  G01 Y45.
+  G01 X20.
+  G01 Y15.
+  G00 Z50.
   M05
   M30
   ```

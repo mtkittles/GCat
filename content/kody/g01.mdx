@@ -41,17 +41,21 @@ sources:
     where: G1, posuw F w trybie G94 albo G95
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-2 F80
-    G01 X60 F250
-    G01 Y40
-    G01 X0
-    G01 Y0
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-2. F80
+    G01 X60. F250
+    G01 Y40.
+    G01 X0.
+    G01 Y0.
+    G00 Z5.
+    M05
     M30
   simulate: true
   mode: ''
@@ -93,55 +97,79 @@ Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisani
 
 <Demo mode="mill" title="Wariant 1 — prosto, współrzędne bezwzględne" caption="Jeden blok, jeden odcinek skośny. Sterownik prowadzi obie osie tak, by dojechały równocześnie — dlatego tor jest prostą, a nie łamaną.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2000 M03
-  G00 X10 Y10 Z2
-  G01 Z-2 F100
-  G01 X90 Y70 F300
-  G00 Z10
+  G00 X10. Y10.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X90. Y70. F300
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
 
 <Demo mode="mill" title="Wariant 2 — prosto, współrzędne przyrostowe" caption="Ten sam odcinek zapisany jako przesunięcie o 80 w X i 60 w Y. Tor identyczny; różnica jest wyłącznie w sposobie liczenia współrzędnych. Więcej na karcie [[G91]].">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2000 M03
-  G00 X10 Y10 Z2
-  G01 Z-2 F100
+  G00 X10. Y10.
+  G00 Z2.
+  G01 Z-2. F100
   G91
-  G01 X80 Y60 F300
+  G01 X80. Y60. F300
   G90
-  G00 Z10
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
 
 <Demo mode="mill" title="Wariant 3 — dwoma bokami zamiast po skosie" caption="Najpierw wzdłuż X, potem wzdłuż Y. Punkt końcowy ten sam, ale narzędzie zbiera materiał wzdłuż zupełnie innej drogi — i pokonuje dłuższy odcinek, więc obróbka trwa dłużej.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2000 M03
-  G00 X10 Y10 Z2
-  G01 Z-2 F100
-  G01 X90 F300
-  G01 Y70
-  G00 Z10
+  G00 X10. Y10.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X90. F300
+  G01 Y70.
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
 
 <Demo mode="mill" title="Wariant 4 — łańcuch bloków bez powtarzania G01" caption="Bloki po pierwszym G01 zawierają same współrzędne. Funkcja jest modalna, więc wszystkie są ruchami roboczymi z tym samym posuwem. Tak zapisuje się kontury w praktyce.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S2000 M03
-  G00 X10 Y10 Z2
-  G01 Z-2 F100
-  G01 X90 F300
-  Y70
-  X30
-  Y30
-  X10 Y10
-  G00 Z10
+  G00 X10. Y10.
+  G00 Z2.
+  G01 Z-2. F100
+  G01 X90. F300
+  Y70.
+  X30.
+  Y30.
+  X10. Y10.
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>
@@ -152,10 +180,10 @@ Skoro G01 i posuw F pozostają aktywne, kontur można zapisać bardzo zwięźle.
 
 <Code caption="Po lewej zapis pełny, po prawej skrócony. W praktyce stosuje się ten drugi — jest krótszy i mniej podatny na literówki.">
   ```
-  G01 X90 F300        G01 X90 F300
-  G01 Y70 F300        Y70
-  G01 X30 F300        X30
-  G01 Y30 F300        Y30
+  G01 X90. F300       G01 X90. F300
+  G01 Y70. F300       Y70.
+  G01 X30. F300       X30.
+  G01 Y30. F300       Y30.
   ```
 </Code>
 
@@ -183,15 +211,21 @@ Ruch prosto w dół obciąża narzędzie inaczej niż ruch boczny — pracuje wt
 
 <Demo mode="mill" title="Zagłębianie po rampie" caption="Narzędzie schodzi o 1 mm na każdym przejeździe wzdłuż rowka, zamiast wbijać się pionowo. Włącz widok 3D w symulatorze, żeby zobaczyć powstający rowek.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S3000 M03
-  G00 X10 Y25 Z2
-  G01 X60 Z-1 F250
-  G01 X10 Z-2
-  G01 X60 Z-3
-  G01 X10 Z-4
-  G01 X60 F400
-  G00 Z10
+  G00 X10. Y25.
+  G00 Z2.
+  G01 X60. Z-1. F250
+  G01 X10. Z-2.
+  G01 X60. Z-3.
+  G01 X10. Z-4.
+  G01 X60. F400
+  G00 Z10.
+  M05
   M30
   ```
 </Demo>

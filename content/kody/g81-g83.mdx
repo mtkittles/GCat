@@ -63,16 +63,20 @@ sources:
     where: cykle G81–G89 w trybie ISO na frezarce
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X10 Y10 Z10
-    G99 G81 X10 Y10 Z-15 R2 F100
-    X40
-    Y30
+    G00 X10. Y10.
+    G00 Z10.
+    G99 G81 X10. Y10. Z-15. R2. F100
+    X40.
+    Y30.
     G80
-    G00 Z10
+    G00 Z10.
+    M05
     M30
   simulate: true
   mode: ''
@@ -108,12 +112,13 @@ example:
 
 <Code caption="Cztery otwory w pięciu blokach. Bez cyklu wymagałoby to około dwudziestu.">
   ```
-  G99 G81 X20 Y20 Z-15 R2 F120     (pierwszy otwór — cykl zdefiniowany i wykonany)
-  X50                              (drugi otwór, te same parametry)
-  X50 Y50                          (trzeci)
-  X20 Y50                          (czwarty)
-  G80                              (koniec cyklu)
-  G00 Z50
+  (pierwszy otwór: definicja i wykonanie)
+  G99 G81 X20. Y20. Z-15. R2. F120
+  X50.      (drugi otwór, te same parametry)
+  X50. Y50. (trzeci)
+  X20. Y50. (czwarty)
+  G80       (koniec cyklu)
+  G00 Z50.
   ```
 </Code>
 
@@ -165,11 +170,12 @@ W języku natywnym Sinumerika zamiast G81–G89 są wywołania z listą parametr
 
 <Code caption="Odpowiednik cyklu G81 z czterema otworami w składni Sinumerik.">
   ```
-  MCALL CYCLE81(10, 0, 2, -15)   ; RTP, RFP, SDIS, DP
+  ; parametry: RTP, RFP, SDIS, DP
+  MCALL CYCLE81(10, 0, 2, -15)
   X20 Y20
   X50 Y20
   X50 Y50
-  MCALL                          ; wyłączenie wywołania modalnego
+  MCALL ; wyłączenie wywołania modalnego
   ```
 </Code>
 

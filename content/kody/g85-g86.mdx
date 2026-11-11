@@ -42,11 +42,17 @@ sources:
     loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89
 example:
   src: |-
-    G21 G90 G94 G17 G54
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S800 M03
-    G00 X30 Y20 Z5
-    G01 Z-20 F60
-    G01 Z5 F60
+    G00 X30. Y20.
+    G00 Z5.
+    G01 Z-20. F60
+    G01 Z5. F60
+    M05
     M30
   simulate: true
   mode: ''
@@ -75,25 +81,31 @@ Cykle wytaczania różnią się sposobem **wyjścia narzędzia z otworu** — i 
 
 <Code>
   ```
-  G99 G85 X30 Y30 Z-25 R2 F80      ; wytaczanie, wyjście na posuwie
+  (G85: wytaczanie, wyjście na posuwie)
+  G99 G85 X30. Y30. Z-25. R2. F80
   G80
-  G99 G86 X70 Y30 Z-25 R2 F120     ; wytaczanie, wyjście szybkie
+  (G86: wytaczanie, wyjście szybkie)
+  G99 G86 X70. Y30. Z-25. R2. F120
   G80
   ```
 </Code>
 
 <Sim mode="mill" caption="Cykl G85 — zwróć uwagę, że wyjście z otworu jest ruchem roboczym (zielona linia), a nie szybkim przejazdem.">
   ```
-  G21 G90 G17 G54 G80
-  T01 M06
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
   S900 M03
-  G00 X30 Y30
-  G43 Z10 H01
+  G00 X30. Y30.
+  G00 Z10.
   M08
-  G99 G85 X30 Y30 Z-25 R2 F80
+  G99 G85 X30. Y30. Z-25. R2. F80
   G80
-  G00 Z50
+  G00 Z50.
   M09
+  M05
   M30
   ```
 </Sim>

@@ -36,11 +36,16 @@ sources: []
 example:
   src: |-
     G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S1200 M03
-    G00 X0 Y0 Z5
-    G01 Z-1 F100
-    G01 X30 F200
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X30. F200
+    G00 Z5.
     M05
     M30
   simulate: true
@@ -66,19 +71,21 @@ Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M0
 
 Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obroty były zadane **przed** pierwszym ruchem roboczym. Wiele sterowników czeka na osiągnięcie zadanych obrotów przed wykonaniem następnego bloku, ale nie wszystkie — przy dużych wrzecionach warto dodać krótki postój `G04 P500`.
 
-<Sim mode="mill" caption="Standardowa sekwencja: narzędzie, obroty, korekcja długości, dojazd, chłodziwo, obróbka, odjazd, wyłączenie.">
+<Sim mode="mill" caption="Kolejność jak w profilu kursu (lekcja F1.5): narzędzie, korekcja długości, obroty, dojazd, chłodziwo, obróbka, odjazd, wyłączenie.">
   ```
-  G21 G90 G17 G54
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
   T1 M06
+  G00 G43 H1 Z50.
   S2400 M03
-  G00 G43 H1 Z50
-  G00 X10 Y10
-  G00 Z2
+  G00 X10. Y10.
+  G00 Z2.
   M08
-  G01 Z-3 F120
-  G01 X70 F400
-  G01 Y40
-  G00 Z50
+  G01 Z-3. F120
+  G01 X70. F400
+  G01 Y40.
+  G00 Z50.
   M09
   M05
   M30

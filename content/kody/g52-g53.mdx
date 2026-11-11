@@ -21,10 +21,10 @@ desc: >-
   — do dojazdu do pozycji wymiany narzędzia lub wyładunku.
 syntax:
   fanuc: |-
-    G52 X50 Y0
+    G52 X50. Y0.
     ...
-    G52 X0 Y0
-    G53 G00 Z0
+    G52 X0. Y0.
+    G53 G00 Z0.
   sinumerik: |-
     TRANS X50 Y0 / ATRANS
     SUPA G0 Z0
@@ -41,20 +41,26 @@ sources:
     loc: rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 87 (G53)
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-1 F100
-    G01 X20 F200
-    G01 Y10
-    G00 Z5
-    G00 X50 Y0
-    G01 Z-1 F100
-    G01 X70 F200
-    G01 Y10
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X20. F200
+    G01 Y10.
+    G00 Z5.
+    G52 X50. Y0.
+    G00 X0. Y0.
+    G01 Z-1. F100
+    G01 X20. F200
+    G01 Y10.
+    G00 Z5.
+    G52 X0. Y0.
+    M05
     M30
   simulate: true
   mode: ''
@@ -71,13 +77,13 @@ Przydaje się, gdy detal ma kilka identycznych elementów rozmieszczonych w znan
 <Code>
   ```
   G54
-  G52 X0 Y0        ; pierwszy element — bez przesunięcia
+  G52 X0. Y0.  (pierwszy, bez przesunięcia)
   M98 P1001
-  G52 X60 Y0       ; drugi element, 60 mm dalej w X
+  G52 X60. Y0. (drugi, 60 mm dalej w X)
   M98 P1001
-  G52 X60 Y40      ; trzeci
+  G52 X60. Y40. (trzeci)
   M98 P1001
-  G52 X0 Y0        ; skasowanie układu lokalnego
+  G52 X0. Y0.  (skasowanie układu lokalnego)
   ```
 </Code>
 
@@ -95,8 +101,8 @@ G53 obowiązuje **wyłącznie w bloku, w którym stoi**. Współrzędne odnoszą
 
 <Code caption="G53 wymaga trybu G90 i działa tylko z G00 lub G01.">
   ```
-  G53 G00 Z0          ; oś Z do samej góry, niezależnie od G54
-  G53 G00 X-500 Y0    ; stół wysunięty do operatora
+  G53 G00 Z0. (Z w górę, niezależnie od G54)
+  G53 G00 X-500. Y0. (stół do operatora)
   ```
 </Code>
 

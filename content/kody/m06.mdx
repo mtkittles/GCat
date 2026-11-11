@@ -32,7 +32,8 @@ desc: >-
 syntax:
   fanuc: T_ M06
   sinumerik: |-
-    T="NAZWA" M6   ; z zarządzaniem narzędziami
+    ; z zarządzaniem narzędziami
+    T="NAZWA" M6
     T_ M6
 sinumerik: >-
   Wymianę wykonuje **M6**. Przy zarządzaniu narzędziami wywołuje się je nazwą:
@@ -48,14 +49,22 @@ pitfalls:
 sources: []
 example:
   src: |-
-    G21 G90 G17 G54
-    G91 G28 Z0
-    T05 M06
-    G90 G00 X0 Y0
-    G43 Z50.0 H05
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    G91 G28 Z0.
+    G90
+    T5 M06
+    G00 G43 H5 Z50.
     S2500 M03
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X30. F200
+    G00 Z50.
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

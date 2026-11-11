@@ -40,7 +40,8 @@ syntax:
     G89 X_ Y_ Z_ R_ P_ F_
   sinumerik: |-
     CYCLE86   ; orientacja i odsunięcie
-    CYCLE87 / CYCLE88   ; zatrzymanie, wyjazd ręczny
+    CYCLE87   ; zatrzymanie, wyjazd ręczny
+    CYCLE88   ; zatrzymanie, wyjazd ręczny
     CYCLE89   ; postój, wyjazd na posuwie
 sinumerik: >-
   Odpowiedniki to **CYCLE86** (orientacja i odsunięcie), **CYCLE87** i
@@ -71,15 +72,20 @@ sources:
       przed orientacją wrzeciona — parametr 5101#7 M5B, rozdz. 7.2.22, s. 236
 example:
   src: |-
-    G21 G90 G17 G54
-    T10 M06 (wytak dokladny)
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T10 M06 (wytaczak dokladny)
+    G00 G43 H10 Z50.
     S900 M03
-    G00 X40 Y30 Z20
-    G98 G76 Z-25 R2 Q0.2 P500 F60
+    G00 X40. Y30.
+    G00 Z20.
+    G98 G76 Z-25. R2. Q0.2 P500 F60
     G80
-    G00 Z100
+    G00 Z100.
+    M05
     M30
-  simulate: false
+  simulate: true
   mode: ''
   dialect: ''
   stock:

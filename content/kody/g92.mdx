@@ -31,7 +31,7 @@ desc: >-
   swojej maszyny.
 syntax:
   fanuc: |-
-    G92 X0 Y0 Z100
+    G92 X0. Y0. Z100.
     G92 S2500 (tokarka, systemy B i C: limit)
   sinumerik: brak (TRANS / LIMS=)
 sinumerik: 'Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.'
@@ -56,14 +56,25 @@ sources:
     loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 76 i 78
 example:
   src: |-
-    G21 G90 G94 G17 G54
-    T01 M06
-    G00 G43 H01 Z50.
+    G21 G90 G94 G17
+    G40 G49 G80
+    G54
+    T1 M06
+    G00 G43 H1 Z50.
     S2000 M03
-    G00 X0 Y0 Z5
-    G01 Z-1 F100
-    G01 X20 F200
-    G00 Z5
+    G00 X0. Y0.
+    G00 Z5.
+    G01 Z-1. F100
+    G01 X20. F200
+    G00 Z5.
+    G00 X50. Y0.
+    G92 X0. Y0. (tu jest teraz X0 Y0)
+    G01 Z-1. F100
+    G01 X20. F200
+    G00 Z5.
+    G00 X0. Y0.
+    G92 X50. Y0. (powrot do ukladu G54)
+    M05
     M30
   simulate: true
   mode: ''
