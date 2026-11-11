@@ -12,6 +12,9 @@ import { flat, type Track } from "@/lib/course";
 import { flatBlocks } from "@/lib/article";
 import { mdxPrograms } from "@/lib/mdx/programs";
 import { PROGRAMS } from "@/content/programy";
+import { simGaps } from "@/lib/simGaps";
+import { programyKart } from "./lib/programy-kart";
+import { profil, textLine } from "./lib/profil-kursu";
 
 type Mode = "mill" | "lathe";
 type Item = { where: string; src: string; mode: Mode; starter?: boolean; dialect?: "fanuc" | "sinumerik" };
@@ -54,5 +57,25 @@ for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) 
   if (!r.passed) { errors++; console.log(`✗ ${l.id} zadanie ${i}: rozwiązanie nie przechodzi — ${r.checks.filter((c) => !c.ok).map((c) => c.label).join("; ")}`); }
 });
 
-console.log(`\n${items.length} programów · błędy: ${errors} · programy z ostrzeżeniami: ${warned} (${warnTotal} ostrzeżeń)`);
+// Profil zapisu w kartach kodów (paczka U, audyt Kody G i M §3.2 i zał. A): nagłówek F1.5/T1.3, G43 przed S M03,
+// dojazd XY osobno od Z, kropka, komentarz w nawiasach, linia z komentarzem ≤ 42 znaki, łącznik zamiast minusa.
+let profile = 0;
+const kart = programyKart();
+for (const p of kart) {
+  const r = profil({ src: p.src, mode: p.mode, dialect: p.dialect, kind: p.full ? "program" : "fragment" });
+  if (r.length) { profile++; console.log(`✗ profil ${p.where}`); r.forEach((x) => console.log("   " + x)); }
+}
+// Przykład bez podglądu, który symulator odtworzyłby w całości i bez ostrzeżeń, powinien mieć podgląd.
+for (const p of kart.filter((x) => x.kind === "example" && !x.simulate && x.full)) {
+  const g = simGaps(p.src, p.mode);
+  const prog = parseProgram(p.src, { diameterX: p.mode === "lathe" });
+  if (g.motion && !g.missing.length && !g.partial.length && !validate(prog, p.dialect).length) { profile++; console.log(`✗ profil ${p.where}: simulate: false, a symulator odtwarza program bez ostrzeżeń — włącz podgląd`); }
+}
+// Kod w notkach rysunków: łącznik, nie minus typograficzny.
+for (const f of ["src/components/figs.tsx", "src/components/figs2.tsx", ...readdirSync("src/components/lesson").filter((x) => /^figs.*\.tsx$/.test(x)).map((x) => `src/components/lesson/${x}`)]) {
+  for (const m of readFileSync(f, "utf8").matchAll(/<Code[^>]*>([^<]*)<\/Code>/g)) if (/\b[A-Z]−\d/.test(m[1]) && !textLine(m[1])) { profile++; console.log(`✗ rysunek ${f}: „${m[1]}” — minus typograficzny w kodzie`); }
+}
+errors += profile;
+
+console.log(`\n${items.length} programów · błędy: ${errors} · programy z ostrzeżeniami: ${warned} (${warnTotal} ostrzeżeń) · profil kart: ${kart.length} bloków, uwagi: ${profile}`);
 process.exit(errors ? 1 : 0);
