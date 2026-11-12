@@ -75,19 +75,19 @@ example:
   stock:
     discriminant: false
 ---
-**G32** na tokarce Fanuc w systemie A — w systemach B i C oraz w Sinumeriku **G33** — wykonuje **jedno przejście gwintu**, prowadząc narzędzie ze skokiem zsynchronizowanym z obrotami wrzeciona. Podział na przejścia i dobór głębokości należą do programisty — w odróżnieniu od cyklu G76, który robi to sam.
+**G32** (tokarka Fanuc w systemie A; w systemach B i C oraz w Sinumeriku **G33**) wykonuje **jedno przejście gwintu**. Narzędzie jedzie ze skokiem zsynchronizowanym z obrotami wrzeciona. Podział na przejścia i głębokości dobiera programista; cykl G76 robi to sam.
 
 ## Na czym polega synchronizacja \{#na-czym-polega-synchronizacja}
 
-Sterownik odczytuje sygnał z enkodera wrzeciona i startuje ruch osi zawsze **w tym samym położeniu kątowym**. Dzięki temu kolejne przejścia trafiają dokładnie w tę samą nitkę. Gdyby start nie był zsynchronizowany, każde przejście nacinałoby gwint w innym miejscu obwodu.
+Sterowanie odczytuje sygnał z enkodera wrzeciona i startuje ruch osi zawsze **w tym samym położeniu kątowym**. Dzięki temu kolejne przejścia trafiają w ten sam zwój. Gdyby start nie był zsynchronizowany, każde przejście nacinałoby gwint w innym miejscu obwodu.
 
 <Note kind="warn">
-  Z tego samego powodu gwintowanie musi odbywać się przy **G97** — stałych obrotach. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój. Sam skok się nie zmienia — jest zadany na obrót.
+  Z tego samego powodu gwint toczy się przy **G97**, czyli stałych obrotach. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój. Skok się nie zmienia, bo jest zadany na obrót.
 </Note>
 
 ## Rozbieg i wybieg \{#rozbieg-i-wybieg}
 
-Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Zasada: **rozbieg ≥ 2 × skok**, przy dużych skokach i obrotach nawet 4 × skok. Bez tego pierwsze zwoje mają zaniżony skok i są zniekształcone. Analogicznie na końcu potrzebny jest wybieg albo rowek podcięcia.
+Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skokowi. Zasada: **rozbieg ≥ 2 × skok**, a przy dużych skokach i obrotach nawet 4 × skok. Bez tego pierwsze zwoje mają zaniżony skok. Na końcu potrzebny jest wybieg albo rowek podcięcia.
 
 ## Składnia \{#składnia}
 
@@ -107,7 +107,7 @@ Osie potrzebują drogi na rozpędzenie się do prędkości odpowiadającej skoko
   ```
 </Code>
 
-<Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 blokami G32. Wejścia na stronę: 0,35 / 0,25 / 0,2 / 0,12 mm — razem 0,92 mm, do średnicy rdzenia 22,16.">
+<Sim mode="lathe" caption="Cztery przejścia gwintu M24×1,5 blokami G32. Wejścia na stronę: 0,35 / 0,25 / 0,2 / 0,12 mm, razem 0,92 mm, do średnicy rdzenia 22,16.">
   ```
   G18 G21 G40 G80 G99
   G54
