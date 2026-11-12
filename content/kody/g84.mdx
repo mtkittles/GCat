@@ -22,7 +22,7 @@ desc: >-
 
   Na wielu sterowaniach Fanuc gwintowanie sztywne (bez uchwytu kompensacyjnego)
   włącza **M29 S_** przed cyklem; to zależy od parametrów maszyny. Opis dotyczy
-  frezarki — na tokarce Fanuc numery cykli gwintowania są inne.
+  frezarki; na tokarce Fanuc numery cykli gwintowania są inne.
 syntax:
   fanuc: |-
     (frezarka, mm: F zależy od trybu posuwu)
@@ -115,7 +115,7 @@ example:
   stock:
     discriminant: false
 ---
-**G84** wykonuje gwint gwintownikiem. Cykl wkręca narzędzie na zadaną głębokość, zatrzymuje wrzeciono, odwraca kierunek obrotów i wykręca gwintownik — wszystko w jednym bloku.
+**G84** wykonuje gwint gwintownikiem. Cykl wkręca narzędzie na zadaną głębokość, zatrzymuje wrzeciono, odwraca kierunek obrotów i wykręca gwintownik. Wszystko to robi jeden blok.
 
 ## Warunek podstawowy: posuw musi wynikać ze skoku \{#warunek-podstawowy-posuw-musi-wynikać-ze-skoku}
 
@@ -134,8 +134,8 @@ Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jedno
 
 ## Gwintowanie sztywne kontra z kompensacją \{#gwintowanie-sztywne-kontra-z-kompensacją}
 
-* **Gwintowanie sztywne** — sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.
-* **Gwintowanie z uchwytem kompensacyjnym** — uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.
+* Gwintowanie sztywne: sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.
+* Gwintowanie z uchwytem kompensacyjnym: uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.
 
 ## Składnia \{#składnia}
 
@@ -171,7 +171,7 @@ Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jedno
 
 ## Cztery różne głębokości \{#cztery-różne-głębokości}
 
-Pełny gwint, nakrój gwintownika, położenie końca narzędzia i głębokość otworu to cztery różne wartości. Nakrój (zbieżna część gwintownika) nie tnie pełnego zarysu, więc koniec narzędzia musi zejść głębiej niż żądany pełny gwint, a otwór — jeszcze głębiej.
+Pełny gwint, nakrój gwintownika, położenie końca narzędzia i głębokość otworu to cztery różne wartości. Nakrój (zbieżna część gwintownika) nie tnie pełnego zarysu, więc koniec narzędzia musi zejść głębiej niż żądany pełny gwint, a otwór jeszcze głębiej.
 
 <Diagram id="g84-depths" />
 
@@ -188,7 +188,7 @@ Pełny gwint, nakrój gwintownika, położenie końca narzędzia i głębokość
 
 ## Otwór wstępny \{#otwór-wstępny}
 
-Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę otworu przyjmuje się w przybliżeniu jako **średnica nominalna minus skok**. Wygniataki (gwintowniki bezwiórowe) potrzebują większego otworu — jego średnica pochodzi z katalogu producenta narzędzia.
+Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę otworu przyjmuje się w przybliżeniu jako **średnica nominalna minus skok**. Wygniataki (gwintowniki bezwiórowe) potrzebują większego otworu. Jego średnica pochodzi z katalogu producenta narzędzia.
 
 | Gwint | Skok \[mm] | Otwór \[mm] |
 | ----- | ---------- | ----------- |
@@ -223,8 +223,8 @@ Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę 
 
 ## Sinumerik \{#sinumerik}
 
-**`CYCLE84`** — gwintowanie sztywne, **`CYCLE840`** — z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
+**`CYCLE84`** to gwintowanie sztywne, **`CYCLE840`** gwintowanie z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
 
 <Note kind="info">
-  Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas; na innych sterowaniach potwierdź w ich dokumentacji.
+  Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas. Na innych sterowaniach potwierdź w ich dokumentacji.
 </Note>

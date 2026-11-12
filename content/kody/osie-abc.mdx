@@ -19,13 +19,13 @@ short: >-
   detal, a wrzeciono stoi pionowo.
 desc: >-
   Osie obrotowe nazywa się od osi liniowej, wokół której obracają: **A** wokół
-  X, **B** wokół Y, **C** wokół Z. Kąt podaje się w stopniach; G90 —
-  bezwzględnie, G91 — przyrostowo.
+  X, **B** wokół Y, **C** wokół Z. Kąt podaje się w stopniach: w G90
+  bezwzględnie, w G91 przyrostowo.
 
 
   **4. oś (indeksowanie):** detal na stole obrotowym A. Obrót o 90° wystawia
   narzędziu kolejną ścianę, a obróbka idzie jak na zwykłej frezarce 3-osiowej.
-  Przed każdym obrotem odjedź w Z — narożniki detalu zataczają okrąg.
+  Przed każdym obrotem odjedź w Z, bo narożniki detalu zataczają okrąg.
 
 
   **5 osi stół–stół:** kołyska A (albo B) pochyla stół, stół C obraca detal. Bez
@@ -33,7 +33,7 @@ desc: >-
   stołu ten sam punkt programu trafia w inne miejsce detalu.
 
 
-  W symulatorze środek obrotu stołu leży w zerze G54 — ustaw zero detalu na osi
+  W symulatorze środek obrotu stołu leży w zerze G54. Ustaw zero detalu na osi
   obrotu.
 syntax:
   fanuc: |-
@@ -56,13 +56,13 @@ params:
     desc: Obrót wokół Z (stół) [°]
 pitfalls:
   - >-
-    Obrót stołu przy narzędziu blisko detalu — narożnik detalu zatoczy okrąg i
+    Obrót stołu przy narzędziu blisko detalu: narożnik detalu zatoczy okrąg i
     trafi w narzędzie. Najpierw odjazd w Z.
   - >-
     Bez TCP po obrocie stołu X Y Z dalej opisują położenie osi maszyny, nie
     punkt na detalu.
   - >-
-    Kierunek dodatni osi obrotowej zależy od maszyny — sprawdź w dokumentacji,
+    Kierunek dodatni osi obrotowej zależy od maszyny. Sprawdź go w dokumentacji,
     zanim napiszesz A-90.
 sources:
   - id: iso841
