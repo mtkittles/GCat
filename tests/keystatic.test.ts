@@ -21,7 +21,7 @@ describe("Keystatic round-trip: otwórz i zapisz bez zmian = zero diffu", () => 
     expect(JSON.parse(readFileSync("node_modules/@keystatic/core/package.json", "utf8")).version).toBe("0.6.9");
   });
 
-  for (const [col, dir, ext, n] of [["kody", "content/kody", ".mdx", 56], ["slownik", "content/slownik", ".yaml", 78]] as const) {
+  for (const [col, dir, ext, n] of [["kody", "content/kody", ".mdx", 55], ["slownik", "content/slownik", ".yaml", 78]] as const) {
     it(`${dir}: ${n} plików`, async () => {
       const { roundtripEntry } = await import("./keystatic-roundtrip");
       const cfg = (await import("../keystatic.config")).default;

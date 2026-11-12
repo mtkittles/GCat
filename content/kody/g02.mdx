@@ -1,7 +1,7 @@
 ---
-code: G02
+code: G02 G03
 slug: g02
-name: Interpolacja kołowa CW
+name: Interpolacja kołowa CW i CCW
 order: 30
 group: Ruch
 level: 2
@@ -11,22 +11,27 @@ machines:
   - toczenie
 star: true
 related: []
-short: Łuk zgodnie z ruchem wskazówek zegara.
+short: Łuk zgodnie (G02) albo przeciwnie (G03) do ruchu wskazówek zegara.
 desc: >-
-  G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara (patrząc od
-  strony dodatniej osi prostopadłej do płaszczyzny). Środek łuku podaje się
-  przyrostowo od punktu startu przez I, J, K albo promieniem R.
+  G02 prowadzi narzędzie po łuku zgodnie z ruchem wskazówek zegara, G03
+  przeciwnie (patrząc od strony dodatniej osi prostopadłej do płaszczyzny).
+  Środek łuku podaje się przyrostowo od punktu startu przez I, J, K albo
+  promieniem R.
 syntax:
   fanuc: |-
     G02 X_ Y_ I_ J_ F_
     G02 X_ Y_ R_ F_
+    G03 X_ Y_ I_ J_ F_
+    G03 X_ Y_ R_ F_
   sinumerik: |-
     G2 X_ Y_ I_ J_ F_
     G2 X_ Y_ CR=_ F_
+    G3 X_ Y_ I_ J_ F_
+    G3 X_ Y_ CR=_ F_
 sinumerik: >-
-  Zapis G2, a promień adresem CR= zamiast R. I/J/K są domyślnie przyrostowe;
-  zapis AC() przełącza je na absolutne. Pełne koło tylko przez I/J, nie przez
-  CR.
+  Zapis G2 i G3, a promień adresem CR= zamiast R. I/J/K są domyślnie
+  przyrostowe; zapis AC() przełącza je na absolutne. Pełne koło tylko przez I/J,
+  nie przez CR.
 params:
   - key: X Y
     desc: Punkt końcowy łuku
@@ -41,14 +46,17 @@ pitfalls:
     (G17/G18/G19). Na tokarce z głowicą przednią łuk widziany z miejsca
     operatora wygląda na przeciwny.
   - I/J liczy się od punktu startu łuku, nie od zera detalu.
+  - >-
+    Przy dodatnim R sterowanie wykonuje krótszy łuk (≤ 180°). Dłuższy łuk wymaga
+    R ujemnego.
 sources:
   - id: fanuc
-    where: G02 — interpolacja kołowa, R oraz I J K
+    where: G02 i G03 — interpolacja kołowa, R oraz I J K
     loc: >-
       rozdz. 3.1, tab. 3.1, s. 71; rozdz. 4, s. 79 (frezarka G17/G18/G19 i
       tokarka)
   - id: sinumerik
-    where: G2, CR= oraz I J K, AC()
+    where: G2 i G3, CR= oraz I J K, AC()
 example:
   src: |-
     G21 G90 G94 G17
@@ -74,11 +82,7 @@ example:
   stock:
     discriminant: false
 ---
-**G02** prowadzi narzędzie po **łuku okręgu** z aktualnego położenia do zadanego punktu, **zgodnie z ruchem wskazówek zegara**, z prędkością zadaną adresem F. Razem z **G03** tworzy interpolację kołową. Nią wykonuje się zaokrąglenia, promienie i otwory frezowane po okręgu.
-
-<Note kind="info">
-  Ta karta opisuje obie funkcje. G02 i G03 działają tak samo i mają tę samą składnię; różni je tylko kierunek obiegu łuku.
-</Note>
+**G02** i **G03** prowadzą narzędzie po **łuku okręgu** z aktualnego położenia do zadanego punktu, z prędkością zadaną adresem F. **G02** obiega łuk **zgodnie z ruchem wskazówek zegara**, **G03** **przeciwnie**. Składnia i adresy są te same, różni je tylko kierunek. To interpolacja kołowa: nią wykonuje się zaokrąglenia, promienie i otwory frezowane po okręgu.
 
 ## Jak sterownik ustala kierunek \{#jak-sterownik-ustala-kierunek}
 
@@ -98,6 +102,7 @@ Kierunek określa się, **patrząc na płaszczyznę roboczą od strony dodatniej
   G02 X_ Y_ I_ J_ F_
   (promień R)
   G02 X_ Y_ R_ F_
+  (G03: te same adresy)
   ```
 </Code>
 
@@ -124,6 +129,8 @@ Kierunek określa się, **patrząc na płaszczyznę roboczą od strony dodatniej
 
 <Diagram id="g02" />
 
+<Diagram id="g03" />
+
 ## Przykład 1 — zapis wektorowy I/J \{#przykład-1-zapis-wektorowy-i-j}
 
 <Demo mode="mill" title="G02 z wektorem I, J" caption="Narzędzie startuje w punkcie (20, 20) i kończy w (50, 50). Wektor I30 J0 wskazuje środek w punkcie (50, 20), więc promień ma 30 mm. Na torze pojawiają się podpisy współrzędnych.">
@@ -138,6 +145,26 @@ Kierunek określa się, **patrząc na płaszczyznę roboczą od strony dodatniej
   G00 Z2.
   G01 Z-2. F120
   G02 X50. Y50. I30. J0. F350
+  G00 Z10.
+  M05
+  M30
+  ```
+</Demo>
+
+Ten sam start i koniec, ale **G03**: łuk biegnie w drugą stronę, więc środek leży po drugiej stronie cięciwy.
+
+<Demo mode="mill" title="G03 z wektorem I, J" caption="Narzędzie startuje w punkcie (20, 20) i kończy w (50, 50). Wektor I0 J30 wskazuje środek w punkcie (20, 50), więc promień ma 30 mm. Na torze pojawiają się podpisy współrzędnych.">
+  ```
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06
+  G00 G43 H1 Z50.
+  S2200 M03
+  G00 X20. Y20.
+  G00 Z2.
+  G01 Z-2. F120
+  G03 X50. Y50. I0. J30. F350
   G00 Z10.
   M05
   M30
