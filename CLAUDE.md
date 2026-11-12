@@ -29,6 +29,7 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
     npm run test           # vitest: parser, walidator, checker
     npm run audit:nauka    # spójność lekcji (odnośniki, testy, rysunki, źródła)
     npm run audit:programy # każdy program z treści przez parser + walidator
+    npm run audit:jezyk    # miary języka: zdania > 25 słów, pauzy i ozdobniki na 1000 słów (--karty)
     npm run test:calc      # kalkulatory
 
 ## Zasady
