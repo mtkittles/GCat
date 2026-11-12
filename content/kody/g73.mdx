@@ -17,14 +17,14 @@ short: >-
   Cykl wiercenia krokami Q. Po każdym kroku wiertło cofa się tylko o małą
   wartość d, żeby złamać wiór.
 desc: >-
-  Wiertło schodzi krokami **Q**, a po każdym cofa się o **d** — parametr
-  sterowania, zwykle 0,1–1 mm. Wiór się łamie, ale narzędzie nie wychodzi z
+  Wiertło schodzi krokami **Q**, a po każdym cofa się o **d** (parametr
+  sterowania, zwykle 0,1–1 mm). Wiór się łamie, ale narzędzie nie wychodzi z
   otworu.
 
 
   To szybsze niż **G83**, gdzie wiertło po każdym kroku wraca do płaszczyzny R i
   wyrzuca wiór. G73 sprawdza się w materiałach dających długi wiór i w otworach
-  do ok. 3–4 średnic; głębsze zwykle wierci się G83 — granicę podaje producent
+  do ok. 3–4 średnic; głębsze zwykle wierci się G83. Granicę podaje producent
   wiertła.
 
 
@@ -49,7 +49,7 @@ params:
     desc: posuw [mm/min]
 pitfalls:
   - >-
-    Q to wartość bez znaku. Q−4 da alarm albo zostanie odczytane inaczej —
+    Q to wartość bez znaku. Q−4 da alarm albo zostanie odczytane inaczej,
     zależnie od sterowania.
   - >-
     W głębokim otworze G73 nie wyrzuca wióra i wiertło może się zakleszczyć.

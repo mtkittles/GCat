@@ -22,9 +22,9 @@ short: >-
 desc: >-
   **Frezarka.** Wysokość, na której stało narzędzie przed wejściem w cykl, to
   **poziom początkowy**. **R** to płaszczyzna, od której zaczyna się posuw
-  roboczy. Z **G99** narzędzie przejeżdża między otworami na wysokości R —
-  szybciej. Z **G98** podnosi się do poziomu początkowego — bezpieczniej, gdy
-  między otworami stoi zacisk albo wyższy fragment detalu.
+  roboczy. Z **G99** narzędzie przejeżdża między otworami na wysokości R, co
+  skraca czas. Z **G98** podnosi się do poziomu początkowego. To
+  bezpieczniejsze, gdy między otworami stoi zacisk albo wyższy fragment detalu.
 
 
   **Tokarka (system A).** Te same kody wybierają jednostkę posuwu: **G99**
@@ -38,8 +38,8 @@ syntax:
     CYCLE81(RTP, RFP, SDIS, DP)
     G94 / G95   ; jednostka posuwu
 sinumerik: >-
-  Cykle Sinumerik nie mają G98/G99 — płaszczyznę powrotu podaje parametr
-  **RTP**. Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.
+  Cykle Sinumerik nie mają G98/G99: płaszczyznę powrotu podaje parametr **RTP**.
+  Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.
 params:
   - key: G98
     desc: powrót do poziomu początkowego

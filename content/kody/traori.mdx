@@ -28,7 +28,7 @@ desc: >-
 
 
   Sinumerik pozwala też podać orientację wektorem (A3= B3= C3=) albo kątami
-  Eulera — symulator obsługuje kąty osi (A, B, C).
+  Eulera. Symulator obsługuje kąty osi (A, B, C).
 syntax:
   fanuc: |-
     G43.4 H_
@@ -42,9 +42,9 @@ sinumerik: 'To jest składnia Sinumerika. W Fanucu: G43.4 H_ (włącz), G49 (wy�
 params: []
 pitfalls:
   - >-
-    TRAORI wymaga skonfigurowanej kinematyki maszyny (dane transformacji) —
-    inaczej alarm.
-  - Zapomniane TRAFOOF — kolejne programy dalej liczą wierzchołek narzędzia.
+    TRAORI wymaga skonfigurowanej kinematyki maszyny (dane transformacji). Bez
+    niej sterowanie zgłosi alarm.
+  - 'Zapomniane TRAFOOF: kolejne programy dalej liczą wierzchołek narzędzia.'
 sources: []
 example:
   src: |-
