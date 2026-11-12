@@ -58,14 +58,14 @@ example:
   stock:
     discriminant: false
 ---
-**M03** uruchamia wrzeciono w prawo, **M04** w lewo, **M05** je zatrzymuje. Prędkość obrotowa wynika z adresu **S** — obowiązującego modalnie, więc raz podana obowiązuje aż do zmiany.
+**M03** uruchamia wrzeciono w prawo, **M04** w lewo, **M05** je zatrzymuje. Prędkość obrotową podaje adres **S**. Jest modalny: raz podana wartość obowiązuje aż do zmiany.
 
 ## Który kierunek \{#który-kierunek}
 
-Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M03 to obrót zgodny z ruchem wskazówek zegara — kierunek właściwy dla narzędzi prawotnących na frezarce: frezów, wierteł i gwintowników prawych. Na tokarce kierunek zależy od położenia głowicy i od tego, czy nóż jest prawy, czy lewy — wynika z dokumentacji maszyny i oprawki.
+Kierunek określa się, **patrząc od strony wrzeciona w stronę narzędzia**. M03 to obrót zgodny z ruchem wskazówek zegara, właściwy dla narzędzi prawotnących na frezarce: frezów, wierteł i gwintowników prawych. Na tokarce kierunek zależy od położenia głowicy i od tego, czy nóż jest prawy, czy lewy. Podaje go dokumentacja maszyny i oprawki.
 
-* **M04 na frezarce** — gwintowniki lewe, frezy lewotnące, wykręcanie gwintownika w cyklu G84.
-* **M04 na tokarce** — noże lewe, obróbka od strony wrzeciona, narzędzia napędzane w konfiguracji odwrotnej.
+* M04 na frezarce: gwintowniki lewe, frezy lewotnące, wykręcanie gwintownika w cyklu G84.
+* M04 na tokarce: noże lewe, obróbka od strony wrzeciona, narzędzia napędzane w konfiguracji odwrotnej.
 
 <Note kind="warn">
   Zły kierunek obrotów oznacza, że ostrze pracuje powierzchnią przyłożenia zamiast natarcia. Narzędzie nie skrawa, tylko trze grzbietem: grzeje się, szybko tępi i może się wykruszyć albo pęknąć (lekcja F2.2).
@@ -73,7 +73,7 @@ Kierunek określa się **patrząc od strony wrzeciona w stronę narzędzia**. M0
 
 ## Kolejność w bloku \{#kolejność-w-bloku}
 
-Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obroty były zadane **przed** pierwszym ruchem roboczym. Wiele sterowników czeka na osiągnięcie zadanych obrotów przed wykonaniem następnego bloku, ale nie wszystkie — przy dużych wrzecionach warto dodać krótki postój `G04 P500`.
+Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obroty były zadane **przed** pierwszym ruchem roboczym. Czy sterowanie czeka na zadane obroty przed następnym blokiem, zależy od maszyny. Jeśli nie czeka, przy dużych wrzecionach dodaj krótki postój `G04 P500`.
 
 <Sim mode="mill" caption="Kolejność jak w profilu kursu (lekcja F1.5): narzędzie, korekcja długości, obroty, dojazd, chłodziwo, obróbka, odjazd, wyłączenie.">
   ```
@@ -97,5 +97,5 @@ Adres S może stać w tym samym bloku co M03 albo wcześniej. Ważne, żeby obro
 </Sim>
 
 <Note kind="info">
-  **Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów** — na części sterowań Fanuc dozwolona jest jedna. W kursie `S2400 M03` i `M08` stoją w osobnych blokach; taki zapis działa niezależnie od ustawienia.
+  **Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów.** Na części sterowań Fanuc dozwolona jest jedna. W kursie `S2400 M03` i `M08` stoją w osobnych blokach; taki zapis działa niezależnie od ustawienia.
 </Note>
