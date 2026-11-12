@@ -84,9 +84,9 @@ example:
 
 ## G04 a inne zatrzymania \{#g04-a-inne-zatrzymania}
 
-W programie jest kilka funkcji, które „zatrzymują” maszynę. Różnią się tym, co dokładnie stoi i kto decyduje o wznowieniu.
+W programie jest kilka funkcji, które „zatrzymują” maszynę. Różnią się tym, co stoi i kto decyduje o wznowieniu.
 
-<Table caption="G04 jako jedyna daje dokładnie odmierzoną przerwę bez udziału operatora.">
+<Table caption="G04 jako jedyna daje odmierzoną przerwę bez udziału operatora.">
   | Funkcja     | Co się zatrzymuje                           | Wrzeciono    | Kiedy program rusza dalej      |
   | ----------- | ------------------------------------------- | ------------ | ------------------------------ |
   | **G04**     | ruch osi                                    | pracuje      | sam, po zadanym czasie         |
@@ -100,15 +100,13 @@ W programie jest kilka funkcji, które „zatrzymują” maszynę. Różnią si�
 
 Tu łatwo o błąd. Ta sama liczba znaczy co innego zależnie od **litery** i od tego, czy stoi przy niej **kropka dziesiętna**.
 
-| Zapis                            | Sterowanie                 | Ile trwa postój                 |
-| -------------------------------- | -------------------------- | ------------------------------- |
-| `G04 X1.5`                       | Fanuc — frezarka i tokarka | 1,5 s. Kropka dozwolona         |
-| `G04 U1.5`                       | Fanuc — tokarka            | 1,5 s. Kropka dozwolona         |
-| `G04 P1500`                      | Fanuc                      | 1500 ms = 1,5 s. **Bez kropki** |
-| `G4 F1.5`                        | Sinumerik                  | 1,5 s                           |
-| `G4 S3`                          | Sinumerik                  | 3 obroty wrzeciona              |
-| `G4 P1.5`                        | LinuxCNC, Tormach          | 1,5 s — P w sekundach           |
-| `CYCL DEF 9.0` / `9.1 DWELL 1.5` | Heidenhain                 | 1,5 s                           |
+| Zapis       | Sterowanie                 | Ile trwa postój                 |
+| ----------- | -------------------------- | ------------------------------- |
+| `G04 X1.5`  | Fanuc — frezarka i tokarka | 1,5 s. Kropka dozwolona         |
+| `G04 U1.5`  | Fanuc — tokarka            | 1,5 s. Kropka dozwolona         |
+| `G04 P1500` | Fanuc                      | 1500 ms = 1,5 s. **Bez kropki** |
+| `G4 F1.5`   | Sinumerik                  | 1,5 s                           |
+| `G4 S3`     | Sinumerik                  | 3 obroty wrzeciona              |
 
 <Note kind="warn">
   **`G04 P1` na Fanucu to jedna milisekunda**, a nie sekunda. Taki postój jest pomijalnie krótki. Z drugiej strony `G04 X1` bez kropki zostanie odczytane w najmniejszych jednostkach, czyli zwykle jako **0,001 s**. Bezpieczne zapisy to `P1000` albo `X1.0`.
@@ -200,16 +198,16 @@ Na starszych maszynach postój wstawiano też przed ostrym narożem, żeby osie 
   ```
 </Sim>
 
-## Różnice między sterownikami \{#różnice-między-sterownikami}
+## Fanuc i Sinumerik \{#różnice-między-sterownikami}
 
-| Zagadnienie      | Fanuc                             | Sinumerik                                         | Heidenhain           |
-| ---------------- | --------------------------------- | ------------------------------------------------- | -------------------- |
-| Zapis            | `G04 X_`, `U_` lub `P_`           | `G4 F_` lub `G4 S_`                               | cykl 9 CZAS PRZERWY  |
-| Czas w sekundach | X, U (z kropką)                   | F                                                 | DWELL                |
-| Milisekundy      | P, bez kropki                     | —                                                 | —                    |
-| Obroty wrzeciona | X/U przy G95/G99 i parametrze DWL | S                                                 | —                    |
-| Osobny blok      | zalecany                          | wymagany                                          | cykl w osobnym bloku |
-| Wpływ na F i S   | —                                 | F i S w bloku G4 nie zmieniają posuwu ani obrotów | —                    |
+| Zagadnienie      | Fanuc                             | Sinumerik                                         |
+| ---------------- | --------------------------------- | ------------------------------------------------- |
+| Zapis            | `G04 X_`, `U_` lub `P_`           | `G4 F_` lub `G4 S_`                               |
+| Czas w sekundach | X, U (z kropką)                   | F                                                 |
+| Milisekundy      | P, bez kropki                     | —                                                 |
+| Obroty wrzeciona | X/U przy G95/G99 i parametrze DWL | S                                                 |
+| Osobny blok      | zalecany                          | wymagany                                          |
+| Wpływ na F i S   | —                                 | F i S w bloku G4 nie zmieniają posuwu ani obrotów |
 
 ## Typowe błędy \{#typowe-błędy}
 

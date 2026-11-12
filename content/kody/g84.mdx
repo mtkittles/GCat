@@ -1,7 +1,7 @@
 ---
 code: G84
 slug: g84
-name: Cykl gwintowania
+name: Gwintowanie gwintownikiem
 order: 330
 group: Cykle
 level: 3
@@ -59,17 +59,15 @@ params:
     desc: 'Na frezarce: powrót do poziomu początkowego / do R — nie jednostka posuwu'
 pitfalls:
   - >-
-    Posuw niezgodny ze skokiem (przyczyna) → gwintownik pęka albo zrywa zwoje
-    (skutek) → w G94 F = S × skok, w G95 F = skok, a tryb posuwu ustaw jawnie
-    przed cyklem (poprawka).
+    Posuw niezgodny ze skokiem: gwintownik pęka albo zrywa zwoje. W G94 F = S ×
+    skok, w G95 F = skok, a tryb posuwu ustaw jawnie przed cyklem.
   - >-
-    Z wzięte z długości gwintu (przyczyna) → za krótki pełny gwint, bo nakrój
-    nie tnie pełnego zarysu (skutek) → Z = −(pełny gwint + nakrój), otwór
-    jeszcze głębiej (poprawka).
+    Z wzięte z długości gwintu: pełny gwint wychodzi za krótki, bo nakrój nie
+    tnie pełnego zarysu. Z = −(pełny gwint + nakrój), a otwór jeszcze głębiej.
   - >-
-    Otwór „D − skok” pod wygniatak (przyczyna) → za mały otwór, wygniatak się
-    zatrze (skutek) → reguła D − P dotyczy gwintowników skrawających; dla
-    wygniataków średnica z katalogu (poprawka).
+    Otwór „D − skok” pod wygniatak: otwór jest za mały i wygniatak się zatrze.
+    Reguła D − P dotyczy gwintowników skrawających; dla wygniataków średnicę
+    bierze się z katalogu.
 sources:
   - id: haas-workbook
     where: cykl G84 — rysunek, kod i płaszczyzny cyklu (Haas)
@@ -119,7 +117,7 @@ example:
 
 ## Warunek podstawowy: posuw musi wynikać ze skoku \{#warunek-podstawowy-posuw-musi-wynikać-ze-skoku}
 
-Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jednostkę F wyznacza aktywny tryb posuwu, dlatego w niezależnym przykładzie trzeba go ustawić jawnie:
+Gwintownik musi przesuwać się o skok gwintu na każdy obrót. Jednostkę F wyznacza aktywny tryb posuwu, dlatego w niezależnym przykładzie trzeba go ustawić jawnie:
 
 <Table caption="Na frezarce G98/G99 wybierają poziom powrotu w cyklu — nie jednostkę posuwu (to znaczenie mają na tokarkach Fanuc w systemie A).">
   | Tryb (frezarka, mm) | F             | M10×1,5 przy 400 obr/min |
@@ -221,7 +219,7 @@ Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę 
   ```
 </Sim>
 
-## Sinumerik \{#sinumerik}
+## Fanuc i Sinumerik \{#sinumerik}
 
 **`CYCLE84`** to gwintowanie sztywne, **`CYCLE840`** gwintowanie z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
 

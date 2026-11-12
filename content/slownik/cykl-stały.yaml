@@ -5,9 +5,9 @@ aliases:
   - cykl
   - canned cycle
 def: >-
-  Wbudowana w sterownik sekwencja ruchów, wywoływana jednym blokiem i powtarzana
-  w kolejnych punktach. Cykle wiertarskie (G81–G89) i tokarskie (G70–G76)
-  zastępują kilkanaście bloków jednym.
+  Wbudowana w sterowanie sekwencja ruchów, wywoływana jednym blokiem i
+  powtarzana w kolejnych punktach. Cykle wiertarskie (G81–G89) i tokarskie
+  (G70–G76) zastępują kilkanaście bloków jednym.
 see:
   - g81-g83
   - g71-g70

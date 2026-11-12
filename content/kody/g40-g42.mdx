@@ -1,7 +1,7 @@
 ---
 code: G40 G41 G42
 slug: g40-g42
-name: Kompensacja promienia narzędzia
+name: Korekcja promienia narzędzia
 order: 170
 group: Korekcje
 level: 3
@@ -15,7 +15,7 @@ short: >-
   Przesunięcie toru o promień freza: G41 w lewo od konturu, G42 w prawo, G40
   wyłącza.
 desc: >-
-  Programujesz kontur detalu, a sterownik sam odsuwa tor o promień narzędzia z
+  Programujesz kontur detalu, a sterowanie samo odsuwa tor o promień narzędzia z
   rejestru D. Stojąc za narzędziem i patrząc w kierunku ruchu: G41 = narzędzie
   po lewej stronie konturu (frezowanie współbieżne przy prawych obrotach), G42 =
   po prawej. Włącza się w bloku dojazdowym (G01), nie w łuku.
@@ -35,7 +35,7 @@ params:
   - key: D
     desc: Numer rejestru korekcji promienia
 pitfalls:
-  - Włączenie kompensacji w bloku G02/G03 → alarm.
+  - Włączenie korekcji w bloku G02/G03 → alarm.
   - Blok dojazdowy krótszy niż promień → alarm „przecięcie”.
   - Wewnętrzny łuk mniejszy niż promień freza → podcięcie lub alarm.
 sources:
@@ -72,17 +72,17 @@ example:
   stock:
     discriminant: false
 ---
-**Korekcja promienia** pozwala programować **kontur z rysunku**, a nie tor środka narzędzia. Sterownik sam odsuwa narzędzie o promień zapisany w rejestrze **D**. Ten sam program pasuje wtedy do freza ⌀10 i ⌀12, a wymiar detalu koryguje się w rejestrze, bez zmiany programu.
+**Korekcja promienia** pozwala programować **kontur z rysunku**, a nie tor środka narzędzia. Sterowanie samo odsuwa narzędzie o promień zapisany w rejestrze **D**. Ten sam program pasuje wtedy do freza ⌀10 i ⌀12, a wymiar detalu koryguje się w rejestrze, bez zmiany programu.
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Z aktywnym G41 albo G42 sterownik czyta program **o dwa–trzy bloki do przodu**. Dla każdego elementu konturu liczy tor przesunięty w bok o promień, a w narożach szuka punktu, w którym przesunięte tory się spotykają. Dlatego korekcja musi „widzieć” następny ruch. Blok bez ruchu w płaszczyźnie (np. sam ruch w Z) w środku konturu może zaburzyć naroże.
+Z aktywnym G41 albo G42 sterowanie czyta program **o dwa–trzy bloki do przodu**. Dla każdego elementu konturu liczy tor przesunięty w bok o promień, a w narożach szuka punktu, w którym przesunięte tory się spotykają. Dlatego korekcja musi „widzieć” następny ruch. Blok bez ruchu w płaszczyźnie (np. sam ruch w Z) w środku konturu może zaburzyć naroże.
 
 <Diagram id="f42-comp" />
 
 * Odcinek: tor równoległy, odsunięty o promień.
 * Łuk: łuk współśrodkowy o promieniu większym albo mniejszym o promień narzędzia, zależnie od tego, czy frez jest na zewnątrz, czy wewnątrz łuku.
-* Naroże zewnętrzne: sterownik domyka tor łukiem albo przedłuża odcinki do przecięcia (zależnie od parametru; Sinumerik: `G450` / `G451`).
+* Naroże zewnętrzne: sterowanie domyka tor łukiem albo przedłuża odcinki do przecięcia (zależnie od parametru; Sinumerik: `G450` / `G451`).
 * Naroże wewnętrzne: tor kończy się w przecięciu odsuniętych elementów, frez nie wchodzi w ściankę.
 
 ## Po której stronie konturu \{#po-której-stronie-konturu}
@@ -101,7 +101,7 @@ Reguła jest jedna: **stań za narzędziem i patrz w kierunku ruchu**. Narzędzi
 
 ## Rejestr D: geometria i zużycie \{#rejestr-d-geometria-i-zużycie}
 
-W tabeli korekcji każdy numer D ma dwie wartości: **geometrię** (promień freza, np. 5,000 dla ⌀10) i **zużycie** (drobna poprawka). Sterownik sumuje obie. Na Fanucu rejestr przechowuje zwykle promień; część maszyn jest ustawiona na średnicę. Trzeba to sprawdzić przed pierwszym uruchomieniem.
+W tabeli korekcji każdy numer D ma dwie wartości: **geometrię** (promień freza, np. 5,000 dla ⌀10) i **zużycie** (drobna poprawka). Sterowanie sumuje obie. Na Fanucu rejestr przechowuje zwykle promień; część maszyn jest ustawiona na średnicę. Trzeba to sprawdzić przed pierwszym uruchomieniem.
 
 <Code caption="Korekcja działa po obu stronach detalu naraz, więc zmiana D o x zmienia wymiar zewnętrzny o 2x.">
   ```
@@ -119,9 +119,9 @@ W tabeli korekcji każdy numer D ma dwie wartości: **geometrię** (promień fre
 
 ## Włączenie i wyłączenie \{#włączenie-i-wyłączenie}
 
-Korekcji nie da się włączyć w miejscu. Sterownik potrzebuje **ruchu prostoliniowego**, w trakcie którego przesunie narzędzie z punktu nieskompensowanego na tor odsunięty o promień.
+Korekcji nie da się włączyć w miejscu. Sterowanie potrzebuje **ruchu prostoliniowego**, w trakcie którego przesunie narzędzie z punktu nieskompensowanego na tor odsunięty o promień.
 
-* blok włączający to **G00 albo G01**; blok z łukiem przy włączaniu kończy się na większości sterowań alarmem,
+* blok włączający to **G00 albo G01**; blok z łukiem przy włączaniu kończy się na wielu sterowaniach alarmem,
 * jego długość musi być **większa niż promień** narzędzia, najlepiej co najmniej 1,5 raza,
 * ruch prowadzi **z zewnątrz materiału** do początku konturu,
 * wyłączenie `G40` też wymaga ruchu: odjazdu od detalu.
@@ -185,10 +185,10 @@ Dojazd prostopadły zostawia na ściance ślad w miejscu wejścia. Lepiej włąc
 
 ## Ograniczenia geometrii \{#ograniczenia-geometrii}
 
-* Naroże wewnętrzne o promieniu mniejszym niż promień freza: niewykonalne. Frez ⌀12 nie zrobi naroża R4; sterownik zgłosi alarm albo zostawi materiał.
+* Naroże wewnętrzne o promieniu mniejszym niż promień freza: niewykonalne. Frez ⌀12 nie zrobi naroża R4; sterowanie zgłosi alarm albo zostawi materiał.
 * Rowek węższy niż średnica freza: tor po jednej ścianie przecina tor po drugiej, alarm przecięcia.
-* Bardzo krótki element konturu przy zmianie kierunku: możliwe podcięcie; sterownik ostrzega, gdy wykryje przecięcie w buforze.
-* Zmiana G41 na G42 bez G40: zachowanie zależy od sterownika, lepiej wyłączyć i włączyć od nowa.
+* Bardzo krótki element konturu przy zmianie kierunku: możliwe podcięcie; sterowanie ostrzega, gdy wykryje przecięcie w buforze.
+* Zmiana G41 na G42 bez G40: zachowanie zależy od sterowania, lepiej wyłączyć i włączyć od nowa.
 
 ## Na tokarce \{#na-tokarce}
 
@@ -221,14 +221,14 @@ Na tokarce promieniem korekcji jest **promień naroża płytki rε**. Nóż mier
   ```
 </Demo>
 
-## Dobre praktyki \{#dobre-praktyki}
+## Wskazówki \{#dobre-praktyki}
 
 * **Numer D = numer narzędzia** (T1 → D1). Pomyłkę widać wtedy od razu.
 * **G40 w bloku bezpiecznego startu** i przed każdą wymianą narzędzia.
 * **Kontur wykańczający z korekcją, zgrubny bez niej**, z naddatkiem: przy obróbce zgrubnej liczy się materiał, nie wymiar.
 * Wymiar koryguj w zużyciu, nie w geometrii: geometria to zmierzony promień, zużycie to poprawka.
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 | Zagadnienie       | Fanuc                                | Sinumerik                                                           |
 | ----------------- | ------------------------------------ | ------------------------------------------------------------------- |

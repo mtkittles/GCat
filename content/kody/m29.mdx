@@ -19,8 +19,8 @@ short: >-
   takt posuwu, więc gwintownik nie potrzebuje oprawki kompensacyjnej.
 desc: >-
   Przy gwintowaniu sztywnym sterowanie synchronizuje obrót wrzeciona z ruchem
-  osi Z: na każdy obrót oś przesuwa się dokładnie o skok. Gwintownik mocuje się
-  w sztywnej oprawce, a cykl może pracować szybciej i dokładniej niż z oprawką
+  osi Z: na każdy obrót oś przesuwa się o skok. Gwintownik mocuje się w sztywnej
+  oprawce, a cykl może pracować szybciej i dokładniej niż z oprawką
   kompensacyjną.
 
 
@@ -44,8 +44,8 @@ pitfalls:
     Posuw przy G94 musi być równy S · skok (tu 500 · 1 = 500), przy G95 —
     skokowi. Inaczej gwintownik pęknie albo zerwie gwint.
   - >-
-    M29 stoi w bloku przed cyklem; wpisane za G84 nie zadziała na większości
-    sterowań.
+    M29 stoi w bloku przed cyklem; wpisane za G84 nie zadziała na wielu
+    sterowaniach.
 sources:
   - id: haas
     where: G84 na maszynie Haas — gwintowanie sztywne bez M29

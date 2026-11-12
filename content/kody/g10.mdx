@@ -19,9 +19,9 @@ short: >-
   Zapisuje z programu wartości do tabel sterowania: przesunięcia baz G54–G59 i
   korekcje narzędzi.
 desc: >-
-  **G10 L2 P1** wpisuje przesunięcie bazy G54 (P1 = G54 … P6 = G59). Na frezarce
-  **G10 L10** i **L11** zapisują długość narzędzia (geometria i zużycie), a
-  **L12** i **L13** promień.
+  **G10 L2 P1** wpisuje przesunięcie układu G54 (P1 = G54 … P6 = G59). Na
+  frezarce **G10 L10** i **L11** zapisują długość narzędzia (geometria i
+  zużycie), a **L12** i **L13** promień.
 
 
   Z **G90** wartość jest nadpisywana, z **G91** dodawana do obecnej. Na tokarce
@@ -30,7 +30,7 @@ desc: >-
 
 
   Przydaje się przy kilku detalach na jednej płycie i w programach pomiarowych,
-  które same korygują bazę.
+  które same korygują przesunięcie zera.
 syntax:
   fanuc: |-
     G10 L2 P_ X_ Y_ Z_
@@ -40,16 +40,16 @@ syntax:
     $P_UIFR[1]=CTRANS(X,_,Y,_,Z,_)
     $TC_DP3[1,1]=_
 sinumerik: >-
-  Sinumerik nie ma G10. Bazy zapisuje się przez **$P_UIFR[n]**, dane narzędzia
-  przez **$TC_DP…**. Po zmianie bazy, która jest aktywna, trzeba ją wywołać
-  ponownie (np. G54).
+  Sinumerik nie ma G10. Przesunięcia zera zapisuje się przez **$P_UIFR[n]**,
+  dane narzędzia przez **$TC_DP…**. Po zmianie aktywnego przesunięcia trzeba je
+  wywołać ponownie (np. G54).
 params:
   - key: L2
-    desc: przesunięcie bazy
+    desc: przesunięcie zera detalu
   - key: P
-    desc: numer bazy (1 = G54 … 6 = G59) albo numer korektora
+    desc: numer układu (1 = G54 … 6 = G59) albo numer korektora
   - key: X Y Z
-    desc: wartości przesunięcia bazy
+    desc: wartości przesunięcia
   - key: R
     desc: wartość korekcji (w L10–L13)
   - key: L10 / L11
@@ -60,7 +60,7 @@ pitfalls:
   - >-
     Pomyłka G90/G91 przy G10: zamiast dodać −0,02 do zużycia nadpiszesz je
     wartością −0,02.
-  - P w G10 L2 to numer bazy, nie numer narzędzia.
+  - P w G10 L2 to numer układu, nie numer narzędzia.
 sources:
   - id: fanuc
     where: >-

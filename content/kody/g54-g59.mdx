@@ -13,7 +13,7 @@ star: true
 related: []
 short: Wybór przesunięcia zera detalu (6 układów).
 desc: >-
-  Sterownik pamięta odległość między zerem maszyny a zerem detalu w rejestrach
+  Sterowanie pamięta odległość między zerem maszyny a zerem detalu w rejestrach
   G54–G59. W programie wybierasz, którego użyć. Kilka zamocowań na stole = kilka
   układów.
 syntax:
@@ -62,11 +62,11 @@ example:
   stock:
     discriminant: false
 ---
-**G54–G59** wybierają jeden z sześciu **układów współrzędnych detalu**. W każdym rejestrze sterownik trzyma przesunięcie od zera maszyny do zera detalu. Program pisze się względem detalu, a to, gdzie detal leży na stole, załatwia rejestr.
+**G54–G59** wybierają jeden z sześciu **układów współrzędnych detalu**. W każdym rejestrze sterowanie trzyma przesunięcie od zera maszyny do zera detalu. Program pisze się względem detalu, a to, gdzie detal leży na stole, załatwia rejestr.
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i współrzędnej z programu. Zmiana `G54` na `G55` nie zmienia ani jednego bloku programu. Zmienia tylko to, do którego przesunięcia sterownik go dolicza.
+Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i współrzędnej z programu. Zmiana `G54` na `G55` nie zmienia ani jednego bloku programu. Zmienia tylko to, do którego przesunięcia sterowanie go dolicza.
 
 <Diagram id="f02-points" />
 
@@ -99,7 +99,7 @@ Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sond�
   ```
 </Code>
 
-Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z, dotykiem noża na splanowanym czole.
+Na tokarce X0 leży na osi obrotu, więc ustala się tylko Z, dotykiem noża na splanowanym czole.
 
 <Diagram id="t03-zero" />
 
@@ -160,7 +160,7 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z, dotykiem no�
 | `G92`       | przypisanie bieżącej pozycji zadanych współrzędnych — metoda sprzed G54 |
 | `G10 L2 P_` | wpis przesunięcia do rejestru z programu                                |
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 | Zagadnienie            | Fanuc       | Sinumerik                                                                      |
 | ---------------------- | ----------- | ------------------------------------------------------------------------------ |

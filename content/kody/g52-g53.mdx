@@ -36,7 +36,7 @@ params:
     desc: Przesunięcie (G52) lub pozycja maszynowa (G53)
 pitfalls:
   - G53 tylko z G90 i tylko w jednym bloku.
-  - G52 nie kasuje się samo po M30 na części sterowników.
+  - G52 nie kasuje się samo po M30 na części sterowań.
 sources:
   - id: fanuc
     where: G52 — lokalny układ współrzędnych; G53 — ruch w układzie maszynowym
@@ -93,7 +93,7 @@ Przydaje się, gdy detal ma kilka identycznych elementów rozmieszczonych w znan
 </Code>
 
 <Note kind="warn">
-  G52 **nie kasuje się samo** po zakończeniu programu na części sterowników. Zapomniane `G52 X60` zostaje aktywne i przesuwa obróbkę następnego detalu. Dlatego kończ program blokiem `G52 X0 Y0 Z0`.
+  G52 **nie kasuje się samo** po zakończeniu programu na części sterowań. Zapomniane `G52 X60` zostaje aktywne i przesuwa obróbkę następnego detalu. Dlatego kończ program blokiem `G52 X0 Y0 Z0`.
 </Note>
 
 ## G53: współrzędne maszynowe \{#g53-współrzędne-maszynowe}
@@ -111,7 +111,7 @@ G53 obowiązuje **wyłącznie w bloku, w którym stoi**. Współrzędne odnoszą
   ```
 </Code>
 
-## Sinumerik \{#sinumerik}
+## Fanuc i Sinumerik \{#sinumerik}
 
 | Funkcja               | Fanuc       | Sinumerik                                                                    |
 | --------------------- | ----------- | ---------------------------------------------------------------------------- |

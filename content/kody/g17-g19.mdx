@@ -11,9 +11,9 @@ machines:
   - toczenie
 star: true
 related: []
-short: 'Płaszczyzna dla łuków i kompensacji: XY (G17), ZX (G18), YZ (G19).'
+short: 'Płaszczyzna dla łuków i korekcji promienia: XY (G17), ZX (G18), YZ (G19).'
 desc: >-
-  Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, kompensacja
+  Decyduje, w jakiej płaszczyźnie interpretowane są G02/G03, korekcja promienia
   promienia G41/G42 i cykle. Frezarka: domyślnie G17. Tokarka: domyślnie G18.
 syntax:
   fanuc: G17 | G18 | G19
@@ -61,9 +61,9 @@ example:
 | `G18` | ZX          | I, K        | Y                     | tokarka         |
 | `G19` | YZ          | J, K        | X                     | —               |
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Płaszczyzna to modalny wybór, który sterownik stosuje do każdego łuku i do korekcji. Kierunek G02 (zgodnie z zegarem) ocenia się, **patrząc z dodatniej strony osi prostopadłej do płaszczyzny**: w G17 z góry (+Z), w G18 od strony +Y, w G19 od strony +X.
+Płaszczyzna to modalny wybór, który sterowanie stosuje do każdego łuku i do korekcji. Kierunek G02 (zgodnie z zegarem) ocenia się, **patrząc z dodatniej strony osi prostopadłej do płaszczyzny**: w G17 z góry (+Z), w G18 od strony +Y, w G19 od strony +X.
 
 <Note kind="info">
   Dlatego na tokarce kierunek łuku odczytuje się z rysunku z osią X w górę i Z w prawo, a nie z tego, co widać przez szybę. Przy głowicy przedniej łuk G02 wygląda z miejsca operatora na przeciwny, choć program jest ten sam.
@@ -114,7 +114,7 @@ Płaszczyzna to modalny wybór, który sterownik stosuje do każdego łuku i do 
   ```
 </Sim>
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 Kody są takie same na obu sterowaniach. Różnice dotyczą zapisu łuku: Sinumerik przyjmuje promień jako `CR=`, a pełne zwoje spirali jako `TURN=`.
 

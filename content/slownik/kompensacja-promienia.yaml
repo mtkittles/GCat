@@ -1,13 +1,13 @@
-term: Kompensacja promienia
+term: Korekcja promienia
 anchor: kompensacja-promienia
 order: 280
 aliases:
-  - korekcja promienia
+  - kompensacja promienia
   - G41
   - G42
 def: >-
   Funkcja pozwalająca programować kontur gotowego detalu zamiast toru środka
-  narzędzia. Sterownik sam odsuwa tor o promień z rejestru korekcji. Umożliwia
+  narzędzia. Sterowanie samo odsuwa tor o promień z rejestru korekcji. Umożliwia
   też korektę wymiaru bez zmiany programu.
 see:
   - g40-g42

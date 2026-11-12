@@ -69,7 +69,7 @@ example:
   stock:
     discriminant: false
 ---
-**G90** i **G91** mówią sterownikowi, jak czytać liczby przy osiach. W **G90 (absolutnie)** współrzędna to punkt względem zera detalu. W **G91 (przyrostowo)** to przesunięcie od miejsca, w którym narzędzie teraz stoi.
+**G90** i **G91** mówią sterowaniu, jak czytać liczby przy osiach. W **G90 (absolutnie)** współrzędna to punkt względem zera detalu. W **G91 (przyrostowo)** to przesunięcie od miejsca, w którym narzędzie teraz stoi.
 
 <Diagram id="f13-absinc" />
 
@@ -147,7 +147,7 @@ Na tokarkach Fanuc w systemie A nie ma przełączania trybu: przyrost daje sam a
 
 Sinumerik pozwala zmienić tryb dla pojedynczej współrzędnej: `X=IC(10)` przyrostowo, `X=AC(50)` absolutnie, niezależnie od aktywnego G90/G91. `G1 X=AC(50) Y=IC(10)` jedzie do X50 i 10 mm dalej w Y.
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 | Zagadnienie | Fanuc frezarka    | Fanuc tokarka (A) | Sinumerik         |
 | ----------- | ----------------- | ----------------- | ----------------- |

@@ -6,7 +6,7 @@ aliases:
   - offset
   - wear
 def: >-
-  Miejsce w pamięci sterownika przechowujące dane narzędzia: długość, promień i
+  Miejsce w pamięci sterowania przechowujące dane narzędzia: długość, promień i
   osobne kolumny zużycia. Zmiana zużycia pozwala dostroić wymiar detalu bez
   ingerencji w program.
 see:
