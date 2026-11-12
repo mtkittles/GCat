@@ -24,8 +24,9 @@ syntax:
     G2 X_ Y_ I_ J_ F_
     G2 X_ Y_ CR=_ F_
 sinumerik: >-
-  G2. Zamiast R używa CR=. I/J/K też przyrostowe (domyślnie), ale można
-  przełączyć na absolutne przez AC(). Pełne koło tylko przez I/J — nie przez CR.
+  Zapis G2, a promień adresem CR= zamiast R. I/J/K są domyślnie przyrostowe;
+  zapis AC() przełącza je na absolutne. Pełne koło tylko przez I/J, nie przez
+  CR.
 params:
   - key: X Y
     desc: Punkt końcowy łuku
@@ -34,11 +35,12 @@ params:
   - key: R
     desc: Promień; R ujemne = łuk > 180°
 pitfalls:
-  - Pełne koło (start = koniec) nie zadziała z R — użyj I/J.
+  - Pełne koło (start = koniec) nie zadziała z R. Użyj I/J.
   - >-
-    Kierunek CW/CCW zależy od płaszczyzny (G17/G18/G19) — na tokarce w G18 obraz
-    bywa odwrócony.
-  - I/J są od punktu STARTU, nie od zera detalu.
+    Kierunek łuku ocenia się z dodatniej strony osi prostopadłej do płaszczyzny
+    (G17/G18/G19). Na tokarce z głowicą przednią łuk widziany z miejsca
+    operatora wygląda na przeciwny.
+  - I/J liczy się od punktu startu łuku, nie od zera detalu.
 sources:
   - id: fanuc
     where: G02 — interpolacja kołowa, R oraz I J K

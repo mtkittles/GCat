@@ -34,7 +34,9 @@ syntax:
     G92 X0. Y0. Z100.
     G92 S2500 (tokarka, systemy B i C: limit)
   sinumerik: brak (TRANS / LIMS=)
-sinumerik: 'Nie istnieje. Przesunięcie: TRANS; limit obrotów: LIMS=.'
+sinumerik: >-
+  Sinumerik nie ma G92 w tym znaczeniu. Przesunięcie zapisuje się przez TRANS,
+  limit obrotów przez LIMS=.
 params:
   - key: X Y Z
     desc: Współrzędne przypisane aktualnej pozycji
@@ -42,7 +44,7 @@ params:
     desc: Limit obrotów (tokarka, systemy B i C)
 pitfalls:
   - >-
-    G92 przesuwa układ względem aktualnej pozycji — uruchomienie programu z
+    G92 przesuwa układ względem aktualnej pozycji. Uruchomienie programu z
     innego miejsca przesuwa cały detal.
   - Po G92 nie ufaj wartościom G54 na ekranie, dopóki nie zresetujesz.
   - >-

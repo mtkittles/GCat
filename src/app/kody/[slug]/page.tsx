@@ -12,7 +12,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
 import { bannerFor, bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
-import { kartaMdx } from "@/lib/mdx/kody";
+import { kartaMdx, normProgram } from "@/lib/mdx/kody";
 import { readOnlyCaption } from "@/lib/simGaps";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
@@ -45,7 +45,9 @@ function profileOf(g: { milling: boolean; turning: boolean; exampleDialect?: "fa
   Standard karty kodu (ten sam układ dla każdego kodu):
   baner → jedno zdanie → Składnia i adresy → [Schemat] → Jak to działa → Przykład
   → Sinumerik → Na co uważać → Powiązane. Karty z pełnym artykułem zamiast sekcji
-  opisowych mają artykuł, ale początek i koniec zostają takie same.
+  opisowych mają artykuł, a pod nim „W skrócie”: Na co uważać, Sinumerik i przykład
+  z frontmattera (o ile artykuł go nie zawiera). Gdy artykuł ma własną tabelę adresów,
+  Składnia strony pokazuje tylko zapis Fanuc/Sinumerik.
 */
 export default async function CodePage({ params }: { params: Promise<{ slug: string }> }) {
   const g = bySlug((await params).slug);
@@ -61,6 +63,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const rel = relatedOf(g);
   const inLessons = lessonsForCodes(cardCodes(g.code), [...(g.milling ? ["frezowanie" as const] : []), ...(g.turning ? ["toczenie" as const] : [])]);
 
+  // artykuł z własną tabelą adresów: strona pokazuje tylko zapis Fanuc/Sinumerik (jedna „Składnia”, W)
+  const showParams = g.params.length > 0 && !mdx?.hasAddrTable;
   const syntax = (
     <section className="grid gap-3">
       <H id="skladnia">Składnia</H>
@@ -68,7 +72,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
         <div><div className="syntax-label">Fanuc</div><pre tabIndex={0} className="syntax">{g.syntax.fanuc}</pre></div>
         <div><div className="syntax-label">Sinumerik</div><pre tabIndex={0} className="syntax">{g.syntax.sinumerik}</pre></div>
       </div>
-      {g.params.length > 0 && (
+      {showParams && (
         <table className="addr-table">
           <thead><tr><th>Adres</th><th>Znaczenie</th></tr></thead>
           <tbody>{g.params.map((p) => (
@@ -107,12 +111,23 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     </section>
   );
 
-  const sourcesSec = g.sources?.length ? <SourceList items={g.sources} /> : (
+  const sourcesSec = g.sources?.length ? <SourceList items={g.sources} fold="mobile" /> : (
     <section className="ls-src" aria-labelledby="zrodla">
       <h2 id="zrodla">Źródła</h2>
       <p className="ls-src-note">Do uzupełnienia — tej karty nie sprawdzono jeszcze w dokumentacji producenta sterowania. Opis dotyczy profilu podanego wyżej; na konkretnej maszynie obowiązuje jej dokumentacja.</p>
     </section>
   );
+
+  const example = g.simulate === false ? (
+    <figure className="grid gap-1">
+      <pre tabIndex={0} className="syntax">{g.example}</pre>
+      <figcaption className="cap">{readOnlyCaption(g.example, mode)}</figcaption>
+    </figure>
+  ) : (
+    <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
+  );
+  const sinumerikNote = g.sinumerik && <aside className="note note-info"><CodeText text={g.sinumerik} self={self} /></aside>;
+  const pitfallNotes = g.pitfalls.map((p) => <aside key={p} className="note note-warn"><CodeText text={p} self={self} /></aside>);
 
   const footerNav = (
     <nav className="article-nav">
@@ -141,7 +156,17 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   if (mdx) {
     // spis treści artykułu z nagłówków MDX (kotwice jawne w pliku)
     const tocBlocks = mdx.headings.map((h) => ({ t: "h" as const, x: h.label, id: h.id }));
-    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []), { id: "zrodla", label: "Źródła" }];
+    // pola karty z frontmattera pod artykułem (decyzja 1, W); przykład tylko wtedy, gdy artykuł go nie zawiera
+    const showEx = !!g.example.trim() && !mdx.programs.includes(normProgram(g.example));
+    const recap = (g.pitfalls.length > 0 || !!g.sinumerik || showEx) && (
+      <section className="grid gap-3 cc-recap">
+        <H id="w-skrocie">W skrócie</H>
+        {g.pitfalls.length > 0 && <div className="grid gap-2 max-w-prose"><h3 className="cc-h3">Na co uważać</h3>{pitfallNotes}</div>}
+        {sinumerikNote && <div className="grid gap-2 max-w-prose"><h3 className="cc-h3">Sinumerik</h3>{sinumerikNote}</div>}
+        {showEx && <div className="grid gap-2"><h3 className="cc-h3">Program przykładowy</h3>{example}</div>}
+      </section>
+    );
+    const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(recap ? [{ id: "w-skrocie", label: "W skrócie" }] : []), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []), { id: "zrodla", label: "Źródła" }];
     return (
       <div className="article-layout cc">
         <aside className="cc-left"><LeftToc items={toc} /></aside>
@@ -151,6 +176,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {figure}
           <details className="toc-mobile toc-fold"><summary>W tej karcie</summary><Toc blocks={tocBlocks} /></details>
           <div className="article grid gap-4">{await mdx.render()}</div>
+          {recap}
           {lessonsSec}
           {related}
           {sourcesSec}
@@ -188,25 +214,18 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
       </section>
       <section className="grid gap-2">
         <H id="przyklad">Przykład</H>
-        {g.simulate === false ? (
-          <figure className="grid gap-1">
-            <pre tabIndex={0} className="syntax">{g.example}</pre>
-            <figcaption className="cap">{readOnlyCaption(g.example, mode)}</figcaption>
-          </figure>
-        ) : (
-          <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
-        )}
+        {example}
       </section>
       {g.sinumerik && (
         <section className="grid gap-2 max-w-prose">
           <H id="sinumerik">Sinumerik</H>
-          <aside className="note note-info"><CodeText text={g.sinumerik} self={self} /></aside>
+          {sinumerikNote}
         </section>
       )}
       {g.pitfalls.length > 0 && (
         <section className="grid gap-2 max-w-prose">
           <H id="uwagi">Na co uważać</H>
-          {g.pitfalls.map((p) => <aside key={p} className="note note-warn"><CodeText text={p} self={self} /></aside>)}
+          {pitfallNotes}
         </section>
       )}
       {lessonsSec}

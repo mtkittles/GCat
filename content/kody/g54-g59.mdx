@@ -26,7 +26,9 @@ sinumerik: >-
   programowalne przesunięcia.
 params: []
 pitfalls:
-  - Nie ustawiony rejestr = zero maszyny = kolizja przy pierwszym G00.
+  - >-
+    Pusty rejestr: układ pokrywa się z zerem maszyny, a pierwszy G00 kończy się
+    kolizją albo alarmem krańcówki.
 sources:
   - id: fanuc
     where: G54–G59 — układy współrzędnych detalu

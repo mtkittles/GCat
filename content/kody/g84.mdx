@@ -42,7 +42,7 @@ syntax:
 sinumerik: >-
   W Sinumeriku gwintowanie wykonują cykle **CYCLE84** (sztywne) i **CYCLE840**
   (z uchwytem kompensacyjnym). Nazwy i kolejność parametrów zależą od wydania
-  cykli — przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z
+  cykli. Przy pisaniu korzystaj z formularza cyklu na sterowaniu albo z
   dokumentacji „Cykle” dla swojej wersji.
 params:
   - key: Z
@@ -137,7 +137,7 @@ Gwintownik musi przesuwać się dokładnie o skok gwintu na każdy obrót. Jedno
 * Gwintowanie sztywne: sterowanie synchronizuje obrót wrzeciona z posuwem osi Z, bez uchwytu kompensacyjnego. Na wielu sterowaniach Fanuc włącza je `M29 S_` przed cyklem; sposób włączenia zależy od parametrów maszyny i producenta.
 * Gwintowanie z uchwytem kompensacyjnym: uchwyt ma sprężynę wyrównującą drobne różnice między posuwem a skokiem. Rozwiązanie starsze, wymaga specjalnego uchwytu i zapasu skoku w otworze.
 
-## Składnia \{#składnia}
+## Zapis bloku \{#składnia}
 
 <Code caption="Fragment ilustrujący. Z−18 to położenie końca gwintownika, nie długość gwintu.">
   ```

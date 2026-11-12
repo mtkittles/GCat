@@ -62,7 +62,7 @@ example:
   stock:
     discriminant: false
 ---
-**G43** włącza **korekcję długości narzędzia**: sterownik dodaje do Z długość zapisaną w rejestrze **H**. Program pisze się wtedy względem zera detalu, a to, jak długo wystaje narzędzie z oprawki, załatwia tabela korekcji.
+**G43** włącza **korekcję długości narzędzia**: sterownik dodaje do Z długość zapisaną w rejestrze **H**. Dzięki temu Z w programie opisuje koniec narzędzia względem zera detalu, niezależnie od tego, jak długo narzędzie wystaje z oprawki.
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
@@ -91,7 +91,7 @@ Pozycja maszynowa **czoła wrzeciona N** (płaszczyzny, od której mierzy się d
   **Numer H = numer narzędzia.** Aktywne H3 przy narzędziu T5 znaczy, że maszyna liczy Z dla innej długości. Jeśli T5 jest dłuższe, wchodzi w detal albo w stół ruchem szybkim.
 </Note>
 
-## Składnia i kody \{#składnia-i-kody}
+## Kody i zapis \{#składnia-i-kody}
 
 | Kod   | Działanie                                                |
 | ----- | -------------------------------------------------------- |

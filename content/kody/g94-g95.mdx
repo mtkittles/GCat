@@ -32,9 +32,7 @@ syntax:
 sinumerik: G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G95.
 params: []
 pitfalls:
-  - >-
-    Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr, a na frezarkach
-    G98/G99 to poziom powrotu w cyklach.
+  - Na frezarkach G98/G99 to poziom powrotu w cyklach, a nie jednostka posuwu.
   - >-
     Na tokarce w systemie A jednostkę posuwu wybierają G98 (mm/min) i G99
     (mm/obr), a G94 to cykl planowania.

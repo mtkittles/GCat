@@ -2935,3 +2935,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .tp-stage { font: 700 11px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: .35rem; }
 .tp-l.is-next { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent) inset; }
 .tp-next { font: 700 11.5px/1 var(--font-mono); letter-spacing: .04em; text-transform: uppercase; color: var(--accent-ink); }
+
+/* Karta z artykułem: pola karty pod artykułem (W skrócie) */
+.code-card .cc-h3 { font-size: 1rem; font-weight: 700; color: var(--ink-2); }
