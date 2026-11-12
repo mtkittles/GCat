@@ -63,16 +63,16 @@ example:
   stock:
     discriminant: false
 ---
-**G00** to polecenie szybkiego przejazdu. Mówi maszynie: przejedź z miejsca, w którym jesteś, do podanego punktu tak szybko, jak pozwalają napędy. Nie służy do skrawania — narzędzie ma w tym czasie nie dotykać materiału.
+**G00** to ruch szybki: narzędzie jedzie do podanego punktu z prędkością ruchu szybkiego maszyny. G00 nie służy do skrawania; narzędzie nie może w tym czasie dotykać materiału.
 
 ## Czym różni się od ruchu roboczego \{#czym-różni-się-od-ruchu-roboczego}
 
-Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość końcówki narzędzia była dokładnie taka, jak zapisałeś. Przy G00 nie decydujesz o prędkości — jest ona ustawiona przez producenta maszyny i zwykle wynosi od kilkunastu do kilkudziesięciu metrów na minutę. Adres `F` w bloku z G00 nie zmienia prędkości ruchu szybkiego, ale wartość zostaje zapamiętana jako posuw dla następnego ruchu roboczego.
+Przy \[\[G01]] podajesz posuw i sterowanie pilnuje, żeby prędkość wypadkowa końca narzędzia była równa F. Przy G00 prędkość ustawia producent maszyny w parametrach; zwykle to od kilkunastu do kilkudziesięciu metrów na minutę. Adres `F` w bloku z G00 nie zmienia prędkości ruchu szybkiego, ale wartość zostaje zapamiętana jako posuw dla następnego ruchu roboczego.
 
 |              | G00                                          | G01                                |
 | ------------ | -------------------------------------------- | ---------------------------------- |
 | Prędkość     | Maksymalna maszyny, niezmienialna z programu | Zadana adresem F                   |
-| Tor          | Prosta albo łamana — zależnie od parametru   | Linia prosta                       |
+| Tor          | Prosta albo łamana, zależnie od parametru    | Linia prosta                       |
 | Zastosowanie | Dojazdy i odjazdy w powietrzu                | Skrawanie                          |
 | Ryzyko       | Kolizja przy błędzie we współrzędnych        | Przeciążenie narzędzia przy złym F |
 
@@ -84,19 +84,19 @@ Przy \[\[G01]] podajesz posuw i sterownik pilnuje, żeby wypadkowa prędkość k
   ```
 </Code>
 
-| Adres   | Znaczenie                                                                                                 |
-| ------- | --------------------------------------------------------------------------------------------------------- |
-| X, Y, Z | Współrzędne punktu docelowego. Interpretowane bezwzględnie przy \[\[G90]] albo przyrostowo przy \[\[G91]] |
-| A, B, C | Osie obrotowe na maszynach cztero- i pięcioosiowych                                                       |
-| F       | Nie wpływa na G00 — prędkość ruchu szybkiego jest parametrem maszyny. Wartość zostaje zapamiętana dla G01 |
+| Adres   | Znaczenie                                                                                                   |
+| ------- | ----------------------------------------------------------------------------------------------------------- |
+| X, Y, Z | Współrzędne punktu docelowego. Interpretowane bezwzględnie przy \[\[G90]] albo przyrostowo przy \[\[G91]]   |
+| A, B, C | Osie obrotowe na maszynach cztero- i pięcioosiowych                                                         |
+| F       | Nie wpływa na G00, bo prędkość ruchu szybkiego jest parametrem maszyny. Wartość zostaje zapamiętana dla G01 |
 
-Nie musisz podawać wszystkich osi. Blok `G00 Z50` przesunie wyłącznie oś Z, pozostałe zostaną na swoich miejscach. To bardzo częsty zapis przy odjeździe na wysokość bezpieczną.
+Nie musisz podawać wszystkich osi. Blok `G00 Z50.` przesuwa tylko oś Z, pozostałe stoją. Tak zwykle wygląda odjazd na wysokość bezpieczną.
 
 ## G00 jest funkcją modalną \{#g00-jest-funkcją-modalną}
 
 Raz włączone G00 obowiązuje aż do wywołania innej funkcji ruchu z tej samej grupy: \[\[G01]], \[\[G02]] albo \[\[G03]]. Dzięki temu ciąg dojazdów można zapisać bez powtarzania kodu w każdej linii.
 
-<Code caption="Bloki N20 i N30 nie zawierają G00, ale wykonują się jako szybkie przejazdy, bo funkcja pozostaje aktywna.">
+<Code caption="Bloki N20 i N30 nie zawierają G00, ale wykonują się ruchem szybkim, bo funkcja pozostaje aktywna.">
   ```
   N10 G00 X20. Y15. (nad punkt startu)
   N20 Z5.           (nadal G00, tylko oś Z)
@@ -107,39 +107,39 @@ Raz włączone G00 obowiązuje aż do wywołania innej funkcji ruchu z tej samej
 </Code>
 
 <Note kind="warn">
-  Ta sama właściwość działa w drugą stronę i bywa groźna. Jeżeli w programie zostało aktywne G00, a Ty w kolejnym bloku wpiszesz same współrzędne, spodziewając się ruchu roboczego — narzędzie pojedzie z pełną prędkością. Przy zagłębianiu w materiał oznacza to kolizję: frez wchodzi w detal ruchem szybkim.
+  Modalność działa też w drugą stronę. Jeśli w programie zostało aktywne G00, a w kolejnym bloku wpiszesz same współrzędne w oczekiwaniu na ruch roboczy, narzędzie pojedzie ruchem szybkim. Przy zagłębianiu w materiał to kolizja.
 </Note>
 
 Sam blok `G00`, bez współrzędnych, nie wykonuje żadnego ruchu. Ustawia tylko tryb.
 
 ## Do czego się go używa \{#do-czego-się-go-używa}
 
-* **Dojazd nad detal** przed rozpoczęciem obróbki — najdłuższy odcinek drogi narzędzie pokonuje w powietrzu.
-* **Odjazd na wysokość bezpieczną** po zakończeniu przejścia.
-* **Przejazd między obszarami obróbki**, na przykład od jednej kieszeni do drugiej.
-* **Dojazd do pozycji wymiany narzędzia** przed obrotem magazynu albo \[\[głowica rewolwerowa|głowicy rewolwerowej]].
-* **Wycofanie w cyklach wiercenia** — w \[\[G81]], G82, G83 i G73 narzędzie wraca z dna otworu ruchem szybkim. W G84, G85 i G89 wyjeżdża posuwem roboczym.
+* dojazd nad detal przed obróbką,
+* odjazd na wysokość bezpieczną po przejściu,
+* przejazd między obszarami obróbki, np. od jednej kieszeni do drugiej,
+* dojazd do pozycji wymiany narzędzia przed obrotem magazynu albo \[\[głowica rewolwerowa|głowicy rewolwerowej]],
+* wycofanie w cyklach wiercenia: w \[\[G81]], G82, G83 i G73 narzędzie wraca z dna otworu ruchem szybkim, a w G84, G85 i G89 — posuwem roboczym.
 
 ## Tor nie musi być linią prostą \{#tor-nie-jest-linią-prostą}
 
-Na wielu maszynach sterowanie uruchamia przy G00 wszystkie osie **jednocześnie, każdą z jej własną prędkością ruchu szybkiego**. Oś, która ma do pokonania krótszą drogę, kończy ruch wcześniej — od tego momentu porusza się już tylko druga oś.
+Na wielu maszynach sterowanie uruchamia przy G00 wszystkie osie **jednocześnie, każdą z jej własną prędkością ruchu szybkiego**. Oś, która ma krótszą drogę, kończy ruch wcześniej. Od tej chwili porusza się już tylko druga oś.
 
 <Diagram id="rapid-path" />
 
-Tor składa się wtedy z odcinka skośnego i dobiegu wzdłuż jednej osi. Czy tak jest na danej maszynie, decyduje ustawienie sterowania: w Fanucu parametr LRP (1401#1) wybiera pozycjonowanie nieliniowe albo po prostej, w Sinumeriku `RTLION` włącza ruch po prostej, a `RTLIOF` — niezależne osie. Program pisz tak, żeby był bezpieczny w obu przypadkach.
+Tor składa się wtedy z odcinka skośnego i dobiegu wzdłuż jednej osi. Czy tak jest na danej maszynie, decyduje ustawienie sterowania: w Fanucu parametr LRP (1401#1) wybiera pozycjonowanie nieliniowe albo po prostej, w Sinumeriku `RTLION` włącza ruch po prostej, a `RTLIOF` niezależne osie. Program pisz tak, żeby był bezpieczny w obu przypadkach.
 
 ## Bezpieczny dojazd \{#bezpieczny-dojazd}
 
-Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować drogę tak, żeby **żaden z możliwych torów** nie prowadził przez przeszkodę. Praktyczna zasada: nie łącz ruchu w płaszczyźnie XY z ruchem w osi Z, kiedy w pobliżu są zaciski albo detal.
+Tor ruchu szybkiego zależy od maszyny, więc zaplanuj drogę tak, żeby **żaden z możliwych torów** nie prowadził przez przeszkodę. Zasada: nie łącz ruchu w płaszczyźnie XY z ruchem w osi Z, kiedy w pobliżu są zaciski albo detal.
 
 <Diagram id="rapid-clamp" />
 
 1. Podnieś oś Z na wysokość bezpieczną, ponad wszystko, co stoi na stole.
 2. Przejedź w płaszczyźnie XY nad punkt, w którym zaczynasz obróbkę.
 3. Zejdź w osi Z do płaszczyzny bezpiecznej, typowo 2–5 mm nad materiałem.
-4. Dopiero teraz przejdź na \[\[G01]] i zagłębiaj się na głębokość skrawania.
+4. Przejdź na \[\[G01]] i zagłębiaj się na głębokość skrawania.
 
-<Code caption="Kolejność, która eliminuje większość kolizji przy dojeździe.">
+<Code caption="Kolejność dojazdu: góra, nad punkt, w dół, posuw roboczy.">
   ```
   G00 Z50.      (najpierw wysoko)
   G00 X40. Y25. (nad miejsce obróbki)
@@ -148,17 +148,17 @@ Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować dr
   ```
 </Code>
 
-## Wskazówki z praktyki \{#wskazówki-z-praktyki}
+## Wskazówki \{#wskazówki-z-praktyki}
 
-* **Pierwsze uruchomienie z obniżoną prędkością.** Pokrętło Rapid Override na pulpicie ustaw na 5–25%, korekcję posuwu na 50%, rękę trzymaj nad przyciskiem zatrzymania. To jedyny moment, w którym błąd w \[\[zero detalu|zerze detalu]] ujawnia się fizycznie.
-* **Uważaj na kropkę dziesiętną.** Na sterownikach Fanuc `Z50` i `Z50.` mogą znaczyć co innego: bez kropki liczba bywa interpretowana w najmniejszych jednostkach programowania, czyli 50 mikrometrów zamiast 50 milimetrów. Wpisuj kropkę konsekwentnie.
-* **Nie podjeżdżaj zbyt blisko.** Zostaw miejsce na dojazd w \[\[kompensacja promienia|kompensacji promienia]] i na wejście styczne w materiał.
-* **Pamiętaj o korekcji długości.** Bez aktywnego \[\[G43]] sterownik liczy pozycję Z od czoła wrzeciona, a nie od ostrza narzędzia.
-* **Sprawdź, gdzie kończy się poprzednie narzędzie.** Program zaczynający się od `G00 X0 Y0` wykona dojazd z dowolnego miejsca, w którym zostawił maszynę poprzedni zabieg.
+* Pierwszy przebieg programu uruchamiaj z obniżoną prędkością: nastawę ruchu szybkiego (rapid override) ustaw na 5–25%, korekcję posuwu na 50% i trzymaj rękę nad przyciskiem zatrzymania. Błąd w \[\[zero detalu|zerze detalu]] wychodzi wtedy przy małej prędkości.
+* Wpisuj kropkę dziesiętną. Na sterowaniach Fanuc `Z50` i `Z50.` mogą znaczyć co innego: bez kropki liczba bywa liczona w najmniejszych jednostkach programowania, czyli 50 mikrometrów zamiast 50 milimetrów.
+* Nie podjeżdżaj zbyt blisko. Zostaw miejsce na dojazd w \[\[kompensacja promienia|kompensacji promienia]] i na wejście styczne w materiał.
+* Włącz korekcję długości. Bez aktywnego \[\[G43]] sterowanie liczy pozycję Z od czoła wrzeciona, a nie od ostrza narzędzia.
+* Sprawdź, gdzie stoi narzędzie po poprzednim zabiegu. Program, który zaczyna się od `G00 X0 Y0`, wykona dojazd z dowolnego miejsca.
 
-## Przykład — porównaj oba warianty \{#przykład-porównaj-oba-warianty}
+## Przykład \{#przykład-porównaj-oba-warianty}
 
-<Sim mode="mill" caption="Uruchom i prześledź krokami. Żółte linie przerywane to szybkie przejazdy, zielone ciągłe — ruch roboczy. Zwróć uwagę, że zagłębienie na Z−3 wykonuje G01, a nie G00.">
+<Sim mode="mill" caption="Bursztynowe linie przerywane to ruchy szybkie, zielone ciągłe to ruch roboczy. Zagłębienie na Z−3 wykonuje G01, a nie G00.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -193,8 +193,8 @@ Skoro nie wiesz dokładnie, którędy pojedzie narzędzie, musisz zaplanować dr
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Zagłębienie na G00 zamiast G01.** Jedna cyfra różnicy, a narzędzie wbija się w detal z pełną prędkością.
+* **Zagłębienie na G00 zamiast G01.** Narzędzie wchodzi w detal ruchem szybkim.
 * **Założenie prostoliniowego toru.** Przy niezależnych osiach przejazd tuż obok zacisku po przekątnej może skończyć się jego zaczepieniem.
-* **Odziedziczone G00 przed konturem.** Blok z samymi współrzędnymi po wcześniejszym G00 nadal jest szybkim przejazdem.
+* **Odziedziczone G00 przed konturem.** Blok z samymi współrzędnymi po wcześniejszym G00 nadal jest ruchem szybkim.
 * **`G90 G28 Z0` zamiast `G91 G28 Z0`.** Maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Opisane szerzej na karcie \[\[G28]].
-* **Brak odjazdu przed wymianą narzędzia.** Magazyn albo głowica potrzebują określonej pozycji — inaczej dojdzie do kolizji przy obrocie.
+* **Brak odjazdu przed wymianą narzędzia.** Magazyn albo głowica potrzebują określonej pozycji, inaczej przy obrocie dojdzie do kolizji.

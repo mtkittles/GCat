@@ -63,14 +63,14 @@ example:
   stock:
     discriminant: false
 ---
-**G01** prowadzi narzędzie **po linii prostej** z aktualnego położenia do zadanego punktu, z prędkością ustaloną adresem **F**. To podstawowy ruch skrawający — konturowanie, planowanie, zagłębianie, toczenie wzdłużne i poprzeczne opierają się właśnie na nim.
+**G01** prowadzi narzędzie **po linii prostej** z aktualnego położenia do zadanego punktu, z prędkością ustaloną adresem **F**. To podstawowy ruch skrawający: opiera się na nim konturowanie, planowanie, zagłębianie, toczenie wzdłużne i poprzeczne.
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
-Sterownik rozkłada zadany odcinek na wszystkie osie biorące udział w ruchu i tak dobiera ich prędkości, żeby **skończyły ruch w tej samej chwili**. To nazywa się interpolacją liniową. Efekt jest taki, że tor jest zawsze idealną prostą, a wypadkowa prędkość końcówki narzędzia równa się dokładnie temu, co zapisałeś przy F — niezależnie od tego, czy ruch idzie wzdłuż jednej osi, czy po skosie w trzech.
+Sterowanie rozkłada odcinek na osie biorące udział w ruchu i tak dobiera ich prędkości, żeby **skończyły ruch w tej samej chwili**. To interpolacja liniowa. Tor jest prostą, a prędkość wypadkowa końca narzędzia równa się posuwowi F, niezależnie od tego, czy ruch idzie wzdłuż jednej osi, czy po skosie w trzech.
 
 <Note kind="info">
-  To jest właśnie różnica względem \[\[G00]]. Tam każda oś jedzie najszybciej, jak potrafi, i kończy, kiedy skończy — tor bywa łamany. Tu osie są zsynchronizowane i tor jest przewidywalny co do setnej milimetra.
+  Tym G01 różni się od \[\[G00]]. Przy G00 tor zależy od sterowania i bywa łamany. Przy G01 osie są zsynchronizowane, więc tor jest przewidywalny.
 </Note>
 
 ## Składnia \{#składnia}
@@ -88,14 +88,14 @@ Sterownik rozkłada zadany odcinek na wszystkie osie biorące udział w ruchu i 
 | A, B, C | Osie obrotowe — na maszynach wieloosiowych mogą jechać razem z liniowymi w jednym bloku        |
 
 <Note kind="warn">
-  **G01 bez F to najczęstszy błąd początkującego.** Większość sterowników zgłasza wtedy alarm, ale część używa po prostu posuwu z poprzedniej operacji — a ten mógł być dobrany do zupełnie innego narzędzia. Posuw jest modalny: raz podany obowiązuje aż do zmiany.
+  **G01 bez F to częsty błąd.** Zależnie od sterowania kończy się alarmem albo ruchem z posuwem, który został aktywny z poprzedniej operacji i mógł być dobrany do innego narzędzia (lekcja F3.2). Posuw jest modalny: raz podany obowiązuje aż do zmiany.
 </Note>
 
 ## Ten sam punkt, cztery zapisy \{#ten-sam-punkt-cztery-zapisy}
 
-Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisania tego samego ruchu — różnią się trybem współrzędnych i liczbą bloków, ale narzędzie kończy w tym samym miejscu.
+Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery zapisy tego ruchu. Różnią się trybem współrzędnych i liczbą bloków, a narzędzie kończy w tym samym miejscu.
 
-<Demo mode="mill" title="Wariant 1 — prosto, współrzędne bezwzględne" caption="Jeden blok, jeden odcinek skośny. Sterownik prowadzi obie osie tak, by dojechały równocześnie — dlatego tor jest prostą, a nie łamaną.">
+<Demo mode="mill" title="Wariant 1 — prosto, współrzędne bezwzględne" caption="Jeden blok, jeden odcinek skośny. Obie osie dojeżdżają równocześnie, więc tor jest prostą, a nie łamaną.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -113,7 +113,7 @@ Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisani
   ```
 </Demo>
 
-<Demo mode="mill" title="Wariant 2 — prosto, współrzędne przyrostowe" caption="Ten sam odcinek zapisany jako przesunięcie o 80 w X i 60 w Y. Tor identyczny; różnica jest wyłącznie w sposobie liczenia współrzędnych. Więcej na karcie [[G91]].">
+<Demo mode="mill" title="Wariant 2 — prosto, współrzędne przyrostowe" caption="Ten sam odcinek zapisany jako przesunięcie o 80 w X i 60 w Y. Tor jest ten sam, zmienia się tylko sposób liczenia współrzędnych. Więcej na karcie [[G91]].">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -133,7 +133,7 @@ Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisani
   ```
 </Demo>
 
-<Demo mode="mill" title="Wariant 3 — dwoma bokami zamiast po skosie" caption="Najpierw wzdłuż X, potem wzdłuż Y. Punkt końcowy ten sam, ale narzędzie zbiera materiał wzdłuż zupełnie innej drogi — i pokonuje dłuższy odcinek, więc obróbka trwa dłużej.">
+<Demo mode="mill" title="Wariant 3 — dwoma bokami zamiast po skosie" caption="Najpierw wzdłuż X, potem wzdłuż Y. Punkt końcowy ten sam, ale droga jest inna i dłuższa, więc ruch trwa dłużej.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -152,7 +152,7 @@ Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisani
   ```
 </Demo>
 
-<Demo mode="mill" title="Wariant 4 — łańcuch bloków bez powtarzania G01" caption="Bloki po pierwszym G01 zawierają same współrzędne. Funkcja jest modalna, więc wszystkie są ruchami roboczymi z tym samym posuwem. Tak zapisuje się kontury w praktyce.">
+<Demo mode="mill" title="Wariant 4 — łańcuch bloków bez powtarzania G01" caption="Bloki po pierwszym G01 mają same współrzędne. Funkcja jest modalna, więc wszystkie są ruchami roboczymi z tym samym posuwem. Tak zwykle zapisuje się kontury.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -174,11 +174,11 @@ Z punktu (10, 10) chcemy dojechać do (90, 70). Poniżej cztery sposoby zapisani
   ```
 </Demo>
 
-## Modalność w praktyce \{#modalność-w-praktyce}
+## Zapis skrócony \{#modalność-w-praktyce}
 
-Skoro G01 i posuw F pozostają aktywne, kontur można zapisać bardzo zwięźle. Oba poniższe zapisy dają identyczny tor:
+G01 i posuw F pozostają aktywne, więc kontur można zapisać krócej. Oba zapisy poniżej dają ten sam tor:
 
-<Code caption="Po lewej zapis pełny, po prawej skrócony. W praktyce stosuje się ten drugi — jest krótszy i mniej podatny na literówki.">
+<Code caption="Po lewej zapis pełny, po prawej skrócony. Krótszy zapis ma mniej miejsc na literówkę.">
   ```
   G01 X90. F300       G01 X90. F300
   G01 Y70. F300       Y70.
@@ -188,28 +188,28 @@ Skoro G01 i posuw F pozostają aktywne, kontur można zapisać bardzo zwięźle.
 </Code>
 
 <Note kind="warn">
-  Odwrotna strona medalu: jeżeli zapomnisz przełączyć się na \[\[G00]] przed odjazdem, powrót na wysokość bezpieczną wykona się z posuwem roboczym. Program nie zepsuje detalu, ale czas cyklu urośnie o kilkanaście sekund na każdym przejeździe.
+  Jeśli przed odjazdem nie przełączysz się na \[\[G00]], powrót na wysokość bezpieczną wykona się z posuwem roboczym. Detal na tym nie ucierpi, ale cykl się wydłuży: odjazd o 50 mm z F400 trwa 7,5 s.
 </Note>
 
 ## Dobór posuwu \{#dobór-posuwu}
 
-Przy frezowaniu posuw liczy się z posuwu na ostrze: **Vf = n × z × fz**, gdzie n to obroty, z liczba ostrzy, a fz \[\[fz — posuw na ostrze|posuw na ostrze]] z katalogu narzędzia. Frez ⌀10 z czterema ostrzami przy 3000 obr/min i fz 0,05 mm daje F = 3000 × 4 × 0,05 = **600 mm/min**.
+Przy frezowaniu posuw liczy się z posuwu na ostrze: **vf = fz · z · n**. Tu fz to \[\[fz — posuw na ostrze|posuw na ostrze]] z katalogu narzędzia, z — liczba ostrzy, n — obroty. Frez ⌀10 z czterema ostrzami przy 3000 obr/min i fz 0,05 mm daje F = 0,05 · 4 · 3000 = **600 mm/min**.
 
-Przy toczeniu podaje się wprost posuw na obrót, bo bezpośrednio odpowiada za grubość wióra i \[\[Rz — chropowatość|chropowatość]]: typowo 0,25–0,45 mm/obr zgrubnie i 0,08–0,20 mm/obr wykańczająco. Gotowe wartości dla konkretnego materiału policzysz w [kalkulatorze](/kalkulator).
+Przy toczeniu podaje się wprost posuw na obrót, bo od niego zależy grubość wióra i \[\[Rz — chropowatość|chropowatość]]: typowo 0,25–0,45 mm/obr zgrubnie i 0,08–0,20 mm/obr wykańczająco. Gotowe wartości dla konkretnego materiału policzysz w [kalkulatorze](/kalkulator).
 
 <Note kind="warn">
-  Pomylenie jednostek to najdroższy błąd przy G01. `F0.2` na frezarce w trybie \[\[G94]] oznacza 0,2 mm na minutę — narzędzie praktycznie stoi i trze w materiale, zamiast skrawać. Odwrotnie, `F250` na tokarce w trybie posuwu na obrót (\[\[G95]]; na tokarce Fanuc w systemie A — G99) to 250 mm na obrót — około tysiąc razy więcej niż typowe 0,2–0,3, więc nóż zostaje gwałtownie przeciążony. Dlatego tryb posuwu ustawia się w bloku startowym.
+  Pomylone jednostki posuwu to kosztowny błąd. `F0.2` na frezarce w trybie \[\[G94]] oznacza 0,2 mm na minutę: narzędzie prawie stoi i trze materiał zamiast skrawać. Odwrotnie, `F250` na tokarce w trybie posuwu na obrót (\[\[G95]]; na tokarce Fanuc w systemie A — G99) to 250 mm na obrót, 1000 razy więcej niż 0,25 mm/obr. Nóż jest wtedy przeciążony. Dlatego tryb posuwu ustawia się w bloku startowym.
 </Note>
 
 ## Zagłębianie w materiał \{#zagłębianie-w-materiał}
 
-Ruch prosto w dół obciąża narzędzie inaczej niż ruch boczny — pracuje wtedy środek freza, gdzie prędkość skrawania spada do zera. Dlatego posuw zagłębiania przyjmuje się na poziomie **30–50% posuwu konturowego**, a frezy o środku niecentrującym w ogóle nie mogą zagłębiać się pionowo.
+Ruch prosto w dół obciąża narzędzie inaczej niż ruch boczny: pracuje środek freza, gdzie prędkość skrawania spada do zera. Dlatego posuw zagłębiania przyjmuje się na poziomie **30–50% posuwu konturowego**. Frezy bez ostrza w środku nie mogą zagłębiać się pionowo.
 
-* **Pionowo** — tylko frezami do zagłębiania pionowego albo w otwór wstępny.
-* **Po rampie** — ruch skośny G01 z jednoczesną zmianą X i Z; kąt 2–5° dla stali, do 15° dla aluminium.
-* **Po helisie** — łuk \[\[G02]] lub \[\[G03]] z narastającym Z; najłagodniejsze dla narzędzia.
+* Pionowo: tylko frezami do zagłębiania pionowego albo w otwór wstępny.
+* Po rampie: ruch skośny G01 ze zmianą X i Z naraz; kąt 2–5° dla stali, do 15° dla aluminium.
+* Po helisie: łuk \[\[G02]] lub \[\[G03]] z narastającym Z; łagodnie obciąża narzędzie.
 
-<Demo mode="mill" title="Zagłębianie po rampie" caption="Narzędzie schodzi o 1 mm na każdym przejeździe wzdłuż rowka, zamiast wbijać się pionowo. Włącz widok 3D w symulatorze, żeby zobaczyć powstający rowek.">
+<Demo mode="mill" title="Zagłębianie po rampie" caption="Narzędzie schodzi o 1 mm na każdym przejeździe wzdłuż rowka zamiast wchodzić pionowo. W widoku 3D widać powstający rowek.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -232,20 +232,19 @@ Ruch prosto w dół obciąża narzędzie inaczej niż ruch boczny — pracuje wt
 
 ## Współrzędne biegunowe \{#współrzędne-biegunowe}
 
-Fanuc pozwala przełączyć się na współrzędne biegunowe funkcją **G16** (kasowanie: G15). Zamiast X i Y podajesz wtedy promień i kąt. Zapis `G01 X100 Y36.87` w trybie biegunowym przy G90 oznacza punkt odległy o 100 mm od zera układu, pod kątem 36,87° od osi X — ten sam, do którego prowadzi X80 Y60 w układzie prostokątnym.
+Fanuc pozwala przełączyć się na współrzędne biegunowe funkcją **G16** (kasowanie: G15). Zamiast X i Y podajesz wtedy promień i kąt. W trybie biegunowym przy G90 zapis `G01 X100. Y36.87` oznacza punkt 100 mm od zera układu, pod kątem 36,87° od osi X. To ten sam punkt co X80 Y60 w układzie prostokątnym.
 
-Największy pożytek jest przy elementach rozmieszczonych po okręgu, na przykład otworach na śruby wokół kołnierza. Zamiast liczyć sinusy dla każdego otworu, podajesz ten sam promień i kolejne kąty.
+Przydaje się przy elementach rozmieszczonych po okręgu, np. otworach na śruby wokół kołnierza. Zamiast liczyć sinusy dla każdego otworu, podajesz ten sam promień i kolejne kąty.
 
 Przykład z otworami na okręgu i szczegóły zapisu są na karcie \[\[G16]].
 
 ## Dobre praktyki \{#dobre-praktyki}
 
-* **Sprawdzaj posuw przy każdym nowym narzędziu**, nawet jeśli F jest już aktywne z poprzedniej operacji — było dobrane do innej średnicy i innej liczby ostrzy.
-* **Uruchamiaj pierwszy raz z korekcją posuwu na 50%**, z ręką nad przyciskiem zatrzymania.
-* **Nie mieszaj bezmyślnie G00 i G01.** Klasyczny wypadek to zagłębienie na G00 wskutek złej kolejności bloków; opisane szerzej na karcie \[\[G00]].
-* **Domykaj kontury.** Ostatni punkt powinien pokrywać się z pierwszym, inaczej zostaje cienka ścianka materiału.
-* **Zaokrąglaj naroża**, gdzie to możliwe. Ostry zwrot o 90° oznacza chwilowe zatrzymanie osi i skok obciążenia narzędzia; łuk choćby R2 daje płynny ruch i lepszą powierzchnię.
-* **Powtarzalne fragmenty wynoś do podprogramów** — patrz \[\[M98]]. Dziesiątki podobnych bloków G01 to prosta droga do literówki.
+* Przy każdym nowym narzędziu sprawdź posuw, nawet jeśli F jest aktywne z poprzedniej operacji. Tamto F było dobrane do innej średnicy i liczby ostrzy.
+* Pilnuj kolejności bloków G00 i G01. Zagłębienie ruchem szybkim przez złą kolejność bloków opisuje karta \[\[G00]].
+* Domykaj kontury. Ostatni punkt powinien pokrywać się z pierwszym, inaczej zostaje cienka ścianka materiału.
+* Zaokrąglaj naroża, gdzie to możliwe. Ostry zwrot o 90° to chwilowe zatrzymanie osi i skok obciążenia narzędzia; łuk choćby R2 daje płynny ruch i lepszą powierzchnię.
+* Powtarzalne fragmenty przenieś do podprogramów (\[\[M98]]). Dziesiątki podobnych bloków G01 to wiele miejsc na literówkę.
 
 ## Różnice między sterownikami \{#różnice-między-sterownikami}
 
@@ -258,9 +257,9 @@ Przykład z otworami na okręgu i szczegóły zapisu są na karcie \[\[G16]].
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Brak F w pierwszym bloku roboczym** — alarm albo posuw odziedziczony po poprzedniej operacji.
-* **Ten sam posuw do zagłębiania i do konturu** — przeciążenie środka freza przy wejściu w materiał.
-* **Pomylone jednostki posuwu** — mm/min zamiast mm/obr albo odwrotnie.
-* **Pozostawione G01 przed odjazdem** — powrót na wysokość bezpieczną z posuwem roboczym marnuje czas cyklu.
-* **Niedomknięty kontur** — brakujący ostatni blok zostawia ściankę materiału w narożniku.
-* **Zapomniany powrót do \[\[G90]]** po fragmencie przyrostowym — dalsze bloki jadą w zupełnie inne miejsca.
+* **Brak F w pierwszym bloku roboczym.** Alarm albo posuw odziedziczony po poprzedniej operacji.
+* **Ten sam posuw do zagłębiania i do konturu.** Przeciążenie środka freza przy wejściu w materiał.
+* **Pomylone jednostki posuwu.** Wpisane mm/min zamiast mm/obr albo odwrotnie.
+* **Pozostawione G01 przed odjazdem.** Powrót na wysokość bezpieczną z posuwem roboczym marnuje czas cyklu.
+* **Niedomknięty kontur.** Brakujący ostatni blok zostawia ściankę materiału w narożniku.
+* **Zapomniany powrót do \[\[G90]]** po fragmencie przyrostowym. Dalsze bloki jadą w inne miejsca.
