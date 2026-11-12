@@ -22,7 +22,7 @@ syntax:
   sinumerik: |-
     G3 X_ Y_ I_ J_ F_
     G3 X_ Y_ CR=_ F_
-sinumerik: G3, CR= zamiast R.
+sinumerik: Zapis G3, promień adresem CR= zamiast R.
 params:
   - key: X Y
     desc: Punkt końcowy łuku
@@ -32,8 +32,8 @@ params:
     desc: Promień
 pitfalls:
   - >-
-    Przy R kontroler wybiera krótszy łuk (≤180°). Jeśli chcesz dłuższy, podaj R
-    ujemne.
+    Przy dodatnim R sterowanie wykonuje krótszy łuk (≤ 180°). Dłuższy łuk wymaga
+    R ujemnego.
 sources:
   - id: fanuc
     where: G03 — interpolacja kołowa, R oraz I J K

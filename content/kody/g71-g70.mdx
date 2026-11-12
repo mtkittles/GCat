@@ -26,8 +26,8 @@ syntax:
     G70 P10 Q20
   sinumerik: CYCLE95("KONTUR", 2, 0.5, 0.1, ...)
 sinumerik: >-
-  Zupełnie inaczej: CYCLE95 z konturem w podprogramie. Uwaga: G71 w Sinumerik to
-  milimetry!
+  Odpowiednikiem jest CYCLE95 z konturem w podprogramie. G71 w Sinumeriku
+  oznacza milimetry.
 params:
   - key: U (1. blok)
     desc: Głębokość jednego przejścia
@@ -84,7 +84,7 @@ example:
 
 Toczenie zgrubne wałka z ⌀60 na ⌀30 przy głębokości 2 mm to 8 przejść (15 mm na stronę), każde po kilka bloków do przeliczenia. W cyklu G71 to dwa bloki cyklu i opis konturu. Zmiana naddatku albo głębokości przejścia sprowadza się do poprawienia jednej liczby.
 
-## Składnia Fanuc \{#składnia-fanuc}
+## Zapis w Fanucu \{#składnia-fanuc}
 
 <Code>
   ```

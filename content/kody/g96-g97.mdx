@@ -27,7 +27,7 @@ syntax:
     LIMS=3000
     G96 S200 M3
     G97 S1500
-sinumerik: Identycznie G96/G97, limit obrotów przez LIMS=.
+sinumerik: Te same G96/G97, limit obrotów przez LIMS=.
 params:
   - key: S
     desc: 'Przy G96: m/min. Przy G97: obr/min'
@@ -36,7 +36,7 @@ pitfalls:
     G96 bez limitu obrotów → przy zbliżaniu do osi X0 wrzeciono rozpędza się do
     maksimum.
   - >-
-    Wiercenie w osi toczy się na G97 — przy G96 i średnicy bliskiej zeru
+    Wiercenie w osi toczy się na G97. Przy G96 i średnicy bliskiej zeru
     sterowanie dąży do obrotów na limicie (G50 albo maszyny).
 sources:
   - id: fanuc
@@ -80,7 +80,7 @@ Prędkość skrawania, czyli prędkość materiału względem ostrza, zależy od
 
 <Diagram id="g96-g97" />
 
-## Składnia \{#składnia}
+## Zapis bloku \{#składnia}
 
 <Code caption="W Sinumerik ograniczenie zapisuje się jako `LIMS=3000`.">
   ```

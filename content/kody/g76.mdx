@@ -24,7 +24,9 @@ syntax:
     G76 P010060 Q100 R0.05
     G76 X_ Z_ P_ Q_ F_ (skok)
   sinumerik: CYCLE97(...)
-sinumerik: CYCLE97 — parametry przez ekran cyklu, nie zakodowane w P jak w Fanuc.
+sinumerik: >-
+  CYCLE97: parametry podaje się w formularzu cyklu, a nie w adresie P jak w
+  Fanucu.
 params:
   - key: F
     desc: Skok gwintu
@@ -73,7 +75,7 @@ example:
 
 Gdyby każde przejście schodziło o tyle samo, przekrój wióra rósłby z każdym przejściem, bo trójkątny zarys gwintu jest coraz szerszy w głębi. Cykl dobiera przyrosty tak, aby **pole przekroju wióra było w przybliżeniu stałe**: pierwsze przejście jest głębokie, kolejne coraz płytsze.
 
-## Składnia Fanuc (dwa bloki) \{#składnia-fanuc-dwa-bloki}
+## Zapis w Fanucu (dwa bloki) \{#składnia-fanuc-dwa-bloki}
 
 <Code>
   ```

@@ -20,17 +20,17 @@ syntax:
   fanuc: G01 X_ Y_ Z_ F_
   sinumerik: G1 X_ Y_ Z_ F_
 sinumerik: >-
-  G1. Na tokarce Sinumerik posuw domyślnie w mm/obr (G95) — na frezarce mm/min
-  (G94).
+  Zapis G1. Na tokarce Sinumerik posuw jest domyślnie w mm/obr (G95), na
+  frezarce w mm/min (G94).
 params:
   - key: X Y Z
     desc: Punkt końcowy
   - key: F
     desc: Posuw (mm/min przy G94, mm/obr przy G95)
 pitfalls:
-  - G01 bez F → alarm lub posuw z poprzedniego bloku.
+  - G01 bez F → alarm albo posuw z poprzedniego bloku.
   - >-
-    Na tokarce F0.2 to zwykle mm/obr (G99 w systemie A), na frezarce F200 —
+    Na tokarce F0.2 to zwykle mm/obr (G99 w systemie A), na frezarce F200 to
     mm/min (G94). Pomylenie trybu zmienia posuw setki razy: narzędzie trze w
     miejscu albo zostaje gwałtownie przeciążone.
 sources:
@@ -73,7 +73,7 @@ Sterowanie rozkłada odcinek na osie biorące udział w ruchu i tak dobiera ich 
   Tym G01 różni się od \[\[G00]]. Przy G00 tor zależy od sterowania i bywa łamany. Przy G01 osie są zsynchronizowane, więc tor jest przewidywalny.
 </Note>
 
-## Składnia \{#składnia}
+## Zapis bloku \{#składnia}
 
 <Code caption="Fanuc i Sinumerik zapisują to tak samo; Sinumerik dopuszcza skrót `G1`.">
   ```

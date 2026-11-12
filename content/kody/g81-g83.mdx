@@ -46,8 +46,8 @@ pitfalls:
     Zapomniane G80 → następny blok z X Y zapisany bez G00/G01 też wywierci
     otwór.
   - >-
-    G98 vs G99: przy zaciskach między otworami G99 (powrót tylko do R) uderzy w
-    zacisk.
+    Przy zaciskach między otworami G99 (powrót tylko do R) może uderzyć w
+    zacisk. Wtedy G98.
 sources:
   - id: haas
     where: Q, płaszczyzna R i wycofanie w G83 (Haas)
@@ -108,7 +108,7 @@ example:
 | **G85** | Wytaczanie z wyjściem na posuwie                | Otwory dokładne; bez śladu przy wyjściu               |
 | **G80** | Anulowanie cyklu                                | Po ostatnim otworze i w bloku startowym               |
 
-## Składnia \{#składnia}
+## Zapis bloku \{#składnia}
 
 <Code caption="Cztery otwory w pięciu blokach. Bez cyklu każdy otwór to co najmniej cztery bloki: dojazd, zjazd, wiercenie, wycofanie.">
   ```

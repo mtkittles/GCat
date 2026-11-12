@@ -23,13 +23,13 @@ desc: >-
 syntax:
   fanuc: S1200 M03
   sinumerik: S1200 M3
-sinumerik: M3/M4/M5 — zera wiodące opcjonalne.
+sinumerik: M3/M4/M5, zera wiodące opcjonalne.
 params:
   - key: S
     desc: Obroty (obr/min) lub prędkość skrawania przy G96
 pitfalls:
   - >-
-    Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów — na
+    Liczba funkcji M w jednym bloku zależy od sterowania i jego parametrów. Na
     części Fanuców dozwolona jest jedna. Bezpieczniej pisać M03 i M08 w osobnych
     blokach, jak w przykładach kursu.
 sources:

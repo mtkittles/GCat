@@ -21,8 +21,8 @@ syntax:
   fanuc: G00 X_ Y_ Z_
   sinumerik: G0 X_ Y_ Z_
 sinumerik: >-
-  Identycznie: G0. Sinumerik ma dodatkowo RTLION/RTLIOF — dojazd po linii
-  prostej lub niezależnie osiami.
+  Ten sam ruch zapisuje się jako G0. Sinumerik ma dodatkowo RTLION i RTLIOF:
+  dojazd po linii prostej albo niezależnie osiami.
 params:
   - key: X Y Z
     desc: Współrzędne punktu docelowego
@@ -30,7 +30,7 @@ pitfalls:
   - >-
     Zejście ruchem G00 w materiał w osi Z to częsta przyczyna kolizji. G00 kończ
     na wysokości bezpiecznej nad detalem, a na głębokość schodź z posuwem (G01).
-  - Tor G00 nie musi być prostą — nie zakładaj, że ominie zacisk.
+  - Tor G00 nie musi być prostą. Nie zakładaj, że ominie zacisk.
 sources:
   - id: haas-workbook
     where: G00 a G01 — rozdzielenie toru szybkiego i interpolacji (Haas)
@@ -76,7 +76,7 @@ Przy \[\[G01]] podajesz posuw i sterowanie pilnuje, żeby prędkość wypadkowa 
 | Zastosowanie | Dojazdy i odjazdy w powietrzu                | Skrawanie                          |
 | Ryzyko       | Kolizja przy błędzie we współrzędnych        | Przeciążenie narzędzia przy złym F |
 
-## Składnia \{#składnia}
+## Zapis bloku \{#składnia}
 
 <Code caption="Zapis w Fanuc i Sinumerik jest identyczny; Sinumerik dopuszcza skróconą postać `G0`.">
   ```
