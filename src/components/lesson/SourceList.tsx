@@ -1,14 +1,16 @@
+import FoldMobile from "@/components/ui/FoldMobile";
 import { sourceDoc, sources } from "@/content/nauka/sources";
 
 /*
   Lista źródeł — wspólna dla lekcji i kart kodów. Każdy wpis: dokument (wydanie, numer),
   co potwierdza, miejsce (rozdział i strona albo „do uzupełnienia”), uwaga i link z datą dostępu.
   `fold` (lekcje): pełne opisy zwinięte pod listą skrótów, żeby nie wydłużać końca lekcji (#80 §5).
+  `fold="mobile"` (karty kodów): zwinięte tylko na telefonie, od 768 px otwarte (decyzja 10 audytu kart).
 */
 
 export interface SourceRef { id: string; where: string; loc?: string; url?: string }
 
-export default function SourceList({ items, id = "zrodla", fold = false }: { items: SourceRef[]; id?: string; fold?: boolean }) {
+export default function SourceList({ items, id = "zrodla", fold = false }: { items: SourceRef[]; id?: string; fold?: boolean | "mobile" }) {
   if (!items.length) return null;
   const list = (
       <ul className="ls-src-list">
@@ -28,12 +30,15 @@ export default function SourceList({ items, id = "zrodla", fold = false }: { ite
         })}
       </ul>
   );
+  const summary = <>{[...new Set(items.map((s) => sources[s.id]?.short ?? s.id))].join(" · ")}<span className="ls-src-open"> — pokaż wydania, rozdziały i strony</span></>;
   return (
     <section className="ls-src" aria-labelledby={id}>
       <h2 id={id}>Źródła</h2>
-      {fold ? (
+      {fold === "mobile" ? (
+        <FoldMobile className="ls-src-more" summary={summary}>{list}</FoldMobile>
+      ) : fold ? (
         <details className="ls-src-more">
-          <summary>{[...new Set(items.map((s) => sources[s.id]?.short ?? s.id))].join(" · ")}<span className="ls-src-open"> — pokaż wydania, rozdziały i strony</span></summary>
+          <summary>{summary}</summary>
           {list}
         </details>
       ) : list}
