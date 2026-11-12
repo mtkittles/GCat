@@ -33,7 +33,7 @@ sources: [{ id: fanuc-om, where: "rozdz. 4.2" }]
 Teoria: [[G01]], <Diagram id="g01" />…
 ```
 
-**`cwiczenia.yaml`:** przykład rozwiązany, „spróbuj sam”, test (`worked`, `practice`, `quiz`).
+**`cwiczenia.yaml`:** przykład, „spróbuj sam”, test (`worked`, `practice`, `quiz`).
 - To dane strukturalne, bez MDX. Szablony luk `X{0} Y{1}` byłyby dla MDX wyrażeniem JS.
 - Typy pytań i ćwiczeń są takie same jak w `src/lib/lesson.ts`. Zgodność pilnuje kompilator.
 
