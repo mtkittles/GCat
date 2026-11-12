@@ -14,9 +14,9 @@ related: []
 short: M98 P_ wywołuje podprogram (z powtórzeniami), M99 wraca.
 desc: >-
   Fragment powtarzany w kilku miejscach (np. kieszeń) zapisujesz raz jako osobny
-  program O1001, a wywołujesz M98 P1001. Fanuc: liczba powtórzeń przed numerem —
-  M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór przesuwany w
-  każdym wywołaniu.
+  program O1001, a wywołujesz M98 P1001. W Fanucu liczba powtórzeń stoi przed
+  numerem: M98 P51001 = 5 razy O1001. Z G91 w podprogramie dostajesz wzór
+  przesuwany w każdym wywołaniu.
 syntax:
   fanuc: |-
     M98 P1001      (raz)
@@ -31,10 +31,10 @@ params:
   - key: P
     desc: Numer podprogramu (+ liczba powtórzeń z przodu w Fanuc)
 pitfalls:
-  - M99 w programie głównym = pętla nieskończona.
+  - M99 w programie głównym tworzy pętlę bez końca.
   - >-
-    Podprogram w G91 musi zostawić narzędzie tam, gdzie zaczął — inaczej wzór
-    „ucieka”.
+    Podprogram w G91 musi kończyć ruch tam, gdzie zakłada kolejne wywołanie,
+    inaczej wzór się przesuwa.
 sources:
   - id: fanuc
     where: >-
@@ -73,7 +73,7 @@ example:
   stock:
     discriminant: false
 ---
-**M98** wywołuje podprogram, **M99** kończy go i zwraca sterowanie do miejsca wywołania. Podprogramy pozwalają zapisać powtarzalny fragment raz i wywołać go wielokrotnie — z różnymi układami współrzędnych, kątami czy przesunięciami.
+**M98** wywołuje podprogram, **M99** kończy go i zwraca sterowanie do miejsca wywołania. Powtarzalny fragment zapisujesz raz w podprogramie i wywołujesz wiele razy, np. w różnych układach współrzędnych, z obrotem albo przesunięciem.
 
 ## Struktura \{#struktura}
 
@@ -109,21 +109,21 @@ example:
 
 ## Powtórzenia \{#powtórzenia}
 
-| Zapis          | Znaczenie                                                          |
-| -------------- | ------------------------------------------------------------------ |
-| `M98 P1001`    | Jedno wywołanie podprogramu numer 1001                             |
-| `M98 P51001`   | **Pięć** wywołań podprogramu 1001 — liczba powtórzeń stoi z przodu |
-| `M98 P1001 L5` | To samo, składnia z osobnym adresem L (nie wszystkie sterowniki)   |
+| Zapis          | Znaczenie                                                     |
+| -------------- | ------------------------------------------------------------- |
+| `M98 P1001`    | Jedno wywołanie podprogramu numer 1001                        |
+| `M98 P51001`   | Pięć wywołań podprogramu 1001; liczba powtórzeń stoi z przodu |
+| `M98 P1001 L5` | To samo z osobnym adresem L (zależy od sterowania)            |
 
 <Note kind="warn">
-  Zapis `P51001` bywa mylący, bo wygląda jak numer programu 51001. Sterownik czyta ostatnie cztery cyfry jako numer, a to, co przed nimi, jako liczbę powtórzeń.
+  `P51001` to nie numer programu 51001. Sterowanie czyta ostatnie cztery cyfry jako numer podprogramu, a cyfry przed nimi jako liczbę powtórzeń.
 </Note>
 
 ## Podprogramy przyrostowe \{#podprogramy-przyrostowe}
 
-Największą siłę podprogramy pokazują w połączeniu z G91. Podprogram wykonujący jeden element, zakończony powrotem do punktu startu i przesunięciem o krok, powtórzony pięć razy daje rząd pięciu identycznych elementów — bez liczenia współrzędnych.
+Podprogram z G91 może wykonać jeden element, wrócić do punktu startu i przesunąć się o krok. Powtórzony pięć razy daje rząd pięciu jednakowych elementów bez liczenia współrzędnych każdego z nich.
 
-<Code caption="Podprogram kończy się dokładnie o jeden krok dalej niż zaczął — to warunek poprawnego powtarzania.">
+<Code caption="Podprogram kończy się o jeden krok dalej, niż zaczął. Tylko wtedy kolejne powtórzenia trafiają w następne miejsca.">
   ```
   O0200
   G21 G90 G94 G17
@@ -151,7 +151,7 @@ Największą siłę podprogramy pokazują w połączeniu z G91. Podprogram wykon
 </Code>
 
 <Note kind="warn">
-  **M99 w programie głównym tworzy pętlę nieskończoną.** Program wraca na początek i wykonuje się od nowa, aż do zatrzymania przez operatora. To bywa używane celowo (praca ciągła z podajnikiem), ale przypadkowo jest bardzo nieprzyjemne.
+  **M99 w programie głównym tworzy pętlę bez końca.** Program wraca na początek i wykonuje się od nowa, aż operator go zatrzyma. Czasem to zamierzone (praca ciągła z podajnikiem pręta); wstawione przez pomyłkę obrabia kolejne sztuki bez nadzoru.
 </Note>
 
 ## Sinumerik \{#sinumerik}

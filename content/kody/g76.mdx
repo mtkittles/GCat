@@ -67,11 +67,11 @@ example:
   stock:
     discriminant: false
 ---
-**G76** wykonuje **kompletny gwint w jednym cyklu**: sterownik sam dzieli głębokość gwintu na kolejne przejścia o malejącym przyroście, prowadzi narzędzie zsynchronizowane z obrotami wrzeciona i wykonuje przejścia wykańczające.
+**G76** wykonuje **cały gwint w jednym cyklu**. Sterowanie dzieli głębokość gwintu na przejścia o malejącym przyroście, prowadzi narzędzie w synchronizacji z obrotami wrzeciona i wykonuje przejścia wykańczające.
 
 ## Dlaczego przejścia mają malejącą głębokość \{#dlaczego-przejścia-mają-malejącą-głębokość}
 
-Gdyby każde przejście schodziło o tyle samo, przekrój wióra rósłby z każdym przejściem — bo trójkątny zarys gwintu jest coraz szerszy przy większej głębokości. Cykl dobiera przyrosty tak, aby **pole przekroju wióra pozostawało w przybliżeniu stałe**: pierwsze przejście jest najgłębsze, kolejne coraz płytsze.
+Gdyby każde przejście schodziło o tyle samo, przekrój wióra rósłby z każdym przejściem, bo trójkątny zarys gwintu jest coraz szerszy w głębi. Cykl dobiera przyrosty tak, aby **pole przekroju wióra było w przybliżeniu stałe**: pierwsze przejście jest głębokie, kolejne coraz płytsze.
 
 ## Składnia Fanuc (dwa bloki) \{#składnia-fanuc-dwa-bloki}
 
@@ -93,16 +93,16 @@ Gdyby każde przejście schodziło o tyle samo, przekrój wióra rósłby z każ
 | **F**             | Skok gwintu                                                                                                                           |
 
 <Note kind="info">
-  Zapis `P010060` bywa mylący, bo wygląda jak jedna liczba. To skleja trzy niezależne parametry — jeden z najbardziej nieintuicyjnych fragmentów składni Fanuc.
+  `P010060` to trzy parametry zapisane razem, po dwie cyfry: 01 przejście wykańczające, wybieg 0,0 skoku, kąt 60°.
 </Note>
 
 ## Obliczenia dla gwintu metrycznego \{#obliczenia-dla-gwintu-metrycznego}
 
-Dla gwintu zewnętrznego o skoku P wysokość zarysu wynosi w praktyce **h ≈ 0,613 × P**, a średnica dna **d₃ ≈ d − 1,227 × P**. Dla M24×3: h ≈ 1,84 mm (czyli P1840 w składni cyklu), średnica dna ≈ 20,3 mm. Średnicę zewnętrzną przed gwintowaniem toczy się zwykle o 0,1–0,2 mm mniejszą od nominalnej, żeby wierzchołki nie wychodziły ostre.
+Dla gwintu zewnętrznego o skoku p wysokość zarysu wynosi **h ≈ 0,613 × p**, a średnica dna **d₃ ≈ d − 1,227 × p**. Dla M24×3: h ≈ 1,84 mm (w cyklu `P1840`), średnica dna ≈ 20,3 mm. Średnicę zewnętrzną przed gwintowaniem toczy się zwykle o 0,1–0,2 mm mniejszą od nominalnej, żeby wierzchołki nie wychodziły ostre.
 
 ## Rozbieg i wybieg \{#rozbieg-i-wybieg}
 
-Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**; przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku.
+Narzędzie musi osiągnąć synchronizację z wrzecionem, zanim dotknie materiału. Punkt startu w osi Z powinien leżeć **co najmniej dwa skoki przed początkiem gwintu**, a przy dużych skokach i wysokich obrotach nawet cztery. Wybieg na końcu (druga para cyfr w P) pozwala płynnie wyprowadzić ostrze bez uskoku.
 
 <Sim mode="lathe" caption="Gwint M24×1,5 cyklem G76: rdzeń Ø22,16, wysokość zwoju 0,92 mm (P920), pierwsze wejście 0,3 mm (Q300). Symulator rozkłada wejścia według opisu G76 w instrukcji Fanuc; liczbę przejść na maszynie sprawdź w symulacji sterowania.">
   ```

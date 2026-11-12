@@ -70,13 +70,13 @@ example:
   stock:
     discriminant: false
 ---
-**G96** i **G97** decydują, co oznacza liczba przy adresie **S**. Przy **G97** jest to bezpośrednio prędkość obrotowa wrzeciona w obr/min. Przy **G96** — **prędkość skrawania w m/min**, a obroty sterownik przelicza sam, na bieżąco, w zależności od aktualnej średnicy toczenia.
+**G96** i **G97** decydują, co oznacza liczba przy adresie **S**. Przy **G97** jest to bezpośrednio prędkość obrotowa wrzeciona w obr/min. Przy **G96** to **prędkość skrawania w m/min**, a obroty sterowanie przelicza na bieżąco z aktualnej średnicy toczenia.
 
-## Dlaczego to ma znaczenie \{#dlaczego-to-ma-znaczenie}
+## Zastosowanie \{#dlaczego-to-ma-znaczenie}
 
-Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się względem ostrza — zależy od średnicy: **Vc = π · D · n / 1000**. Podczas toczenia poprzecznego (planowania czoła) średnica maleje od zewnątrz do osi. Przy stałych obrotach prędkość skrawania spada wtedy proporcjonalnie i w pobliżu osi dochodzi do zera: ostrze przestaje skrawać, zaczyna gnieść materiał, powierzchnia się psuje, a płytka może się wykruszyć.
+Prędkość skrawania, czyli prędkość materiału względem ostrza, zależy od średnicy: **vc = π · D · n / 1000**. Przy toczeniu poprzecznym (planowaniu czoła) średnica maleje od zewnątrz do osi. Przy stałych obrotach prędkość skrawania spada wtedy proporcjonalnie i przy osi dochodzi do zera. Ostrze przestaje skrawać i zaczyna gnieść materiał, powierzchnia się psuje, a płytka może się wykruszyć.
 
-**G96 utrzymuje Vc na stałym poziomie**, podnosząc obroty w miarę zmniejszania średnicy. Efekt: równa chropowatość na całej powierzchni czoła i przewidywalna trwałość ostrza.
+**G96 utrzymuje stałe vc**: podnosi obroty, gdy średnica maleje. Chropowatość jest wtedy równa na całym czole, a trwałość ostrza przewidywalna.
 
 <Diagram id="g96-g97" />
 
@@ -93,19 +93,19 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 </Code>
 
 <Note kind="warn">
-  **G96 bez ograniczenia obrotów jest niebezpieczne.** Gdy narzędzie zbliża się do osi obrotu, wyliczone obroty rosną do nieskończoności — sterownik podnosi je aż do maksimum maszyny. Przy niewyważonym detalu albo uchwycie szczękowym pracującym poza zakresem kończy się to wyrwaniem detalu z uchwytu.
+  **G96 bez ograniczenia obrotów jest niebezpieczne.** Przy osi wyliczone obroty bardzo szybko rosną: przy vc 200 m/min na średnicy 2 mm to 31 800 obr/min. Sterowanie podnosi je aż do maksimum maszyny. Przy niewyważonym detalu albo uchwycie pracującym poza zakresem detal może wypaść z uchwytu.
 </Note>
 
 ## Kiedy G97 jest konieczne \{#kiedy-g97-jest-konieczne}
 
-* **Gwintowanie** (G32, G33, G76) — przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.
-* **Wiercenie w osi** — wiertło pracuje na stałej średnicy niezależnie od pozycji Z, a przy G96 sterownik liczyłby obroty ze współrzędnej X równej zeru.
-* **Rowkowanie i przecinanie w pobliżu osi** — obroty rosłyby lawinowo.
-* **Detale niewyważone, mimośrodowe, w uchwycie szczękowym** — bezpieczniej trzymać stałe, umiarkowane obroty.
+* Gwintowanie (G32, G33, G76): przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.
+* Wiercenie w osi: wiertło pracuje na stałej średnicy, a przy G96 sterowanie liczyłoby obroty z X równego zeru.
+* Rowkowanie i przecinanie przy osi: obroty rosłyby do limitu.
+* Detale niewyważone, mimośrodowe, w uchwycie szczękowym: bezpieczniej trzymać stałe, umiarkowane obroty.
 
 ## Przykład \{#przykład}
 
-<Sim mode="lathe" caption="Planowanie czoła przy stałej prędkości skrawania: w miarę zbliżania się do osi obroty rosną do limitu G50. Potem dwa przejścia wzdłużne i powrót do stałych obrotów przed odjazdem.">
+<Sim mode="lathe" caption="Planowanie czoła przy stałej prędkości skrawania: im bliżej osi, tym wyższe obroty, aż do limitu G50. Potem dwa przejścia wzdłużne i powrót do stałych obrotów przed odjazdem.">
   ```
   G18 G21 G40 G80 G99
   G54
@@ -132,13 +132,13 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 
 ## Dobór prędkości skrawania \{#dobór-prędkości-skrawania}
 
-<Table caption="Te same wartości orientacyjne co w kalkulatorze parametrów skrawania (toczenie, węglik z powłoką). To punkty startowe, nie dane katalogowe — przed obróbką sprawdź katalog producenta narzędzia dla konkretnego gatunku i geometrii.">
-  | Materiał                       | Vc dla węglika \[m/min] | Uwagi                                                |
+<Table caption="Te same wartości orientacyjne co w kalkulatorze parametrów skrawania (toczenie, węglik z powłoką). To punkty startowe, nie dane katalogowe. Przed obróbką sprawdź katalog producenta narzędzia dla danego gatunku i geometrii.">
+  | Materiał                       | vc dla węglika \[m/min] | Uwagi                                                |
   | ------------------------------ | ----------------------- | ---------------------------------------------------- |
   | Aluminium 6061 / AW-6082       | 450–1000                | Ograniczeniem są zwykle obroty maszyny, nie materiał |
   | Stal konstrukcyjna (S235, C45) | 150–300                 | S235: 180–300, C45: 150–260                          |
   | Stal stopowa 42CrMo4 ulepszana | 110–200                 | Niższe wartości przy większej twardości              |
-  | Stal nierdzewna 1.4301 (304)   | 90–170                  | Skłonność do umocnienia — nie schodź poniżej zakresu |
+  | Stal nierdzewna 1.4301 (304)   | 90–170                  | Skłonność do umocnienia; nie schodź poniżej zakresu  |
   | Żeliwo szare GJL-250           | 180–350                 | Wiór kruchy, mała siła skrawania                     |
   | Tytan Ti-6Al-4V                | 40–80                   | Niska przewodność cieplna, ciepło zostaje w ostrzu   |
   | Inconel 718                    | 25–55                   | Wymaga obfitego chłodzenia                           |
@@ -147,6 +147,6 @@ Prędkość skrawania — czyli prędkość, z jaką materiał przesuwa się wzg
 ## Typowe błędy \{#typowe-błędy}
 
 * **Brak G50 / LIMS** przed G96.
-* **Pozostawienie G96 przed wierceniem w osi** — alarm albo maksymalne obroty.
-* **Wpisanie obrotów zamiast Vc** — `G96 S1500` to polecenie utrzymania 1500 m/min — przy typowych średnicach oznacza to obroty na limicie G50 albo maszyny.
-* **Brak powrotu do G97** przed odjazdem i zatrzymaniem — kolejna operacja startuje w nieoczekiwanym trybie.
+* **Pozostawione G96 przed wierceniem w osi.** Alarm albo maksymalne obroty.
+* **Wpisane obroty zamiast vc.** `G96 S1500` każe utrzymać 1500 m/min. Przy typowych średnicach to obroty na limicie G50 albo maszyny.
+* **Brak powrotu do G97** przed odjazdem i zatrzymaniem. Kolejna operacja startuje w nieoczekiwanym trybie.

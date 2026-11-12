@@ -14,9 +14,9 @@ short: >-
   G71 zdejmuje naddatek warstwami wzdłuż konturu, G70 wykonuje przejście
   wykańczające po tym samym konturze.
 desc: >-
-  Podajesz kontur gotowy (bloki P–Q), a G71 sam generuje przejścia zgrubne o
-  głębokości U z naddatkiem U/W na wykańczanie. G70 P_ Q_ potem jedzie po
-  konturze na czysto.
+  Podajesz gotowy kontur (bloki P–Q), a G71 sam rozpisuje przejścia zgrubne o
+  głębokości U z naddatkiem U/W na wykańczanie. Potem G70 P_ Q_ wykonuje
+  przejście wykańczające po konturze.
 syntax:
   fanuc: |-
     G71 U2. R1.
@@ -78,11 +78,11 @@ example:
   stock:
     discriminant: false
 ---
-**G71** to cykl **zgrubnego toczenia wzdłużnego**. Podajesz kontur gotowego detalu i głębokość jednego przejścia, a sterownik sam generuje wszystkie przejścia zdejmujące naddatek, zostawiając zadany naddatek na wykańczanie. **G70** wykonuje potem jedno przejście po tym samym konturze na gotowo.
+**G71** to cykl **zgrubnego toczenia wzdłużnego**. Podajesz kontur gotowego detalu i głębokość jednego przejścia, a sterowanie samo rozpisuje przejścia zgrubne i zostawia zadany naddatek. **G70** wykonuje potem przejście wykańczające po tym samym konturze.
 
-## Dlaczego warto \{#dlaczego-warto}
+## Zastosowanie \{#dlaczego-warto}
 
-Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości 2 mm to około 40 bloków, z których każdy trzeba przeliczyć. W cyklu G71 to cztery linie plus opis konturu. Zmiana naddatku albo głębokości przejścia sprowadza się do poprawienia jednej liczby.
+Toczenie zgrubne wałka z ⌀60 na ⌀30 przy głębokości 2 mm to 8 przejść (15 mm na stronę), każde po kilka bloków do przeliczenia. W cyklu G71 to dwa bloki cyklu i opis konturu. Zmiana naddatku albo głębokości przejścia sprowadza się do poprawienia jednej liczby.
 
 ## Składnia Fanuc \{#składnia-fanuc}
 
@@ -110,7 +110,7 @@ Ręczne rozpisanie toczenia zgrubnego wałka z ⌀60 na ⌀30 przy głębokości
 | **F**          | Posuw zgrubny. F zapisane w blokach konturu działa dopiero w G70 |
 
 <Note kind="warn">
-  W typie I blok wskazany przez **P zawiera tylko ruch w osi X** — bez współrzędnej Z. Naruszenie tej zasady to najczęstsza przyczyna alarmu przy G71. Kontur musi też być **monotoniczny**: średnica może tylko rosnąć albo tylko maleć wzdłuż Z (typ I). Kontury z podcięciami wymagają typu II lub cyklu G73.
+  W typie I blok wskazany przez **P zawiera tylko ruch w osi X**, bez współrzędnej Z. Złamanie tej zasady to częsta przyczyna alarmu przy G71. Kontur musi też być **monotoniczny**: średnica może tylko rosnąć albo tylko maleć wzdłuż Z (typ I). Kontury z podcięciami wymagają typu II lub cyklu G73.
 </Note>
 
 <Sim mode="lathe" caption="Ten sam program co wyżej, z nagłówkiem. Siedem przejść zgrubnych po 2 mm na stronę, przejście po konturze z naddatkiem i wykończenie G70.">
