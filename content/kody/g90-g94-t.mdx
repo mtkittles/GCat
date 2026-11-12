@@ -25,7 +25,7 @@ desc: >-
 
 
   **G90 X_ Z_ F_** toczy do średnicy X na długości Z, z adresem **R** robi
-  stożek. Cykl jest modalny — kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_**
+  stożek. Cykl jest modalny: kolejne bloki mogą mieć samo X. **G92 X_ Z_ F_**
   robi jedno przejście gwintu o skoku F; każde kolejne X to następna głębokość.
   **G94 X_ Z_ F_** planuje czoło do Z.
 
@@ -36,9 +36,9 @@ desc: >-
 
 
   W systemie B te same cykle mają numery **G77** (toczenie), **G78** (gwint) i
-  **G79** (planowanie), a w systemie C — **G20**, **G21** i **G24**. Numer
-  systemu ustala parametr sterowania; sprawdź go w instrukcji konkretnej serii,
-  zanim przeniesiesz program między maszynami.
+  **G79** (planowanie), a w systemie C **G20**, **G21** i **G24**. Numer systemu
+  ustala parametr sterowania; sprawdź go w instrukcji konkretnej serii, zanim
+  przeniesiesz program między maszynami.
 syntax:
   fanuc: |-
     G90 X_ Z_ (R_) F_
@@ -63,7 +63,7 @@ params:
 pitfalls:
   - >-
     Program z tokarki w systemie A przeniesiony na frezarkę albo tokarkę w
-    systemie B/C zrobi coś zupełnie innego.
+    systemie B/C zrobi coś innego.
   - >-
     W G92 obroty muszą być stałe (G97). Przy G96 obroty zmieniałyby się między
     przejściami i nóż nie trafiałby w ten sam zwój.

@@ -64,7 +64,7 @@ example:
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
-Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i współrzędnej z programu. Zmiana `G54` na `G55` nie zmienia ani jednego bloku programu — zmienia tylko to, do którego przesunięcia sterownik go dolicza.
+Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i współrzędnej z programu. Zmiana `G54` na `G55` nie zmienia ani jednego bloku programu. Zmienia tylko to, do którego przesunięcia sterownik go dolicza.
 
 <Diagram id="f02-points" />
 
@@ -84,7 +84,7 @@ Pozycja, do której jedzie maszyna, to suma przesunięcia z aktywnego rejestru i
 
 ## Ustawianie zera \{#ustawianie-zera}
 
-Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sondą i zapisuje pozycję do rejestru, uwzględniając promień końcówki. Z ustala się na górnej powierzchni — dotykiem narzędzia wzorcowego albo sondą.
+Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sondą i zapisuje pozycję do rejestru, uwzględniając promień końcówki. Z ustala się na górnej powierzchni, dotykiem narzędzia wzorcowego albo sondą.
 
 <Diagram id="f03-edge" />
 
@@ -97,16 +97,16 @@ Na frezarce operator dojeżdża do krawędzi czujnikiem krawędziowym albo sond�
   ```
 </Code>
 
-Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem noża na splanowanym czole.
+Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z, dotykiem noża na splanowanym czole.
 
 <Diagram id="t03-zero" />
 
 ## Gdzie postawić zero detalu \{#gdzie-postawić-zero-detalu}
 
-* **Detal prostokątny** — narożnik, od którego wymiarowany jest rysunek; Z na górnej powierzchni. Współrzędne w XY dodatnie, głębokości ujemne.
-* **Detal symetryczny** — środek, jeśli rysunek wymiaruje od osi symetrii.
-* **Toczenie** — oś obrotu i czoło gotowego detalu.
-* **Zasada ogólna** — tam, skąd wymiaruje rysunek. Każde przeliczenie wymiaru to miejsce na błąd.
+* Detal prostokątny: narożnik, od którego wymiarowany jest rysunek; Z na górnej powierzchni. Współrzędne w XY dodatnie, głębokości ujemne.
+* Detal symetryczny: środek, jeśli rysunek wymiaruje od osi symetrii.
+* Toczenie: oś obrotu i czoło gotowego detalu.
+* Zasada ogólna: tam, skąd wymiaruje rysunek. Każde przeliczenie wymiaru to miejsce na błąd.
 
 ## Kilka detali, jeden program \{#kilka-detali-jeden-program}
 
@@ -146,7 +146,7 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem 
 </Sim>
 
 <Note kind="info">
-  Sześciu układów za mało? Fanuc ma rozszerzenie **G54.1 P1…P48** (w nowszych seriach do P300), Sinumerik — **G505…G599** obok G54–G57.
+  Sześciu układów za mało? Fanuc ma rozszerzenie **G54.1 P1…P48** (w nowszych seriach do P300), a Sinumerik **G505…G599** obok G54–G57.
 </Note>
 
 ## Powiązane funkcje \{#powiązane-funkcje}
@@ -169,8 +169,8 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem 
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Pusty rejestr** — układ pokrywa się z zerem maszyny; pierwszy dojazd kończy się kolizją albo alarmem krańcówki.
-* **Brak G54 w programie** — obowiązuje układ zostawiony przez poprzednią pracę.
-* **Zero na surowej powierzchni** — nierówny naddatek: pierwsze przejście miejscami nie dotyka materiału, miejscami bierze podwójnie.
-* **Promień czujnika dodany w złą stronę** — cały detal przesunięty o średnicę końcówki.
-* **Przełożony detal, stare zero** — nawet w tym samym imadle przesunięcie o dziesiąte części milimetra.
+* **Pusty rejestr.** Układ pokrywa się z zerem maszyny; pierwszy dojazd kończy się kolizją albo alarmem krańcówki.
+* **Brak G54 w programie.** Obowiązuje układ zostawiony przez poprzednią pracę.
+* **Zero na surowej powierzchni.** Nierówny naddatek: pierwsze przejście miejscami nie dotyka materiału, miejscami bierze podwójnie.
+* **Promień czujnika dodany w złą stronę.** Cały detal przesunięty o średnicę końcówki.
+* **Przełożony detal, stare zero.** Nawet w tym samym imadle przesunięcie o dziesiąte części milimetra.

@@ -18,11 +18,11 @@ short: >-
   T_ M06 wymienia narzędzie we wrzecionie na wskazane. Samo T tylko przygotowuje
   narzędzie w magazynie.
 desc: >-
-  **T05** wybiera narzędzie — magazyn może je przygotować, zanim skończy się
+  **T05** wybiera narzędzie. Magazyn może je przygotować, zanim skończy się
   poprzednia operacja. **M06** wykonuje wymianę.
 
 
-  Przebieg wymiany ustala konstruktor obrabiarki w sterowaniu i logice maszyny —
+  Przebieg wymiany ustala konstruktor obrabiarki w sterowaniu i logice maszyny,
   także to, czy oś Z sama odjeżdża do pozycji wymiany. Na części maszyn program
   robi to wcześniej (**G91 G28 Z0** albo **G30**). Po wymianie wrzeciono stoi:
   trzeba włączyć korekcję długości **G43 H_** i obroty (lekcja F2.1).
@@ -43,7 +43,7 @@ params: []
 pitfalls:
   - >-
     Po M06 bez G43 H_ narzędzie pracuje z długością poprzedniego albo bez
-    korekcji — ryzyko kolizji.
+    korekcji. Grozi to kolizją.
   - >-
     Numer H inny niż T (T05 z H04) to częsty błąd przy kopiowaniu fragmentów
     programu.

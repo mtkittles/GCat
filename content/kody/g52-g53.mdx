@@ -16,9 +16,9 @@ short: >-
   (jednorazowo).
 desc: >-
   G52 X_ Y_ ustawia lokalne zero przesunięte o podane wartości od aktualnego
-  G54–G59 — wygodne dla kilku identycznych kieszeni. G52 X0 Y0 kasuje. G53
-  działa tylko w bloku, w którym jest, i interpretuje współrzędne jako maszynowe
-  — do dojazdu do pozycji wymiany narzędzia lub wyładunku.
+  G54–G59. Przydaje się przy kilku identycznych kieszeniach. G52 X0 Y0 kasuje.
+  G53 działa tylko w bloku, w którym jest, i interpretuje współrzędne jako
+  maszynowe. Służy do dojazdu do pozycji wymiany narzędzia lub wyładunku.
 syntax:
   fanuc: |-
     G52 X50. Y0.
@@ -73,9 +73,9 @@ example:
   stock:
     discriminant: false
 ---
-**G52** ustawia **układ lokalny** — dodatkowe przesunięcie nakładane na aktywny G54–G59. **G53** działa odwrotnie: na jeden blok wyłącza wszystkie przesunięcia i każe interpretować współrzędne jako **maszynowe**.
+**G52** ustawia **układ lokalny**, czyli dodatkowe przesunięcie nakładane na aktywny G54–G59. **G53** działa odwrotnie: na jeden blok wyłącza wszystkie przesunięcia i każe interpretować współrzędne jako **maszynowe**.
 
-## G52 — układ lokalny \{#g52-układ-lokalny}
+## G52: układ lokalny \{#g52-układ-lokalny}
 
 Przydaje się, gdy detal ma kilka identycznych elementów rozmieszczonych w znanych odległościach. Zamiast przeliczać współrzędne każdego, przesuwasz zero i wywołujesz ten sam fragment programu.
 
@@ -96,7 +96,7 @@ Przydaje się, gdy detal ma kilka identycznych elementów rozmieszczonych w znan
   G52 **nie kasuje się samo** po zakończeniu programu na części sterowników. Zapomniane `G52 X60` zostaje aktywne i przesuwa obróbkę następnego detalu. Dlatego kończ program blokiem `G52 X0 Y0 Z0`.
 </Note>
 
-## G53 — współrzędne maszynowe \{#g53-współrzędne-maszynowe}
+## G53: współrzędne maszynowe \{#g53-współrzędne-maszynowe}
 
 G53 obowiązuje **wyłącznie w bloku, w którym stoi**. Współrzędne odnoszą się do zera maszyny, więc pozycja jest niezależna od tego, jak ustawione są rejestry detalu. Stosuje się to do:
 

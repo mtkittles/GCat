@@ -21,14 +21,14 @@ desc: >-
   **G30** działa jak **G28**: najpierw ruch szybki do punktu pośredniego z
   bloku, potem do punktu referencyjnego. **G30 P2** jedzie do drugiego punktu
   (P2 można pominąć), **P3** i **P4** do trzeciego i czwartego. Ich położenie
-  ustawia producent w parametrach — często to pozycja wymiany narzędzia albo
+  ustawia producent w parametrach. Często to pozycja wymiany narzędzia albo
   zmiany palety.
 
 
   **G27** nie ma punktu pośredniego: jedzie wprost do pozycji z bloku i
-  sprawdza, czy to punkt referencyjny; jeśli nie — alarm. **G29** wraca z punktu
-  referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji z
-  bloku.
+  sprawdza, czy to punkt referencyjny; jeśli nie, zgłasza alarm. **G29** wraca z
+  punktu referencyjnego przez punkt pośredni zapamiętany przy G28/G30 do pozycji
+  z bloku.
 syntax:
   fanuc: |-
     G91 G30 P2 Z0.
@@ -41,7 +41,7 @@ syntax:
     ; najazd na punkt referencyjny
     G74 X=0 Z=0
 sinumerik: >-
-  Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi —
+  Najazd na punkt stały to **G75 FP=n**, najazd na punkt referencyjny osi
   **G74**.
 params:
   - key: P
@@ -50,7 +50,7 @@ params:
     desc: punkt pośredni (G30) albo pozycja docelowa (G27, G29)
 pitfalls:
   - >-
-    Jak przy G28: w G90 punkt pośredni Z0 to zero detalu — jeśli leży poniżej
+    Jak przy G28: w G90 punkt pośredni Z0 to zero detalu. Jeśli leży poniżej
     narzędzia, pierwszy etap schodzi na detal. G91 … Z0 pomija ten etap.
   - >-
     Położenie drugiego punktu ustawia producent maszyny. Sprawdź je, zanim

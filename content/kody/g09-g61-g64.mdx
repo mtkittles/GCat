@@ -24,7 +24,7 @@ desc: >-
 
   **G61** włącza dokładne zatrzymanie modalnie: każdy blok kończy się pełnym
   wyhamowaniem i sprawdzeniem pozycji. **G09** robi to samo tylko w bloku, w
-  którym stoi — wstawia się go w blok kończący się w narożu, które ma być ostre.
+  którym stoi. Wstawia się go w blok kończący się w narożu, które ma być ostre.
 
 
   **G62** automatycznie zmniejsza posuw w narożach wewnętrznych przy włączonej
@@ -46,7 +46,7 @@ params: []
 pitfalls:
   - >-
     G61 zostawione na cały program wydłuża obróbkę konturów z wieloma krótkimi
-    odcinkami — oś hamuje w każdym punkcie.
+    odcinkami, bo oś hamuje w każdym punkcie.
   - >-
     Ostre naroże z rysunku przy G64 wyjdzie lekko zaokrąglone. Dodaj G09 w bloku
     kończącym się w tym narożu.

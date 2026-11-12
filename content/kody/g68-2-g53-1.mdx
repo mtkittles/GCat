@@ -19,14 +19,14 @@ short: >-
   narzędzie stało prostopadle do tej płaszczyzny.
 desc: >-
   Obróbka **3+2**: dwie osie obrotowe ustawiają detal pod kątem i stoją, a
-  skrawa się trzema osiami liniowymi — jak na zwykłej frezarce, tylko na
+  skrawa się trzema osiami liniowymi, jak na zwykłej frezarce, tylko na
   pochylonej ścianie.
 
 
   **G68.2 X_ Y_ Z_ I_ J_ K_** definiuje płaszczyznę: X Y Z to jej początek w
-  układzie detalu, I J K to kąty Eulera — obrót wokół Z, potem wokół nowej osi
-  X, potem wokół nowej Z. Od tego bloku X Y Z programu są w pochylonym układzie,
-  a Z jest prostopadłe do płaszczyzny.
+  układzie detalu, I J K to kąty Eulera: obrót wokół Z, potem wokół nowej osi X,
+  potem wokół nowej Z. Od tego bloku X Y Z programu są w pochylonym układzie, a
+  Z jest prostopadłe do płaszczyzny.
 
 
   **G53.1** obraca osie stołu tak, żeby oś narzędzia pokryła się z osią Z
@@ -56,9 +56,9 @@ params:
   - key: I J K
     desc: 'Kąty Eulera: Z, nowa X, nowa Z [°] (I90 J30 K-90 = 30° wokół Y)'
 pitfalls:
-  - G68.2 bez G53.1 — współrzędne są pochylone, a narzędzie stoi pionowo.
+  - 'G68.2 bez G53.1: współrzędne są pochylone, a narzędzie stoi pionowo.'
   - >-
-    G53.1 obraca tylko osie obrotowe — X Y Z maszyny stoją. Odjedź w Z, zanim
+    G53.1 obraca tylko osie obrotowe, a X Y Z maszyny stoją. Odjedź w Z, zanim
     stół się obróci.
   - >-
     Kolejność kątów Eulera ma znaczenie: I to obrót wokół Z, J wokół nowej X, K

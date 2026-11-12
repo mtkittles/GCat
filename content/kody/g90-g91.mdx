@@ -70,7 +70,7 @@ example:
   stock:
     discriminant: false
 ---
-**G90** i **G91** mówią sterownikowi, jak czytać liczby przy osiach. **G90 (absolutnie)** — współrzędna to punkt względem zera detalu. **G91 (przyrostowo)** — przesunięcie od miejsca, w którym narzędzie teraz stoi.
+**G90** i **G91** mówią sterownikowi, jak czytać liczby przy osiach. W **G90 (absolutnie)** współrzędna to punkt względem zera detalu. W **G91 (przyrostowo)** to przesunięcie od miejsca, w którym narzędzie teraz stoi.
 
 <Diagram id="f13-absinc" />
 
@@ -78,8 +78,8 @@ example:
 
 Narzędzie stoi w X20 Y10. Blok `G01 X30. Y20.` znaczy:
 
-* w **G90** — jedź do punktu X30 Y20,
-* w **G91** — przesuń się o 30 w X i 20 w Y, czyli do X50 Y30.
+* w **G90**: jedź do punktu X30 Y20,
+* w **G91**: przesuń się o 30 w X i 20 w Y, czyli do X50 Y30.
 
 <Code caption="Kontrola: suma przyrostów zamkniętego konturu w każdej osi musi dać zero.">
   ```
@@ -136,7 +136,7 @@ Narzędzie stoi w X20 Y10. Blok `G01 X30. Y20.` znaczy:
 
 ## Tokarki Fanuc: U i W \{#tokarki-fanuc-u-i-w}
 
-Na tokarkach Fanuc w systemie A nie ma przełączania trybu — przyrost daje sam adres: **U** dla X i **W** dla Z. Można je mieszać z X i Z w jednym bloku: `G01 X40. W-10.` — na średnicę 40 i 10 mm w stronę uchwytu. **U jest w średnicy**, tak jak X: `U-2.` to 1 mm w stronę osi.
+Na tokarkach Fanuc w systemie A nie ma przełączania trybu: przyrost daje sam adres: **U** dla X i **W** dla Z. Można je mieszać z X i Z w jednym bloku: `G01 X40. W-10.` jedzie na średnicę 40 i 10 mm w stronę uchwytu. **U jest w średnicy**, tak jak X: `U-2.` to 1 mm w stronę osi.
 
 <Diagram id="t12-uw" />
 
@@ -146,7 +146,7 @@ Na tokarkach Fanuc w systemie A nie ma przełączania trybu — przyrost daje sa
 
 ## Sinumerik: tryb dla jednej osi \{#sinumerik-tryb-dla-jednej-osi}
 
-Sinumerik pozwala zmienić tryb dla pojedynczej współrzędnej: `X=IC(10)` — przyrostowo, `X=AC(50)` — absolutnie, niezależnie od aktywnego G90/G91. `G1 X=AC(50) Y=IC(10)` — do X50 i 10 mm dalej w Y.
+Sinumerik pozwala zmienić tryb dla pojedynczej współrzędnej: `X=IC(10)` przyrostowo, `X=AC(50)` absolutnie, niezależnie od aktywnego G90/G91. `G1 X=AC(50) Y=IC(10)` jedzie do X50 i 10 mm dalej w Y.
 
 ## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
 
@@ -158,8 +158,8 @@ Sinumerik pozwala zmienić tryb dla pojedynczej współrzędnej: `X=IC(10)` — 
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Brak powrotu do G90** po fragmencie przyrostowym — kolejne bloki jadą w zupełnie inne miejsca.
-* **`G90 G28 Z0.`** — maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Poprawnie: `G91 G28 Z0.`.
-* **Podprogram przyrostowy bez domknięcia** — każde powtórzenie przesuwa wzór o nadmiar.
-* **U liczone w promieniu** na tokarce — zejście o połowę mniejsze niż planowane.
-* **Tryb zakładany domyślnie** — blok startowy powinien go ustawiać jawnie.
+* **Brak powrotu do G90** po fragmencie przyrostowym. Kolejne bloki jadą w inne miejsca.
+* **Powrót `G90 G28 Z0.` w trybie absolutnym.** Maszyna jedzie najpierw do Z0 detalu, czyli w materiał. Poprawnie: `G91 G28 Z0.`.
+* **Podprogram przyrostowy bez domknięcia.** Każde powtórzenie przesuwa wzór o nadmiar.
+* **U liczone w promieniu** na tokarce. Zejście o połowę mniejsze niż planowane.
+* **Tryb zakładany domyślnie.** Blok startowy powinien go ustawiać jawnie.

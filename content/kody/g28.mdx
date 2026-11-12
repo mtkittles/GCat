@@ -22,8 +22,8 @@ desc: >-
 
 
   Punkt pośredni zależy od trybu: w **G91** to przyrost od bieżącej pozycji (G91
-  G28 Z0 — bez ruchu w pierwszym etapie), w **G90** to współrzędna w układzie
-  detalu (G90 G28 Z0 — najpierw do Z0 detalu).
+  G28 Z0: bez ruchu w pierwszym etapie), w **G90** to współrzędna w układzie
+  detalu (G90 G28 Z0: najpierw do Z0 detalu).
 syntax:
   fanuc: |-
     G91 G28 Z0.
@@ -40,20 +40,20 @@ syntax:
 sinumerik: >-
   Sinumerik w **trybie ISO** (dialekt Fanuc) obsługuje G28 z punktem pośrednim
   (Siemens, ISO Milling, rozdz. „Reference point approach with intermediate
-  point (G28)”). W **języku natywnym** funkcje są inne: G74 — najazd na punkt
-  referencyjny, G75 — na punkt stały. SUPA to wyłączenie przesunięć w jednym
-  bloku (ruch we współrzędnych maszynowych), a nie powrót do bazy — nie jest
-  prostym zamiennikiem G28.
+  point (G28)”). W **języku natywnym** funkcje są inne: G74 to najazd na punkt
+  referencyjny, G75 najazd na punkt stały. SUPA to wyłączenie przesunięć w
+  jednym bloku (ruch we współrzędnych maszynowych), a nie powrót do bazy, więc
+  nie jest prostym zamiennikiem G28.
 params:
   - key: X Y Z
     desc: >-
-      Punkt pośredni — w G90 we współrzędnych detalu, w G91 jako przyrost od
+      Punkt pośredni: w G90 we współrzędnych detalu, w G91 jako przyrost od
       bieżącej pozycji
 pitfalls:
   - >-
     G90 G28 Z0, gdy Z0 detalu leży poniżej narzędzia (przyczyna) → pierwszy etap
-    schodzi ruchem szybkim do Z0 — na powierzchnię detalu albo w zacisk (skutek)
-    → w G90 podaj punkt pośredni nad przeszkodami albo użyj G91 G28 Z0
+    schodzi ruchem szybkim do Z0, czyli na powierzchnię detalu albo w zacisk
+    (skutek) → w G90 podaj punkt pośredni nad przeszkodami albo użyj G91 G28 Z0
     (poprawka).
   - >-
     G91 bez powrotu do G90 (przyczyna) → kolejne bloki liczone przyrostowo
@@ -96,15 +96,15 @@ example:
   stock:
     discriminant: false
 ---
-**G28** odsyła podane osie do **punktu referencyjnego maszyny** — położenia wyznaczonego przy bazowaniu i zapisanego przez producenta w parametrach. Ruch odbywa się dwuetapowo, ruchem szybkim: najpierw do punktu pośredniego podanego w bloku, potem do punktu referencyjnego.
+**G28** odsyła podane osie do **punktu referencyjnego maszyny**, czyli położenia wyznaczonego przy bazowaniu i zapisanego przez producenta w parametrach. Ruch odbywa się dwuetapowo, ruchem szybkim: najpierw do punktu pośredniego podanego w bloku, potem do punktu referencyjnego.
 
 ## Punkt pośredni w G90 i w G91 \{#punkt-pośredni-w-g90-i-w-g91}
 
 Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy od aktywnego trybu wymiarowania:
 
-* **G91 G28 Z0** — przyrost 0 od bieżącej pozycji: pierwszy etap nie wykonuje ruchu, zostaje sam przejazd do punktu referencyjnego Z.
-* **G90 G28 Z0** — punkt pośredni to Z0 układu detalu. Jeżeli Z0 leży na powierzchni detalu, a narzędzie stoi tuż nad nią, pierwszy etap schodzi ruchem szybkim na detal.
-* **G90 G28 Z50** — punkt pośredni 50 mm nad zerem detalu: bezpieczny tylko wtedy, gdy na tej wysokości nie ma przeszkód.
+* `G91 G28 Z0`: przyrost 0 od bieżącej pozycji, więc pierwszy etap nie wykonuje ruchu i zostaje sam przejazd do punktu referencyjnego Z.
+* `G90 G28 Z0`: punkt pośredni to Z0 układu detalu. Jeżeli Z0 leży na powierzchni detalu, a narzędzie stoi tuż nad nią, pierwszy etap schodzi ruchem szybkim na detal.
+* `G90 G28 Z50`: punkt pośredni 50 mm nad zerem detalu. Bezpieczny tylko wtedy, gdy na tej wysokości nie ma przeszkód.
 
 <Diagram id="g28-path" />
 
@@ -120,13 +120,13 @@ Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy
 </Code>
 
 <Note kind="warn">
-  Drugi etap prowadzi tam, gdzie producent ustawił punkt referencyjny. Na typowej frezarce pionowej to górne położenie osi Z, ale nie jest to reguła dla każdej maszyny — przed użyciem G28 sprawdź jego położenie w dokumentacji maszyny i to, czy droga do niego jest wolna (zaciski, wysokie elementy, oś obrotowa).
+  Drugi etap prowadzi tam, gdzie producent ustawił punkt referencyjny. Na typowej frezarce pionowej to górne położenie osi Z, ale nie jest to reguła dla każdej maszyny. Przed użyciem G28 sprawdź jego położenie w dokumentacji maszyny i to, czy droga do niego jest wolna (zaciski, wysokie elementy, oś obrotowa).
 </Note>
 
 ## Kiedy się stosuje \{#kiedy-się-stosuje}
 
-* Przed wymianą narzędzia — magazyn wymaga określonej pozycji Z.
-* Na końcu programu — odsunięcie narzędzia i udostępnienie stołu.
+* Przed wymianą narzędzia: magazyn wymaga określonej pozycji Z.
+* Na końcu programu: odsunięcie narzędzia i udostępnienie stołu.
 * Przed obrotem stołu lub głowicy na maszynach wieloosiowych.
 
 ## Kody pokrewne \{#kody-pokrewne}
@@ -140,8 +140,8 @@ Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy
 
 ## Sinumerik \{#sinumerik}
 
-W **trybie ISO** (dialekt Fanuc, włączany np. przez `G291`) Sinumerik obsługuje G28 z punktem pośrednim. W **języku natywnym** Siemensa te same zadania realizują inne funkcje: **G74** — najazd na punkt referencyjny, **G75** — na punkt stały z danych maszynowych. `SUPA` jedynie wyłącza przesunięcia w danym bloku (ruch we współrzędnych maszynowych) — nie jest zamiennikiem powrotu do punktu referencyjnego.
+W **trybie ISO** (dialekt Fanuc, włączany np. przez `G291`) Sinumerik obsługuje G28 z punktem pośrednim. W **języku natywnym** Siemensa te same zadania realizują inne funkcje: **G74** najeżdża na punkt referencyjny, a **G75** na punkt stały z danych maszynowych. `SUPA` jedynie wyłącza przesunięcia w danym bloku (ruch we współrzędnych maszynowych) i nie jest zamiennikiem powrotu do punktu referencyjnego.
 
 <Note kind="info">
-  Źródło: Siemens, SINUMERIK 840D sl / 828D ISO Milling, instrukcja programowania 02/2012 (6FC5398-7BP40-3BA0), rozdz. 2.2.1 „Reference point approach with intermediate point (G28)”. Szczegóły G74/G75 w języku natywnym — do weryfikacji w instrukcji programowania dla wersji sterowania.
+  Źródło: Siemens, SINUMERIK 840D sl / 828D ISO Milling, instrukcja programowania 02/2012 (6FC5398-7BP40-3BA0), rozdz. 2.2.1 „Reference point approach with intermediate point (G28)”. Szczegóły G74/G75 w języku natywnym: do weryfikacji w instrukcji programowania dla wersji sterowania.
 </Note>

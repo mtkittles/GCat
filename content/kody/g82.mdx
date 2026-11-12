@@ -22,12 +22,12 @@ desc: >-
 
 
   Postój pozwala ostrzu wykonać w dnie kilka obrotów bez posuwu, co wyrównuje
-  dno i fazę. Czas postoju dobiera się do operacji — liczy się go z obrotów
+  dno i fazę. Czas postoju dobiera się do operacji i liczy z liczby obrotów
   wrzeciona (lekcja F3.5).
 syntax:
   fanuc: G98/G99 G82 X_ Y_ Z_ R_ P_ F_
   sinumerik: CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)
-sinumerik: '**CYCLE82** — postój w dnie to parametr **DTB** w sekundach.'
+sinumerik: '**CYCLE82**: postój w dnie to parametr **DTB** w sekundach.'
 params:
   - key: P
     desc: 'postój w dnie w milisekundach: P300 = 0,3 s'
@@ -40,7 +40,7 @@ params:
 pitfalls:
   - >-
     P w cyklu to milisekundy bez kropki. P0.3 zostanie odczytane inaczej albo da
-    alarm — zależnie od sterowania.
+    alarm, zależnie od sterowania.
   - >-
     Niepotrzebnie długi postój może zwiększać nagrzewanie i zostawiać ślady.
     Policz go z obrotów: przy S1800 trzy obroty to 0,1 s (P100); przykład stoi

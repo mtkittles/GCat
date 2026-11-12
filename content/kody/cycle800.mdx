@@ -21,13 +21,13 @@ desc: >-
   _DIR, _FR_I, _DMODE)**.
 
 
-  _MODE mówi, jak czytać kąty. Najczęściej 57 — obrót osiowo: najpierw wokół X o
+  _MODE mówi, jak czytać kąty. Wartość 57 to obrót osiowo: najpierw wokół X o
   _A, potem wokół nowej Y o _B, potem wokół nowej Z o _C. _X0 _Y0 _Z0 to punkt
-  odniesienia obrotu, _X1 _Y1 _Z1 — przesunięcie zera po obrocie.
+  odniesienia obrotu, a _X1 _Y1 _Z1 to przesunięcie zera po obrocie.
 
 
   _DIR wybiera kierunek obrotu osi (−1 / +1). Przy _DIR = 0 obraca się tylko
-  układ, a stół stoi. _TC to nazwa zestawu danych kinematyki, _FR — sposób
+  układ, a stół stoi. _TC to nazwa zestawu danych kinematyki, _FR to sposób
   odjazdu przed obrotem.
 
 
@@ -36,7 +36,7 @@ desc: >-
 
   Symulator obsługuje tryb osiowy i „osie wprost” (_MODE z bitami 6–7 = 11).
   Kąty rzutowania i kąt przestrzenny liczy jak tryb osiowy. Odjazdu _FR nie
-  wykonuje — odjedź w programie.
+  wykonuje, więc odjedź w programie.
 syntax:
   fanuc: |-
     G68.2 X_ Y_ Z_ I_ J_ K_
@@ -61,7 +61,7 @@ params:
     desc: 'Kierunek obrotu stołu: −1 / +1; 0 — bez obrotu stołu'
 pitfalls:
   - >-
-    Parametry są pozycyjne — przecinki muszą się zgadzać, nawet gdy część jest
+    Parametry są pozycyjne: przecinki muszą się zgadzać, nawet gdy część jest
     pusta.
   - '_DIR = 0 obraca tylko układ: narzędzie zostaje pionowe.'
   - Bez CYCLE800() na końcu kolejny program zaczyna w pochylonym układzie.
