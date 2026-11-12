@@ -73,13 +73,13 @@ example:
   stock:
     discriminant: false
 ---
-**G68** obraca układ współrzędnych o zadany kąt wokół wskazanego punktu. Wszystkie kolejne współrzędne są interpretowane w układzie obróconym, aż do **G69**.
+**G68** obraca układ współrzędnych o zadany kąt wokół wskazanego punktu. Kolejne współrzędne sterowanie liczy w układzie obróconym, aż do **G69**.
 
 ## Do czego to służy \{#do-czego-to-służy}
 
-* **Detale zamocowane pod kątem** — zamiast przeliczać cały kontur, obracasz układ o kąt zamocowania.
-* **Elementy powtarzane po okręgu** — sześć kieszeni co 60° to jeden podprogram wywołany sześć razy z różnym kątem.
-* **Rysunki wymiarowane pod kątem** — przepisujesz wymiary wprost, bez trygonometrii.
+* Detal zamocowany pod kątem: zamiast przeliczać cały kontur, obracasz układ o kąt zamocowania.
+* Elementy powtarzane po okręgu: sześć kieszeni co 60° to jeden podprogram wywołany sześć razy z różnym kątem.
+* Rysunek wymiarowany pod kątem: przepisujesz wymiary wprost, bez trygonometrii.
 
 ## Składnia \{#składnia}
 
@@ -96,7 +96,7 @@ example:
 | X, Y  | Środek obrotu, w aktywnej płaszczyźnie                                         |
 | R     | Kąt w stopniach; wartość dodatnia oznacza obrót przeciwnie do wskazówek zegara |
 
-<Code caption="Trzy identyczne elementy rozmieszczone co 60° wokół środka detalu.">
+<Code caption="Trzy jednakowe elementy rozmieszczone co 60° wokół środka detalu.">
   ```
   G54
   G68 X0. Y0. R0.
@@ -112,7 +112,7 @@ example:
 </Code>
 
 <Note kind="warn">
-  Zapomniane **G69** zostaje aktywne dla kolejnych narzędzi — cała reszta programu wykona się w obróconym układzie. Dlatego G69 warto umieścić także w bloku bezpiecznego startu po każdej wymianie narzędzia.
+  Bez **G69** obrót zostaje aktywny dla kolejnych narzędzi i reszta programu wykona się w obróconym układzie. Dlatego G69 można dopisać też do bloku startowego po każdej wymianie narzędzia.
 </Note>
 
 <Sim mode="mill" caption="Ten sam rowek X15–X35 zapisany trzy razy, z obrotem układu o 0°, 60° i 120° wokół zera detalu. Współrzędne w blokach ruchu się nie zmieniają.">
