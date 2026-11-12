@@ -22,7 +22,11 @@ syntax:
 sinumerik: M7/M8/M9 identycznie.
 params: []
 pitfalls: []
-sources: []
+sources:
+  - id: sandvik
+    where: chłodzenie przy frezowaniu, pęknięcia cieplne, obróbka na sucho
+  - id: fanuc
+    where: funkcje M07, M08, M09
 example:
   src: |-
     G21 G90 G94 G17
@@ -46,16 +50,16 @@ example:
   stock:
     discriminant: false
 ---
-**M08** włącza chłodziwo zalewowe, **M07** mgłę olejową, **M09** wyłącza oba. Funkcje modalne — raz włączone działają aż do wyłączenia albo do końca programu (M30 wyłącza chłodziwo automatycznie).
+**M08** włącza chłodziwo zalewowe, **M07** — na części maszyn mgłę olejową, **M09** wyłącza chłodziwo. Funkcje modalne — raz włączone działają aż do wyłączenia. M30 na większości maszyn i tak wyłącza chłodziwo, ale jawne M09 czyni program czytelnym.
 
 ## Rodzaje chłodzenia \{#rodzaje-chłodzenia}
 
-| Kod           | Rodzaj                                        | Zastosowanie                                       |
-| ------------- | --------------------------------------------- | -------------------------------------------------- |
-| **M07**       | Mgła olejowa                                  | Aluminium, obróbka wykańczająca, maszyny bez wanny |
-| **M08**       | Zalewowe (emulsja)                            | Standard: stal, żeliwo, obróbka zgrubna            |
-| **M09**       | Wyłączenie                                    | Obie postacie naraz                                |
-| **M88 / M89** | Chłodzenie przez narzędzie (na części maszyn) | Wiercenie głębokie, otwory powyżej 5× średnicy     |
+| Kod           | Rodzaj                                                                   | Zastosowanie                                       |
+| ------------- | ------------------------------------------------------------------------ | -------------------------------------------------- |
+| **M07**       | Mgła olejowa albo inne dodatkowe chłodzenie — znaczenie nadaje producent | Aluminium, obróbka wykańczająca, maszyny bez wanny |
+| **M08**       | Zalewowe (emulsja)                                                       | Standard: stal, obróbka zgrubna                    |
+| **M09**       | Wyłączenie                                                               | Obie postacie naraz                                |
+| **M88 / M89** | Chłodzenie przez narzędzie — kody zależne od producenta                  | Wiercenie głębokie                                 |
 
 ## Po co w ogóle chłodziwo \{#po-co-w-ogóle-chłodziwo}
 
@@ -64,7 +68,7 @@ example:
 * **Smarowanie** — zmniejsza tarcie i narost na ostrzu, poprawia powierzchnię.
 
 <Note kind="warn">
-  Przy obróbce **żeliwa** i przy frezowaniu **węglikiem na sucho** chłodziwo bywa szkodliwe. Węglik źle znosi szok termiczny: przerywany strumień chłodziwa na gorące ostrze powoduje mikropęknięcia i wykruszanie. Jeżeli chłodzisz węglik, chłodź obficie i bez przerw.
+  Żeliwo szare i wiele operacji frezowania stali węglikiem idzie na sucho albo z nadmuchem. Przy frezowaniu węglikiem ostrze nagrzewa się i stygnie z każdym obrotem, a strumień chłodziwa, który raz dochodzi do ostrza, a raz nie, pogłębia te skoki temperatury — węglik może pękać drobnymi rysami prostopadłymi do krawędzi. Jeśli chłodzisz, podawaj chłodziwo stałym, obfitym strumieniem. Rozstrzyga zalecenie producenta narzędzia (lekcja F2.4).
 </Note>
 
 <Note kind="info">

@@ -20,8 +20,9 @@ syntax:
   fanuc: G20 | G21
   sinumerik: G70 | G71
 sinumerik: >-
-  Uwaga: w Sinumerik cale/mm to G70/G71 — a G20/G21 nie istnieją. Fanuc G70/G71
-  to cykle tokarskie. Klasyczna pułapka przy przenoszeniu programów.
+  W natywnym języku Siemensa jednostki to G70/G71 i G700/G710; G20/G21 Sinumerik
+  rozumie w trybie języka ISO. Fanuc G70/G71 to cykle tokarskie (w systemie C —
+  jednostki). Klasyczna pułapka przy przenoszeniu programów.
 params: []
 pitfalls:
   - >-
@@ -36,6 +37,9 @@ sources:
       200
   - id: sinumerik
     where: G70, G71, G700 i G710 — cale i milimetry
+  - id: haas-workbook
+    where: Setting 9 — jednostki maszyny a G20/G21 programu
+    loc: s. 44
 example:
   src: |-
     G21 G90 G94 G17
@@ -57,13 +61,13 @@ example:
   stock:
     discriminant: false
 ---
-**G21** ustawia milimetry, **G20** — cale. Wybór dotyczy wszystkiego, co ma wymiar: współrzędnych, posuwu, promieni i wartości w rejestrach korekcji.
+**G21** ustawia milimetry, **G20** — cale. Wybór dotyczy liczb w programie: współrzędnych, posuwu, promieni. Jak po przełączeniu są traktowane wartości w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów.
 
 <Diagram id="f14-units" />
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
-Sterownik przelicza wszystkie wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Na Fanucu jednostki zmienia się **na początku programu, w osobnym bloku, przed jakimkolwiek ruchem** — zmiana w połowie obróbki przestawia też interpretację korekcji i przesunięć.
+Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania — na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
 
 <Code>
   ```
@@ -124,6 +128,6 @@ Sterownik przelicza wszystkie wartości wymiarowe z programu na swoją jednostk�
 ## Typowe błędy \{#typowe-błędy}
 
 * **Brak G21 w programie** — obowiązują jednostki zostawione przez poprzednią pracę.
-* **Zmiana jednostek w połowie programu** — korekcje i przesunięcia czytane w innej jednostce.
+* **Zmiana jednostek w połowie programu** — dalsze liczby czytane w innej jednostce; rejestry korekcji i przesunięć — zależnie od sterowania.
 * **G71 z Sinumerika na tokarce Fanuc** — zamiast milimetrów uruchamia się cykl zgrubny.
 * **Posuw nieprzeliczony** — współrzędne w mm, posuw z rysunku w calach na minutę.

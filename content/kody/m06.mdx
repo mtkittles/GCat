@@ -22,9 +22,10 @@ desc: >-
   poprzednia operacja. **M06** wykonuje wymianę.
 
 
-  Przed M06 wiele maszyn wymaga odjazdu Z do punktu wymiany (**G91 G28 Z0** albo
-  **G30**); często robi to makro producenta. Po wymianie trzeba włączyć korekcję
-  długości **G43 H_** i uruchomić wrzeciono.
+  Przebieg wymiany ustala konstruktor obrabiarki w sterowaniu i logice maszyny —
+  także to, czy oś Z sama odjeżdża do pozycji wymiany. Na części maszyn program
+  robi to wcześniej (**G91 G28 Z0** albo **G30**). Po wymianie wrzeciono stoi:
+  trzeba włączyć korekcję długości **G43 H_** i obroty (lekcja F2.1).
 
 
   Na tokarce M06 zwykle nie występuje: **T0101** obraca głowicę na narzędzie 1 i
@@ -46,7 +47,12 @@ pitfalls:
   - >-
     Numer H inny niż T (T05 z H04) to częsty błąd przy kopiowaniu fragmentów
     programu.
-sources: []
+sources:
+  - id: haas-workbook
+    where: przykład programu z T1 M06 przed blokiem startowym
+    loc: s. 42
+  - id: sinumerik
+    where: wywołanie T i M6, zarządzanie narzędziami
 example:
   src: |-
     G21 G90 G94 G17

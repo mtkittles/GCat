@@ -13,11 +13,12 @@ star: false
 related:
   - m00-m01
   - m98-m99
-short: M30 kończy program i przewija do początku. M02 tylko kończy.
+short: M30 i M02 kończą program. Przewinięcie na początek ustala parametr.
 desc: >-
-  M30 kończy program główny i ustawia kursor na jego początku. Na większości
-  maszyn zatrzymuje też wrzeciono i chłodziwo, a sterowanie przechodzi w stan
-  resetu — co dokładnie się kasuje, zależy od parametrów maszyny. Dlatego w
+  M30 kończy program główny. Czy kursor wraca na początek programu, ustala
+  parametr (Fanuc 0i-F: 3404#4, dla M02 — 3404#5). Na większości maszyn M30
+  zatrzymuje też wrzeciono i chłodziwo, a sterowanie przechodzi w stan resetu —
+  co dokładnie się kasuje, zależy od producenta i parametrów. Dlatego w
   programach kursu M09 i M05 stoją przed M30.
 syntax:
   fanuc: M30
@@ -29,7 +30,12 @@ pitfalls:
     M99 zamiast M30 w programie głównym wraca na jego początek i wykonuje go
     ponownie — przydatne przy podajniku pręta, groźne, gdy nikt tego nie
     zaplanował.
-sources: []
+sources:
+  - id: fanuc
+    where: M30 i M02 — koniec programu i przewinięcie
+    loc: parametr 3404#4 M30 i 3404#5 M02 — rozdz. 7.2.16, s. 201
+  - id: sinumerik
+    where: koniec programu M30, M2, M17
 example:
   src: |-
     G21 G90 G94 G17
@@ -51,15 +57,15 @@ example:
   stock:
     discriminant: false
 ---
-**M30** kończy program, zatrzymuje wrzeciono i chłodziwo, kasuje funkcje modalne i przewija program na początek. **M02** kończy program bez przewijania.
+**M30** i **M02** kończą program. Różnią się tym, co sterowanie robi potem — a to ustalają parametry i producent maszyny.
 
 ## Co dokładnie robi M30 \{#co-dokładnie-robi-m30}
 
-* zatrzymuje wrzeciono (jak M05),
-* wyłącza chłodziwo (jak M09),
-* kasuje funkcje modalne do stanu domyślnego sterownika,
-* ustawia kursor na pierwszym bloku, gotowy do kolejnej sztuki,
-* zwiększa licznik wykonanych detali.
+* **Przewinięcie na początek programu** — ustala parametr: na Fanucu 0i-F 3404#4 dla M30 i 3404#5 dla M02. Zwykle M30 przewija, a M02 nie.
+* **Wrzeciono, chłodziwo, reset funkcji modalnych** — na większości maszyn M30 je zatrzymuje i kasuje, ale zakres ustala producent maszyny.
+* **Licznik detali** — jeśli maszyna go prowadzi, kod, który go zwiększa, zależy od sterowania.
+
+Program nie powinien polegać na tym, co zrobi M30: w programach kursu M09 i M05 stoją przed nim (lekcja F1.5).
 
 ## Zakończenie programu w praktyce \{#zakończenie-programu-w-praktyce}
 
@@ -80,8 +86,8 @@ Samo M30 nie odsuwa narzędzia. Pełne, bezpieczne zakończenie wygląda tak:
 | ------- | ----------------------------------------------------------------------------------------------------------- |
 | **M00** | Zatrzymanie bezwarunkowe w środku programu — do pomiaru albo obrócenia detalu. Wznowienie przyciskiem Start |
 | **M01** | Zatrzymanie warunkowe — działa tylko, gdy operator włączył Optional Stop na pulpicie                        |
-| **M02** | Koniec programu bez przewijania                                                                             |
-| **M30** | Koniec programu z przewijaniem — standard                                                                   |
+| **M02** | Koniec programu; przewinięcie wg parametru (Fanuc 3404#5) — zwykle bez                                      |
+| **M30** | Koniec programu; przewinięcie wg parametru (Fanuc 3404#4). Standard w nowych programach                     |
 | **M99** | Koniec podprogramu; w programie głównym powoduje pętlę nieskończoną                                         |
 
 <Note kind="tip">

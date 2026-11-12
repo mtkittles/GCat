@@ -32,7 +32,8 @@ sources:
     where: G54–G59 — układy współrzędnych detalu
     loc: rozdz. 3.1, tab. 3.1, s. 72; rozdz. 4, s. 87
   - id: sinumerik
-    where: przesunięcia nastawne G54–G57 i dalsze, TRANS i ATRANS
+    where: przesunięcia nastawne G54–G57 i G505–G599, G500; TRANS i ATRANS
+    loc: rozdz. 9.1, s. 135
 example:
   src: |-
     G21 G90 G94 G17
@@ -159,12 +160,12 @@ Na tokarce X0 jest zawsze na osi obrotu, więc ustala się tylko Z — dotykiem 
 
 ## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
 
-| Zagadnienie            | Fanuc       | Sinumerik                    |
-| ---------------------- | ----------- | ---------------------------- |
-| Podstawowe układy      | `G54`–`G59` | `G54`–`G57`                  |
-| Rozszerzone            | `G54.1 P_`  | `G505`–`G599`                |
-| Wyłączenie             | —           | `G500` (przesunięcie zerowe) |
-| Przesunięcie dodatkowe | `G52`       | `TRANS` / `ATRANS`           |
+| Zagadnienie            | Fanuc       | Sinumerik                                                                      |
+| ---------------------- | ----------- | ------------------------------------------------------------------------------ |
+| Podstawowe układy      | `G54`–`G59` | `G54`–`G57`                                                                    |
+| Rozszerzone            | `G54.1 P_`  | `G505`–`G599`                                                                  |
+| Wyłączenie             | —           | `G500` — wyłącza przesunięcie nastawne; frame bazowy może zostać (lekcja F0.3) |
+| Przesunięcie dodatkowe | `G52`       | `TRANS` / `ATRANS`                                                             |
 
 ## Typowe błędy \{#typowe-błędy}
 

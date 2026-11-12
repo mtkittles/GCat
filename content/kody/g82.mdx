@@ -21,8 +21,9 @@ desc: >-
   do płaszczyzny **R** (**G99**) albo poziomu początkowego (**G98**).
 
 
-  Postój pozwala ostrzu zebrać materiał na pełnym obwodzie, więc dno i faza są
-  równe. Bez niego nawiertak zostawia ślad spirali.
+  Postój pozwala ostrzu wykonać w dnie kilka obrotów bez posuwu, co wyrównuje
+  dno i fazę. Czas postoju dobiera się do operacji — liczy się go z obrotów
+  wrzeciona (lekcja F3.5).
 syntax:
   fanuc: G98/G99 G82 X_ Y_ Z_ R_ P_ F_
   sinumerik: CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)
@@ -41,8 +42,9 @@ pitfalls:
     P w cyklu to milisekundy bez kropki. P0.3 zostanie odczytane inaczej albo da
     alarm — zależnie od sterowania.
   - >-
-    Długi postój przy dużych obrotach i słabym chłodzeniu przegrzewa ostrze.
-    Wystarczy kilka obrotów wrzeciona.
+    Niepotrzebnie długi postój może zwiększać nagrzewanie i zostawiać ślady.
+    Policz go z obrotów: przy S1800 trzy obroty to 0,1 s (P100); przykład stoi
+    0,3 s, czyli 9 obrotów.
 sources:
   - id: fanuc
     where: G82 — wiercenie z postojem
