@@ -56,6 +56,20 @@ wynikiem kalkulatora i pozostałymi sekcjami tej samej karty.
 - Cykle: kolejność ruchów, płaszczyzny powrotu, interpretacja parametrów i ich jednostek.
 - Nie dopasowujemy teorii do błędnej wizualizacji — błędną symulację poprawiamy na warunkach z pkt 1 ograniczeń albo zapisujemy rozbieżność w §8.
 
+### 3a. Zasady redakcyjne (audyt cz. 2, §3.5; paczka X2)
+
+Rejestr sekcji to rejestr kart krótkich i lekcji: krótkie zdania, warunek zamiast pewnika, liczba z jednostką.
+
+1. Zdanie niesie fakt o sterowaniu, o programie albo o skutku na maszynie. Zdanie, które tylko ocenia ważność („To najważniejsza rzecz…”), wypada.
+2. Bez superlatywów i „zawsze/nigdy/jedyny”, chyba że stoi przy nich źródło. Zamiast „najczęstszy błąd” — „częsty błąd” albo sam opis skutku.
+3. Liczba ma jednostkę i pochodzi z przykładu na karcie albo ze źródła („odjazd o 50 mm z F400 trwa 7,5 s”, nie „kilkanaście sekund”).
+4. Jeden termin na pojęcie (tabela w §3.3 audytu cz. 2: sterowanie, ruch szybki, zwój, wytaczak, vc/vf/fz, „·” we wzorach).
+5. Bez frazeologii i wzmacniaczy („odwrotna strona medalu”, „zupełnie”, „po prostu”, „bardzo”, „warto”, „w praktyce” jako podpórka). Nagłówki rzeczowe („Zastosowanie”), nie zachęty („Dlaczego warto”).
+6. Pogrubione hasło na początku punktu tylko w „Typowych błędach”, w postaci `**Hasło.** Zdanie.`; porady i zastosowania — zwykłym zdaniem.
+7. Pauza „ — ” tylko dla wtrącenia. Resztę rozbij na dwa zdania albo użyj dwukropka. Cel: ≤ 10 pauz i ≤ 3 ozdobniki na 1000 słów (`npm run audit:jezyk -- --karty`).
+8. Podpis mówi, co widać i na co patrzeć. Nie wprowadza nowej zasady i nie nazywa przycisków („W widoku 3D widać rowek”, nie „Włącz widok 3D”).
+9. Linia kodu z komentarzem ma najwyżej 42 znaki (§4a).
+
 ## 4. Przykład edukacyjny a kompletny program
 
 Rozróżniamy wprost:
@@ -142,6 +156,7 @@ To lista tematów do sprawdzenia, nie stwierdzenie istniejących błędów.
 | paczka T (błędy P1 z audytu sekcji) | G71/G70, G72, G32/G33, G76 (tok.), G90/G92/G94 (tok.), G92, G96/G97, G04, G00, G01, G27/G29/G30, G43/G49, G68/G69, G80–G83, M03–M05, M08/M09 | poprawione 2026-11: tryb tokarki w symulacjach, prawdziwe cykle G71/G76/G83 i G68 zamiast rozpisań, gwint blokami G32 do rdzenia 22,16, kryterium G72, G27 bez punktu pośredniego, G92 według systemów kodów, czoło wrzeciona N w G43, tor G00 warunkowo, jedna zasada o liczbie M w bloku | jak w polach `sources` kart; liczba M w bloku (parametr 3404#7) i G92.1 — do weryfikacji w B-64604EN |
 | paczka U (programy wg profilu kursu) | wszystkie 56 kart: 56 przykładów, 21 `<Sim>`, 16 `<Demo>`, 35 bloków kodu i pola składni | poprawione 2026-11: profil §4a; przykłady G52, G68, G92, M98 używają kodu karty; podgląd dla G27–G30, G50, G74, G75, G76/G87–G89, G93, M00/M01, M06, M29; podpis przykładów bez podglądu wg `simGaps`; tor roboczy bez zmian poza przykładami dopisanymi od nowa | profil: lekcje F1.5, T1.3 |
 | paczka V (zgodność z lekcjami, §3.3 audytu) | G04, G82, G20/G21, G52/G53, G54–G59, M03–M05, G96/G97, M06, M08/M09, M30; rysunek `g04` | poprawione 2026-11: postój wg F3.5 (czas wg operacji, w przykładach ≥ 3 obroty, umacnianie warunkowo), jednostki i rejestry wg F1.4, G53/G153/SUPA wg F0.2, G500 wg F0.3, M30 i przewinięcie wg F1.5 (3404#4/#5), chłodzenie węglika wg F2.4, wymiana wg F2.1, wykruszanie wg F2.2; tor G00, G80, G43 (N) i kolejność G43 → S M03 — już w T i U | te same co w lekcjach: Fanuc B-64604EN, Sinumerik Fundamentals (rozdz. 9.1, 13.10, 15.7), Haas Workbook s. 42 i 44, Sandvik |
+| paczka X2b (redakcja językowa, §3.2 i §3.5 audytu cz. 2) | 16 artykułów głosu A: G00, G01, G02, G03, G33, G68/G69, G71/G70, G76 (tok.), G81–G83, G85/G86, G92, G96/G97, M03–M05, M08/M09, M30, M98/M99 | zredagowane 2026-11 bez zmiany merytoryki: zdania-zapowiedzi, superlatywy, dramatyzm, liczby „na oko” (G01, G71, G81) zastąpione rachunkiem z przykładu, frazeologia, nagłówki-zachęty, listy z pogrubionym hasłem poza „Typowymi błędami”, podwójne rady (ręka nad stopem, zaokrąglanie naroży); „Typowe błędy” w postaci `**Hasło.** Zdanie.`; wszystkie 16 kart ≤ 10 pauz i ≤ 3 ozdobniki na 1000 słów | — |
 | pozostałe | — | nie audytowano źródłowo | — |
 
 Kontrolne przypadki kalkulatora łuku (start X20 Y20, koniec X50 Y50, R30, G03):
