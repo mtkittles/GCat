@@ -14,15 +14,15 @@ related: []
 short: 'Jednostki programu: G20 cale, G21 milimetry.'
 desc: >-
   Ustawia jednostkę dla wszystkich współrzędnych i posuwu. Dlatego G21 (albo
-  G20) wpisuje się w bloku startowym — program nie zależy wtedy od trybu, w
+  G20) wpisuje się w bloku startowym. Program nie zależy wtedy od trybu, w
   którym zostawiono maszynę.
 syntax:
   fanuc: G20 | G21
   sinumerik: G70 | G71
 sinumerik: >-
   W natywnym języku Siemensa jednostki to G70/G71 i G700/G710; G20/G21 Sinumerik
-  rozumie w trybie języka ISO. Fanuc G70/G71 to cykle tokarskie (w systemie C —
-  jednostki). Klasyczna pułapka przy przenoszeniu programów.
+  rozumie w trybie języka ISO. Fanuc G70/G71 to cykle tokarskie (w systemie C:
+  jednostki). Na to trzeba uważać przy przenoszeniu programów.
 params: []
 pitfalls:
   - >-
@@ -61,13 +61,13 @@ example:
   stock:
     discriminant: false
 ---
-**G21** ustawia milimetry, **G20** — cale. Wybór dotyczy liczb w programie: współrzędnych, posuwu, promieni. Jak po przełączeniu są traktowane wartości w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów.
+**G21** ustawia milimetry, a **G20** cale. Wybór dotyczy liczb w programie: współrzędnych, posuwu, promieni. Jak po przełączeniu są traktowane wartości w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów.
 
 <Diagram id="f14-units" />
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
-Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania — na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
+Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania. Na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
 
 <Code>
   ```
@@ -77,9 +77,9 @@ Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętr
   ```
 </Code>
 
-## Najbardziej podchwytliwa różnica sterowań \{#najbardziej-podchwytliwa-różnica-sterowań}
+## G71 i G70 na różnych sterowaniach \{#najbardziej-podchwytliwa-różnica-sterowań}
 
-<Table caption="`G71` na Sinumeriku to milimetry, na tokarce Fanuc — cykl zgrubny. Ten sam zapis robi zupełnie co innego.">
+<Table caption="`G71` na Sinumeriku to milimetry, na tokarce Fanuc cykl zgrubny. Ten sam zapis robi co innego.">
   | Znaczenie             | Fanuc frezarka | Fanuc tokarka | Sinumerik           |
   | --------------------- | -------------- | ------------- | ------------------- |
   | cale                  | `G20`          | `G20`         | `G70` (albo `G700`) |
@@ -94,9 +94,9 @@ Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętr
 
 ## Skutki pomyłki \{#skutki-pomyłki}
 
-* **program calowy w trybie metrycznym** — detal 25,4 raza mniejszy: X2.0 to 2 mm zamiast 50,8 mm,
-* **program metryczny w trybie calowym** — ruchy 25,4 raza za duże, zwykle alarm krańcówki albo kolizja,
-* **posuw** — F200 w calach to 5080 mm/min.
+* program calowy w trybie metrycznym: detal 25,4 raza mniejszy (X2.0 to 2 mm zamiast 50,8 mm),
+* program metryczny w trybie calowym: ruchy 25,4 raza za duże, zwykle alarm krańcówki albo kolizja,
+* posuw: F200 w calach to 5080 mm/min.
 
 <Sim mode="mill" caption="Prostokąt 1,5 × 0,75 cala zapisany w milimetrach (38,1 × 19,05). Przeliczenie raz, w programie — maszyna pracuje w jednym systemie.">
   ```
@@ -121,13 +121,13 @@ Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętr
 
 ## Dobre praktyki \{#dobre-praktyki}
 
-* `G21` (albo `G20`) **jawnie w bloku startowym** — sterownik pamięta ostatnie ustawienie.
-* Rysunek calowy: albo cały program w G20, albo wszystko przeliczone na milimetry — nie mieszać.
+* `G21` (albo `G20`) **jawnie w bloku startowym**, bo sterownik pamięta ostatnie ustawienie.
+* Rysunek calowy: albo cały program w G20, albo wszystko przeliczone na milimetry. Bez mieszania jednostek.
 * Przy przenoszeniu programu między Fanucem i Sinumerikiem najpierw sprawdź G70/G71.
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **Brak G21 w programie** — obowiązują jednostki zostawione przez poprzednią pracę.
-* **Zmiana jednostek w połowie programu** — dalsze liczby czytane w innej jednostce; rejestry korekcji i przesunięć — zależnie od sterowania.
-* **G71 z Sinumerika na tokarce Fanuc** — zamiast milimetrów uruchamia się cykl zgrubny.
-* **Posuw nieprzeliczony** — współrzędne w mm, posuw z rysunku w calach na minutę.
+* **Brak G21 w programie.** Obowiązują jednostki zostawione przez poprzednią pracę.
+* **Zmiana jednostek w połowie programu.** Dalsze liczby są czytane w innej jednostce. Co dzieje się z rejestrami korekcji i przesunięć, zależy od sterowania.
+* **G71 z Sinumerika na tokarce Fanuc.** Zamiast milimetrów uruchamia się cykl zgrubny.
+* **Posuw nieprzeliczony.** Współrzędne w mm, posuw z rysunku w calach na minutę.

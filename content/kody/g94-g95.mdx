@@ -19,9 +19,8 @@ variesBy: system kodów
 short: G94 posuw w mm/min, G95 w mm/obrót.
 desc: >-
   Frezowanie: zwykle G94 (mm/min). Toczenie: zwykle posuw na obrót, bo przekłada
-  się bezpośrednio na chropowatość — na tokarkach Fanuc w systemie A wybiera go
-  **G99** (a mm/min — G98), w systemach B/C i na Sinumeriku **G95** (mm/min —
-  G94).
+  się bezpośrednio na chropowatość. Na tokarkach Fanuc w systemie A wybiera go
+  **G99** (mm/min: G98), w systemach B/C i na Sinumeriku **G95** (mm/min: G94).
 
 
   Na tokarkach Fanuc w systemie A posuw minutowy i na obrót wybierają
@@ -34,8 +33,8 @@ sinumerik: G94/G95 na obu typach maszyn. Dodatkowo G96 automatycznie włącza G9
 params: []
 pitfalls:
   - >-
-    Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr — a na frezarkach
-    G98/G99 to powrót w cyklach. Ten sam kod, inne znaczenie!
+    Na tokarkach Fanuc G98/G99 oznaczają mm/min i mm/obr, a na frezarkach
+    G98/G99 to poziom powrotu w cyklach.
   - >-
     Na tokarce w systemie A jednostkę posuwu wybierają G98 (mm/min) i G99
     (mm/obr), a G94 to cykl planowania.
@@ -70,7 +69,7 @@ example:
   stock:
     discriminant: false
 ---
-**G94** i **G95** ustalają jednostkę posuwu. Przy **G94** F to **mm/min**, przy **G95** — **mm na obrót wrzeciona**. Ta sama liczba znaczy w obu trybach coś skrajnie innego, więc tryb ustawia się w bloku startowym programu.
+**G94** i **G95** ustalają jednostkę posuwu. Przy **G94** F to **mm/min**, przy **G95** to **mm na obrót wrzeciona**. Ta sama liczba znaczy w obu trybach co innego, więc tryb ustawia się w bloku startowym programu.
 
 ## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
 
@@ -96,12 +95,12 @@ Przy G95 sterownik mierzy obroty wrzeciona i na bieżąco przelicza posuw osi: *
 | Sinumerik (obie)          | zależnie od maszyny | —        | `G94` / `G95`                   |
 
 <Note kind="warn">
-  Na tokarkach Fanuc w systemie A (najczęstszym) jednostkę posuwu przełączają **G98 i G99** — te same numery, które na frezarce oznaczają poziom powrotu w cyklach wiertarskich. Przenosząc program między maszynami, sprawdź system kodów.
+  Na tokarkach Fanuc w systemie A jednostkę posuwu przełączają **G98 i G99**. To te same numery, które na frezarce oznaczają poziom powrotu w cyklach wiertarskich. Przenosząc program między maszynami, sprawdź system kodów.
 </Note>
 
 ## Posuw na obrót a powierzchnia \{#posuw-na-obrót-a-powierzchnia}
 
-Przy toczeniu posuw na obrót wprost decyduje o chropowatości. Naroże płytki o promieniu rε zostawia łuki co f — wysokość grzbietów to teoretyczna chropowatość:
+Przy toczeniu posuw na obrót wprost decyduje o chropowatości. Naroże płytki o promieniu rε zostawia łuki co f. Wysokość grzbietów to teoretyczna chropowatość:
 
 <Code caption="Dwa razy większy posuw — cztery razy większe Rt.">
   ```
@@ -131,7 +130,7 @@ Przy toczeniu posuw na obrót wprost decyduje o chropowatości. Naroże płytki 
 
 ## G95 na frezarce \{#g95-na-frezarce}
 
-Posuw na obrót przydaje się na frezarce przy **wierceniu i gwintowaniu** — F wprost równa się posuwowi na obrót wiertła albo skokowi gwintownika. Po takim fragmencie trzeba wrócić do G94 przed frezowaniem.
+Posuw na obrót przydaje się na frezarce przy **wierceniu i gwintowaniu**: F równa się posuwowi na obrót wiertła albo skokowi gwintownika. Po takim fragmencie trzeba wrócić do G94 przed frezowaniem.
 
 ## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
 
@@ -143,8 +142,8 @@ Posuw na obrót przydaje się na frezarce przy **wierceniu i gwintowaniu** — F
 
 ## Typowe błędy \{#typowe-błędy}
 
-* **F0.2 na frezarce w G94** — 0,2 mm/min: narzędzie stoi w materiale i się grzeje.
-* **F250 na tokarce w G95** — 250 mm na obrót: wyrwana płytka albo detal.
-* **Zmiana trybu bez zmiany F** — F400 po przełączeniu na G95 to 400 mm/obr.
-* **G99 z tokarki na frezarce** — nie posuw na obrót, tylko powrót do płaszczyzny R w cyklu.
-* **Wiercenie w G95 i frezowanie dalej w G95** — następny kontur jedzie posuwem na obrót.
+* **F0.2 na frezarce w G94.** 0,2 mm/min: narzędzie stoi w materiale i się grzeje.
+* **F250 na tokarce w G95.** 250 mm na obrót: wyrwana płytka albo detal.
+* **Zmiana trybu bez zmiany F.** F400 po przełączeniu na G95 to 400 mm/obr.
+* **G99 z tokarki na frezarce.** Nie posuw na obrót, tylko powrót do płaszczyzny R w cyklu.
+* **Wiercenie w G95 i frezowanie dalej w G95.** Następny kontur jedzie posuwem na obrót.
