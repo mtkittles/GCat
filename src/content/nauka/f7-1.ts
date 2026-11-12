@@ -60,7 +60,7 @@ export const f7_1: LessonDoc = {
 
     { t: "h", x: "Podprogram przyrostowy", id: "g91" },
     { t: "p", x: "Żeby powtórzenia robiły coś innego za każdym razem, podprogram pracuje w [[G91]]: każdy przebieg zaczyna się tam, gdzie skończył poprzedni. Zwój spirali `G91 G03 I-3. Z-1.` wykonany cztery razy schodzi z Z0 na Z−4." },
-    { t: "note", kind: "warn", x: "Tryby modalne wracają z podprogramu do programu głównego (lekcja F1.2). Podprogram, który włącza G91, przed M99 przywraca G90 — inaczej następne współrzędne w programie głównym zostaną policzone przyrostowo." },
+    { t: "note", kind: "warn", x: "Tryby modalne wracają z podprogramu do programu głównego (lekcja F1.2). Podprogram, który włącza G91, przed M99 przywraca G90. Inaczej sterowanie policzy następne współrzędne w programie głównym przyrostowo." },
     { t: "code", x: "G54\nM98 P3000     (KONTUR NA DETALU 1)\nG55\nM98 P3000     (TEN SAM KONTUR NA DETALU 2)\nM30\nO3000 (KONTUR)\n…\nM99", caption: "Ten sam podprogram w dwóch układach — połączenie z lekcją F0.3." },
 
     { t: "h", x: "Zagnieżdżanie", id: "zagniezdzanie" },

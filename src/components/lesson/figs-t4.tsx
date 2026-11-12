@@ -78,7 +78,7 @@ export function LatheSides() {
   );
 }
 
-/* ================= T4.1: przykład rozwiązany — gdzie włączyć i wyłączyć korekcję =================
+/* ================= T4.1: przykład — gdzie włączyć i wyłączyć korekcję =================
    Kontur wykańczający z T3.3 (promienie w mm, X w programie to średnica). Numery = kroki przykładu. */
 export function CompRun() {
   const R: [number, number, number, number] = [-59, 13, -2, 25];

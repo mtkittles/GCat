@@ -54,7 +54,7 @@ export const f3_1: LessonDoc = {
       { x: "Krok 1 na rysunku: zostaw Z50 i przejedź w XY. Frez leci wysoko nad detalem i dociskiem.", code: "G00 X-20. Y10." },
       { x: "Sprawdź odstęp. Promień freza to 5 mm, więc krawędź bliższa płytce leży w X−20 + 5 = X−15, a druga w X−25. Półfabrykat zaczyna się w X−2 — zostaje 13 mm. Docisk i szczęki sprawdzasz osobno.", code: "−20 + 5 = −15" },
       { x: "Krok 2: teraz sam Z w dół, do płaszczyzny zbliżenia 5 mm nad powierzchnią.", code: "G00 Z5." },
-      { x: "Dalej zejście na głębokość — obok płytki, w powietrzu — już z posuwem (lekcja F3.2).", code: "G01 Z-5. F150" },
+      { x: "Dalej zejście na głębokość obok płytki, w powietrzu, już z posuwem (lekcja F3.2).", code: "G01 Z-5. F150" },
     ],
     result: "Dwa bloki zamiast jednego. Zapis `G00 X-20. Y10. Z5.` (czerwona linia) jest krótszy, ale tor zależy wtedy od maszyny: oś Z może skończyć wcześniej, a reszta drogi pobiegnie nisko nad dociskiem.",
   },

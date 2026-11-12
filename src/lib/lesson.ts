@@ -2,8 +2,8 @@ import type { Block } from "@/lib/article";
 
 /*
   Stały szablon lekcji. Każda lekcja ma te same sekcje w tej samej kolejności:
-  cel → teoria → przykład rozwiązany → spróbuj sam → typowe błędy → Fanuc/Sinumerik
-  → sprawdź się → program detalu → podsumowanie → źródła.
+  cel → teoria → przykład → spróbuj sam → typowe błędy → Fanuc/Sinumerik
+  → test → program detalu → podsumowanie → źródła.
   Tekst obsługuje **pogrubienie**, `kod` i [[pojęcie]] / [[klucz|tekst]] (dymek).
 */
 

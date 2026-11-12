@@ -50,7 +50,7 @@ export const t6_1: LessonDoc = {
     { t: "diagram", id: "t61-peck" },
 
     { t: "h", x: "Parametry rowkowania", id: "parametry" },
-    { t: "p", x: "Nóż do rowków pracuje ostrzem czołowym na pełnej szerokości, a wiór nie ma gdzie uciec. Dlatego posuw jest mały — zwykle setne części milimetra na obrót — a prędkość skrawania niższa niż przy toczeniu wzdłużnym. Konkretną wartość dobiera się do płytki, jej szerokości i materiału według katalogu producenta; `F0.05` w przykładzie to założenie. Wycofanie R łamie wiór, zanim zapcha rowek." },
+    { t: "p", x: "Nóż do rowków pracuje ostrzem czołowym na pełnej szerokości, a wiór nie ma gdzie uciec. Dlatego posuw jest mały, zwykle setne części milimetra na obrót, a prędkość skrawania niższa niż przy toczeniu wzdłużnym. Konkretną wartość dobiera się do płytki, jej szerokości i materiału według katalogu producenta; `F0.05` w przykładzie to założenie. Wycofanie R łamie wiór, zanim zapcha rowek." },
     { t: "note", kind: "warn", x: "Z rowka promieniowego odjeżdża się najpierw w X. Ruch w Z z nożem w rowku łamie płytkę o ściankę." },
   ],
 

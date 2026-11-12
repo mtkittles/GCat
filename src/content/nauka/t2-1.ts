@@ -46,7 +46,7 @@ export const t2_1: LessonDoc = {
       { x: "Obroty dla nowego noża — po zmianie narzędzia ustawia się je od nowa, bo nóż wykańczający pracuje z inną prędkością.", code: "G96 S250 M03" },
       { x: "Dojazd ruchem szybkim przed czoło, nad pręt.", code: "G00 X44. Z2." },
     ],
-    result: "Numer korekcji równy numerowi pozycji — T0202, T0303 — od razu pokazuje, czy korekcja pasuje do noża. Limit `G50 S3000` z początku programu dalej obowiązuje, bo jest modalny.",
+    result: "Numer korekcji równy numerowi pozycji (T0202, T0303) od razu pokazuje, czy korekcja pasuje do noża. Limit `G50 S3000` z początku programu dalej obowiązuje, bo jest modalny.",
   },
 
   practice: [

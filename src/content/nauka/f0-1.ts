@@ -16,7 +16,7 @@ export const f0_1: LessonDoc = {
 
     { t: "h", x: "+Z znaczy: od detalu", id: "plus-z" },
     { t: "p", x: "Wg ISO 841 **ruch w +Z zwiększa odległość narzędzia od detalu** — na frezarce pionowej to ruch w górę." },
-    { t: "p", x: "W przykładach kursu Z0 leży na górnej powierzchni płytki. Z5 oznacza wtedy 5 mm nad tą płaszczyzną, a Z−5 — 5 mm poniżej niej. Sam znak Z nie mówi jeszcze, czy frez dotyka materiału: nad płytką Z−5 jest w materiale, ale przy X−20 frez stoi obok płytki i może zejść poniżej Z0 bez skrawania. Materiał zależy od Z, od położenia w X i Y oraz od tego, co już wcześniej zebrano — np. nad wyfrezowaną kieszenią." },
+    { t: "p", x: "W przykładach kursu Z0 leży na górnej powierzchni płytki. Z5 oznacza wtedy 5 mm nad tą płaszczyzną, a Z−5 — 5 mm poniżej niej. Sam znak Z nie mówi, czy frez dotyka materiału. Nad płytką Z−5 jest w materiale. Przy X−20 frez stoi obok płytki i może zejść poniżej Z0, niczego nie skrawając. Materiał zależy od Z, od położenia w X i Y oraz od tego, co już wcześniej zebrano — np. nad wyfrezowaną kieszenią." },
     { t: "diagram", id: "f01-side" },
 
     { t: "h", x: "Programujesz ruch narzędzia", id: "ruch-narzedzia" },

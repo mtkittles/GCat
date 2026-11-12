@@ -65,7 +65,7 @@ export const f4_2: LessonDoc = {
 
   worked: {
     title: "Program płytki z korekcją",
-    intro: "Sytuacja: kontur płytki z F3.3 ma być zapisany wymiarami z rysunku — X0…X80, Y0…Y50, naroża R10 — a przesunięcie o promień freza ma policzyć sterowanie z rejestru D1. Frez stoi na Z−5 w X−20 Y10. Numery odpowiadają rysunkowi: zielony kontur to program, przerywany — tor środka.",
+    intro: "Sytuacja: kontur płytki z F3.3 zapisujemy wymiarami z rysunku: X0…X80, Y0…Y50, naroża R10. Przesunięcie o promień freza liczy sterowanie z rejestru D1. Frez stoi na Z−5 w X−20 Y10. Numery odpowiadają rysunkowi: zielony kontur to program, przerywany — tor środka.",
     fig: "f42-comp",
     steps: [
       { x: "Krok 1: włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400" },

@@ -304,7 +304,7 @@ export function TapDepthM6() {
   );
 }
 
-/* ================= F5.3: przykład rozwiązany — przebieg G84 krok po kroku =================
+/* ================= F5.3: przykład — przebieg G84 krok po kroku =================
    Numery zgodne z krokami przykładu w f5-3.ts. Te same założenia co TapDepthM6. */
 export function TapRun() {
   const R: [number, number, number, number] = [-19, 25, -20.5, 9];
@@ -366,7 +366,7 @@ export function TapRun() {
   );
 }
 
-/* ================= F5.4: przykład rozwiązany — tor narzędzia krok po kroku =================
+/* ================= F5.4: przykład — tor narzędzia krok po kroku =================
    Numery zgodne z krokami przykładu w f5-4.ts: Z30, G99 X15, G98 X45, G99 X75, G80. */
 export function RetractRun() {
   const R: [number, number, number, number] = [-4, 96, -12, 38];

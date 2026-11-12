@@ -1,0 +1,22 @@
+term: System kodów G
+anchor: system-kodów-g
+order: 780
+aliases:
+  - system A
+  - systemie A
+  - system kodów
+def: >-
+  Na tokarkach Fanuc kody G występują w trzech zestawach: A, B i C. Zestaw
+  wybiera parametr maszyny (3401#6/#7). Kurs używa systemu A: wymiar przyrostowy
+  piszesz adresami U i W, posuw na obrót to G99, a G90, G92 i G94 to cykle
+  toczenia. W systemach B i C G90/G91 przełączają wymiar jak na frezarce.
+see:
+  - g90-g94-t
+  - g98-g99
+diagram: ''
+sources:
+  - id: fanuc
+    where: systemy kodów G A, B i C na tokarce
+    loc: >-
+      rozdz. 3.2, tab. 3.2, s. 75–78; parametry 3401#6/#7 — rozdz. 7.2.16, s.
+      200

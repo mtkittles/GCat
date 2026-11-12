@@ -25,7 +25,7 @@ export const t0_3: LessonDoc = {
     { t: "h", x: "Głowica przednia i tylna", id: "glowica" },
     { t: "p", x: "+X zawsze prowadzi od osi w stronę noża. W tokarkach ze skośnym łożem głowica stoi za osią (tylna), więc +X biegnie od operatora. W tokarkach z głowicą przednią nóż jest po stronie operatora i +X biegnie w jego stronę." },
     { t: "diagram", id: "t03-turret" },
-    { t: "p", x: "Na typowych tokarkach program dla obu maszyn jest taki sam — kierunki osi ustawia producent w konfiguracji maszyny, więc przy nowej maszynie sprawdź to w jej dokumentacji. Różni się tylko to, jak ruch wygląda z miejsca operatora, i to ma znaczenie przy łukach: lekcja T3.3 pokazuje, jak nie pomylić G02 z G03." },
+    { t: "p", x: "Na typowych tokarkach program dla obu maszyn jest taki sam. Kierunki osi ustawia producent w konfiguracji maszyny — przy nowej maszynie sprawdź je w dokumentacji. Różni się tylko to, jak ruch wygląda z miejsca operatora, i to ma znaczenie przy łukach: lekcja T3.3 pokazuje, jak nie pomylić G02 z G03." },
   ],
 
   worked: {

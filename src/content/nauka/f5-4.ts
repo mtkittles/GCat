@@ -24,7 +24,7 @@ export const f5_4: LessonDoc = {
     { t: "p", x: "Płytka: cztery otwory, R2, poziom początkowy Z50. Z G98 każdy przejazd między otworami to dodatkowe 2 × 48 = 96 mm ruchu szybkiego w Z — w górę do Z50 i z powrotem do R2. Cztery otwory to trzy przejazdy, czyli 288 mm na operację, a przy trzech operacjach (nawiercanie, wiercenie, gwintowanie) 864 mm na każdej sztuce. W programie płytki nic nie wystaje nad detal, więc wszystkie cykle dostają G99." },
 
     { t: "h", x: "G80 i koniec cyklu", id: "g80" },
-    { t: "p", x: "[[G80]] kasuje cykl. Na Fanucu robią to też kody ruchu G00–G03, ale jawne G80 po ostatnim otworze to zasada: program jest czytelny, a następny blok na pewno nie wierci. Blok startowy z lekcji F1.5 zawiera G80 na wypadek cyklu zostawionego przez inny program." },
+    { t: "p", x: "[[G80]] kasuje cykl. Na Fanucu cykl kasują też kody ruchu G00–G03. Mimo to po ostatnim otworze piszemy jawne G80: program jest czytelny, a następny blok na pewno nie wierci. Blok startowy z lekcji F1.5 zawiera G80 na wypadek cyklu zostawionego przez inny program." },
   ],
 
   worked: {

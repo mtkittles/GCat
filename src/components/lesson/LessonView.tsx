@@ -69,11 +69,11 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
   const toc = [
     { id: "cel", label: "Cel lekcji" },
     { id: "teoria", label: "Teoria" },
-    { id: "przyklad", label: "Przykład rozwiązany" },
+    { id: "przyklad", label: "Przykład" },
     { id: "sprobuj", label: "Spróbuj sam" },
     { id: "bledy", label: "Typowe błędy" },
     ...(doc.controllers ? [{ id: "sterowania", label: "Fanuc i Sinumerik" }] : []),
-    { id: "test", label: "Sprawdź się" },
+    { id: "test", label: "Test" },
     ...(hasProgram ? [{ id: "program", label: "Program detalu" }] : []),
     { id: "podsumowanie", label: "Podsumowanie" },
   ];
@@ -104,7 +104,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
 
       <Sec id="teoria" n={++n} title="Teoria"><Article blocks={doc.theory} /></Sec>
 
-      <Sec id="przyklad" n={++n} title="Przykład rozwiązany">
+      <Sec id="przyklad" n={++n} title="Przykład">
         <h3 className="ls-sub">{doc.worked.title}</h3>
         <p className="ls-p">{rich(doc.worked.intro)}</p>
         {doc.worked.data && (
@@ -177,7 +177,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         </Sec>
       )}
 
-      <Sec id="test" n={++n} title="Sprawdź się"><Quiz questions={doc.quiz} figs={quizFigs} progressKey={`${track}/${doc.id}`} /></Sec>
+      <Sec id="test" n={++n} title="Test"><Quiz questions={doc.quiz} figs={quizFigs} progressKey={`${track}/${doc.id}`} /></Sec>
 
       {hasProgram && (
         <Sec id="program" n={++n} title="Program detalu">

@@ -72,7 +72,7 @@ export const t9_1: LessonDoc = {
     { t: "note", kind: "info", x: "Wzór −2·rε dotyczy noża z kierunkiem ostrza 3 i programowania bez korekcji. Przy innym położeniu noża i innym kierunku ostrza sprawdź geometrię na rysunku narzędzia." },
 
     { t: "h", x: "Kontur dla G71", id: "kontur" },
-    { t: "p", x: "Kontur między N10 i N20 zaczyna się w punkcie startu cyklu — tu Z2 — dlatego faza przy czole jest przedłużona do Z2. Faza 1,5 × 45° na Ø26 kończy się w Z−1,5; na każdy 1 mm w Z średnica zmienia się o 2 mm, więc w Z2 wypada X19 (lekcja T0.2). Kontur jest monotoniczny — X tylko rośnie, Z tylko maleje — jak wymaga G71 typu I (lekcja T5.1)." },
+    { t: "p", x: "Kontur między N10 i N20 zaczyna się w punkcie startu cyklu, tu Z2. Dlatego faza przy czole jest przedłużona do Z2. Faza 1,5 × 45° na Ø26 kończy się w Z−1,5. Na każdy 1 mm w Z średnica zmienia się o 2 mm, więc w Z2 wypada X19 (lekcja T0.2). Kontur jest monotoniczny: X tylko rośnie, Z tylko maleje. Tego wymaga G71 typu I (lekcja T5.1)." },
     { t: "diagram", id: "t91-contour" },
 
     { t: "h", x: "Plan programu", id: "plan" },
@@ -105,7 +105,7 @@ export const t9_1: LessonDoc = {
       kind: "drill",
       intro: "Zanim napiszesz program — przewiduj.",
       questions: [
-        { kind: "choice", q: "Program planowania napisano dla noża R0,4 (`X-0.8`), ale w głowicy jest nóż R0,8 z kursu. Co zobaczysz na czole?", options: ["czopek w środku czoła, o średnicy ok. 0,8 mm", "czyste czoło", "wgłębienie w środku", "alarm sterowania"], answer: 0, why: "Nóż R0,8 potrzebuje przejazdu do X−1,6. Kończąc w X−0,8, zostawia w środku nietoczony czopek o średnicy ok. 2 · (0,8 − 0,4) = 0,8 mm. Odwrotna sytuacja — X−1,6 przy nożu R0,4 — tylko wydłuża ruch za osią." },
+        { kind: "choice", q: "Program planowania napisano dla noża R0,4 (`X-0.8`), ale w głowicy jest nóż R0,8 z kursu. Co zobaczysz na czole?", options: ["czopek w środku czoła, o średnicy ok. 0,8 mm", "czyste czoło", "wgłębienie w środku", "alarm sterowania"], answer: 0, why: "Nóż R0,8 potrzebuje przejazdu do X−1,6. Kończąc w X−0,8, zostawia w środku nietoczony czopek o średnicy ok. 2 · (0,8 − 0,4) = 0,8 mm. Odwrotna sytuacja, X−1,6 przy nożu R0,4, tylko wydłuża ruch za osią." },
         { kind: "gap", q: "Faza 1,5 × 45° na Ø26 przedłużona do Z2. Jaki X zapiszesz w N10?", template: "X{0}", answers: [["19"]], why: "Od Z2 do Z−1,5 jest 3,5 mm. Średnica zmienia się o 2 · 3,5 = 7 mm: 26 − 7 = 19." },
         { kind: "choice", q: "Kontur ma zostać obrobiony nożem R0,2 zamiast R0,4. Co zmieniasz w programie z G42?", options: ["nic w konturze — promień i kierunek ostrza są w korekcji narzędzia", "wszystkie współrzędne fazy", "G42 na G41", "X w N10"], answer: 0, why: "Z korekcją promienia ostrza program opisuje kontur z rysunku, a sterowanie liczy przesunięcie z danych narzędzia (lekcja T4.1)." },
       ],

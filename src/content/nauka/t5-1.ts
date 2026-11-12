@@ -73,7 +73,7 @@ export const t5_1: LessonDoc = {
     { t: "ul", items: [
       "**Punkt startowy A** — przed wywołaniem cyklu nóż stoi ponad surówką i przed czołem, np. X42 Z2. Z niego cykl zaczyna i do niego wraca.",
       "**Pierwszy blok konturu (N10)** — w typie I ruch tylko w X, z A do początku konturu. Wałek z kursu ma kontur typu I.",
-      "**Kontur monotoniczny** — w podstawowym wariancie (typ I według instrukcji Fanuc) kontur musi zmieniać się monotonicznie w obu osiach: X nie maleje, a Z nie wraca w stronę czoła. Kieszenie w X dopuszcza typ II, który na części sterowań jest opcją i rozpoznaje się go po tym, że pierwszy blok konturu ma ruch w obu osiach. Szczegóły i dostępność typów sprawdź w instrukcji swojego sterowania.",
+      "**Kontur monotoniczny** — w podstawowym wariancie (typ I według instrukcji Fanuc) kontur zmienia się w obu osiach tylko w jedną stronę: X nie maleje, a Z nie wraca w stronę czoła. Kieszenie w X dopuszcza typ II. Na części sterowań to opcja. Sterowanie rozpoznaje typ II po tym, że pierwszy blok konturu ma ruch w obu osiach. Szczegóły i dostępność typów sprawdź w instrukcji swojego sterowania.",
       "**F, S, T w konturze** działają dopiero w G70. G71 używa F z własnego bloku.",
     ] },
 

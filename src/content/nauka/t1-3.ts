@@ -37,8 +37,8 @@ export const t1_3: LessonDoc = {
     { t: "diagram", id: "t13-skeleton" },
 
     { t: "h", x: "Odjazd: najpierw X", id: "odjazd" },
-    { t: "p", x: "Po obróbce nóż stoi blisko detalu, często przy stopniu albo w rowku. Ruch w Z od razu mógłby przeciągnąć ostrze po ściance albo uderzyć w wyższy stopień. Dlatego przy obróbce zewnętrznej odjazd zaczyna się od X — nóż wychodzi promieniowo ponad detal — a dopiero potem jedzie w Z." },
-    { t: "note", kind: "warn", x: "Przy narzędziu wewnętrznym — wytaczaku, wiertle — kolejność jest odwrotna: najpierw wyjście z otworu w Z, potem X. Ruch w X z ostrzem w otworze wbiłby je w ściankę." },
+    { t: "p", x: "Po obróbce nóż stoi blisko detalu, często przy stopniu albo w rowku. Ruch w Z od razu mógłby przeciągnąć ostrze po ściance albo uderzyć w wyższy stopień. Dlatego przy obróbce zewnętrznej odjazd zaczyna się od X: nóż wychodzi promieniowo ponad detal, a dopiero potem jedzie w Z." },
+    { t: "note", kind: "warn", x: "Przy narzędziu wewnętrznym (wytaczaku, wiertle) kolejność jest odwrotna: najpierw wyjście z otworu w Z, potem X. Ruch w X z ostrzem w otworze wbiłby je w ściankę." },
     { t: "code", x: "G28 U0.   (NAJPIERW X DO PUNKTU REFERENCYJNEGO)\nG28 W0.   (POTEM Z)\nM30", caption: "U0 i W0 to przyrost zero — sterowanie jedzie do punktu referencyjnego bez punktu pośredniego (lekcja T1.2)." },
     { t: "note", kind: "info", x: "Wiele zakładów zamiast G28 używa odjazdu do stałego punktu wymiany narzędzia, np. `G00 X200. Z150.`. Zasada kolejności jest ta sama: jeśli jest ryzyko kolizji w Z, najpierw X." },
 

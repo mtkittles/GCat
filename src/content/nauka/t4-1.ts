@@ -55,7 +55,7 @@ export const t4_1: LessonDoc = {
     { t: "demo", mode: "lathe", title: "Bez korekcji: G40", src: demo(false), caption: "Pomarańczowy pas to ślad naroża R0,8. Na średnicach i czole dotyka konturu (linia), na fazie i obu promieniach zostaje od niego z daleka." },
 
     { t: "h", x: "Korekcja promienia ostrza", id: "g41-g42" },
-    { t: "p", x: "Z [[G42]] lub [[G41]] sterowanie prowadzi środek naroża w odległości rε od konturu z programu — jak przy frezie w module F4, tylko promieniem jest naroże [[płytka skrawająca|płytki]]. Program opisuje wtedy kontur z rysunku, a kształt faz i łuków wychodzi poprawny." },
+    { t: "p", x: "Z [[G42]] lub [[G41]] sterowanie prowadzi środek naroża w odległości rε od konturu z programu. To ta sama zasada co przy frezie w module F4, tylko promieniem jest naroże [[płytka skrawająca|płytki]]. Program opisuje wtedy kontur z rysunku, a kształt faz i łuków wychodzi poprawny." },
     { t: "diagram", id: "t41-sides" },
     { t: "demo", mode: "lathe", title: "Z korekcją: G42", src: demo(true), caption: "Ten sam program z G42 i G40. Przerywana linia to kontur z programu, zielony tor to droga punktu P. Ślad naroża przylega do konturu na całej długości — także na fazie i promieniach." },
     { t: "table", head: ["Obróbka", "Kierunek", "Kod"], rows: [
@@ -83,7 +83,7 @@ export const t4_1: LessonDoc = {
       { x: "Kontur kończy wyjście na X42 — nóż jest już ponad detalem.", code: "X42." },
       { x: "Krok 3: wyłączenie korekcji na odjeździe w Z, w powietrzu.", code: "G40 G00 Z2." },
     ],
-    result: "Dwa słowa w programie — G42 i G40 — przy poprawnych R i T w tabeli usuwają błąd 0,17 mm na fazach i poprawiają kształt obu promieni przy stopniu. Średnice i czoła wychodziły dobrze także bez korekcji.",
+    result: "Wystarczą dwa słowa w programie: G42 i G40. Przy poprawnych R i T w tabeli usuwają błąd 0,17 mm na fazach i poprawiają kształt obu promieni przy stopniu. Średnice i czoła wychodziły dobrze także bez korekcji.",
   },
 
   practice: [
@@ -117,7 +117,7 @@ export const t4_1: LessonDoc = {
     { title: "G42 włączone na łuku", x: "`G42 G02 …` — sterowanie zgłosi alarm albo potraktuje łuk jak ruch włączający i zniekształci go. Korekcję włącza ruch liniowy." },
     { title: "Włączenie tuż przy detalu", x: "`G42 G01 X20. Z0.` z nożem stojącym 0,2 mm od czoła. Na ruchu włączającym nie ma miejsca na przesunięcie o rε — nóż wcina się w naroże." },
     { title: "Brak R w tabeli", x: "Promień naroża w tabeli korekcji = 0. G42 niczego nie zmienia — program wygląda na poprawny, a fazy nadal mają błąd." },
-    { title: "G41 i G42 zamienione", x: "Nóż zewnętrzny z G41: sterowanie układa naroże po stronie materiału zamiast nad konturem. Cały kontur — także średnice — wychodzi o ok. 2 · rε za głęboko w promieniu, czyli średnice mniejsze o ok. 4 · rε (dla R0,4 ok. 1,6 mm)." },
+    { title: "G41 i G42 zamienione", x: "Nóż zewnętrzny z G41: sterowanie układa naroże po stronie materiału zamiast nad konturem. Cały kontur, także średnice, wychodzi o ok. 2 · rε za głęboko w promieniu, czyli średnice mniejsze o ok. 4 · rε (dla R0,4 ok. 1,6 mm)." },
   ],
 
   controllers: {
