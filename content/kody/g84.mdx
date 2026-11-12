@@ -72,6 +72,8 @@ sources:
   - id: haas-workbook
     where: cykl G84 — rysunek, kod i płaszczyzny cyklu (Haas)
     loc: s. 82 (PDF 88)
+  - id: haas-ap602
+    where: F = skok × obroty (G94) i F = skok (G95) w G84 (Haas)
   - id: haas
     where: znaczenie F, R i Z w G84 oraz start wrzeciona (Haas)
     url: >-
@@ -222,7 +224,3 @@ Dla **gwintowników skrawających** i gwintów metrycznych zwykłych średnicę 
 ## Fanuc i Sinumerik \{#sinumerik}
 
 **`CYCLE84`** to gwintowanie sztywne, **`CYCLE840`** gwintowanie z uchwytem kompensacyjnym. Skok, kierunek gwintu i pozostałe dane podaje się parametrami cyklu; ich nazwy i kolejność zależą od wydania cykli, więc nie przenoś parametrów jednego cyklu do drugiego. Korzystaj z formularza cyklu na sterowaniu albo z dokumentacji „Cykle” dla swojej wersji.
-
-<Note kind="info">
-  Źródło zależności F = skok × obroty (G94) i F = skok (G95): Haas Automation, „G84 Tapping Canned Cycle”, AP-602, 04/2016 — dokument dla frezarek Haas. Na innych sterowaniach potwierdź w ich dokumentacji.
-</Note>

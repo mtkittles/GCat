@@ -131,5 +131,19 @@ for (const track of ["frezowanie", "toczenie"] as Track[]) {
   }
 }
 
+// Źródła do uzupełnienia — informacja dla redakcji (strona nie pokazuje już „do uzupełnienia”), nie uwaga.
+{
+  const missing: string[] = [];
+  for (const track of ["frezowanie", "toczenie"] as Track[])
+    for (const l of flat(track)) for (const s of l.doc?.sources ?? []) if (!s.loc && !s.url) missing.push(`${l.id} → ${s.id}`);
+  for (const g of gcodes) for (const s of g.sources ?? []) if (!s.loc && !s.url) missing.push(`kody/${g.slug} → ${s.id}`);
+  const notes = Object.values(sources).filter((s) => s.internal).map((s) => `${s.id}: ${s.internal}`);
+  console.log(`Do uzupełnienia (informacja, nie uwaga) — odwołania bez miejsca: ${missing.length}`);
+  for (const m of missing) console.log(`  ${m}`);
+  console.log(`Notatki redakcji w źródłach (internal): ${notes.length}`);
+  for (const n of notes) console.log(`  ${n}`);
+  console.log("");
+}
+
 console.log(issues.length ? issues.join("\n") : "Brak uwag.");
 console.log(`\n${issues.length} uwag`);
