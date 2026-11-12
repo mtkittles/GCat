@@ -99,9 +99,9 @@ describe("zgodność z dzisiejszym renderem (1:1)", () => {
     expect(diff).toEqual([]);
   });
 
-  it("pola wszystkich 56 kart: MDX z auto-linkami == CodeText", async () => {
+  it("pola wszystkich 55 kart: MDX z auto-linkami == CodeText", async () => {
     const known = knownCodes(liveSources);
-    expect(gcodes.length).toBe(56);
+    expect(gcodes.length).toBe(55);
     let n = 0;
     for (const g of gcodes) {
       const self = selfCodes(g.code);

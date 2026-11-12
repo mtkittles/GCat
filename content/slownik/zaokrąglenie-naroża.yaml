@@ -11,6 +11,5 @@ def: >-
   adresem ,R (Fanuc) lub RND= (Sinumerik) w bloku ruchu liniowego.
 see:
   - g02
-  - g03
 diagram: ''
 sources: []

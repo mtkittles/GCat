@@ -24,7 +24,7 @@ const load = async () => (content ??= await loadContent("content"));
 describe("karty i słownik z content/", () => {
   it("cała treść przechodzi walidację (schematy, slugi, kotwice, markery, rysunki)", async () => {
     const c = await load();
-    expect(c.kody.length).toBe(56);
+    expect(c.kody.length).toBe(55); // G02 i G03 w jednej karcie (W2)
     expect(c.slownik.length).toBe(78);
   });
 
@@ -32,7 +32,7 @@ describe("karty i słownik z content/", () => {
     const c = await load();
     expect(gcodes).toEqual(c.kody.map((k) => kodToGcode(k.data, k.meta.headings.length > 0 || k.meta.text.trim() !== "")));
     expect(glossary).toEqual(c.slownik.map((x) => hasloToEntry(x.data)));
-    expect(gcodes.filter((g) => g.star).map((g) => g.slug)).toEqual(["g00", "g01", "g02", "g03", "g04", "g17-g19", "g20-g21", "g40-g42", "g43-g49", "g54-g59", "g90-g91", "g94-g95"]);
+    expect(gcodes.filter((g) => g.star).map((g) => g.slug)).toEqual(["g00", "g01", "g02", "g04", "g17-g19", "g20-g21", "g40-g42", "g43-g49", "g54-g59", "g90-g91", "g94-g95"]);
   });
 
   it("kotwice nagłówków kart = migawka (jawne {#…} w plikach)", async () => {
@@ -45,7 +45,7 @@ describe("karty i słownik z content/", () => {
       const all = [...src.matchAll(/^#{2,6} /gm)].length;
       expect(explicit.length, k.file).toBe(all);
     }
-    expect(Object.values(now).flat().length).toBe(159);
+    expect(Object.values(now).flat().length).toBe(146);
   });
 
   it("kotwice słownika = migawka; plik = <kotwica>.yaml", async () => {
@@ -61,7 +61,7 @@ describe("karty i słownik z content/", () => {
       expect(mdxPrograms(readFileSync(k.file, "utf8")), k.file).toEqual(k.meta.programs);
       n += k.meta.programs.length;
     }
-    expect(n).toBe(37); // 36 bloków sim/demo z dawnych artykułów + Sim z G68 na karcie G68/G69 (paczka T)
+    expect(n).toBe(33); // 36 bloków sim/demo z dawnych artykułów + Sim z G68 (paczka T); W2: G03 w karcie G02 (−5 +1)
   });
 
   it("artykuły wszystkich kart renderują się: kotwice h2 = spis treści, bez surowych markerów", async () => {
@@ -75,6 +75,6 @@ describe("karty i słownik z content/", () => {
       expect(html, g.slug).not.toMatch(/\[\[|\]\]|\{#/);
       n++;
     }
-    expect(n).toBe(27);
+    expect(n).toBe(26);
   });
 });

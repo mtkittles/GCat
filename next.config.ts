@@ -21,6 +21,8 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...Object.entries(ARCHIVE_REDIRECTS).map(([from, to]) => ({ source: `/nauka/${from}`, destination: to, permanent: true })),
+      // G02 i G03 to jedna karta (decyzja 2 audytu kart, paczka W2); kotwice obu kart były takie same
+      { source: "/kody/g03", destination: "/kody/g02", permanent: true },
       ...Object.entries(PROGRAM_REDIRECTS).map(([from, to]) => ({ source: `/programy/${from}`, destination: `/programy/${to}`, permanent: true })),
     ];
   },
