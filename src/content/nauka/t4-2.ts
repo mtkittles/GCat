@@ -17,7 +17,7 @@ export const t4_2: LessonDoc = {
       ["zewnętrzny, toczenie od uchwytu (nóż lewy)", "niżej i dalej od uchwytu", "4"],
       ["nóż mierzony w środku naroża", "w środku", "0 albo 9"],
     ], caption: "Numery w układzie z rysunku: Z w prawo, X w górę — według instrukcji Fanuc ten sam numer obowiązuje przy głowicy przedniej i tylnej. Przy nowej maszynie porównaj rysunek kierunków w jej dokumentacji." },
-    { t: "p", x: "Numeru nie trzeba pamiętać. Wystarczy narysować naroże w widoku Z w prawo, X w górę, zaznaczyć część naroża, która skrawa, i znaleźć P na przecięciu stycznych w X i Z. Strona, po której wypada P względem środka, daje numer z mapy kierunków." },
+    { t: "p", x: "Numeru nie trzeba pamiętać. Narysuj naroże w widoku Z w prawo, X w górę. Zaznacz część naroża, która skrawa, i znajdź P na przecięciu stycznych w X i Z. Strona, po której wypada P względem środka, daje numer z mapy kierunków." },
 
     { t: "h", x: "Tabela korekcji noża", id: "tabela" },
     { t: "p", x: "W jednym wierszu tabeli stoją: geometria X i Z, zużycie X i Z, promień naroża R i kierunek ostrza T. Numer wiersza to dwie ostatnie cyfry słowa T z programu — dla `T0202` wiersz 2." },

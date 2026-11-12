@@ -39,14 +39,14 @@ export const t7_2: LessonDoc = {
 
     { t: "h", x: "Kiedy G32 zamiast G76", id: "kiedy" },
     { t: "ul", items: [
-      "gwinty nietypowe: stożkowe z przerwą, z niestandardowym zarysem, wielozwojne — przy nich F to skok linii śrubowej (lead), czyli podziałka × liczba zwojów, a każdy zwój zaczyna się z przesunięciem o podziałkę,",
+      "gwinty nietypowe: stożkowe z przerwą, z niestandardowym zarysem, wielozwojne. Przy nich F to skok linii śrubowej (lead): podziałka × liczba zwojów, a każdy zwój zaczyna się z przesunięciem o podziałkę,",
       "gwint kończący się w miejscu, gdzie cykl nie da się dobrze ustawić,",
       "nauka i kontrola: każde przejście widać w programie.",
     ] },
     { t: "p", x: "Na co dzień wygodniejszy jest cykl: G76 sam liczy głębokości, dosuwa nóż wzdłuż boku zarysu i dba o przejście wykańczające. Program z G32 robi dokładnie to, co jest zapisane — przy wejściach prostopadłych obie krawędzie noża tną naraz, więc wejścia muszą być płytsze." },
 
     { t: "h", x: "G32 czy G33", id: "g33" },
-    { t: "p", x: "Na tokarkach Fanuc w systemie A przejście gwintu to G32. W systemach B/C i na Sinumeriku ten sam ruch ma kod G33. Znaczenie jest takie samo: ruch z posuwem równym skokowi, zsynchronizowany z wrzecionem." },
+    { t: "p", x: "Na tokarkach Fanuc w [[systemie A]] przejście gwintu to G32. W systemach B/C i na Sinumeriku ten sam ruch ma kod G33. Znaczenie jest takie samo: ruch z posuwem równym skokowi, zsynchronizowany z wrzecionem." },
     { t: "note", kind: "warn", x: "Każde przejście musi startować z tego samego Z i przy tych samych obrotach. Sterowanie czeka na znacznik położenia wrzeciona i dopiero wtedy rusza — zmiana Z startu przesuwa zwój." },
   ],
 

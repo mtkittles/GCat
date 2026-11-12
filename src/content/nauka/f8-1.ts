@@ -54,7 +54,7 @@ export const f8_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "Co się zmienia", id: "zmiany" },
-    { t: "p", x: "Program płytki 80 × 50 powstawał po kawałku, z podpowiedziami w każdej lekcji. Tu dostajesz nowy rysunek i piszesz program od pustej strony. Rodzaj operacji jest ten sam — kontur zewnętrzny z korekcją promienia — ale trzy rzeczy są inne niż w kursie." },
+    { t: "p", x: "Program płytki 80 × 50 powstawał po kawałku, z podpowiedziami w każdej lekcji. Tu dostajesz nowy rysunek i piszesz program od pustej strony. Rodzaj operacji jest ten sam: kontur zewnętrzny z korekcją promienia. Inne niż w kursie są trzy rzeczy." },
     { t: "table", head: ["", "Płytka z kursu", "Nowy detal"], rows: [
       ["Wymiar", "80 × 50, naroża R10", "60 × 40, naroża R6"],
       ["Zero W", "lewy dolny narożnik", "środek górnej powierzchni"],
@@ -106,7 +106,7 @@ export const f8_1: LessonDoc = {
     },
     {
       kind: "task",
-      intro: "Napisz cały program konturu płytki 60 × 40 z rysunku, na głębokość 4 mm. Dane: frez Ø12 jako T1 z korekcjami H1 i D1, S2000 M03, chłodziwo. Zejście z Z5 na Z−4 w punkcie X−46 Y−8 z F150. Najazd z G41 po odcinku w kierunku +X i łukiem R8 stycznie do środka lewej krawędzi, kontur zgodnie z zegarem z F400, odjazd lustrzanym łukiem R8 i G40 do X−46. Sprawdzanie porównuje tor roboczy z wymaganym konturem.",
+      intro: "Napisz cały program konturu płytki 60 × 40 z rysunku, na głębokość 4 mm. Dane: frez Ø12 jako T1 z korekcjami H1 i D1, S2000 M03, chłodziwo. Zejście z Z5 na Z−4 w punkcie X−46 Y−8 z F150. Najazd: G41 na odcinku w kierunku +X, potem łuk R8 stycznie do środka lewej krawędzi. Kontur zgodnie z ruchem wskazówek zegara z F400. Odjazd: lustrzany łuk R8 i G40 do X−46. Sprawdzanie porównuje tor roboczy z wymaganym konturem.",
       starter,
       mode: "mill",
       checks: [

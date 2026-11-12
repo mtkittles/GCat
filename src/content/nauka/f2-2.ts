@@ -17,11 +17,11 @@ export const f2_2: LessonDoc = {
     { t: "p", x: "Producent narzędzia podaje [[vc|prędkość skrawania vc]] w m/min — prędkość ostrza względem materiału. Obroty zależą od średnicy: im mniejszy frez, tym szybciej musi się kręcić, żeby ostrze miało tę samą prędkość." },
     { t: "code", x: "n = 1000 · vc / (π · D)\n\nvc — prędkość skrawania [m/min]\nD  — średnica narzędzia [mm]\nn  — prędkość obrotowa [obr/min]", caption: "1000 zamienia metry na milimetry. Kalkulator obróbki liczy to samo." },
     { t: "diagram", id: "vc" },
-    { t: "p", x: "W kursie wynik zaokrąglamy w dół do okrągłej wartości — rzeczywista vc wychodzi wtedy nieco niższa od katalogowej. Jeśli wynik przekracza dopuszczalne obroty — wrzeciona, ale też oprawki i narzędzia — programujesz mniejszą z tych granic. Rzeczywista prędkość skrawania jest wtedy niższa: vc = π · D · n / 1000. Posuw liczysz od nowa dla tych obrotów (lekcja F2.3) — zwiększenie F nie przywraca vc, tylko zwiększa obciążenie ostrza." },
+    { t: "p", x: "W kursie wynik zaokrąglamy w dół do okrągłej wartości, więc rzeczywista vc wychodzi nieco niższa od katalogowej. Wynik może przekraczać dopuszczalne obroty wrzeciona, oprawki albo narzędzia. Wtedy programujesz najniższą z tych granic, a rzeczywista prędkość skrawania jest niższa: vc = π · D · n / 1000. Posuw liczysz od nowa dla tych obrotów (lekcja F2.3). Większe F nie przywraca vc, tylko bardziej obciąża ostrze." },
 
     { t: "h", x: "Miejsce w programie", id: "miejsce" },
     { t: "p", x: "Obroty włącza się po wymianie narzędzia, przed pierwszym ruchem w stronę detalu: `S2500 M03`. Kolejność słów S i M w bloku nie ma znaczenia. Przed zakończeniem pracy narzędzia wrzeciono zatrzymuje `M05`." },
-    { t: "note", kind: "info", x: "W kursie S oznacza obr/min. Stała prędkość skrawania `G96`, przy której obroty zmieniają się ze średnicą, to temat ścieżki Toczenie. Czy frezarka w ogóle ma G96 i jaki tryb obowiązuje po włączeniu, zależy od profilu sterowania — lista kodów G zwykłej frezarki Haas jest inna niż frezarko-tokarki." },
+    { t: "note", kind: "info", x: "W kursie S oznacza obr/min. Stała prędkość skrawania `G96`, przy której obroty zmieniają się ze średnicą, to temat ścieżki Toczenie. Czy frezarka w ogóle ma G96 i jaki tryb obowiązuje po włączeniu, zależy od profilu sterowania. Na przykład lista kodów G zwykłej frezarki Haas jest inna niż frezarko-tokarki." },
   ],
 
   worked: {

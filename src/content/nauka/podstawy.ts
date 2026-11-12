@@ -13,7 +13,7 @@ type P = "F" | "T";
 
 const mill = (h?: string): Block[] => [
   ...(h ? [{ t: "h" as const, x: h, id: "frezarka" }] : []),
-  { t: "p", x: "We frezarce pionowej ze stołem krzyżowym stół przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. W pokazanym modelu frezarki z ruchomym stojakiem stół jest nieruchomy: stojak przesuwa się w osiach X i Y, a wrzeciennik — w osi Z; maszyny tego typu różnią się podziałem osi między zespoły. Podobnie we frezarce bramowej ruchy wykonuje brama z wrzeciennikiem. Spotyka się też układy mieszane." },
+  { t: "p", x: "We frezarce pionowej ze stołem krzyżowym stół przesuwa się w osiach X i Y, a wrzeciennik — w osi Z. W pokazanym modelu frezarki z ruchomym stojakiem stół stoi w miejscu. Stojak przesuwa się w osiach X i Y, a wrzeciennik w osi Z. Maszyny tego typu różnią się tym, który zespół porusza się w której osi. Podobnie we frezarce bramowej ruchy wykonuje brama z wrzeciennikiem. Spotyka się też układy mieszane." },
   { t: "diagram", id: "p1-mill" },
 ];
 const lathe = (h?: string): Block[] => [
@@ -115,7 +115,7 @@ const p2 = (k: P): LessonDoc => ({
 
     { t: "h", x: "Długość narzędzia", id: "dlugosc" },
     { t: "p", x: "**Długość narzędzia L** to odległość od przyjętej płaszczyzny odniesienia do punktu programowanego narzędzia. W kursie płaszczyzną odniesienia jest czoło wrzeciona **N**; na konkretnej maszynie zależy ona od sposobu pomiaru i ustawień sterowania. Długość mierzy się na przyrządzie do ustawiania narzędzi albo na maszynie i wpisuje do tabeli korekcji. Program wybiera tę wartość adresem H w bloku z [[G43]]." },
-    { t: "note", kind: "info", x: "Model kursu: L jest dodatnia, a położenie N liczymy w tym samym układzie co program — N = Z punktu programowanego + L. Tak obliczone N to położenie płaszczyzny odniesienia nad przedmiotem, a nie odczyt Z na ekranie współrzędnych maszynowych; ten zależy jeszcze od przesunięcia punktu zerowego, omawianego w module Maszyna." },
+    { t: "note", kind: "info", x: "Model kursu: L jest dodatnia, a położenie N liczymy w tym samym układzie co program — N = Z punktu programowanego + L. Tak obliczone N to położenie płaszczyzny odniesienia nad przedmiotem. To nie jest odczyt Z na ekranie współrzędnych maszynowych — ten zależy jeszcze od przesunięcia punktu zerowego (moduł Maszyna)." },
 
     { t: "h", x: "Program prowadzi jeden punkt", id: "punkt" },
     { t: "p", x: "Współrzędne w programie frezarki określają położenie **punktu programowanego**. Dla freza walcowo-czołowego leży on na osi freza, w płaszczyźnie jego czoła; dla wiertła — w wierzchołku. Oprawka, wrzeciono i pozostała część narzędzia nie są opisane w programie, ale przemieszczają się razem z nim. Dlatego bezpieczny tor punktu programowanego nie gwarantuje, że oprawka nie zderzy się z imadłem, dociskiem albo przedmiotem." },
@@ -247,7 +247,7 @@ const p3 = (k: P): LessonDoc => ({
   ],
 
   pitfalls: [
-    { title: "Punkt zerowy zmierzony przed dociśnięciem", x: "Przedmiot przesunął się przy dokręcaniu imadła, a punkt zerowy zmierzono wcześniej. Cała obróbka zostaje przesunięta o ten błąd." },
+    { title: "Punkt zerowy zmierzony przed dociśnięciem", x: "Przedmiot przesunął się przy dokręcaniu imadła, a punkt zerowy zmierzono wcześniej. Cała obróbka przesuwa się o ten błąd." },
     { title: "Głębokość bez sprawdzenia szczęk", x: "Kontur zewnętrzny głębszy niż część przedmiotu wystająca ponad szczęki prowadzi frez w imadło. Policz: wysokość przedmiotu minus wysokość zamocowania w szczękach.", danger: true },
   ],
 
@@ -256,7 +256,7 @@ const p3 = (k: P): LessonDoc => ({
     { kind: "choice", q: "Co wpisuje się do rejestru przesunięcia G54?", options: ["długość narzędzia", "położenie punktu zerowego przedmiotu względem punktu zerowego maszyny", "prędkość obrotową wrzeciona", "wysokość szczęk imadła"], answer: 1, why: "Rejestr przesunięcia przechowuje współrzędne punktu zerowego przedmiotu; sterowanie liczy od niego wymiary programu." },
     { kind: "choice", q: "Kiedy mierzy się punkt zerowy przedmiotu?", options: ["przed zamocowaniem przedmiotu", "po zamocowaniu przedmiotu", "po pierwszym wykonaniu programu", "nie trzeba — oblicza go sterowanie"], answer: 1, why: "Przedmiot może się przesunąć przy mocowaniu, dlatego punkt zerowy mierzy się na przedmiocie już zamocowanym." },
     { kind: "choice", q: "Górna krawędź szczęk leży na Z−6. Co się stanie przy konturze zewnętrznym na głębokości Z−8?", options: ["frez pozostawi 2 mm materiału", "frez przetnie szczękę na głębokość 2 mm", "nic — szczęki są niżej", "sterowanie samo skróci zejście"], answer: 1, why: "Z−8 leży 2 mm poniżej górnej krawędzi szczęk — frez przecina szczękę." },
-    { kind: "choice", q: "Od czego w tym kursie mierzy się długość narzędzia L?", options: ["od stołu", "od czoła wrzeciona N do punktu programowanego", "od górnej powierzchni przedmiotu", "od szczęk imadła"], answer: 1, why: "L to odległość od czoła wrzeciona N — płaszczyzny odniesienia przyjętej w kursie — do punktu programowanego.", review: `${k}P.2` },
+    { kind: "choice", q: "Od czego w tym kursie mierzy się długość narzędzia L?", options: ["od stołu", "od czoła wrzeciona N do punktu programowanego", "od górnej powierzchni przedmiotu", "od szczęk imadła"], answer: 1, why: "L to odległość od czoła wrzeciona N (płaszczyzny odniesienia przyjętej w kursie) do punktu programowanego.", review: `${k}P.2` },
   ],
 
   summary: [

@@ -9,7 +9,7 @@ export const f2_1: LessonDoc = {
 
   theory: [
     { t: "h", x: "T wybiera, M06 wymienia", id: "t-m06" },
-    { t: "p", x: "Adres **T** podaje numer narzędzia. Na centrum z magazynem, które obsługuje przygotowanie z wyprzedzeniem (preselekcję), samo `T2` każe tylko przygotować narzędzie nr 2: magazyn obraca się i ustawia je w pozycji wymiany. Dopiero [[M06]] zamienia narzędzie we wrzecionie z przygotowanym. Czy i jak działa preselekcja, zależy od budowy magazynu." },
+    { t: "p", x: "Adres **T** podaje numer narzędzia. Część magazynów przygotowuje narzędzie z wyprzedzeniem (preselekcja). Wtedy samo `T2` każe tylko przygotować narzędzie nr 2: magazyn obraca się i ustawia je w pozycji wymiany. Dopiero [[M06]] zamienia narzędzie we wrzecionie z przygotowanym. Czy i jak działa preselekcja, zależy od budowy magazynu." },
     { t: "diagram", id: "f21-change" },
     { t: "code", x: "T1 M06      (WYMIANA NA T1)\nT2          (PRZYGOTUJ T2 W TRAKCIE PRACY T1)\n…           (OBROBKA NARZEDZIEM T1)\nM06         (WYMIANA NA T2 — BEZ CZEKANIA NA MAGAZYN)", caption: "Przygotowanie następnego narzędzia skraca przestój przy wymianie." },
 
@@ -18,7 +18,7 @@ export const f2_1: LessonDoc = {
     { t: "note", kind: "warn", x: "Na części maszyn procedura wymiany nie odjeżdża sama w Z. Wtedy przed `M06` program musi wysłać oś Z do punktu wymiany, np. `G91 G28 Z0.`. Sprawdź to w dokumentacji maszyny." },
 
     { t: "h", x: "Numer narzędzia i tabela", id: "tabela" },
-    { t: "p", x: "Trzy numery łatwo pomylić: **numer narzędzia T**, **kieszeń magazynu**, w której narzędzie leży, i **rejestr korekcji H** z jego długością. Na wielu maszynach powiązanie T z kieszenią prowadzi tabela narzędzi — magazyn z dowolnym rozmieszczeniem odkłada narzędzie tam, gdzie jest wolne miejsce, a nie tam, skąd je wziął. W kursie przyjmujemy H = T, ale samo wywołanie T nie włącza korekcji długości — robi to `G43 H…` (lekcja F4.1)." },
+    { t: "p", x: "Trzy numery łatwo pomylić: **numer narzędzia T**, **kieszeń magazynu**, w której narzędzie leży, i **rejestr korekcji H** z jego długością. Na wielu maszynach to, w której kieszeni leży narzędzie T, zapisuje tabela narzędzi. Magazyn z dowolnym rozmieszczeniem odkłada narzędzie na wolne miejsce, a nie tam, skąd je wziął. W kursie przyjmujemy H = T, ale samo wywołanie T nie włącza korekcji długości — robi to `G43 H…` (lekcja F4.1)." },
     { t: "p", x: "Programista i operator muszą mieć ten sam spis narzędzi — wpisuje się go do nagłówka programu." },
     { t: "table", head: ["T", "Narzędzie", "Ø", "Rejestr długości"], rows: [
       ["`T1`", "frez walcowo-czołowy VHM, 4 ostrza", "10", "`H1`"],

@@ -49,7 +49,7 @@ export const t3_1: LessonDoc = {
       { x: "Wyjście w X na posuwie, 1 mm na stronę nad surowym prętem Ø40.", code: "X42." },
       { x: "Powrót ruchem szybkim nad czoło — nóż jest już ponad surówką.", code: "G00 Z2." },
     ],
-    result: "Cztery bloki, dwa kody G. Oba prześwity — nad surówką i do szczęk — wynikają z półfabrykatu i zamocowania, a nie z rysunku detalu. W T3.2 dojdą kolejne przejścia według tego samego wzoru.",
+    result: "Cztery bloki, dwa kody G. Oba prześwity, nad surówką i do szczęk, wynikają z półfabrykatu i zamocowania, a nie z rysunku detalu. W T3.2 dojdą kolejne przejścia według tego samego wzoru.",
   },
 
   practice: [

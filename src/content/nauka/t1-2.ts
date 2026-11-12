@@ -28,7 +28,7 @@ export const t1_2: LessonDoc = {
 
   theory: [
     { t: "h", x: "X, Z albo U, W", id: "uw" },
-    { t: "p", x: "Na tokarkach Fanuc w podstawowym systemie kodów (system A) nie przełącza się trybu kodem G. Adres sam mówi, jak czytać liczbę: **X** i **Z** to cel absolutny, od zera W, a **U** i **W** to przyrost od bieżącego punktu. W jednym bloku można je mieszać." },
+    { t: "p", x: "Na tokarkach Fanuc w podstawowym systemie kodów ([[system A]]) nie przełącza się trybu kodem G. Adres sam mówi, jak czytać liczbę: **X** i **Z** to cel absolutny, od zera W, a **U** i **W** to przyrost od bieżącego punktu. W jednym bloku można je mieszać." },
     { t: "diagram", id: "t12-uw" },
     { t: "code", x: "G01 X36. F0.2    (DO SREDNICY 36)\nG01 U-8. F0.2    (8 MM MNIEJSZA SREDNICA NIZ TERAZ)\nG01 X30. W-20.   (DO FI30 I 20 MM W STRONE UCHWYTU)", caption: "U jest w średnicy, tak jak X. U−8 przesuwa nóż 4 mm w stronę osi." },
 

@@ -42,7 +42,7 @@ export const f1_1: LessonDoc = {
 
     { t: "h", x: "Liczby i kropka dziesiętna", id: "kropka" },
     { t: "p", x: "Na Sinumeriku `X60` znaczy 60 mm. Na Fanucu zależy to od parametru 3401#0 (DPI): bez kropki wartość może zostać policzona w najmniejszym przyroście wejściowym — przy przyroście 0,001 mm `X60` to 0,060 mm. Dlatego w programach na Fanuca wymiary (X, Y, Z, I, J, K, R) pisze się z kropką: `X60.`" },
-    { t: "note", kind: "warn", x: "Brak kropki nie wywołuje alarmu. Przy przyroście 0,001 mm wartość jest po prostu 1000 razy mniejsza: `Z5` zamiast 5 mm nad detalem daje 0,005 mm, a ruch szybki na takiej wysokości kończy się na imadle." },
+    { t: "note", kind: "warn", x: "Brak kropki nie wywołuje alarmu. Przy przyroście 0,001 mm wartość jest 1000 razy mniejsza: `Z5` daje 0,005 mm zamiast 5 mm nad detalem. Ruch szybki na takiej wysokości kończy się na imadle." },
   ],
 
   worked: {

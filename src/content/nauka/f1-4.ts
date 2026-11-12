@@ -9,11 +9,11 @@ export const f1_4: LessonDoc = {
 
   theory: [
     { t: "h", x: "Milimetry czy cale", id: "jednostki" },
-    { t: "p", x: "[[G21]] przełącza sterowanie na milimetry, [[G20]] na cale. Kod decyduje, jak sterowanie odczyta każdą liczbę wymiarową — X, Y, Z, I, J, K, R — oraz posuw F. Przy posuwie na minutę ([[G94]]) F znaczy wtedy mm/min albo cale na minutę; przy G95 — mm albo cale na obrót." },
+    { t: "p", x: "[[G21]] przełącza sterowanie na milimetry, [[G20]] na cale. Kod decyduje, jak sterowanie odczyta każdą liczbę wymiarową (X, Y, Z, I, J, K, R) i posuw F. Przy posuwie na minutę ([[G94]]) F znaczy mm/min albo cale na minutę, przy G95 — mm albo cale na obrót." },
     { t: "diagram", id: "f14-units" },
     { t: "code", x: "1 cal = 25,4 mm\nG20 X2.        →  2 × 25,4 = 50,8 mm\nG20 G94 F10.   →  10 × 25,4 = 254 mm/min" },
     { t: "p", x: "W Polsce rysunki są prawie zawsze w milimetrach, więc programy zaczynają się od `G21`. Cale spotkasz przy detalach z rysunków amerykańskich, np. w lotnictwie." },
-    { t: "note", kind: "warn", x: "Jednostki ustawia się raz, na początku programu, zanim padnie pierwsza współrzędna. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak po przełączeniu są traktowane wartości w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów — na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu." },
+    { t: "note", kind: "warn", x: "Jednostki ustawia się raz, na początku programu, zanim padnie pierwsza współrzędna. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Co po przełączeniu dzieje się z wartościami w rejestrach przesunięć i korekcji, zależy od sterowania i jego parametrów. Na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu." },
 
     { t: "h", x: "Płaszczyzna pracy", id: "plaszczyzny" },
     { t: "p", x: "Trzy kody wybierają płaszczyznę: `G17` — XY, `G18` — ZX, `G19` — YZ. Płaszczyzna nie wpływa na ruchy po prostej (G00, G01). Decyduje o trzech rzeczach:" },

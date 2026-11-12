@@ -18,14 +18,14 @@ export const f0_3: LessonDoc = {
     { t: "p", x: "`G54` jest [[funkcja modalna|modalne]]: działa, dopóki program nie wywoła innego rejestru." },
 
     { t: "h", x: "Pomiar zera w X i Y", id: "pomiar" },
-    { t: "p", x: "Przy pomiarze ręcznym operator dojeżdża do krawędzi detalu przyrządem o znanej średnicy — czujnikiem krawędzi albo trzpieniem — i odczytuje pozycję maszynową w chwili styku. Środek przyrządu jest wtedy o promień od krawędzi, więc promień trzeba uwzględnić." },
+    { t: "p", x: "Przy pomiarze ręcznym operator dojeżdża do krawędzi detalu przyrządem o znanej średnicy, np. czujnikiem krawędzi albo trzpieniem, i odczytuje pozycję maszynową w chwili styku. Środek przyrządu jest wtedy o promień od krawędzi, więc promień trzeba uwzględnić." },
     { t: "code", x: "od lewej:  X kraw. = X masz. + r\nod prawej: X kraw. = X masz. − r", caption: "Dotyk od lewej to przyrząd po stronie −X. W osi Y tak samo: od przodu dodajesz r, od tyłu odejmujesz." },
     { t: "p", x: "Sterowania mają do tego funkcję pomiaru: po dotknięciu wpisujesz, jaką współrzędną ma środek przyrządu w układzie detalu (np. `X-5` dla Ø10 stojącego z lewej), a sterowanie samo liczy i zapisuje przesunięcie." },
     { t: "note", kind: "warn", x: "Sonda pomiarowa z cyklem pomiarowym działa inaczej: cykl uwzględnia skalibrowany promień końcówki sam i zapisuje gotowy wynik. Doliczenie promienia drugi raz przesunęłoby zero o promień. Przykłady w tej lekcji to pomiar ręczny przyrządem cylindrycznym Ø10." },
     { t: "note", kind: "info", x: "Wartość Z w rejestrze zależy od sposobu pomiaru długości narzędzi. Omówimy ją razem z korekcją długości w F4.1. Do tego czasu przyjmujemy Z0 na górnej powierzchni detalu." },
 
     { t: "h", x: "Dwa detale, jeden program", id: "dwa-detale" },
-    { t: "p", x: "Dwa imadła na stole to dwa zera: W1 w G54 i W2 w G55. Tor zapisany względem W jest ten sam, zmienia się tylko wywołany rejestr. Przejazd od jednego detalu do drugiego zaczynaj z wysokości, z której cały zespół narzędziowy minie oba zamocowania — ten sam tor względem W nie oznacza tych samych przeszkód na stole." },
+    { t: "p", x: "Dwa imadła na stole to dwa zera: W1 w G54 i W2 w G55. Tor zapisany względem W jest ten sam, zmienia się tylko wywołany rejestr. Przejazd od jednego detalu do drugiego zaczynaj z wysokości, z której cały zespół narzędziowy minie oba zamocowania. Ten sam tor względem W nie oznacza tych samych przeszkód na stole." },
     { t: "diagram", id: "f03-two" },
     { t: "code", x: "G54\n(OBROBKA DETALU 1)\nG55\n(TA SAMA OBROBKA DETALU 2)" },
   ],
@@ -53,7 +53,7 @@ export const f0_3: LessonDoc = {
     {
       kind: "offset",
       set: true,
-      intro: "Rejestry są puste. Ustaw środek narzędzia nad narożnikiem detalu — jak wskaźnikiem centrującym, bez promienia do doliczenia — i zapisz pozycję. Potem to samo dla drugiego detalu w G55.",
+      intro: "Rejestry są puste. Ustaw środek narzędzia nad narożnikiem detalu, jak wskaźnikiem centrującym, bez doliczania promienia, i zapisz pozycję. Potem to samo dla drugiego detalu w G55.",
       parts: [
         { reg: "G54", x: -320, y: -260, label: "detal 1" },
         { reg: "G55", x: -150, y: -260, label: "detal 2" },

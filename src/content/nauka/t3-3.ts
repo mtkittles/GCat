@@ -37,7 +37,7 @@ export const t3_3: LessonDoc = {
     { t: "p", x: "Promień R jest zawsze promieniem, a X — średnicą (T0.2). Łuk R1 kończy się w punkcie o średnicy większej o 2 × 1 = 2 mm." },
 
     { t: "h", x: "Który kierunek", id: "kierunek" },
-    { t: "p", x: "Kierunek łuku określa norma: patrzy się na płaszczyznę ZX od strony dodatniej osi Y. Na rysunku ustawionym tak jak w kursie — **Z w prawo, X w górę**, głowica tylna — oś +Y wychodzi z kartki w stronę patrzącego, więc kierunek odczytuje się wprost z rysunku. Nóż jedzie od czoła w stronę uchwytu. W takim widoku promień wklęsły między średnicą a czołem stopnia to G02, a zaokrąglenie krawędzi wypukłej — G03." },
+    { t: "p", x: "Kierunek łuku określa norma: patrzy się na płaszczyznę ZX od strony dodatniej osi Y. W kursie rysunek ma **Z w prawo, X w górę** i głowicę tylną. Wtedy oś +Y wychodzi z kartki w stronę patrzącego, więc kierunek łuku odczytujesz wprost z rysunku. Nóż jedzie od czoła w stronę uchwytu. W takim widoku promień wklęsły między średnicą a czołem stopnia to G02, a zaokrąglenie krawędzi wypukłej — G03." },
     { t: "table", head: ["Naroże", "Nóż jedzie", "Kod"], rows: [
       ["wklęsłe: średnica → czoło stopnia w górę", "od czoła w stronę uchwytu", "`G02`"],
       ["wypukłe: czoło stopnia → większa średnica", "od czoła w stronę uchwytu", "`G03`"],
@@ -45,7 +45,7 @@ export const t3_3: LessonDoc = {
 
     { t: "h", x: "Głowica przednia", id: "glowica" },
     { t: "diagram", id: "t33-views" },
-    { t: "p", x: "Na tokarce z głowicą przednią +X biegnie w stronę operatora. Ten sam blok G02 wygląda z jego miejsca jak łuk przeciwny do zegara. Na typowych tokarkach program się nie zmienia — kierunki osi ustawia producent w konfiguracji maszyny, więc przy nowej maszynie sprawdź to w jej dokumentacji. Myli się zwykle człowiek, który ocenia kierunek przez szybę, bez układu osi." },
+    { t: "p", x: "Na tokarce z głowicą przednią +X biegnie w stronę operatora. Ten sam blok G02 wygląda z jego miejsca jak łuk przeciwny do zegara. Na typowych tokarkach program się nie zmienia. Kierunki osi ustawia producent w konfiguracji maszyny — przy nowej maszynie sprawdź je w dokumentacji. Myli się zwykle człowiek, który ocenia kierunek przez szybę, bez układu osi." },
     { t: "note", kind: "warn", x: "Po łuku obowiązuje G02 lub G03 aż do zmiany. Blok `Z-55.` zaraz po G03 byłby dla sterowania łukiem bez promienia — stąd `G01 Z-55.` w programie wałka." },
   ],
 
@@ -91,7 +91,7 @@ export const t3_3: LessonDoc = {
     { title: "Kierunek z widoku przez szybę", x: "Operator przy głowicy przedniej widzi łuk „odwrotnie” i poprawia G02 na G03. Promień wychodzi wypukły zamiast wklęsłego — nóż wcina się w stopień." },
     { title: "Średnica w R", x: "Promień R1 wpisany jako `R2.` przez analogię do X. Łuk o promieniu 2 między punktami odległymi o 1,4 mm — alarm albo inny kształt." },
     { title: "Modalne G03", x: "Po zaokrągleniu blok `Z-55.` bez G01. Sterowanie traktuje go jak łuk — alarm braku promienia albo nieoczekiwany tor." },
-    { title: "J zamiast K", x: "Środek łuku zapisany `I… J…` jak na frezarce. W G18 składowa Z to K — J zostanie zignorowane albo da alarm." },
+    { title: "J zamiast K", x: "Środek łuku zapisany `I… J…` jak na frezarce. W G18 składowa Z to K. Sterowanie zignoruje J albo zgłosi alarm." },
   ],
 
   controllers: {

@@ -19,14 +19,14 @@ export const f0_2: LessonDoc = {
     { t: "diagram", id: "f02-points" },
 
     { t: "h", x: "Bazowanie osi", id: "bazowanie" },
-    { t: "p", x: "Maszyna z przyrostowym pomiarem położenia po włączeniu nie wie, gdzie są osie. Operator wykonuje **bazowanie**: każda oś dojeżdża do punktu R i dopiero wtedy pozycja maszynowa ma sens. Przy absolutnym pomiarze położenia odniesienie zostaje zachowane i klasyczne bazowanie po włączeniu nie jest potrzebne, dopóki odniesienie jest ważne. Kiedy i jak bazować — mówi instrukcja maszyny. Punkt R nie musi leżeć na końcu zakresu osi." },
+    { t: "p", x: "Maszyna z przyrostowym pomiarem położenia po włączeniu nie wie, gdzie są osie. Operator wykonuje **bazowanie**: każda oś dojeżdża do punktu R i dopiero wtedy pozycja maszynowa ma sens. Przy absolutnym pomiarze położenia maszyna pamięta odniesienie. Dopóki jest ono ważne, klasyczne bazowanie po włączeniu nie jest potrzebne. Kiedy i jak bazować — mówi instrukcja maszyny. Punkt R nie musi leżeć na końcu zakresu osi." },
     { t: "note", kind: "warn", x: "Przed bazowaniem nie uruchamiaj programu. Sterowanie nie zna położenia osi, a programowe wyłączniki krańcowe zaczynają działać dopiero po bazowaniu." },
 
     { t: "h", x: "Dlaczego pozycje maszynowe są ujemne", id: "ujemne" },
     { t: "p", x: "Na wielu centrach pionowych M leży w skrajnym położeniu osi: wrzeciono najwyżej, stół odsunięty maksymalnie w jedną stronę. Każde inne miejsce przestrzeni roboczej leży od M w stronę minusa, więc pozycje maszynowe są ujemne. Na innych obrabiarkach M bywa w innym miejscu — mówi o tym dokumentacja maszyny." },
 
     { t: "h", x: "Jak łączą się układy", id: "lancuch" },
-    { t: "p", x: "W uproszczonym modelu dla osi X i Y — bez dodatkowych przesunięć i transformacji — pozycja maszynowa to suma przesunięcia zera detalu i współrzędnej z programu. W osi Z dochodzi jeszcze korekcja długości narzędzia (lekcja F4.1)." },
+    { t: "p", x: "W uproszczonym modelu dla osi X i Y (bez dodatkowych przesunięć i transformacji) pozycja maszynowa to suma przesunięcia zera detalu i współrzędnej z programu. W osi Z dochodzi jeszcze korekcja długości narzędzia (lekcja F4.1)." },
     { t: "code", x: "X maszyny = X przesunięcia + X z programu\n  −260    =     −320      +     60", caption: "Przesunięcie to wektor od M do W. Zapisuje się je w rejestrze G54 — lekcja F0.3." },
     { t: "p", x: "Program pisze się w układzie W. Dzięki temu ten sam program pasuje do detalu w dowolnym miejscu stołu — zmienia się tylko przesunięcie. Wyjątki, np. ruch w układzie maszyny (G53) albo przejazd do punktu referencyjnego (G28), poznasz w dalszych lekcjach." },
 

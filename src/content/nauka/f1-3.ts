@@ -32,7 +32,7 @@ export const f1_3: LessonDoc = {
       "Odjazd o znaną wartość. `G91 G28 Z0.` z programu płytki znaczy: odjedź osią Z do punktu referencyjnego prosto w górę, bez ruchu w bok.",
       "Ruchy ustawiane przy maszynie krok po kroku od aktualnej pozycji.",
     ] },
-    { t: "note", kind: "tip", x: "Domyślnie pisz w G90. Błędna współrzędna w G90 wpływa na tor do chwili, gdy dana oś dostanie nowe, poprawne położenie — blok z samym Y po błędnym X nadal jedzie w złym X. W G91 błąd przesuwa wszystkie następne punkty, bo każdy liczy się od poprzedniego." },
+    { t: "note", kind: "tip", x: "Domyślnie pisz w G90. W G90 błędna współrzędna psuje tor, dopóki dana oś nie dostanie nowego, poprawnego położenia. Blok z samym Y po błędnym X nadal jedzie w złym X. W G91 błąd przesuwa wszystkie następne punkty, bo każdy liczy się od poprzedniego." },
 
     { t: "h", x: "Tryb jest modalny", id: "modalny" },
     { t: "p", x: "G90 i G91 tworzą jedną grupę, więc obowiązuje ostatnio wywołany kod (lekcja F1.2). Po odcinku w G91 wróć do `G90`, zanim kolejne bloki zaczną podawać współrzędne od W." },
