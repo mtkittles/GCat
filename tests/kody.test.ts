@@ -25,7 +25,7 @@ describe("karty i słownik z content/", () => {
   it("cała treść przechodzi walidację (schematy, slugi, kotwice, markery, rysunki)", async () => {
     const c = await load();
     expect(c.kody.length).toBe(56);
-    expect(c.slownik.length).toBe(77);
+    expect(c.slownik.length).toBe(78);
   });
 
   it("dane strony (content/.generated) = pliki treści, w kolejności `order`", async () => {
