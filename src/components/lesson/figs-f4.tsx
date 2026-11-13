@@ -8,8 +8,8 @@ export function ToolLength() {
   const tools = [{ x: 90, L: 86, n: 1, h: "85.200" }, { x: 250, L: 118, n: 2, h: "102.700" }];
   return (
     <Fig id="f41tl" code="G43 H" title="Dwa narzędzia, ten sam cel Z5" h={246} legend={["acc", "dim", "stock"]}
-      notes={<><Code k="acc">pozycja N = Z programu + wartość z rejestru H</Code><Code k="dim">H1 — numer rejestru, 85,200 — liczba w nim zapisana</Code></>}
-      caption={<>Program mówi tylko, gdzie ma być czubek: Z5. Słowo H1 w programie nie jest długością — wskazuje rejestr nr 1, a sterowanie bierze z niego zapisaną liczbę (85,2 mm) i ustawia czoło wrzeciona N wyżej dla dłuższego narzędzia. Bez G43 oba czubki trafiłyby w złe miejsce.</>}>
+      notes={<><Code k="acc">pozycja N = Z programu + wartość z rejestru H</Code><Code k="dim">H1 — numer rejestru, 85,2 mm — liczba w nim zapisana</Code></>}
+      caption={<>Program podaje tylko, gdzie ma być czubek: Z5. H1 nie jest długością, tylko numerem rejestru; sterowanie bierze z niego 85,2 mm i ustawia czoło wrzeciona N wyżej dla dłuższego narzędzia. Bez G43 oba czubki trafiłyby w złe miejsce.</>}>
       {(c) => (
         <g>
           <rect x={20} y={top} width={320} height={40} fill={c.hatch} className="p-con" />
@@ -27,7 +27,8 @@ export function ToolLength() {
                 <line x1={t.x - 40} y1={nY} x2={t.x + 40} y2={nY} className="p-acc" />
                 <Pt x={t.x} y={nY} label="N" pos="w" cls="t-acc t-b" dot="pt-rap" />
                 <Dim x1={t.x + 30} y1={nY} x2={t.x + 30} y2={tip} label={t.h.replace(/0+$/, "").replace(".", ",")} c={c} lside={1} cls="t-acc t-b t-mono" />
-                <T x={t.x} y={top + 30} anchor="middle" cls="t-b t-mono">{`T${t.n} · rejestr H${t.n} = ${t.h}`}</T>
+                <T x={t.x} y={top + 16} anchor="middle" cls="t-b t-mono">{`T${t.n} · rejestr H${t.n}`}</T>
+                <T x={t.x} y={top + 32} anchor="middle" cls="t-b t-mono">{`ekran: ${t.h}`}</T>
               </g>
             );
           })}
@@ -50,7 +51,7 @@ export function CompPath() {
   return (
     <Fig id="f42cp" code="G41" title="Program opisuje detal, sterowanie odsuwa środek freza" h={244} legend={["cut", "acc", "stock"]}
       notes={<><Code k="cut">program: X0…X80, R10</Code><Code k="acc">środek freza: X−5…X85, R15</Code></>}
-      caption={<>Z <b>G41 D1</b> w programie stoją wymiary z rysunku. Sterowanie prowadzi środek freza z lewej strony konturu, patrząc w kierunku ruchu, odsunięty o promień z rejestru D1.</>}>
+      caption={<>Z <b>G41 D1</b> w programie stoją wymiary z rysunku. Sterowanie prowadzi środek freza z lewej strony konturu (patrząc w kierunku ruchu), odsunięty o promień z D1. ① dojazd z korekcją, ② lewa krawędź, ③ naroże R10, ④ kolejne naroża.</>}>
       {(c) => (
         <g>
           <path d={rr(m, 0, 0, 80, 50, 10)} fill={c.hatch} className="p-con" />
@@ -59,7 +60,7 @@ export function CompPath() {
           <line x1={m.X(-20)} y1={m.Y(10)} x2={m.X(0)} y2={m.Y(10)} className="p-cut" />
           <line x1={m.X(-20)} y1={m.Y(12)} x2={m.X(-5)} y2={m.Y(12)} className="p-acc dashed" />
           <line x1={m.X(-2)} y1={m.Y(27)} x2={m.X(-2)} y2={m.Y(33)} className="p-cut thick" markerEnd={c.a("cut")} />
-          <T x={m.X(-23)} y={m.Y(10) + 16} cls="t-cut t-mono t-b t-sm">G41 D1 G01 X0.</T>
+          <T x={m.X(-23)} y={m.Y(10) + 16} cls="t-cut t-mono t-b t-sm">G41 D1</T>
           <Pt x={m.X(-20)} y={m.Y(10)} dot="pt-rap" />
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="sw" cls="t-b" />
           <Step x={m.X(-14)} y={m.Y(10) - 12} n={1} />
@@ -77,7 +78,8 @@ export function LeadInOut() {
   const R: [number, number, number, number] = [-26, 22, -6, 32];
   const m = mapper(R, [10, 6, 340, 226]);
   const arc = (x0: number, y0: number, x1: number, y1: number, r: number, cw: boolean) => `M ${m.X(x0)} ${m.Y(y0)} A ${r * m.u} ${r * m.u} 0 0 ${cw ? 1 : 0} ${m.X(x1)} ${m.Y(y1)}`;
-  const part = `M ${m.X(0)} ${m.Y(32)} L ${m.X(0)} ${m.Y(10)} A ${10 * m.u} ${10 * m.u} 0 0 0 ${m.X(10)} ${m.Y(0)} L ${m.X(22)} ${m.Y(0)} L ${m.X(22)} ${m.Y(32)} Z`;
+  // naroże X0 Y0 płytki jest ostre — program go nie zaokrągla (audyt kart §5.2)
+  const part = `M ${m.X(0)} ${m.Y(32)} L ${m.X(0)} ${m.Y(0)} L ${m.X(22)} ${m.Y(0)} L ${m.X(22)} ${m.Y(32)} Z`;
   return (
     <Fig id="f43io" code="G41 G40" title="Najazd i odjazd styczny — lewy dolny róg płytki" h={250} legend={["cut", "arc", "rap", "stock"]}
       notes={<><Code k="cut">G41 D1 G01 X-10. Y0.</Code><Code k="arc">G03 X0. Y10. R10.</Code><Code k="arc">G03 X-10. Y20. R10.</Code><Code k="cut">G40 G01 X-20. Y10.</Code></>}
@@ -86,11 +88,10 @@ export function LeadInOut() {
         <g>
           <path d={part} fill={c.hatch} className="p-con" />
           <line x1={m.X(0)} y1={m.Y(10)} x2={m.X(0)} y2={m.Y(30)} className="p-cut thick" markerEnd={c.a("cut")} />
-          <path d={arc(10, 0, 0, 10, 10, true)} className="p-arc thick" />
           <line x1={m.X(-20)} y1={m.Y(10)} x2={m.X(-10)} y2={m.Y(0)} className="p-cut" markerEnd={c.a("cut")} />
           <path d={arc(-10, 0, 0, 10, 10, false)} className="p-arc" markerEnd={c.a("arc")} />
-          <path d={arc(0, 10, -10, 20, 10, false)} className="p-arc dashed" markerEnd={c.a("arc")} />
-          <line x1={m.X(-10)} y1={m.Y(20)} x2={m.X(-20) + 3} y2={m.Y(10) + 3} className="p-cut dashed" markerEnd={c.a("cut")} />
+          <path d={arc(0, 10, -10, 20, 10, false)} className="p-arc" markerEnd={c.a("arc")} />
+          <line x1={m.X(-10)} y1={m.Y(20)} x2={m.X(-20) + 3} y2={m.Y(10) + 3} className="p-cut" markerEnd={c.a("cut")} />
           <T x={m.X(-17)} y={m.Y(1)} cls="t-cut t-b">najazd</T>
           <T x={m.X(-19)} y={m.Y(22)} cls="t-arc t-b">odjazd</T>
           <Pt x={m.X(-20)} y={m.Y(10)} label="X−20 Y10" pos="w" cls="t-mono" dot="pt-rap" />

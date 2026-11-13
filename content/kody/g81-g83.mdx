@@ -94,7 +94,7 @@ example:
 4. Ewentualny postój na dnie albo wycofania z odprowadzeniem wióra.
 5. Powrót do płaszczyzny R (**G99**) albo do punktu początkowego (**G98**).
 
-<Diagram id="g81-g83" />
+<Diagram id="f51-cycle" />
 
 ## Cykle wiercenia \{#najważniejsze-cykle}
 
@@ -135,6 +135,8 @@ example:
 ## G98 kontra G99 \{#g98-kontra-g99}
 
 Te dwie funkcje decydują, dokąd narzędzie wraca po każdym otworze. **G99** wraca tylko do płaszczyzny R; to szybsze, więc stosuje się je domyślnie. **G98** wraca do wysokości, na której narzędzie było przed cyklem. Jest potrzebne, gdy między otworami stoi przeszkoda: zacisk, żebro odlewu, wcześniej obrobiony stopień.
+
+<Diagram id="g98-g99" />
 
 <Note kind="tip">
   Pracuj w G99, a przed otworem za przeszkodą wstaw pojedynczy blok z G98. Tryb jest modalny, więc dla kolejnych otworów wróć do G99.

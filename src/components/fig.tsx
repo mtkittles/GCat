@@ -15,13 +15,16 @@ export type Kind = "rap" | "cut" | "arc" | "con" | "bad" | "dim" | "acc" | "cons
 const LEGEND: Record<string, string> = {
   rap: "G00 — ruch szybki", cut: "G01 — ruch roboczy", arc: "G02/G03 — łuk", con: "kontur detalu",
   bad: "błąd / kolizja", dim: "wymiar", acc: "parametr", stock: "materiał", cons: "linia pomocnicza",
-  tool: "narzędzie", allow: "naddatek (półfabrykat)",
+  tool: "narzędzie", allow: "naddatek (półfabrykat)", alt: "drugi łuk (R ujemne)",
 };
+
+/** wpis legendy: rodzaj z domyślnym opisem albo [rodzaj, opis] — gdy kolor znaczy na rysunku coś innego niż ruch (paczka Y) */
+export type LegendItem = Kind | "stock" | "tool" | "allow" | "alt" | [string, string];
 
 export interface Ctx { a: (k: Kind) => string; hatch: string }
 
 export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250, children }: {
-  id: string; code?: string; title: string; caption?: ReactNode; legend?: (Kind | "stock" | "tool" | "allow")[];
+  id: string; code?: string; title: string; caption?: ReactNode; legend?: LegendItem[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
 }) {
   const a = (k: Kind) => `url(#${id}-a-${k})`;
@@ -48,7 +51,7 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
       {notes && <div className="fig-notes">{notes}</div>}
       {legend && legend.length > 0 && (
         <div className="fig-legend">
-          {legend.map((k) => <span key={k}><i className={`lg lg-${k}`} />{LEGEND[k]}</span>)}
+          {legend.map((it) => { const [k, label] = Array.isArray(it) ? it : [it, LEGEND[it]]; return <span key={k + label}><i className={`lg lg-${k}`} />{label}</span>; })}
         </div>
       )}
       {caption && <figcaption className="fig-cap">{caption}</figcaption>}
@@ -141,6 +144,6 @@ export function Step({ x, y, n }: { x: number; y: number; n: number }) {
 }
 
 /** Kod w podpisie rysunku, w kolorze rodzaju ruchu. */
-export function Code({ k = "cut", children }: { k?: Kind; children: ReactNode }) {
+export function Code({ k = "cut", children }: { k?: Kind | "alt"; children: ReactNode }) {
   return <code className={`fig-code-line cl-${k}`}>{children}</code>;
 }

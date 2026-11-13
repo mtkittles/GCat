@@ -251,7 +251,7 @@ export function LatheZero() {
   const m = mapper(R, [10, 6, 340, 226]);
   return (
     <Fig id="t03zr" code="M W" title="Zero maszyny na wrzecionie, zero detalu na czole" h={250} legend={["acc", "stock"]}
-      caption={<>Na tokarce X0 wypada zawsze na osi obrotu. Operator ustala więc tylko Z: dotyka nożem czoła detalu i zapisuje tę pozycję jako Z0. Odległość od M do W zależy od długości wysięgu pręta z uchwytu.</>}>
+      caption={<>Na tokarce X0 układu detalu leży na osi obrotu. Operator ustala więc tylko Z: dotyka nożem czoła detalu i zapisuje tę pozycję jako Z0. Odległość od M do W zależy od długości wysięgu pręta z uchwytu.</>}>
       {(c) => (
         <g>
           <Chuck m={m} z0={-88} r={20} />
@@ -261,7 +261,8 @@ export function LatheZero() {
           <Pt x={m.X(0)} y={m.Y(0)} label="W" pos="ne" cls="t-cut t-b" dot="pt-cut" />
           <Dim x1={m.X(-98)} y1={m.Y(-20)} x2={m.X(0)} y2={m.Y(-20)} off={16} label="przesunięcie Z (G54)" c={c} lside={1} cls="t-acc t-b" />
           <polygon points={`${m.X(0)},${m.Y(12)} ${m.X(4)},${m.Y(18)} ${m.X(10)},${m.Y(15)}`} className="p-fill-acc" style={{ stroke: "var(--accent)" }} />
-          <T x={m.X(12)} y={m.Y(18)} cls="t-mut">dotyk czoła → Z0</T>
+          <T x={m.X(12)} y={m.Y(24)} cls="t-mut">dotyk czoła</T>
+          <T x={m.X(12)} y={m.Y(24) + 14} cls="t-mut">→ Z0</T>
         </g>
       )}
     </Fig>

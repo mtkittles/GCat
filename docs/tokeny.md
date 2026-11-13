@@ -120,7 +120,7 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--fig-text-big` | `14px` | .t-big · `.fig svg .t-big { font-size }` |
 | `--fig-text-sm` | `9.5px` | .t-sm · `.fig svg .t-sm { font-size }` |
 | `--fig-text-axis` | `11.5px` | opisy osi (.t-ax) · `.fig svg .t-ax { font-size }` |
-| `--fig-text-tick` | `8.5px` | podziałka (.t-tick) · `.fig svg .t-tick { font-size }` |
+| `--fig-text-tick` | `9.5px` | podziałka (.t-tick) · `.fig svg .t-tick { font-size }` |
 | `--fig-text-halo` | `3.2px` | obwódka napisu w kolorze panelu (czytelność na liniach) · `.fig svg text { stroke-width }` |
 | `--fig-text-halo-tick` | `2.4px` | obwódka napisów podziałki · `.fig svg .t-tick { stroke-width }` |
 

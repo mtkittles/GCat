@@ -15,7 +15,7 @@ export function TapDepths() {
   const rHole = 4.25, rTap = 5, cone = rHole / Math.tan((59 * Math.PI) / 180);
   const xs = -12; // oś otworu
   return (
-    <Fig id="g84dep" code="G84" title="G84 — cztery różne głębokości (M10×1,5)" h={250} legend={["acc", "dim", "stock"]}
+    <Fig id="g84dep" code="G84" title="Cztery różne głębokości (M10×1,5)" h={250} legend={["acc", "dim", "stock"]}
       caption={<>Z w bloku G84 to <b>położenie końca gwintownika</b> na dnie cyklu: Z−19,5 = pełny gwint 15 mm + nakrój ok. 4,5 mm. Otwór musi być głębszy niż Z, bo stożek wiertła i wióry potrzebują miejsca. R5 to płaszczyzna startu posuwu, nie głębokość.</>}>
       {(c) => (
         <g>
@@ -46,7 +46,7 @@ export function TapDepths() {
           <Dim c={c} x1={m.X(4)} y1={m.Y(0)} x2={m.X(4)} y2={m.Y(-L)} label="pełny gwint 15" lside={1} />
           <Dim c={c} x1={m.X(4)} y1={m.Y(-L)} x2={m.X(4)} y2={m.Y(zTool)} label="nakrój ≈ 4,5" lside={1} />
           <Dim c={c} x1={m.X(19)} y1={m.Y(0)} x2={m.X(19)} y2={m.Y(zHole)} label="otwór 22" lside={1} />
-          <T x={m.X(xs)} y={m.Y(zHole - cone) + 14} anchor="middle" cls="t-mut t-sm">Ø8,5, stożek 118°</T>
+          <T x={m.X(xs) + 44} y={m.Y(zHole - cone / 2) + 4} cls="t-mut t-sm">Ø8,5, stożek 118°</T>
         </g>
       )}
     </Fig>
@@ -61,8 +61,8 @@ export function G28Path() {
   const m = mapper(R, [8, 8, 344, 236]);
   const zRef = 56;
   return (
-    <Fig id="g28p" code="G28" title="G28 — przejazd przez punkt pośredni" h={250} legend={["rap", "bad", "stock"]}
-      caption={<>Oba bloki jadą najpierw do punktu pośredniego, potem do punktu referencyjnego. W <b>G91 G28 Z0</b> punkt pośredni to bieżąca pozycja (przyrost 0), więc zostaje sam drugi etap. W <b>G90 G28 Z0</b> punkt pośredni to Z0 układu detalu — tu powierzchnia detalu, więc pierwszy etap schodzi ruchem szybkim na detal.</>}>
+    <Fig id="g28p" code="G28" title="Przejazd przez punkt pośredni" h={250} legend={["rap", "bad", "stock"]}
+      caption={<>Oba bloki jadą przez punkt pośredni do punktu referencyjnego. W <b>G91 G28 Z0</b> punkt pośredni to bieżąca pozycja, więc zostaje sam drugi etap. W <b>G90 G28 Z0</b> punkt pośredni to Z0 detalu, więc pierwszy etap schodzi ruchem szybkim na jego powierzchnię.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={110 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />

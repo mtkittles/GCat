@@ -230,7 +230,7 @@ export function FaceCenter() {
   const re = 0.8;
   return (
     <Fig id="t23fc" code="X−1.6" title="Planowanie czoła przez oś" h={220} legend={["cut", "bad", "stock"]}
-      notes={<><Code k="cut">G01 X-1.6 F0.15</Code><Code k="bad">G01 X0 — zostaje pipka</Code></>}
+      notes={<><Code k="cut">G01 X-1.6 F0.15</Code><Code k="bad">G01 X0. — zostaje pipka</Code></>}
       caption={<>Program prowadzi teoretyczny wierzchołek ostrza. Naroże o promieniu 0,8 kończy się przed nim, więc przy X0 w środku zostaje mały czop. Wyjazd za oś na X = −2 · rε = −1,6 zbiera go do końca.</>}>
       {(c) => (
         <g>

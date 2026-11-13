@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { AbsInc, ArcIJ, Comp, CycleRetract, LatheRough, LatheSingle, Peck, Planes, Polar, RefPoint, ToolLen } from "./figs";
+import { AbsInc, ArcIJ, Comp, CycleRetract, LatheRough, LatheSingle, Peck, Planes, Polar, ToolLen } from "./figs";
+import { G28Path } from "./lesson/figs-audit";
 import {
   Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
@@ -76,8 +77,9 @@ export const diagrams: Record<string, () => ReactNode> = {
   "g15-g16": () => <Polar />,
   "g17-g19": () => <Planes />,
   "g22-g23": () => <Zone />,
-  g28: () => <RefPoint />,
-  "g27-g30": () => <RefPoint />,
+  // G27–G30: ten sam rysunek co w artykule G28 (audyt kart §5.2 — dawny RefPoint zaczynał linię G90 nad narzędziem)
+  g28: () => <G28Path />,
+  "g27-g30": () => <G28Path />,
   g31: () => <Probe />,
   "g40-g42": () => <Comp />,
   "g43-g49": () => <ToolLen />,
