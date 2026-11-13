@@ -3,17 +3,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+/* „Kody” w pasku, „Kalkulatory” w „Więcej” — decyzja 9 audytu kart, potwierdzona przy paczce Z c */
 const TABS = [
   { href: "/", label: "Start", icon: "home" },
   { href: "/nauka", label: "Nauka", icon: "book" },
+  { href: "/kody", label: "Kody", icon: "codes" },
   { href: "/symulator", label: "Symulator", icon: "cube" },
-  { href: "/kalkulator", label: "Kalkulatory", icon: "calc" },
 ] as const;
 
 const MORE = [
+  { href: "/kalkulator", label: "Kalkulatory" },
   { href: "/programy", label: "Gotowe programy" },
   { href: "/zadania", label: "Zadania" },
-  { href: "/kody", label: "Kody" },
   { href: "/slownik", label: "Słownik" },
   { href: "/fiszki", label: "Fiszki" },
   { href: "/szukaj", label: "Szukaj" },
@@ -43,6 +44,13 @@ function Icon({ name }: { name: string }) {
           <path d="M12 2 3 7l9 5 9-5-9-5Z" />
           <path d="M3 7v10l9 5 9-5V7" />
           <path d="M12 12v10" />
+        </svg>
+      );
+    case "codes":
+      return (
+        <svg {...common}>
+          <rect x="3" y="4" width="18" height="16" rx="2.5" />
+          <path d="M7 9.5h4M7 14.5h6M15 9.5h2M16 14.5h1" />
         </svg>
       );
     case "calc":
