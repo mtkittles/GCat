@@ -14,6 +14,7 @@ import PageBanner from "@/components/ui/PageBanner";
 import { bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
 import { kartaMdx, normProgram } from "@/lib/mdx/kody";
 import { readOnlyCaption } from "@/lib/simGaps";
+import { OpenInSim } from "@/lib/mdx/components";
 
 export function generateStaticParams() { return gcodes.map((g) => ({ slug: g.slug })); }
 
@@ -131,7 +132,11 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
       <figcaption className="cap">{readOnlyCaption(g.example, mode)}</figcaption>
     </figure>
   ) : (
-    <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
+    // animacja + „Otwórz w symulatorze” (paczka Z b, decyzja 7): pełny warsztat pod przyciskiem
+    <figure className="grid gap-2 demo-fig">
+      <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} showcase autoplay="wide" controls editable={false} />
+      <OpenInSim src={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} name={`${g.code} — przykład`} />
+    </figure>
   );
   const sinumerikNote = g.sinumerik && <div role="note" className="note note-info"><CodeText text={g.sinumerik} self={self} /></div>;
   const pitfallNotes = g.pitfalls.map((p) => <div key={p} role="note" className="note note-warn"><CodeText text={p} self={self} /></div>);

@@ -7,6 +7,7 @@ import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Si
 import { PROGRAMS, programBySlug } from "@/content/programy";
 import { simTools, type LibProgram } from "@/lib/programLibrary";
 import type { Tool } from "@/components/simulator/setup";
+import { readSimLink } from "@/lib/simLink";
 
 /** znacznik czasu zapisu zakładki — poza komponentem, wywoływany tylko w obsłudze kliknięcia */
 function stamp() { return Date.now(); }
@@ -37,8 +38,13 @@ export default function SimPage() {
       const list = loadPrograms();
       const want = new URLSearchParams(window.location.search).get("program");
       const fromLink = want ? programBySlug(want) : undefined;
+      // program z karty kodu (?kod=…, paczka Z b) — jak program z galerii: bez zapisu jako zakładka
+      const fromCard = fromLink ? null : readSimLink(window.location.search);
       if (list.length) setTabs(list);
-      if (fromLink) {
+      if (fromCard) {
+        setLib(null); setActive(null); setName(fromCard.name ?? "Program z karty"); setSrc(fromCard.src); setMode(fromCard.mode);
+        setStock(fromCard.stock); setTools(undefined); setDialect(fromCard.dialect ?? "fanuc");
+      } else if (fromLink) {
         setLib(fromLink.slug); setName(fromLink.title); setSrc(fromLink.src); setMode(fromLink.mode); setStock(fromLink.stock); setTools(simTools(fromLink)); setDialect(fromLink.dialect ?? "fanuc");
       } else if (list.length) {
         const id = loadActiveId() ?? list[0].id;
