@@ -128,7 +128,7 @@ Korekcji nie da się włączyć w miejscu. Sterowanie potrzebuje **ruchu prostol
 
 <Diagram id="comp-entry" />
 
-<Sim mode="mill" caption="Program opisuje prostokąt 60 × 40 z rysunku. Przycisk „Tor rzeczywisty (G41/G42)” pokazuje środek freza odsunięty o 5 mm, przerywana linia — kontur z programu.">
+<Sim mode="mill" caption="Program opisuje prostokąt 60 × 40 z rysunku. Tor rzeczywisty (G41/42) pokazuje środek freza odsunięty o 5 mm; linia przerywana to kontur z programu.">
   ```
   G21 G90 G94 G17
   G40 G49 G80
@@ -201,7 +201,7 @@ Na tokarce promieniem korekcji jest **promień naroża płytki rε**. Nóż mier
 | zewnętrzna, w stronę uchwytu              | `G42` |
 | wewnętrzna (wytaczanie), w stronę uchwytu | `G41` |
 
-<Demo mode="lathe" title="G42 na tokarce — faza i promienie" caption="Pomarańczowy pas to ślad naroża płytki. Z G42 przylega do konturu z programu także na fazie i promieniach.">
+<Demo mode="lathe" title="G42 na tokarce — faza i promienie" caption="Szeroki pas to ślad naroża płytki. Z G42 przylega do konturu z programu także na fazie i promieniach.">
   ```
   G18 G21 G40 G80 G99
   G54
