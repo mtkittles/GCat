@@ -118,7 +118,7 @@ export const fonts: Group[] = [
     { name: "--fig-text-big", value: "14px", use: ".t-big", src: rule(".fig svg .t-big", "font-size") },
     { name: "--fig-text-sm", value: "9.5px", use: ".t-sm", src: rule(".fig svg .t-sm", "font-size") },
     { name: "--fig-text-axis", value: "11.5px", use: "opisy osi (.t-ax)", src: rule(".fig svg .t-ax", "font-size") },
-    { name: "--fig-text-tick", value: "8.5px", use: "podziałka (.t-tick)", src: rule(".fig svg .t-tick", "font-size") },
+    { name: "--fig-text-tick", value: "9.5px", use: "podziałka (.t-tick)", src: rule(".fig svg .t-tick", "font-size") },
     { name: "--fig-text-halo", value: "3.2px", use: "obwódka napisu w kolorze panelu (czytelność na liniach)", src: rule(".fig svg text", "stroke-width") },
     { name: "--fig-text-halo-tick", value: "2.4px", use: "obwódka napisów podziałki", src: rule(".fig svg .t-tick", "stroke-width") },
   ] },
