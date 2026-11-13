@@ -3046,3 +3046,9 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* uchwyt spisu treści chowa się przy przewijaniu w dół (nie zasłania końców wierszy), wraca przy przewijaniu w górę */
 .toc-handle.is-away { transform: translateX(110%); }
+
+/* ---------- paczka Z b: animacja na karcie + „Otwórz w symulatorze” ---------- */
+.sim-open { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .75rem; margin: 0; }
+.sim-open .btn { min-height: 44px; }
+.sim-open > span { font-size: var(--fs-aux); color: var(--muted); }
+.code-card .sim-open > span { font-size: var(--fs-aux); line-height: var(--lh-aux); }

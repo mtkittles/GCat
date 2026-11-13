@@ -7,10 +7,12 @@ import { rich } from "@/components/Rich";
 import RijCalc from "@/components/RijCalc";
 import SimClient from "@/components/simulator/SimClient";
 import Term from "@/components/ui/Term";
+import { simHref, type SimLink } from "@/lib/simLink";
 
 /*
-  Komponenty dostępne w treści MDX. Każdy renderuje dokładnie ten sam HTML co odpowiadający mu blok
-  w Article.tsx (test równości w tests/pilot.test.ts). Istniejące komponenty strony (Term, rysunki,
+  Komponenty dostępne w treści MDX (karty kodów). Każdy renderuje ten sam HTML co odpowiadający mu blok
+  w Article.tsx — poza <Sim> i <Demo>: na karcie to animacja z przyciskiem „Otwórz w symulatorze”
+  (paczka Z b, decyzja 7 audytu kart), a lekcje (Article.tsx) mają pełny warsztat jak dotąd. Istniejące komponenty strony (Term, rysunki,
   SimClient, kalkulatory) są tylko używane — bez zmian. Podpisy i tytuły (atrybuty) idą przez rich(),
   jak dziś; plugin remark sprawdza w nich markery [[…]] przy buildzie.
 */
@@ -39,8 +41,15 @@ export function Code({ src, caption }: { src: string; caption?: string }) {
 }
 
 /** <Sim mode caption>```…```</Sim> — edytowalny symulator (blok `sim`). Komponent symulatora bez zmian. */
-export function Sim({ src, mode, caption }: { src: string; mode?: Mode; caption?: string }) {
-  return <figure className="grid gap-2">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<SimClient initial={src} mode={mode ?? "mill"} /></figure>;
+export function Sim({ src, mode, caption, name }: { src: string; mode?: Mode; caption?: string; name?: string }) {
+  // na karcie: animacja jak <Demo> + „Otwórz w symulatorze” (paczka Z b, decyzja 7 audytu kart); podpis pod animacją
+  return (
+    <figure className="grid gap-2 demo-fig">
+      <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
+      <OpenInSim src={src} mode={mode ?? "mill"} name={name} />
+      {caption && <figcaption className="cap">{rich(caption)}</figcaption>}
+    </figure>
+  );
 }
 
 /** <Demo mode title caption>```…```</Demo> — animacja bez edycji (blok `demo`). */
@@ -49,8 +58,21 @@ export function Demo({ src, mode, title, caption }: { src: string; mode?: Mode; 
     <figure className="grid gap-2 demo-fig">
       {title && <figcaption className="demo-title">{rich(title)}</figcaption>}
       <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
+      <OpenInSim src={src} mode={mode ?? "mill"} name={title} />
       {caption && <figcaption className="cap">{rich(caption)}</figcaption>}
     </figure>
+  );
+}
+
+/** Przycisk „Otwórz w symulatorze” pod animacją — ten sam program w pełnym warsztacie (`/symulator?kod=…`). */
+export function OpenInSim({ name, ...p }: SimLink) {
+  return (
+    <p className="sim-open">
+      <a className="btn ghost" href={simHref({ ...p, name: name?.replace(/\[\[([^|\]]*\|)?([^\]]*)\]\]/g, "$2") })}>
+        Otwórz w symulatorze <span aria-hidden>↗</span>
+      </a>
+      <span>edycja, widok 3D, narzędzia i materiał</span>
+    </p>
   );
 }
 
