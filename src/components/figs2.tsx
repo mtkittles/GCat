@@ -8,8 +8,8 @@ export function RapidPath() {
   const m = mapper(R, [28, 10, 322, 226]);
   return (
     <Fig id="rpath" code="G00" title="Dlaczego G00 nie musi jechać po prostej" h={250} legend={["rap", "cons"]}
-      notes={<Code k="rap">G00 X80 Y50</Code>}
-      caption={<>Każda oś rusza ze swoją prędkością ruchu szybkiego. Przy porównywalnych prędkościach osi krótsza droga kończy się pierwsza i dalej jedzie już jedna oś; na maszynie liczą się też prędkość i dynamika każdej osi. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
+      notes={<Code k="rap">G00 X80. Y50.</Code>}
+      caption={<>Każda oś rusza ze swoją prędkością ruchu szybkiego. Przy porównywalnych prędkościach osi krótsza droga kończy się pierwsza i dalej jedzie jedna oś. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -34,7 +34,7 @@ export function RapidClamp() {
   const P1 = { x: 10, y: 10 }, P2 = { x: 90, y: 70 };
   return (
     <Fig id="rclamp" code="G00" title="Dojazd na skos kontra dwa ruchy" h={258} legend={["rap", "bad"]}
-      notes={<><Code k="bad">G00 X90 Y70</Code><Code k="rap">G00 X90</Code><Code k="rap">G00 Y70</Code></>}
+      notes={<><Code k="bad">G00 X90. Y70.</Code><Code k="rap">G00 X90.</Code><Code k="rap">G00 Y70.</Code></>}
       caption={<>Ten sam punkt docelowy. Ruch na skos przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą.</>}>
       {(c) => (
         <g>
@@ -61,7 +61,7 @@ export function Linear() {
   const A = { x: 10, y: 10 }, B = { x: 70, y: 40 };
   return (
     <Fig id="lin" code="G01" title="Ruch po prostej z posuwem F" h={242} legend={["cut", "dim", "acc"]}
-      notes={<><Code>G01 X70 Y40 F400</Code><Code k="acc">X: 358 mm/min</Code><Code k="acc">Y: 179 mm/min</Code></>}
+      notes={<><Code>G01 X70. Y40. F400</Code><Code k="acc">X: 358 mm/min</Code><Code k="acc">Y: 179 mm/min</Code></>}
       caption={<>F to prędkość <b>wzdłuż toru</b>. Sterowanie dzieli ją między osie proporcjonalnie do drogi, więc obie kończą ruch w tej samej chwili, a tor jest prosty.</>}>
       {(c) => (
         <g>
@@ -83,7 +83,7 @@ export function DiaX() {
   const zx = (v: number) => 290 + v * 3.6, xx = (v: number) => 125 - v * 4;
   return (
     <Fig id="dia" code="X" title="Tokarka: X to średnica, nie promień" h={250} legend={["con", "dim", "acc"]}
-      notes={<Code k="acc">G01 X40</Code>}
+      notes={<Code k="acc">G01 X40.</Code>}
       caption={<>Ostrze stoi 20 mm od osi obrotu, ale w programie piszesz <b>X40</b> — sterowanie liczy średnicowo. Adresy <b>I</b> i <b>R</b> łuków pozostają promieniowe.</>}>
       {(c) => (
         <g>
@@ -112,7 +112,7 @@ export function ConstVc() {
   const pts = (from: number, to: number) => { const r: string[] = []; for (let d = from; d <= to + 1e-6; d += 0.5) r.push(`${sx(d)},${sy(Math.min(n(d), N1))}`); return r.join(" "); };
   const dClamp = (200 * 1000) / (Math.PI * 3000); // ≈ 21,2 mm
   return (
-    <Fig id="vc96" code="G96 G50" title="Stała prędkość skrawania: obroty zależą od średnicy" h={250} legend={["cut", "bad", "acc", "cons"]}
+    <Fig id="vc96" code="G96 G50" title="Stała prędkość skrawania: obroty zależą od średnicy" h={250} legend={[["cut", "obroty przy G96 S200"], ["bad", "obroty bez limitu"], ["acc", "limit G50"], ["rap", "G97 — stałe obroty"]]}
       notes={<><Code k="acc">G50 S3000</Code><Code>G96 S200</Code><Code k="rap">G97 S1500</Code></>}
       caption={<>Przy <b>G96 S200</b> sterowanie trzyma Vc = 200 m/min, więc obroty rosną, gdy nóż zbliża się do osi: n = 1000·Vc / (π·D). <b>G50 S3000</b> obcina je na 3000 obr/min — poniżej Ø21 prędkość skrawania już spada.</>}>
       {(c) => (
@@ -209,8 +209,9 @@ export function Groove() {
           {/* pierwsze wgłębienie — krokami */}
           {[[21.5, 19], [19.5, 17], [17.5, 15]].map(([a, b], i) => (
             <g key={i}>
-              <line x1={zx(plunges[0]) - i * 3} y1={xx(a)} x2={zx(plunges[0]) - i * 3} y2={xx(b)} className="p-cut thick" markerEnd={c.a("cut")} />
-              {i < 2 && <line x1={zx(plunges[0]) - i * 3 - 1.5} y1={xx(b)} x2={zx(plunges[0]) - i * 3 - 1.5} y2={xx(b + 0.5)} className="p-rap" />}
+              {/* kroki P rysowane obok siebie w stronę ścianki, żeby odstęp Q między wgłębieniami był równy (audyt §5.2) */}
+              <line x1={zx(plunges[0]) + i * 3} y1={xx(a)} x2={zx(plunges[0]) + i * 3} y2={xx(b)} className="p-cut thick" markerEnd={c.a("cut")} />
+              {i < 2 && <line x1={zx(plunges[0]) + i * 3 + 1.5} y1={xx(b)} x2={zx(plunges[0]) + i * 3 + 1.5} y2={xx(b + 0.5)} className="p-rap" />}
             </g>
           ))}
           {plunges.slice(1).map((z) => <line key={z} x1={zx(z)} y1={xx(21.5)} x2={zx(z)} y2={xx(15)} className="p-cut" markerEnd={c.a("cut")} />)}
@@ -335,12 +336,12 @@ export function HelixTop() {
 export function HelixViews() {
   const cxT = 86, cyT = 130, rT = 56;
   const zs = (v: number) => 56 + (-v) * 24;        // Z0 → 56, Z−6 → 200
-  const xs = (v: number) => 272 + v * 2.8;           // rzut boczny: x od −20 do 20
+  const xs = (v: number) => 262 + v * 2.8;           // rzut boczny: x od −20 do 20
   const side: string[] = [];
   for (let t = 0; t <= 3.0001; t += 0.02) side.push(`${xs(-20 * Math.cos(Math.PI * 2 * t))},${zs(-2 * t)}`);
   return (
     <Fig id="helixz" code="G02 G03 Z" title="Śruba w dwóch rzutach" h={236} legend={["arc", "dim", "stock"]}
-      caption={<>Z góry: jeden okrąg, choć narzędzie okrąża go trzy razy. Z boku: każdy obrót schodzi o 2 mm, trzy obroty dają głębokość 6 mm.</>}>
+      caption={<>Z góry: jeden okrąg, choć narzędzie okrąża go trzy razy. Z boku: każdy obrót schodzi o 2 mm, trzy obroty dają głębokość 6 mm. Skala pionowa rzutu z boku jest przesadzona.</>}>
       {(c) => (
         <g>
           <T x={cxT} y={22} anchor="middle" cls="t-b">z góry (XY)</T>
@@ -348,16 +349,16 @@ export function HelixViews() {
           <Pt x={cxT} y={cyT} label="środek" pos="s" cls="t-arc" dot="pt-arc" />
           <Pt x={cxT - rT} y={cyT} label="start" pos="s" />
           <line x1={176} y1={30} x2={176} y2={216} className="p-cons" />
-          <T x={272} y={22} anchor="middle" cls="t-b">z boku (XZ)</T>
-          <rect x={206} y={zs(0)} width={132} height={zs(-7) - zs(0)} fill={c.hatch} className="p-con" />
+          <T x={262} y={22} anchor="middle" cls="t-b">z boku (XZ)</T>
+          <rect x={196} y={zs(0)} width={132} height={zs(-7) - zs(0)} fill={c.hatch} className="p-con" />
           <polyline points={side.join(" ")} className="p-arc thick" />
           {[0, -2, -4, -6].map((v) => (
             <g key={v}>
-              <line x1={200} y1={zs(v)} x2={344} y2={zs(v)} className="p-cons" />
-              <T x={346} y={zs(v) + 4} cls="t-mono t-tick">{v === 0 ? "Z0" : `Z${v}`}</T>
+              <line x1={190} y1={zs(v)} x2={332} y2={zs(v)} className="p-cons" />
+              <T x={334} y={zs(v) + 4} cls="t-mono t-tick">{v === 0 ? "Z0" : `Z${v}`}</T>
             </g>
           ))}
-          <Dim x1={214} y1={zs(0)} x2={214} y2={zs(-2)} label="2 mm" c={c} lside={1} cls="t-mono t-acc t-b" />
+          <Dim x1={204} y1={zs(0)} x2={204} y2={zs(-2)} label="2 mm" c={c} lside={1} cls="t-mono t-acc t-b" />
         </g>
       )}
     </Fig>
@@ -370,17 +371,17 @@ export function CompEntry() {
   const m = mapper(R, [22, 8, 330, 232]);
   const r = 8;
   return (
-    <Fig id="compin" code="G41 G40" title="Kompensacja: dojazd, kontur, odjazd" h={256} legend={["cut", "con", "stock", "dim"]}
+    <Fig id="compin" code="G41 G40" title="Korekcja promienia: dojazd, kontur, odjazd" h={256} legend={["cut", "con", "stock", "dim"]}
       notes={<><Code>G41 D1 X0. Y0.</Code><Code>… kontur …</Code><Code>G40 X-25. Y-25.</Code></>}
-      caption={<>Kompensację włącza blok dojazdowy, a wyłącza odjazdowy — oba muszą być ruchami liniowymi dłuższymi niż promień narzędzia. Na końcu dojazdu środek freza stoi już <b>r</b> od konturu.</>}>
+      caption={<>Korekcję promienia włącza blok dojazdowy, a wyłącza odjazdowy — oba muszą być ruchami liniowymi dłuższymi niż promień narzędzia. Na końcu dojazdu środek freza stoi już <b>r</b> od konturu.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />
           <rect x={m.X(0)} y={m.Y(50)} width={70 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
           <T x={m.X(35)} y={m.Y(25) + 4} anchor="middle" cls="t-b">kontur 70 × 50</T>
           <rect x={m.X(-r)} y={m.Y(50 + r)} width={(70 + 2 * r) * m.u} height={(50 + 2 * r) * m.u} className="p-cut thick draw" pathLength={1} fill="none" />
-          <line x1={m.X(-25)} y1={m.Y(-25)} x2={m.X(-r)} y2={m.Y(0)} className="p-cut dashed" markerEnd={c.a("cut")} />
-          <line x1={m.X(0)} y1={m.Y(-r)} x2={m.X(-24)} y2={m.Y(-24) - 3} className="p-cut dashed" markerEnd={c.a("cut")} />
+          <line x1={m.X(-25)} y1={m.Y(-25)} x2={m.X(-r)} y2={m.Y(0)} className="p-cut" markerEnd={c.a("cut")} />
+          <line x1={m.X(0)} y1={m.Y(-r)} x2={m.X(-24)} y2={m.Y(-24) - 3} className="p-cut" markerEnd={c.a("cut")} />
           <circle cx={m.X(-r)} cy={m.Y(0)} r={r * m.u} className="tool" />
           <Pt x={m.X(-25)} y={m.Y(-25)} label="X−25 Y−25" pos="se" cls="t-mono t-b" />
           <Dim x1={m.X(50)} y1={m.Y(50)} x2={m.X(50)} y2={m.Y(50 + r)} label="r" c={c} lside={1} cls="t-mono t-acc t-b" />
@@ -587,13 +588,13 @@ export function Runout() {
 /* ================= G04: postój na dnie rowka ================= */
 export function Dwell() {
   const zx = (v: number) => 180 + v * 9, xx = (v: number) => 118 - (v - 14) * 11;
-  const t0 = 30, t1 = 330, TMAX = 1.0;              // oś czasu: 0 … 1,0 s
-  const tx = (s: number) => t0 + (s / TMAX) * (t1 - t0);
-  const cut = 0.5, dw = 0.3, ret = 0.12;             // czasy etapów [s]
+  // Oś czasu bez skali (audyt kart §5.2): wcięcie X44 → X30 przy F0.05 i 600 obr/min trwa 14 s,
+  // postój 0,3 s — w jednej skali postoju nie byłoby widać, więc pasek wcięcia jest przerwany.
+  const b0 = 30, b1 = 120, b2 = 150, b3 = 205, b4 = 285, b5 = 330;
   return (
     <Fig id="g04" code="G04" title="Postój na dnie rowka: osie stoją, wrzeciono się kręci" h={250} legend={["cut", "rap", "acc", "stock"]}
       notes={<><Code>G01 X30. F0.05</Code><Code k="acc">G04 X0.3</Code><Code k="rap">G00 X44.</Code></>}
-      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,3 s</b> — przy 600 obr/min to <b>trzy obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je.</>}>
+      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,3 s</b> — przy 600 obr/min to <b>trzy obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je. Pasek czasu nie jest w skali: samo wcięcie trwa 14 s.</>}>
       {(c) => (
         <g>
           <polygon points={[[-14, 22], [-1.5, 22], [-1.5, 15], [1.5, 15], [1.5, 22], [14, 22], [14, 14.4], [-14, 14.4]].map(([z, r]) => `${zx(z)},${xx(r)}`).join(" ")} fill={c.hatch} className="p-con" />
@@ -603,18 +604,20 @@ export function Dwell() {
           <path d={`M ${zx(0) - 26} ${xx(15) - 2} a 12 7 0 1 1 0.1 0`} className="p-acc" markerEnd={c.a("acc")} />
           <T x={zx(0) - 42} y={xx(15) + 2} anchor="end" cls="t-acc t-b">3 obroty</T>
           <T x={zx(0) + 16} y={xx(23.4)} cls="t-rap">wyjazd G00</T>
-          <T x={zx(-10)} y={xx(18.5)} anchor="middle" cls="t-b">Ø44</T>
+          <T x={zx(-13)} y={xx(22) - 6} cls="t-b">Ø44</T>
           <T x={zx(0)} y={xx(15) + 16} anchor="middle" cls="t-mono t-b">Ø30</T>
-          {/* oś czasu */}
-          <rect x={tx(0)} y={186} width={tx(cut) - tx(0)} height={14} rx={3} className="p-fill-cut" />
-          <rect x={tx(cut)} y={186} width={tx(cut + dw) - tx(cut)} height={14} rx={3} className="p-fill-acc" />
-          <rect x={tx(cut + dw)} y={186} width={tx(cut + dw + ret) - tx(cut + dw)} height={14} rx={3} fill="color-mix(in srgb, var(--amber) 28%, transparent)" />
-          <T x={(tx(0) + tx(cut)) / 2} y={181} anchor="middle" cls="t-cut t-sm">wcięcie G01</T>
-          <T x={(tx(cut) + tx(cut + dw)) / 2} y={181} anchor="middle" cls="t-acc t-b t-sm">G04</T>
-          <T x={tx(cut + dw + ret) + 4} y={197} cls="t-rap t-sm">G00</T>
-          <line x1={t0} y1={208} x2={t1 + 6} y2={208} className="ax" markerEnd={c.a("dim")} />
-          {[0, 0.2, 0.4, 0.6, 0.8, 1.0].map((s) => <g key={s}><line x1={tx(s)} y1={205} x2={tx(s)} y2={211} className="ax" /><T x={tx(s)} y={223} anchor="middle" cls="t-tick">{s.toFixed(1)}</T></g>)}
-          <T x={t1 + 6} y={238} anchor="end" cls="t-ax">czas [s]</T>
+          {/* oś czasu — bez skali */}
+          <rect x={b0} y={190} width={b1 - b0} height={14} rx={3} className="p-fill-cut" />
+          <rect x={b2} y={190} width={b3 - b2} height={14} rx={3} className="p-fill-cut" />
+          <path d={`M ${b1 + 6} 186 l 6 22 M ${b1 + 16} 186 l 6 22`} className="p-dim" />
+          <rect x={b3} y={190} width={b4 - b3} height={14} rx={3} className="p-fill-acc" />
+          <rect x={b4} y={190} width={b5 - b4} height={14} rx={3} fill="color-mix(in srgb, var(--amber) 28%, transparent)" />
+          <T x={(b0 + b3) / 2} y={182} anchor="middle" cls="t-cut">wcięcie G01 · 14 s</T>
+          <T x={(b3 + b4) / 2} y={182} anchor="middle" cls="t-acc t-b">G04 · 0,3 s</T>
+          <T x={(b4 + b5) / 2} y={182} anchor="middle" cls="t-rap">G00</T>
+          <line x1={b0} y1={216} x2={b5 + 6} y2={216} className="ax" markerEnd={c.a("dim")} />
+          <T x={b5 + 6} y={234} anchor="end" cls="t-ax">czas</T>
+          <T x={b0} y={234} cls="t-mut t-sm">skala skrócona</T>
         </g>
       )}
     </Fig>

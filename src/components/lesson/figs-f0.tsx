@@ -406,7 +406,7 @@ export function TwoOffsets() {
   const W = [{ x: -320, y: -260, g: "G54" }, { x: -150, y: -260, g: "G55" }];
   return (
     <Fig id="f03two" code="G54 G55" title="Dwa imadła, dwa zera, jeden program" h={244} legend={["acc", "stock"]}
-      caption={<>Widok z góry, układ przykładowy (nie w skali całego stołu). Rejestry przechowują wektory od M do każdego W. Program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2. Przejazd między detalami — z wysokości, z której cały zespół narzędziowy minie oba zamocowania.</>}>
+      caption={<>Widok z góry, układ przykładowy. Rejestry przechowują wektory od M do każdego W. Program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2. Między detalami narzędzie przejeżdża na wysokości, na której minie oba zamocowania.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-410)} y={m.Y(10)} width={430 * m.u} height={300 * m.u} rx={6} className="panel-bg" />

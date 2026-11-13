@@ -103,7 +103,7 @@ export function LatheAbsInc() {
               <g key={i}>
                 <line x1={m.X(z0)} y1={m.Y(r0)} x2={m.X(z)} y2={m.Y(r)} className="p-cut thick" markerEnd={c.a("cut")} />
                 <T x={horiz ? (m.X(z0) + m.X(z)) / 2 : m.X(z) + 5} y={horiz ? m.Y(r) + 15 : (m.Y(r0) + m.Y(r)) / 2 + 4} anchor={horiz ? "middle" : "start"} cls="t-acc t-b t-mono">{inc[i]}</T>
-                <T x={horiz ? (m.X(z0) + m.X(z)) / 2 : m.X(z) + 5} y={horiz ? m.Y(r) - 7 : (m.Y(r0) + m.Y(r)) / 2 + 17} anchor={horiz ? "middle" : "start"} cls="t-mono">{abs[i]}</T>
+                <T x={horiz ? (m.X(z0) + m.X(z)) / 2 : m.X(z) - 6} y={horiz ? m.Y(r) - 8 : (m.Y(r0) + m.Y(r)) / 2 + 4} anchor={horiz ? "middle" : "end"} cls="t-mono">{abs[i]}</T>
               </g>
             );
           })}

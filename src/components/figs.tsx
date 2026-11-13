@@ -13,15 +13,15 @@ export function ArcIJ({ dir }: { dir: 2 | 3 }) {
   const g = dir === 2 ? "G02" : "G03";
   const ij = dir === 2 ? "I30. J0." : "I0. J30.";
   return (
-    <Fig id={`arc${dir}`} code={g} title="Łuk: środek I/J albo promień R" h={276} legend={["arc", "bad", "acc"]}
-      notes={<><Code k="arc">{g} X50. Y50. {ij}</Code><Code k="arc">{g} X50. Y50. R30.</Code><Code k="bad">{g} X50. Y50. R-30.</Code></>}
+    <Fig id={`arc${dir}`} code={g} title="Łuk: środek I/J albo promień R" h={276} legend={["arc", "alt", "acc"]}
+      notes={<><Code k="arc">{g} X50. Y50. {ij}</Code><Code k="arc">{g} X50. Y50. R30.</Code><Code k="alt">{g} X50. Y50. R-30.</Code></>}
       caption={<>Start A, koniec B, środek S. I i J to odległość od <b>punktu startu</b> do środka. Dodatnie R wybiera łuk do 180°, ujemne R — dłuższy.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
           <circle cx={m.X(S.x)} cy={m.Y(S.y)} r={r} className="p-cons" />
           <circle cx={m.X(S2.x)} cy={m.Y(S2.y)} r={r} className="p-cons" />
-          <path d={long} className="p-bad" markerEnd={c.a("bad")} />
+          <path d={long} className="p-alt" markerEnd={c.a("arc")} />
           <path d={short} className="p-arc thick" markerEnd={c.a("arc")} />
           {dir === 2
             ? <line x1={m.X(A.x)} y1={m.Y(A.y)} x2={m.X(S.x) - 5} y2={m.Y(S.y)} className="p-acc" markerEnd={c.a("acc")} />
@@ -32,7 +32,7 @@ export function ArcIJ({ dir }: { dir: 2 | 3 }) {
           <Pt x={m.X(A.x)} y={m.Y(A.y)} label="A (20, 20)" pos={dir === 2 ? "sw" : "se"} />
           <Pt x={m.X(B.x)} y={m.Y(B.y)} label="B (50, 50)" pos="ne" />
           <Pt x={m.X(S.x)} y={m.Y(S.y)} label={`S (${S.x}, ${S.y})`} pos={dir === 2 ? "se" : "nw"} cls="t-arc t-b" dot="pt-arc" />
-          <T x={dir === 2 ? m.X(-12) : m.X(84)} y={dir === 2 ? m.Y(80) : m.Y(62)} anchor={dir === 2 ? "start" : "end"} cls="t-bad">łuk dla R−30</T>
+          <T x={dir === 2 ? m.X(-12) : m.X(84)} y={dir === 2 ? m.Y(80) : m.Y(62)} anchor={dir === 2 ? "start" : "end"} cls="t-arc">łuk dla R−30</T>
         </g>
       )}
     </Fig>
@@ -88,9 +88,9 @@ export function CycleRetract() {
           {/* poziomy */}
           <line x1={x(-4)} y1={z(30)} x2={x(104)} y2={z(30)} className="p-cons" />
           <line x1={x(-4)} y1={z(3)} x2={x(104)} y2={z(3)} className="p-cons" />
-          <T x={x(104)} y={z(30) - 5} anchor="end" cls="t-mono">poziom początkowy</T>
-          <T x={x(104)} y={z(3) - 5} anchor="end" cls="t-mono t-acc">R</T>
-          <T x={x(104)} y={z(0) + 13} anchor="end" cls="t-mono t-mut">Z0</T>
+          <T x={x(100)} y={z(30) - 5} anchor="end" cls="t-mono">poziom początkowy</T>
+          <T x={x(100)} y={z(3) - 5} anchor="end" cls="t-mono t-acc">R</T>
+          <T x={x(100)} y={z(0) + 13} anchor="end" cls="t-mono t-mut">Z0</T>
           {/* otwór 1: wiercenie */}
           <line x1={x(15)} y1={z(30)} x2={x(15)} y2={z(3)} className="p-rap" />
           <line x1={x(15)} y1={z(3)} x2={x(15)} y2={z(-18)} className="p-cut thick" markerEnd={c.a("cut")} />
@@ -114,7 +114,7 @@ export function AbsInc() {
   const m = mapper(R, [30, 10, 320, 216]);
   return (
     <Fig id="absinc" code="G90 G91" title="Ten sam blok, dwa różne punkty" h={240} legend={["cut", "dim"]}
-      notes={<><Code>G90 G01 X30 Y20</Code><Code>G91 G01 X30 Y20</Code></>}
+      notes={<><Code>G90 G01 X30. Y20.</Code><Code>G91 G01 X30. Y20.</Code></>}
       caption={<>Narzędzie stoi w punkcie <b>P (20, 10)</b>. W <b>G90</b> liczby to współrzędne punktu docelowego. W <b>G91</b> to przesunięcie od miejsca, w którym narzędzie stoi.</>}>
       {(c) => (
         <g>
@@ -137,7 +137,7 @@ export function ToolLen() {
   const gz = 30, surf = 190;
   return (
     <Fig id="tlen" code="G43 H" title="Długość narzędzia: od czoła wrzeciona do ostrza" h={236} legend={["dim", "acc", "stock"]}
-      notes={<Code k="acc">G43 Z10 H01</Code>}
+      notes={<Code k="acc">G00 G43 H1 Z10.</Code>}
       caption={<>Sterowanie zna położenie czoła wrzeciona. <b>G43</b> dodaje długość z rejestru <b>H</b>, więc Z10 oznacza, że <b>ostrze</b> stoi 10 mm nad Z0 detalu. <b>G49</b> kasuje korekcję.</>}>
       {(c) => (
         <g>
@@ -167,7 +167,7 @@ export function Planes() {
     { g: "G19", h: "Y", v: "Z", n: "patrzysz z +X", x: 244 },
   ];
   return (
-    <Fig id="pl" code="G17 G18 G19" title="Płaszczyzna łuków i kompensacji" h={186} legend={["arc"]}
+    <Fig id="pl" code="G17 G18 G19" title="Płaszczyzna łuków i korekcji promienia" h={186} legend={["arc"]}
       caption={<>Kierunek G02 (zgodnie z zegarem) ocenia się, patrząc na płaszczyznę od strony dodatniej trzeciej osi. Frezarka startuje w <b>G17</b>, tokarka w <b>G18</b>.</>}>
       {(c) => (
         <g>
@@ -242,7 +242,7 @@ export function Polar() {
   const p60 = pt(60);
   return (
     <Fig id="polar" code="G16" title="Otwory na okręgu podziałowym" h={256} legend={["acc"]}
-      notes={<><Code k="acc">G16</Code><Code>G81 X40 Y0 …</Code><Code>Y60</Code><Code>Y120 …</Code><Code k="acc">G15</Code></>}
+      notes={<><Code k="acc">G16</Code><Code>G81 X40. Y0. …</Code><Code>Y60.</Code><Code>Y120. …</Code><Code k="acc">G15</Code></>}
       caption={<>Po <b>G16</b> w płaszczyźnie XY adres <b>X</b> to promień, a <b>Y</b> to kąt od osi +X, dodatni przeciwnie do ruchu wskazówek zegara. Biegun to zero układu (przy G90).</>}>
       {(c) => (
         <g>
@@ -310,7 +310,7 @@ export function LatheSingle() {
   const zx = (v: number) => 300 + v * 5.6, xx = (v: number) => 226 - (v - 10) * 11;
   const A = { z: 2, r: 26.5 }, D = 23, Ze = -40;
   return (
-    <Fig id="g90t" code="G90 (tokarka)" title="Jeden blok cyklu — cztery ruchy" h={226} legend={["rap", "cut", "con"]}
+    <Fig id="g90t" code="G90 (tokarka)" title="Jeden blok cyklu — cztery ruchy" h={242} legend={["rap", "cut", "con"]}
       notes={<Code>G90 X46. Z-40. F0.25</Code>}
       caption={<>Z punktu startu: <b>1</b> dojazd na średnicę, <b>2</b> toczenie do Z, <b>3</b> wyjście w X, <b>4</b> powrót szybki. Kolejny blok z samym X powtarza cykl głębiej.</>}>
       {(c) => (
@@ -335,27 +335,3 @@ export function LatheSingle() {
   );
 }
 
-/* ================= G28 / G30: przez punkt pośredni ================= */
-export function RefPoint() {
-  const R: [number, number, number, number] = [-5, 100, -5, 62];
-  const m = mapper(R, [26, 10, 322, 214]);
-  return (
-    <Fig id="ref" code="G28 G30" title="Powrót do bazy przez punkt pośredni" h={238} legend={["rap", "bad"]}
-      notes={<><Code k="rap">G91 G28 Z0</Code><Code k="bad">G90 G28 Z0</Code></>}
-      caption={<>Oś jedzie najpierw do punktu pośredniego z bloku, potem do bazy maszyny. <b>G91 … Z0</b> oznacza „pośredni = tu, gdzie stoję”. <b>G90 … Z0</b> prowadzi przez zero detalu.</>}>
-      {(c) => (
-        <g>
-          <Grid m={m} range={R} c={c} xl="X" yl="Z" ticks={false} />
-          <rect x={m.X(10)} y={m.Y(0)} width={60 * m.u} height={10 * m.u} fill={c.hatch} className="p-con" />
-          <T x={m.X(40)} y={m.Y(0) + 16} anchor="middle" cls="t-mut">detal (Z0 na górze)</T>
-          <line x1={m.X(55)} y1={m.Y(20)} x2={m.X(55)} y2={m.Y(55)} className="p-rap thick" markerEnd={c.a("rap")} />
-          <polyline points={`${m.X(52)},${m.Y(20)} ${m.X(52)},${m.Y(1)} ${m.X(52)},${m.Y(55)}`} className="p-bad" />
-          <path d={`M ${m.X(52) - 4} ${m.Y(1) - 4} l 8 8 M ${m.X(52) + 4} ${m.Y(1) - 4} l -8 8`} className="p-bad thick" />
-          <Pt x={m.X(55)} y={m.Y(20)} label="narzędzie" pos="e" />
-          <Pt x={m.X(55)} y={m.Y(55)} label="baza maszyny (Z)" pos="e" cls="t-rap t-b" dot="pt-rap" />
-          <T x={m.X(48)} y={m.Y(8)} anchor="end" cls="t-bad t-b">G90 … Z0</T>
-        </g>
-      )}
-    </Fig>
-  );
-}
