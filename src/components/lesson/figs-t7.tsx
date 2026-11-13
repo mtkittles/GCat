@@ -39,7 +39,7 @@ export function ThreadPasses() {
   const x = (i: number) => L + 8 + i * (W / d.length);
   const y = (v: number) => B - (v / 1) * H;
   return (
-    <Fig id="t71ps" code="G76" title="Głębokość po kolejnych przejściach G76" h={210} legend={["acc", "cut"]}
+    <Fig id="t71ps" code="G76" title="Głębokość po kolejnych przejściach G76" h={210} legend={[["acc", "przejścia zgrubne"], ["cut", "naddatek R i przejście wykańczające"]]}
       notes={<><Code k="acc">głębokość n = Q · √n</Code><Code k="cut">ostatnie: naddatek R, potem pełna głębokość</Code></>}
       caption={<>Każde przejście zdejmuje wiór o podobnym przekroju — dlatego kolejne wejścia są coraz płytsze. Pierwsze 0,3 mm, potem 0,12, 0,10… aż do 0,87, na końcu przejście wykańczające na pełną wysokość 0,92.</>}>
       {() => (

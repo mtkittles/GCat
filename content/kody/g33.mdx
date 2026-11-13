@@ -81,6 +81,8 @@ example:
 
 Sterowanie odczytuje sygnał z enkodera wrzeciona i startuje ruch osi zawsze **w tym samym położeniu kątowym**. Dzięki temu kolejne przejścia trafiają w ten sam zwój. Gdyby start nie był zsynchronizowany, każde przejście nacinałoby gwint w innym miejscu obwodu.
 
+<Diagram id="t72-g32" />
+
 <Note kind="warn">
   Z tego samego powodu gwint toczy się przy **G97**, czyli stałych obrotach. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój. Skok się nie zmienia, bo jest zadany na obrót.
 </Note>

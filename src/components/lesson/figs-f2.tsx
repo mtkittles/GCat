@@ -67,7 +67,7 @@ function Rot({ cx, dir }: { cx: number; dir: 3 | 4 }) {
 
 export function SpindleDir() {
   return (
-    <Fig id="f22sp" code="M03 M04" title="Kierunek obrotów — widok od strony wrzeciona" h={212} legend={["cut", "arc"]}
+    <Fig id="f22sp" code="M03 M04" title="Kierunek obrotów — widok od strony wrzeciona" h={212} legend={[["cut", "M03 — w prawo"], ["arc", "M04 — w lewo"]]}
       caption={<>Kierunek ocenia się, patrząc od strony wrzeciona w stronę detalu — na frezarce pionowej z góry. Zwykłe frezy i wiertła prawoskrętne pracują na <b>M03</b>. <b>M05</b> zatrzymuje wrzeciono.</>}>
       {() => (
         <g>

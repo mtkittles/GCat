@@ -117,7 +117,7 @@ export function RampEntry() {
   const m = mapper(R, [12, 6, 336, 176]);
   const pts = [[23, 0], [37, -1], [23, -2], [37, -3], [23, -4], [37, -4]];
   return (
-    <Fig id="f62ra" code="rampa" title="Wejście po rampie — przekrój wzdłuż osi kieszeni" h={200} legend={["cut", "bad", "stock"]}
+    <Fig id="f62ra" code="rampa" title="Wejście po rampie — przekrój wzdłuż osi kieszeni" h={200} legend={[["cut", "rampa G01"], ["bad", "wejście pionowe"], "stock"]}
       notes={<><Code k="cut">G01 X37. Z-1. → X23. Z-2. → …</Code></>}
       caption={<>Frez schodzi o 1 mm na każde 14 mm drogi — około 4°. Skrawa wtedy obwodem, a nie samym czołem. Wejście pionowe w pełny materiał przeciąża środek freza, a wiele frezów nie ma tam w ogóle ostrza.</>}>
       {(c) => (

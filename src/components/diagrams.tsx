@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { AbsInc, ArcIJ, Comp, CycleRetract, LatheRough, LatheSingle, Peck, Planes, Polar, ToolLen } from "./figs";
 import { G28Path } from "./lesson/figs-audit";
+import { ToolChange } from "./lesson/figs-f2";
+import { AxialDrill } from "./lesson/figs-t6";
 import {
   Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
@@ -95,4 +97,7 @@ export const diagrams: Record<string, () => ReactNode> = {
   "g90-g94-t": () => <LatheSingle />,
   "g96-g97": () => <ConstVc />,
   g50: () => <ConstVc />,
+  // rysunki z lekcji na kartach krótkich (paczka Y2, audyt kart §5.3)
+  m06: () => <ToolChange />,
+  g74: () => <AxialDrill />,
 };
