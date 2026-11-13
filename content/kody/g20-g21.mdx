@@ -63,9 +63,9 @@ example:
 
 <Diagram id="f14-units" />
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania. Na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
+Sterowanie przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania. Na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
 
 <Code>
   ```
@@ -117,9 +117,9 @@ Sterownik przelicza wartości wymiarowe z programu na swoją jednostkę wewnętr
   ```
 </Sim>
 
-## Dobre praktyki \{#dobre-praktyki}
+## Wskazówki \{#dobre-praktyki}
 
-* `G21` (albo `G20`) **jawnie w bloku startowym**, bo sterownik pamięta ostatnie ustawienie.
+* `G21` (albo `G20`) **jawnie w bloku startowym**, bo sterowanie pamięta ostatnie ustawienie.
 * Rysunek calowy: albo cały program w G20, albo wszystko przeliczone na milimetry. Bez mieszania jednostek.
 * Przy przenoszeniu programu między Fanucem i Sinumerikiem najpierw sprawdź G70/G71.
 

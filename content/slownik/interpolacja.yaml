@@ -5,7 +5,7 @@ aliases:
   - interpolacja liniowa
   - interpolacja kołowa
 def: >-
-  Sposób, w jaki sterownik koordynuje ruch kilku osi, żeby uzyskać zadany
+  Sposób, w jaki sterowanie koordynuje ruch kilku osi, żeby uzyskać zadany
   kształt toru. Liniowa (G01) daje prostą, kołowa (G02/G03) łuk, śrubowa —
   helisę.
 see:

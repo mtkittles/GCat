@@ -65,7 +65,7 @@ example:
 ---
 **G01** prowadzi narzędzie **po linii prostej** z aktualnego położenia do zadanego punktu, z prędkością ustaloną adresem **F**. To podstawowy ruch skrawający: opiera się na nim konturowanie, planowanie, zagłębianie, toczenie wzdłużne i poprzeczne.
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
 Sterowanie rozkłada odcinek na osie biorące udział w ruchu i tak dobiera ich prędkości, żeby **skończyły ruch w tej samej chwili**. To interpolacja liniowa. Tor jest prostą, a prędkość wypadkowa końca narzędzia równa się posuwowi F, niezależnie od tego, czy ruch idzie wzdłuż jednej osi, czy po skosie w trzech.
 
@@ -238,7 +238,7 @@ Przydaje się przy elementach rozmieszczonych po okręgu, np. otworach na śruby
 
 Przykład z otworami na okręgu i szczegóły zapisu są na karcie \[\[G16]].
 
-## Dobre praktyki \{#dobre-praktyki}
+## Wskazówki \{#dobre-praktyki}
 
 * Przy każdym nowym narzędziu sprawdź posuw, nawet jeśli F jest aktywne z poprzedniej operacji. Tamto F było dobrane do innej średnicy i liczby ostrzy.
 * Pilnuj kolejności bloków G00 i G01. Zagłębienie ruchem szybkim przez złą kolejność bloków opisuje karta \[\[G00]].
@@ -246,14 +246,14 @@ Przykład z otworami na okręgu i szczegóły zapisu są na karcie \[\[G16]].
 * Zaokrąglaj naroża, gdzie to możliwe. Ostry zwrot o 90° to chwilowe zatrzymanie osi i skok obciążenia narzędzia; łuk choćby R2 daje płynny ruch i lepszą powierzchnię.
 * Powtarzalne fragmenty przenieś do podprogramów (\[\[M98]]). Dziesiątki podobnych bloków G01 to wiele miejsc na literówkę.
 
-## Różnice między sterownikami \{#różnice-między-sterownikami}
+## Fanuc i Sinumerik \{#różnice-między-sterownikami}
 
-| Zagadnienie           | Fanuc                                  | Sinumerik                            | Heidenhain                |
-| --------------------- | -------------------------------------- | ------------------------------------ | ------------------------- |
-| Zapis                 | `G01` lub `G1`                         | `G1`                                 | `L X.. Y.. R0 F..`        |
-| Jednostka posuwu      | G94 / G95 (tokarka, system A: G98/G99) | G94 / G95                            | F w mm/min, `FU` w mm/obr |
-| Współrzędne biegunowe | G15 / G16                              | `AP=` i `RP=`                        | `LP PR.. PA..`            |
-| Tryb przyrostowy      | G91; tokarka w systemie A: adresy U, W | G91 albo `IC()` przy pojedynczej osi | `IX`, `IY`, `IZ`          |
+| Zagadnienie           | Fanuc                                  | Sinumerik                            |
+| --------------------- | -------------------------------------- | ------------------------------------ |
+| Zapis                 | `G01` lub `G1`                         | `G1`                                 |
+| Jednostka posuwu      | G94 / G95 (tokarka, system A: G98/G99) | G94 / G95                            |
+| Współrzędne biegunowe | G15 / G16                              | `AP=` i `RP=`                        |
+| Tryb przyrostowy      | G91; tokarka w systemie A: adresy U, W | G91 albo `IC()` przy pojedynczej osi |
 
 ## Typowe błędy \{#typowe-błędy}
 

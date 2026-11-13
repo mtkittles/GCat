@@ -84,7 +84,7 @@ example:
 ---
 **G02** i **G03** prowadzą narzędzie po **łuku okręgu** z aktualnego położenia do zadanego punktu, z prędkością zadaną adresem F. **G02** obiega łuk **zgodnie z ruchem wskazówek zegara**, **G03** **przeciwnie**. Składnia i adresy są te same, różni je tylko kierunek. To interpolacja kołowa: nią wykonuje się zaokrąglenia, promienie i otwory frezowane po okręgu.
 
-## Jak sterownik ustala kierunek \{#jak-sterownik-ustala-kierunek}
+## Jak sterowanie ustala kierunek \{#jak-sterownik-ustala-kierunek}
 
 Kierunek określa się, **patrząc na płaszczyznę roboczą od strony dodatniej osi do niej prostopadłej**. Dla płaszczyzny XY (\[\[G17]]) patrzysz z góry, wzdłuż osi Z w kierunku ujemnym, tak jak stojąc przy frezarce patrzysz na stół. Dla płaszczyzny ZX (\[\[G18]]), typowej dla tokarki, patrzysz od strony dodatniej osi Y, czyli od operatora.
 
@@ -193,7 +193,7 @@ Ten sam start i koniec, ale **G03**: łuk biegnie w drugą stronę, więc środe
 
 ## Przykład 3 — łuk dłuższy niż 180° \{#przykład-3-łuk-dłuższy-niż-180}
 
-Przez dwa punkty i zadany promień przechodzą **dwa różne łuki** w tym samym kierunku obiegu: krótszy i dłuższy. Znak przy R decyduje, który wybierze sterownik. W Fanucu (R) i Sinumeriku (CR=) **dodatnie R** wybiera łuk do 180°, a **ujemne R** łuk większy niż 180°.
+Przez dwa punkty i zadany promień przechodzą **dwa różne łuki** w tym samym kierunku obiegu: krótszy i dłuższy. Znak przy R decyduje, który łuk wybierze sterowanie. W Fanucu (R) i Sinumeriku (CR=) **dodatnie R** wybiera łuk do 180°, a **ujemne R** łuk większy niż 180°.
 
 <Demo mode="mill" title="G02 z promieniem ujemnym" caption="Te same punkty i promień, ale R ujemne: narzędzie obiega detal drugą stroną.">
   ```
@@ -289,25 +289,25 @@ Jeśli oprócz łuku w płaszczyźnie roboczej podasz przesunięcie w osi prosto
   ```
 </Demo>
 
-## Wskazówki technologiczne \{#wskazówki-technologiczne}
+## Wskazówki \{#wskazówki-technologiczne}
 
 * Zaokrąglaj naroża konturu, jak opisuje karta \[\[G01]].
 * Wchodź w materiał po łuku. Wejście styczne zamiast prostopadłego dojazdu nie zostawia śladu na powierzchni obrobionej.
 * Uważaj na luzy przy przejściu przez ćwiartki. Pełny okrąg ma cztery zmiany kierunku osi i luz w śrubie widać na nim jako uskok. Dlatego okrąg służy też do sprawdzania dokładności maszyny.
-* Sprawdź promień narzędzia przy łukach wewnętrznych. Łuku wklęsłego o promieniu mniejszym niż promień freza nie da się wykonać: z aktywną \[\[kompensacja promienia|kompensacją]] skończy się alarmem, bez niej podcięciem konturu.
+* Sprawdź promień narzędzia przy łukach wewnętrznych. Łuku wklęsłego o promieniu mniejszym niż promień freza nie da się wykonać: z aktywną \[\[korekcja promienia|korekcją promienia]] skończy się alarmem, bez niej podcięciem konturu.
 * Na małych łukach wewnętrznych zmniejsz posuw. Przy zaokrągleniu wklęsłym środek narzędzia pokonuje krótszą drogę niż jego krawędź, więc rzeczywista grubość wióra rośnie.
 
-## Różnice między sterownikami \{#różnice-między-sterownikami}
+## Fanuc i Sinumerik \{#różnice-między-sterownikami}
 
-| Zagadnienie              | Fanuc                               | Sinumerik                                        | Heidenhain                     |
-| ------------------------ | ----------------------------------- | ------------------------------------------------ | ------------------------------ |
-| Kod                      | `G02` / `G03`                       | `G2` / `G3`                                      | `C` z `DR+` albo `DR-`         |
-| Promień                  | `R`                                 | `CR=`                                            | `CR`                           |
-| Środek                   | I, J, K przyrostowo                 | I, J, K przyrostowo; `AC()` wymusza bezwzględnie | `CC X.. Y..` jako osobny blok  |
-| Pełny okrąg              | tylko I/J/K                         | tylko I/J/K                                      | `CC` + `C` z tym samym punktem |
-| Łuk przez punkt pośredni | brak                                | `CIP` z `I1= J1=`                                | brak                           |
-| Łuk przez kąt rozwarcia  | brak                                | `AR=`                                            | brak                           |
-| Zaokrąglenie naroża      | `R` w bloku G01 (część sterowników) | `RND=`                                           | `RND`                          |
+| Zagadnienie              | Fanuc                            | Sinumerik                                        |
+| ------------------------ | -------------------------------- | ------------------------------------------------ |
+| Kod                      | `G02` / `G03`                    | `G2` / `G3`                                      |
+| Promień                  | `R`                              | `CR=`                                            |
+| Środek                   | I, J, K przyrostowo              | I, J, K przyrostowo; `AC()` wymusza bezwzględnie |
+| Pełny okrąg              | tylko I/J/K                      | tylko I/J/K                                      |
+| Łuk przez punkt pośredni | brak                             | `CIP` z `I1= J1=`                                |
+| Łuk przez kąt rozwarcia  | brak                             | `AR=`                                            |
+| Zaokrąglenie naroża      | `R` w bloku G01 (część sterowań) | `RND=`                                           |
 
 <Note kind="warn">
   Jeśli w jednym bloku podasz **jednocześnie R oraz I/J**, wiele sterowań przyjmie R i bez alarmu pominie I/J. Symulacja może wtedy pokazać inny tor niż maszyna.
@@ -319,6 +319,6 @@ Jeśli oprócz łuku w płaszczyźnie roboczej podasz przesunięcie w osi prosto
 * **Próba pełnego okręgu przez R.** Alarm albo brak ruchu.
 * **Zły znak przy R.** Zamiast małego zaokrąglenia powstaje prawie pełne koło.
 * **Litera środka niezgodna z płaszczyzną.** J przy G18 albo K przy G17.
-* **Włączenie \[\[G41]] lub \[\[G42]] w bloku z łukiem.** Kompensację można uruchomić tylko w ruchu prostoliniowym.
-* **Promień mniejszy niż połowa cięciwy.** Łuk geometrycznie nie istnieje, sterownik zgłasza błąd.
+* **Włączenie \[\[G41]] lub \[\[G42]] w bloku z łukiem.** Korekcję promienia można włączyć tylko w ruchu prostoliniowym.
+* **Promień mniejszy niż połowa cięciwy.** Łuk geometrycznie nie istnieje, sterowanie zgłasza błąd.
 * **Zaokrąglenie wewnętrzne mniejsze od promienia freza.** Narzędzie fizycznie nie wejdzie w naroże.

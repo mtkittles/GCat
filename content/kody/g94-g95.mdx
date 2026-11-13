@@ -69,9 +69,9 @@ example:
 ---
 **G94** i **G95** ustalają jednostkę posuwu. Przy **G94** F to **mm/min**, przy **G95** to **mm na obrót wrzeciona**. Ta sama liczba znaczy w obu trybach co innego, więc tryb ustawia się w bloku startowym programu.
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Przy G95 sterownik mierzy obroty wrzeciona i na bieżąco przelicza posuw osi: **vf = f · n**. Gdy obroty spadną (np. przy G96 na dużej średnicy albo przy spadku pod obciążeniem), posuw minutowy spada razem z nimi, a grubość wióra zostaje stała. Przy G94 posuw osi nie zależy od wrzeciona.
+Przy G95 sterowanie mierzy obroty wrzeciona i na bieżąco przelicza posuw osi: **vf = f · n**. Gdy obroty spadną (np. przy G96 na dużej średnicy albo przy spadku pod obciążeniem), posuw minutowy spada razem z nimi, a grubość wióra zostaje stała. Przy G94 posuw osi nie zależy od wrzeciona.
 
 <Code>
   ```
@@ -130,7 +130,7 @@ Przy toczeniu posuw na obrót wprost decyduje o chropowatości. Naroże płytki 
 
 Posuw na obrót przydaje się na frezarce przy **wierceniu i gwintowaniu**: F równa się posuwowi na obrót wiertła albo skokowi gwintownika. Po takim fragmencie trzeba wrócić do G94 przed frezowaniem.
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 | Posuw            | Fanuc frezarka | Fanuc tokarka (A) | Sinumerik |
 | ---------------- | -------------- | ----------------- | --------- |

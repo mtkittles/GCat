@@ -14,7 +14,7 @@ related:
   - g27-g30
   - g52-g53
   - m06
-short: Dojazd do bazy maszyny przez punkt pośredni.
+short: Dojazd do punktu referencyjnego maszyny przez punkt pośredni.
 desc: >-
   G28 to jednorazowy przejazd w dwóch etapach: ruchem szybkim do **punktu
   pośredniego** z bloku, potem do **punktu referencyjnego** maszyny. Tylko osie
@@ -42,8 +42,8 @@ sinumerik: >-
   (Siemens, ISO Milling, rozdz. „Reference point approach with intermediate
   point (G28)”). W **języku natywnym** funkcje są inne: G74 to najazd na punkt
   referencyjny, G75 najazd na punkt stały. SUPA to wyłączenie przesunięć w
-  jednym bloku (ruch we współrzędnych maszynowych), a nie powrót do bazy, więc
-  nie jest prostym zamiennikiem G28.
+  jednym bloku (ruch we współrzędnych maszynowych), a nie powrót do punktu
+  referencyjnego, więc nie jest prostym zamiennikiem G28.
 params:
   - key: X Y Z
     desc: >-
@@ -51,17 +51,16 @@ params:
       bieżącej pozycji
 pitfalls:
   - >-
-    G90 G28 Z0, gdy Z0 detalu leży poniżej narzędzia (przyczyna) → pierwszy etap
-    schodzi ruchem szybkim do Z0, czyli na powierzchnię detalu albo w zacisk
-    (skutek) → w G90 podaj punkt pośredni nad przeszkodami albo użyj G91 G28 Z0
-    (poprawka).
+    G90 G28 Z0, gdy Z0 detalu leży poniżej narzędzia: pierwszy etap schodzi
+    ruchem szybkim do Z0, czyli na powierzchnię detalu albo w zacisk. W G90
+    podaj punkt pośredni nad przeszkodami albo użyj G91 G28 Z0.
   - >-
-    G91 bez powrotu do G90 (przyczyna) → kolejne bloki liczone przyrostowo
-    (skutek) → G90 zaraz po G28 (poprawka).
+    G91 bez powrotu do G90: kolejne bloki są liczone przyrostowo. Wpisz G90
+    zaraz po G28.
   - >-
-    Założenie, że G28 to zawsze ruch „w górę” (przyczyna) → kierunek drugiego
-    etapu zależy od położenia punktu referencyjnego na danej maszynie (skutek) →
-    sprawdź położenie bazy w dokumentacji maszyny (poprawka).
+    Kierunek drugiego etapu G28 zależy od położenia punktu referencyjnego na
+    danej maszynie; nie musi to być ruch „w górę”. Sprawdź to w dokumentacji
+    maszyny.
 sources:
   - id: sinumerik-iso-m
     where: G28 — najazd na punkt referencyjny przez punkt pośredni (tryb ISO)
@@ -138,10 +137,10 @@ Współrzędne w bloku G28 opisują **punkt pośredni**, a ich znaczenie zależy
 | **G29** | Powrót z punktu referencyjnego przez ten sam punkt pośredni               |
 | **G30** | Powrót do drugiego, trzeciego lub czwartego punktu referencyjnego (P2–P4) |
 
-## Sinumerik \{#sinumerik}
+## Fanuc i Sinumerik \{#sinumerik}
 
 W **trybie ISO** (dialekt Fanuc, włączany np. przez `G291`) Sinumerik obsługuje G28 z punktem pośrednim. W **języku natywnym** Siemensa te same zadania realizują inne funkcje: **G74** najeżdża na punkt referencyjny, a **G75** na punkt stały z danych maszynowych. `SUPA` jedynie wyłącza przesunięcia w danym bloku (ruch we współrzędnych maszynowych) i nie jest zamiennikiem powrotu do punktu referencyjnego.
 
 <Note kind="info">
-  Źródło: Siemens, SINUMERIK 840D sl / 828D ISO Milling, instrukcja programowania 02/2012 (6FC5398-7BP40-3BA0), rozdz. 2.2.1 „Reference point approach with intermediate point (G28)”. Szczegóły G74/G75 w języku natywnym: do weryfikacji w instrukcji programowania dla wersji sterowania.
+  Szczegóły G74 i G75 w języku natywnym zależą od wersji sterowania. Sprawdź je w instrukcji programowania dla swojej wersji.
 </Note>

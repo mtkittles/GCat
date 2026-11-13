@@ -3,7 +3,10 @@
   W lekcji: `where` — co dokładnie źródło potwierdza, `loc` — rozdział i strona,
   `url` — odnośnik do konkretnej strony, jeśli inny niż dokumentu.
   Uzupełniając listę: podawaj wydanie i numer dokumentu, z którego faktycznie korzystasz.
-  Pola, których nie potwierdzono, zostają puste — strona pokazuje wtedy „do uzupełnienia”.
+  Pola, których nie potwierdzono, zostają puste. Strona pomija wtedy wiersz „Miejsce”,
+  a braki wylicza `npm run audit:nauka` (sekcja „do uzupełnienia”).
+  `note` widzi czytelnik (zastrzeżenie, np. „maszyny Haas — nie dowolny Fanuc”),
+  `internal` — tylko redakcja (stan prac, skąd mamy dokument); strona go nie pokazuje.
 */
 
 export interface Source {
@@ -22,8 +25,10 @@ export interface Source {
   url?: string;
   /** data dostępu do źródła internetowego */
   accessed?: string;
-  /** zastrzeżenie, np. czego nie potwierdzono */
+  /** zastrzeżenie dla czytelnika — jedno krótkie zdanie, pokazywane przy każdym odwołaniu */
   note?: string;
+  /** notatka redakcyjna (stan prac, czego nie potwierdzono) — nie trafia na stronę */
+  internal?: string;
 }
 
 export const sources: Record<string, Source> = {
@@ -37,7 +42,8 @@ export const sources: Record<string, Source> = {
     title: "Series 0i-MODEL F — Operation and Maintenance Handbook (modele 0i-TF i 0i-MF)",
     edition: "01, 10/2016", number: "B-64607EN/01",
     control: "Fanuc 0i-F, kody ISO; tokarka w systemie A. Instrukcja nie wymienia 0i-F Plus — nowsze wersje sterowania mogą się różnić",
-    note: "Zakres: rozdz. 3 (tabele kodów G), 4 (format programu), 7 (parametry), 8 (alarmy). To zestawienie, nie opis cykli — szczegóły w OPERATOR'S MANUAL (B-64604EN, część tokarska B-64604EN-1, frezarska B-64604EN-2) i PARAMETER MANUAL (B-64610EN). Miejsca (strony) dla lekcji i kart bez wpisanej strony do uzupełnienia.",
+    note: "Zestawienie kodów, formatu programu, parametrów i alarmów, a nie opis cykli. Szczegóły: OPERATOR'S MANUAL B-64604EN i PARAMETER MANUAL B-64610EN.",
+    internal: "Zakres: rozdz. 3 (tabele kodów G), 4 (format programu), 7 (parametry), 8 (alarmy). Część tokarska B-64604EN-1, frezarska B-64604EN-2. Miejsca (strony) dla lekcji i kart bez wpisanej strony do uzupełnienia.",
   },
   sinumerik: {
     id: "sinumerik", short: "SINUMERIK — Podstawy programowania", author: "Siemens",
@@ -66,7 +72,8 @@ export const sources: Record<string, Source> = {
     control: "tryb ISO na frezarce",
     url: "https://cache.industry.siemens.com/dl/files/169/65711169/att_76738/v1/PGM_0212_fr_fr-FR.pdf",
     accessed: "10/2026",
-    note: "Link prowadzi do wersji francuskiej. W audycie sprawdzono spis treści (istnienie funkcji), nie treść rozdziałów.",
+    note: "Link prowadzi do wersji francuskiej.",
+    internal: "W audycie sprawdzono spis treści (istnienie funkcji), nie treść rozdziałów.",
   },
   "sinumerik-cycles-2006": {
     id: "sinumerik-cycles-2006", short: "SINUMERIK — Cykle (2006)", author: "Siemens",
@@ -79,7 +86,8 @@ export const sources: Record<string, Source> = {
     title: "SINUMERIK ONE — NC programming, Programming Manual",
     edition: "03/2025",
     control: "język natywny Siemensa",
-    note: "Numer dokumentu do uzupełnienia. Te same funkcje opisują instrukcje 808D/828D/840D sl.",
+    note: "Te same funkcje opisują instrukcje 808D/828D/840D sl.",
+    internal: "Numer dokumentu do uzupełnienia.",
   },
   "haas-basic": {
     id: "haas-basic", short: "Haas — Basic Mill Operator", author: "Haas Automation (Haas Factory Outlet)",
@@ -91,34 +99,38 @@ export const sources: Record<string, Source> = {
     id: "haas-workbook", short: "Haas — Mill Programming Workbook", author: "Haas Automation",
     title: "Mill Programming Workbook (frezarki VF/EC)",
     control: "maszyny Haas — nie dowolny Fanuc",
-    note: "Dokument w materiałach projektu (145 stron PDF). Data w nagłówku wydruku nie jest datą wydania. Strony: drukowana / PDF.",
+    note: "Strony: drukowana / PDF.",
+    internal: "Dokument w materiałach projektu (145 stron PDF). Data w nagłówku wydruku nie jest datą wydania.",
   },
   kuryjanski: {
     id: "kuryjanski", short: "Kuryjański, Obróbka skrawaniem i obrabiarki", author: "R. Kuryjański",
     title: "Obróbka skrawaniem i obrabiarki, Politechnika Warszawska, Warszawa",
     edition: "2011", number: "ISBN 83-89703-72-6",
-    note: "Dokument w materiałach projektu (raport #80, S1). Strony — numeracja drukowana.",
+    note: "Strony — numeracja drukowana.",
+    internal: "Dokument w materiałach projektu (raport #80, S1).",
   },
   storch: {
     id: "storch", short: "Storch, Podstawy obróbki skrawaniem", author: "B. Storch",
     title: "Podstawy obróbki skrawaniem",
-    note: "Dokument w materiałach projektu (raport #80, S2). Wydania nie potwierdzono.",
+    internal: "Dokument w materiałach projektu (raport #80, S2). Wydania nie potwierdzono.",
   },
   jemielniak: {
     id: "jemielniak", short: "Jemielniak, Obróbka skrawaniem", author: "K. Jemielniak",
     title: "Obróbka skrawaniem, Oficyna Wydawnicza Politechniki Warszawskiej",
-    note: "Wydania i stron nie potwierdzono w audycie treści (issue #29).",
+    internal: "Wydania i stron nie potwierdzono w audycie treści (issue #29).",
   },
   sandvik: {
     id: "sandvik", short: "Sandvik Coromant — poradnik", author: "Sandvik Coromant",
     title: "Poradnik techniczny obróbki skrawaniem (toczenie, frezowanie, wiercenie)",
-    note: "Wydanie i strony do uzupełnienia. Wartości skrawania obowiązują dla konkretnej płytki i materiału z katalogu.",
+    note: "Wartości skrawania obowiązują dla konkretnej płytki i materiału z katalogu.",
+    internal: "Wydanie i strony do uzupełnienia.",
   },
   "sandvik-tg-d": {
     id: "sandvik-tg-d", short: "Sandvik Coromant — poradnik, D Frezowanie", author: "Sandvik Coromant",
     title: "Metalcutting Technical Guide, część D — Milling (wyciąg z katalogu)",
     url: "https://dcngli4g50fhp.cloudfront.net/userfiles/ad/sandvik/documents/sandvik_5747275_catalog.pdf", accessed: "10/2026",
-    note: "Wyciąg (strony D 22–D 40) udostępniony przez dystrybutora; tytułu całości, wydania i numeru dokumentu nie potwierdzono. Strony — numeracja drukowana.",
+    note: "Wyciąg, strony D 22–D 40. Strony — numeracja drukowana.",
+    internal: "Wyciąg udostępniony przez dystrybutora; tytułu całości, wydania i numeru dokumentu nie potwierdzono.",
   },
   "sandvik-ceramic": {
     id: "sandvik-ceramic", short: "Sandvik Coromant — frezy ceramiczne do HRSA", author: "Sandvik Coromant",
@@ -131,6 +143,13 @@ export const sources: Record<string, Source> = {
     title: "Mill Operator's Manual — G-codes",
     control: "maszyny Haas — nie dowolny Fanuc",
     url: "https://www.haascnc.com", accessed: "10/2026",
+  },
+  "haas-ap602": {
+    id: "haas-ap602", short: "Haas — G84 Tapping Canned Cycle", author: "Haas Automation",
+    title: "G84 Tapping Canned Cycle",
+    edition: "04/2016", number: "AP-602",
+    control: "frezarki Haas — na innych sterowaniach potwierdź w ich dokumentacji",
+    internal: "Wcześniej cytowany w treści karty G84 (notka „Źródło: …”), przeniesiony do pola sources w paczce X.",
   },
   harvey: {
     id: "harvey", short: "Harvey Performance — Spot Drilling", author: "Harvey Performance Company",

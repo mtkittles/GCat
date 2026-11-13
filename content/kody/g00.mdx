@@ -1,7 +1,7 @@
 ---
 code: G00
 slug: g00
-name: Szybki dojazd
+name: Ruch szybki (pozycjonowanie)
 order: 10
 group: Ruch
 level: 1
@@ -152,7 +152,7 @@ Tor ruchu szybkiego zależy od maszyny, więc zaplanuj drogę tak, żeby **żade
 
 * Pierwszy przebieg programu uruchamiaj z obniżoną prędkością: nastawę ruchu szybkiego (rapid override) ustaw na 5–25%, korekcję posuwu na 50% i trzymaj rękę nad przyciskiem zatrzymania. Błąd w \[\[zero detalu|zerze detalu]] wychodzi wtedy przy małej prędkości.
 * Wpisuj kropkę dziesiętną. Na sterowaniach Fanuc `Z50` i `Z50.` mogą znaczyć co innego: bez kropki liczba bywa liczona w najmniejszych jednostkach programowania, czyli 50 mikrometrów zamiast 50 milimetrów.
-* Nie podjeżdżaj zbyt blisko. Zostaw miejsce na dojazd w \[\[kompensacja promienia|kompensacji promienia]] i na wejście styczne w materiał.
+* Nie podjeżdżaj zbyt blisko. Zostaw miejsce na dojazd w \[\[korekcja promienia|korekcji promienia]] i na wejście styczne w materiał.
 * Włącz korekcję długości. Bez aktywnego \[\[G43]] sterowanie liczy pozycję Z od czoła wrzeciona, a nie od ostrza narzędzia.
 * Sprawdź, gdzie stoi narzędzie po poprzednim zabiegu. Program, który zaczyna się od `G00 X0 Y0`, wykona dojazd z dowolnego miejsca.
 
@@ -179,17 +179,13 @@ Tor ruchu szybkiego zależy od maszyny, więc zaplanuj drogę tak, żeby **żade
   ```
 </Sim>
 
-## Różnice między sterownikami \{#różnice-między-sterownikami}
+## Fanuc i Sinumerik \{#różnice-między-sterownikami}
 
-| Zagadnienie              | Fanuc                                  | Sinumerik                              | Heidenhain                   |
-| ------------------------ | -------------------------------------- | -------------------------------------- | ---------------------------- |
-| Zapis                    | `G00` lub `G0`                         | `G0`                                   | `L X.. Y.. R0 FMAX`          |
-| Wymuszenie toru prostego | Parametr maszynowy (LRP)               | `RTLION` / `RTLIOF`                    | Domyślnie prostoliniowy      |
-| Prędkość                 | Parametr maszyny, korygowana pokrętłem | Parametr maszyny, korygowana pokrętłem | `FMAX`, korygowana pokrętłem |
-
-<Note kind="info">
-  W dialekcie Heidenhain w trybie konwersacyjnym szybki przejazd zapisuje się jako ruch liniowy z posuwem `FMAX`. Znaczenie jest to samo: jedź najszybciej, jak potrafisz.
-</Note>
+| Zagadnienie              | Fanuc                                  | Sinumerik                              |
+| ------------------------ | -------------------------------------- | -------------------------------------- |
+| Zapis                    | `G00` lub `G0`                         | `G0`                                   |
+| Wymuszenie toru prostego | Parametr maszynowy (LRP)               | `RTLION` / `RTLIOF`                    |
+| Prędkość                 | Parametr maszyny, korygowana pokrętłem | Parametr maszyny, korygowana pokrętłem |
 
 ## Typowe błędy \{#typowe-błędy}
 

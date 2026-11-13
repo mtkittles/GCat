@@ -16,7 +16,7 @@ related:
   - g28
 short: Uwzględnia długość narzędzia z rejestru H (G43), G49 wyłącza.
 desc: >-
-  Po wymianie narzędzia trzeba powiedzieć sterownikowi, jak długie jest nowe
+  Po wymianie narzędzia trzeba powiedzieć sterowaniu, jak długie jest nowe
   narzędzie. G43 H_ dodaje wartość z rejestru H do pozycji Z. Włącza się w
   pierwszym ruchu Z po wymianie.
 
@@ -33,8 +33,8 @@ params:
 pitfalls:
   - Zły numer H (np. H2 przy T1) to typowa przyczyna wbicia narzędzia w stół.
   - >-
-    G43 bez ruchu Z w tym samym bloku: na części sterowników nic się nie stanie
-    aż do następnego Z.
+    G43 bez ruchu Z w tym samym bloku: na części sterowań nic się nie stanie aż
+    do następnego Z.
 sources:
   - id: fanuc
     where: G43, G44, G49 — korekcja długości z rejestru H
@@ -62,11 +62,11 @@ example:
   stock:
     discriminant: false
 ---
-**G43** włącza **korekcję długości narzędzia**: sterownik dodaje do Z długość zapisaną w rejestrze **H**. Dzięki temu Z w programie opisuje koniec narzędzia względem zera detalu, niezależnie od tego, jak długo narzędzie wystaje z oprawki.
+**G43** włącza **korekcję długości narzędzia**: sterowanie dodaje do Z długość zapisaną w rejestrze **H**. Dzięki temu Z w programie opisuje koniec narzędzia względem zera detalu, niezależnie od tego, jak długo narzędzie wystaje z oprawki.
 
-## Co dokładnie robi sterownik \{#co-dokładnie-robi-sterownik}
+## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Pozycja maszynowa **czoła wrzeciona N** (płaszczyzny, od której mierzy się długość narzędzia) to suma trzech składników: przesunięcia zera detalu w Z, współrzędnej Z z programu i długości narzędzia z rejestru H. Po G43 sterownik przelicza wszystkie kolejne ruchy w Z tak, żeby w zaprogramowane Z trafiał **koniec narzędzia**, a nie czoło wrzeciona.
+Pozycja maszynowa **czoła wrzeciona N** (płaszczyzny, od której mierzy się długość narzędzia) to suma trzech składników: przesunięcia zera detalu w Z, współrzędnej Z z programu i długości narzędzia z rejestru H. Po G43 sterowanie przelicza wszystkie kolejne ruchy w Z tak, żeby w zaprogramowane Z trafiał **koniec narzędzia**, a nie czoło wrzeciona.
 
 <Diagram id="f41-length" />
 
@@ -115,7 +115,7 @@ Pozycja maszynowa **czoła wrzeciona N** (płaszczyzny, od której mierzy się d
 
 ## Włączenie razem z ruchem w Z \{#włączenie-razem-z-ruchem-w-z}
 
-Samo `G43 H2` bez Z na wielu sterownikach nic nie zmienia aż do następnego ruchu w Z. Wtedy narzędzie przeskakuje o całą różnicę długości. Dlatego G43 pisze się **w bloku z dojazdem na wysokość bezpieczną**, np. `G00 G43 H2 Z50.`. Tryb ruchu jest modalny: bez `G00` w tym bloku obowiązuje ten, który został aktywny wcześniej, np. G01 z ostatniego ruchu poprzedniego narzędzia. Z `G00` ruch idzie z prędkością szybką, więc wysokość musi być bezpieczna także dla najdłuższego narzędzia w magazynie.
+Samo `G43 H2` bez Z na wielu sterowaniach nic nie zmienia aż do następnego ruchu w Z. Wtedy narzędzie przeskakuje o całą różnicę długości. Dlatego G43 pisze się **w bloku z dojazdem na wysokość bezpieczną**, np. `G00 G43 H2 Z50.`. Tryb ruchu jest modalny: bez `G00` w tym bloku obowiązuje ten, który został aktywny wcześniej, np. G01 z ostatniego ruchu poprzedniego narzędzia. Z `G00` ruch idzie z prędkością szybką, więc wysokość musi być bezpieczna także dla najdłuższego narzędzia w magazynie.
 
 <Sim mode="mill" caption="Szkielet obróbki jednym narzędziem: wymiana, korekcja długości z ruchem na Z50, obróbka i odjazd na referencję.">
   ```
@@ -148,7 +148,7 @@ Tak jak przy promieniu, rejestr H ma **geometrię** i **zużycie**. Głębokoś�
 
 Tokarki nie używają G43. Długość noża w Z i jego położenie w X zapisane są w **korekcji geometrii**, którą włącza słowo T: `T0101` to nóż z pozycji 1 z korekcją 1. `T0100` wyłącza korekcję. Zasada jest ta sama: program pisze się względem zera detalu, różnice między nożami bierze na siebie tabela.
 
-## Fanuc kontra Sinumerik \{#fanuc-kontra-sinumerik}
+## Fanuc i Sinumerik \{#fanuc-kontra-sinumerik}
 
 <Table caption="Sinumerik nie ma G43 — długość jest częścią danych ostrza D i działa od chwili jego wybrania.">
   | Zagadnienie | Fanuc                                 | Sinumerik                             |
@@ -158,7 +158,7 @@ Tokarki nie używają G43. Długość noża w Z i jego położenie w X zapisane 
   | Rejestr     | tabela: długość (geometria + zużycie) | dane ostrza: długości L1–L3 i zużycie |
 </Table>
 
-## Dobre praktyki \{#dobre-praktyki}
+## Wskazówki \{#dobre-praktyki}
 
 * `G49` w bloku bezpiecznego startu: żadna korekcja nie zostaje z poprzedniego programu.
 * `G00 G43 H_ Z_` w pierwszym ruchu w Z po wymianie, na wysokość bezpieczną, z jawnym trybem ruchu.

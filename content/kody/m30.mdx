@@ -16,10 +16,10 @@ related:
 short: M30 i M02 kończą program. Przewinięcie na początek ustala parametr.
 desc: >-
   M30 kończy program główny. Czy kursor wraca na początek programu, ustala
-  parametr (Fanuc 0i-F: 3404#4, dla M02 3404#5). Na większości maszyn M30
+  parametr (Fanuc 0i-F: 3404#4, dla M02 3404#5). Na wielu maszynach M30
   zatrzymuje też wrzeciono i chłodziwo, a sterowanie przechodzi w stan resetu.
-  Co dokładnie się kasuje, zależy od producenta i parametrów. Dlatego w
-  programach kursu M09 i M05 stoją przed M30.
+  Co się kasuje, zależy od producenta i parametrów. Dlatego w programach kursu
+  M09 i M05 stoją przed M30.
 syntax:
   fanuc: M30
   sinumerik: M30  (M2 / M17 w podprogramie)
@@ -58,10 +58,10 @@ example:
 ---
 **M30** i **M02** kończą program. Różnią się tym, co sterowanie robi potem. To ustalają parametry i producent maszyny.
 
-## Co dokładnie robi M30 \{#co-dokładnie-robi-m30}
+## Co robi M30 \{#co-dokładnie-robi-m30}
 
 * Przewinięcie na początek programu ustala parametr: na Fanucu 0i-F 3404#4 dla M30 i 3404#5 dla M02. Zwykle M30 przewija, a M02 nie.
-* Wrzeciono, chłodziwo i funkcje modalne: na większości maszyn M30 zatrzymuje wrzeciono i chłodziwo i kasuje funkcje modalne. Zakres ustala producent maszyny.
+* Wrzeciono, chłodziwo i funkcje modalne: na wielu maszynach M30 zatrzymuje wrzeciono i chłodziwo i kasuje funkcje modalne. Zakres ustala producent maszyny.
 * Licznik detali: jeśli maszyna go prowadzi, kod, który go zwiększa, zależy od sterowania.
 
 Program nie powinien polegać na tym, co zrobi M30: w programach kursu M09 i M05 stoją przed nim (lekcja F1.5).

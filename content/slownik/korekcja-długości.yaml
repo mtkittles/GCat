@@ -6,8 +6,8 @@ aliases:
   - H
 def: >-
   Wartość dodawana do współrzędnej Z, uwzględniająca długość aktualnego
-  narzędzia. Aktywowana przez G43 z numerem rejestru H. Bez niej sterownik liczy
-  pozycję od czoła wrzeciona.
+  narzędzia. Aktywowana przez G43 z numerem rejestru H. Bez niej sterowanie
+  liczy pozycję od czoła wrzeciona.
 see:
   - g43-g49
 diagram: ''
