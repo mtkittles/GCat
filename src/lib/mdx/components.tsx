@@ -30,7 +30,7 @@ export function Obraz({ src, alt, caption }: { src: string; alt?: string; captio
 
 /** <Note kind="tip|warn|info">tekst</Note> (blok `note`). */
 export function Note({ kind, children }: { kind: "tip" | "warn" | "info"; children?: ReactNode }) {
-  return <aside className={`note note-${kind}`}>{children}</aside>;
+  return <div role="note" className={`note note-${kind}`}>{children}</div>;
 }
 
 /** <Code caption="…">```…```</Code> — program do przeczytania (blok `code`); `src` wstawia plugin z bloku ```. */
@@ -59,9 +59,9 @@ export function Widget({ id }: { id: "rij" | "arc" | "jog" }) {
   return id === "jog" ? <JogDemo /> : <div id="kalkulator-zamiany-r-i-j">{id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
 }
 
-/** <Table caption="…"> wokół tabeli GFM (blok `table`); plugin owija nią każdą tabelę i dodaje klasy oraz data-label. */
+/** <Table caption="…"> wokół tabeli GFM (blok `table`); plugin owija nią każdą tabelę i dodaje klasy oraz data-label. Podpis nad tabelą (Z a). */
 export function Table({ caption, children }: { caption?: string; children?: ReactNode }) {
-  return <figure className="grid gap-1"><div className="overflow-x-auto">{children}</div>{caption && <figcaption className="cap">{rich(caption)}</figcaption>}</figure>;
+  return <figure className="grid gap-1">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<div className="overflow-x-auto">{children}</div></figure>;
 }
 
 export const mdxComponents = { Term, Diagram, Obraz, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;

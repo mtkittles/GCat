@@ -50,6 +50,15 @@
   --font-weights-sans: 400 600;
   --font-weights-display: 600 800;
   --font-weights-mono: 400 700;
+  --fs-text: 1rem;
+  --fs-aux: .875rem;
+  --fs-code: .8125rem;
+  --fs-label: .75rem;
+  --fs-h2: 1.3125rem;
+  --fs-h3: 1.0625rem;
+  --lh-text: 1.65;
+  --lh-aux: 1.5;
+  --lh-code: 1.55;
   --fig-text: 11px;
   --fig-text-mono: 10.5px;
   --fig-text-big: 14px;

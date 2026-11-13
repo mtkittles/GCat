@@ -9,7 +9,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 */
 
 export interface BannerProps {
-  src: string;
+  /** Zdjęcie banera; bez niego (albo z `plain`) baner jest niski, bez zdjęcia (karty kodów, decyzja 8 audytu kart). */
+  src?: string;
   title: string;
   subtitle?: string;
   /** Mała linia nad tytułem, np. „Lekcja 3 z 12”. */
@@ -21,12 +22,15 @@ export interface BannerProps {
   mono?: boolean;
   size?: "default" | "compact" | "slim";
   priority?: boolean;
+  /** Baner bez zdjęcia: tło panelu, ciemny tekst w jasnym motywie. */
+  plain?: boolean;
 }
 
 const clean = (s: string) => (s.startsWith("/img/banner-") ? s.replace("/img/banner-", "/img/clean/banner-") : s);
 
-export default function PageBanner({ src, title, subtitle, kicker, meta, info, mono, size = "default", priority }: BannerProps) {
-  const photo = clean(src);
+export default function PageBanner({ src, title, subtitle, kicker, meta, info, mono, size = "default", priority, plain }: BannerProps) {
+  const noPhoto = plain || !src;
+  const photo = noPhoto ? "" : clean(src!);
   const [layers, setLayers] = useState<{ src: string; key: number }[]>([{ src: photo, key: 0 }]);
   const counter = useRef(0);
   const [open, setOpen] = useState(false);
@@ -57,8 +61,8 @@ export default function PageBanner({ src, title, subtitle, kicker, meta, info, m
 
   return (
     <div className="banner-wrap" ref={wrap}>
-      <section className={`banner ${size === "compact" ? "is-compact" : size === "slim" ? "is-slim" : ""}`} aria-label={title}>
-        {layers.map((l, i) => (
+      <section className={`banner ${noPhoto ? "is-plain" : size === "compact" ? "is-compact" : size === "slim" ? "is-slim" : ""}`} aria-label={title}>
+        {!noPhoto && layers.map((l, i) => (
           <Image
             key={l.key}
             src={l.src}
@@ -69,7 +73,7 @@ export default function PageBanner({ src, title, subtitle, kicker, meta, info, m
             className={`banner-photo ${i === layers.length - 1 && layers.length > 1 ? "is-entering" : ""}`}
           />
         ))}
-        <div className="banner-scrim" />
+        {!noPhoto && <div className="banner-scrim" />}
         <div className="banner-inner">
           {kicker && <span className="banner-kicker">{kicker}</span>}
           <h1 className={`banner-title${mono ? " is-mono" : ""}`}>{title}</h1>

@@ -5,13 +5,13 @@ import { notFound } from "next/navigation";
 import SimClient from "@/components/simulator/SimClient";
 import SourceList from "@/components/lesson/SourceList";
 import { diagrams } from "@/components/diagrams";
-import { Toc, tocItems } from "@/components/Article";
+import { tocItems } from "@/components/Article";
 import CodeText from "@/components/CodeText";
 import TocDrawer from "@/components/TocDrawer";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
-import { bannerFor, bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
+import { bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
 import { kartaMdx, normProgram } from "@/lib/mdx/kody";
 import { readOnlyCaption } from "@/lib/simGaps";
 
@@ -30,6 +30,13 @@ function relatedOf(g: GCode): GCode[] {
   const list = g.related?.map(bySlug).filter((x): x is GCode => !!x)
     ?? gcodes.filter((x) => x.group === g.group && x.slug !== g.slug).slice(0, 4);
   return list.slice(0, 6);
+}
+
+/* Skrót profilu do jednej linii (Z a, audyt kart cz. 2 §4.2); pełny opis po rozwinięciu. */
+function profileShort(g: { milling: boolean; turning: boolean; exampleDialect?: "fanuc" | "sinumerik" }) {
+  if (g.exampleDialect === "sinumerik") return "SINUMERIK, frezarka";
+  if (g.milling && g.turning) return "Fanuc, frezarka i tokarka";
+  return g.turning ? "Fanuc, system A, tokarka" : "Fanuc (ISO), frezarka";
 }
 
 /* Profil zapisu przykładów — jak nad lekcjami i zadaniami. */
@@ -126,8 +133,8 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   ) : (
     <SimClient initial={g.example} mode={mode} stock={g.exampleStock} dialect={g.exampleDialect} />
   );
-  const sinumerikNote = g.sinumerik && <aside className="note note-info"><CodeText text={g.sinumerik} self={self} /></aside>;
-  const pitfallNotes = g.pitfalls.map((p) => <aside key={p} className="note note-warn"><CodeText text={p} self={self} /></aside>);
+  const sinumerikNote = g.sinumerik && <div role="note" className="note note-info"><CodeText text={g.sinumerik} self={self} /></div>;
+  const pitfallNotes = g.pitfalls.map((p) => <div key={p} role="note" className="note note-warn"><CodeText text={p} self={self} /></div>);
 
   const footerNav = (
     <nav className="article-nav">
@@ -140,7 +147,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
   const head = (
     <>
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/kody", label: "Kody" }, { label: g.code }]} />
-      <PageBanner src={bannerFor(g)} kicker={g.group} title={g.code} subtitle={g.name} mono size="compact" priority
+      <PageBanner plain kicker={g.group} title={g.code} subtitle={g.name} mono
         meta={<>
           <Chip tone={g.level === 1 ? "success" : g.level === 2 ? "warning" : "danger"}>{levelName(g.level)}</Chip>
           <Chip>{g.modal ? "modalny" : "jednorazowy"}</Chip>
@@ -149,7 +156,7 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {g.variesBy && <Chip tone="warning">zależy od: {g.variesBy}</Chip>}
         </>} />
       <p className="lead max-w-prose"><CodeText text={g.short} self={self} /></p>
-      <p className="tp-profile">{profileOf(g)}</p>
+      <details className="tp-profile cc-profile"><summary>Zapis przykładów: {profileShort(g)}</summary><p>{profileOf(g)}</p></details>
     </>
   );
 
@@ -174,7 +181,6 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
           {head}
           {syntax}
           {figure}
-          <details className="toc-mobile toc-fold"><summary>W tej karcie</summary><Toc blocks={tocBlocks} /></details>
           <div className="article grid gap-4">{await mdx.render()}</div>
           {recap}
           {lessonsSec}

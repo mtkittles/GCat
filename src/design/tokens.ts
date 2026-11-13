@@ -112,6 +112,17 @@ export const fonts: Group[] = [
     { name: "--font-weights-display", value: "600 800", use: "Sora", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`sora = localFont\(\{[^}]*weight: "([^"]*)"` } },
     { name: "--font-weights-mono", value: "400 700", use: "JetBrains Mono", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`mono = localFont\(\{[^}]*weight: "([^"]*)"` } },
   ] },
+  { id: "skala-tekstu", title: "Skala tekstu kart kodów (paczka Z a, audyt kart cz. 2 §5)", tokens: [
+    { name: "--fs-text", value: "1rem", use: "akapit, lista, ramka uwagi, lead (16 px)", src: V },
+    { name: "--fs-aux", value: ".875rem", use: "podpisy, tabele, źródła, linia profilu (14 px)", src: V },
+    { name: "--fs-code", value: ".8125rem", use: "bloki kodu i notki z kodem w rysunkach (13 px mono)", src: V },
+    { name: "--fs-label", value: ".75rem", use: "nagłówki tabel, nadtytuły — wersaliki (12 px)", src: V },
+    { name: "--fs-h2", value: "1.3125rem", use: "H2 sekcji strony, artykułu i „Źródła” (21 px)", src: V },
+    { name: "--fs-h3", value: "1.0625rem", use: "H3 (17 px)", src: V },
+    { name: "--lh-text", value: "1.65", use: "interlinia tekstu", src: V },
+    { name: "--lh-aux", value: "1.5", use: "interlinia tekstu pomocniczego", src: V },
+    { name: "--lh-code", value: "1.55", use: "interlinia kodu", src: V },
+  ] },
   { id: "tekst-rysunkow", title: "Tekst w rysunkach (jednostki viewBox 360)", tokens: [
     { name: "--fig-text", value: "11px", use: "napisy w rysunkach", src: rule(".fig svg text", "font-size") },
     { name: "--fig-text-mono", value: "10.5px", use: "liczby i kod w rysunkach (.t-mono)", src: rule(".fig svg .t-mono", "font-size") },

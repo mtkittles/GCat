@@ -32,7 +32,7 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
-      <FigZoom title={title}>
+      <FigZoom title={title} caption={caption}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
         <defs>
           <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">

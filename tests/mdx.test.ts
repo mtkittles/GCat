@@ -72,7 +72,8 @@ describe("loader: fixture content/", () => {
     expect(out).not.toMatch(/\[\[|\]\]/);
     // marker w komórce tabeli z | nie dzieli komórki
     expect(out).toMatch(/<td data-label="Uwagi">łuki z <span class="term-wrap">.*?G02\/G03<\/button><\/span> i I, J<\/td>/);
-    expect(out).toContain('<figure class="grid gap-1"><div class="overflow-x-auto"><table class="code-table tbl-stack"><thead><tr><th>Płaszczyzna</th>');
+    // 3 kolumny z krótkimi wartościami → para wartości pod etykietą wiersza (Z a)
+    expect(out).toContain('<figure class="grid gap-1"><div class="overflow-x-auto"><table class="code-table tbl-pair"><thead><tr><th>Płaszczyzna</th>');
     // <Diagram> = ten sam rysunek co blok `diagram` w Article.tsx
     expect(out).toContain(renderToStaticMarkup(h("div", null, diagrams["g17-g19"]())));
     expect(out).toContain('<code class="inline-code">G17</code>');

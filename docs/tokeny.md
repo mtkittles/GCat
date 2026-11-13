@@ -111,6 +111,20 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--font-weights-display` | `600 800` | Sora · `src/app/layout.tsx` |
 | `--font-weights-mono` | `400 700` | JetBrains Mono · `src/app/layout.tsx` |
 
+### Skala tekstu kart kodów (paczka Z a, audyt kart cz. 2 §5)
+
+| Token | Wartość | Gdzie używany |
+|---|---|---|
+| `--fs-text` | `1rem` | akapit, lista, ramka uwagi, lead (16 px) |
+| `--fs-aux` | `.875rem` | podpisy, tabele, źródła, linia profilu (14 px) |
+| `--fs-code` | `.8125rem` | bloki kodu i notki z kodem w rysunkach (13 px mono) |
+| `--fs-label` | `.75rem` | nagłówki tabel, nadtytuły — wersaliki (12 px) |
+| `--fs-h2` | `1.3125rem` | H2 sekcji strony, artykułu i „Źródła” (21 px) |
+| `--fs-h3` | `1.0625rem` | H3 (17 px) |
+| `--lh-text` | `1.65` | interlinia tekstu |
+| `--lh-aux` | `1.5` | interlinia tekstu pomocniczego |
+| `--lh-code` | `1.55` | interlinia kodu |
+
 ### Tekst w rysunkach (jednostki viewBox 360)
 
 | Token | Wartość | Gdzie używany |

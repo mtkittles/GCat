@@ -364,6 +364,53 @@
         "$description": "JetBrains Mono"
       }
     },
+    "skala-tekstu": {
+      "fs-text": {
+        "$type": "other",
+        "$value": "1rem",
+        "$description": "akapit, lista, ramka uwagi, lead (16 px)"
+      },
+      "fs-aux": {
+        "$type": "other",
+        "$value": ".875rem",
+        "$description": "podpisy, tabele, źródła, linia profilu (14 px)"
+      },
+      "fs-code": {
+        "$type": "other",
+        "$value": ".8125rem",
+        "$description": "bloki kodu i notki z kodem w rysunkach (13 px mono)"
+      },
+      "fs-label": {
+        "$type": "other",
+        "$value": ".75rem",
+        "$description": "nagłówki tabel, nadtytuły — wersaliki (12 px)"
+      },
+      "fs-h2": {
+        "$type": "other",
+        "$value": "1.3125rem",
+        "$description": "H2 sekcji strony, artykułu i „Źródła” (21 px)"
+      },
+      "fs-h3": {
+        "$type": "other",
+        "$value": "1.0625rem",
+        "$description": "H3 (17 px)"
+      },
+      "lh-text": {
+        "$type": "dimension",
+        "$value": "1.65",
+        "$description": "interlinia tekstu"
+      },
+      "lh-aux": {
+        "$type": "dimension",
+        "$value": "1.5",
+        "$description": "interlinia tekstu pomocniczego"
+      },
+      "lh-code": {
+        "$type": "dimension",
+        "$value": "1.55",
+        "$description": "interlinia kodu"
+      }
+    },
     "tekst-rysunkow": {
       "fig-text": {
         "$type": "dimension",
@@ -392,7 +439,7 @@
       },
       "fig-text-tick": {
         "$type": "dimension",
-        "$value": "8.5px",
+        "$value": "9.5px",
         "$description": "podziałka (.t-tick)"
       },
       "fig-text-halo": {

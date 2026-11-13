@@ -10,6 +10,17 @@
    ========================================================================== */
 
 :root {
+  /* skala tekstu kart kodów (paczka Z a, audyt kart cz. 2 §5) — w rem, rośnie z ustawieniem czcionki */
+  --fs-text: 1rem;
+  --fs-aux: .875rem;
+  --fs-code: .8125rem;
+  --fs-label: .75rem;
+  --fs-h2: 1.3125rem;
+  --fs-h3: 1.0625rem;
+  --lh-text: 1.65;
+  --lh-aux: 1.5;
+  --lh-code: 1.55;
+
   /* marka */
   --brand-ink: #0F172A;
   --brand-accent: #F97316;
@@ -1659,7 +1670,15 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fz-dlg::backdrop { background: rgb(0 0 0 / .6); }
 .fz-bar { position: sticky; top: 0; left: 0; display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .6rem .9rem; background: var(--surface-2); border-bottom: 1px solid var(--line); font-weight: 650; z-index: 1; }
 .fz-body { overflow: auto; padding: .75rem; height: calc(100dvh - 58px); }
-.fz-body svg { width: max(100%, 760px); max-width: 1200px; margin: 0 auto; }
+.fz-body svg { width: 100%; max-width: none; margin: 0 auto; }
+.fz-fig { margin: 0 auto; }
+.fz-bar > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fz-tools { display: flex; align-items: center; gap: .35rem; }
+.fz-step { min-width: 44px; min-height: 44px; font: 700 18px/1 var(--font-mono); }
+.fz-step:disabled { opacity: .4; }
+.fz-scale { font: 600 13px/1 var(--font-mono); color: var(--muted); min-width: 2.6rem; text-align: center; }
+.fz-cap { max-width: 68ch; margin: .9rem auto 0; font-size: var(--fs-aux); line-height: var(--lh-aux); color: var(--ink-2); }
+.fz-cap b { color: var(--ink); }
 .ls-src-more > summary { cursor: pointer; font-size: 13.5px; color: var(--ink-2); line-height: 1.5; list-style: none; }
 .ls-src-more > summary::-webkit-details-marker { display: none; }
 .ls-src-more > summary::before { content: "▸ "; color: var(--accent-ink); }
@@ -2959,3 +2978,71 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .fig .p-alt { stroke: var(--blue); stroke-width: 1.6; stroke-dasharray: 5 4; fill: none; opacity: .85; }
 .lg-alt { border-color: var(--blue) !important; border-top-style: dashed !important; }
 .cl-alt { color: var(--blue-ink); }
+
+/* ---------- paczka Z a: karta kodu — pięć rozmiarów tekstu (audyt kart cz. 2 §5) ----------
+   tekst 16 / pomocniczy 14 / kod 13 mono / etykieta 12 wersaliki / nagłówki 21 i 17.
+   Lead różni się kolorem, nie rozmiarem. Jeden wygląd H2: sekcje strony, artykułu i „Źródła”. */
+.code-card { font-size: var(--fs-text); line-height: var(--lh-text); }
+.code-card p, .code-card li, .code-card .article p, .code-card .article li, .code-card .note, .code-card .lead {
+  font-size: var(--fs-text); line-height: var(--lh-text);
+}
+.code-card .lead { color: var(--ink); }
+.code-card .cap, .code-card .fig-cap, .code-card .tp-profile, .code-card .code-table, .code-card .code-table td,
+.code-card .addr-table, .code-card .ls-src ul, .code-card .ls-src-item, .code-card .ls-src-more > summary,
+.code-card .fig-legend, .code-card .rel span, .code-card .article-nav { font-size: var(--fs-aux); line-height: var(--lh-aux); }
+.code-card .tbl-stack td, .code-card .tbl-pair td { font-size: var(--fs-aux); }
+.code-card pre, .code-card .syntax, .code-card .fig-code-line { font-size: var(--fs-code); line-height: var(--lh-code); }
+.code-card .fig-code-line { line-height: 1.4; }
+.code-card .code-table th, .code-card .addr-table th, .code-card .syntax-label, .code-card .note::before,
+.code-card .tbl-stack td[data-label]::before, .code-card .tbl-pair td[data-label]::before { font-size: var(--fs-label); }
+.code-card .card-h, .code-card .article h2, .code-card .ls-src h2 {
+  font-family: var(--font-display); font-size: var(--fs-h2); font-weight: 700; line-height: 1.25; letter-spacing: -.01em;
+  color: var(--ink); display: flex; align-items: center; gap: .55rem;
+}
+.code-card .article h2::before, .code-card .ls-src h2::before { content: ""; flex: none; width: 4px; height: 1.05em; border-radius: 2px; background: var(--accent); }
+.code-card .article h2 { margin-top: 1rem; }
+.code-card .ls-src h2 { margin-bottom: .5rem; }
+.code-card .article h3, .code-card .cc-h3 { font-family: var(--font-display); font-size: var(--fs-h3); font-weight: 700; line-height: 1.3; color: var(--ink); }
+/* kod w zdaniu: 14 px w tekście, 13 px w tabeli i podpisie — rozmiary ze skali, nie .88em */
+.code-card :is(p, li, .note, .lead, h3) .inline-code { font-size: var(--fs-aux); }
+.code-card :is(td, .cap, .fig-cap, .tp-profile) .inline-code { font-size: var(--fs-code); }
+.code-card .breadcrumbs, .code-card .breadcrumbs * { font-size: var(--fs-aux); }
+.code-card .ls-src-note, .code-card .ls-src-item small, .code-card .fig-head { font-size: var(--fs-aux); }
+/* znacznik kodu w zdaniu nie łamie się w środku („G00” / „Z50”) */
+.code-card p .inline-code, .code-card li .inline-code, .code-card .note .inline-code { white-space: nowrap; }
+@media (max-width: 767px) {
+  .code-card pre, .code-card .syntax { padding-inline: .75rem; }
+}
+
+/* baner bez zdjęcia (decyzja 8): kod, nazwa, znaczniki; ciemna wyspa jak dotąd, bez zdjęcia i bez wysokości minimalnej */
+.banner.is-plain { min-height: 0; background: linear-gradient(120deg, #15161A 0%, #101113 70%); }
+.banner.is-plain .banner-inner { padding: 1rem 1.1rem 1.05rem; max-width: none; }
+@media (min-width: 768px) { .banner.is-plain .banner-inner { padding: 1.3rem 1.6rem 1.4rem; } }
+@media (max-width: 767px) {
+  .banner.is-plain .banner-inner { padding: .75rem .9rem .85rem; gap: .15rem; }
+  .banner.is-plain .banner-title.is-mono { font-size: 1.75rem; }
+  .banner.is-plain .banner-meta { gap: .25rem; margin-top: .3rem; }
+  .banner.is-plain .chip { padding: .15rem .45rem; }
+}
+/* linia profilu zapisu: jedna linia, pełny opis po rozwinięciu */
+.cc-profile { margin: -.6rem 0 0; }
+.cc-profile > summary { cursor: pointer; list-style: none; min-height: 32px; display: flex; align-items: center; }
+.cc-profile > summary::-webkit-details-marker { display: none; }
+.cc-profile > summary::after { content: "▾"; margin-left: .4rem; color: var(--accent-ink); }
+.cc-profile[open] > summary::after { content: "▴"; }
+.cc-profile > p { margin-top: .2rem; font-size: inherit; line-height: inherit; color: var(--muted); }
+
+/* tabele (Z a, §4.3): 2 kolumny zawsze jako tabela; 3 kolumny z krótkimi wartościami — etykieta wiersza nad parą wartości */
+.tbl-2 td:first-child { min-width: 5.5em; }
+@media (max-width: 640px) {
+  .tbl-pair thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tbl-pair, .tbl-pair tbody { display: block; width: 100%; }
+  .tbl-pair tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .15rem .75rem; padding: .55rem 0; border-bottom: 1px solid var(--line); }
+  .tbl-pair td { display: block; padding: 0; border: 0; }
+  .tbl-pair td:first-child { grid-column: 1 / -1; font-weight: 700; color: var(--ink); }
+  .tbl-pair td:not(:first-child)[data-label]::before { content: attr(data-label); display: block; font: 700 12px/1.3 var(--font-sans); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); margin-bottom: .1rem; }
+  .tbl-pair td[data-label=""]::before { display: none; }
+}
+
+/* uchwyt spisu treści chowa się przy przewijaniu w dół (nie zasłania końców wierszy), wraca przy przewijaniu w górę */
+.toc-handle.is-away { transform: translateX(110%); }
