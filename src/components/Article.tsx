@@ -5,6 +5,7 @@ import RijCalc from "@/components/RijCalc";
 import ArcCalc from "@/components/ArcCalc";
 import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
+import { tableClass } from "@/lib/tableKind";
 export { rich };
 
 export const slugify = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
@@ -35,7 +36,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           case "p": return <p key={i}>{rich(b.x)}</p>;
           case "ul": return <ul key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ul>;
           case "ol": return <ol key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ol>;
-          case "note": return <aside key={i} className={`note note-${b.kind}`}>{rich(b.x)}</aside>;
+          case "note": return <div key={i} role="note" className={`note note-${b.kind}`}>{rich(b.x)}</div>;
           case "code": return <figure key={i} className="grid gap-1"><pre tabIndex={0} className="syntax">{b.x}</pre>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>;
           case "sim": return <figure key={i} className="grid gap-2">{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}<SimClient initial={b.src} mode={b.mode ?? "mill"} /></figure>;
           case "demo": return (
@@ -46,10 +47,10 @@ export default function Article({ blocks }: { blocks: Block[] }) {
             </figure>
           );
           case "table": return (
-            <figure key={i} className="grid gap-1"><div className="overflow-x-auto"><table className="code-table tbl-stack">
+            <figure key={i} className="grid gap-1">{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}<div className="overflow-x-auto"><table className={`code-table ${tableClass(b.head.length, b.rows)}`}>
               <thead><tr>{b.head.map((h) => <th key={h}>{rich(h)}</th>)}</tr></thead>
               <tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k2) => <td key={k2} data-label={(b.head[k2] ?? "").replace(/\*\*|`/g, "")}>{rich(c)}</td>)}</tr>)}</tbody>
-            </table></div>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>
+            </table></div></figure>
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;
           case "widget": return b.id === "jog" ? <JogDemo key={i} /> : <div key={i} id="kalkulator-zamiany-r-i-j">{b.id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;

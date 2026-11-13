@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
+import { tableClass } from "@/lib/tableKind";
 import { resolveKey, type TermSources } from "./resolve";
 import { anchorRe } from "./schema";
 
@@ -214,9 +215,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       } else if (n.type === "code") at(n, "blok kodu ``` tylko wewnątrz <Code>, <Sim> albo <Demo>");
     });
 
-    // 2b. Tabele: <Table> (figure), klasy i data-label jak w Article.tsx.
+    // 2b. Tabele: <Table> (figure), klasy (tableClass — układ na telefonie wg liczby kolumn, Z a) i data-label jak w Article.tsx.
     visit(tree, "table", (t: Table, index, parent) => {
-      t.data = { ...t.data, hProperties: { ...(t.data?.hProperties ?? {}), className: ["code-table", "tbl-stack"] } };
+      const cols = t.children[0]?.children.length ?? 0;
+      const kind = tableClass(cols, t.children.slice(1).map((r) => r.children.map((c) => plain(c))));
+      t.data = { ...t.data, hProperties: { ...(t.data?.hProperties ?? {}), className: ["code-table", kind] } };
       // data-label = surowy tekst nagłówka bez ** i ` (jak `head.replace(/\*\*|`/g, "")`); escape'y Markdown (\[ \| …,
       // zapis Keystatic) zdjęte jak w treści komórki
       const head = t.children[0]?.children.map((c) => {
