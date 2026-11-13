@@ -7,6 +7,7 @@ import {
   Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
+import { BoreExit, CornerStop, G92vsG54, LocalZero, RotaryAxes, RotationG68, TcpC90, TiltPlane } from "./figs3";
 import { f0Figs } from "./lesson/figs-f0";
 import { pFigs } from "./lesson/figs-p";
 import { f1Figs } from "./lesson/figs-f1";
@@ -100,4 +101,13 @@ export const diagrams: Record<string, () => ReactNode> = {
   // rysunki z lekcji na kartach krótkich (paczka Y2, audyt kart §5.3)
   m06: () => <ToolChange />,
   g74: () => <AxialDrill />,
+  // nowe rysunki kart (paczka Y3, audyt kart §5.3); karty z artykułem wstawiają je przez <Diagram id="…" />
+  "g09-g61-g64": () => <CornerStop />,
+  "g52-g53": () => <LocalZero />,
+  "g68-g69": () => <RotationG68 />,
+  "g85-g86": () => <BoreExit />,
+  g92: () => <G92vsG54 />,
+  "osie-abc": () => <RotaryAxes />,
+  "g68-2-g53-1": () => <TiltPlane />,
+  "g43-4": () => <TcpC90 />,
 };

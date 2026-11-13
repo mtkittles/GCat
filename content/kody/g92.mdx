@@ -94,6 +94,8 @@ Ustawiasz narzędzie w narożniku detalu i piszesz `G92 X0 Y0 Z0`. Od tej chwili
   Jeśli uruchomisz program z G92, gdy narzędzie stoi gdzie indziej niż za pierwszym razem, **cała obróbka przesunie się o tę różnicę**. Programu z G54 to nie dotyczy, bo rejestr pamięta położenie w układzie maszyny.
 </Note>
 
+<Diagram id="g92" />
+
 ## G92 na tokarce \{#g92-na-tokarce}
 
 Na tokarce Fanuc znaczenie G92 zależy od **systemu kodów G**. W systemie A G92 to cykl gwintowania, a limit obrotów przy stałej prędkości skrawania G96 i ustawienie układu zapisuje G50: `G50 S2500`. W systemach B i C tę rolę ma G92: `G92 S2500` **ogranicza maksymalne obroty**. Przed przeniesieniem programu sprawdź, w którym systemie kodów pracuje maszyna.
