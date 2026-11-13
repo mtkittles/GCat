@@ -3080,3 +3080,23 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .kl-meta { grid-column: 3; justify-content: flex-end; }
   .kl-short { white-space: normal; }
 }
+
+/* ---------- paczka UA: spis karty z bieżącą sekcją, pokaz i kod obok siebie ---------- */
+/* Lewy spis karty: bieżąca sekcja wyróżniona kolorem, grubością i kreską — nie samym kolorem. */
+.toc-spy ol { gap: .1rem; }
+.toc-spy li { padding: .14rem 0 .14rem .55rem; margin-left: -.55rem; border-left: 2px solid transparent; border-radius: 0 6px 6px 0; transition: background-color .15s ease, border-color .15s ease; }
+.toc-spy li.is-active { border-left-color: var(--accent); background: var(--accent-soft); }
+.toc-spy li.is-active::marker { color: var(--accent-ink); font-weight: 700; }
+.toc-spy a[aria-current="location"] { color: var(--ink); font-weight: 650; }
+@media (prefers-reduced-motion: reduce) { .toc-spy li { transition: none; } }
+
+/* Pokaz w treści (karty i lekcje): gdy kolumna treści ma co najmniej 820 px, rysunek i kod stoją obok siebie —
+   widać jednocześnie ruch narzędzia i wykonywany blok. Węższa kolumna zostaje przy jednej (reguła wyżej). */
+.demo-fig { container-type: inline-size; }
+@container (min-width: 820px) {
+  .demo-fig .showcase { grid-template-columns: minmax(0, 1.55fr) minmax(300px, 1fr); }
+  .demo-fig .showcase-code { border-top: none; border-left: 1px solid rgba(148,163,184,.16); min-height: 0; }
+  /* lista bloków bierze wysokość rysunku i przewija się w środku, nie wydłuża karty */
+  .demo-fig .showcase-lines { flex: 1 1 0; min-height: 0; max-height: none; }
+  .demo-fig .showcase-canvas { height: clamp(320px, 38cqi, 460px); }
+}

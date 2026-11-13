@@ -8,6 +8,7 @@ import { diagrams } from "@/components/diagrams";
 import { tocItems } from "@/components/Article";
 import CodeText from "@/components/CodeText";
 import TocDrawer from "@/components/TocDrawer";
+import LeftToc from "@/components/LeftToc";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import PageBanner from "@/components/ui/PageBanner";
@@ -247,15 +248,5 @@ export default async function CodePage({ params }: { params: Promise<{ slug: str
     <aside className="cc-right"><CardQuick g={g} related={rel} lessons={inLessons} toc={toc} /></aside>
     <div className="toc-drawer-only"><TocDrawer title={g.code} items={toc} /></div>
     </div>
-  );
-}
-
-/** Spis sekcji karty — lewa kolumna na szerokich ekranach. */
-function LeftToc({ items }: { items: { id: string; label: string }[] }) {
-  return (
-    <nav className="toc toc-sticky" aria-label="W tej karcie">
-      <span className="toc-title">W tej karcie</span>
-      <ol>{items.map((t) => <li key={t.id}><a href={`#${t.id}`}>{t.label}</a></li>)}</ol>
-    </nav>
   );
 }
