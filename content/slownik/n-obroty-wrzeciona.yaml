@@ -1,0 +1,40 @@
+term: n — obroty wrzeciona
+anchor: n-obroty-wrzeciona
+order: 790
+aliases:
+  - 'n'
+  - obroty
+  - obroty wrzeciona
+  - prędkość obrotowa
+def: >-
+  Liczba obrotów wrzeciona na minutę. W programie podaje ją adres S przy stałych
+  obrotach (G97). Obroty wylicza się z prędkości skrawania i średnicy. Jeśli
+  wynik przekracza maksymalne obroty wrzeciona, w programie wpisuje się maksimum
+  i skrawa z mniejszą Vc.
+formulas:
+  - expr: n = 1000 · Vc / (π · D)
+    where:
+      - n — obroty wrzeciona, obr/min
+      - Vc — prędkość skrawania, m/min
+      - >-
+        D — średnica narzędzia (frezowanie, wiercenie) albo obrabiana średnica
+        detalu (toczenie), mm
+    example: >-
+      Vc 400 m/min, średnica 100 mm: n = 400 · 1000 / (3,14 · 100) = 1274
+      obr/min.
+see:
+  - m03-m05
+  - g96-g97
+diagram: f22-limit
+sources:
+  - id: kuryjanski
+    where: prędkość skrawania i prędkość obrotowa, wzór n = 1000 · vc / (π · D)
+    loc: s. 53
+  - id: sandvik-handbook
+    where: >-
+      wzór n = vc · 1000 / (π · Dm) z przykładem: 400 m/min i ⌀100 mm dają 1274
+      obr/min
+    loc: część A Toczenie, rozdz. Teoria
+  - id: fanuc
+    where: G96 S_ i G97 S_ — stała prędkość skrawania i jej wyłączenie
+    loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s. 92

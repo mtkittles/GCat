@@ -8,6 +8,7 @@ def: >-
   Wbudowana w sterowanie sekwencja ruchów, wywoływana jednym blokiem i
   powtarzana w kolejnych punktach. Cykle wiertarskie (G81–G89) i tokarskie
   (G70–G76) zastępują kilkanaście bloków jednym.
+formulas: []
 see:
   - g81-g83
   - g71-g70

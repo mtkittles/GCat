@@ -80,6 +80,8 @@ export const hasloSchema = z.strictObject({
   order: z.number().int().positive(),
   aliases: z.array(text).default([]),
   def: text,
+  /** wzory: zapis, objaśnienia symboli („symbol — znaczenie, jednostka”) i przykład liczbowy */
+  formulas: z.array(z.strictObject({ expr: text, where: z.array(text).default([]), example: z.string().default("") })).default([]),
   /** slugi kart kodów */
   see: z.array(slug).default([]),
   /** id rysunku z rejestru diagrams.tsx; "" = brak */

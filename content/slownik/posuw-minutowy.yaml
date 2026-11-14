@@ -6,8 +6,28 @@ aliases:
   - posuw na minutę
 def: >-
   Jednostka posuwu typowa dla frezowania: droga narzędzia na minutę (G94; na
-  tokarce Fanuc w systemie A — G98). Liczy się ją jako fz · z · n.
+  tokarce Fanuc w systemie A — G98).
+formulas:
+  - expr: Vf = fz · z · n
+    where:
+      - Vf — posuw minutowy, mm/min
+      - fz — posuw na ostrze, mm
+      - z — liczba ostrzy
+      - n — obroty wrzeciona, obr/min
+    example: 'fz 0,08 mm, 4 ostrza, 3820 obr/min: Vf = 0,08 · 4 · 3820 = 1222 mm/min.'
+  - expr: Vf = f · n
+    where:
+      - f — posuw na obrót, mm/obr (toczenie, wiercenie)
+    example: 'f 0,2 mm/obr, 1500 obr/min: Vf = 0,2 · 1500 = 300 mm/min.'
 see:
   - g94-g95
-diagram: ''
-sources: []
+diagram: feeds
+sources:
+  - id: sandvik-tg-d
+    where: wzory vf = fz · n · zn oraz fn = vf / n
+    loc: Ogólne wzory frezowania, s. D 23
+  - id: fanuc
+    where: G98 i G99 na tokarce w systemie A, G94 i G95 w systemach B i C
+    loc: >-
+      frezarka — rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 92; tokarka — rozdz.
+      3.2, tab. 3.2, s. 78 (system A — G98/G99, B i C — G94/G95)

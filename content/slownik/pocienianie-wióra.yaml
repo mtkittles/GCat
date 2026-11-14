@@ -8,6 +8,22 @@ def: >-
   niż połowa średnicy): rzeczywista grubość wióra jest mniejsza niż
   zaprogramowany posuw na ostrze. Bez korekty posuwu narzędzie pracuje zbyt
   lekko, tarcie rośnie kosztem skrawania, a ostrze szybciej się tępi.
+formulas:
+  - expr: hm ≈ fz · √(ae / D)
+    where:
+      - hm — średnia grubość wióra, mm
+      - fz — posuw na ostrze, mm
+      - ae — szerokość skrawania, mm
+      - D — średnica freza, mm; wzór dla frezowania bokiem przy ae / D do 0,1
+      - 'na rysunku obok: hex — największa grubość wióra'
+    example: >-
+      Frez ⌀10 mm, ae 1 mm, fz 0,08 mm: hm ≈ 0,08 · √0,1 = 0,025 mm — wiór ponad
+      trzy razy cieńszy niż fz.
 see: []
 diagram: thinning
-sources: []
+sources:
+  - id: sandvik-tg-d
+    where: średnia grubość wióra hm przy ae/Dc ≤ 0,1 i przy ae/Dc ≥ 0,1
+    loc: Ogólne wzory frezowania, s. D 23
+  - id: sandvik-kat-frezowanie
+    where: przy ae/DC poniżej 50% największa grubość wióra jest mniejsza niż fz

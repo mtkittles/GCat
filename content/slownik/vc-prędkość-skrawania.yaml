@@ -6,9 +6,28 @@ aliases:
   - prędkość skrawania
 def: >-
   Prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w
-  metrach na minutę. Zależy od średnicy i obrotów: Vc = π × D × n / 1000. To Vc,
-  a nie obroty, dobiera się z katalogu narzędzia dla danego materiału.
+  metrach na minutę. Zależy od średnicy i obrotów. To Vc, a nie obroty, dobiera
+  się z katalogu narzędzia dla danego materiału.
+formulas:
+  - expr: Vc = π · D · n / 1000
+    where:
+      - Vc — prędkość skrawania, m/min
+      - >-
+        D — średnica narzędzia (frezowanie, wiercenie) albo obrabiana średnica
+        detalu (toczenie), mm
+      - n — obroty wrzeciona, obr/min
+    example: >-
+      Wałek ⌀50 mm, 2000 obr/min: Vc = 3,14 · 50 · 2000 / 1000 = 314 m/min. Ten
+      sam wałek na ⌀80 mm: 502 m/min.
 see:
   - g96-g97
 diagram: vc
-sources: []
+sources:
+  - id: kuryjanski
+    where: prędkość skrawania i prędkość obrotowa, wzór n = 1000 · vc / (π · D)
+    loc: s. 53
+  - id: sandvik-handbook
+    where: >-
+      wzór vc = π · Dm · n / 1000 z przykładem dla ⌀50 i ⌀80 mm przy 2000
+      obr/min
+    loc: część A Toczenie, rozdz. Teoria

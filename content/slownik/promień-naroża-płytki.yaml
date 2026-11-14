@@ -10,7 +10,12 @@ def: >-
   kodu ISO (CNMG 120408 → 0,8 mm). Bez kompensacji promienia stożki i łuki
   wychodzą z błędem rzędu tego promienia; większy promień daje gładszą
   powierzchnię, ale większe siły promieniowe.
+formulas: []
 see:
   - g40-g42
-diagram: ''
-sources: []
+diagram: t23-rt
+sources:
+  - id: sandvik-plytka-tokarska
+    where: >-
+      promień naroża RE wpływa na chropowatość, łamanie wióra i wytrzymałość
+      płytki; przy skłonności do drgań mniejszy promień

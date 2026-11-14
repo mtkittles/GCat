@@ -10,6 +10,7 @@ def: >-
   naroża płytki leży teoretyczny punkt ostrza P. Sterowanie potrzebuje jej do
   kompensacji promienia naroża (G41/G42): nóż zewnętrzny toczący w stronę
   uchwytu ma zwykle 3, wytaczak 2, nóż do czoła 8 lub 9.
+formulas: []
 see:
   - g40-g42
 diagram: ''

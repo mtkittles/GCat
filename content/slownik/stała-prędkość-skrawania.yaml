@@ -7,11 +7,29 @@ aliases:
   - stała Vc
 def: >-
   Tryb, w którym sterowanie zmienia obroty wraz ze średnicą tak, by prędkość
-  skrawania była stała: n = 1000 · Vc / (π · D). Daje równą chropowatość i
-  trwałość płytki na całym profilu; przy wierceniu w osi i gwintowaniu używa się
-  stałych obrotów G97.
+  skrawania była stała. Daje równą chropowatość i trwałość płytki na całym
+  profilu; przy wierceniu w osi i gwintowaniu używa się stałych obrotów G97.
+formulas:
+  - expr: n = 1000 · Vc / (π · D)
+    where:
+      - n — obroty wrzeciona, obr/min
+      - Vc — zadana prędkość skrawania (S przy G96), m/min
+      - D — średnica, na której w danej chwili pracuje ostrze, mm
+    example: >-
+      G96 S200: na ⌀80 mm 796 obr/min, na ⌀20 mm 3183 obr/min, na ⌀2 mm 31 831
+      obr/min — dlatego przed G96 ustawia się limit obrotów (na Fanucu w
+      systemie A: G50 S…).
 see:
   - g96-g97
   - g50
-diagram: ''
-sources: []
+diagram: g96-g97
+sources:
+  - id: fanuc
+    where: G96 S_ i G97 S_ — stała prędkość skrawania i jej wyłączenie
+    loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s. 92
+  - id: fanuc
+    where: G50 S_ — ograniczenie maksymalnej prędkości wrzeciona w systemie A
+    loc: rozdz. 3.2, tab. 3.2, s. 76; rozdz. 4, s. 86
+  - id: kuryjanski
+    where: prędkość skrawania i prędkość obrotowa, wzór n = 1000 · vc / (π · D)
+    loc: s. 53

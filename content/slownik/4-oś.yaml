@@ -9,6 +9,7 @@ def: >-
   Oś obrotowa dołożona do frezarki 3-osiowej — zwykle A, obracająca detal wokół
   X. Służy do obróbki kilku ścian z jednego zamocowania (indeksowanie) i do
   rowków na walcu (ruch jednoczesny X i A).
+formulas: []
 see:
   - osie-abc
 diagram: ''

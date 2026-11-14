@@ -9,6 +9,7 @@ def: >-
   odwołania przez inną funkcję z tej samej grupy. G01 jest modalne — kolejne
   bloki z samymi współrzędnymi też będą ruchami liniowymi. Przeciwieństwem są
   funkcje jednorazowe (G04, G28, G53), działające tylko w swoim bloku.
+formulas: []
 see:
   - g01
   - g52-g53

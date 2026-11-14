@@ -8,6 +8,7 @@ def: >-
   współrzędna, F posuw, S obroty, T narzędzie. Ten sam adres może znaczyć różne
   rzeczy zależnie od kontekstu: P to raz czas postoju, raz numer podprogramu,
   raz parametr cyklu.
+formulas: []
 see: []
 diagram: ''
 sources: []

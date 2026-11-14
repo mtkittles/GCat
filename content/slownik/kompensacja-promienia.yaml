@@ -9,6 +9,7 @@ def: >-
   Funkcja pozwalająca programować kontur gotowego detalu zamiast toru środka
   narzędzia. Sterowanie samo odsuwa tor o promień z rejestru korekcji. Umożliwia
   też korektę wymiaru bez zmiany programu.
+formulas: []
 see:
   - g40-g42
 diagram: g40-g42

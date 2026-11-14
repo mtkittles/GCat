@@ -9,6 +9,7 @@ def: >-
   Odległość między sąsiednimi zwojami gwintu wzdłuż osi, np. 1,5 mm dla M10. W
   cyklach gwintowania to posuw na obrót (G84 przy G95, G76 i G32 adresem F), bo
   na jeden obrót narzędzie musi przesunąć się dokładnie o skok.
+formulas: []
 see:
   - g84
   - g76

@@ -9,17 +9,27 @@ aliases:
 def: >-
   Siła skrawania przypadająca na 1 mm² przekroju warstwy skrawanej, w N/mm².
   Zależy od materiału i od grubości wióra: im cieńszy wiór, tym większe kc.
-  Producent narzędzi podaje ją wzorem kc = kc1 · hm^(−mc), gdzie kc1 to wartość
-  dla wióra grubości 1 mm, hm — średnia grubość wióra, a mc — wykładnik dla
-  danego materiału. Z kc liczy się moc przy frezowaniu: Pc = ap · ae · vf · kc /
-  (60 · 10⁶ · η) w kW, gdzie vf w mm/min, a η to sprawność. Kalkulator GCat
-  przyjmuje kc1 bez przeliczenia na grubość wióra, więc przy wiórze cieńszym niż
-  1 mm podaje moc zaniżoną.
+  Kalkulator GCat przyjmuje kc1 bez przeliczenia na grubość wióra, więc przy
+  wiórze cieńszym niż 1 mm podaje moc zaniżoną.
+formulas:
+  - expr: kc = kc1 · hm^(−mc)
+    where:
+      - kc — właściwy opór skrawania, N/mm²
+      - kc1 — wartość dla wióra grubości 1 mm, N/mm²
+      - hm — średnia grubość wióra, mm
+      - mc — wykładnik zależny od materiału
+    example: >-
+      Przyjmując kc1 1500 N/mm² i mc 0,25: przy wiórze 0,1 mm kc = 1500 ·
+      0,1^(−0,25) ≈ 2670 N/mm², czyli prawie dwa razy więcej niż dla wióra 1 mm.
 see: []
-diagram: ''
+diagram: chip-area
 sources:
   - id: sandvik-tg-d
     where: >-
       kc = kc1 · hm^(−mc); kc1 dla grubości wióra 1 mm; mc — wzrost kc w funkcji
       grubości wióra; wzór na moc Pc
     loc: Ogólne wzory frezowania, s. D 23
+  - id: sandvik-kc
+    where: >-
+      kc1 — siła w kierunku skrawania potrzebna do zebrania wióra o przekroju 1
+      mm² i grubości 1 mm

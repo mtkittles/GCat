@@ -10,6 +10,7 @@ def: >-
   posuwem roboczym (G01) — ruch szybki w materiał grozi kolizją. Posuw zejścia
   jest zwykle mniejszy niż konturowy, bo pracują ostrza czołowe. Frez bez ostrza
   przez środek wymaga rampy albo wejścia po spirali.
+formulas: []
 see:
   - g01
   - g00

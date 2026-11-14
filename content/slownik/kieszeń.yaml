@@ -10,6 +10,7 @@ def: >-
   pełny materiał (po spirali, po rampie albo w nawiercony otwór), a potem usuwać
   materiał przejściami przesuniętymi o ae, kończąc obiegiem ścianki z
   kompensacją promienia.
+formulas: []
 see:
   - g02
   - g40-g42

@@ -8,6 +8,7 @@ def: >-
   Szybkie usuwanie większości materiału dużymi przejściami, z pozostawieniem
   naddatku na wykańczanie. Na tokarce wykonują ją cykle G71/G72, na frezarce —
   przejścia z dużym ap i posuwem. Dokładność i chropowatość nie są tu celem.
+formulas: []
 see:
   - g71-g70
   - g72

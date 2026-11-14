@@ -10,6 +10,7 @@ def: >-
   go jako G-kod dla konkretnej maszyny. Kształty swobodne (formy, łopatki,
   kopuły) to tysiące krótkich ruchów G01 po powierzchni, często z osiami
   obrotowymi i TCP. Taki plik wczytasz w symulatorze przyciskiem „Wczytaj plik”.
+formulas: []
 see:
   - g43-4
   - osie-abc

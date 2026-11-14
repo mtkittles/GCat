@@ -1,0 +1,33 @@
+term: Q — wydajność skrawania
+anchor: q-wydajność-skrawania
+order: 800
+aliases:
+  - Q
+  - wydajność skrawania
+  - wydajność objętościowa
+  - MRR
+def: >-
+  Objętość materiału zamienianego w wiór w ciągu minuty, w cm³/min. Miara
+  wydajności obróbki zgrubnej i podstawa do oszacowania mocy skrawania.
+formulas:
+  - expr: Q = ap · ae · Vf / 1000
+    where:
+      - Q — wydajność przy frezowaniu, cm³/min
+      - ap — głębokość skrawania, mm
+      - ae — szerokość skrawania, mm
+      - Vf — posuw minutowy, mm/min
+    example: 'ap 5 mm, ae 5 mm, Vf 1986 mm/min: Q = 5 · 5 · 1986 / 1000 = 49,7 cm³/min.'
+  - expr: Q = Vc · ap · f
+    where:
+      - Q — wydajność przy toczeniu, cm³/min
+      - Vc — prędkość skrawania, m/min
+      - ap — głębokość skrawania, mm
+      - f — posuw na obrót, mm/obr
+    example: 'Vc 240 m/min, ap 2 mm, f 0,28 mm/obr: Q = 240 · 2 · 0,28 = 134,4 cm³/min.'
+see: []
+diagram: ''
+sources:
+  - id: sandvik-wzory-frezowanie
+    where: wzór Q = ap · ae · vf / 1000 w cm³/min
+  - id: sandvik-wzory-toczenie
+    where: wzór Q = vc · ap · fn w cm³/min

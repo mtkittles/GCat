@@ -9,6 +9,7 @@ def: >-
   Pokrętło na pulpicie zmieniające zaprogramowany posuw lub obroty w procentach
   (zwykle 0–150 %). Przy gwintowaniu sterowanie ignoruje korektę posuwu; M49
   blokuje potencjometry z programu, M48 je odblokowuje.
+formulas: []
 see:
   - m48-m49
 diagram: ''

@@ -9,6 +9,7 @@ def: >-
   Budowa frezarki 5-osiowej, w której obie osie obrotowe są w stole: kołyska A
   albo B pochyla stół, a stół C obraca detal. Wrzeciono zostaje pionowe. Inne
   układy to głowica–głowica i głowica–stół.
+formulas: []
 see:
   - osie-abc
 diagram: ''

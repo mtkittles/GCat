@@ -88,7 +88,9 @@ export function ToothFeed() {
      pod kątem θ od niego h ≈ fz · cos θ. */
   const r = 86, d = 28, c1 = { x: 118, y: 136 }, c2 = { x: c1.x + d, y: c1.y };
   const th = (58 * Math.PI) / 180;
-  const ux = Math.cos(th), uy = -Math.sin(th);
+  // zaokrąglenie: sin/cos różnią się ostatnią cyfrą między Node a przeglądarką, a rysunek bywa też w komponencie klienckim (słownik)
+  const r6 = (v: number) => Math.round(v * 1e6) / 1e6;
+  const ux = r6(Math.cos(th)), uy = -r6(Math.sin(th));
   const t1 = -d * ux + Math.sqrt(d * d * ux * ux - d * d + r * r);  // punkt na torze poprzedniego ostrza
   const P1 = { x: c2.x + t1 * ux, y: c2.y + t1 * uy }, P2 = { x: c2.x + r * ux, y: c2.y + r * uy };
   const ix = c1.x + d / 2, iy = Math.sqrt(r * r - (d / 2) ** 2);

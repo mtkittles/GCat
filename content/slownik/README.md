@@ -16,6 +16,11 @@ aliases:
   - climb milling
 def: >-
   Frezowanie, w którym kierunek obrotu narzędzia…
+formulas:                        # wzory; [] = brak
+  - expr: n = 1000 · Vc / (π · D)
+    where:                       # „symbol — znaczenie, jednostka”; wiersz bez „ — ” to uwaga do wzoru
+      - n — obroty wrzeciona, obr/min
+    example: 'Vc 400 m/min, średnica 100 mm: n = 1274 obr/min.'   # pole można pominąć
 see:
   - g40-g42                      # slugi kart, sprawdzane przy buildzie
 diagram: climb                   # id rysunku z diagrams.tsx; '' = brak
@@ -24,3 +29,5 @@ diagram: climb                   # id rysunku z diagrams.tsx; '' = brak
 **Kotwica:** przy eksporcie (krok 4) pole `anchor` dostało dzisiejszą kotwicę liczoną z `term`: małe litery, każdy ciąg znaków innych niż litery i cyfry → `-`. Może się więc kończyć myślnikiem, np. `3-2-obróbka-pozycjonowana-`. Test pilnuje, że kotwice = migawka `tests/fixtures/kotwice.json`. W panelu pole „Kotwica” jest edytowalne (Keystatic nie ma pola tylko do odczytu dla nazwy pliku) — zmiana wywróci ten test, czyli CI na PR.
 
 Markery `[[…]]` w polach są sprawdzane tak samo jak w MDX.
+
+**Wzory (`formulas`, paczka UE):** każdy wzór musi mieć pokrycie w polu `sources` (dokument i miejsce) albo wynikać rachunkiem z wzorów, które je mają — wtedy w `where` źródła trzeba to napisać. Przykład liczbowy przelicz przed zapisaniem. Mnożenie zapisujemy kropką środkową `·`, liczby z przecinkiem.

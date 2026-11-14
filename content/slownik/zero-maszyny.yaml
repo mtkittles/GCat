@@ -8,6 +8,7 @@ def: >-
   Stały punkt wyznaczony przy bazowaniu osi, niezależny od detalu. Wszystkie
   przesunięcia układów współrzędnych liczone są od niego. Dojazd do niego
   realizuje G28.
+formulas: []
 see:
   - g28
 diagram: ''

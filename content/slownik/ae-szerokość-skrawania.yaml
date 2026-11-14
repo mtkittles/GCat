@@ -9,6 +9,14 @@ def: >-
   Szerokość zaangażowania narzędzia w materiał, mierzona prostopadle do kierunku
   posuwu. Przy ae mniejszym niż połowa średnicy freza występuje pocienianie
   wióra i posuw można zwiększyć.
+formulas: []
 see: []
 diagram: apae
-sources: []
+sources:
+  - id: sandvik-kat-frezowanie
+    where: >-
+      przy zaangażowaniu ae/DC poniżej 50% największa grubość wióra jest
+      mniejsza niż fz
+  - id: kuryjanski
+    where: posuw na ostrze, posuw minutowy, głębokość i szerokość skrawania
+    loc: s. 54

@@ -8,6 +8,7 @@ def: >-
   Jeden ruch narzędzia przez materiał, np. jedna warstwa kieszeni albo jedno
   zagłębienie gwintu w G76. Liczba przejść wynika z naddatku podzielonego przez
   głębokość skrawania ap.
+formulas: []
 see:
   - g76
   - g71-g70

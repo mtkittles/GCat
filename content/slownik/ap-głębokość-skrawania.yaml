@@ -8,6 +8,21 @@ def: >-
   Głębokość, na jaką narzędzie wchodzi w materiał, mierzona wzdłuż osi narzędzia
   przy frezowaniu i promieniowo przy toczeniu. Wraz z ae i posuwem decyduje o
   objętości zbieranego materiału i o obciążeniu narzędzia.
+formulas:
+  - expr: ap = (D₁ − D₂) / 2
+    where:
+      - ap — głębokość skrawania przy toczeniu, mm
+      - D₁ — średnica przed przejściem, mm
+      - D₂ — średnica po przejściu, mm
+    example: 'Z ⌀50 na ⌀46 mm: ap = (50 − 46) / 2 = 2 mm.'
 see: []
 diagram: apae
-sources: []
+sources:
+  - id: sandvik-handbook
+    where: >-
+      głębokość skrawania ap — połowa różnicy średnicy przed przejściem i po
+      nim, mierzona prostopadle do kierunku posuwu
+    loc: część A Toczenie, rozdz. Teoria
+  - id: kuryjanski
+    where: posuw na ostrze, posuw minutowy, głębokość i szerokość skrawania
+    loc: s. 54

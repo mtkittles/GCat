@@ -8,6 +8,7 @@ def: >-
   Zderzenie narzędzia, uchwytu albo wrzeciona z detalem, zaciskiem lub elementem
   maszyny. Przy szybkim przejeździe energia uderzenia jest na tyle duża, że
   uszkodzeniu ulega zwykle nie tylko narzędzie, ale i łożyskowanie wrzeciona.
+formulas: []
 see:
   - g00
 diagram: ''

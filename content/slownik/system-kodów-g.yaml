@@ -10,6 +10,7 @@ def: >-
   wybiera parametr maszyny (3401#6/#7). Kurs używa systemu A: wymiar przyrostowy
   piszesz adresami U i W, posuw na obrót to G99, a G90, G92 i G94 to cykle
   toczenia. W systemach B i C G90/G91 przełączają wymiar jak na frezarce.
+formulas: []
 see:
   - g90-g94-t
   - g98-g99
