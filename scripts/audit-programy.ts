@@ -33,7 +33,7 @@ for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) 
   });
 }
 for (const p of PROGRAMS) items.push({ where: `programy/${p.slug}`, src: p.src, mode: p.mode, dialect: p.dialect });
-const home = readFileSync("src/app/page.tsx", "utf8").match(/const DEMO = `([\s\S]*?)`;/);
+const home = readFileSync("src/content/homeDemo.ts", "utf8").match(/const HOME_DEMO = `([\s\S]*?)`;/);
 if (home) add("strona główna DEMO", home[1], "mill");
 
 let errors = 0, warned = 0, warnTotal = 0;

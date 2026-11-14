@@ -3152,3 +3152,121 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 @media (min-width: 1100px) and (min-height: 520px) {
   .task-actions button:not(.btn) { flex: 1 1 0; padding: .36rem .4rem; white-space: nowrap; text-align: center; }
 }
+
+/* ---------- paczka UG: strona główna — pierwszy ekran, program przewijany blok po bloku, odsłanianie sekcji ---------- */
+.home { display: grid; gap: clamp(3.2rem, 9vh, 6rem); }
+.home > * { min-width: 0; }
+
+/* Pierwszy ekran: wysokość okna pod nagłówkiem; zdjęcie „osiada” raz przy wejściu, treść wchodzi po kolei. */
+.hi-cue { display: none; }
+@media (min-width: 768px) {
+  .home-intro { min-height: max(400px, calc(100dvh - 62px - 3.5rem)); background: #0b0d11; isolation: isolate; }
+  .home-intro::before { content: ""; position: absolute; inset: 0; z-index: -1; transform-origin: 78% 50%;
+    background: linear-gradient(90deg, rgba(9,11,15,.96) 0%, rgba(9,11,15,.84) 40%, rgba(9,11,15,.22) 78%), url(/img/hero-cnc.jpg) 70% 50% / cover no-repeat;
+    animation: hi-settle 2s cubic-bezier(.16,.8,.24,1) both; }
+  .home-intro > :not(.hi-cue) { animation: gc-rise .75s cubic-bezier(.16,.8,.24,1) backwards; }
+  .home-intro > :nth-child(2) { animation-delay: 90ms; } .home-intro > :nth-child(3) { animation-delay: 170ms; }
+  .home-intro > :nth-child(4) { animation-delay: 250ms; } .home-intro > :nth-child(5) { animation-delay: 330ms; }
+  .hi-title { font-size: clamp(2.1rem, 4.1vw, 3.9rem); }
+}
+@media (min-width: 768px) and (max-height: 700px) {
+  .home-intro { gap: .7rem; }
+  .hi-title { font-size: clamp(2rem, 3.4vw, 2.9rem); }
+  .hi-brand :is(img, svg) { height: 68px !important; width: auto !important; }
+}
+/* szeroki ekran: karta „Wróć do nauki” w prawym dolnym rogu, żeby pierwszy ekran nie rósł w dół */
+@media (min-width: 1100px) {
+  .home-intro { grid-template-columns: minmax(0, 1fr) minmax(0, 24rem); column-gap: 2rem; }
+  .home-intro > :not(.hi-cue) { grid-column: 1; }
+  .home-intro > .hi-resume { grid-column: 2; grid-row: 1 / span 4; align-self: end; background: rgba(15,17,21,.62); border-color: rgba(255,255,255,.16); backdrop-filter: blur(10px); }
+}
+@media (min-width: 900px) and (min-height: 560px) {
+  .hi-cue { position: absolute; left: clamp(1.6rem, 4vw, 3.2rem); bottom: 1.05rem; display: inline-flex; align-items: center; gap: .65rem; font-size: 13.5px; color: #C3C8D0; text-decoration: none; }
+  .hi-cue:hover { color: #fff; }
+  .hi-cue span { width: 8px; height: 8px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(45deg); animation: hi-bob 1.9s ease-in-out infinite; }
+}
+@keyframes hi-settle { from { transform: scale(1.07); opacity: .4; } to { transform: none; opacity: 1; } }
+@keyframes hi-bob { 0%, 100% { translate: 0 -2px; } 50% { translate: 0 3px; } }
+
+/* Program blok po bloku (komputer). .st ma wysokość okna + drogę przewijania; .st-stage jest przypięta.
+   --p (0–1) ustawia StoryStage.tsx; bez JS zostaje 1, czyli gotowy rysunek. */
+.st { display: none; }
+@media (min-width: 900px) {
+  .st { display: block; --p: 1; height: calc(100dvh - 86px + var(--n) * 62vh); scroll-margin-top: 74px; }
+  .st-stage { position: sticky; top: 74px; height: calc(100dvh - 86px); min-height: 430px; display: grid; grid-template-columns: minmax(300px, .74fr) minmax(0, 1.26fr); grid-template-rows: auto minmax(0, 1fr) auto;
+    background: #141518; border: 1px solid #2A2B30; border-radius: 20px; overflow: hidden; color: #E5E7EB; }
+  .st-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: .7rem 2rem; flex-wrap: wrap; padding: .9rem 1.4rem; border-bottom: 1px solid rgba(148,163,184,.16); }
+  .st-title { font-family: var(--font-display); font-size: clamp(1.25rem, 1.9vw, 1.8rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; color: #fff; }
+  .st-rail { display: flex; gap: .4rem; list-style: none; padding: 0; margin: 0; }
+  .st-rail button { position: relative; display: flex; align-items: center; gap: .5rem; padding: .45rem .9rem .6rem; border-radius: 10px; overflow: hidden; font-size: 14px; font-weight: 600; color: #A3AEBF; background: rgba(148,163,184,.09); transition: color .2s ease, background-color .2s ease; }
+  .st-rail button:hover { color: #fff; }
+  .st-rail button[aria-current] { color: #fff; background: rgba(249,115,22,.17); }
+  .st-rail-n { font-family: var(--font-mono); font-size: 12px; color: #FDBA74; }
+  .st-rail i { position: absolute; left: 0; bottom: 0; width: 100%; height: 3px; background: var(--accent); transform-origin: left; transform: scaleX(clamp(0, calc(var(--p) * var(--n) - var(--k)), 1)); }
+
+  .st-code { display: grid; align-content: center; min-height: 0; overflow: hidden; padding: .8rem 0; border-right: 1px solid rgba(148,163,184,.16); }
+  .st-lines { grid-area: 1 / 1; list-style: none; margin: 0; padding: 0; font-family: var(--font-mono); font-size: clamp(13px, 1.08vw, 19px); line-height: 1.8;
+    opacity: 0; visibility: hidden; transform: translateY(12px); transition: opacity .3s ease, transform .45s cubic-bezier(.16,.8,.24,1), visibility 0s .3s; }
+  .st-lines.is-on { opacity: 1; visibility: visible; transform: none; transition-delay: .08s, .08s, 0s; }
+  .st-lines li { display: flex; gap: .9rem; padding: 0 1.4rem 0 calc(1.4rem - 3px); border-left: 3px solid transparent; color: #CBD5E1; white-space: nowrap; transition: background-color .12s ease; }
+  .st-lines li.is-active { background: rgba(249,115,22,.14); border-left-color: var(--accent); }
+  .st-ln { color: #8A94A6; user-select: none; }
+  .st-lines .k-rap { color: #F59E0B; font-weight: 600; } .st-lines .k-cut { color: #22C55E; font-weight: 600; } .st-lines .k-arc { color: #38BDF8; font-weight: 600; }
+  .st-lines .k-g { color: #FB923C; } .st-lines .k-m { color: #C4B5FD; } .st-lines .k-t { color: #F9A8D4; } .st-lines .k-fs { color: #86EFAC; } .st-lines .k-ax { color: #F8FAFC; }
+  .st-lines .k-cm { color: #8B98AB; font-style: italic; }
+
+  .st-view { display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; background: #0F1013; }
+  .st-view svg { display: block; width: 100%; height: 100%; min-height: 0; }
+  .st-gridline { stroke: rgba(148,163,184,.13); stroke-width: .25; }
+  .st-stock { fill: rgba(148,163,184,.17); stroke: rgba(203,213,225,.42); stroke-width: .35; }
+  /* odcinek toru: pathLength = 1, więc przesunięcie kreski 1 → 0 odsłania go od początku do końca */
+  .st-seg { fill: none; stroke-dasharray: 1; stroke-dashoffset: calc(1 - clamp(0, (var(--p) - var(--a)) / var(--w), 1)); opacity: clamp(0, calc((var(--p) - var(--a)) * 4000), 1); }
+  .st-swath { stroke: #0A0B0D; stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+  .st-path { stroke-width: .75; stroke-linecap: round; }
+  .st-path.is-cut { stroke: #22C55E; } .st-path.is-arc { stroke: #38BDF8; }
+  /* ruchy szybkie widać tylko w ich operacji — po przejściu do następnej znikają, żeby nie zasłaniać detalu */
+  .st-path.is-rap { stroke: #F59E0B; stroke-width: .45; opacity: min(clamp(0, calc((var(--p) - var(--a)) * 4000), .6), clamp(0, calc((var(--e) - var(--p)) * 60), .6)); }
+  .st-hole { fill: #0A0B0D; stroke: rgba(203,213,225,.5); stroke-width: .4; opacity: clamp(0, calc((var(--p) - var(--a)) / var(--w)), 1); }
+  .st-zero circle { fill: none; stroke: #F97316; stroke-width: .5; } .st-zero path { stroke: #F97316; stroke-width: .35; }
+  .st-zero text { font: 3px var(--font-mono); fill: #F97316; }
+  .st-tool-ring { fill: rgba(249,115,22,.2); stroke: #F97316; stroke-width: .5; transform-box: fill-box; transform-origin: center; transition: transform .3s ease; }
+  .st-tool circle:last-child { fill: #fff; }
+  [data-ch="3"] .st-tool-ring { transform: scale(.6); } /* wiertło ⌀6 */
+  .st-legend { display: flex; flex-wrap: wrap; gap: .3rem 1.3rem; list-style: none; margin: 0; padding: .55rem 1.2rem; border-top: 1px solid rgba(148,163,184,.12); font-family: var(--font-mono); font-size: 12px; color: #94A3B8; }
+  .st-legend li::before { content: ""; display: inline-block; width: 16px; height: 3px; border-radius: 2px; margin-right: .45rem; vertical-align: middle; }
+  .st-legend .is-rap::before { background: #F59E0B; } .st-legend .is-cut::before { background: #22C55E; } .st-legend .is-arc::before { background: #38BDF8; }
+
+  .st-foot { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: .7rem 2rem; padding: .85rem 1.4rem; border-top: 1px solid rgba(148,163,184,.16); }
+  .st-caps { display: grid; flex: 1; min-width: 0; }
+  .st-caps p { grid-area: 1 / 1; max-width: 80ch; font-size: clamp(14.5px, 1.1vw, 17px); line-height: 1.5; color: #D3D8DF;
+    opacity: 0; visibility: hidden; transform: translateY(8px); transition: opacity .3s ease, transform .45s cubic-bezier(.16,.8,.24,1), visibility 0s .3s; }
+  .st-caps p.is-on { opacity: 1; visibility: visible; transform: none; transition-delay: .08s, .08s, 0s; }
+  .st-caps b { font-family: var(--font-display); color: #fff; }
+  .st-foot .btn.ghost { flex: none; white-space: nowrap; background: rgba(255,255,255,.07); color: #fff; border-color: rgba(255,255,255,.3); }
+  .st-foot .btn.ghost:hover { background: rgba(255,255,255,.16); border-color: rgba(255,255,255,.55); }
+
+  /* „ogranicz ruch”: bez przypięcia, gotowy rysunek i wszystkie cztery operacje pod sobą */
+  .st.is-still { height: auto; }
+  .is-still .st-stage { position: static; height: auto; }
+  .is-still .st-code { align-content: start; gap: .9rem; }
+  .is-still .st-lines, .is-still .st-caps p { grid-area: auto; opacity: 1; visibility: visible; transform: none; }
+  .is-still .st-caps { gap: .5rem; }
+  .is-still .st-view svg { height: auto; max-height: 70vh; position: sticky; top: 90px; }
+}
+
+/* Odsłanianie sekcji przy przewijaniu: nagłówek, potem kafelki po kolei. Wypełnienie „backwards”,
+   żeby po zakończeniu animacja nie blokowała własnych przejść kafelków (hover). */
+.fx-on [data-fx="group"]:not(.is-in) > .section-header,
+.fx-on [data-fx="group"]:not(.is-in) :is(.hub-grid, .nk-pick) > * { opacity: 0; }
+.fx-on [data-fx="group"].is-in > .section-header,
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > * { animation: fx-rise .7s cubic-bezier(.16,.8,.24,1) backwards; }
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > :nth-child(1) { animation-delay: 90ms; }
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > :nth-child(2) { animation-delay: 160ms; }
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > :nth-child(3) { animation-delay: 230ms; }
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > :nth-child(4) { animation-delay: 300ms; }
+.fx-on [data-fx="group"].is-in :is(.hub-grid, .nk-pick) > :nth-child(n+5) { animation-delay: 370ms; }
+@keyframes fx-rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .home-intro::before, .home-intro > *, .hi-cue span { animation: none !important; }
+}
+@media (min-width: 900px) { .is-still .st-tool, .is-still .st-rail { display: none; } }
