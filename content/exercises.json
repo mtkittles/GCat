@@ -19,8 +19,8 @@
     "lessons": [
       "F3.2"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\n(dopisz dalszą część)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X0 Y0 Z5\nG01 Z-3 F100\nG01 X80 F400\nG01 Y50\nG01 X0\nG01 Y0\nG00 Z5\nM30",
+    "starter": "O3001 (PROSTOKAT 80X50)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2000 M03\nM08\nG00 X0. Y0.\nG00 Z5.\n(DOPISZ: ZEJSCIE NA Z-3. I OBIEG KONTURU)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3001 (PROSTOKAT 80X50)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2000 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F100\nG01 X80. F400\nG01 Y50.\nG01 X0.\nG01 Y0.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -63,8 +63,8 @@
     "lessons": [
       "F3.3"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\n(dopisz kontur z czterema lukami R10)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS2000 M03\nG00 X10 Y0 Z5\nG01 Z-3 F100\nG01 X70 F400\nG03 X80 Y10 R10\nG01 Y40\nG03 X70 Y50 R10\nG01 X10\nG03 X0 Y40 R10\nG01 Y10\nG03 X10 Y0 R10\nG00 Z5\nM30",
+    "starter": "O3002 (PROSTOKAT R10)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2000 M03\nM08\nG00 X10. Y0.\nG00 Z5.\nG01 Z-3. F100\n(DOPISZ: KONTUR Z CZTEREMA LUKAMI R10)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3002 (PROSTOKAT R10)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2000 M03\nM08\nG00 X10. Y0.\nG00 Z5.\nG01 Z-3. F100\nG01 X70. F400\nG03 X80. Y10. R10.\nG01 Y40.\nG03 X70. Y50. R10.\nG01 X10.\nG03 X0. Y40. R10.\nG01 Y10.\nG03 X10. Y0. R10.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.15,
     "requireCodes": [
       "G03"
@@ -108,8 +108,8 @@
       "F5.1",
       "F5.4"
     ],
-    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\n(dopisz cykl)\nG00 Z50\nM30",
-    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1200 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-18 R2 F120\nX80\nY50\nX20\nG80\nG00 Z50\nM30",
+    "starter": "O3003 (4 OTWORY G81)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI8.5)\nG00 G43 H1 Z50.\nS1200 M03\nM08\nG00 X20. Y20.\n(DOPISZ: CYKL G81, 4 OTWORY, Z-18. R2.)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3003 (4 OTWORY G81)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI8.5)\nG00 G43 H1 Z50.\nS1200 M03\nM08\nG00 X20. Y20.\nG99 G81 X20. Y20. Z-18. R2. F120\nX80.\nY50.\nX20.\nG80\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G81",
@@ -153,8 +153,8 @@
     "lessons": [
       "F5.2"
     ],
-    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\n(dopisz cykl)\nG80\nG00 Z50\nM30",
-    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS900 M03\nG00 X30 Y30 Z10\nG99 G83 X30 Y30 Z-45 R2 Q6 F100\nG80\nG00 Z50\nM30",
+    "starter": "O3004 (OTWOR GLEBOKI G83)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI8)\nG00 G43 H1 Z50.\nS900 M03\nM08\nG00 X30. Y30.\n(DOPISZ: CYKL G83, Z-45. R2. Q6.)\nG80\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3004 (OTWOR GLEBOKI G83)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI8)\nG00 G43 H1 Z50.\nS900 M03\nM08\nG00 X30. Y30.\nG99 G83 X30. Y30. Z-45. R2. Q6. F100\nG80\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G83"
@@ -201,8 +201,8 @@
     "lessons": [
       "F1.3"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\n(dopisz piec rowkow)\nG90\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS2200 M03\nG00 X10 Y10 Z5\nG91\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG00 X-20 Y15\nG01 Z-7 F100\nG01 X20 F400\nG00 Z7\nG90\nG00 Z5\nM30",
+    "starter": "O3005 (5 ROWKOW G91)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI6)\nG00 G43 H1 Z50.\nS2200 M03\nM08\nG00 X10. Y10.\nG00 Z5.\nG91\n(DOPISZ: PIEC ROWKOW PRZYROSTOWO)\nG90\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3005 (5 ROWKOW G91)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI6)\nG00 G43 H1 Z50.\nS2200 M03\nM08\nG00 X10. Y10.\nG00 Z5.\nG91\nG01 Z-7. F100\nG01 X20. F400\nG00 Z7.\nG00 X-20. Y15.\nG01 Z-7. F100\nG01 X20. F400\nG00 Z7.\nG00 X-20. Y15.\nG01 Z-7. F100\nG01 X20. F400\nG00 Z7.\nG00 X-20. Y15.\nG01 Z-7. F100\nG01 X20. F400\nG00 Z7.\nG00 X-20. Y15.\nG01 Z-7. F100\nG01 X20. F400\nG00 Z7.\nG90\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G91",
@@ -246,8 +246,8 @@
     "lessons": [
       "T5.1"
     ],
-    "starter": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 i G70)\nG00 X60 Z20\nM30",
-    "reference": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X30\nG01 Z-25 F0.2\nX40\nZ-55\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
+    "starter": "O3006 (WALEK STOPNIOWY)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nM08\nG00 X52. Z2.\n(DOPISZ: G71, KONTUR N10-N20 I G70)\nG00 X100. Z100.\nM09\nM05\nM30",
+    "reference": "O3006 (WALEK STOPNIOWY)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nM08\nG00 X52. Z2.\nG71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X30.\nG01 Z-25. F0.2\nX40.\nZ-55.\nN20 X52.\nG70 P10 Q20\nG00 X100. Z100.\nM09\nM05\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G71",
@@ -292,8 +292,8 @@
       "T3.3",
       "T5.1"
     ],
-    "starter": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\n(dopisz G71, kontur N10-N20 z faza, R5 i faza koncowa, potem G70)\nG00 X60 Z20\nM30",
-    "reference": "G18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nG00 X52 Z2\nG71 U2 R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X26\nG01 Z0 F0.15\nX30 Z-2\nZ-20\nG02 X40 Z-25 R5\nG01 Z-45\nX46\nX50 Z-47\nN20 X52\nG70 P10 Q20\nG00 X60 Z20\nM30",
+    "starter": "O3007 (WALEK FAZA R5)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nM08\nG00 X52. Z2.\n(DOPISZ: G71 I KONTUR N10-N20)\n(FAZA, R5, FAZA KONCOWA, POTEM G70)\nG00 X100. Z100.\nM09\nM05\nM30",
+    "reference": "O3007 (WALEK FAZA R5)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG50 S2500\nG96 S180 M03\nM08\nG00 X52. Z2.\nG71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.25\nN10 G00 X26.\nG01 Z0. F0.15\nX30. Z-2.\nZ-20.\nG02 X40. Z-25. R5.\nG01 Z-45.\nX46.\nX50. Z-47.\nN20 X52.\nG70 P10 Q20\nG00 X100. Z100.\nM09\nM05\nM30",
     "tolerance": 0.15,
     "requireCodes": [
       "G71",
@@ -335,8 +335,8 @@
     "lessons": [
       "F6.2"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz dwa przejscia)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG01 Z-6 F100\nG01 X65 F400\nG01 Y45\nG01 X15\nG01 Y15\nG00 Z5\nM30",
+    "starter": "O3008 (KIESZEN 60X40)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2400 M03\nM08\nG00 X15. Y15.\nG00 Z5.\n(DOPISZ: DWA PRZEJSCIA PO 3 MM)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3008 (KIESZEN 60X40)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2400 M03\nM08\nG00 X15. Y15.\nG00 Z5.\nG01 Z-3. F100\nG01 X65. F400\nG01 Y45.\nG01 X15.\nG01 Y15.\nG01 Z-6. F100\nG01 X65. F400\nG01 Y45.\nG01 X15.\nG01 Y15.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -380,8 +380,8 @@
     "lessons": [
       "F4.2"
     ],
-    "starter": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\n(dopisz kontur z G41 i G40)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54 G40\nS2200 M03\nG00 X-20 Y-20 Z5\nG01 Z-4 F100\nG41 D1 X0 Y0 F350\nG01 Y45\nG01 X70\nG01 Y0\nG01 X0\nG40 X-20 Y-20\nG00 Z5\nM30",
+    "starter": "O3009 (KONTUR Z G41)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2200 M03\nM08\nG00 X-20. Y-20.\nG00 Z5.\nG01 Z-4. F100\n(DOPISZ: KONTUR Z G41 I G40)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3009 (KONTUR Z G41)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2200 M03\nM08\nG00 X-20. Y-20.\nG00 Z5.\nG01 Z-4. F100\nG41 D1 X0. Y0. F350\nG01 Y45.\nG01 X70.\nG01 Y0.\nG01 X0.\nG40 X-20. Y-20.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G41",
@@ -425,8 +425,8 @@
     "lessons": [
       "F5.3"
     ],
-    "starter": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\n(wiercenie G81)\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(M29 - TRYB SZTYWNY, KOD ZALEZY OD MASZYNY)\nM29 S500\n(gwintowanie G84)\nG80\nG00 Z50\nM30",
-    "reference": "G21 G90 G94 G17 G54 G80\nT01 M06\nG43 H01 Z50\nS1500 M03\nG00 X20 Y20 Z10\nG99 G81 X20 Y20 Z-20 R2 F150\nX70\nY45\nX20\nG80\nT02 M06\nG43 H02 Z50\nS500 M03\n(M29 - TRYB SZTYWNY, KOD ZALEZY OD MASZYNY)\nM29 S500\nG99 G84 X20 Y20 Z-15 R5 F625\nX70\nY45\nX20\nG80\nG00 Z50\nM30",
+    "starter": "O3010 (4 X M8)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI6.8)\nG00 G43 H1 Z50.\nS1500 M03\nM08\nG00 X20. Y20.\n(DOPISZ: WIERCENIE G81, Z-20. R2.)\nG80\nG00 Z50.\nM09\nM05\nT2 M06 (GWINTOWNIK M8)\nG00 G43 H2 Z50.\nS500 M03\nM08\n(M29 - TRYB SZTYWNY, ZALEZY OD MASZYNY)\nM29 S500\nG00 X20. Y20.\n(DOPISZ: GWINTOWANIE G84 NA Z-15.)\nG80\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3010 (4 X M8)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (WIERTLO FI6.8)\nG00 G43 H1 Z50.\nS1500 M03\nM08\nG00 X20. Y20.\nG99 G81 X20. Y20. Z-20. R2. F150\nX70.\nY45.\nX20.\nG80\nG00 Z50.\nM09\nM05\nT2 M06 (GWINTOWNIK M8)\nG00 G43 H2 Z50.\nS500 M03\nM08\n(M29 - TRYB SZTYWNY, ZALEZY OD MASZYNY)\nM29 S500\nG00 X20. Y20.\nG99 G84 X20. Y20. Z-15. R5. F625\nX70.\nY45.\nX20.\nG80\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G81",
@@ -478,8 +478,8 @@
     "lessons": [
       "F6.3"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\n(dopisz trzy zwoje helisy)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS3000 M03\nG00 X25 Y40 Z2\nG01 Z0 F150\nG03 X25 Y40 Z-2 I15 J0 F300\nG03 X25 Y40 Z-4 I15 J0\nG03 X25 Y40 Z-6 I15 J0\nG00 Z5\nM30",
+    "starter": "O3011 (WEJSCIE PO HELISIE)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS3000 M03\nM08\nG00 X25. Y40.\nG00 Z2.\nG01 Z0. F150\n(DOPISZ: TRZY ZWOJE HELISY G03)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3011 (WEJSCIE PO HELISIE)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS3000 M03\nM08\nG00 X25. Y40.\nG00 Z2.\nG01 Z0. F150\nG03 X25. Y40. Z-2. I15. J0. F300\nG03 X25. Y40. Z-4. I15. J0.\nG03 X25. Y40. Z-6. I15. J0.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G03"
@@ -521,8 +521,8 @@
     "lessons": [
       "F7.1"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\n(dopisz trzy rowki)\nG00 Z5\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS2400 M03\nG00 X15 Y15 Z5\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y35\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nG00 X15 Y55\nG01 Z-3 F100\nG01 X40 F400\nG00 Z5\nM30",
+    "starter": "O3012 (3 ROWKI)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI6)\nG00 G43 H1 Z50.\nS2400 M03\nM08\nG00 X15. Y15.\nG00 Z5.\n(DOPISZ: TRZY ROWKI, ZAPIS DOWOLNY)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3012 (3 ROWKI)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI6)\nG00 G43 H1 Z50.\nS2400 M03\nM08\nG00 X15. Y15.\nG00 Z5.\nG01 Z-3. F100\nG01 X40. F400\nG00 Z5.\nG00 X15. Y35.\nG01 Z-3. F100\nG01 X40. F400\nG00 Z5.\nG00 X15. Y55.\nG01 Z-3. F100\nG01 X40. F400\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -549,10 +549,10 @@
     "title": "Planowanie powierzchni",
     "level": 2,
     "mode": "mill",
-    "brief": "Splanuj powierzchnię 100 × 60 mm głowicą ⌀50, zdejmując 1 mm. Wykonaj trzy przejścia wzdłuż osi X w liniach Y15, Y30 i Y45, wychodząc poza materiał po obu stronach: od X-30 do X130.",
+    "brief": "Splanuj powierzchnię 100 × 60 mm głowicą ⌀50, zdejmując 1 mm: góra półfabrykatu jest na Z+1, gotowa płaszczyzna na Z0. Wykonaj trzy przejścia wzdłuż osi X w liniach Y15, Y30 i Y45, wychodząc poza materiał po obu stronach: od X-30 do X130.",
     "goal": "Planowanie powierzchni 100 × 60 mm głowicą ⌀50.",
     "steps": [
-      "Zdejmij 1 mm z powierzchni 100 × 60 mm.",
+      "Zdejmij 1 mm z powierzchni 100 × 60 mm: góra półfabrykatu jest na Z+1, gotowa płaszczyzna na Z0.",
       "Trzy przejścia wzdłuż osi X w liniach Y15, Y30 i Y45.",
       "Wyjdź poza materiał po obu stronach: od X-30 do X130."
     ],
@@ -564,8 +564,8 @@
     "lessons": [
       "F6.1"
     ],
-    "starter": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\n(dopisz trzy przejscia)\nG00 Z50\nM30",
-    "reference": "G21 G90 G94 G17 G54\nS1600 M03\nG00 X-30 Y15 Z5\nG01 Z-1 F150\nG01 X130 F800\nG01 Y30\nG01 X-30\nG01 Y45\nG01 X130\nG00 Z50\nM30",
+    "starter": "O3013 (PLANOWANIE 100X60)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (GLOWICA FI50)\nG00 G43 H1 Z50.\nS1600 M03\nM08\nG00 X-30. Y15.\nG00 Z5.\n(DOPISZ: TRZY PRZEJSCIA Y15, Y30, Y45)\nG00 Z50.\nM09\nM05\nM30",
+    "reference": "O3013 (PLANOWANIE 100X60)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (GLOWICA FI50)\nG00 G43 H1 Z50.\nS1600 M03\nM08\nG00 X-30. Y15.\nG00 Z5.\nG01 Z0. F150\nG01 X130. F800\nG01 Y30.\nG01 X-30.\nG01 Y45.\nG01 X130.\nG00 Z50.\nM09\nM05\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G01"
@@ -609,8 +609,8 @@
       "T2.3",
       "T3.2"
     ],
-    "starter": "G18 G21 G40 G80 G99\nG54\nG97 S1200 M03\nG00 X42 Z0\n(dopisz planowanie, faze i toczenie)\nG00 X42 Z2\nM30",
-    "reference": "G18 G21 G40 G80 G99\nG54\nG97 S1200 M03\nG00 X42 Z0\nG01 X-1.6 F0.15\nG00 X28 Z2\nG01 X36 Z-2 F0.25\nG01 Z-30\nG01 X42\nG00 X42 Z2\nM30",
+    "starter": "O3014 (CZOLO I FAZA)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG97 S1200 M03\nM08\nG00 X42. Z0.\n(DOPISZ: PLANOWANIE, FAZE I TOCZENIE)\nG00 X100. Z100.\nM09\nM05\nM30",
+    "reference": "O3014 (CZOLO I FAZA)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG97 S1200 M03\nM08\nG00 X42. Z0.\nG01 X-1.6 F0.15\nG00 X28. Z2.\nG01 X36. Z-2. F0.25\nG01 Z-30.\nG01 X42.\nG00 X100. Z100.\nM09\nM05\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -621,7 +621,7 @@
       "len": 50
     },
     "tools": {
-      "1": {
+      "101": {
         "kind": "turning",
         "name": "Nóż zewnętrzny CNMG 120408",
         "d": 0.8,
@@ -652,8 +652,8 @@
       "T0.2",
       "T3.1"
     ],
-    "starter": "G18 G21 G40 G80 G99\nG54\nG97 S1000 M03\nG00 X62 Z2\n(dopisz cztery przejscia zgrubne)\nM30",
-    "reference": "G18 G21 G40 G80 G99\nG54\nG97 S1000 M03\nG00 X62 Z2\nG01 X56 F0.3\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X52\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X48\nG01 Z-40\nG00 X62\nG00 Z2\nG01 X44\nG01 Z-40\nG00 X62\nG00 Z2\nM30",
+    "starter": "O3015 (PRZEJSCIA ZGRUBNE)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG97 S1000 M03\nM08\nG00 X62. Z2.\n(DOPISZ: CZTERY PRZEJSCIA ZGRUBNE)\nG00 X100. Z100.\nM09\nM05\nM30",
+    "reference": "O3015 (PRZEJSCIA ZGRUBNE)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG 120408)\nG97 S1000 M03\nM08\nG00 X62. Z2.\nG01 X56. F0.3\nG01 Z-40.\nG00 X62.\nG00 Z2.\nG01 X52.\nG01 Z-40.\nG00 X62.\nG00 Z2.\nG01 X48.\nG01 Z-40.\nG00 X62.\nG00 Z2.\nG01 X44.\nG01 Z-40.\nG00 X62.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
     "tolerance": 0.1,
     "requireCodes": [
       "G01"
@@ -664,7 +664,7 @@
       "len": 55
     },
     "tools": {
-      "1": {
+      "101": {
         "kind": "turning",
         "name": "Nóż zewnętrzny CNMG 120408",
         "d": 0.8,
@@ -678,11 +678,11 @@
     "title": "Kompletny program wielonarzędziowy",
     "level": 3,
     "mode": "mill",
-    "brief": "Napisz kompletny program: T01 frezuje kontur prostokąta 90 × 55 mm od X0 Y0 na głębokość 5 mm (dojazd i odjazd przez X-10 Y-10), T02 wierci dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27 cyklem G81. Każde narzędzie ma mieć wymianę, korekcję długości G43, obroty, chłodziwo i odjazd na Z50.",
+    "brief": "Napisz kompletny program: T1 frezuje kontur prostokąta 90 × 55 mm od X0 Y0 na głębokość 5 mm (dojazd i odjazd przez X-10 Y-10), T2 wierci dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27 cyklem G81. Każde narzędzie ma mieć wymianę, korekcję długości G43, obroty, chłodziwo i odjazd na Z50.",
     "goal": "Kompletny program na dwa narzędzia: kontur i dwa otwory.",
     "steps": [
-      "T01: kontur prostokąta 90 × 55 mm od X0 Y0, głębokość 5 mm, dojazd i odjazd przez X-10 Y-10.",
-      "T02: dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27, cykl G81.",
+      "T1: kontur prostokąta 90 × 55 mm od X0 Y0, głębokość 5 mm, dojazd i odjazd przez X-10 Y-10.",
+      "T2: dwa otwory ⌀8 na głębokość 22 mm w punktach X25 Y27 i X65 Y27, cykl G81.",
       "Każde narzędzie: wymiana, korekcja długości G43, obroty, chłodziwo i odjazd na Z50."
     ],
     "hints": [
@@ -694,8 +694,8 @@
       "F1.5",
       "F4.1"
     ],
-    "starter": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\n(T01 — kontur)\n(T02 — otwory)\nM30",
-    "reference": "O0500\nG21 G90 G94 G17 G54 G40 G49 G80\nT01 M06\nG43 H01 Z50\nS2200 M03\nM08\nG00 X-10 Y-10\nG00 Z2\nG01 Z-5 F120\nG01 X0 Y0 F400\nG01 X90\nG01 Y55\nG01 X0\nG01 Y0\nG01 X-10 Y-10\nG00 Z50\nM09\nM05\nT02 M06\nG43 H02 Z50\nS1400 M03\nM08\nG99 G81 X25 Y27 Z-22 R2 F130\nX65\nG80\nG00 Z50\nM09\nM05\nG91 G28 Z0\nG90\nM30",
+    "starter": "O3016 (KONTUR I 2 OTWORY)\nG21 G90 G94 G17\nG40 G49 G80\nG54\n(DOPISZ: T1 - KONTUR 90X55 NA Z-5.)\n(DOPISZ: T2 - DWA OTWORY G81 NA Z-22.)\nM30",
+    "reference": "O3016 (KONTUR I 2 OTWORY)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2200 M03\nM08\nG00 X-10. Y-10.\nG00 Z2.\nG01 Z-5. F120\nG01 X0. Y0. F400\nG01 X90.\nG01 Y55.\nG01 X0.\nG01 Y0.\nG01 X-10. Y-10.\nG00 Z50.\nM09\nM05\nT2 M06 (WIERTLO FI8)\nG00 G43 H2 Z50.\nS1400 M03\nM08\nG00 X25. Y27.\nG99 G81 X25. Y27. Z-22. R2. F130\nX65.\nG80\nG00 Z50.\nM09\nM05\nG91 G28 Z0.\nG90\nM30",
     "tolerance": 0.05,
     "requireCodes": [
       "G43",
