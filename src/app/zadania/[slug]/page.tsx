@@ -5,6 +5,7 @@ import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import Chip from "@/components/ui/Chip";
 import { exerciseBySlug, exercises, type Exercise } from "@/lib/content";
 import { flat, lessonHref, type Track } from "@/lib/course";
+import { EXERCISE_FIGS } from "@/components/zadania/figs";
 
 export function generateStaticParams() { return exercises.map((e) => ({ slug: e.slug })); }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -34,7 +35,8 @@ function taskData(e: Exercise): [string, string][] {
   const s = e.stock;
   if (s?.d != null && s.len != null) rows.push(["Półfabrykat", `pręt ⌀${num(s.d)} × ${num(s.len)} mm`]);
   else if (s?.x != null && s.y != null && s.z != null) rows.push(["Półfabrykat", `${num(s.x)} × ${num(s.y)} × ${num(s.z)} mm`]);
-  for (const [no, t] of Object.entries(e.tools ?? {})) rows.push([`T${e.mode === "lathe" ? no.padStart(4, "0") : no.padStart(2, "0")}`, t.name]);
+  // numer jak w programie: frezarka T1, tokarka T0101 (klucz 101 = numer narzędzia i korekcji)
+  for (const [no, t] of Object.entries(e.tools ?? {})) rows.push([`T${e.mode === "lathe" ? no.padStart(4, "0") : no}`, t.name]);
   rows.push(["Zapis", PROFILE[e.mode]]);
   return rows;
 }
@@ -43,6 +45,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   const e = exerciseBySlug((await params).slug); if (!e) notFound();
   const i = exercises.indexOf(e); const next = exercises[i + 1]; const prev = exercises[i - 1];
   const links = lessonLinks(e.lessons);
+  const Drawing = EXERCISE_FIGS[e.slug];
   return (
     <article className="task">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/zadania", label: "Zadania" }, { label: `Zadanie ${i + 1}` }]} />
@@ -58,6 +61,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         {e.steps?.length ? (
           <>
             {e.goal && <p className="task-goal">{e.goal}</p>}
+            {Drawing && <div className="task-fig"><Drawing /></div>}
             <section aria-labelledby="task-steps-h">
               <h2 id="task-steps-h" className="task-h">Co zrobić</h2>
               <ol className="task-steps">{e.steps.map((s, k) => <li key={k}>{s}</li>)}</ol>

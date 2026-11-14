@@ -65,6 +65,15 @@ for (const p of kart) {
   const r = profil({ src: p.src, mode: p.mode, dialect: p.dialect, kind: p.full ? "program" : "fragment" });
   if (r.length) { profile++; console.log(`✗ profil ${p.where}`); r.forEach((x) => console.log("   " + x)); }
 }
+// Zadania (paczka UB2): wzorzec w pełnym profilu; starter sprawdzany tylko pod kątem zapisu
+// (kropka, komentarz, długość linii, łącznik) — brakujące bloki ma dopisać uczący się.
+const FORMAT = /kropki|znaków|minus|komentarz/;
+for (const e of exercises) {
+  for (const [what, src, full] of [["wzorzec", e.reference, true], ["starter", e.starter, false]] as const) {
+    const r = profil({ src, mode: e.mode, kind: "program" }).filter((x) => full || FORMAT.test(x));
+    if (r.length) { profile++; console.log(`✗ profil zadania/${e.slug} ${what}`); r.forEach((x) => console.log("   " + x)); }
+  }
+}
 // Przykład bez podglądu, który symulator odtworzyłby w całości i bez ostrzeżeń, powinien mieć podgląd.
 for (const p of kart.filter((x) => x.kind === "example" && !x.simulate && x.full)) {
   const g = simGaps(p.src, p.mode);
