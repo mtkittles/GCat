@@ -1571,9 +1571,13 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 /* wybór ścieżki */
 .nk-pick { display: grid; gap: .9rem; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); }
 .nk-card { display: grid; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: var(--card); }
-.nk-main { position: relative; display: block; min-height: 12.5rem; isolation: isolate; }
-.nk-photo { object-fit: cover; z-index: -2; transition: transform .5s ease; }
-.nk-main:hover .nk-photo { transform: scale(1.03); }
+.nk-main { position: relative; display: block; min-height: 12.5rem; isolation: isolate; overflow: hidden; }
+/* Kafelki ze zdjęciem (ścieżki .nk-card i działy .hub-tile): jedno zachowanie przy najechaniu —
+   pomarańczowa ramka i lekkie powiększenie zdjęcia. */
+.nk-photo { object-fit: cover; z-index: -2; transition: transform .6s cubic-bezier(.16,.8,.24,1); }
+.nk-card, .hub-tile { transition: border-color .2s ease; }
+.nk-card:hover, .nk-card:focus-within, .hub-tile:hover, .hub-tile:focus-visible { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.nk-card:hover .nk-photo, .nk-card:focus-within .nk-photo, .hub-tile:hover .nk-photo, .hub-tile:focus-visible .nk-photo { transform: scale(1.06); }
 .nk-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(17,18,20,.15) 0%, rgba(17,18,20,.55) 45%, rgba(17,18,20,.94) 100%); }
 .nk-body { position: absolute; left: 1rem; right: 1rem; bottom: .95rem; display: grid; gap: .2rem; color: #F5F5F4; }
 .nk-body b { font-family: var(--font-display); font-size: 1.65rem; font-weight: 700; letter-spacing: -.03em; line-height: 1.1; }
@@ -2516,13 +2520,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .dash-grid.dash-grid-4 { grid-template-columns: repeat(2, 1fr); }
 @media (max-width: 767px) { .home-access { display: none; } }
 /* delikatny, powolny ruch zdjęcia na kartach ścieżek — wyłączony przy ograniczeniu animacji */
-@keyframes nk-drift { 0% { transform: scale(1.04) translate(0, 0); } 50% { transform: scale(1.09) translate(-1.5%, -1%); } 100% { transform: scale(1.04) translate(0, 0); } }
-.nk-photo { animation: nk-drift 18s ease-in-out infinite; }
-.nk-card:nth-child(2) .nk-photo { animation-delay: -9s; }
-.nk-main:hover .nk-photo { animation-play-state: paused; }
-.nk-main::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(115deg, transparent 40%, rgba(249,115,22,.16) 50%, transparent 60%); background-size: 250% 100%; background-position: 120% 0; transition: background-position .9s ease; }
-.nk-main:hover::after { background-position: -20% 0; }
-@media (prefers-reduced-motion: reduce) { .nk-photo { animation: none; } .nk-main::after { transition: none; } }
 
 /* ===== Symulator: jeden pasek na dole zamiast dwóch ===== */
 .m-simtabs-home { display: none; }
@@ -2826,8 +2823,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .hub-tile { position: relative; display: block; overflow: hidden; isolation: isolate; grid-column: span 2; min-height: 11.5rem;
   border-radius: 18px; border: 1px solid var(--line); background: #0b0d11; transition: border-color .16s ease; }
 .hub-tile.is-big { grid-column: span 3; min-height: 14rem; }
-.hub-tile:hover { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
-.hub-tile:hover .nk-photo { transform: scale(1.03); }
 .hub-tile:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
 .hub-body { position: absolute; left: 1rem; right: 1rem; bottom: .9rem; display: grid; gap: .2rem; color: #F5F5F4; }
 .hub-body b { font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; letter-spacing: -.02em; line-height: 1.15; }
@@ -3188,16 +3183,20 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 @keyframes hi-settle { from { transform: scale(1.07); opacity: .4; } to { transform: none; opacity: 1; } }
 @keyframes hi-bob { 0%, 100% { translate: 0 -2px; } 50% { translate: 0 3px; } }
 
-/* Program blok po bloku (komputer). .st ma wysokość okna + drogę przewijania; .st-stage jest przypięta.
+/* Program blok po bloku (komputer): odtwarza się sam, gdy sekcję widać.
    --p (0–1) ustawia StoryStage.tsx; bez JS zostaje 1, czyli gotowy rysunek. */
 .st { display: none; }
 @media (min-width: 900px) {
-  .st { display: block; --p: 1; height: calc(100dvh - 86px + var(--n) * 62vh); scroll-margin-top: 74px; }
-  .st-stage { position: sticky; top: 74px; height: calc(100dvh - 86px); min-height: 430px; display: grid; grid-template-columns: minmax(300px, .74fr) minmax(0, 1.26fr); grid-template-rows: auto minmax(0, 1fr) auto;
+  .st { display: block; --p: 1; scroll-margin-top: 74px; }
+  .st-stage { height: clamp(450px, calc(100dvh - 86px), 680px); display: grid; grid-template-columns: minmax(300px, .74fr) minmax(0, 1.26fr); grid-template-rows: auto minmax(0, 1fr) auto;
     background: #141518; border: 1px solid #2A2B30; border-radius: 20px; overflow: hidden; color: #E5E7EB; }
-  .st-head { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: .7rem 2rem; flex-wrap: wrap; padding: .9rem 1.4rem; border-bottom: 1px solid rgba(148,163,184,.16); }
+  .st-head { grid-column: 1 / -1; display: flex; align-items: center; gap: .7rem .6rem; flex-wrap: wrap; padding: .9rem 1.4rem; border-bottom: 1px solid rgba(148,163,184,.16); }
   .st-title { font-family: var(--font-display); font-size: clamp(1.25rem, 1.9vw, 1.8rem); font-weight: 700; letter-spacing: -.01em; line-height: 1.2; color: #fff; }
+  .st-title { margin-right: auto; padding-right: 1.4rem; }
   .st-rail { display: flex; gap: .4rem; list-style: none; padding: 0; margin: 0; }
+  .st-play { display: flex; align-items: center; gap: .45rem; padding: .45rem .9rem .6rem; border-radius: 10px; font-size: 14px; font-weight: 600; color: #fff; border: 1px solid rgba(255,255,255,.28); min-width: 6.6rem; justify-content: center; transition: background-color .2s ease, border-color .2s ease; }
+  .st-play:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.5); }
+  .st-play svg { width: 13px; height: 13px; fill: currentColor; }
   .st-rail button { position: relative; display: flex; align-items: center; gap: .5rem; padding: .45rem .9rem .6rem; border-radius: 10px; overflow: hidden; font-size: 14px; font-weight: 600; color: #A3AEBF; background: rgba(148,163,184,.09); transition: color .2s ease, background-color .2s ease; }
   .st-rail button:hover { color: #fff; }
   .st-rail button[aria-current] { color: #fff; background: rgba(249,115,22,.17); }
@@ -3247,7 +3246,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
   /* „ogranicz ruch”: bez przypięcia, gotowy rysunek i wszystkie cztery operacje pod sobą */
   .st.is-still { height: auto; }
-  .is-still .st-stage { position: static; height: auto; }
+  .is-still .st-stage { height: auto; }
   .is-still .st-code { align-content: start; gap: .9rem; }
   .is-still .st-lines, .is-still .st-caps p { grid-area: auto; opacity: 1; visibility: visible; transform: none; }
   .is-still .st-caps { gap: .5rem; }
@@ -3269,4 +3268,4 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 @media (prefers-reduced-motion: reduce) {
   .home-intro::before, .home-intro > *, .hi-cue span { animation: none !important; }
 }
-@media (min-width: 900px) { .is-still .st-tool, .is-still .st-rail { display: none; } }
+@media (min-width: 900px) { .is-still .st-tool, .is-still .st-rail, .is-still .st-play { display: none; } }

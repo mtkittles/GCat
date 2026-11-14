@@ -4,14 +4,17 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { pointAt, segAt, type Story } from "@/lib/storyPath";
 
 /*
-  Strona główna, komputer: program pokazowy rozłożony na operacje. Sekcja jest przypięta pod nagłówkiem,
-  a przewijanie strony prowadzi narzędzie po torze — postęp 0–1 trafia do zmiennej CSS --p, z której
-  każdy odcinek sam wylicza, ile jest narysowany (globals.css, .st-*). JS ustawia tylko --p, położenie
-  narzędzia i bieżący rozdział. Bez JS i przy „ogranicz ruch” sekcja jest zwykłym, w pełni narysowanym blokiem.
+  Strona główna, komputer: program pokazowy rozłożony na operacje i odtwarzany sam, gdy sekcję widać.
+  Postęp 0–1 trafia do zmiennej CSS --p, z której każdy odcinek toru sam wylicza, ile jest narysowany
+  (globals.css, .st-*). JS ustawia tylko --p, położenie narzędzia i bieżącą operację. Przycisk pauzy
+  zatrzymuje ruch, przyciski 1–4 przeskakują do operacji. Bez JS i przy „ogranicz ruch” sekcja jest
+  w pełni narysowanym, nieruchomym blokiem.
+  (Pierwsza wersja wiązała postęp z przewijaniem strony — wymagała za dużo kręcenia kółkiem.)
 */
 export type StoryOp = { title: string; text: string };
 
-const TOP = 74; // nagłówek strony + odstęp; ta sama wartość co `top` w .st-stage
+const DURATION = 26000; // ms na cały program: ok. 6,5 s na operację, z czego 20% to postój na gotowej operacji
+const END_HOLD = 2600; // ms z gotowym detalem przed powtórką
 const cls = { rapid: "is-rap", linear: "is-cut", arc: "is-arc" } as const;
 const sv = (o: Record<string, number>) => o as unknown as CSSProperties;
 
@@ -32,62 +35,68 @@ function tokens(raw: string) {
 
 export default function StoryStage({ story, ops, simHref }: { story: Story; ops: StoryOp[]; simHref: string }) {
   const N = ops.length;
-  const wrap = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const tool = useRef<SVGGElement>(null);
   const [ch, setCh] = useState(0);
   const [line, setLine] = useState(-1);
   const [still, setStill] = useState(false);
+  const [playing, setPlaying] = useState(true);
+  // stan odtwarzania poza Reactem: postęp 0–1 i sterowanie pętlą animacji
+  const prog = useRef(0);
+  const wantPlay = useRef(true);
+  const ctl = useRef<{ kick: () => void; halt: () => void; show: (p: number) => void } | null>(null);
 
   useEffect(() => {
-    const w = wrap.current, s = stage.current;
-    if (!w || !s) return;
+    const s = stage.current;
+    if (!s) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
     const wide = window.matchMedia("(min-width: 900px)");
-    let raf = 0, cur = -1, target = 0, on = false;
+    let raf = 0, last = 0, hold = 0, visible = false, run = false;
 
-    const apply = (p: number) => {
+    const show = (p: number) => {
       s.style.setProperty("--p", p.toFixed(4));
       const [x, y] = pointAt(story.segs, p);
       tool.current?.setAttribute("transform", `translate(${x.toFixed(2)} ${(-y).toFixed(2)})`);
-      const sg = story.segs[segAt(story.segs, p)];
       setCh(Math.min(N - 1, Math.floor(p * N)));
-      setLine(p <= 0 ? -1 : sg.line);
+      setLine(p <= 0 ? -1 : story.segs[segAt(story.segs, p)].line);
     };
-    const read = () => {
-      const span = w.offsetHeight - s.offsetHeight;
-      target = span > 0 ? Math.min(1, Math.max(0, (TOP - w.getBoundingClientRect().top) / span)) : 0;
-    };
-    // wygładzenie: wyświetlany postęp dogania pozycję przewijania, więc skok kółka myszy nie szarpie rysunkiem
-    const tick = () => {
+    const frame = (t: number) => {
       raf = 0;
-      cur = cur < 0 ? target : cur + (target - cur) * 0.16;
-      if (Math.abs(target - cur) < 0.0004) cur = target;
-      apply(cur);
-      if (cur !== target) raf = requestAnimationFrame(tick);
+      const dt = last ? Math.min(64, t - last) : 0; // po powrocie na kartę nie przeskakujemy
+      last = t;
+      if (prog.current >= 1) { hold += dt; if (hold > END_HOLD) { hold = 0; prog.current = 0; } }
+      else prog.current = Math.min(1, prog.current + dt / DURATION);
+      show(prog.current);
+      kick();
     };
-    const onScroll = () => { read(); if (!raf) raf = requestAnimationFrame(tick); };
+    const kick = () => { if (!raf && run && visible && wantPlay.current) raf = requestAnimationFrame(frame); };
+    const halt = () => { if (raf) cancelAnimationFrame(raf); raf = 0; last = 0; };
+    ctl.current = { kick, halt, show };
+
+    // odtwarzamy tylko wtedy, gdy sekcję widać — poza ekranem animacja stoi
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) kick(); else halt(); }, { threshold: 0.35 });
     const start = () => {
-      const run = wide.matches && !reduce.matches;
+      run = wide.matches && !reduce.matches;
       setStill(!run);
-      if (run && !on) { on = true; window.addEventListener("scroll", onScroll, { passive: true }); window.addEventListener("resize", onScroll); onScroll(); }
-      if (!run && on) { on = false; window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); }
-      if (!run) { if (raf) cancelAnimationFrame(raf); raf = 0; cur = -1; s.style.removeProperty("--p"); }
+      if (run) { show(prog.current); io.observe(s); }
+      else { halt(); io.unobserve(s); s.style.removeProperty("--p"); }
     };
     start();
     reduce.addEventListener("change", start); wide.addEventListener("change", start);
-    return () => {
-      reduce.removeEventListener("change", start); wide.removeEventListener("change", start);
-      window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
+    return () => { reduce.removeEventListener("change", start); wide.removeEventListener("change", start); io.disconnect(); halt(); ctl.current = null; };
   }, [story, N]);
 
+  const toggle = () => {
+    wantPlay.current = !wantPlay.current;
+    setPlaying(wantPlay.current);
+    if (wantPlay.current) ctl.current?.kick(); else ctl.current?.halt();
+  };
+  // skok do początku operacji; odtwarzanie rusza od niej
   const go = (k: number) => {
-    const w = wrap.current, s = stage.current;
-    if (!w || !s) return;
-    const span = w.offsetHeight - s.offsetHeight;
-    window.scrollTo({ top: window.scrollY + w.getBoundingClientRect().top - TOP + span * ((k + 0.72) / N), behavior: "smooth" });
+    prog.current = k / N + 0.0005;
+    ctl.current?.show(prog.current);
+    wantPlay.current = true; setPlaying(true);
+    ctl.current?.kick();
   };
 
   const { box } = story;
@@ -96,7 +105,7 @@ export default function StoryStage({ story, ops, simHref }: { story: Story; ops:
   const end = story.segs[story.segs.length - 1].to;
 
   return (
-    <div ref={wrap} className={`st${still ? " is-still" : ""}`} id="program" style={sv({ "--n": N })}>
+    <div className={`st${still ? " is-still" : ""}`} id="program" style={sv({ "--n": N })}>
       <div ref={stage} className="st-stage" data-ch={ch}>
         <header className="st-head">
           <h2 className="st-title">Jeden program, cztery operacje</h2>
@@ -109,6 +118,10 @@ export default function StoryStage({ story, ops, simHref }: { story: Story; ops:
               </li>
             ))}
           </ol>
+          <button type="button" className="st-play" onClick={toggle} aria-label={playing ? "Zatrzymaj animację programu" : "Odtwórz animację programu"}>
+            <svg viewBox="0 0 16 16" aria-hidden>{playing ? <path d="M4 3h3v10H4zM9 3h3v10H9z" /> : <path d="M4.5 2.5v11l9-5.5z" />}</svg>
+            {playing ? "Pauza" : "Odtwórz"}
+          </button>
         </header>
 
         <div className="st-code">

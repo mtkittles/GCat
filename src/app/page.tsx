@@ -53,7 +53,7 @@ export default function Home() {
 
       {/* 3: wybór ścieżki */}
       <section className="grid gap-4" data-fx="group">
-        <SectionHeader eyebrow="Nauka" title="Frezowanie czy toczenie?"
+        <SectionHeader eyebrow="Nauka" title="Wybierz ścieżkę nauki"
           lead="Każda ścieżka prowadzi od osi maszyny do kompletnego programu detalu." />
         <TrackPicker />
       </section>
