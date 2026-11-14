@@ -13,7 +13,7 @@ export const FEATURES: Record<Feature, { label: string; desc: string; plan: Plan
   multiaxis: { label: "Symulator 4 i 5 osi", desc: "Oś obrotowa A, obróbka 3+2, kinematyka stołu.", plan: "pro", soon: true },
   exports: { label: "Eksport z symulatora", desc: "Tor jako SVG i wynik obróbki 3D jako STL (PNG podglądu jest bezpłatny).", plan: "pro" },
   unlimitedPrograms: { label: "Nielimitowane programy", desc: "Więcej niż 20 zapisanych programów w symulatorze.", plan: "pro", soon: true },
-  flashcards: { label: "Fiszki z powtórkami", desc: "Karty kodów i słownik jako fiszki z powtórkami Leitnera (Free: 15 fiszek ze słownika).", plan: "pro" },
+  flashcards: { label: "Fiszki z powtórkami", desc: "Słownik, wzory i kody pytane w obie strony jako fiszki z powtórkami Leitnera (Free: 15 fiszek ze słownika).", plan: "pro" },
 };
 
 export const PLAN_LABEL: Record<Plan, string> = { free: "Free", pro: "Pro" };

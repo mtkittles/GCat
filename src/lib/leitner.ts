@@ -20,6 +20,32 @@ export function dueCards(deck: Deck, ids: string[], now = Date.now(), newLimit =
   return [...due, ...fresh];
 }
 
+/** Tasowanie Fishera–Yatesa; `rnd` jak Math.random (wstrzykiwane w testach). */
+export function shuffle<T>(arr: readonly T[], rnd: () => number = Math.random): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/**
+  Kolejka jednej tury: najpierw karty zaległe, potem nowe — obie grupy w losowej kolejności.
+  `size` ogranicza długość tury; zaległe mają pierwszeństwo przed nowymi.
+*/
+export function buildSession(deck: Deck, ids: string[], o: { now?: number; size?: number; rnd?: () => number } = {}): string[] {
+  const now = o.now ?? Date.now(), rnd = o.rnd ?? Math.random, size = o.size ?? Infinity;
+  const due = shuffle(ids.filter((id) => deck[id] && deck[id].due <= now), rnd);
+  const fresh = shuffle(ids.filter((id) => !deck[id]), rnd);
+  return [...due, ...fresh].slice(0, size);
+}
+
+/** „Nie wiem”: karta wraca w tej samej turze 3–5 pozycji dalej (albo na koniec, gdy kolejka jest krótsza). */
+export function requeue(queue: string[], rnd: () => number = Math.random): string[] {
+  const [id, ...rest] = queue;
+  if (id === undefined) return queue;
+  const at = Math.min(rest.length, 3 + Math.floor(rnd() * 3));
+  return [...rest.slice(0, at), id, ...rest.slice(at)];
+}
+
 export function deckStats(deck: Deck, ids: string[], now = Date.now()) {
   const boxes = [0, 0, 0, 0, 0, 0];
   let due = 0;
