@@ -37,12 +37,30 @@ function Title({ term }: { term: string }) {
 function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
   const fig = e.diagram ? diagrams[e.diagram] : undefined;
   const codes = e.see.map((s) => bySlug(s)).filter((g): g is NonNullable<typeof g> => !!g);
+  // nazwy zamienne bez powtórzeń tytułu („n — obroty wrzeciona” nie pokazuje „n” ani „obroty wrzeciona”)
+  const own = new Set(e.term.split(" — ").concat(e.term).map((t) => t.trim().toLocaleLowerCase("pl")));
+  const also = e.aliases.filter((a) => !own.has(a.trim().toLocaleLowerCase("pl")));
   return (
     <article id={e.anchor} className={`gl-card${fig ? " is-wide" : ""}`}>
       <div className="gl-text">
         <h3><Title term={e.term} /></h3>
-        {e.aliases.length > 0 && <p className="gl-alias">Także: {e.aliases.join(", ")}</p>}
+        {also.length > 0 && <p className="gl-alias">Także: {also.join(", ")}</p>}
         <p className="gl-def">{e.def}</p>
+        {e.formulas?.map((f) => (
+          <div key={f.expr} className="gl-formula">
+            <p className="gl-expr">{f.expr}</p>
+            {f.where.length > 0 && (
+              <ul className="gl-where">
+                {f.where.map((w) => {
+                  // „symbol — znaczenie, jednostka”; wiersz bez myślnika to uwaga do wzoru
+                  const m = w.match(/^(\S{1,3}) — (.+)$/);
+                  return m ? <li key={w}><b>{m[1]}</b><span>{m[2]}</span></li> : <li key={w} className="is-note"><span>{w}</span></li>;
+                })}
+              </ul>
+            )}
+            {f.example && <p className="gl-ex"><b>Przykład.</b> {f.example}</p>}
+          </div>
+        ))}
         {(lessons.length > 0 || codes.length > 0 || !!e.sources?.length) && (
           <dl className="gl-meta">
             {lessons.length > 0 && (
@@ -74,7 +92,7 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
   const found = useMemo(() => {
     const s = q.trim().toLocaleLowerCase("pl");
-    return s ? SORTED.filter((e) => [e.term, e.def, ...e.aliases].join(" ").toLocaleLowerCase("pl").includes(s)) : SORTED;
+    return s ? SORTED.filter((e) => [e.term, e.def, ...e.aliases, ...(e.formulas ?? []).flatMap((f) => [f.expr, ...f.where])].join(" ").toLocaleLowerCase("pl").includes(s)) : SORTED;
   }, [q]);
   const counts = useMemo(() => {
     const c: Record<string, number> = {};

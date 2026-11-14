@@ -8,6 +8,7 @@ def: >-
   Konwencja na tokarkach: adres X oznacza średnicę, a nie odległość od osi. G01
   X40 to polecenie toczenia na ⌀40, choć ostrze fizycznie stoi 20 mm od osi.
   Adresy I i R pozostają promieniowe.
+formulas: []
 see:
   - g96-g97
 diagram: dia

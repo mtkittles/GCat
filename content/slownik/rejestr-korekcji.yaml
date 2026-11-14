@@ -9,6 +9,7 @@ def: >-
   Miejsce w pamięci sterowania przechowujące dane narzędzia: długość, promień i
   osobne kolumny zużycia. Zmiana zużycia pozwala dostroić wymiar detalu bez
   ingerencji w program.
+formulas: []
 see:
   - g43-g49
   - g40-g42

@@ -8,6 +8,7 @@ def: >-
   Uchwyt gwintownika z luzem osiowym, który wyrównuje różnicę między posuwem
   programu a rzeczywistym skokiem. Konieczna bez gwintowania sztywnego (M29);
   przy gwintowaniu sztywnym gwintownik mocuje się w oprawce sztywnej.
+formulas: []
 see:
   - m29
   - g84

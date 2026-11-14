@@ -10,6 +10,7 @@ def: >-
   trwałe), wywoływany przez G65 (jednorazowo) lub G66 (modalnie). W makrach
   pisze się własne cykle, pomiary sondą i obliczenia; na Sinumeriku odpowiada im
   podprogram z parametrami i zmienne R.
+formulas: []
 see:
   - g65-g67
   - g31

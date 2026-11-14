@@ -9,6 +9,7 @@ def: >-
   kierunkiem posuwu. Wiór jest gruby na początku i cienki na końcu. Daje lepszą
   powierzchnię i mniejsze zużycie ostrza, ale wymaga maszyny bez luzów w
   napędzie.
+formulas: []
 see:
   - g40-g42
 diagram: climb

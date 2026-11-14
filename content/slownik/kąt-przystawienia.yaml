@@ -10,6 +10,24 @@ def: >-
   kształt przekroju wióra i siły: przy 90–95° siła działa głównie wzdłuż osi
   detalu, przy 45° rośnie składowa promieniowa, ale wiór jest cieńszy i można
   zwiększyć posuw.
+formulas:
+  - expr: h = f · sin κr
+    where:
+      - h — największa grubość wióra, mm
+      - f — posuw na obrót, mm/obr
+      - κr — kąt przystawienia
+    example: 'κr 45°, f 0,3 mm/obr: h = 0,3 · 0,71 = 0,21 mm. Przy κr 90° h = f.'
 see: []
-diagram: ''
-sources: []
+diagram: kappa
+sources:
+  - id: sandvik-plytka-tokarska
+    where: >-
+      kąt przystawienia KAPR — kąt między krawędzią skrawającą a kierunkiem
+      posuwu; duży kąt kieruje siły w stronę uchwytu
+  - id: sandvik-handbook
+    where: >-
+      największa grubość wióra maleje względem posuwu, gdy maleje kąt
+      przystawienia: hex ≈ fn · 0,71 przy KAPR 45°; wiór cieńszy i szerszy
+    loc: część A Toczenie, rozdz. Teoria
+  - id: sandvik-wzory-toczenie
+    where: grubość wióra jako fn · sin(KAPR) we wzorze na siłę styczną

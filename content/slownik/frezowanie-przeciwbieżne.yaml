@@ -8,6 +8,7 @@ def: >-
   Kierunek obrotu w miejscu styku przeciwny do posuwu. Wiór zaczyna się od zera
   grubości, przez co ostrze na początku gniecie materiał. Stosowane na starszych
   maszynach z luzem w śrubie pociągowej i przy naskórku odlewniczym.
+formulas: []
 see:
   - g40-g42
 diagram: climb

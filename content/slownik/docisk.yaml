@@ -10,6 +10,7 @@ def: >-
   go omijać: przejazdy nad dociskiem na bezpiecznej wysokości, w cyklach
   wiercenia powrót G98 zamiast G99. Symulator GCat nie zna docisków — ich
   położenie trzeba sprawdzić samemu.
+formulas: []
 see:
   - g98-g99
 diagram: ''

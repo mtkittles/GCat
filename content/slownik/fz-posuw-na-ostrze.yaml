@@ -7,9 +7,23 @@ aliases:
 def: >-
   Droga, o którą frez przesuwa się między pracą kolejnych ostrzy. Nie jest równa
   grubości wióra — ta zależy też od szerokości skrawania ae i kąta
-  przystawienia. Podstawowy parametr doboru posuwu przy frezowaniu: vf = fz · z
-  · n.
+  przystawienia. Podstawowy parametr doboru posuwu przy frezowaniu.
+formulas:
+  - expr: fz = Vf / (n · z)
+    where:
+      - fz — posuw na ostrze, mm
+      - Vf — posuw minutowy, mm/min
+      - n — obroty wrzeciona, obr/min
+      - z — liczba ostrzy biorących udział w skrawaniu
+    example: >-
+      Frez 4-ostrzowy, 3820 obr/min, Vf 1222 mm/min: fz = 1222 / (3820 · 4) =
+      0,08 mm.
 see:
   - g94-g95
-diagram: apae
-sources: []
+diagram: f23-fz
+sources:
+  - id: sandvik-wzory-frezowanie
+    where: wzór fz = vf / (n · zc), gdzie zc to efektywna liczba ostrzy
+  - id: kuryjanski
+    where: posuw na ostrze, posuw minutowy, głębokość i szerokość skrawania
+    loc: s. 54

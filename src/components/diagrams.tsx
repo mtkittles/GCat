@@ -7,6 +7,7 @@ import {
   Allowance, ApAe, Climb, CompEntry, ConstVc, DiaX, Dwell, FineBore, Groove, HelixTop, HelixViews, LatheFace, Linear,
   Probe, RapidClamp, RapidPath, Runout, RzDiag, Thinning, VcDiag, WorkOffset, Zone,
 } from "./figs2";
+import { ChipAreaDiag, FeedsDiag, KappaDiag } from "./figs-slownik";
 import { BoreExit, CornerStop, G92vsG54, LocalZero, RotaryAxes, RotationG68, TcpC90, TiltPlane } from "./figs3";
 import { f0Figs } from "./lesson/figs-f0";
 import { pFigs } from "./lesson/figs-p";
@@ -71,6 +72,9 @@ export const diagrams: Record<string, () => ReactNode> = {
   rz: () => <RzDiag />,
   allowance: () => <Allowance />,
   runout: () => <Runout />,
+  feeds: () => <FeedsDiag />,
+  kappa: () => <KappaDiag />,
+  "chip-area": () => <ChipAreaDiag />,
   // karty kodów
   g00: () => <RapidPath />,
   g01: () => <Linear />,

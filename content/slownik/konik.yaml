@@ -8,6 +8,7 @@ def: >-
   Zespół tokarki podpierający kłem długi detal od strony przeciwnej do uchwytu.
   Ogranicza ruch narzędzia w Z i wyklucza planowanie czoła do osi; strefę konika
   chroni się ograniczeniem obszaru pracy (G22).
+formulas: []
 see:
   - g22-g23
 diagram: ''

@@ -132,6 +132,45 @@ export const sources: Record<string, Source> = {
     note: "Wyciąg, strony D 22–D 40. Strony — numeracja drukowana.",
     internal: "Wyciąg udostępniony przez dystrybutora; tytułu całości, wydania i numeru dokumentu nie potwierdzono.",
   },
+  "sandvik-wzory-toczenie": {
+    id: "sandvik-wzory-toczenie", short: "Sandvik Coromant — wzory toczenia", author: "Sandvik Coromant",
+    title: "Turning formulas and definitions — wzory i definicje dla toczenia (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/machining-formulas-definitions/general-turning-formulas-definitions", accessed: "11/2026",
+  },
+  "sandvik-wzory-frezowanie": {
+    id: "sandvik-wzory-frezowanie", short: "Sandvik Coromant — wzory frezowania", author: "Sandvik Coromant",
+    title: "Formulas and definitions for milling — metric (arkusz wzorów z materiałów szkoleniowych)",
+    url: "https://cdn.sandvik.coromant.com/files/sitecollectiondocuments/services/metal-cutting-e-learning/formulas-and-definitions/formulas-and-deinitions-for-milling-metric-enu.pdf", accessed: "11/2026",
+  },
+  "sandvik-handbook": {
+    id: "sandvik-handbook", short: "Sandvik Coromant — podręcznik szkoleniowy", author: "Sandvik Coromant",
+    title: "Training Handbook — podręcznik szkoleniowy obróbki skrawaniem",
+    edition: "2017.11",
+    url: "https://api.dgisupply.ca/uploads/literature/0F05F3n1r0r00cFjfpG1mVHh5bNAluN3Ddh1FdO0.pdf", accessed: "11/2026",
+    internal: "Kopia u dystrybutora; tytułu z okładki, numeru dokumentu i numerów stron nie potwierdzono (tekst czytany z wyciągu), dlatego odwołania podają część i rozdział bez strony.",
+  },
+  "sandvik-plytka-tokarska": {
+    id: "sandvik-plytka-tokarska", short: "Sandvik Coromant — dobór płytki tokarskiej", author: "Sandvik Coromant",
+    title: "How to choose correct turning insert — dobór płytki tokarskiej (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/general-turning/how-to-choose-correct-turning-insert", accessed: "11/2026",
+  },
+  "sandvik-kat-frezowanie": {
+    id: "sandvik-kat-frezowanie", short: "Sandvik Coromant — kąt przystawienia i grubość wióra", author: "Sandvik Coromant",
+    title: "Entering angle and chip thickness in milling — kąt przystawienia i grubość wióra przy frezowaniu (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/entering-angle-and-chip-thickness", accessed: "11/2026",
+  },
+  "sandvik-kc": {
+    id: "sandvik-kc", short: "Sandvik Coromant — właściwa siła skrawania", author: "Sandvik Coromant",
+    title: "Specific cutting force — właściwa siła skrawania kc1 (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/materials/specific-cutting-force", accessed: "11/2026",
+  },
+  "cadem-rt": {
+    id: "cadem-rt", short: "CADEM — promień naroża, posuw i chropowatość", author: "CADEM Technologies",
+    title: "Insert nose radius chart — for feed rate selection in turning",
+    url: "https://cadem.com/?p=2527", accessed: "11/2026",
+    note: "Wartości teoretyczne — rzeczywista chropowatość zależy od zużycia narzędzia, maszyny i drgań.",
+    internal: "Strona podaje zależność (Rmax rośnie z kwadratem posuwu, maleje z promieniem naroża) i tabelę; sam wzór jest na obrazku, nie w tekście. Do zastąpienia źródłem książkowym, gdy będzie potwierdzone.",
+  },
   "sandvik-ceramic": {
     id: "sandvik-ceramic", short: "Sandvik Coromant — frezy ceramiczne do HRSA", author: "Sandvik Coromant",
     title: "Ceramic end mills take the heat in HRSA machining — informacja producenta o frezach ceramicznych do stopów żaroodpornych (HRSA)",

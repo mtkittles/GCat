@@ -9,10 +9,23 @@ aliases:
   - Ra
 def: >-
   Miara nierówności powierzchni. Przy toczeniu teoretyczną wysokość nierówności
-  liczy się z posuwu i promienia naroża płytki: Rt ≈ f² / (8 × rε) — w tym
-  modelu obroty nie występują. Rzeczywista chropowatość (Ra, Rz) zależy też od
-  drgań, zużycia ostrza i materiału; potwierdza ją pomiar.
+  liczy się z posuwu i promienia naroża płytki — w tym modelu obroty nie
+  występują. Rzeczywista chropowatość (Ra, Rz) zależy też od drgań, zużycia
+  ostrza i materiału; potwierdza ją pomiar.
+formulas:
+  - expr: Rt ≈ f² / (8 · rε) · 1000
+    where:
+      - Rt — teoretyczna wysokość nierówności, µm
+      - f — posuw na obrót, mm/obr
+      - rε — promień naroża płytki, mm
+    example: >-
+      f 0,2 mm/obr, rε 0,8 mm: Rt ≈ 0,04 / 6,4 · 1000 = 6,25 µm. Dwa razy
+      mniejszy posuw daje cztery razy mniejsze Rt.
 see:
   - g94-g95
 diagram: rz
-sources: []
+sources:
+  - id: cadem-rt
+    where: >-
+      wysokość nierówności rośnie z kwadratem posuwu i maleje z promieniem
+      naroża; wartości teoretyczne

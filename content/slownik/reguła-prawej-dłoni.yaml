@@ -8,6 +8,7 @@ def: >-
   Sposób na zapamiętanie zwrotów osi: kciuk prawej dłoni wskazuje +X, palec
   wskazujący +Y, środkowy +Z. Tak zorientowany układ opisuje norma ISO 841 i
   stosują go wszystkie sterowania CNC.
+formulas: []
 see: []
 diagram: ''
 sources: []

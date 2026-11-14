@@ -30,6 +30,8 @@ export interface GlossaryEntry {
   /** kotwica /slownik#… — jawna, zapisana w pliku hasła (zmiana `term` jej nie zmienia) */
   anchor: string;
   aliases: string[]; def: string; see: string[]; diagram?: string;
+  /** wzory z objaśnieniem symboli („symbol — znaczenie, jednostka”) i przykładem liczbowym */
+  formulas?: { expr: string; where: string[]; example?: string }[];
   /** źródła jak w kartach (src/content/nauka/sources.ts) */
   sources?: { id: string; where: string; loc?: string; url?: string }[];
 }

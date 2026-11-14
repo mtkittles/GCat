@@ -3389,6 +3389,15 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .gl-sym { display: inline-block; margin-right: .2rem; padding: .05rem .45rem; border-radius: 6px; background: var(--accent-soft); color: var(--accent-ink); font: 700 1.02rem/1.4 var(--font-mono); letter-spacing: 0; }
 .gl-alias { font-size: 13px; line-height: 1.45; color: var(--muted-text, var(--muted)); }
 .gl-def { max-width: 78ch; font-size: var(--fs-text, 15.5px); line-height: 1.65; color: var(--ink-2); }
+.gl-formula { display: grid; gap: .45rem; max-width: 78ch; margin-top: .25rem; }
+.gl-formula + .gl-formula { margin-top: .5rem; }
+.gl-expr { padding: .5rem .8rem; border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; background: var(--surface-2); color: var(--ink); font: 600 15px/1.5 var(--font-mono); overflow-wrap: anywhere; }
+.gl-where { display: grid; gap: .2rem; margin: 0; padding: 0 0 0 .2rem; list-style: none; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.gl-where li { display: grid; grid-template-columns: 2.4rem minmax(0, 1fr); gap: .5rem; align-items: baseline; }
+.gl-where li.is-note { grid-template-columns: minmax(0, 1fr); }
+.gl-where b { font: 700 13px/1.5 var(--font-mono); color: var(--accent-ink); }
+.gl-ex { font-size: 13.5px; line-height: 1.55; color: var(--ink-2); }
+.gl-ex b { color: var(--ink); font-weight: 600; }
 .gl-meta { display: grid; gap: .4rem; margin: auto 0 0; padding-top: .7rem; }
 .gl-meta > div { display: grid; grid-template-columns: 6.2rem minmax(0, 1fr); gap: .5rem; align-items: baseline; }
 .gl-meta dt { font-size: 12.5px; color: var(--muted-text, var(--muted)); }

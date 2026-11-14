@@ -123,6 +123,11 @@ export default config({
         order: fields.integer({ label: "Kolejność", validation: { isRequired: true, min: 1 } }),
         aliases: fields.array(fields.text({ label: "Synonim" }), { label: "Synonimy", itemLabel: (p) => p.value }),
         def: fields.text({ label: "Definicja", multiline: true, validation: { isRequired: true } }),
+        formulas: fields.array(fields.object({
+          expr: fields.text({ label: "Wzór, np. n = 1000 · Vc / (π · D)", validation: { isRequired: true } }),
+          where: fields.array(fields.text({ label: "Symbol — znaczenie, jednostka" }), { label: "Objaśnienie symboli", itemLabel: (p) => p.value }),
+          example: fields.text({ label: "Przykład liczbowy (puste = brak)", multiline: true }),
+        }), { label: "Wzory — tylko ze źródłem w polu Źródła", itemLabel: (p) => p.fields.expr.value }),
         see: fields.array(fields.relationship({ label: "Karta", collection: "kody" }), { label: "Zobacz (karty)", itemLabel: (p) => p.value ?? "" }),
         diagram: fields.select({ label: "Rysunek", options: [{ label: "— brak —", value: "" }, ...diagramy.map((d: string) => ({ label: d, value: d }))], defaultValue: "" }),
         sources: zrodlaPole,
