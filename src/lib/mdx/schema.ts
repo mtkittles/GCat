@@ -231,7 +231,7 @@ export const zadanieSchema = z.strictObject({
   slug, title: text,
   level: level123,
   mode: z.enum(["mill", "lathe"]),
-  brief: text, hints: z.array(text).default([]),
+  brief: text, goal: text.optional(), steps: z.array(text).optional(), hints: z.array(text).default([]),
   /** lekcje do powtórki przed zadaniem (id, np. F3.2) */
   lessons: z.array(z.string().regex(/^[FT]\d+\.\d+$/, "id lekcji: F3.2 albo T1.4")).default([]),
   starter: z.string(), reference: text,
