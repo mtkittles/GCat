@@ -1,7 +1,7 @@
 /* Testy celowane: kalkulator łuku (R ↔ I/J) i walidacja pól kalkulatora skrawania.
    Uruchomienie: npm run test:calc */
 import { arcGeometry } from "../src/components/ArcCalc";
-import { check } from "../src/app/kalkulator/Calc";
+import { check, cutPower, drillRate, turnRate } from "../src/app/kalkulator/Calc";
 
 let fails = 0;
 const ok = (name: string, cond: boolean, got?: unknown) => { if (!cond) { fails++; console.log("FAIL", name, got ?? ""); } else console.log("ok  ", name); };
@@ -29,6 +29,16 @@ ok("półokrąg: 180°, strzałka = r (oba warianty)", half.ok && half2.ok && ne
 ok("te same punkty → komunikat", !arcGeometry(10, 10, 10, 10, 5, "ccw", false).ok);
 ok("|R| < c/2 → komunikat", !arcGeometry(0, 0, 20, 0, 9.99, "ccw", false).ok);
 ok("|R| tuż ponad c/2 → łuk istnieje", arcGeometry(0, 0, 20, 0, 10.000001, "ccw", false).ok);
+
+// --- wydajność i moc (błędy sprzed paczki UC: Q toczenia 1000× za małe, moc wiercenia liczona z Vf zamiast z Vc)
+ok("toczenie: Q = Vc·ap·f → 240·2·0,28 = 134,4 cm³/min", near(turnRate(240, 2, 0.28), 134.4));
+ok("toczenie: P = Q·kc/60000 → 3,36 kW", near(cutPower(turnRate(240, 2, 0.28), 1500), 3.36));
+{
+  const D = 8, f = 0.16, vc = 77, kc = 1500, n = (vc * 1000) / (Math.PI * D), vf = n * f;
+  ok("wiercenie: Q = D·f·Vc/4 → 24,64 cm³/min", near(drillRate(D, vf), (D * f * vc) / 4) && near(drillRate(D, vf), 24.64));
+  ok("wiercenie: P = kc·D·f·Vc/240000 → 0,62 kW", near(cutPower(drillRate(D, vf), kc), (kc * D * f * vc) / 240000, 1e-9) && near(cutPower(drillRate(D, vf), kc), 0.62));
+}
+ok("frezowanie: P = ap·ae·Vf·kc/(60·10⁶) → 1,24 kW", near(cutPower((5 * 5 * 1986) / 1000, 1500), (5 * 5 * 1986 * 1500) / 60e6, 1e-9));
 
 // --- walidacja pól
 const D = { min: 0, max: 200 };

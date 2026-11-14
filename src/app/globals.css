@@ -2505,12 +2505,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .calc-field input, .calc-field select { font-size: 16px; }
   .calc-outs { grid-template-columns: repeat(2, 1fr); }
 }
-@media (min-width: 1024px) {
-  .calc-section { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(300px, .9fr); gap: 1.5rem 2rem; align-items: start; }
-  .calc-section > .calc-grid { grid-column: 1; grid-template-columns: repeat(3, 1fr); }
-  .calc-section > .calc-side { grid-column: 2; grid-row: 1 / span 6; display: grid; gap: .8rem; align-content: start; }
-  .calc-section > .calc-formulas, .calc-section > .note, .calc-section > p, .calc-section > .overflow-x-auto, .calc-section > .codeout { grid-column: 1; }
-}
 .link-btn { background: none; border: none; padding: 0; color: var(--accent-ink); font: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
 .filters select { padding: .45rem .6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font-size: 14px; }
 
@@ -2560,7 +2554,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
    więc wewnątrz nich obowiązują ciemne wartości tuszu, linii i kolorów składni. */
 :root:not([data-theme="dark"]) :is(.syntax, .showcase, .bu-code, .se-code, .gap-line, .tok-line, .pg-code pre, .ls-rail-prog pre,
   .cq pre, .cq-rel a, .cq-tags span, .tab-rename, .jog-read, .oj-read, .ord-seq, .codecard, .fig svg, .jog-view svg, .seg2, .sim-pick-lib,
-  .calc-out, .arc-out, .fs-root, .hero, .tm-read, .g43s svg, .tm-panels svg) {
+  .calc-out, .calc-fig svg, .arc-out, .fs-root, .hero, .tm-read, .g43s svg, .tm-panels svg) {
   --accent-ink: #F97316; --red-ink: #F87171; --green-ink: #22C55E; --amber-ink: #F59E0B; --blue-ink: #38BDF8;
   --ink: #F5F5F4; --ink-2: #C8C9CC; --muted: #8B8D93; --line: #2A2B30; --line-strong: #3A3B41;
   --surface: #17181B; --surface-2: #202125; --surface-3: #292A2F; --card: #1A1B1F; --accent-soft: #2B1C12; --warn-bg: #2A1A10;
@@ -3269,3 +3263,109 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .home-intro::before, .home-intro > *, .hi-cue span { animation: none !important; }
 }
 @media (min-width: 900px) { .is-still .st-tool, .is-still .st-rail, .is-still .st-play { display: none; } }
+
+/* ============================================================
+   Kalkulator (paczka UC): karty Dane · Podgląd · Wynik w jednym rzędzie,
+   rysunek poglądowy parametrów, objaśnienia jako karty.
+   ============================================================ */
+.calc-page { gap: 1rem; }
+.calc-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: .75rem 1.5rem; }
+.calc-head h1 { font-size: clamp(1.45rem, 2.2vw, 1.8rem); font-weight: 700; line-height: 1.15; }
+.calc-head h1 .calc-kicker { display: block; font: 600 13px/1.4 var(--font-sans); letter-spacing: 0; color: var(--accent-ink); }
+.calc-head p { color: var(--ink-2); font-size: 14px; margin-top: .1rem; }
+.calc-card { display: grid; gap: .7rem; align-content: start; min-width: 0; margin: 0; padding: .85rem 1rem 1rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); }
+.calc-h { font: 600 13.5px/1.25 var(--font-sans); color: var(--muted); }
+.calc-range { font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.calc-range b { color: var(--ink); font-weight: 600; white-space: nowrap; }
+.calc-range a, .calc-notes a { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+
+.calc-section { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+.calc-in { order: 1; } .calc-side { order: 2; container-type: inline-size; } .calc-fig { order: 3; }
+.calc-section > :not(.calc-in, .calc-side, .calc-fig) { order: 4; }
+.calc-in .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.calc-outs, .calc-side .calc-outs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@container (min-width: 560px) { .calc-side .calc-outs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.calc-side .codeout { min-width: 0; }
+.calc-side .codeout pre { margin: 0; padding-top: 2.6rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+.calc-side .codeout::before { content: "Do programu"; position: absolute; left: .9rem; top: .7rem; font: 600 12.5px var(--font-sans); color: #8B98AB; }
+.calc-page .calc-out-l { text-transform: none; letter-spacing: 0; font-size: 12.5px; line-height: 1.3; opacity: .75; }
+.calc-matnote { display: block; margin-top: .2rem; color: var(--amber-ink); }
+.calc-field > .calc-inp { position: relative; display: block; align-self: start; font-weight: 400; color: var(--ink); }
+.calc-inp i { position: absolute; right: .6rem; top: 50%; transform: translateY(-50%); font: 12px var(--font-mono); font-style: normal; color: var(--muted); pointer-events: none; }
+.calc-inp input { padding-right: 4.3rem; }
+.calc-field .calc-preset { white-space: nowrap; }
+.calc-formulas { border-left: 1px solid var(--line); padding-left: 1rem; gap: .35rem; }
+.calc-formulas .calc-h { margin-bottom: .25rem; }
+.calc-formula { overflow-wrap: anywhere; }
+.calc-section > p { max-width: none; align-self: start; padding: .85rem 1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
+.calc-section > .note { max-width: none; margin: 0; align-self: start; }
+
+/* rysunek poglądowy */
+.calc-fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); }
+.calc-fig figcaption { font-size: 12.5px; color: var(--muted); }
+.calc-fig text { font: 500 12.5px var(--font-sans); fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+.calc-fig .cf-cap { font-weight: 600; fill: var(--muted); }
+.calc-fig .cf-sub { font-size: 12px; fill: var(--muted); }
+.calc-fig .cf-acc { font-weight: 700; fill: var(--accent); }
+.calc-fig .cf-feed-t { fill: var(--amber); }
+.cf-stock { fill: #2A2F3A; stroke: #5B6577; stroke-width: 1; }
+.cf-chuck { fill: #1C2029; stroke: #5B6577; stroke-width: 1; }
+.cf-cut { fill: color-mix(in srgb, var(--green) 28%, transparent); stroke: var(--green); stroke-width: 1; stroke-dasharray: 4 3; }
+.cf-hole { fill: var(--panel); stroke: var(--ink-2); stroke-width: 1.4; stroke-linejoin: round; }
+.cf-tool { fill: color-mix(in srgb, var(--accent) 22%, var(--panel)); stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
+.cf-tooth { stroke: var(--accent); stroke-width: 1; opacity: .55; fill: none; }
+.cf-dot { fill: var(--accent); }
+.cf-dim { stroke: var(--ink-2); stroke-width: .9; fill: none; }
+.cf-ext { stroke: var(--ink-2); stroke-width: .6; opacity: .7; fill: none; }
+.cf-arrow { fill: var(--ink-2); }
+.cf-axis { stroke: var(--muted); stroke-width: .9; stroke-dasharray: 10 3 2 3; fill: none; }
+.cf-feed, .cf-rot { stroke: var(--amber); stroke-width: 1.6; fill: none; }
+.cf-arrow-f { fill: var(--amber); }
+.cf-zoom { fill: #151922; stroke: var(--line-strong); stroke-width: 1; }
+.cf-profile { stroke: var(--accent); stroke-width: 1.6; fill: none; }
+.cf-fill { fill: #2A2F3A; stroke: none; }
+.cf-gone { fill: var(--panel); stroke: none; }
+.cf-edge { stroke: #5B6577; stroke-width: 1; fill: none; }
+.cf-rt { stroke: var(--accent); stroke-width: 1.2; fill: none; }
+.cf-nose { fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; }
+
+@media (max-width: 759px) { .calc-fig text { font-size: 13px; } .calc-fig .cf-sub { font-size: 12.5px; } }
+
+/* pole: powrót do tabeli */
+button.calc-preset.is-back { border: 1px solid var(--line-strong); background: transparent; color: var(--ink-2); text-transform: none; letter-spacing: 0; font-weight: 600; cursor: pointer; }
+button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink); }
+
+/* gwinty: siatka do wyboru */
+.calc-picks { display: grid; gap: .45rem; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); }
+.calc-pick { display: grid; gap: .1rem; justify-items: start; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); color: var(--ink-2); font-size: 12.5px; line-height: 1.35; text-align: left; cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+.calc-pick b { font: 700 15px var(--font-mono); color: var(--ink); }
+.calc-pick:hover { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.calc-pick[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+
+/* objaśnienia pod kalkulatorem */
+.calc-notes { display: grid; gap: 1rem; max-width: none; grid-template-columns: minmax(0, 1fr); font-size: 14px; line-height: 1.6; color: var(--ink-2); margin-top: .5rem; }
+.calc-notes ul { display: grid; gap: .3rem; margin: 0; padding: 0; list-style: none; }
+.calc-src { font-size: 13px; }
+.calc-src li { padding-left: .9rem; position: relative; }
+.calc-src li::before { content: ""; position: absolute; left: 0; top: .65em; width: 5px; height: 1px; background: var(--muted); }
+
+@media (min-width: 760px) and (max-width: 1099.98px) {
+  .calc-section { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .calc-section > :not(.calc-in, .calc-fig) { grid-column: 1 / -1; }
+}
+@media (min-width: 760px) {
+  .calc-in, .calc-fig, .calc-side, .calc-section > :not(.calc-in, .calc-side, .calc-fig) { order: 0; }
+  .calc-notes { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .calc-src { grid-column: 1 / -1; }
+  .calc-src ul { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem 2rem; }
+}
+@media (min-width: 1100px) {
+  .calc-section { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr); grid-auto-flow: row dense; }
+  .calc-in .calc-presets { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); }
+  .calc-in .calc-presets select { font-size: 13.5px; padding-inline: .5rem; }
+  .calc-section > .calc-formulas { grid-column: 1 / 3; }
+  .calc-section > .note, .calc-section > p { grid-column: 3; }
+  .calc-section:not(:has(> .note, > p)) > .calc-formulas, .calc-section > .calc-threads { grid-column: 1 / -1; }
+  .calc-fig { grid-template-rows: auto 1fr auto; }
+  .calc-fig svg { align-self: center; }
+}
