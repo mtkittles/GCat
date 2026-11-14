@@ -1,21 +1,29 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import PageBanner from "@/components/ui/PageBanner";
+import CalcFig from "./CalcFig";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
 
 type Tab = "mill" | "turn" | "drill" | "thread";
 
-const BANNERS: Record<Tab, { src: string; title: string; sub: string }> = {
-  mill:   { src: "/img/banner-mill.jpg",   title: "Frezowanie",   sub: "Obroty i posuw dla frezu i materiału." },
-  turn:   { src: "/img/banner-turn.jpg",   title: "Toczenie",     sub: "Obroty i posuw przy toczeniu i wytaczaniu." },
-  drill:  { src: "/img/banner-drill.jpg",  title: "Wiercenie",    sub: "Obroty i posuw dla wiertła." },
-  thread: { src: "/img/banner-thread.jpg", title: "Gwintowanie",  sub: "Obroty i posuw przy gwintowaniu." },
+const BANNERS: Record<Tab, { title: string; sub: string }> = {
+  mill:   { title: "Frezowanie",   sub: "Obroty i posuw dla frezu i materiału." },
+  turn:   { title: "Toczenie",     sub: "Obroty i posuw przy toczeniu i wytaczaniu." },
+  drill:  { title: "Wiercenie",    sub: "Obroty i posuw dla wiertła." },
+  thread: { title: "Gwintowanie",  sub: "Obroty i posuw przy gwintowaniu." },
 };
 
 const r0 = (v: number) => (Number.isFinite(v) ? Math.round(v) : 0);
 const r2 = (v: number) => (Number.isFinite(v) ? Math.round(v * 100) / 100 : 0);
 const r3 = (v: number) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0);
+const pl = (v: number) => String(v).replace(".", ",");
+
+/** Moc skrawania [kW] z wydajności Q [cm³/min] i oporu właściwego kc [N/mm²]. */
+export const cutPower = (q: number, kc: number) => (q * kc) / 60000;
+/** Wydajność wiercenia [cm³/min]: pole przekroju otworu [mm²] · posuw minutowy [mm/min] / 1000. */
+export const drillRate = (d: number, vf: number) => (Math.PI * d * d * vf) / 4000;
+/** Wydajność toczenia [cm³/min] = Vc [m/min] · ap [mm] · f [mm/obr]. */
+export const turnRate = (vc: number, ap: number, f: number) => vc * ap * f;
 
 type Rule = { min: number; max: number; int?: boolean; minIncl?: boolean };
 
@@ -38,9 +46,11 @@ export function check(raw: string, r: Rule): string | null {
  * oznaczany jako nieaktualny. Przecinek działa jak kropka. Podczas pisania
  * dozwolony jest wpis niekompletny („1,”), bez komunikatu.
  */
-function Field({ id, label, unit, value, onChange, rule, preset, onValid }: {
+function Field({ id, label, unit, value, onChange, rule, preset, onValid, table }: {
   id: string; label: string; unit?: string; value: number; onChange: (v: number) => void;
   rule: Rule; preset?: boolean; onValid: (id: string, ok: boolean) => void;
+  /** wartość z tabeli materiału; gdy pole ją nadpisuje, obok etykiety jest przycisk powrotu (onChange(0) = „weź z tabeli”) */
+  table?: number;
 }) {
   const [text, setText] = useState(String(value).replace(".", ","));
   const [focused, setFocused] = useState(false);
@@ -54,9 +64,16 @@ function Field({ id, label, unit, value, onChange, rule, preset, onValid }: {
   const msgId = `${id}-msg`;
   return (
     <label className={`calc-field${err ? " is-invalid" : ""}`}>
-      <span>{label}{unit && <i> [{unit}]</i>}{preset && <em className="calc-preset" title="Wartość z tabeli dla wybranego materiału — orientacyjna">tabela</em>}</span>
-      <input
-        type="text" inputMode="decimal" value={text}
+      <span>{label}{preset && <em className="calc-preset" title="Wartość z tabeli dla wybranego materiału — orientacyjna">tabela</em>}
+        {!preset && table !== undefined && (
+          <button type="button" className="calc-preset is-back" title={`Wróć do wartości z tabeli: ${String(table).replace(".", ",")}`}
+            aria-label={`${label}: wróć do wartości z tabeli`}
+            onClick={(e) => { e.preventDefault(); setText(String(table).replace(".", ",")); setErr(null); onValid(id, true); onChange(0); }}>
+            ↺ tabela
+          </button>
+        )}</span>
+      <span className="calc-inp"><input
+        type="text" inputMode="decimal" value={text} aria-label={unit ? `${label} [${unit}]` : label}
         aria-invalid={!!err} aria-describedby={err ? msgId : undefined}
         onFocus={(e) => { setFocused(true); e.currentTarget.select(); }}
         onBlur={() => {
@@ -72,7 +89,7 @@ function Field({ id, label, unit, value, onChange, rule, preset, onValid }: {
           const bad = check(raw, rule);
           onValid(id, !bad);
           if (!bad) { setErr(null); onChange(Number(raw.replace(",", "."))); }
-        }} />
+        }} />{unit && <i aria-hidden="true">{unit}</i>}</span>
       {err && <small id={msgId} className="calc-err" role="alert">{err}</small>}
     </label>
   );
@@ -129,7 +146,7 @@ export default function Calc() {
   const fzCorr = fz * thin;
   const vfMill = nMill * z * fzCorr;
   const qMill = (ap * ae * vfMill) / 1000; // cm³/min
-  const pMill = (qMill * mat.kc) / 60000;  // kW
+  const pMill = cutPower(qMill, mat.kc);
 
   // toczenie
   const [dT, setDT] = useState(50);
@@ -140,9 +157,8 @@ export default function Calc() {
   const vcTurn = vcT || r0(mid(mat.vcTurn) * tm.f);
   const fTurn = fT || r2(mid(mat.fTurn));
   const nTurn = (vcTurn * 1000) / (Math.PI * dT);
-  const qTurn = (vcTurn * apT * fTurn) / 1000 * 1000 / 1000; // cm³/min = vc*ap*f
-  const qT = vcTurn * apT * fTurn;
-  const pTurn = (qT * mat.kc) / 60000;
+  const qTurn = turnRate(vcTurn, apT, fTurn);
+  const pTurn = cutPower(qTurn, mat.kc);
   const rz = ((fTurn * fTurn) / (8 * re)) * 1000;
 
   // wiercenie
@@ -153,7 +169,8 @@ export default function Calc() {
   const fDrill = fD || r3(Math.min(0.3, dD * 0.02));
   const nDrill = (vcDrill * 1000) / (Math.PI * dD);
   const vfDrill = nDrill * fDrill;
-  const pDrill = (mat.kc * fDrill * dD * vfDrill) / (4 * 60000 * 1000) * 1000;
+  const qDrill = drillRate(dD, vfDrill);
+  const pDrill = cutPower(qDrill, mat.kc); // ten sam model co przy frezowaniu i toczeniu: P = Q · kc
 
   // gwintowanie
   const [thr, setThr] = useState("M10");
@@ -163,14 +180,9 @@ export default function Calc() {
 
   const reset = () => { setVcM(0); setFzM(0); setVcT(0); setFT(0); setVcD(0); };
 
-  return (
-    <div className="grid gap-5 calc-page">
-      <PageBanner src={BANNERS[tab].src} kicker="Kalkulator parametrów" title={BANNERS[tab].title} subtitle={BANNERS[tab].sub}
-        info={<ul>
-          <li>Wartości startowe pochodzą z tabel dla wybranego materiału i narzędzia. Każde pole możesz nadpisać.</li>
-          <li>Wynik to punkt startowy. Koryguj go pod mocowanie, wysięg narzędzia i chłodzenie.</li>
-        </ul>} priority />
-
+  // wybór pary materiałów — te same pola w kartach „Dane” frezowania, toczenia i wiercenia
+  const matBox = (range: [number, number]) => (
+    <>
       <div className="calc-presets">
         <label className="calc-field wide"><span>Materiał obrabiany</span>
           <select value={matId} onChange={(e) => { setMatId(e.target.value); reset(); }}>
@@ -185,25 +197,39 @@ export default function Calc() {
             {TOOL_MATERIAL.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select></label>
       </div>
-      {mat.note && <p className="note note-info max-w-prose">{mat.note}</p>}
+      <p className="calc-range">
+        Zakres Vc (węglik z powłoką) <b>{range[0]}–{range[1]} m/min</b> · <Link href="/slownik#kc-właściwy-opór-skrawania">opór właściwy</Link> kc1 <b>{mat.kc} N/mm²</b>
+        {mat.note && <span className="calc-matnote">{mat.note}</span>}
+      </p>
+    </>
+  );
 
-      <div className="segmented" role="tablist" aria-label="Rodzaj obróbki">
-        {([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([k, l]) => (
-          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
-        ))}
-      </div>
+  return (
+    <div className="grid gap-5 calc-page">
+      <header className="calc-head">
+        <div>
+          <h1><span className="calc-kicker">Kalkulator</span> {BANNERS[tab].title}</h1>
+          <p>{BANNERS[tab].sub}</p>
+        </div>
+        <div className="segmented" role="tablist" aria-label="Rodzaj obróbki">
+          {([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([k, l]) => (
+            <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
+          ))}
+        </div>
+      </header>
 
       {tab === "mill" && (
         <section className="grid gap-3 calc-section">
-          <div className="calc-grid">
-            <Field id="m-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcMill} onChange={setVcM} rule={{ min: 0, max: 2000 }} preset={!vcM} onValid={onValid} />
+          <div className="calc-card calc-in"><h2 className="calc-h">Dane</h2>{matBox(mat.vcMill)}<div className="calc-grid">
+            <Field id="m-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcMill} onChange={setVcM} rule={{ min: 0, max: 2000 }} preset={!vcM} table={r0(mid(mat.vcMill) * tm.f)} onValid={onValid} />
             <Field id="m-d" label="Średnica freza D" unit="mm" value={d} onChange={setD} rule={{ min: 0, max: 200 }} onValid={onValid} />
             <Field id="m-z" label="Liczba ostrzy z" value={z} onChange={setZ} rule={{ min: 1, max: 20, int: true, minIncl: true }} onValid={onValid} />
-            <Field id="m-fz" label="Posuw na ostrze fz" unit="mm" value={fz} onChange={setFzM} rule={{ min: 0, max: 2 }} preset={!fzM} onValid={onValid} />
+            <Field id="m-fz" label="Posuw na ostrze fz" unit="mm" value={fz} onChange={setFzM} rule={{ min: 0, max: 2 }} preset={!fzM} table={r3(mid(mat.fz))} onValid={onValid} />
             <Field id="m-ap" label="Głębokość ap" unit="mm" value={ap} onChange={setAp} rule={{ min: 0, max: 100 }} onValid={onValid} />
             <Field id="m-ae" label="Szerokość ae" unit="mm" value={ae} onChange={setAe} rule={{ min: 0, max: Math.max(d, 0.001), minIncl: false }} onValid={onValid} />
-          </div>
-          <div className="calc-side">
+          </div></div>
+          <CalcFig kind="mill" d={d} ae={Math.min(ae, d)} ap={ap} z={z} />
+          <div className="calc-card calc-side"><h2 className="calc-h">Wynik</h2>
           <StaleNote show={staleOf("m-")} />
           <div className="calc-outs">
             <Out big label="Obroty S" value={r0(nMill)} unit="obr/min" stale={staleOf("m-")} />
@@ -219,7 +245,7 @@ export default function Calc() {
               Posuw skorygowano współczynnikiem {r2(thin)}, czyli fz efektywne {r3(fzCorr)} mm. Bez korekty wiór byłby cieńszy, niż zakłada fz — ostrze może wtedy trzeć zamiast skrawać.
             </div>
           )}
-          <div className="calc-formulas">
+          <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
             <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcMill} / (π · {d}) = <strong>{r0(nMill)} obr/min</strong></Formula>
             <Formula>Vf = n · z · fz = {r0(nMill)} · {z} · {r3(fzCorr)} = <strong>{r0(vfMill)} mm/min</strong></Formula>
             <Formula>Q = ap · ae · Vf / 1000 = {ap} · {ae} · {r0(vfMill)} / 1000 = <strong>{r2(qMill)} cm³/min</strong></Formula>
@@ -231,14 +257,15 @@ export default function Calc() {
 
       {tab === "turn" && (
         <section className="grid gap-3 calc-section">
-          <div className="calc-grid">
-            <Field id="t-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcTurn} onChange={setVcT} rule={{ min: 0, max: 2000 }} preset={!vcT} onValid={onValid} />
+          <div className="calc-card calc-in"><h2 className="calc-h">Dane</h2>{matBox(mat.vcTurn)}<div className="calc-grid">
+            <Field id="t-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcTurn} onChange={setVcT} rule={{ min: 0, max: 2000 }} preset={!vcT} table={r0(mid(mat.vcTurn) * tm.f)} onValid={onValid} />
             <Field id="t-d" label="Średnica D" unit="mm" value={dT} onChange={setDT} rule={{ min: 0, max: 1000 }} onValid={onValid} />
-            <Field id="t-f" label="Posuw f" unit="mm/obr" value={fTurn} onChange={setFT} rule={{ min: 0, max: 3 }} preset={!fT} onValid={onValid} />
+            <Field id="t-f" label="Posuw f" unit="mm/obr" value={fTurn} onChange={setFT} rule={{ min: 0, max: 3 }} preset={!fT} table={r2(mid(mat.fTurn))} onValid={onValid} />
             <Field id="t-ap" label="Głębokość ap" unit="mm" value={apT} onChange={setApT} rule={{ min: 0, max: 50 }} onValid={onValid} />
             <Field id="t-re" label="Promień naroża rε" unit="mm" value={re} onChange={setRe} rule={{ min: 0, max: 5 }} onValid={onValid} />
-          </div>
-          <div className="calc-side">
+          </div></div>
+          <CalcFig kind="turn" d={dT} ap={apT} f={fTurn} re={re} rt={rz} />
+          <div className="calc-card calc-side"><h2 className="calc-h">Wynik</h2>
           <StaleNote show={staleOf("t-")} />
           <div className="calc-outs">
             <Out big label="Obroty przy tej średnicy" value={r0(nTurn)} unit="obr/min" stale={staleOf("t-")} />
@@ -248,9 +275,10 @@ export default function Calc() {
           </div>
           <CodeOut stale={staleOf("t-")} text={`G50 S${Math.min(4000, r0(nTurn * 2))}   (LIMIT OBROTOW - DOBIERZ DO UCHWYTU)\nG96 S${vcTurn} M03\nG99   (MM/OBR: FANUC SYSTEM A; SINUMERIK I FANUC B/C: G95)\nG01 X_ Z_ F${fTurn}`} />
           </div>
-          <div className="calc-formulas">
+          <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
             <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcTurn} / (π · {dT}) = <strong>{r0(nTurn)} obr/min</strong></Formula>
             <Formula>Q = Vc · ap · f = {vcTurn} · {apT} · {fTurn} = <strong>{r2(qTurn)} cm³/min</strong></Formula>
+            <Formula>P = Q · kc / 60000 = {r2(qTurn)} · {mat.kc} / 60000 = <strong>{r2(pTurn)} kW</strong></Formula>
             <Formula>Rt ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">W tym modelu teoretyczna wysokość nierówności Rt zależy tylko od posuwu i promienia naroża — obroty we wzorze nie występują. Rzeczywista chropowatość zależy też od drgań, zużycia ostrza i materiału; potwierdza ją pomiar. Ra wynosi orientacyjnie ok. Rt / 4 (lekcja T2.3).</p>
@@ -260,23 +288,27 @@ export default function Calc() {
 
       {tab === "drill" && (
         <section className="grid gap-3 calc-section">
-          <div className="calc-grid">
-            <Field id="d-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcDrill} onChange={setVcD} rule={{ min: 0, max: 500 }} preset={!vcD} onValid={onValid} />
+          <div className="calc-card calc-in"><h2 className="calc-h">Dane</h2>{matBox(mat.vcDrill)}<div className="calc-grid">
+            <Field id="d-vc" label="Prędkość skrawania Vc" unit="m/min" value={vcDrill} onChange={setVcD} rule={{ min: 0, max: 500 }} preset={!vcD} table={r0(mid(mat.vcDrill) * (tm.id.startsWith("hss") ? 1 : 2.2))} onValid={onValid} />
             <Field id="d-d" label="Średnica wiertła D" unit="mm" value={dD} onChange={setDD} rule={{ min: 0, max: 100 }} onValid={onValid} />
-            <Field id="d-f" label="Posuw f" unit="mm/obr" value={fDrill} onChange={setFD} rule={{ min: 0, max: 2 }} preset={!fD} onValid={onValid} />
-          </div>
-          <div className="calc-side">
+            <Field id="d-f" label="Posuw f" unit="mm/obr" value={fDrill} onChange={setFD} rule={{ min: 0, max: 2 }} preset={!fD} table={r3(Math.min(0.3, dD * 0.02))} onValid={onValid} />
+          </div></div>
+          <CalcFig kind="drill" d={dD} f={fDrill} />
+          <div className="calc-card calc-side"><h2 className="calc-h">Wynik</h2>
           <StaleNote show={staleOf("d-")} />
           <div className="calc-outs">
             <Out big label="Obroty S" value={r0(nDrill)} unit="obr/min" stale={staleOf("d-")} />
             <Out big label="Posuw F" value={r0(vfDrill)} unit="mm/min" stale={staleOf("d-")} />
+            <Out label="Wydajność Q" value={r2(qDrill)} unit="cm³/min" stale={staleOf("d-")} />
             <Out label="Szacowana moc skrawania" value={r2(pDrill)} unit="kW" stale={staleOf("d-")} />
           </div>
           <CodeOut stale={staleOf("d-")} text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
           </div>
-          <div className="calc-formulas">
+          <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
             <Formula>n = 1000 · Vc / (π · D) = <strong>{r0(nDrill)} obr/min</strong></Formula>
             <Formula>Vf = n · f = {r0(nDrill)} · {fDrill} = <strong>{r0(vfDrill)} mm/min</strong></Formula>
+            <Formula>Q = π · D² / 4 · Vf / 1000 = π · {dD}² / 4 · {r0(vfDrill)} / 1000 = <strong>{r2(qDrill)} cm³/min</strong></Formula>
+            <Formula>P = Q · kc / 60000 = {r2(qDrill)} · {mat.kc} / 60000 = <strong>{r2(pDrill)} kW</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Przy otworach głębszych niż ok. 3 × D stosuje się zwykle wiercenie z wycofaniem (G83, lekcja F5.2) — granicę podaje producent wiertła. Orientacyjny posuw na start: ok. 2% średnicy wiertła na obrót.</p>
           
@@ -285,12 +317,13 @@ export default function Calc() {
 
       {tab === "thread" && (
         <section className="grid gap-3 calc-section">
-          <div className="calc-grid">
+          <div className="calc-card calc-in"><h2 className="calc-h">Dane</h2><div className="calc-grid">
             <label className="calc-field"><span>Gwint</span>
               <select value={thr} onChange={(e) => setThr(e.target.value)}>{THREADS.map((t) => <option key={t.name}>{t.name}</option>)}</select></label>
             <Field id="g-n" label="Obroty gwintowania" unit="obr/min" value={nTap} onChange={setNTap} rule={{ min: 10, max: 10000, int: true, minIncl: true }} onValid={onValid} />
-          </div>
-          <div className="calc-side">
+          </div></div>
+          <CalcFig kind="thread" name={th.name} pitch={th.pitch} drill={th.drill} />
+          <div className="calc-card calc-side"><h2 className="calc-h">Wynik</h2>
           <StaleNote show={staleOf("g-")} />
           <div className="calc-outs">
             <Out big label="Otwór pod gwintownik" value={th.drill} unit="mm" />
@@ -300,26 +333,58 @@ export default function Calc() {
           </div>
           <CodeOut stale={staleOf("g-")} text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
           </div>
-          <div className="calc-formulas">
+          <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
             <Formula>F = n · skok = {nTap} · {th.pitch} = <strong>{r0(fTap)} mm/min</strong></Formula>
             <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {th.name.slice(1)} − {th.pitch} = <strong>{th.drill} mm</strong></Formula>
           </div>
           <p className="note note-warn max-w-prose">Posuw gwintowania wynika ze skoku: przy G94 F = S · skok, przy G95 F = skok. Inna wartość rozjeżdża ruch osi Z z obrotem wrzeciona — przy gwintowaniu sztywnym grozi to zniszczeniem gwintu albo złamaniem gwintownika (lekcja F5.3).</p>
           
-          <div className="overflow-x-auto"><table className="code-table">
-            <thead><tr><th>Gwint</th><th>Skok</th><th>Otwór</th><th>⌀ zewn.</th></tr></thead>
-            <tbody>{THREADS.map((t) => <tr key={t.name} style={t.name === thr ? { background: "var(--warn-bg)" } : undefined}><td className="font-mono font-bold">{t.name}</td><td>{t.pitch}</td><td>{t.drill}</td><td>{t.outer}</td></tr>)}</tbody>
-          </table></div>
+          <div className="calc-card calc-threads">
+            <h2 className="calc-h">Gwinty metryczne zwykłe — wybierz rozmiar</h2>
+            <div className="calc-picks">
+              {THREADS.map((t) => (
+                <button key={t.name} type="button" className="calc-pick" aria-pressed={t.name === thr} onClick={() => setThr(t.name)}>
+                  <b>{t.name}</b>
+                  <span>skok {pl(t.pitch)}</span>
+                  <span>otwór {pl(t.drill)}</span>
+                  <span>zewn. {pl(t.outer)}</span>
+                </button>
+              ))}
+            </div>
+            <p className="calc-range">Skok i średnica otworu w mm. „Zewn.” to średnica wałka pod gwint zewnętrzny.</p>
+          </div>
         </section>
       )}
 
       <div className="calc-notes">
-        <p><b>Wartości „tabela”</b> (Vc, fz, f) to orientacyjne punkty startowe dla wybranej pary materiałów — nie dane katalogowe konkretnego narzędzia. Każde pole możesz nadpisać.</p>
-        <p><b>Szacowana moc skrawania</b> to moc zużywana na samo skrawanie (P = Q · kc). Wymagana moc napędu wrzeciona jest większa: P / η, gdzie η to sprawność napędu z danych maszyny.</p>
-        <p><b>W lekcjach:</b> <Link href="/nauka/frezowanie/f2-2-obroty-s-m03">F2.2 obroty</Link> · <Link href="/nauka/frezowanie/f2-3-posuw-f-g94">F2.3 posuw na ostrze</Link> · <Link href="/nauka/frezowanie/f5-3-g84-gwintowanie">F5.3 gwintowanie</Link> · <Link href="/nauka/toczenie/t2-2-g96-g97-limit-obrotow">T2.2 G96 i limit obrotów</Link> · <Link href="/nauka/toczenie/t2-3-posuw-na-obrot">T2.3 posuw na obrót i Rt</Link></p>
-        <p><b>Źródła:</b> definicje prędkości skrawania i posuwu na ostrze (z nich wzory na n i Vf) — R. Kuryjański, <i>Obróbka skrawaniem i obrabiarki</i>, Warszawa 2011, rozdz. 3, s. 53–54 (wzory 3.1 i 3.4); dobór parametrów jako kompromis dokładności, wydajności i kosztu — B. Storch, <i>Podstawy obróbki skrawaniem</i>, Koszalin (rok wydania nieustalony), rozdz. 4.1, s. 168. Wzory na wydajność, moc, Rt i otwór pod gwint — źródło do uzupełnienia.</p>
+        <section className="calc-card">
+          <h2 className="calc-h">Wartości z tabeli</h2>
+          <p>Vc, fz i f oznaczone „tabela” to orientacyjne punkty startowe dla wybranej pary materiałów — nie dane katalogowe konkretnego narzędzia. Przed obróbką porównaj je z katalogiem producenta. Każde pole możesz nadpisać, a przyciskiem „↺ tabela” wrócić do wartości z tabeli.</p>
+        </section>
+        <section className="calc-card">
+          <h2 className="calc-h">Moc skrawania a moc wrzeciona</h2>
+          <p>Szacowana moc skrawania to moc zużywana na samo skrawanie: P = Q · kc. Wymagana moc napędu wrzeciona jest większa: P / η, gdzie η to sprawność napędu z danych maszyny.</p>
+        </section>
+        <section className="calc-card">
+          <h2 className="calc-h">W lekcjach</h2>
+          <ul>
+            <li><Link href="/nauka/frezowanie/f2-2-obroty-s-m03">F2.2 Obroty</Link></li>
+            <li><Link href="/nauka/frezowanie/f2-3-posuw-f-g94">F2.3 Posuw na ostrze</Link></li>
+            <li><Link href="/nauka/frezowanie/f5-3-g84-gwintowanie">F5.3 Gwintowanie</Link></li>
+            <li><Link href="/nauka/toczenie/t2-2-g96-g97-limit-obrotow">T2.2 G96 i limit obrotów</Link></li>
+            <li><Link href="/nauka/toczenie/t2-3-posuw-na-obrot">T2.3 Posuw na obrót i Rt</Link></li>
+          </ul>
+        </section>
+        <section className="calc-card calc-src">
+          <h2 className="calc-h">Źródła</h2>
+          <ul>
+            <li>Prędkość skrawania i posuw na ostrze (z nich wzory na n i Vf) — R. Kuryjański, <i>Obróbka skrawaniem i obrabiarki</i>, Warszawa 2011, rozdz. 3, s. 53–54 (wzory 3.1 i 3.4).</li>
+            <li>Dobór parametrów jako kompromis dokładności, wydajności i kosztu — B. Storch, <i>Podstawy obróbki skrawaniem</i>, Koszalin (rok wydania nieustalony), rozdz. 4.1, s. 168.</li>
+            <li>Wydajność Q i moc netto przy frezowaniu i toczeniu — Sandvik Coromant, <i>Milling formulas and definitions</i> oraz <i>Turning formulas and definitions</i> (sandvik.coromant.com, dostęp 2026-11-14). Wiercenie liczone tym samym modelem P = Q · kc, gdzie Q to pole przekroju otworu razy posuw minutowy.</li>
+            <li>Rt i otwór pod gwint — źródło do uzupełnienia.</li>
+          </ul>
+        </section>
       </div>
-      <p className="text-sm text-muted max-w-prose">Zakres dla wybranego materiału i węglika: frezowanie Vc {mat.vcMill[0]}–{mat.vcMill[1]}, toczenie {mat.vcTurn[0]}–{mat.vcTurn[1]}, wiercenie {mat.vcDrill[0]}–{mat.vcDrill[1]} m/min. <Link href="/slownik#kc-właściwy-opór-skrawania" className="underline">Właściwy opór skrawania</Link> kc1 {mat.kc} N/mm² (dla wióra grubości 1 mm). Przed obróbką porównaj je z katalogiem producenta narzędzia.</p>
     </div>
   );
 }
