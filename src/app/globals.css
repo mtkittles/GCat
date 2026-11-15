@@ -3479,3 +3479,193 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
   .gl-search { flex-basis: 100%; }
   .gl-search input { font-size: 16px; }
 }
+
+/* ==========================================================================
+   Rysownik (paczka RA) — edytor rysunków w stylu serwisu. Komputer, mysz.
+   Powłoka .rys-shell zajmuje cały ekran (strona /rysownik i okno w panelu treści).
+   ========================================================================== */
+.rys-shell { position: fixed; inset: 0; z-index: 1100; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--ink); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
+.rys-top { display: flex; align-items: center; gap: .75rem 1rem; flex-wrap: wrap; padding: .55rem .9rem; background: var(--surface); border-bottom: 1px solid var(--line); }
+.rys-top h1 { font: 700 1.05rem/1.2 var(--font-display); margin: 0; }
+.rys-top .rys-sub { color: var(--muted); font-size: var(--fs-aux); }
+.rys-top .rys-top-actions { margin-left: auto; display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+.rys-top .btn { padding: .45rem .9rem; font-size: 14px; }
+.rys-saved { font-size: var(--fs-label); color: var(--muted); }
+
+.rys-ed { display: grid; grid-template-columns: minmax(0, 1fr) 19.5rem; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; min-height: 0; outline: none; }
+.rys-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .45rem .75rem; background: var(--card); border-bottom: 1px solid var(--line); }
+.rys-tools { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); align-items: stretch; }
+.rys-tool { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 3.25rem; padding: .3rem .4rem .25rem; border-radius: 7px; border: 0; background: none; color: var(--ink-2); font: 500 11px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.rys-tool:hover:not(:disabled) { background: var(--surface-3); color: var(--ink); }
+.rys-tool[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-tool:disabled { opacity: .4; cursor: default; }
+.rys-tool:focus-visible, .rys-btn:focus-visible, .rys-kind:focus-visible, .rys-seg button:focus-visible, .rys-layers button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rys-step { display: flex; align-items: center; gap: .35rem; padding: 0 .5rem; font-size: 12px; color: var(--ink-2); }
+.rys-step select, .rys-row select, .rys-row input, .rys-num input { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: .3rem .4rem; font: inherit; font-size: 13px; min-width: 0; }
+.rys-actions { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
+
+.rys-stage { grid-column: 1; grid-row: 2; overflow: auto; min-height: 0; overscroll-behavior: contain;
+  background: var(--bg) radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.2px) 0 0 / 18px 18px; }
+/* arkusz na środku, a po powiększeniu przewijany we wszystkie strony (grid + place-items ucina lewą krawędź) */
+.rys-pad { box-sizing: border-box; min-width: 100%; min-height: 100%; width: max-content; height: max-content; padding: 40px; display: grid; place-items: center; }
+.rys-stage.is-pan, .rys-stage.is-pan .rys-svg { cursor: grab !important; }
+.rys-stage.is-panning, .rys-stage.is-panning .rys-svg { cursor: grabbing !important; }
+.fig.rys-sheet { display: block; max-width: none; margin: 0; padding: 0; gap: 0; border: 0; border-radius: 6px; background: none; box-shadow: 0 0 0 1px var(--line-strong), var(--shadow); flex: none; }
+.fig.rys-sheet svg { width: 100%; height: 100%; border-radius: 6px; touch-action: none; user-select: none; cursor: crosshair; }
+.fig.rys-sheet svg.tool-select { cursor: default; }
+.rys-svg:not(.tool-select) .rys-item { pointer-events: none; }
+.rys-svg.tool-select .rys-item { cursor: move; }
+.fig .rys-hit { stroke: transparent; stroke-width: 10; fill: none; pointer-events: stroke; vector-effect: non-scaling-stroke; }
+.fig .rys-hit.is-fill { fill: transparent; pointer-events: all; }
+.fig .rys-hitwrap * { stroke: transparent !important; stroke-width: 10 !important; stroke-dasharray: none !important; fill: none !important; pointer-events: stroke; vector-effect: non-scaling-stroke; }
+.fig .rys-hitwrap.is-fill * { fill: transparent !important; pointer-events: all; }
+.fig .rys-gmin { fill: none; stroke: color-mix(in srgb, var(--ink) 9%, transparent); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .8; vector-effect: non-scaling-stroke; }
+.fig .rys-draft { opacity: .75; }
+.fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.fig .rys-handle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.5; cursor: grab; vector-effect: non-scaling-stroke; }
+.fig .rys-handle.is-alt { fill: var(--accent); }
+.fig .rys-close { fill: color-mix(in srgb, var(--accent) 35%, transparent); stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.fig .rys-marquee { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.fig .rys-chord { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+/* znacznik przyciągania (OSNAP): koniec □, środek okręgu ○, przecięcie ×, środek odcinka △, kwadrant ◇, prostopadle ⊥, na linii ⧖ */
+.fig .rys-snap path, .fig .rys-snap circle { fill: none; stroke: #22D3EE; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
+
+.rys-panel { grid-column: 2; grid-row: 2; overflow: auto; min-height: 0; padding: .8rem; display: grid; gap: 1.1rem; align-content: start; background: var(--card); border-left: 1px solid var(--line); font-size: 13.5px; }
+.rys-group { display: grid; gap: .55rem; }
+.rys-group h3 { margin: 0; font: 700 var(--fs-label)/1.2 var(--font-display); letter-spacing: .02em; color: var(--muted); }
+.rys-group:first-child h3 { font-size: .95rem; color: var(--ink); letter-spacing: 0; }
+.rys-tip { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.rys-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .5rem; color: var(--ink-2); }
+.rys-nums { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .5rem; }
+.rys-num { display: grid; gap: .15rem; font-size: var(--fs-label); color: var(--muted); }
+.rys-num input { width: 100%; font-family: var(--font-mono); }
+.rys-checks { display: flex; flex-wrap: wrap; gap: .3rem 1rem; color: var(--ink-2); }
+.rys-checks label { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+.rys-checks input { accent-color: var(--accent); }
+.rys-kinds { display: grid; gap: 2px; }
+.rys-kind { display: grid; grid-template-columns: 2.4rem 1fr; align-items: center; gap: .55rem; padding: .3rem .45rem; border: 1px solid transparent; border-radius: 7px; background: none; color: var(--ink-2); font: inherit; text-align: left; cursor: pointer; }
+.rys-kind:hover { background: var(--surface-2); color: var(--ink); }
+.rys-kind[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+.fig.rys-sw { display: block; max-width: none; padding: 0; border: 0; border-radius: 4px; background: none; }
+.fig.rys-sw svg { width: 100%; height: auto; border-radius: 4px; }
+.fig.rys-sw svg line { fill: none; }
+.rys-seg { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.rys-seg button { flex: 1; padding: .3rem .2rem; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.rys-seg button:hover { background: var(--surface-3); color: var(--ink); }
+.rys-seg button[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-acts { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+.rys-btn { display: flex; align-items: center; gap: .4rem; padding: .35rem .5rem; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.rys-btn:hover { border-color: var(--ink-2); background: var(--surface-2); }
+.rys-btn svg { width: 16px; height: 16px; flex: none; }
+.rys-layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: max(15rem, calc(100vh - 30rem)); overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.rys-layers button { display: flex; gap: .4rem; width: 100%; padding: .32rem .5rem; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.rys-layers button:hover { background: var(--surface-2); }
+.rys-layers button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--accent); }
+.rys-layers b { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.rys-layers span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rys-status { grid-column: 1 / -1; display: flex; gap: 1rem; align-items: baseline; white-space: nowrap; overflow: hidden; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.rys-coords { font-family: var(--font-mono); color: var(--ink-2); min-width: 9.5rem; }
+.rys-snapname { color: #22D3EE; font-weight: 600; min-width: 6.5rem; }
+.rys-measure { font-family: var(--font-mono); color: var(--ink); min-width: 7rem; }
+.rys-hint { overflow: hidden; text-overflow: ellipsis; }
+.rys-zoom span { font-family: var(--font-mono); }
+.rys-sub-h { font-size: var(--fs-label); color: var(--muted); margin-bottom: -.2rem; }
+.rys-mono { font-family: var(--font-mono); color: var(--ink); }
+.rys-tip code, .rys-import code { font-family: var(--font-mono); font-size: 12px; padding: 0 .25rem; border-radius: 4px; background: var(--surface-2); color: var(--ink); }
+.rys-widths { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.rys-widths button { display: grid; justify-items: center; gap: 1px; padding: .3rem .35rem .2rem; white-space: nowrap; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: 11px/1.2 var(--font-mono); cursor: pointer; }
+.rys-widths button svg { width: 100%; height: 12px; }
+.rys-widths button svg line { stroke: currentColor; stroke-linecap: round; }
+.rys-widths button:hover { background: var(--surface-3); color: var(--ink); }
+.rys-widths button[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-widths button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fig .rys-sw-fill { fill: color-mix(in srgb, var(--accent) 30%, transparent); stroke: none; }
+/* okno importu ze strony */
+.rys-import { margin: auto; width: min(64rem, 94vw); max-height: 88vh; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); display: none; }
+.rys-import[open] { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); }
+.rys-import::backdrop { background: rgba(0, 0, 0, .6); }
+.rys-import header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1rem; border-bottom: 1px solid var(--line); }
+.rys-import h2 { font: 700 1.05rem/1.2 var(--font-display); margin: 0; }
+.rys-import h3 { font: 700 var(--fs-aux)/1.3 var(--font-display); margin: .4rem 0 .6rem; }
+.rys-import .btn { padding: .45rem .9rem; font-size: 14px; }
+.rys-import-bar { display: flex; gap: .6rem; align-items: end; padding: .8rem 1rem .4rem; }
+.rys-import-bar label { display: grid; gap: .25rem; flex: 1; font-size: var(--fs-label); color: var(--muted); }
+.rys-import-bar input { padding: .45rem .6rem; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--card); color: var(--ink); font: 14px var(--font-mono); }
+.rys-import-sections { display: flex; flex-wrap: wrap; gap: .35rem; padding: .2rem 1rem .7rem; border-bottom: 1px solid var(--line); }
+.rys-import-sections button { padding: .3rem .7rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--card); color: var(--ink-2); font: 500 13px/1.3 var(--font-sans, Inter, sans-serif); cursor: pointer; }
+.rys-import-sections button:hover, .rys-import-sections button.is-on { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+.rys-import-body { overflow: auto; padding: .8rem 1rem 1.2rem; }
+.rys-import-err { color: var(--red-ink); }
+.rys-import-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .9rem; margin-bottom: 1.2rem; }
+.rys-import-card { display: grid; gap: .45rem; align-content: start; padding: .7rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); font-size: 13.5px; }
+.rys-import-acts { display: flex; gap: .4rem; flex-wrap: wrap; }
+.rys-import-links { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 2px; }
+.rys-import-links button { display: flex; gap: .5rem; width: 100%; padding: .35rem .5rem; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.rys-import-links button:hover { background: var(--surface-2); color: var(--ink); }
+.rys-import-links span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rys-import-host { position: fixed; left: -10000px; top: 0; width: 720px; visibility: hidden; pointer-events: none; padding: 0; border: 0; }
+/* znaczki legendy dla rodzajów spoza rysunków kodowych */
+.lg-axis { border-color: var(--muted) !important; border-top-style: dashed !important; border-top-width: 1px !important; }
+.lg-outline { height: 9px !important; border: 1px dashed var(--muted) !important; }
+/* okno podglądu i wąski ekran: rysownik jest narzędziem na komputer */
+.rys-preview { margin: auto; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); padding: 1rem; width: min(44rem, 92vw); }
+.rys-preview::backdrop { background: rgba(0, 0, 0, .6); }
+.rys-preview form { display: flex; justify-content: flex-end; margin-top: .75rem; }
+.rys-narrow { display: none; padding: 1.5rem; line-height: 1.6; color: var(--ink-2); }
+@media (max-width: 860px) {
+  .rys-shell .rys-ed { display: none; }
+  .rys-narrow { display: block; }
+}
+.rys-tool[aria-pressed="true"]:hover:not(:disabled) { background: var(--accent-hover); color: var(--on-accent); }
+/* pole „Rysunek” w panelu treści */
+.rys-field { display: grid; gap: .6rem; justify-items: start; padding: .8rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); color: var(--ink); max-width: 34rem; }
+.rys-field-head { display: flex; gap: .75rem; align-items: baseline; font-size: 14px; }
+.rys-field-head span { color: var(--muted); font-size: 13px; }
+.fig.rys-thumb { display: block; width: 100%; max-width: none; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: none; }
+
+/* ==========================================================================
+   Tryb edycji (paczka RA): pasek „Edytuj”, ołówek przy wpisie, pulpit /edycja
+   ========================================================================== */
+.edit-bar { position: fixed; z-index: 60; right: max(1rem, env(safe-area-inset-right)); bottom: calc(1rem + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: .15rem; padding: .3rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); font-size: 14px; }
+@media (max-width: 767px) { .edit-bar { bottom: calc(4.6rem + env(safe-area-inset-bottom)); left: 1rem; right: 1rem; justify-content: space-between; } .edit-bar .edit-bar-desk { display: none; } }
+.edit-bar-on { padding: 0 .6rem 0 .7rem; font: 700 var(--fs-label)/1 var(--font-display); color: var(--accent-ink); white-space: nowrap; }
+.edit-bar a, .edit-bar button { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .75rem; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.edit-bar a:hover, .edit-bar button:hover { background: var(--surface-2); }
+.edit-bar .edit-bar-main { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.edit-bar .edit-bar-main:hover { background: var(--accent-hover); }
+.edit-bar-note { padding: 0 .6rem; color: var(--muted); font-size: 13px; }
+.edit-bar button { font-size: 18px; line-height: 1; padding: .3rem .65rem; color: var(--ink-2); }
+.edit-link { display: inline-flex; align-items: center; gap: .3rem; margin-left: .35rem; padding: .12rem .5rem; border: 1px solid var(--line-strong); border-radius: 999px; font: 500 12.5px/1.5 var(--font-sans, Inter, system-ui, sans-serif); letter-spacing: 0; color: var(--accent-ink); text-decoration: none; vertical-align: middle; white-space: nowrap; }
+.edit-link:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+.edit-page { display: grid; gap: 2.6rem; max-width: 72rem; padding-top: 1.2rem; }
+.edit-page h1 { font: 700 clamp(1.7rem, 3vw, 2.2rem)/1.15 var(--font-display); letter-spacing: -.015em; }
+.edit-page h2 { font: 700 var(--fs-h2)/1.25 var(--font-display); margin-bottom: .9rem; }
+.edit-head { display: grid; gap: .8rem; justify-items: start; }
+.edit-head > p { max-width: 46rem; color: var(--ink-2); line-height: var(--lh-text); }
+.edit-fine { color: var(--muted); font-size: var(--fs-aux); line-height: var(--lh-aux); max-width: 46rem; }
+.edit-page section > .edit-fine { margin-top: .9rem; }
+.edit-switch { display: inline-flex; align-items: center; gap: .7rem; padding: .55rem .9rem .55rem .6rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font: 600 15px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.edit-switch:hover { border-color: var(--ink-2); }
+.edit-switch-track { width: 2.5rem; height: 1.45rem; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--line-strong); position: relative; flex: none; }
+.edit-switch-track span { position: absolute; top: 2px; left: 2px; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--ink-2); transition: transform .15s ease; }
+.edit-switch[aria-checked="true"] .edit-switch-track { background: var(--accent); border-color: var(--accent); }
+.edit-switch[aria-checked="true"] .edit-switch-track span { transform: translateX(1.05rem); background: var(--on-accent); }
+@media (prefers-reduced-motion: reduce) { .edit-switch-track span { transition: none; } }
+.edit-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; }
+.edit-tile { display: grid; gap: .6rem; align-content: start; justify-items: start; padding: 1.1rem 1.2rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.edit-tile.is-main { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.edit-tile h3 { font: 700 var(--fs-h3)/1.3 var(--font-display); display: flex; align-items: baseline; gap: .5rem; }
+.edit-tile h3 small { font: 500 13px/1 var(--font-mono); color: var(--muted); }
+.edit-tile p { color: var(--ink-2); font-size: var(--fs-aux); line-height: var(--lh-aux); }
+.edit-tile .btn { margin-top: .2rem; padding: .5rem .95rem; font-size: 14px; }
+.edit-tile-acts { display: flex; flex-wrap: wrap; gap: .5rem; }
+.edit-steps { display: grid; gap: .7rem; max-width: 50rem; padding-left: 1.4rem; list-style: decimal; color: var(--ink-2); line-height: var(--lh-text); }
+.edit-steps li::marker { font-family: var(--font-mono); color: var(--accent-ink); font-weight: 600; }
+.edit-steps b { color: var(--ink); }
+.edit-steps code, .edit-fig-meta code { font-family: var(--font-mono); font-size: var(--fs-code); padding: .08rem .35rem; border-radius: 5px; background: var(--surface-2); color: var(--ink); }
+.edit-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); gap: 1.2rem; align-items: start; }
+.edit-fig { display: grid; gap: .5rem; scroll-margin-top: 5rem; }
+.edit-fig .fig { max-width: none; }
+.edit-fig-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; font-size: 13px; color: var(--muted); }

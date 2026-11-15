@@ -27,25 +27,13 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
   id: string; code?: string; title: string; caption?: ReactNode; legend?: LegendItem[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
 }) {
-  const a = (k: Kind) => `url(#${id}-a-${k})`;
-  const kinds: Kind[] = ["rap", "cut", "arc", "con", "bad", "dim", "acc"];
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
       <FigZoom title={title} caption={caption}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
-        <defs>
-          <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="6" className="hatch-line" />
-          </pattern>
-          {kinds.map((k) => (
-            <marker key={k} id={`${id}-a-${k}`} markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"
-              refX="8" refY="5" orient="auto-start-reverse" viewBox="0 0 10 10">
-              <path d="M0 1.2 L9 5 L0 8.8 z" className={`mk mk-${k}`} />
-            </marker>
-          ))}
-        </defs>
-        {children({ a, hatch: `url(#${id}-h)` })}
+        <FigDefs id={id} />
+        {children(figCtx(id))}
       </svg>
       </FigZoom>
       {notes && <div className="fig-notes">{notes}</div>}
@@ -56,6 +44,27 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
       )}
       {caption && <figcaption className="fig-cap">{caption}</figcaption>}
     </figure>
+  );
+}
+
+/** Kontekst rysunku o danym id: znaczniki grotów i kreskowanie (definicje wstawia FigDefs). */
+export const figCtx = (id: string): Ctx => ({ a: (k) => `url(#${id}-a-${k})`, hatch: `url(#${id}-h)` });
+
+const MARKER_KINDS: Kind[] = ["rap", "cut", "arc", "con", "bad", "dim", "acc"];
+/** <defs> rysunku: wzór kreskowania i groty w kolorach rodzajów linii. Używa go Fig i edytor rysownika. */
+export function FigDefs({ id }: { id: string }) {
+  return (
+    <defs>
+      <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="6" className="hatch-line" />
+      </pattern>
+      {MARKER_KINDS.map((k) => (
+        <marker key={k} id={`${id}-a-${k}`} markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"
+          refX="8" refY="5" orient="auto-start-reverse" viewBox="0 0 10 10">
+          <path d="M0 1.2 L9 5 L0 8.8 z" className={`mk mk-${k}`} />
+        </marker>
+      ))}
+    </defs>
   );
 }
 
@@ -108,7 +117,7 @@ const OFF: Record<Pos, [number, number, "start" | "middle" | "end"]> = {
 export function Pt({ x, y, label, pos = "ne", cls = "t-b", dot = "pt" }: { x: number; y: number; label?: ReactNode; pos?: Pos; cls?: string; dot?: string }) {
   const [dx, dy, an] = OFF[pos];
   return (
-    <g>
+    <g data-pt={pos}>
       <circle cx={x} cy={y} r={3.6} className={dot} />
       {label && <T x={x + dx} y={y + dy} anchor={an} cls={cls}>{label}</T>}
     </g>
@@ -123,8 +132,9 @@ export function Dim({ x1, y1, x2, y2, off = 0, label, c, cls = "t-mono t-dim", l
   const nx = -dy / L, ny = dx / L;
   const ax = x1 + nx * off, ay = y1 + ny * off, bx = x2 + nx * off, by = y2 + ny * off;
   const mx = ax + (bx - ax) * lpos + nx * 9 * lside, my = ay + (by - ay) * lpos + ny * 9 * lside + 4;
+  // data-dim: geometria wymiaru dla importu do rysownika (src/components/rys/importSvg.ts)
   return (
-    <g>
+    <g data-dim={`${x1},${y1},${x2},${y2},${off},${lside}`}>
       {off !== 0 && <><line x1={x1} y1={y1} x2={ax + nx * 3 * Math.sign(off)} y2={ay + ny * 3 * Math.sign(off)} className="p-ext" />
         <line x1={x2} y1={y2} x2={bx + nx * 3 * Math.sign(off)} y2={by + ny * 3 * Math.sign(off)} className="p-ext" /></>}
       <line x1={ax} y1={ay} x2={bx} y2={by} className="p-dim" markerStart={c.a("dim")} markerEnd={c.a("dim")} />
@@ -136,7 +146,7 @@ export function Dim({ x1, y1, x2, y2, off = 0, label, c, cls = "t-mono t-dim", l
 /** Numer kroku w kółku (kolejność ruchów). */
 export function Step({ x, y, n }: { x: number; y: number; n: number }) {
   return (
-    <g>
+    <g data-step={n}>
       <circle cx={x} cy={y} r={7.5} className="step" />
       <text x={x} y={y + 3.6} textAnchor="middle" className="step-n">{n}</text>
     </g>

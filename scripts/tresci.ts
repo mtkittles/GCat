@@ -3,7 +3,8 @@
    • kody.json    — karty (kolejność wg `order`), z polami star i hasArticle,
    • slownik.json — hasła (kolejność wg `order`), z jawną kotwicą,
    • szukaj.json  — tekst artykułów kart do wyszukiwarki,
-   • diagramy.json — id rysunków z diagrams.tsx (lista wyboru w panelu Keystatic).
+   • diagramy.json — id rysunków z diagrams.tsx (lista wyboru w panelu Keystatic),
+   • rysunki.json — rysunki z rysownika (content/rysunki/*.yaml) dla <Rys> i słownika.
    Uruchamiane automatycznie: postinstall, predev, pretest, prebuild; ręcznie: npm run tresci.
    Błąd treści = lista „plik:linia — opis” i kod wyjścia 1. Argument: katalog treści (domyślnie content). */
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -22,7 +23,8 @@ loadContent(root)
     write("slownik.json", c.slownik.map((h) => hasloToEntry(h.data)));
     write("szukaj.json", Object.fromEntries(c.kody.map((k) => [k.data.slug, k.meta.text])));
     write("diagramy.json", [...diagramIds].sort());
-    const n = { karty: c.kody.length, hasła: c.slownik.length, lekcje: c.lekcje.length, programy: c.programy.length, zadania: c.zadania.length };
+    write("rysunki.json", c.rysunki.map((r) => r.data));
+    const n = { karty: c.kody.length, hasła: c.slownik.length, lekcje: c.lekcje.length, programy: c.programy.length, zadania: c.zadania.length, rysunki: c.rysunki.length };
     console.log(`treści (${root}): ${Object.entries(n).map(([k, v]) => `${k} ${v}`).join(" · ")} — OK → ${out}`);
   })
   .catch((e) => {

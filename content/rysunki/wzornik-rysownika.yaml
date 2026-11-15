@@ -1,0 +1,504 @@
+title: Wzornik rysownika
+caption: >-
+  Rodzaje linii, grubości, wypełnienia, wymiary i czcionki dostępne w rysowniku.
+  Rysunek z tych klocków wygląda jak pozostałe rysunki serwisu.
+legend: []
+rys:
+  h: 300
+  k: 1
+  items:
+    - t: text
+      x: 14
+      'y': 20
+      s: Rodzaje linii
+      anchor: start
+      size: 12.5
+      font: display
+      bold: true
+      color: ink
+    - t: line
+      k: con
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 36
+      x2: 74
+      y2: 36
+    - t: text
+      x: 82
+      'y': 40
+      s: kontur detalu
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: line
+      k: cons
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 52
+      x2: 74
+      y2: 52
+    - t: text
+      x: 82
+      'y': 56
+      s: linia pomocnicza
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: line
+      k: dim
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 68
+      x2: 74
+      y2: 68
+    - t: text
+      x: 82
+      'y': 72
+      s: cienka (wymiarowa)
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: line
+      k: axis
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 84
+      x2: 74
+      y2: 84
+    - t: text
+      x: 82
+      'y': 88
+      s: oś symetrii
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: line
+      k: stock
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 100
+      x2: 74
+      y2: 100
+    - t: text
+      x: 82
+      'y': 104
+      s: półfabrykat
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: line
+      k: cut
+      sw: auto
+      arrow: end
+      x1: 14
+      y1: 116
+      x2: 74
+      y2: 116
+    - t: text
+      x: 82
+      'y': 120
+      s: G01 — ruch roboczy
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: cut
+    - t: line
+      k: rap
+      sw: auto
+      arrow: end
+      x1: 14
+      y1: 132
+      x2: 74
+      y2: 132
+    - t: text
+      x: 82
+      'y': 136
+      s: G00 — ruch szybki
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: rap
+    - t: arc
+      k: arc
+      sw: auto
+      arrow: end
+      cx: 44
+      cy: 172
+      r: 28
+      a0: 215
+      a1: 325
+    - t: text
+      x: 82
+      'y': 152
+      s: G02/G03 — łuk
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: arc
+    - t: line
+      k: acc
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 168
+      x2: 74
+      y2: 168
+    - t: text
+      x: 82
+      'y': 172
+      s: parametr (akcent)
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: acc
+    - t: line
+      k: bad
+      sw: auto
+      arrow: none
+      x1: 14
+      y1: 184
+      x2: 74
+      y2: 184
+    - t: text
+      x: 82
+      'y': 188
+      s: błąd / kolizja
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: bad
+    - t: text
+      x: 14
+      'y': 214
+      s: Grubości
+      anchor: start
+      size: 12.5
+      font: display
+      bold: true
+      color: ink
+    - t: line
+      k: con
+      sw: xs
+      arrow: none
+      x1: 14
+      y1: 228
+      x2: 74
+      y2: 228
+    - t: text
+      x: 82
+      'y': 231
+      s: 0,6
+      anchor: start
+      size: 9.5
+      font: mono
+      bold: false
+      color: ink
+    - t: line
+      k: con
+      sw: s
+      arrow: none
+      x1: 14
+      y1: 240
+      x2: 74
+      y2: 240
+    - t: text
+      x: 82
+      'y': 243
+      s: '1'
+      anchor: start
+      size: 9.5
+      font: mono
+      bold: false
+      color: ink
+    - t: line
+      k: con
+      sw: m
+      arrow: none
+      x1: 14
+      y1: 252
+      x2: 74
+      y2: 252
+    - t: text
+      x: 82
+      'y': 255
+      s: 1,6
+      anchor: start
+      size: 9.5
+      font: mono
+      bold: false
+      color: ink
+    - t: line
+      k: con
+      sw: l
+      arrow: none
+      x1: 14
+      y1: 264
+      x2: 74
+      y2: 264
+    - t: text
+      x: 82
+      'y': 267
+      s: 2,4
+      anchor: start
+      size: 9.5
+      font: mono
+      bold: false
+      color: ink
+    - t: line
+      k: cut
+      sw: xl
+      arrow: end
+      x1: 14
+      y1: 280
+      x2: 74
+      y2: 280
+    - t: text
+      x: 82
+      'y': 283
+      s: 3,4
+      anchor: start
+      size: 9.5
+      font: mono
+      bold: false
+      color: ink
+    - t: text
+      x: 196
+      'y': 20
+      s: Wypełnienia i wymiary
+      anchor: start
+      size: 12.5
+      font: display
+      bold: true
+      color: ink
+    - t: poly
+      k: con
+      sw: auto
+      arrow: none
+      fill: hatch
+      closed: true
+      pts: 200,50 270,50 270,100 245,100 230,85 200,85
+    - t: circle
+      k: con
+      sw: auto
+      fill: hole
+      cx: 220
+      cy: 67
+      r: 9
+    - t: line
+      k: axis
+      sw: auto
+      arrow: none
+      x1: 206
+      y1: 67
+      x2: 234
+      y2: 67
+    - t: line
+      k: axis
+      sw: auto
+      arrow: none
+      x1: 220
+      y1: 53
+      x2: 220
+      y2: 81
+    - t: dim
+      o: h
+      x1: 200
+      y1: 50
+      x2: 270
+      y2: 50
+      'off': -12
+      label: <>
+      side: -1
+      size: 10.5
+      font: mono
+      hz: false
+    - t: dim
+      o: v
+      x1: 270
+      y1: 50
+      x2: 270
+      y2: 100
+      'off': 16
+      label: <>
+      side: -1
+      size: 10.5
+      font: mono
+      hz: false
+    - t: pt
+      x: 200
+      'y': 100
+      label: W
+      pos: sw
+      color: ink
+    - t: rect
+      k: tool
+      sw: auto
+      fill: cut
+      x: 318
+      'y': 36
+      w: 20
+      h: 44
+      r: 0
+    - t: text
+      x: 328
+      'y': 96
+      s: narzędzie
+      anchor: middle
+      size: 9.5
+      font: sans
+      bold: false
+      color: mut
+    - t: rect
+      k: acc
+      sw: auto
+      fill: acc
+      x: 200
+      'y': 126
+      w: 44
+      h: 24
+      r: 0
+    - t: text
+      x: 222
+      'y': 164
+      s: akcent
+      anchor: middle
+      size: 9.5
+      font: sans
+      bold: false
+      color: mut
+    - t: rect
+      k: bad
+      sw: auto
+      fill: bad
+      x: 256
+      'y': 126
+      w: 44
+      h: 24
+      r: 0
+    - t: text
+      x: 278
+      'y': 164
+      s: błąd
+      anchor: middle
+      size: 9.5
+      font: sans
+      bold: false
+      color: mut
+    - t: rect
+      k: none
+      sw: auto
+      fill: cut
+      x: 312
+      'y': 126
+      w: 36
+      h: 24
+      r: 0
+    - t: text
+      x: 330
+      'y': 164
+      s: strefa
+      anchor: middle
+      size: 9.5
+      font: sans
+      bold: false
+      color: mut
+    - t: step
+      x: 208
+      'y': 190
+      'n': 1
+    - t: step
+      x: 230
+      'y': 190
+      'n': 2
+    - t: text
+      x: 246
+      'y': 194
+      s: numery kroków
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: pt
+      x: 208
+      'y': 214
+      label: ''
+      pos: ne
+      color: cut
+    - t: pt
+      x: 222
+      'y': 214
+      label: ''
+      pos: ne
+      color: rap
+    - t: pt
+      x: 236
+      'y': 214
+      label: ''
+      pos: ne
+      color: arc
+    - t: text
+      x: 246
+      'y': 218
+      s: punkty toru
+      anchor: start
+      size: 9.5
+      font: sans
+      bold: false
+      color: ink
+    - t: text
+      x: 200
+      'y': 246
+      s: Tekst 11
+      anchor: start
+      size: 11
+      font: sans
+      bold: false
+      color: ink
+    - t: text
+      x: 262
+      'y': 246
+      s: Kod
+      anchor: start
+      size: 11
+      font: mono
+      bold: false
+      color: ink
+    - t: text
+      x: 300
+      'y': 246
+      s: Nagłówek
+      anchor: start
+      size: 11
+      font: display
+      bold: true
+      color: ink
+    - t: text
+      x: 200
+      'y': 276
+      s: G01 X80. F400
+      anchor: start
+      size: 14
+      font: mono
+      bold: false
+      color: cut

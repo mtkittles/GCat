@@ -60,6 +60,8 @@ export interface GcatRemarkOptions {
   components: string[];
   /** Dozwolone id rysunków dla <Diagram id="…" />. */
   diagramIds: Set<string>;
+  /** Rysunki z rysownika dla <Rys id="…" /> (content/rysunki/); brak = bez kontroli (kontrolę robi npm run tresci). */
+  rysIds?: Set<string>;
   /** Wymagaj jawnej kotwicy {#id} w każdym nagłówku (domyślnie tak). */
   requireHeadingIds?: boolean;
 }
@@ -183,6 +185,12 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           const id = strAttr(el, "id");
           if (typeof id !== "string") at(n, `<Diagram> wymaga id="…" (tekst)`);
           else if (!opts.diagramIds.has(id)) at(n, `<Diagram id="${id}" /> — nie ma takiego rysunku w diagrams.tsx`);
+        }
+        if (el.name === "Rys") {
+          meta.diagrams++;
+          const id = strAttr(el, "id");
+          if (typeof id !== "string") at(n, `<Rys> wymaga id="…" (nazwa rysunku z content/rysunki/)`);
+          else if (opts.rysIds && !opts.rysIds.has(id)) at(n, `<Rys id="${id}" /> — nie ma pliku content/rysunki/${id}.yaml`);
         }
         if (el.name === "Obraz") {
           const src = strAttr(el, "src");

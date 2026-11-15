@@ -18,6 +18,7 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
 - `src/components/simulator/` — symulator 2D (canvas), 3D (three.js), edytor, narzędzia, półfabrykat.
 - `src/components/lesson/` — widok lekcji, ćwiczenia interaktywne, rysunki `figs-*.tsx`.
 - `src/lib/progress.ts`, `exercisesDone.ts`, `app/symulator/programs.ts` — stan w przeglądarce; `src/lib/sync.ts`, `auth.ts`, `supabase.ts` — konto i synchronizacja; `entitlements.ts` — plany Free/Pro; `supabase/migrations/` — schemat bazy.
+- `src/lib/rys/`, `src/components/rys/` — rysownik: model rysunku, renderer wspólny z `fig.tsx`, edytor (`/rysownik`), pole panelu; rysunki w `content/rysunki/*.yaml` (README obok). `src/lib/edycja.ts`, `/edycja` — tryb edycji i adresy wpisów w panelu.
 - `docs/karty-kodow.md` — standard opracowania kart i lekcji + tabela statusu audytu. **Czytaj przed pracą nad treścią.**
 - `docs/audyt-tresci-2026-10.md` — raport audytu treści.
 

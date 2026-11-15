@@ -5,9 +5,10 @@ import type { z } from "zod";
 import { compileContentMeta } from "./compile";
 import { componentNames, diagramIds as liveDiagramIds } from "./names";
 import { ContentError, MARKER_RE, type ContentIssue, type GcatMeta } from "./remark";
+import { parseDoc, storeDoc, type RysFigure } from "@/lib/rys/model";
 import { knownCodes, resolveKey, selfCodes, sourcesFrom, type TermSources } from "./resolve";
 import {
-  cwiczeniaSchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, zadanieSchema,
+  cwiczeniaSchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, rysunekSchema, zadanieSchema,
   type Cwiczenia, type Haslo, type Kod, type Lekcja, type Program, type Zadanie,
 } from "./schema";
 
@@ -30,7 +31,9 @@ export interface HasloEntry { file: string; data: Haslo }
 export interface LekcjaEntry { file: string; tor: "frezowanie" | "toczenie"; data: Lekcja; body: string; cwiczenia: Cwiczenia }
 export interface ProgramEntry { file: string; data: Program; body: string; nc: string | null }
 export interface ZadanieEntry { file: string; data: Zadanie }
-export interface Content { kody: KodEntry[]; slownik: HasloEntry[]; lekcje: LekcjaEntry[]; programy: ProgramEntry[]; zadania: ZadanieEntry[] }
+/** rysunek z rysownika: `data` w kształcie, którego używa strona (slug = nazwa pliku) */
+export interface RysunekEntry { file: string; data: RysFigure }
+export interface Content { kody: KodEntry[]; slownik: HasloEntry[]; lekcje: LekcjaEntry[]; programy: ProgramEntry[]; zadania: ZadanieEntry[]; rysunki: RysunekEntry[] }
 
 export class ContentErrors extends Error {
   constructor(public errors: ContentError[]) {
@@ -84,7 +87,8 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   const errors: ContentError[] = [];
   const fail = (file: string, issues: ContentIssue[]) => { if (issues.length) errors.push(new ContentError(rel(file), issues)); };
   let sources: TermSources = { gcodes: [], glossary: [] };
-  const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds });
+  const rysIds = new Set<string>();
+  const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds, rysIds });
   const tryCompileMeta = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => {
     try { return await compileContentMeta(src, { ...compileOpts(file), ...extra }); } catch (e) {
       if (e instanceof ContentError) errors.push(e); else throw e;
@@ -119,7 +123,22 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   };
   const unexpected = (dir: string, f: string, want: string) => fail(path.join(dir, f), [{ message: `nieoczekiwany plik — w tym katalogu tylko ${want} (i README.md)` }]);
 
-  const out: Content = { kody: [], slownik: [], lekcje: [], programy: [], zadania: [] };
+  const out: Content = { kody: [], slownik: [], lekcje: [], programy: [], zadania: [], rysunki: [] };
+
+  // ── faza 0: rysunki z rysownika (karty i hasła odwołują się do nich po nazwie pliku)
+  const rysDir = path.join(root, "rysunki");
+  const rysRaw: { file: string; data: RysFigure }[] = [];
+  for (const f of list(rysDir)) {
+    if (!f.endsWith(".yaml")) { unexpected(rysDir, f, "<nazwa>.yaml"); continue; }
+    const file = path.join(rysDir, f), s = f.slice(0, -5);
+    const data = readYaml(file, rysunekSchema);
+    if (!data) continue;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(s)) fail(file, [{ message: `nazwa pliku „${f}”: małe litery, cyfry i pojedyncze myślniki` }]);
+    const canon = storeDoc(parseDoc(data.rys));
+    if (JSON.stringify(canon) !== JSON.stringify(data.rys)) fail(file, [{ message: "pole „rys”: zapis inny niż z rysownika (nieznany element, wartość spoza zakresu albo inna kolejność pól) — otwórz rysunek w panelu i zapisz" }]);
+    rysIds.add(s);
+    rysRaw.push({ file, data: { slug: s, title: data.title, code: data.code, caption: data.caption, legend: data.legend, h: canon.h, k: canon.k, items: canon.items } });
+  }
 
   // ── faza 1: frontmatter kart i hasła słownika (z nich powstają źródła markerów [[…]])
   const kodyDir = path.join(root, "kody");
@@ -142,6 +161,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     if (!data) continue;
     if (data.anchor !== f.slice(0, -5)) fail(file, [{ message: `anchor „${data.anchor}” ≠ nazwa pliku „${f}”` }]);
     if (data.diagram !== "" && !diagramIds.has(data.diagram)) fail(file, [{ message: `diagram „${data.diagram}” — nie ma takiego rysunku w diagrams.tsx` }]);
+    if (data.rysunek !== "" && !rysIds.has(data.rysunek)) fail(file, [{ message: `rysunek „${data.rysunek}” — nie ma pliku content/rysunki/${data.rysunek}.yaml` }]);
     out.slownik.push({ file: rel(file), data });
   }
   out.slownik.sort((x, y) => x.data.order - y.data.order);
@@ -149,6 +169,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   sources = o.sources ?? sourcesFrom(kodyRaw.map((k) => k.data), out.slownik.map((h) => h.data));
   const known = knownCodes(sources);
   for (const h of out.slownik) checkMarkers(h.file, h.data);
+  for (const r of rysRaw) { checkMarkers(r.file, { caption: r.data.caption }); out.rysunki.push({ file: rel(r.file), data: r.data }); }
 
   // ── faza 2: treść kart (MDX) i pola z auto-linkami gołych kodów G/M jak CodeText
   for (const { file, data, body: src } of kodyRaw) {

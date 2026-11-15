@@ -21,7 +21,7 @@ describe("Keystatic round-trip: otwórz i zapisz bez zmian = zero diffu", () => 
     expect(JSON.parse(readFileSync("node_modules/@keystatic/core/package.json", "utf8")).version).toBe("0.6.9");
   });
 
-  for (const [col, dir, ext, n] of [["kody", "content/kody", ".mdx", 55], ["slownik", "content/slownik", ".yaml", 84]] as const) {
+  for (const [col, dir, ext, n] of [["kody", "content/kody", ".mdx", 55], ["slownik", "content/slownik", ".yaml", 84], ["rysunki", "content/rysunki", ".yaml", 1]] as const) {
     it(`${dir}: ${n} plików`, async () => {
       const { roundtripEntry } = await import("./keystatic-roundtrip");
       const cfg = (await import("../keystatic.config")).default;
@@ -36,6 +36,17 @@ describe("Keystatic round-trip: otwórz i zapisz bez zmian = zero diffu", () => 
       expect(zmienione).toEqual([]);
     }, 300000);
   }
+
+  it("blok Rys w karcie i pole rysunek w haśle przechodzą bez zmian", async () => {
+    const { roundtripEntry } = await import("./keystatic-roundtrip");
+    const cfg = (await import("../keystatic.config")).default;
+    const karta = readFileSync("content/kody/g01.mdx", "utf8") + '\n<Rys id="wzornik-rysownika" />\n';
+    expect(await roundtripEntry(cfg, "kody", "g01", karta)).toBe(karta);
+    const haslo = readFileSync("content/slownik/faza.yaml", "utf8");
+    const zRys = haslo.replace(/^diagram: (.*)$/m, (m) => `${m}\nrysunek: wzornik-rysownika`);
+    expect(zRys).not.toBe(haslo);
+    expect(await roundtripEntry(cfg, "slownik", "faza", zRys)).toBe(zRys);
+  }, 120000);
 
   it("blok Obraz (plik w public/rysunki/<slug>/) i Diagram przechodzą bez zmian", async () => {
     const { roundtripEntry } = await import("./keystatic-roundtrip");
