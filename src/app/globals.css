@@ -3504,25 +3504,32 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-step select, .rys-row select, .rys-row input, .rys-num input { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: .3rem .4rem; font: inherit; font-size: 13px; min-width: 0; }
 .rys-actions { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
 
-.rys-stage { grid-column: 1; grid-row: 2; display: grid; place-items: center; overflow: auto; min-height: 0; padding: 20px;
+.rys-stage { grid-column: 1; grid-row: 2; overflow: auto; min-height: 0; overscroll-behavior: contain;
   background: var(--bg) radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.2px) 0 0 / 18px 18px; }
+/* arkusz na środku, a po powiększeniu przewijany we wszystkie strony (grid + place-items ucina lewą krawędź) */
+.rys-pad { box-sizing: border-box; min-width: 100%; min-height: 100%; width: max-content; height: max-content; padding: 40px; display: grid; place-items: center; }
+.rys-stage.is-pan, .rys-stage.is-pan .rys-svg { cursor: grab !important; }
+.rys-stage.is-panning, .rys-stage.is-panning .rys-svg { cursor: grabbing !important; }
 .fig.rys-sheet { display: block; max-width: none; margin: 0; padding: 0; gap: 0; border: 0; border-radius: 6px; background: none; box-shadow: 0 0 0 1px var(--line-strong), var(--shadow); flex: none; }
 .fig.rys-sheet svg { width: 100%; height: 100%; border-radius: 6px; touch-action: none; user-select: none; cursor: crosshair; }
 .fig.rys-sheet svg.tool-select { cursor: default; }
 .rys-svg:not(.tool-select) .rys-item { pointer-events: none; }
 .rys-svg.tool-select .rys-item { cursor: move; }
-.fig .rys-hit { stroke: transparent; stroke-width: 10; fill: none; pointer-events: stroke; }
+.fig .rys-hit { stroke: transparent; stroke-width: 10; fill: none; pointer-events: stroke; vector-effect: non-scaling-stroke; }
 .fig .rys-hit.is-fill { fill: transparent; pointer-events: all; }
-.fig .rys-hitwrap * { stroke: transparent !important; stroke-width: 10 !important; stroke-dasharray: none !important; fill: none !important; pointer-events: stroke; }
+.fig .rys-hitwrap * { stroke: transparent !important; stroke-width: 10 !important; stroke-dasharray: none !important; fill: none !important; pointer-events: stroke; vector-effect: non-scaling-stroke; }
 .fig .rys-hitwrap.is-fill * { fill: transparent !important; pointer-events: all; }
-.fig .rys-gmin { fill: none; stroke: color-mix(in srgb, var(--ink) 8%, transparent); stroke-width: .35; }
-.fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .5; }
+.fig .rys-gmin { fill: none; stroke: color-mix(in srgb, var(--ink) 9%, transparent); stroke-width: .6; vector-effect: non-scaling-stroke; }
+.fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .fig .rys-draft { opacity: .75; }
-.fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: .7; stroke-dasharray: 3 2; }
-.fig .rys-handle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.2; cursor: grab; }
+.fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.fig .rys-handle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.5; cursor: grab; vector-effect: non-scaling-stroke; }
 .fig .rys-handle.is-alt { fill: var(--accent); }
-.fig .rys-close { fill: color-mix(in srgb, var(--accent) 35%, transparent); stroke: var(--accent); stroke-width: 1; }
-.fig .rys-marquee { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--accent); stroke-width: .6; stroke-dasharray: 2 2; }
+.fig .rys-close { fill: color-mix(in srgb, var(--accent) 35%, transparent); stroke: var(--accent); stroke-width: 1.2; vector-effect: non-scaling-stroke; }
+.fig .rys-marquee { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+.fig .rys-chord { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
+/* znacznik przyciągania (OSNAP): koniec □, środek okręgu ○, przecięcie ×, środek odcinka △, kwadrant ◇, prostopadle ⊥, na linii ⧖ */
+.fig .rys-snap path, .fig .rys-snap circle { fill: none; stroke: #22D3EE; stroke-width: 1.6; vector-effect: non-scaling-stroke; }
 
 .rys-panel { grid-column: 2; grid-row: 2; overflow: auto; min-height: 0; padding: .8rem; display: grid; gap: 1.1rem; align-content: start; background: var(--card); border-left: 1px solid var(--line); font-size: 13.5px; }
 .rys-group { display: grid; gap: .55rem; }
@@ -3551,14 +3558,53 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-btn { display: flex; align-items: center; gap: .4rem; padding: .35rem .5rem; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
 .rys-btn:hover { border-color: var(--ink-2); background: var(--surface-2); }
 .rys-btn svg { width: 16px; height: 16px; flex: none; }
-.rys-layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 15rem; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.rys-layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: max(15rem, calc(100vh - 30rem)); overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
 .rys-layers button { display: flex; gap: .4rem; width: 100%; padding: .32rem .5rem; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
 .rys-layers button:hover { background: var(--surface-2); }
 .rys-layers button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--accent); }
 .rys-layers b { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .rys-layers span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rys-status { grid-column: 1 / -1; display: flex; gap: 1.2rem; align-items: baseline; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.rys-status { grid-column: 1 / -1; display: flex; gap: 1rem; align-items: baseline; white-space: nowrap; overflow: hidden; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
 .rys-coords { font-family: var(--font-mono); color: var(--ink-2); min-width: 9.5rem; }
+.rys-snapname { color: #22D3EE; font-weight: 600; min-width: 6.5rem; }
+.rys-measure { font-family: var(--font-mono); color: var(--ink); min-width: 7rem; }
+.rys-hint { overflow: hidden; text-overflow: ellipsis; }
+.rys-zoom span { font-family: var(--font-mono); }
+.rys-sub-h { font-size: var(--fs-label); color: var(--muted); margin-bottom: -.2rem; }
+.rys-mono { font-family: var(--font-mono); color: var(--ink); }
+.rys-tip code, .rys-import code { font-family: var(--font-mono); font-size: 12px; padding: 0 .25rem; border-radius: 4px; background: var(--surface-2); color: var(--ink); }
+.rys-widths { display: grid; grid-template-columns: auto repeat(5, 1fr); gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.rys-widths button { display: grid; justify-items: center; gap: 1px; padding: .3rem .35rem .2rem; white-space: nowrap; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: 11px/1.2 var(--font-mono); cursor: pointer; }
+.rys-widths button svg { width: 100%; height: 12px; }
+.rys-widths button svg line { stroke: currentColor; stroke-linecap: round; }
+.rys-widths button:hover { background: var(--surface-3); color: var(--ink); }
+.rys-widths button[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-widths button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fig .rys-sw-fill { fill: color-mix(in srgb, var(--accent) 30%, transparent); stroke: none; }
+/* okno importu ze strony */
+.rys-import { margin: auto; width: min(64rem, 94vw); max-height: 88vh; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); display: none; }
+.rys-import[open] { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); }
+.rys-import::backdrop { background: rgba(0, 0, 0, .6); }
+.rys-import header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1rem; border-bottom: 1px solid var(--line); }
+.rys-import h2 { font: 700 1.05rem/1.2 var(--font-display); margin: 0; }
+.rys-import h3 { font: 700 var(--fs-aux)/1.3 var(--font-display); margin: .4rem 0 .6rem; }
+.rys-import .btn { padding: .45rem .9rem; font-size: 14px; }
+.rys-import-bar { display: flex; gap: .6rem; align-items: end; padding: .8rem 1rem .4rem; }
+.rys-import-bar label { display: grid; gap: .25rem; flex: 1; font-size: var(--fs-label); color: var(--muted); }
+.rys-import-bar input { padding: .45rem .6rem; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--card); color: var(--ink); font: 14px var(--font-mono); }
+.rys-import-sections { display: flex; flex-wrap: wrap; gap: .35rem; padding: .2rem 1rem .7rem; border-bottom: 1px solid var(--line); }
+.rys-import-sections button { padding: .3rem .7rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--card); color: var(--ink-2); font: 500 13px/1.3 var(--font-sans, Inter, sans-serif); cursor: pointer; }
+.rys-import-sections button:hover, .rys-import-sections button.is-on { border-color: var(--accent); color: var(--ink); background: var(--accent-soft); }
+.rys-import-body { overflow: auto; padding: .8rem 1rem 1.2rem; }
+.rys-import-err { color: var(--red-ink); }
+.rys-import-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .9rem; margin-bottom: 1.2rem; }
+.rys-import-card { display: grid; gap: .45rem; align-content: start; padding: .7rem; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); font-size: 13.5px; }
+.rys-import-acts { display: flex; gap: .4rem; flex-wrap: wrap; }
+.rys-import-links { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr)); gap: 2px; }
+.rys-import-links button { display: flex; gap: .5rem; width: 100%; padding: .35rem .5rem; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.rys-import-links button:hover { background: var(--surface-2); color: var(--ink); }
+.rys-import-links span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rys-import-host { position: fixed; left: -10000px; top: 0; width: 720px; visibility: hidden; pointer-events: none; padding: 0; border: 0; }
 /* znaczki legendy dla rodzajów spoza rysunków kodowych */
 .lg-axis { border-color: var(--muted) !important; border-top-style: dashed !important; border-top-width: 1px !important; }
 .lg-outline { height: 9px !important; border: 1px dashed var(--muted) !important; }

@@ -1,28 +1,14 @@
 "use client";
-import { useId, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
-import { FigDefs, figCtx } from "@/components/fig";
-import { parseDoc, RYS_W, storeDoc, type RysDoc, type StoredDoc } from "@/lib/rys/model";
+import { parseDoc, storeDoc, type RysDoc, type StoredDoc } from "@/lib/rys/model";
 import Editor from "./Editor";
-import { renderItem } from "./render";
+import { RysThumb } from "./Thumb";
 
 /*
   Pole „Rysunek” w panelu treści (Keystatic): miniatura i przycisk otwierający rysownik na całym ekranie.
   Rysunek trafia do formularza dopiero po „Gotowe”; zapis wpisu robi panel (gałąź → PR), jak przy każdej treści.
 */
-export function RysThumb({ doc }: { doc: RysDoc }) {
-  const id = `t${useId().replace(/[^a-zA-Z0-9]/g, "")}`;
-  const c = figCtx(id);
-  return (
-    <div className="fig rys-thumb">
-      <svg viewBox={`0 0 ${RYS_W} ${doc.h}`} role="img" aria-label="Miniatura rysunku">
-        <FigDefs id={id} />
-        {doc.items.map((it) => <g key={it.id}>{renderItem(it, c)}</g>)}
-      </svg>
-    </div>
-  );
-}
-
 export default function RysFieldInput({ value, onChange, label }: { value: StoredDoc; onChange: (v: StoredDoc) => void; label: string }) {
   const [open, setOpen] = useState<RysDoc | null>(null); // rysunek, od którego startuje otwarty edytor
   const [work, setWork] = useState<RysDoc | null>(null);

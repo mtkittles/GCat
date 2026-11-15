@@ -9,12 +9,12 @@ import { H_DEFAULT, parseDoc, storeDoc, type StoredDoc } from "./model";
   Kształt obiektu = BasicFormField z @keystatic/core 0.6.9 (form/api.d.ts).
 */
 export function rysunekPole({ label }: { label: string }): BasicFormField<StoredDoc> {
-  const parse = (value: FormFieldStoredValue): StoredDoc => storeDoc(parseDoc(value ?? { h: H_DEFAULT, items: [] }));
+  const parse = (value: FormFieldStoredValue): StoredDoc => storeDoc(parseDoc(value ?? { h: H_DEFAULT, k: 1, items: [] }));
   return {
     kind: "form",
     label,
     Input: (props) => createElement(RysFieldInput, { value: props.value, onChange: props.onChange, label }),
-    defaultValue: () => ({ h: H_DEFAULT, items: [] }),
+    defaultValue: () => ({ h: H_DEFAULT, k: 1, items: [] }),
     parse,
     serialize: (value) => ({ value: value as unknown as FormFieldStoredValue }),
     validate: (value) => value,

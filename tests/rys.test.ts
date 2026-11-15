@@ -4,7 +4,8 @@ import { editTarget, panelUrl } from "@/lib/edycja";
 import { compileContent } from "@/lib/mdx/compile";
 import { componentNames, diagramIds } from "@/lib/mdx/components";
 import {
-  arcPath, arcSweep, autoLegend, bbox, constrain, handles, moveHandle, parseDoc, snap, snapPoints, storeDoc, translate, type Item, type RysDoc,
+  arcEnds, arcFrom3, arcPath, arcSweep, autoLegend, autoOrient, bbox, constrain, dimGeom, dimText, handles, moveHandle, parseDoc, snap, snapCache, storeDoc, strokeOf, translate,
+  type Item, type RysDoc,
 } from "@/lib/rys/model";
 import { liveSources } from "@/lib/mdx/live";
 
@@ -29,7 +30,8 @@ describe("model: odczyt i zapis", () => {
     const a = storeDoc(doc());
     expect(storeDoc(parseDoc(a))).toEqual(a);
     expect(JSON.stringify(storeDoc(parseDoc(a)))).toBe(JSON.stringify(a)); // także kolejność kluczy
-    expect(a.items[0]).toEqual({ t: "rect", k: "con", thick: false, fill: "hatch", x: 60, y: 60, w: 180, h: 100, r: 0 });
+    expect(a.items[0]).toEqual({ t: "rect", k: "con", sw: "auto", fill: "hatch", x: 60, y: 60, w: 180, h: 100, r: 0 });
+    expect(a.k).toBe(1);
     expect(a.items[2].pts).toBe("10,20 30.5,40 50,20");
     expect(a.items.every((i) => !("id" in i))).toBe(true);
   });
@@ -37,14 +39,25 @@ describe("model: odczyt i zapis", () => {
     const d = parseDoc({ h: 9999, items: [{ t: "line", k: "różowy", arrow: "x", x1: 1e9, y1: "a", x2: 0, y2: 0 }, { t: "obrazek" }, { t: "text", s: "  " }, null, { t: "poly", pts: "1,1" }] });
     expect(d.h).toBe(480);
     expect(d.items.length).toBe(1);
-    expect(d.items[0]).toMatchObject({ t: "line", k: "con", arrow: "none", x1: 800, y1: 0 });
+    expect(d.items[0]).toMatchObject({ t: "line", k: "con", arrow: "none", x1: 1000, y1: 0 });
   });
-  it("współrzędne zaokrąglają się do 0,5", () => {
-    expect(parseDoc({ items: [{ t: "pt", x: 10.26, y: 10.74 }] }).items[0]).toMatchObject({ x: 10.5, y: 10.5 });
+  it("współrzędne z dokładnością 0,01", () => {
+    expect(parseDoc({ items: [{ t: "pt", x: 10.264, y: 10.746 }] }).items[0]).toMatchObject({ x: 10.26, y: 10.75 });
+  });
+  it("dawny zapis: thick, rozmiar sm/md/lg i mono przechodzą na grubość, rozmiar i czcionkę", () => {
+    const d = parseDoc({ items: [{ t: "line", k: "cut", thick: true, x1: 0, y1: 0, x2: 1, y2: 1 }, { t: "text", s: "A", size: "lg", mono: true }, { t: "dim", x1: 0, y1: 0, x2: 10, y2: 0, label: "80" }] });
+    expect(d.items[0]).toMatchObject({ sw: "l" });
+    expect(d.items[1]).toMatchObject({ size: 14, font: "mono" });
+    expect(d.items[2]).toMatchObject({ o: "a", size: 10.5, font: "mono", hz: false, label: "80" });
+  });
+  it("grubość: wg rodzaju = grubość z CSS rysunków, inaczej z listy", () => {
+    expect(strokeOf("con", "auto")).toBe(1.6);
+    expect(strokeOf("dim", "xl")).toBe(3.4);
+    expect(strokeOf("none", "l")).toBe(0);
   });
   it("legenda automatyczna: użyte rodzaje w stałej kolejności", () => {
     expect(autoLegend(doc())).toEqual(["con", "hatch", "cut", "rap", "arc", "dim"]);
-    expect(autoLegend({ h: 100, items: [] })).toEqual([]);
+    expect(autoLegend({ items: [] })).toEqual([]);
   });
 });
 
@@ -56,12 +69,27 @@ describe("model: geometria", () => {
     expect(arcPath({ cx: 0, cy: 0, r: 10, a0: 0, a1: 90 })).toBe("M 10 0 A 10 10 0 0 1 0 10");
     expect(arcPath({ cx: 0, cy: 0, r: 10, a0: 90, a1: 0 })).toContain("A 10 10 0 1 1");
   });
-  it("przyciąganie: punkt charakterystyczny przed siatką, Alt-owy tryb bez siatki", () => {
-    const pts = snapPoints(doc().items);
-    expect(pts).toContainEqual([60, 60]);
-    expect(snap(61.5, 58.8, { grid: 5, points: pts })).toEqual({ x: 60, y: 60, to: "point" });
-    expect(snap(133, 12, { grid: 5, points: pts })).toEqual({ x: 135, y: 10, to: "grid" });
-    expect(snap(133.2, 12.4, { grid: 0 })).toEqual({ x: 133, y: 12.5, to: "free" });
+  it("przyciąganie jak w CAD: koniec, przecięcie, środek, prostopadle, na linii, siatka", () => {
+    const items = parseDoc({ items: [
+      { t: "line", x1: 0, y1: 0, x2: 100, y2: 0 }, { t: "line", x1: 50, y1: -50, x2: 50, y2: 50 }, { t: "circle", cx: 200, cy: 0, r: 20 },
+    ] }).items;
+    const cache = snapCache(items);
+    expect(snap(1.5, 1, { grid: 5, cache })).toEqual({ x: 0, y: 0, to: "end" });
+    expect(snap(51, -1.2, { grid: 5, cache })).toEqual({ x: 50, y: 0, to: "int" }); // przecięcie wygrywa ze środkiem odcinka
+    expect(snap(201, 1, { grid: 5, cache })).toEqual({ x: 200, y: 0, to: "center" });
+    expect(snap(30.3, 2, { grid: 5, cache })).toEqual({ x: 30.3, y: 0, to: "near" }); // na linii, dokładnie na niej
+    expect(snap(37, 2, { grid: 5, cache, from: [37, 40] })).toEqual({ x: 37, y: 0, to: "perp" });
+    const n = snap(214.2, 14.3, { grid: 5, cache, tol: 3 }); // punkt na okręgu
+    expect(n.to).toBe("near");
+    expect(Math.hypot(n.x - 200, n.y)).toBeCloseTo(20, 1);
+    expect(snap(133, 12, { grid: 5, cache })).toEqual({ x: 135, y: 10, to: "grid" });
+    expect(snap(133.2, 12.4, { grid: 0 })).toEqual({ x: 133.2, y: 12.4, to: "free" });
+  });
+  it("przecięcie linii z łukiem leży na łuku — linia dorysowana do niego łączy się dokładnie", () => {
+    const items = parseDoc({ items: [{ t: "arc", cx: 0, cy: 0, r: 50, a0: 0, a1: 90 }, { t: "line", x1: 30, y1: -10, x2: 30, y2: 100 }] }).items;
+    const s = snap(30.5, 39, { grid: 5, cache: snapCache(items) });
+    expect(s.to).toBe("int");
+    expect(s.x).toBe(30); expect(s.y).toBe(40);
   });
   it("Shift: kierunek co 45°", () => {
     expect(constrain(0, 0, 50, 4)).toEqual([50, 0]);
@@ -78,6 +106,36 @@ describe("model: geometria", () => {
     const h = handles(d).find((x) => x.key === "off")!;
     expect([h.x, h.y]).toEqual([150, 174]);
     expect(moveHandle(d, "off", 150, 190)).toMatchObject({ off: 30, x1: 60, x2: 240 });
+  });
+  it("wymiar poziomy i pionowy jak w CAD; „<>” = zmierzona wartość w mm wg skali", () => {
+    const p1: [number, number] = [0, 0], p2: [number, number] = [40, 30];
+    expect(autoOrient(p1, p2, [20, -20])).toBe("h"); // kursor nad odcinkiem
+    expect(autoOrient(p1, p2, [70, 15])).toBe("v"); // kursor z boku
+    const h = dimGeom({ o: "h", x1: 0, y1: 0, x2: 40, y2: 30, off: -35 });
+    expect(h.A).toEqual([0, -20]); expect(h.B).toEqual([40, -20]); expect(h.len).toBe(40);
+    const v = dimGeom({ o: "v", x1: 0, y1: 0, x2: 40, y2: 30, off: 40 });
+    expect(v.A).toEqual([60, 0]); expect(v.len).toBe(30);
+    expect(dimGeom({ o: "a", x1: 0, y1: 0, x2: 40, y2: 30, off: 0 }).len).toBe(50);
+    expect(dimText({ label: "⌀<>" }, h, 2)).toBe("⌀20");
+    expect(dimText({ label: "<> h7" }, v, 4)).toBe("7,5 h7");
+  });
+  it("łuk z cięciwy: przez początek, punkt na łuku i koniec, w dobrą stronę", () => {
+    const g = arcFrom3([0, 0], [50, -50], [100, 0])!; // łuk nad cięciwą (y w dół)
+    expect(g).toMatchObject({ cx: 50, cy: 0, r: 50 });
+    const [s, m, e] = arcEnds(g);
+    expect(m[1]).toBeCloseTo(-50, 5);
+    expect([s, e].map((p) => p.map((v) => Math.round(v)))).toEqual(expect.arrayContaining([[0, 0], [100, 0]]));
+    const g2 = arcFrom3([0, 0], [50, 50], [100, 0])!; // ten sam okrąg, łuk pod cięciwą
+    expect(arcEnds(g2)[1][1]).toBeCloseTo(50, 5);
+    expect(arcFrom3([0, 0], [50, 0], [100, 0])).toBeNull();
+  });
+  it("uchwyty łuku jak w CAD: koniec przesuwa się, drugi koniec i punkt środkowy zostają", () => {
+    const a = parseDoc({ items: [{ t: "arc", cx: 50, cy: 0, r: 50, a0: 180, a1: 360 }] }).items[0];
+    const moved = moveHandle(a, "e", 100, 20) as Extract<Item, { t: "arc" }>;
+    const [s, m, e] = arcEnds(moved);
+    expect(s.map(Math.round)).toEqual([0, 0]);
+    expect(e[0]).toBeCloseTo(100, 1); expect(e[1]).toBeCloseTo(20, 1);
+    expect(Math.hypot(m[0] - 50, m[1] + 50)).toBeGreaterThan(0); // łuk przebudowany przez trzy punkty
   });
   it("przesunięcie i prostokąt otaczający", () => {
     const p = translate(item(doc(), "poly"), 5, -5);

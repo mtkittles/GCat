@@ -12,6 +12,7 @@ export const icons = {
   rect: <I><rect x="3.5" y="5" width="13" height="10" rx="1" /></I>,
   circle: <I><circle cx="10" cy="10" r="6.5" /></I>,
   arc: <I><path d="M4 15A11 11 0 0 1 15 4" /><circle cx="15" cy="15" r="1.2" fill="currentColor" /></I>,
+  arcc: <I><path d="M4 15A11 11 0 0 1 15 4" /><path d="M15 15L4 15M15 15L15 4" strokeDasharray="1.6 1.8" /><circle cx="15" cy="15" r="1.4" fill="currentColor" /></I>,
   text: <I><path d="M5 5h10M10 5v10M8 15h4" /></I>,
   dim: <I><path d="M3 10h14M3 6v8M17 6v8M3 10l2.5-1.6M3 10l2.5 1.6M17 10l-2.5-1.6M17 10l-2.5 1.6" /></I>,
   pt: <I><circle cx="10" cy="10" r="2.6" fill="currentColor" /><path d="M10 3v2.5M10 14.5V17M3 10h2.5M14.5 10H17" /></I>,
@@ -25,6 +26,10 @@ export const icons = {
   copy: <I><rect x="7" y="7" width="9" height="9" rx="1.5" /><path d="M13 7V5.5A1.5 1.5 0 0 0 11.5 4h-6A1.5 1.5 0 0 0 4 5.5v6A1.5 1.5 0 0 0 5.5 13H7" /></I>,
   up: <I><path d="M10 15V5M6 9l4-4 4 4" /></I>,
   down: <I><path d="M10 5v10M6 11l4 4 4-4" /></I>,
+  import: <I><path d="M10 3v9M6.5 8.5L10 12l3.5-3.5" /><path d="M4 13v3h12v-3" /></I>,
+  zin: <I><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2L16.5 16.5M6.3 8.5h4.4M8.5 6.3v4.4" /></I>,
+  zout: <I><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2L16.5 16.5M6.3 8.5h4.4" /></I>,
+  fit: <I><path d="M3.5 7V3.5H7M13 3.5h3.5V7M16.5 13v3.5H13M7 16.5H3.5V13" /><rect x="7" y="7" width="6" height="6" rx="1" /></I>,
   flip: <I><path d="M4 8h12l-3-3M16 12H4l3 3" /></I>,
 };
 export type IconName = keyof typeof icons;

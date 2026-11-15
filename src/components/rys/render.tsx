@@ -1,18 +1,22 @@
 import type { CSSProperties, ReactNode } from "react";
-import { Dim, Pt, Step, T, type Ctx, type Kind } from "@/components/fig";
-import { arcPath, polyPath, type Arrow, type Fill, type Item, type LineKind, type PtColor } from "@/lib/rys/model";
+import { Pt, Step, type Ctx } from "@/components/fig";
+import {
+  arcPoint, arcSweep, dimGeom, dimText, FONT_CSS, polyPath, r6, strokeOf, type Arrow, type DimItem, type Fill, type Item, type LineKind, type P2, type PtColor, type TextItem,
+} from "@/lib/rys/model";
 
 /*
-  Rysowanie elementów rysownika — ten sam kod w edytorze i na stronie.
-  Wygląd bierze się z klas rysunków serwisu (globals.css, sekcja „rysunki techniczne”), tu tylko geometria.
+  Rysowanie elementów rysownika — ten sam kod w edytorze, w miniaturze panelu i na stronie.
+  Kolory i kreski z klas rysunków serwisu (globals.css, „rysunki techniczne”); grubość, groty i tekst liczone tutaj.
+  Groty są trójkątami w końcu linii (nie markerami SVG): ostry czubek przy każdej grubości,
+  linia kończy się wewnątrz grotu, więc jej zaokrąglony koniec nie wystaje poza czubek.
 */
 
 export const LINE_CLASS: Record<LineKind, string> = {
-  con: "p-con", cons: "p-cons", dim: "p-dim", axis: "axis-c", cut: "p-cut", rap: "p-rap", arc: "p-arc",
-  acc: "p-acc", bad: "p-bad", stock: "stock-out", tool: "tool",
+  con: "p-con", cons: "p-cons", dim: "p-dim", axis: "axis-c", faint: "gr-maj", cut: "p-cut", rap: "p-rap", arc: "p-arc",
+  acc: "p-acc", bad: "p-bad", stock: "stock-out", tool: "tool", none: "",
 };
-/** grot w kolorze rodzaju linii; rodzaje bez własnego grota biorą szary wymiarowy */
-const MARKER: Record<LineKind, Kind> = { con: "con", cons: "dim", dim: "dim", axis: "dim", cut: "cut", rap: "rap", arc: "arc", acc: "acc", bad: "bad", stock: "dim", tool: "cut" };
+const MK: Record<LineKind, string> = { con: "mk-con", cons: "mk-dim", dim: "mk-dim", axis: "mk-dim", faint: "mk-dim", cut: "mk-cut", rap: "mk-rap", arc: "mk-arc", acc: "mk-acc", bad: "mk-bad", stock: "mk-dim", tool: "mk-cut", none: "mk-dim" };
+const DASHED = new Set<LineKind>(["cons", "axis", "rap", "bad", "stock", "tool"]);
 const PT_CLASS: Record<PtColor, string> = { ink: "pt", cut: "pt-cut", rap: "pt-rap", arc: "pt-arc" };
 
 function fillStyle(f: Fill, c: Ctx): CSSProperties {
@@ -25,27 +29,111 @@ function fillStyle(f: Fill, c: Ctx): CSSProperties {
     default: return { fill: "none" };
   }
 }
-const cls = (k: LineKind, thick: boolean) => LINE_CLASS[k] + (thick ? " thick" : "");
-const marks = (k: LineKind, a: Arrow, c: Ctx) => ({
-  markerStart: a === "start" || a === "both" ? c.a(MARKER[k]) : undefined,
-  markerEnd: a === "end" || a === "both" ? c.a(MARKER[k]) : undefined,
-});
+/** obrys: klasa rodzaju + grubość; ciągłe linie z zaokrąglonym końcem i narożem (bez szpic przy ostrych kątach) */
+function strokeProps(k: LineKind, sw: number, f: CSSProperties = { fill: "none" }) {
+  if (k === "none") return { style: { ...f, stroke: "none" } };
+  return { className: LINE_CLASS[k], style: { ...f, strokeWidth: sw, strokeLinejoin: "round" as const, strokeLinecap: DASHED.has(k) ? ("butt" as const) : ("round" as const) } };
+}
 
-export function textClass(it: { size: "sm" | "md" | "lg"; bold: boolean; mono: boolean; color: string }): string {
-  return [it.bold && "t-b", it.mono && "t-mono", it.size === "sm" && "t-sm", it.size === "lg" && "t-big", it.color !== "ink" && `t-${it.color}`].filter(Boolean).join(" ");
+/** długość grotu dla grubości linii */
+export const arrowLen = (sw: number) => 6 + sw * 1.6;
+/** grot: czubek w `tip`, kierunek `d` (wektor jednostkowy w stronę czubka) */
+function head(tip: P2, d: P2, L: number, cls: string, key: string, hw = 0.36): ReactNode {
+  const bx = tip[0] - d[0] * L, by = tip[1] - d[1] * L, nx = -d[1] * L * hw, ny = d[0] * L * hw;
+  return <path key={key} d={`M ${r6(tip[0])} ${r6(tip[1])} L ${r6(bx + nx)} ${r6(by + ny)} L ${r6(bx - nx)} ${r6(by - ny)} Z`} className={`mk ${cls}`} />;
+}
+const unit = (a: P2, b: P2): P2 => { const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1; return [dx / L, dy / L]; };
+const back = (p: P2, d: P2, s: number): P2 => [p[0] - d[0] * s, p[1] - d[1] * s];
+const ends = (a: Arrow) => ({ s: a === "start" || a === "both", e: a === "end" || a === "both" });
+
+/** linia otwarta z grotami: punkty skrócone o część grotu na końcach z grotem */
+function arrowedPoly(pts: P2[], k: LineKind, sw: number, arrow: Arrow): ReactNode {
+  const { s, e } = ends(arrow);
+  const L = arrowLen(sw), cut = L * 0.7, cls = MK[k];
+  const p = pts.map((x): P2 => [x[0], x[1]]);
+  const heads: ReactNode[] = [];
+  if (e && p.length >= 2) { const d = unit(p[p.length - 2], p[p.length - 1]), tip = p[p.length - 1]; heads.push(head(tip, d, L, cls, "e")); p[p.length - 1] = back(tip, d, Math.min(cut, Math.hypot(tip[0] - p[p.length - 2][0], tip[1] - p[p.length - 2][1]))); }
+  if (s && p.length >= 2) { const d = unit(p[1], p[0]), tip = pts[0]; heads.push(head(tip, d, L, cls, "s")); p[0] = back(tip, d, Math.min(cut, Math.hypot(tip[0] - p[1][0], tip[1] - p[1][1]))); }
+  return <g>{<path d={polyPath(p, false)} {...strokeProps(k, sw)} />}{heads}</g>;
+}
+
+function arcWithArrows(it: Extract<Item, { t: "arc" }>, sw: number): ReactNode {
+  const { s, e } = ends(it.arrow);
+  const sweep = arcSweep(it.a0, it.a1), L = arrowLen(sw), cls = MK[it.k];
+  const dA = Math.min((L * 0.7) / it.r * (180 / Math.PI), sweep / 3); // skrócenie łuku pod grotem, w stopniach
+  const a0 = it.a0 + (s ? dA : 0), a1 = it.a0 + sweep - (e ? dA : 0);
+  const [sx, sy] = arcPoint(it.cx, it.cy, it.r, a0), [ex, ey] = arcPoint(it.cx, it.cy, it.r, a1);
+  const sw2 = a1 - a0;
+  const d = sweep === 360 && !s && !e
+    ? `M ${sx} ${sy} A ${it.r} ${it.r} 0 1 1 ${arcPoint(it.cx, it.cy, it.r, a0 + 180).join(" ")} A ${it.r} ${it.r} 0 1 1 ${sx} ${sy}`
+    : `M ${sx} ${sy} A ${it.r} ${it.r} 0 ${sw2 > 180 ? 1 : 0} 1 ${ex} ${ey}`;
+  const heads: ReactNode[] = [];
+  const tan = (a: number, dir: 1 | -1): P2 => { const r = (a * Math.PI) / 180; return [-Math.sin(r) * dir, Math.cos(r) * dir]; };
+  // grot styczny do łuku: kierunek z cięciwy od punktu skrócenia do końca (dokładniejsze niż styczna przy dużym grocie)
+  if (e) { const tip = arcPoint(it.cx, it.cy, it.r, it.a0 + sweep); heads.push(head(tip, dA > 0 ? unit([ex, ey], tip) : tan(it.a1, 1), L, cls, "e")); }
+  if (s) { const tip = arcPoint(it.cx, it.cy, it.r, it.a0); heads.push(head(tip, dA > 0 ? unit([sx, sy], tip) : tan(it.a0, -1), L, cls, "s")); }
+  return <g><path d={d} {...strokeProps(it.k, sw)} />{heads}</g>;
+}
+
+const COLOR_CLASS: Record<TextItem["color"], string> = { ink: "", mut: "t-mut", acc: "t-acc", cut: "t-cut", rap: "t-rap", arc: "t-arc", bad: "t-bad" };
+export const textStyle = (size: number, font: TextItem["font"], bold = false): CSSProperties => ({ fontSize: size, fontFamily: FONT_CSS[font], fontWeight: bold ? 700 : undefined });
+export const textClass = (it: Pick<TextItem, "bold" | "color">) => [it.bold && "t-b", COLOR_CLASS[it.color]].filter(Boolean).join(" ") || undefined;
+
+/** Wymiar jak w CAD: linie pomocnicze z odstępem od przedmiotu, groty, opis równoległy do linii (albo poziomo). */
+export function DimView({ d, k }: { d: DimItem; k: number }) {
+  const g = dimGeom(d), { A, B, u } = g;
+  const L = Math.hypot(B[0] - A[0], B[1] - A[1]);
+  const AL = 8.5, inside = L >= 2 * AL + 3;
+  const heads: ReactNode[] = [];
+  let a: P2 = A, b: P2 = B;
+  if (L > 0.01) {
+    if (inside) { heads.push(head(A, [-u[0], -u[1]], AL, "mk-dim", "a", 0.4), head(B, u, AL, "mk-dim", "b", 0.4)); a = back(A, [-u[0], -u[1]], AL * 0.7); b = back(B, u, AL * 0.7); }
+    else { heads.push(head(A, u, AL, "mk-dim", "a", 0.4), head(B, [-u[0], -u[1]], AL, "mk-dim", "b", 0.4)); a = back(A, u, AL + 8); b = back(B, [-u[0], -u[1]], AL + 8); } // za mało miejsca: groty z zewnątrz
+  }
+  // opis: kąt linii sprowadzony do (−90°, 90°], żeby tekst czytać od lewej albo od dołu
+  let ang = (Math.atan2(u[1], u[0]) * 180) / Math.PI;
+  if (ang >= 90) ang -= 180; else if (ang < -90) ang += 180; // ISO 129: opis czytelny od dołu albo od prawej (pionowy wymiar czytany od dołu do góry)
+  const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, gap = 2.5;
+  const vertical = Math.abs(u[1]) > Math.abs(u[0]);
+  const label = dimText(d, g, k);
+  const style = textStyle(d.size, d.font);
+  const text = d.hz
+    ? (vertical
+      ? <text x={r6(mx + (d.side === -1 ? -4 : 4))} y={r6(my + d.size * 0.35)} textAnchor={d.side === -1 ? "end" : "start"} className="t-dim" style={style}>{label}</text>
+      : <text x={r6(mx)} y={r6(d.side === -1 ? my - gap : my + d.size + gap - 1)} textAnchor="middle" className="t-dim" style={style}>{label}</text>)
+    : <text transform={`translate(${r6(mx)} ${r6(my)}) rotate(${r6(ang)})`} y={d.side === -1 ? -gap : d.size + gap - 1} textAnchor="middle" className="t-dim" style={style}>{label}</text>;
+  return (
+    <g>
+      {g.e1 && <line x1={r6(g.e1[0][0])} y1={r6(g.e1[0][1])} x2={r6(g.e1[1][0])} y2={r6(g.e1[1][1])} className="p-ext" />}
+      {g.e2 && <line x1={r6(g.e2[0][0])} y1={r6(g.e2[0][1])} x2={r6(g.e2[1][0])} y2={r6(g.e2[1][1])} className="p-ext" />}
+      <line x1={r6(a[0])} y1={r6(a[1])} x2={r6(b[0])} y2={r6(b[1])} className="p-dim" />
+      {heads}
+      {text}
+    </g>
+  );
 }
 
 const steps = (a: number, b: number, s: number) => { const r: number[] = []; for (let v = Math.ceil(a / s) * s; v <= b + 1e-9; v += s) r.push(+v.toFixed(3)); return r; };
 
-export function renderItem(it: Item, c: Ctx): ReactNode {
+/** `k` — skala rysunku (jednostek na mm) dla opisu wymiarów „<>”. */
+export function renderItem(it: Item, c: Ctx, k = 1): ReactNode {
   switch (it.t) {
-    case "line": return <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} className={cls(it.k, it.thick)} style={{ fill: "none" }} {...marks(it.k, it.arrow, c)} />;
-    case "poly": return <path d={polyPath(it.pts, it.closed)} className={cls(it.k, it.thick)} style={fillStyle(it.fill, c)} {...marks(it.k, it.closed ? "none" : it.arrow, c)} />;
-    case "rect": return <rect x={it.x} y={it.y} width={it.w} height={it.h} rx={it.r || undefined} className={cls(it.k, it.thick)} style={fillStyle(it.fill, c)} />;
-    case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cls(it.k, it.thick)} style={fillStyle(it.fill, c)} />;
-    case "arc": return <path d={arcPath(it)} className={cls(it.k, it.thick)} style={{ fill: "none" }} {...marks(it.k, it.arrow, c)} />;
-    case "text": return <T x={it.x} y={it.y} anchor={it.anchor} cls={textClass(it)}>{it.s}</T>;
-    case "dim": return <Dim x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} off={it.off} label={it.label} c={c} lside={it.side} />;
+    case "line": {
+      const sw = strokeOf(it.k, it.sw);
+      return it.arrow === "none" || it.k === "none"
+        ? <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} {...strokeProps(it.k, sw)} />
+        : arrowedPoly([[it.x1, it.y1], [it.x2, it.y2]], it.k, sw, it.arrow);
+    }
+    case "poly": {
+      const sw = strokeOf(it.k, it.sw);
+      if (!it.closed && it.arrow !== "none" && it.k !== "none") return arrowedPoly(it.pts, it.k, sw, it.arrow);
+      return <path d={polyPath(it.pts, it.closed)} {...strokeProps(it.k, sw, fillStyle(it.fill, c))} />;
+    }
+    case "rect": return <rect x={it.x} y={it.y} width={it.w} height={it.h} rx={it.r || undefined} {...strokeProps(it.k, strokeOf(it.k, it.sw), fillStyle(it.fill, c))} />;
+    case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} {...strokeProps(it.k, strokeOf(it.k, it.sw), fillStyle(it.fill, c))} />;
+    case "arc": return arcWithArrows(it, strokeOf(it.k, it.sw));
+    case "text": return <text x={it.x} y={it.y} textAnchor={it.anchor} className={textClass(it)} style={textStyle(it.size, it.font, it.bold)}>{it.s}</text>;
+    case "dim": return <DimView d={it} k={k} />;
     case "pt": return <Pt x={it.x} y={it.y} label={it.label || undefined} pos={it.pos} dot={PT_CLASS[it.color]} />;
     case "step": return <Step x={it.x} y={it.y} n={it.n} />;
     case "grid": {

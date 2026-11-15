@@ -104,7 +104,7 @@ export const rysunekSchema = z.strictObject({
   caption: z.string().default(""),
   /** pusta = legenda automatyczna z użytych rodzajów linii */
   legend: z.array(z.strictObject({ k: z.enum(LEGEND_KEYS), label: z.string().default("") })).default([]),
-  rys: z.strictObject({ h: z.number(), items: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))) }),
+  rys: z.strictObject({ h: z.number(), k: z.number().default(1), items: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))) }),
 });
 export type Rysunek = z.infer<typeof rysunekSchema>;
 

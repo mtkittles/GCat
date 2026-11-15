@@ -12,7 +12,7 @@ import { H_DEFAULT, parseDoc, storeDoc, type RysDoc } from "@/lib/rys/model";
 const KEY = "gcat:rysownik";
 
 function load(): RysDoc {
-  try { return parseDoc(JSON.parse(localStorage.getItem(KEY) ?? "null")); } catch { return { h: H_DEFAULT, items: [] }; }
+  try { return parseDoc(JSON.parse(localStorage.getItem(KEY) ?? "null")); } catch { return { h: H_DEFAULT, k: 1, items: [] }; }
 }
 
 export default function Workbench() {
@@ -28,11 +28,11 @@ export default function Workbench() {
   };
   const fresh = () => {
     if (doc.items.length && !window.confirm("Zacząć nowy rysunek? Obecny szkic zniknie.")) return;
-    const empty = { h: H_DEFAULT, items: [] };
+    const empty = { h: H_DEFAULT, k: 1, items: [] };
     setInitial(empty); setGen((g) => g + 1); onChange(empty);
   };
   const copyAll = async () => {
-    try { await navigator.clipboard.writeText(JSON.stringify({ "gcat-rys": 1, h: doc.h, items: storeDoc(doc).items })); setNote("Skopiowano — w rysowniku panelu wklej Ctrl+V"); }
+    try { await navigator.clipboard.writeText(JSON.stringify({ "gcat-rys": 1, ...storeDoc(doc) })); setNote("Skopiowano — w rysowniku panelu wklej Ctrl+V"); }
     catch { setNote("Przeglądarka nie pozwoliła skopiować — zaznacz wszystko (Ctrl+A) i użyj Ctrl+C"); }
   };
 
