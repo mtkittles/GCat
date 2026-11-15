@@ -5,6 +5,8 @@ import { diagrams } from "@/components/diagrams";
 import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
 import RijCalc from "@/components/RijCalc";
+import Rys from "@/components/rys/Rys";
+import { rysBySlug } from "@/components/rys/registry";
 import SimClient from "@/components/simulator/SimClient";
 import Term from "@/components/ui/Term";
 import { simHref, type SimLink } from "@/lib/simLink";
@@ -22,6 +24,12 @@ type Mode = "mill" | "lathe";
 /** <Diagram id="g01" /> — rysunek z rejestru diagrams.tsx (blok `diagram`). */
 export function Diagram({ id }: { id: string }) {
   return <div>{diagrams[id]?.()}</div>;
+}
+
+/** <Rys id="nazwa" /> — rysunek z rysownika (content/rysunki/<nazwa>.yaml). */
+export function RysBlock({ id }: { id: string }) {
+  const fig = rysBySlug(id);
+  return fig ? <div><Rys fig={fig} /></div> : null;
 }
 
 /** <Obraz src="/rysunki/plik.png" alt="…" caption="…" /> — obraz wgrany przez Keystatic do public/rysunki/. */
@@ -86,6 +94,6 @@ export function Table({ caption, children }: { caption?: string; children?: Reac
   return <figure className="grid gap-1">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<div className="overflow-x-auto">{children}</div></figure>;
 }
 
-export const mdxComponents = { Term, Diagram, Obraz, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;
+export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;
 
 export { componentNames, diagramIds } from "./names";

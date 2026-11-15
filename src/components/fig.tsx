@@ -27,25 +27,13 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
   id: string; code?: string; title: string; caption?: ReactNode; legend?: LegendItem[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
 }) {
-  const a = (k: Kind) => `url(#${id}-a-${k})`;
-  const kinds: Kind[] = ["rap", "cut", "arc", "con", "bad", "dim", "acc"];
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
       <FigZoom title={title} caption={caption}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
-        <defs>
-          <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="6" className="hatch-line" />
-          </pattern>
-          {kinds.map((k) => (
-            <marker key={k} id={`${id}-a-${k}`} markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"
-              refX="8" refY="5" orient="auto-start-reverse" viewBox="0 0 10 10">
-              <path d="M0 1.2 L9 5 L0 8.8 z" className={`mk mk-${k}`} />
-            </marker>
-          ))}
-        </defs>
-        {children({ a, hatch: `url(#${id}-h)` })}
+        <FigDefs id={id} />
+        {children(figCtx(id))}
       </svg>
       </FigZoom>
       {notes && <div className="fig-notes">{notes}</div>}
@@ -56,6 +44,27 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
       )}
       {caption && <figcaption className="fig-cap">{caption}</figcaption>}
     </figure>
+  );
+}
+
+/** Kontekst rysunku o danym id: znaczniki grotów i kreskowanie (definicje wstawia FigDefs). */
+export const figCtx = (id: string): Ctx => ({ a: (k) => `url(#${id}-a-${k})`, hatch: `url(#${id}-h)` });
+
+const MARKER_KINDS: Kind[] = ["rap", "cut", "arc", "con", "bad", "dim", "acc"];
+/** <defs> rysunku: wzór kreskowania i groty w kolorach rodzajów linii. Używa go Fig i edytor rysownika. */
+export function FigDefs({ id }: { id: string }) {
+  return (
+    <defs>
+      <pattern id={`${id}-h`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <line x1="0" y1="0" x2="0" y2="6" className="hatch-line" />
+      </pattern>
+      {MARKER_KINDS.map((k) => (
+        <marker key={k} id={`${id}-a-${k}`} markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10"
+          refX="8" refY="5" orient="auto-start-reverse" viewBox="0 0 10 10">
+          <path d="M0 1.2 L9 5 L0 8.8 z" className={`mk mk-${k}`} />
+        </marker>
+      ))}
+    </defs>
   );
 }
 

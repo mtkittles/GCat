@@ -3479,3 +3479,101 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
   .gl-search { flex-basis: 100%; }
   .gl-search input { font-size: 16px; }
 }
+
+/* ==========================================================================
+   Rysownik (paczka RA) — edytor rysunków w stylu serwisu. Komputer, mysz.
+   Powłoka .rys-shell zajmuje cały ekran (strona /rysownik i okno w panelu treści).
+   ========================================================================== */
+.rys-shell { position: fixed; inset: 0; z-index: 1100; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--ink); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
+.rys-top { display: flex; align-items: center; gap: .75rem 1rem; flex-wrap: wrap; padding: .55rem .9rem; background: var(--surface); border-bottom: 1px solid var(--line); }
+.rys-top h1 { font: 700 1.05rem/1.2 var(--font-display); margin: 0; }
+.rys-top .rys-sub { color: var(--muted); font-size: var(--fs-aux); }
+.rys-top .rys-top-actions { margin-left: auto; display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
+.rys-top .btn { padding: .45rem .9rem; font-size: 14px; }
+.rys-saved { font-size: var(--fs-label); color: var(--muted); }
+
+.rys-ed { display: grid; grid-template-columns: minmax(0, 1fr) 19.5rem; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; min-height: 0; outline: none; }
+.rys-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .45rem .75rem; background: var(--card); border-bottom: 1px solid var(--line); }
+.rys-tools { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); align-items: stretch; }
+.rys-tool { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 3.25rem; padding: .3rem .4rem .25rem; border-radius: 7px; border: 0; background: none; color: var(--ink-2); font: 500 11px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.rys-tool:hover:not(:disabled) { background: var(--surface-3); color: var(--ink); }
+.rys-tool[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-tool:disabled { opacity: .4; cursor: default; }
+.rys-tool:focus-visible, .rys-btn:focus-visible, .rys-kind:focus-visible, .rys-seg button:focus-visible, .rys-layers button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.rys-step { display: flex; align-items: center; gap: .35rem; padding: 0 .5rem; font-size: 12px; color: var(--ink-2); }
+.rys-step select, .rys-row select, .rys-row input, .rys-num input { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: .3rem .4rem; font: inherit; font-size: 13px; min-width: 0; }
+.rys-actions { margin-left: auto; display: flex; gap: .4rem; align-items: center; }
+
+.rys-stage { grid-column: 1; grid-row: 2; display: grid; place-items: center; overflow: auto; min-height: 0; padding: 20px;
+  background: var(--bg) radial-gradient(circle, color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.2px) 0 0 / 18px 18px; }
+.fig.rys-sheet { display: block; max-width: none; margin: 0; padding: 0; gap: 0; border: 0; border-radius: 6px; background: none; box-shadow: 0 0 0 1px var(--line-strong), var(--shadow); flex: none; }
+.fig.rys-sheet svg { width: 100%; height: 100%; border-radius: 6px; touch-action: none; user-select: none; cursor: crosshair; }
+.fig.rys-sheet svg.tool-select { cursor: default; }
+.rys-svg:not(.tool-select) .rys-item { pointer-events: none; }
+.rys-svg.tool-select .rys-item { cursor: move; }
+.fig .rys-hit { stroke: transparent; stroke-width: 10; fill: none; pointer-events: stroke; }
+.fig .rys-hit.is-fill { fill: transparent; pointer-events: all; }
+.fig .rys-hitwrap * { stroke: transparent !important; stroke-width: 10 !important; stroke-dasharray: none !important; fill: none !important; pointer-events: stroke; }
+.fig .rys-hitwrap.is-fill * { fill: transparent !important; pointer-events: all; }
+.fig .rys-gmin { fill: none; stroke: color-mix(in srgb, var(--ink) 8%, transparent); stroke-width: .35; }
+.fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .5; }
+.fig .rys-draft { opacity: .75; }
+.fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: .7; stroke-dasharray: 3 2; }
+.fig .rys-handle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.2; cursor: grab; }
+.fig .rys-handle.is-alt { fill: var(--accent); }
+.fig .rys-close { fill: color-mix(in srgb, var(--accent) 35%, transparent); stroke: var(--accent); stroke-width: 1; }
+.fig .rys-marquee { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--accent); stroke-width: .6; stroke-dasharray: 2 2; }
+
+.rys-panel { grid-column: 2; grid-row: 2; overflow: auto; min-height: 0; padding: .8rem; display: grid; gap: 1.1rem; align-content: start; background: var(--card); border-left: 1px solid var(--line); font-size: 13.5px; }
+.rys-group { display: grid; gap: .55rem; }
+.rys-group h3 { margin: 0; font: 700 var(--fs-label)/1.2 var(--font-display); letter-spacing: .02em; color: var(--muted); }
+.rys-group:first-child h3 { font-size: .95rem; color: var(--ink); letter-spacing: 0; }
+.rys-tip { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.rys-row { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .5rem; color: var(--ink-2); }
+.rys-nums { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .5rem; }
+.rys-num { display: grid; gap: .15rem; font-size: var(--fs-label); color: var(--muted); }
+.rys-num input { width: 100%; font-family: var(--font-mono); }
+.rys-checks { display: flex; flex-wrap: wrap; gap: .3rem 1rem; color: var(--ink-2); }
+.rys-checks label { display: flex; align-items: center; gap: .35rem; cursor: pointer; }
+.rys-checks input { accent-color: var(--accent); }
+.rys-kinds { display: grid; gap: 2px; }
+.rys-kind { display: grid; grid-template-columns: 2.4rem 1fr; align-items: center; gap: .55rem; padding: .3rem .45rem; border: 1px solid transparent; border-radius: 7px; background: none; color: var(--ink-2); font: inherit; text-align: left; cursor: pointer; }
+.rys-kind:hover { background: var(--surface-2); color: var(--ink); }
+.rys-kind[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); }
+.fig.rys-sw { display: block; max-width: none; padding: 0; border: 0; border-radius: 4px; background: none; }
+.fig.rys-sw svg { width: 100%; height: auto; border-radius: 4px; }
+.fig.rys-sw svg line { fill: none; }
+.rys-seg { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); }
+.rys-seg button { flex: 1; padding: .3rem .2rem; border: 0; border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.rys-seg button:hover { background: var(--surface-3); color: var(--ink); }
+.rys-seg button[aria-checked="true"] { background: var(--accent); color: var(--on-accent); }
+.rys-acts { display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+.rys-btn { display: flex; align-items: center; gap: .4rem; padding: .35rem .5rem; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.rys-btn:hover { border-color: var(--ink-2); background: var(--surface-2); }
+.rys-btn svg { width: 16px; height: 16px; flex: none; }
+.rys-layers { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 15rem; overflow: auto; border: 1px solid var(--line); border-radius: 8px; }
+.rys-layers button { display: flex; gap: .4rem; width: 100%; padding: .32rem .5rem; border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; text-align: left; cursor: pointer; }
+.rys-layers button:hover { background: var(--surface-2); }
+.rys-layers button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--accent); }
+.rys-layers b { font-weight: 600; color: var(--ink); white-space: nowrap; }
+.rys-layers span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rys-status { grid-column: 1 / -1; display: flex; gap: 1.2rem; align-items: baseline; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.rys-coords { font-family: var(--font-mono); color: var(--ink-2); min-width: 9.5rem; }
+/* znaczki legendy dla rodzajów spoza rysunków kodowych */
+.lg-axis { border-color: var(--muted) !important; border-top-style: dashed !important; border-top-width: 1px !important; }
+.lg-outline { height: 9px !important; border: 1px dashed var(--muted) !important; }
+/* okno podglądu i wąski ekran: rysownik jest narzędziem na komputer */
+.rys-preview { margin: auto; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); padding: 1rem; width: min(44rem, 92vw); }
+.rys-preview::backdrop { background: rgba(0, 0, 0, .6); }
+.rys-preview form { display: flex; justify-content: flex-end; margin-top: .75rem; }
+.rys-narrow { display: none; padding: 1.5rem; line-height: 1.6; color: var(--ink-2); }
+@media (max-width: 860px) {
+  .rys-shell .rys-ed { display: none; }
+  .rys-narrow { display: block; }
+}
+.rys-tool[aria-pressed="true"]:hover:not(:disabled) { background: var(--accent-hover); color: var(--on-accent); }
+/* pole „Rysunek” w panelu treści */
+.rys-field { display: grid; gap: .6rem; justify-items: start; padding: .8rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); color: var(--ink); max-width: 34rem; }
+.rys-field-head { display: flex; gap: .75rem; align-items: baseline; font-size: 14px; }
+.rys-field-head span { color: var(--muted); font-size: 13px; }
+.fig.rys-thumb { display: block; width: 100%; max-width: none; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: none; }

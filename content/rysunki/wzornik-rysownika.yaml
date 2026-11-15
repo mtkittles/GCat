@@ -1,0 +1,375 @@
+title: Wzornik rysownika
+caption: >-
+  Wszystkie rodzaje linii, wypełnień i elementów dostępne w rysowniku. Rysunek z
+  tych klocków wygląda jak pozostałe rysunki serwisu.
+legend: []
+rys:
+  h: 250
+  items:
+    - t: text
+      x: 14
+      'y': 20
+      s: Rodzaje linii
+      anchor: start
+      size: md
+      bold: true
+      mono: false
+      color: ink
+    - t: line
+      k: con
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 36
+      x2: 74
+      y2: 36
+    - t: text
+      x: 82
+      'y': 40
+      s: kontur detalu
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: line
+      k: cons
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 52
+      x2: 74
+      y2: 52
+    - t: text
+      x: 82
+      'y': 56
+      s: linia pomocnicza
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: line
+      k: dim
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 68
+      x2: 74
+      y2: 68
+    - t: text
+      x: 82
+      'y': 72
+      s: cienka (wymiarowa)
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: line
+      k: axis
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 84
+      x2: 74
+      y2: 84
+    - t: text
+      x: 82
+      'y': 88
+      s: oś symetrii
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: line
+      k: stock
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 100
+      x2: 74
+      y2: 100
+    - t: text
+      x: 82
+      'y': 104
+      s: półfabrykat
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: line
+      k: cut
+      thick: false
+      arrow: end
+      x1: 14
+      y1: 116
+      x2: 74
+      y2: 116
+    - t: text
+      x: 82
+      'y': 120
+      s: G01 — ruch roboczy
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: cut
+    - t: line
+      k: rap
+      thick: false
+      arrow: end
+      x1: 14
+      y1: 132
+      x2: 74
+      y2: 132
+    - t: text
+      x: 82
+      'y': 136
+      s: G00 — ruch szybki
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: rap
+    - t: arc
+      k: arc
+      thick: false
+      arrow: end
+      cx: 44
+      cy: 166
+      r: 22
+      a0: 200
+      a1: 340
+    - t: text
+      x: 82
+      'y': 152
+      s: G02/G03 — łuk
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: arc
+    - t: line
+      k: acc
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 166
+      x2: 74
+      y2: 166
+    - t: text
+      x: 82
+      'y': 170
+      s: parametr (akcent)
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: acc
+    - t: line
+      k: bad
+      thick: false
+      arrow: none
+      x1: 14
+      y1: 182
+      x2: 74
+      y2: 182
+    - t: text
+      x: 82
+      'y': 186
+      s: błąd / kolizja
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: bad
+    - t: line
+      k: con
+      thick: true
+      arrow: none
+      x1: 14
+      y1: 198
+      x2: 74
+      y2: 198
+    - t: text
+      x: 82
+      'y': 202
+      s: gruba (dowolny rodzaj)
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: text
+      x: 200
+      'y': 20
+      s: Wypełnienia i elementy
+      anchor: start
+      size: md
+      bold: true
+      mono: false
+      color: ink
+    - t: rect
+      k: con
+      thick: false
+      fill: hatch
+      x: 200
+      'y': 32
+      w: 70
+      h: 50
+      r: 0
+    - t: circle
+      k: con
+      thick: false
+      fill: hole
+      cx: 235
+      cy: 57
+      r: 12
+    - t: line
+      k: axis
+      thick: false
+      arrow: none
+      x1: 217
+      y1: 57
+      x2: 253
+      y2: 57
+    - t: line
+      k: axis
+      thick: false
+      arrow: none
+      x1: 235
+      y1: 39
+      x2: 235
+      y2: 75
+    - t: dim
+      x1: 200
+      y1: 82
+      x2: 270
+      y2: 82
+      'off': 14
+      label: '70'
+      side: -1
+    - t: dim
+      x1: 270
+      y1: 82
+      x2: 270
+      y2: 32
+      'off': 14
+      label: '50'
+      side: -1
+    - t: pt
+      x: 200
+      'y': 82
+      label: W
+      pos: sw
+      color: ink
+    - t: rect
+      k: tool
+      thick: false
+      fill: cut
+      x: 300
+      'y': 32
+      w: 24
+      h: 44
+      r: 0
+    - t: text
+      x: 312
+      'y': 90
+      s: narzędzie
+      anchor: middle
+      size: sm
+      bold: false
+      mono: false
+      color: mut
+    - t: rect
+      k: acc
+      thick: false
+      fill: acc
+      x: 200
+      'y': 128
+      w: 50
+      h: 26
+      r: 0
+    - t: text
+      x: 225
+      'y': 168
+      s: akcent
+      anchor: middle
+      size: sm
+      bold: false
+      mono: false
+      color: mut
+    - t: rect
+      k: bad
+      thick: false
+      fill: bad
+      x: 262
+      'y': 128
+      w: 50
+      h: 26
+      r: 0
+    - t: text
+      x: 287
+      'y': 168
+      s: błąd
+      anchor: middle
+      size: sm
+      bold: false
+      mono: false
+      color: mut
+    - t: step
+      x: 210
+      'y': 196
+      'n': 1
+    - t: step
+      x: 234
+      'y': 196
+      'n': 2
+    - t: text
+      x: 250
+      'y': 200
+      s: numery kroków
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: pt
+      x: 210
+      'y': 222
+      label: ''
+      pos: ne
+      color: cut
+    - t: pt
+      x: 226
+      'y': 222
+      label: ''
+      pos: ne
+      color: rap
+    - t: pt
+      x: 242
+      'y': 222
+      label: ''
+      pos: ne
+      color: arc
+    - t: text
+      x: 254
+      'y': 226
+      s: punkty toru
+      anchor: start
+      size: sm
+      bold: false
+      mono: false
+      color: ink
+    - t: text
+      x: 14
+      'y': 232
+      s: G01 X80. F400
+      anchor: start
+      size: md
+      bold: false
+      mono: true
+      color: cut

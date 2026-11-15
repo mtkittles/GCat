@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Stock, Tool, ToolKind } from "@/components/simulator/setup";
 import type { Practice, Question, WorkedStep } from "@/lib/lesson";
+import { LEGEND_KEYS } from "@/lib/rys/model";
 
 /*
   Schematy plików w content/ (frontmatter MDX i YAML), zgodne z docs/raport-tresci.md (5.2–5.5 i decyzje).
@@ -86,10 +87,26 @@ export const hasloSchema = z.strictObject({
   see: z.array(slug).default([]),
   /** id rysunku z rejestru diagrams.tsx; "" = brak */
   diagram: z.string().default(""),
+  /** rysunek z rysownika: nazwa pliku z content/rysunki/ (bez .yaml); "" = brak; ma pierwszeństwo przed `diagram` */
+  rysunek: z.string().default(""),
   /** źródła jak w kartach (src/content/nauka/sources.ts) */
   sources: z.array(z.strictObject({ id: text, where: text, loc: z.string().default(""), url: z.string().default("") })).default([]),
 });
 export type Haslo = z.infer<typeof hasloSchema>;
+
+// ───────────── rysunek z rysownika: content/rysunki/<slug>.yaml ─────────────
+
+/** Elementy sprawdza loader: zapis musi być równy storeDoc(parseDoc(…)) z src/lib/rys/model.ts (zakresy i listy rodzajów w jednym miejscu). */
+export const rysunekSchema = z.strictObject({
+  title: text,
+  /** etykieta przy tytule (np. kod G); "" = brak */
+  code: z.string().default(""),
+  caption: z.string().default(""),
+  /** pusta = legenda automatyczna z użytych rodzajów linii */
+  legend: z.array(z.strictObject({ k: z.enum(LEGEND_KEYS), label: z.string().default("") })).default([]),
+  rys: z.strictObject({ h: z.number(), items: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))) }),
+});
+export type Rysunek = z.infer<typeof rysunekSchema>;
 
 // ───────────── lekcja: content/nauka/<tor>/<slug>/index.mdx + cwiczenia.yaml ─────────────
 

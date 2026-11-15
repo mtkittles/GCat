@@ -4,6 +4,8 @@ import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } 
 import { glossary, type GlossaryEntry } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
+import Rys from "@/components/rys/Rys";
+import { rysBySlug } from "@/components/rys/registry";
 import { sources } from "@/content/nauka/sources";
 import { DIGITS, groupOf, hasla } from "@/lib/glossaryIndex";
 
@@ -35,7 +37,9 @@ function Title({ term }: { term: string }) {
 }
 
 function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
-  const fig = e.diagram ? diagrams[e.diagram] : undefined;
+  // rysunek z rysownika ma pierwszeństwo przed rysunkiem z kodu strony
+  const own_ = e.rysunek ? rysBySlug(e.rysunek) : undefined;
+  const fig = own_ ? () => <Rys fig={own_} /> : e.diagram ? diagrams[e.diagram] : undefined;
   const codes = e.see.map((s) => bySlug(s)).filter((g): g is NonNullable<typeof g> => !!g);
   // nazwy zamienne bez powtórzeń tytułu („n — obroty wrzeciona” nie pokazuje „n” ani „obroty wrzeciona”)
   const own = new Set(e.term.split(" — ").concat(e.term).map((t) => t.trim().toLocaleLowerCase("pl")));

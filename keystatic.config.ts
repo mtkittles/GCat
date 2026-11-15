@@ -2,6 +2,8 @@ import { collection, config, fields } from "@keystatic/core";
 import { block, wrapper } from "@keystatic/core/content-components";
 import diagramy from "./content/.generated/diagramy.json";
 import { sources as zrodla } from "./src/content/nauka/sources";
+import { rysunekPole } from "./src/lib/rys/field";
+import { LEGEND_KEYS, LEGEND_LABEL } from "./src/lib/rys/model";
 
 /*
   Keystatic — edycja kart kodów i słownika (krok 7). Lekcje, programy i zadania później.
@@ -29,6 +31,10 @@ export const komponenty = {
   Diagram: block({
     label: "Rysunek (z rejestru)",
     schema: { id: fields.select({ label: "Rysunek", options: diagramy.map((d: string) => ({ label: d, value: d })), defaultValue: diagramy[0] }) },
+  }),
+  Rys: block({
+    label: "Rysunek z rysownika",
+    schema: { id: fields.relationship({ label: "Rysunek (kolekcja „Rysunki”)", collection: "rysunki", validation: { isRequired: true } }) },
   }),
   Obraz: block({
     label: "Obraz (plik → public/rysunki/<karta>/)",
@@ -129,8 +135,27 @@ export default config({
           example: fields.text({ label: "Przykład liczbowy (puste = brak)", multiline: true }),
         }), { label: "Wzory — tylko ze źródłem w polu Źródła", itemLabel: (p) => p.fields.expr.value }),
         see: fields.array(fields.relationship({ label: "Karta", collection: "kody" }), { label: "Zobacz (karty)", itemLabel: (p) => p.value ?? "" }),
-        diagram: fields.select({ label: "Rysunek", options: [{ label: "— brak —", value: "" }, ...diagramy.map((d: string) => ({ label: d, value: d }))], defaultValue: "" }),
+        diagram: fields.select({ label: "Rysunek z kodu strony", options: [{ label: "— brak —", value: "" }, ...diagramy.map((d: string) => ({ label: d, value: d }))], defaultValue: "" }),
+        rysunek: fields.relationship({ label: "Rysunek z rysownika (kolekcja „Rysunki”) — ma pierwszeństwo przed rysunkiem z kodu", collection: "rysunki" }),
         sources: zrodlaPole,
+      },
+    }),
+    rysunki: collection({
+      label: "Rysunki (rysownik)",
+      path: "content/rysunki/*",
+      slugField: "title",
+      format: { data: "yaml" },
+      columns: ["title"],
+      previewUrl: "/api/podglad?branch={branch}&to=/edycja%23rys-{slug}",
+      schema: {
+        title: fields.slug({ name: { label: "Tytuł rysunku", validation: { isRequired: true } }, slug: { label: "Nazwa pliku = id rysunku (nie zmieniać po wstawieniu do treści)" } }),
+        code: fields.text({ label: "Etykieta przy tytule, np. G01 (puste = brak)" }),
+        caption: fields.text({ label: "Podpis pod rysunkiem", multiline: true }),
+        legend: fields.array(fields.object({
+          k: fields.select({ label: "Znaczek", options: LEGEND_KEYS.map((k) => ({ label: LEGEND_LABEL[k], value: k })), defaultValue: "con" }),
+          label: fields.text({ label: "Opis (puste = domyślny)" }),
+        }), { label: "Legenda — pusta lista = automatyczna, z rodzajów linii użytych na rysunku", itemLabel: (p) => p.fields.label.value || p.fields.k.value }),
+        rys: rysunekPole({ label: "Rysunek" }),
       },
     }),
   },

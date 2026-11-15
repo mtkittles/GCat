@@ -30,6 +30,8 @@ export interface GlossaryEntry {
   /** kotwica /slownik#… — jawna, zapisana w pliku hasła (zmiana `term` jej nie zmienia) */
   anchor: string;
   aliases: string[]; def: string; see: string[]; diagram?: string;
+  /** rysunek z rysownika (content/rysunki/<nazwa>.yaml) — ma pierwszeństwo przed `diagram` */
+  rysunek?: string;
   /** wzory z objaśnieniem symboli („symbol — znaczenie, jednostka”) i przykładem liczbowym */
   formulas?: { expr: string; where: string[]; example?: string }[];
   /** źródła jak w kartach (src/content/nauka/sources.ts) */
