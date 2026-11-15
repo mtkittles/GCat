@@ -3577,3 +3577,49 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-field-head { display: flex; gap: .75rem; align-items: baseline; font-size: 14px; }
 .rys-field-head span { color: var(--muted); font-size: 13px; }
 .fig.rys-thumb { display: block; width: 100%; max-width: none; padding: 0; border: 1px solid var(--line); border-radius: 10px; background: none; }
+
+/* ==========================================================================
+   Tryb edycji (paczka RA): pasek „Edytuj”, ołówek przy wpisie, pulpit /edycja
+   ========================================================================== */
+.edit-bar { position: fixed; z-index: 60; right: max(1rem, env(safe-area-inset-right)); bottom: calc(1rem + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: .15rem; padding: .3rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); font-size: 14px; }
+@media (max-width: 767px) { .edit-bar { bottom: calc(4.6rem + env(safe-area-inset-bottom)); left: 1rem; right: 1rem; justify-content: space-between; } .edit-bar .edit-bar-desk { display: none; } }
+.edit-bar-on { padding: 0 .6rem 0 .7rem; font: 700 var(--fs-label)/1 var(--font-display); color: var(--accent-ink); white-space: nowrap; }
+.edit-bar a, .edit-bar button { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .75rem; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.edit-bar a:hover, .edit-bar button:hover { background: var(--surface-2); }
+.edit-bar .edit-bar-main { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+.edit-bar .edit-bar-main:hover { background: var(--accent-hover); }
+.edit-bar-note { padding: 0 .6rem; color: var(--muted); font-size: 13px; }
+.edit-bar button { font-size: 18px; line-height: 1; padding: .3rem .65rem; color: var(--ink-2); }
+.edit-link { display: inline-flex; align-items: center; gap: .3rem; margin-left: .35rem; padding: .12rem .5rem; border: 1px solid var(--line-strong); border-radius: 999px; font: 500 12.5px/1.5 var(--font-sans, Inter, system-ui, sans-serif); letter-spacing: 0; color: var(--accent-ink); text-decoration: none; vertical-align: middle; white-space: nowrap; }
+.edit-link:hover { border-color: var(--accent); background: var(--accent-soft); }
+
+.edit-page { display: grid; gap: 2.6rem; max-width: 72rem; padding-top: 1.2rem; }
+.edit-page h1 { font: 700 clamp(1.7rem, 3vw, 2.2rem)/1.15 var(--font-display); letter-spacing: -.015em; }
+.edit-page h2 { font: 700 var(--fs-h2)/1.25 var(--font-display); margin-bottom: .9rem; }
+.edit-head { display: grid; gap: .8rem; justify-items: start; }
+.edit-head > p { max-width: 46rem; color: var(--ink-2); line-height: var(--lh-text); }
+.edit-fine { color: var(--muted); font-size: var(--fs-aux); line-height: var(--lh-aux); max-width: 46rem; }
+.edit-page section > .edit-fine { margin-top: .9rem; }
+.edit-switch { display: inline-flex; align-items: center; gap: .7rem; padding: .55rem .9rem .55rem .6rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); color: var(--ink); font: 600 15px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.edit-switch:hover { border-color: var(--ink-2); }
+.edit-switch-track { width: 2.5rem; height: 1.45rem; border-radius: 999px; background: var(--surface-3); border: 1px solid var(--line-strong); position: relative; flex: none; }
+.edit-switch-track span { position: absolute; top: 2px; left: 2px; width: 1.05rem; height: 1.05rem; border-radius: 50%; background: var(--ink-2); transition: transform .15s ease; }
+.edit-switch[aria-checked="true"] .edit-switch-track { background: var(--accent); border-color: var(--accent); }
+.edit-switch[aria-checked="true"] .edit-switch-track span { transform: translateX(1.05rem); background: var(--on-accent); }
+@media (prefers-reduced-motion: reduce) { .edit-switch-track span { transition: none; } }
+.edit-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem; }
+.edit-tile { display: grid; gap: .6rem; align-content: start; justify-items: start; padding: 1.1rem 1.2rem 1.2rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.edit-tile.is-main { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.edit-tile h3 { font: 700 var(--fs-h3)/1.3 var(--font-display); display: flex; align-items: baseline; gap: .5rem; }
+.edit-tile h3 small { font: 500 13px/1 var(--font-mono); color: var(--muted); }
+.edit-tile p { color: var(--ink-2); font-size: var(--fs-aux); line-height: var(--lh-aux); }
+.edit-tile .btn { margin-top: .2rem; padding: .5rem .95rem; font-size: 14px; }
+.edit-tile-acts { display: flex; flex-wrap: wrap; gap: .5rem; }
+.edit-steps { display: grid; gap: .7rem; max-width: 50rem; padding-left: 1.4rem; list-style: decimal; color: var(--ink-2); line-height: var(--lh-text); }
+.edit-steps li::marker { font-family: var(--font-mono); color: var(--accent-ink); font-weight: 600; }
+.edit-steps b { color: var(--ink); }
+.edit-steps code, .edit-fig-meta code { font-family: var(--font-mono); font-size: var(--fs-code); padding: .08rem .35rem; border-radius: 5px; background: var(--surface-2); color: var(--ink); }
+.edit-figs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 26rem), 1fr)); gap: 1.2rem; align-items: start; }
+.edit-fig { display: grid; gap: .5rem; scroll-margin-top: 5rem; }
+.edit-fig .fig { max-width: none; }
+.edit-fig-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; font-size: 13px; color: var(--muted); }

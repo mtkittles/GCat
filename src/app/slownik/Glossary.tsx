@@ -4,6 +4,7 @@ import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } 
 import { glossary, type GlossaryEntry } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
+import { EditLink } from "@/components/edycja/EditMode";
 import Rys from "@/components/rys/Rys";
 import { rysBySlug } from "@/components/rys/registry";
 import { sources } from "@/content/nauka/sources";
@@ -38,8 +39,8 @@ function Title({ term }: { term: string }) {
 
 function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
   // rysunek z rysownika ma pierwszeństwo przed rysunkiem z kodu strony
-  const own_ = e.rysunek ? rysBySlug(e.rysunek) : undefined;
-  const fig = own_ ? () => <Rys fig={own_} /> : e.diagram ? diagrams[e.diagram] : undefined;
+  const drawn = e.rysunek ? rysBySlug(e.rysunek) : undefined;
+  const fig = drawn ? () => <Rys fig={drawn} /> : e.diagram ? diagrams[e.diagram] : undefined;
   const codes = e.see.map((s) => bySlug(s)).filter((g): g is NonNullable<typeof g> => !!g);
   // nazwy zamienne bez powtórzeń tytułu („n — obroty wrzeciona” nie pokazuje „n” ani „obroty wrzeciona”)
   const own = new Set(e.term.split(" — ").concat(e.term).map((t) => t.trim().toLocaleLowerCase("pl")));
@@ -47,7 +48,7 @@ function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
   return (
     <article id={e.anchor} className={`gl-card${fig ? " is-wide" : ""}`}>
       <div className="gl-text">
-        <h3><Title term={e.term} /></h3>
+        <h3><Title term={e.term} /> <EditLink kolekcja="slownik" slug={e.anchor} /></h3>
         {also.length > 0 && <p className="gl-alias">Także: {also.join(", ")}</p>}
         <p className="gl-def">{e.def}</p>
         {e.formulas?.map((f) => (

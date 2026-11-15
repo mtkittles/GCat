@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
 import AppHeader from "@/components/AppHeader";
 import BottomNav from "@/components/BottomNav";
+import { EditBar } from "@/components/edycja/EditMode";
 import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
 
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </footer>
 
         <BottomNav />
+        <EditBar />
       </body>
     </html>
   );
