@@ -6,12 +6,28 @@ aliases:
   - G50 S
   - LIMS
 def: >-
-  Maksymalne obroty wrzeciona przy stałej prędkości skrawania G96. Bez limitu
-  obroty przy osi rosłyby bez końca; G50 S3000 (Fanuc, system A) lub LIMS=3000
-  (Sinumerik) trzyma je na wartości bezpiecznej dla uchwytu i detalu.
-formulas: []
+  Maksymalne obroty wrzeciona przy stałej prędkości skrawania G96. Przy małej
+  średnicy obroty z wzoru n = 1000 · Vc / (π · D) rosną bez końca, a przy osi
+  dążą do nieskończoności; G50 S3000 (Fanuc, system A) lub LIMS=3000 (Sinumerik)
+  trzyma je na wartości bezpiecznej dla uchwytu i detalu. Gdy limit zadziała, od
+  tej średnicy w dół Vc maleje.
+formulas:
+  - expr: n = 1000 · Vc / (π · D)
+    where:
+      - n — obroty wynikające z G96, obr/min
+      - Vc — zadana prędkość skrawania, m/min
+      - D — bieżąca średnica, mm
+    example: >-
+      G96 S180: na ⌀60 to 955 obr/min, na ⌀10 już 5730 obr/min. Z G50 S3000
+      wrzeciono zatrzyma się na 3000 — od średnicy 1000 · 180 / (3,14 · 3000) ≈
+      19 mm w dół Vc spada poniżej 180.
 see:
   - g50
   - g96-g97
 diagram: ''
-sources: []
+sources:
+  - id: fanuc
+    where: G50 S_ — ograniczenie maksymalnej prędkości wrzeciona
+    loc: rozdz. 3.2, tab. 3.2, s. 76; rozdz. 4, s. 86
+  - id: sandvik-wzory-toczenie
+    where: n = Vc · 1000 / (π · Dm)

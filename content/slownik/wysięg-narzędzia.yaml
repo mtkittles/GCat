@@ -1,0 +1,27 @@
+term: Wysięg narzędzia
+anchor: wysięg-narzędzia
+order: 905
+aliases:
+  - wysięg
+  - długość wysięgu
+  - overhang
+  - L/D
+def: >-
+  Odległość od czoła oprawki do końca narzędzia. Im dłuższy wysięg, tym bardziej
+  narzędzie ugina się pod siłą skrawania i tym łatwiej wpada w drgania;
+  producent podaje, że od około czterech średnic (4 × D) skłonność do drgań
+  rośnie wyraźnie. Zasada: najkrótszy możliwy wysięg i największa średnica
+  oprawki, a przy długim wysięgu mały kąt przystawienia (siła osiowa zamiast
+  promieniowej), małe zaangażowanie promieniowe i mniejsza głębokość skrawania.
+formulas: []
+see:
+  - g43-g49
+diagram: ''
+sources:
+  - id: sandvik-drgania
+    where: >-
+      od wysięgu 4 × D skłonność do drgań rośnie; frezy 90° dają siłę
+      promieniową i ugięcie przy długim wysięgu; najkrótsza możliwa długość
+      narzędzia, największa średnica oprawki; przy długich frezach ae do 25% Dc
+  - id: sandvik-frez-problemy
+    where: 'drgania: zmniejszyć wysięg, poprawić sztywność, zmniejszyć ap'

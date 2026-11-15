@@ -6,10 +6,31 @@ aliases:
   - X średnicowe
 def: >-
   Konwencja na tokarkach: adres X oznacza średnicę, a nie odległość od osi. G01
-  X40 to polecenie toczenia na ⌀40, choć ostrze fizycznie stoi 20 mm od osi.
-  Adresy I i R pozostają promieniowe.
-formulas: []
+  X40 to toczenie na ⌀40, choć ostrze stoi 20 mm od osi. Głębokość skrawania ap
+  liczy się na promieniu, czyli jako połowa różnicy średnic; adresy I i R
+  pozostają promieniowe, a przyrost U w systemie A też jest na średnicy.
+formulas:
+  - expr: ap = (D1 − D2) / 2
+    where:
+      - ap — głębokość skrawania (na promieniu), mm
+      - D1 — średnica przed przejściem, mm
+      - D2 — średnica po przejściu, mm
+    example: >-
+      Z ⌀60 na ⌀56: ap = (60 − 56) / 2 = 2 mm. W programie zmiana X o 4, w
+      materiale 2 mm na stronę — jak w zadaniu „Zgrubne przejścia wałka”.
+  - expr: X = 2 · r
+    where:
+      - X — wartość adresu X w programie
+      - r — odległość ostrza od osi, mm
+    example: >-
+      Nóż 15 mm od osi stoi na X30. Faza 2 × 45° zmienia X o 4 (2 na stronę), a
+      Z o 2.
 see:
   - g96-g97
 diagram: dia
-sources: []
+sources:
+  - id: sandvik-wzory-toczenie
+    where: ap = (Dm − dm) / 2 — głębokość skrawania z różnicy średnic
+  - id: fanuc
+    where: programowanie średnicowe i promieniowe osi X (parametr 1006#3)
+    loc: rozdz. 4, s. 86

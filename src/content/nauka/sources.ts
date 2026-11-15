@@ -164,6 +164,44 @@ export const sources: Record<string, Source> = {
     title: "Specific cutting force — właściwa siła skrawania kc1 (strona producenta)",
     url: "https://www.sandvik.coromant.com/en-gb/knowledge/materials/specific-cutting-force", accessed: "11/2026",
   },
+  "sandvik-rampa": {
+    id: "sandvik-rampa", short: "Sandvik Coromant — wejście po rampie i helisie", author: "Sandvik Coromant",
+    title: "Ramping: two axis linear and circular — rampa liniowa i kołowa (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/milling/milling-holes-cavities-pockets/ramping", accessed: "11/2026",
+    internal: "Wzory na posuw środka narzędzia są na stronie obrazkami; w tekście: vfm — posuw na obwodzie (z korekcją promienia), vf — posuw środka, Dvf — zaprogramowany tor. Relacja vf = vfm · (Dm − Dc)/Dm to stosunek obwodów torów (geometria).",
+  },
+  "sandvik-programowanie-frez": {
+    id: "sandvik-programowanie-frez", short: "Sandvik Coromant — programowanie frezowania", author: "Sandvik Coromant",
+    title: "Milling programming — posuw środka a posuw na obwodzie, redukcja posuwu w narożach (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/milling/programming", accessed: "11/2026",
+  },
+  "sandvik-wzory-gwinty": {
+    id: "sandvik-wzory-gwinty", short: "Sandvik Coromant — wzory gwintowania", author: "Sandvik Coromant",
+    title: "Threading formulas and definitions — wzory i definicje dla toczenia i frezowania gwintów (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/machining-formulas-definitions/threading-formulas-definitions", accessed: "11/2026",
+  },
+  "sandvik-corotap": {
+    id: "sandvik-corotap", short: "Sandvik Coromant — otwór pod gwintownik", author: "Sandvik Coromant",
+    title: "How to use CoroTap 100 — średnica otworu pod gwintownik skrawający, formy nakroju (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/tools/drilling-tools/solid-carbide-threading-tools/corotap-100/how-to-use-corotap-100", accessed: "11/2026",
+    note: "Zasada D − P dotyczy gwintowników skrawających; gwintowniki wygniatające wymagają większego otworu.",
+  },
+  "sandvik-frez-problemy": {
+    id: "sandvik-frez-problemy", short: "Sandvik Coromant — rozwiązywanie problemów przy frezowaniu", author: "Sandvik Coromant",
+    title: "Milling troubleshooting — drgania, bicie, zużycie (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/milling/troubleshooting-milling", accessed: "11/2026",
+  },
+  "sandvik-drgania": {
+    id: "sandvik-drgania", short: "Sandvik Coromant — drgania przy frezowaniu", author: "Sandvik Coromant",
+    title: "How to reduce vibration in milling — wysięg, sztywność mocowania, kierunek sił (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/vibration", accessed: "11/2026",
+  },
+  "iscar-gwintowniki": {
+    id: "iscar-gwintowniki", short: "ISCAR — formy nakroju gwintowników (DIN 2197)", author: "ISCAR",
+    title: "Threading Catalog, User Guide — Tap nomenclature and standards: chamfer lead forms according to DIN 2197",
+    url: "https://iscar.com/Catalogs/publication-2023/english-1/THREADING-CATALOG-62-ver-3-3431159/flipview-THREADING-CATALOG-62-ver-3-3431159/files/basic-html/page380.html", accessed: "11/2026",
+    internal: "Katalog producenta cytuje DIN 2197; samej normy nie sprawdzono.",
+  },
   "cadem-rt": {
     id: "cadem-rt", short: "CADEM — promień naroża, posuw i chropowatość", author: "CADEM Technologies",
     title: "Insert nose radius chart — for feed rate selection in turning",

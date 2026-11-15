@@ -239,6 +239,7 @@
   "cam-program-z-modelu-3d-",
   "cykl-stały",
   "docisk",
+  "bicie-narzędzia",
   "faza",
   "frezowanie-przeciwbieżne",
   "frezowanie-współbieżne",
@@ -308,7 +309,9 @@
   "zero-maszyny",
   "system-kodów-g",
   "n-obroty-wrzeciona",
+  "tc-czas-skrawania",
   "q-wydajność-skrawania",
-  "pc-moc-skrawania"
+  "pc-moc-skrawania",
+  "wysięg-narzędzia"
  ]
 }

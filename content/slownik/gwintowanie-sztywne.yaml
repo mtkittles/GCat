@@ -6,10 +6,25 @@ aliases:
   - M29
 def: >-
   Gwintowanie z elektroniczną synchronizacją obrotu wrzeciona i posuwu osi, bez
-  uchwytu kompensacyjnego. Pozwala na wyższe obroty i daje dokładniejszy gwint.
-  W Fanuc aktywowane przez M29 przed cyklem G84.
-formulas: []
+  oprawki kompensacyjnej. Sterowanie pilnuje, żeby na każdy obrót oś przesunęła
+  się dokładnie o skok, także przy hamowaniu i nawrocie na dnie. Pozwala na
+  wyższe obroty i daje dokładniejszy gwint. W Fanuc włącza je M29 przed cyklem
+  G84; kod zależy od maszyny.
+formulas:
+  - expr: F = n · P  (G94)   albo   F = P  (G95)
+    where:
+      - F — posuw w bloku G84
+      - n — obroty wrzeciona, obr/min
+      - P — skok gwintu, mm
+    example: >-
+      M8 × 1,25, S500: przy G94 F625, przy G95 F1.25. Inny posuw niż ze skoku to
+      złamany gwintownik albo zerwane zwoje.
 see:
   - g84
 diagram: ''
-sources: []
+sources:
+  - id: haas-ap602
+    where: F = skok × obroty (G94) i F = skok (G95) w G84
+  - id: haas-workbook
+    where: cykl G84 — rysunek, kod i płaszczyzny cyklu
+    loc: s. 82 (PDF 88)
