@@ -7,10 +7,27 @@ aliases:
   - rampa
 def: >-
   Zejście freza w materiał ruchem jednocześnie w Z i w płaszczyźnie (G01 X… Z…),
-  pod małym kątem (zwykle 2–5°). Pozwala wejść w pełny materiał frezom, które
-  nie skrawają przez środek, bez nawiercania.
-formulas: []
+  pod małym kątem. Pozwala wejść w pełny materiał frezom, które nie skrawają
+  przez środek, bez nawiercania. Dopuszczalny kąt podaje producent narzędzia —
+  zależy od średnicy i promienia płytki, dla frezów składanych to zwykle
+  pojedyncze stopnie. Gdy jest miejsce, lepsze jest wejście po helisie: mniejsze
+  zaangażowanie promieniowe i czyste frezowanie współbieżne.
+formulas:
+  - expr: L = ap / tan α
+    where:
+      - L — długość rampy w płaszczyźnie, mm
+      - ap — głębokość zejścia, mm
+      - α — kąt rampy, °
+    example: >-
+      Zejście 3 mm pod kątem 3°: L = 3 / tan 3° ≈ 57 mm. Rowek krótszy niż to
+      wymaga kilku przejść w obie strony albo helisy.
 see:
   - g01
-diagram: ''
-sources: []
+  - g02
+diagram: ramp
+sources:
+  - id: sandvik-rampa
+    where: >-
+      kąt rampy zależy od promienia płytki i średnicy narzędzia (wykres
+      producenta); rampa liniowa tylko w wąskich rowkach poniżej 30 mm, gdy
+      helisa nie ma miejsca; rampa w obie strony (progressive ramping)

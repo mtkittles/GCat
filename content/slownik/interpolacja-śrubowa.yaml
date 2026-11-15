@@ -8,9 +8,39 @@ aliases:
 def: >-
   Ruch po łuku G02/G03 połączony z ruchem w osi prostopadłej do płaszczyzny, np.
   Z przy G17. Narzędzie porusza się po linii śrubowej. Służy do wejścia w
-  materiał w kieszeniach i otworach oraz do frezowania gwintów.
-formulas: []
+  materiał w kieszeniach i otworach oraz do frezowania gwintów. Przy frezowaniu
+  otworu po helisie środek freza krąży po mniejszym okręgu niż ostrza, więc
+  posuw środka musi być mniejszy od posuwu na obwodzie — inaczej posuw na ostrze
+  rośnie.
+formulas:
+  - expr: D_vf = D_m − D_c
+    where:
+      - D_vf — średnica toru środka narzędzia (zaprogramowany okrąg), mm
+      - D_m — średnica frezowanego otworu, mm
+      - D_c — średnica freza, mm
+    example: >-
+      Otwór ⌀40 frezem ⌀10: środek krąży po okręgu ⌀30, czyli R15 — jak w
+      zadaniu „Wejście po helisie”.
+  - expr: Vf = Vfm · (D_m − D_c) / D_m
+    where:
+      - Vf — posuw środka narzędzia (bez korekcji promienia), mm/min
+      - Vfm — posuw na obwodzie, z fz, mm/min
+      - D_m, D_c — jak wyżej
+    example: >-
+      Vfm 300 mm/min, otwór ⌀40, frez ⌀10: Vf = 300 · 30 / 40 = 225 mm/min. Z
+      korekcją promienia programuje się wprost Vfm.
 see:
   - g02
-diagram: ''
-sources: []
+diagram: helix-feed
+sources:
+  - id: sandvik-rampa
+    where: >-
+      helisa (circular ramping) zamiast rampy liniowej; Vfm — posuw na obwodzie
+      z korekcją promienia, Vf — posuw środka; Dvf — zaprogramowany tor
+  - id: sandvik-programowanie-frez
+    where: >-
+      maszyna programowana posuwem środka Vf albo obwodu Vfm; po łuku posuw na
+      obwodzie jest większy niż środka, więc Vf trzeba zmniejszyć, żeby utrzymać
+      fz
+  - id: sandvik-wzory-gwinty
+    where: Dvf = Dm − Dc przy frezowaniu gwintów

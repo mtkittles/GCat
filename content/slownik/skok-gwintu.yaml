@@ -6,13 +6,40 @@ aliases:
   - pitch
   - P
 def: >-
-  Odległość między sąsiednimi zwojami gwintu wzdłuż osi, np. 1,5 mm dla M10. W
-  cyklach gwintowania to posuw na obrót (G84 przy G95, G76 i G32 adresem F), bo
-  na jeden obrót narzędzie musi przesunąć się dokładnie o skok.
-formulas: []
+  Odległość między sąsiednimi zwojami gwintu wzdłuż osi, np. 1,25 mm dla M8 i
+  1,5 mm dla M10. W cyklach gwintowania to zarazem posuw na obrót: na jeden
+  obrót narzędzie musi przesunąć się dokładnie o skok (G84 przy G95, G76 i G32
+  adresem F). Przy posuwie minutowym (G94) F to skok pomnożony przez obroty.
+  Skok decyduje też o otworze pod gwintownik skrawający: w przybliżeniu średnica
+  nominalna minus skok.
+formulas:
+  - expr: F = n · P
+    where:
+      - F — posuw gwintowania przy G94, mm/min
+      - n — obroty wrzeciona, obr/min
+      - P — skok gwintu, mm
+    example: >-
+      M8 × 1,25 przy 500 obr/min: F = 500 · 1,25 = 625 mm/min. Przy G95 wpisuje
+      się wprost F1.25.
+  - expr: D_otw ≈ D − P
+    where:
+      - D_otw — średnica otworu pod gwintownik skrawający, mm
+      - D — średnica nominalna gwintu, mm
+      - P — skok, mm
+    example: >-
+      M10 × 1,5: 10 − 1,5 = 8,5 mm. M8 × 1,25: 8 − 1,25 = 6,75, czyli wiertło
+      ⌀6,8. Gwintownik wygniatający wymaga większego otworu.
 see:
   - g84
   - g76
   - g33
-diagram: ''
-sources: []
+diagram: pitch
+sources:
+  - id: haas-ap602
+    where: F = skok × obroty (G94) i F = skok (G95) w cyklu G84
+  - id: sandvik-corotap
+    where: >-
+      średnica otworu pod gwintownik skrawający D = TD − TP, przykład M10 × 1,5
+      → 8,5 mm
+  - id: sandvik-wzory-gwinty
+    where: ten sam skok na różnych średnicach daje inny kąt wzniosu linii śrubowej

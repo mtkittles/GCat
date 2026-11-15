@@ -1,0 +1,43 @@
+term: Tc — czas skrawania
+anchor: tc-czas-skrawania
+order: 795
+aliases:
+  - Tc
+  - czas obróbki
+  - czas maszynowy
+  - czas główny
+def: >-
+  Czas, przez który ostrze jest w materiale w jednym przejściu: droga skrawania
+  podzielona przez posuw minutowy. Na tokarce posuw minutowy to posuw na obrót
+  razy obroty, więc przy stałej prędkości skrawania (G96) obroty — i czas —
+  zmieniają się ze średnicą. Czas cyklu detalu jest dłuższy o dojazdy, wymiany
+  narzędzi i postoje.
+formulas:
+  - expr: Tc = L / Vf
+    where:
+      - Tc — czas skrawania, min
+      - L — droga skrawania (z dobiegiem i wybiegiem), mm
+      - Vf — posuw minutowy, mm/min
+    example: >-
+      Planowanie 100 mm z dobiegiem i wybiegiem po 30 mm przy Vf 800 mm/min: Tc
+      = 160 / 800 = 0,2 min = 12 s na przejście.
+  - expr: Tc = L / (f · n)
+    where:
+      - L — długość toczenia, mm
+      - f — posuw na obrót, mm/obr
+      - n — obroty, obr/min
+    example: >-
+      Toczenie 40 mm przy f 0,3 i 1000 obr/min: Tc = 40 / (0,3 · 1000) = 0,133
+      min = 8 s.
+see:
+  - g94-g95
+  - g96-g97
+diagram: ''
+sources:
+  - id: sandvik-tg-d
+    where: Tc = lm / vf — czas skrawania przy frezowaniu
+    loc: Ogólne wzory frezowania, s. D 23
+  - id: sandvik-wzory-toczenie
+    where: >-
+      Tc = lm / (fn · n) — czas skrawania przy toczeniu; Tc oznacza czas
+      zaangażowania ostrza

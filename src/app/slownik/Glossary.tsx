@@ -52,8 +52,8 @@ function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
             {f.where.length > 0 && (
               <ul className="gl-where">
                 {f.where.map((w) => {
-                  // „symbol — znaczenie, jednostka”; wiersz bez myślnika to uwaga do wzoru
-                  const m = w.match(/^(\S{1,3}) — (.+)$/);
+                  // „symbol — znaczenie, jednostka” (symbol do 6 znaków, np. D_otw, albo para „D_m, D_c”); wiersz bez myślnika to uwaga do wzoru
+                  const m = w.match(/^(\S{1,6}(?:, \S{1,4})?) — (.+)$/);
                   return m ? <li key={w}><b>{m[1]}</b><span>{m[2]}</span></li> : <li key={w} className="is-note"><span>{w}</span></li>;
                 })}
               </ul>

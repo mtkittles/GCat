@@ -10,8 +10,19 @@ def: >-
   G01 po przekątnej albo frezem do faz; na tokarce — blokiem G01 z jednoczesną
   zmianą X i Z, a na części sterowań adresem ,C (Fanuc) lub CHF=/CHR=
   (Sinumerik).
-formulas: []
+formulas:
+  - expr: 'faza c × 45°: ΔZ = c,  ΔX = 2 · c (tokarka, średnicowo)'
+    where:
+      - c — długość boku fazy, mm
+      - ΔZ, ΔX — zmiana współrzędnych w bloku fazy
+    example: >-
+      Faza 2 × 45° z ⌀26 na ⌀30: blok G01 X30. Z-2. — X rośnie o 4, Z maleje o
+      2.
 see:
   - g01
 diagram: ''
-sources: []
+sources:
+  - id: sandvik-wzory-toczenie
+    where: >-
+      X programowane średnicowo: zmiana na stronę to połowa zmiany X (ap = (Dm −
+      dm)/2)

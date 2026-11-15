@@ -5,12 +5,32 @@ aliases:
   - nakrój
   - część stożkowa gwintownika
 def: >-
-  Stożkowy początek gwintownika, który stopniowo wcina pełny zarys gwintu. Ma
-  zwykle 2–5 zwojów długości (zależnie od formy A, B, C). Dlatego otwór musi być
-  głębszy niż gwint o długość nakroju — pełny zarys kończy się wyżej, niż stoi
-  czubek narzędzia.
-formulas: []
+  Stożkowy początek gwintownika, który stopniowo wcina pełny zarys gwintu.
+  Długość nakroju podaje forma wg DIN 2197: A — 6–8 zwojów (krótkie otwory
+  przelotowe), B — 3,5–5 zwojów (przelotowe, z podcięciem wiórowym), C — 2–3
+  zwoje (nieprzelotowe), D — 3,5–5 zwojów, E — 1,5–2 zwoje (nieprzelotowe z
+  małym wybiegiem). Dlatego otwór musi być głębszy niż gwint o długość nakroju i
+  zapas na wiór — pełny zarys kończy się wyżej, niż stoi czubek narzędzia.
+formulas:
+  - expr: L_otw ≥ L_gw + z · P + zapas
+    where:
+      - L_otw — głębokość otworu, mm
+      - L_gw — wymagana głębokość pełnego gwintu, mm
+      - z — liczba zwojów nakroju (forma A–E)
+      - P — skok, mm
+      - zapas — miejsce na wiór i stożek wiertła
+    example: >-
+      Gwint M8 × 1,25 na 15 mm gwintownikiem formy C (do 3 zwojów): 15 + 3 ·
+      1,25 = 18,75, więc otwór na 20 mm plus stożek wiertła — jak w zadaniu
+      „Cztery gwinty M8”.
 see:
   - g84
-diagram: ''
-sources: []
+diagram: tap-chamfer
+sources:
+  - id: iscar-gwintowniki
+    where: >-
+      formy nakroju wg DIN 2197: A 6–8, B 3,5–5, C 2–3, D 3,5–5, E 1,5–2 zwojów
+      i ich zastosowanie
+    loc: User Guide, s. 380
+  - id: sandvik-corotap
+    where: dobór formy nakroju (C albo E) do rodzaju otworu
