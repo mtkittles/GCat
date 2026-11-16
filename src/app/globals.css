@@ -3849,3 +3849,8 @@ a.rys-btn { text-decoration: none; }
   .ed-shell .rys-ed, .ed-shell .ed-banner { display: none; }
   .ed-shell::after { content: "Edytor treści działa na komputerze — otwórz tę stronę w oknie o szerokości co najmniej 900 px."; padding: 1.5rem; color: var(--ink-2); }
 }
+/* bramka narzędzi redakcji (tylko właściciel) */
+.edit-gate { display: grid; gap: .8rem; justify-items: start; max-width: 40rem; margin: 3rem auto; padding: 1.5rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.edit-gate h1 { margin: 0; font: 700 1.4rem/1.2 var(--font-display); }
+.edit-gate p { margin: 0; color: var(--ink-2); line-height: 1.6; }
+.edit-gate-wait { margin: 3rem auto; max-width: 40rem; color: var(--muted); }
