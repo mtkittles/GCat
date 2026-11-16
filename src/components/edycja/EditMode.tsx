@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
 import { editStore, editTarget, panelUrl, type Kolekcja } from "@/lib/edycja";
+import { useAdmin } from "@/lib/edytor/admin";
 
 export const useEditMode = () => useSyncExternalStore(editStore.subscribe, editStore.get, () => false);
 
@@ -13,15 +14,17 @@ const Pencil = () => (
 /** „Edytuj” przy jednym wpisie (hasło, rysunek). Widoczny tylko w trybie edycji. */
 export function EditLink({ kolekcja, slug, label = "Edytuj" }: { kolekcja: Kolekcja; slug: string; label?: string }) {
   const on = useEditMode();
-  if (!on) return null;
+  const admin = useAdmin();
+  if (!on || admin !== "yes") return null;
   return <a className="edit-link" href={panelUrl(kolekcja, slug)}><Pencil />{label}</a>;
 }
 
-/** Pasek trybu edycji: przy dolnej krawędzi każdej strony serwisu, tylko gdy tryb jest włączony. */
+/** Pasek trybu edycji: przy dolnej krawędzi każdej strony serwisu, tylko gdy tryb jest włączony i przeglądarka należy do właściciela. */
 export function EditBar() {
   const on = useEditMode();
+  const admin = useAdmin();
   const path = usePathname() ?? "/";
-  if (!on || path.startsWith("/keystatic") || path.startsWith("/rysownik") || path.startsWith("/edytor")) return null;
+  if (!on || admin !== "yes" || path.startsWith("/keystatic") || path.startsWith("/rysownik") || path.startsWith("/edytor")) return null;
   const target = editTarget(path);
   return (
     <aside className="edit-bar" aria-label="Tryb edycji">

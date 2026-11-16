@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdminGate from "@/components/edycja/AdminGate";
 import PageBanner from "@/components/ui/PageBanner";
 import { gcodes } from "@/lib/gcodes";
 import { panelUrl } from "@/lib/edycja";
@@ -10,6 +11,7 @@ export const metadata: Metadata = { title: "Edytor treści — GCat", robots: { 
 export default function EdytorIndex() {
   const groups = [...new Set(gcodes.map((g) => g.group))];
   return (
+    <AdminGate what="Edytor treści">
     <div className="ed-index">
       <PageBanner plain kicker="Tryb edycji" title="Edytor treści" subtitle="Wybierz kartę — edytujesz ją na stronie, z podglądem i historią wersji." />
       {groups.map((gr) => (
@@ -31,5 +33,6 @@ export default function EdytorIndex() {
         </div>
       </section>
     </div>
+    </AdminGate>
   );
 }

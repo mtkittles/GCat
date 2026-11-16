@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AdminGate from "@/components/edycja/AdminGate";
 import Sandbox from "./Sandbox";
 
 export const metadata: Metadata = {
@@ -8,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function RysownikPage() {
-  return <Sandbox />;
+  return <AdminGate what="Rysownik"><Sandbox /></AdminGate>;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import AdminGate from "@/components/edycja/AdminGate";
 import { EditLink, EditSwitch } from "@/components/edycja/EditMode";
 import Rys from "@/components/rys/Rys";
 import { rysunki } from "@/components/rys/registry";
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 export default function EdycjaPage() {
   const used = (slug: string) => glossary.filter((g) => g.rysunek === slug).map((g) => g.term);
   return (
+    <AdminGate what="Tryb edycji">
     <div className="edit-page">
       <header className="edit-head">
         <h1>Tryb edycji</h1>
@@ -77,5 +79,6 @@ export default function EdycjaPage() {
         )}
       </section>
     </div>
+    </AdminGate>
   );
 }

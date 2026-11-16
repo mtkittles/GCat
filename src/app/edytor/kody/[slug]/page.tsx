@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from "node:fs";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import AdminGate from "@/components/edycja/AdminGate";
 import KartaEditor from "@/components/edytor/KartaEditor";
 
 /* Edytor karty kodu. Plik z buildu to punkt startu; edytor od razu dociąga najnowszą wersję z repozytorium. */
@@ -18,5 +19,5 @@ export default async function EdytorKarty({ params }: { params: Promise<{ slug: 
   const path = `${DIR}/${slug}.mdx`;
   let text: string;
   try { text = readFileSync(path, "utf8"); } catch { notFound(); }
-  return <KartaEditor path={path} initial={text} slug={slug} />;
+  return <AdminGate what="Edytor treści"><KartaEditor path={path} initial={text} slug={slug} /></AdminGate>;
 }

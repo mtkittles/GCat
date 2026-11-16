@@ -54,7 +54,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ op: string }> }
   if (op === "ja") {
     if (LOCAL) return json({ mode: "local", canWrite: true, user: { login: "lokalnie", name: "Tryb lokalny (zapis na dysk)" } });
     const token = tokenOf(req);
-    if (!token) return json({ mode: "github", canWrite: false, user: null });
+    // brak tokenu, ale jest ciasteczko odświeżania (8 h minęło) — przeglądarka odświeży przez API panelu i zapyta jeszcze raz
+    if (!token) return json({ mode: "github", canWrite: false, user: null, refresh: /(?:^|;\s*)keystatic-gh-refresh-token=/.test(req.headers.get("cookie") ?? "") });
     try { const u = await whoami(token); return json({ mode: "github", canWrite: u.canWrite, user: u }); } catch (e) {
       if (e instanceof GhError && e.status === 401) return json({ mode: "github", canWrite: false, user: null, expired: true });
       return fail(e);
