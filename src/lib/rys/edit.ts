@@ -1,5 +1,5 @@
 import {
-  arcSweep, bulgeArc, newId, polySegs, q, type ArcItem, type Item, type LineItem, type P2, type PolyItem,
+  arcSweep, bulgeArc, dimGeom, dimOffsetAt, newId, polySegs, q, type ArcItem, type Item, type LineItem, type P2, type PolyItem,
 } from "./model";
 
 /*
@@ -273,4 +273,174 @@ export function pickCurve(items: Item[], p: P2, tol: number): Item | null {
   let best: Item | null = null, bd = tol;
   for (const it of items) for (const c of curvesOf(it)?.cs ?? []) { const d = nearest(c, p).d; if (d < bd) { bd = d; best = it; } }
   return best;
+}
+
+/* ───────────── zaokrąglenie i fazowanie (FILLET / CHAMFER) ───────────── */
+const unit = (a: P2, b: P2): P2 => { const d = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; return [(b[0] - a[0]) / d, (b[1] - a[1]) / d]; };
+/** Prostokąt → zamknięta polilinia (do edycji narożnika). */
+export function rectToPoly(it: Item): PolyItem | null {
+  if (it.t === "poly") return it;
+  if (it.t !== "rect") return null;
+  const p = toItem(curvesOf(it)!.cs, { k: it.k, sw: it.sw }, it, true, it.fill);
+  return p?.t === "poly" ? { ...p, id: it.id } : null;
+}
+/** Wierzchołek polilinii albo narożnik prostokąta pod kursorem (oba sąsiednie odcinki proste). */
+export function vertexAt(items: Item[], p: P2, tol: number): { it: Item; i: number } | null {
+  for (const it of items) {
+    const pl = it.t === "rect" && it.r === 0 ? rectToPoly(it) : it.t === "poly" ? it : null;
+    if (!pl) continue;
+    const n = pl.pts.length;
+    for (let i = 0; i < n; i++) {
+      if (!pl.closed && (i === 0 || i === n - 1)) continue;
+      if (Math.hypot(pl.pts[i][0] - p[0], pl.pts[i][1] - p[1]) > tol) continue;
+      const bi = (i - 1 + n) % n;
+      if (pl.b?.[bi] || pl.b?.[i]) continue;
+      return { it, i };
+    }
+  }
+  return null;
+}
+/** Zaokrąglenie (r) albo faza (chamfer: d wzdłuż obu boków) w wierzchołku i polilinii/prostokąta. */
+export function cornerVertex(it: Item, i: number, v: number, chamfer: boolean): PolyItem | string {
+  const pl = rectToPoly(it);
+  if (!pl) return "to nie jest polilinia ani prostokąt";
+  const n = pl.pts.length, P = pl.pts[(i - 1 + n) % n], V = pl.pts[i], N = pl.pts[(i + 1) % n];
+  const d1 = unit(P, V), d2 = unit(V, N), cos = Math.max(-1, Math.min(1, d1[0] * d2[0] + d1[1] * d2[1])), th = Math.acos(cos);
+  if (th < 1e-3) return "boki są współliniowe";
+  const t = chamfer ? v : v * Math.tan(th / 2);
+  if (t > Math.hypot(V[0] - P[0], V[1] - P[1]) + 1e-6 || t > Math.hypot(N[0] - V[0], N[1] - V[1]) + 1e-6) return chamfer ? "faza dłuższa niż bok" : "promień za duży dla tych boków";
+  const T1: P2 = [q(V[0] - d1[0] * t), q(V[1] - d1[1] * t)], T2: P2 = [q(V[0] + d2[0] * t), q(V[1] + d2[1] * t)];
+  const cr = d1[0] * d2[1] - d1[1] * d2[0], bulge = chamfer ? 0 : Math.round(Math.sign(cr) * Math.tan(th / 4) * 1e4) / 1e4;
+  const b = pl.b ? [...pl.b] : pl.pts.map(() => 0);
+  const pts = [...pl.pts.slice(0, i), T1, T2, ...pl.pts.slice(i + 1)];
+  b.splice(i, 1, bulge, b[i] ?? 0);
+  return { ...pl, pts, ...(b.some((x) => x) ? { b } : { b: undefined }) };
+}
+/**
+  Zaokrąglenie/faza między dwiema liniami (zostają kawałki po stronie kliknięć, jak w CAD).
+  r = 0 — ostry narożnik (obie linie do punktu przecięcia).
+*/
+export function cornerLines(l1: LineItem, c1: P2, l2: LineItem, c2: P2, v: number, chamfer: boolean): { l1: LineItem; l2: LineItem; extra: Item | null } | string {
+  const den = (l1.x2 - l1.x1) * (l2.y2 - l2.y1) - (l1.y2 - l1.y1) * (l2.x2 - l2.x1);
+  if (Math.abs(den) < 1e-9) return "linie są równoległe";
+  // przecięcie prostych (oba parametry dowolne)
+  const tx = ((l2.x1 - l1.x1) * (l2.y2 - l2.y1) - (l2.y1 - l1.y1) * (l2.x2 - l2.x1)) / den;
+  const X: P2 = [l1.x1 + (l1.x2 - l1.x1) * tx, l1.y1 + (l1.y2 - l1.y1) * tx];
+  const keep = (l: LineItem, c: P2): { end: "1" | "2"; far: P2 } => {
+    const p1: P2 = [l.x1, l.y1], p2: P2 = [l.x2, l.y2], d = unit(p1, p2);
+    const pr = (p: P2) => (p[0] - X[0]) * d[0] + (p[1] - X[1]) * d[1], sc = pr(c), s1 = pr(p1), s2 = pr(p2);
+    // zostaje koniec po tej samej stronie przecięcia co kliknięcie; drugi koniec idzie do punktu styczności
+    if (Math.sign(s1) !== Math.sign(s2)) return Math.sign(s1) === Math.sign(sc) ? { end: "2", far: p1 } : { end: "1", far: p2 };
+    return Math.abs(s1) > Math.abs(s2) ? { end: "2", far: p1 } : { end: "1", far: p2 };
+  };
+  const k1 = keep(l1, c1), k2 = keep(l2, c2);
+  const u1 = unit(X, k1.far), u2 = unit(X, k2.far), cos = Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1])), al = Math.acos(cos);
+  if (al < 1e-3 || al > Math.PI - 1e-3) return "linie są współliniowe";
+  const t = chamfer ? v : v / Math.tan(al / 2);
+  if (t > Math.hypot(k1.far[0] - X[0], k1.far[1] - X[1]) + 1e-6 || t > Math.hypot(k2.far[0] - X[0], k2.far[1] - X[1]) + 1e-6) return chamfer ? "faza dłuższa niż linia" : "promień za duży dla tych linii";
+  const T1: P2 = [q(X[0] + u1[0] * t), q(X[1] + u1[1] * t)], T2: P2 = [q(X[0] + u2[0] * t), q(X[1] + u2[1] * t)];
+  const set = (l: LineItem, k: { end: "1" | "2" }, T: P2): LineItem => (k.end === "1" ? { ...l, x1: T[0], y1: T[1] } : { ...l, x2: T[0], y2: T[1] });
+  let extra: Item | null = null;
+  if (v > 0 && chamfer) extra = { id: newId(), ...keep2(l1), t: "line", k: l1.k, sw: l1.sw, arrow: "none", x1: T1[0], y1: T1[1], x2: T2[0], y2: T2[1] };
+  else if (v > 0) {
+    const bis = unit([0, 0], [u1[0] + u2[0], u1[1] + u2[1]]), h = v / Math.sin(al / 2), C: P2 = [X[0] + bis[0] * h, X[1] + bis[1] * h];
+    const A1 = Math.atan2(T1[1] - C[1], T1[0] - C[0]) / RAD, A2 = Math.atan2(T2[1] - C[1], T2[0] - C[0]) / RAD;
+    const [a0, a1] = arcSweep(A1, A2) <= 180 ? [A1, A2] : [A2, A1];
+    extra = { id: newId(), ...keep2(l1), t: "arc", k: l1.k, sw: l1.sw, arrow: "none", cx: q(C[0]), cy: q(C[1]), r: q(v), a0: q(n360(a0)), a1: q(n360(a1)) };
+  }
+  return { l1: set(l1, k1, T1), l2: set(l2, k2, T2), extra };
+}
+const keep2 = (src: Item) => ({ ...(src.g ? { g: src.g } : {}), ...(src.l ? { l: src.l } : {}) });
+
+/* ───────────── odsunięcie (OFFSET) ───────────── */
+function inside(pts: P2[], p: P2): boolean {
+  let r = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if (yi > p[1] !== yj > p[1] && p[0] < ((xj - xi) * (p[1] - yi)) / (yj - yi) + xi) r = !r;
+  }
+  return r;
+}
+/** Kopia odsunięta o d (jednostki rysunku) w stronę punktu `side`: linia, okrąg, łuk, polilinia (także z łukami), prostokąt. */
+export function offsetItem(it: Item, d: number, side: P2): Item | null {
+  if (!(d > 0)) return null;
+  if (it.t === "circle" || it.t === "arc") {
+    const out = Math.hypot(side[0] - it.cx, side[1] - it.cy) > it.r, r = q(it.r + (out ? d : -d));
+    return r > 0.01 ? { ...it, id: newId(), r } : null;
+  }
+  if (it.t === "rect" && it.r === 0) {
+    const inn = side[0] > it.x && side[0] < it.x + it.w && side[1] > it.y && side[1] < it.y + it.h, s = inn ? -d : d;
+    return it.w + 2 * s > 0.01 && it.h + 2 * s > 0.01 ? { ...it, id: newId(), x: q(it.x - s), y: q(it.y - s), w: q(it.w + 2 * s), h: q(it.h + 2 * s) } : null;
+  }
+  const cv = curvesOf(it.t === "rect" ? rectToPoly(it) ?? it : it);
+  if (!cv || (it.t !== "line" && it.t !== "poly" && it.t !== "rect")) return null;
+  const { cs, closed } = cv;
+  // strona: po prawej (na ekranie) kierunku krzywych → s = +1
+  let s: number;
+  if (closed) {
+    const pts = cs.map((c) => at(c, 0));
+    let area = 0; for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; area += a[0] * b[1] - b[0] * a[1]; }
+    const cw = area > 0; // y w dół: dodatnie pole = zgodnie z ruchem wskazówek, prawa strona = środek
+    s = inside(pts, side) === cw ? 1 : -1;
+  } else {
+    let best = { i: 0, d: Infinity, t: 0 };
+    cs.forEach((c, i) => { const r = nearest(c, side); if (r.d < best.d) best = { i, d: r.d, t: r.t }; });
+    const c = cs[best.i], p0 = at(c, Math.max(0, best.t - 1e-3)), p1 = at(c, Math.min(1, best.t + 1e-3));
+    s = (p1[0] - p0[0]) * (side[1] - p0[1]) - (p1[1] - p0[1]) * (side[0] - p0[0]) > 0 ? 1 : -1;
+  }
+  const off: Curve[] = [];
+  for (const c of cs) {
+    if (c.k === "L") { const u = unit(c.a, c.b), n: P2 = [-u[1] * s * d, u[0] * s * d]; off.push({ k: "L", a: [c.a[0] + n[0], c.a[1] + n[1]], b: [c.b[0] + n[0], c.b[1] + n[1]] }); }
+    else { const r = c.r + (c.w > 0 ? -s * d : s * d); if (r <= 0.01) return null; off.push({ ...c, r }); }
+  }
+  // połączenia: sąsiednie odcinki proste przecinają się, reszta łączy się krótkim odcinkiem
+  const out: Curve[] = [...off];
+  const fix = (i: number, j: number) => {
+    const a = out[i], b = out[j], ea = at(a, 1), sb = at(b, 0);
+    if (Math.hypot(ea[0] - sb[0], ea[1] - sb[1]) < 1e-6) return;
+    if (a.k === "L" && b.k === "L") {
+      const den = (a.b[0] - a.a[0]) * (b.b[1] - b.a[1]) - (a.b[1] - a.a[1]) * (b.b[0] - b.a[0]);
+      if (Math.abs(den) > 1e-12) {
+        const t = ((b.a[0] - a.a[0]) * (b.b[1] - b.a[1]) - (b.a[1] - a.a[1]) * (b.b[0] - b.a[0])) / den, X: P2 = [a.a[0] + (a.b[0] - a.a[0]) * t, a.a[1] + (a.b[1] - a.a[1]) * t];
+        out[i] = { ...a, b: X }; out[j] = { ...b, a: X };
+        return;
+      }
+    }
+    out.splice(j, 0, { k: "L", a: ea, b: sb });
+  };
+  for (let i = out.length - 2; i >= 0; i--) fix(i, i + 1);
+  if (closed) { const last = out.length - 1; fix(last, 0); }
+  const src = it.t === "rect" ? rectToPoly(it)! : it;
+  const res = toItem(out, { k: "k" in src ? src.k : "con", sw: "sw" in src ? src.sw : "auto" }, src, closed); // kopia bez wypełnienia, jak w CAD
+  if (res && (res.t === "line" || res.t === "poly") && (src.t === "line" || src.t === "poly")) res.arrow = src.arrow;
+  return res;
+}
+
+/* ───────────── lustro (MIRROR) ───────────── */
+/** Odbicie elementu względem osi przez punkty a, b. Tekst nie odwraca się (zostaje czytelny), przesuwa się jego punkt. */
+export function mirrorItem(it: Item, a: P2, b: P2): Item {
+  const d = unit(a, b), th = Math.atan2(d[1], d[0]) / RAD;
+  const M = (p: P2): P2 => { const vx = p[0] - a[0], vy = p[1] - a[1], k = vx * d[0] + vy * d[1]; return [q(a[0] + 2 * k * d[0] - vx), q(a[1] + 2 * k * d[1] - vy)]; };
+  const A = (x: number) => q(n360(2 * th - x));
+  const right = Math.abs(((th % 90) + 90) % 90) < 1e-6 || Math.abs(((th % 90) + 90) % 90 - 90) < 1e-6;
+  const id = newId();
+  switch (it.t) {
+    case "line": { const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])]; return { ...it, id, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] }; }
+    case "poly": return { ...it, id, pts: it.pts.map(M), ...(it.b ? { b: it.b.map((x) => (x ? -x : 0)) } : {}) };
+    case "rect": case "grid": {
+      if (right) { const p1 = M([it.x, it.y]), p2 = M([it.x + it.w, it.y + it.h]); return { ...it, id, x: Math.min(p1[0], p2[0]), y: Math.min(p1[1], p2[1]) }; }
+      if (it.t === "grid") { const m = M([it.x + it.w / 2, it.y + it.h / 2]); return { ...it, id, x: q(m[0] - it.w / 2), y: q(m[1] - it.h / 2) }; }
+      return mirrorItem(rectToPoly(it)!, a, b);
+    }
+    case "circle": { const c = M([it.cx, it.cy]); return { ...it, id, cx: c[0], cy: c[1] }; }
+    case "arc": { const c = M([it.cx, it.cy]); return { ...it, id, cx: c[0], cy: c[1], a0: A(it.a1), a1: A(it.a0) }; }
+    case "dimr": { const c = M([it.cx, it.cy]); return { ...it, id, cx: c[0], cy: c[1], a: A(it.a) }; }
+    case "dima": { const c = M([it.cx, it.cy]); return { ...it, id, cx: c[0], cy: c[1], a1: A(it.a2), a2: A(it.a1) }; }
+    case "dim": {
+      const g = dimGeom(it), mid = M([(g.A[0] + g.B[0]) / 2, (g.A[1] + g.B[1]) / 2]), [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])];
+      const nd = { ...it, id, o: right ? it.o : ("a" as const), x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] };
+      return { ...nd, off: dimOffsetAt(nd, mid) };
+    }
+    default: { const p = M([it.x, it.y]); return { ...it, id, x: p[0], y: p[1] } as Item; }
+  }
 }

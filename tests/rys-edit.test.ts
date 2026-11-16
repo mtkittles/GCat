@@ -75,3 +75,38 @@ describe("łuki w polilinii, rozbij, złącz", () => {
     expect(back && curvesOf(back)!.cs.map((c) => c.k)).toEqual(["L", "A", "L", "L"]);
   });
 });
+
+import { cornerLines, cornerVertex, offsetItem } from "@/lib/rys/edit";
+describe("zaokrąglenie, faza, odsunięcie", () => {
+  const sq: Item = { id: "r", t: "rect", k: "con", sw: "auto", fill: "hatch", x: 0, y: 0, w: 40, h: 20, r: 0 };
+  it("narożnik prostokąta R5 → polilinia z łukiem 90°", () => {
+    const p = cornerVertex(sq, 1, 5, false);
+    expect(typeof p).not.toBe("string");
+    if (typeof p !== "string") {
+      expect(p.pts.slice(1, 3)).toEqual([[35, 0], [40, 5]]);
+      expect(p.b?.[1]).toBeCloseTo(Math.tan(Math.PI / 8), 3); // ćwierć okręgu, zgodnie z zegarem
+      expect(p.fill).toBe("hatch");
+    }
+  });
+  it("faza 3 mm i za duży promień", () => {
+    const p = cornerVertex(sq, 0, 3, true);
+    expect(typeof p !== "string" && p.pts.slice(0, 2)).toEqual([[0, 3], [3, 0]]);
+    expect(cornerVertex(sq, 0, 30, false)).toBe("promień za duży dla tych boków");
+  });
+  it("dwie linie: łuk styczny R10 i linie skrócone do punktów styczności", () => {
+    const r = cornerLines(L(0, 0, 100, 0, "a") as never, [80, 0], L(50, -50, 50, 50, "b") as never, [50, 40], 10, false);
+    expect(typeof r).not.toBe("string");
+    if (typeof r !== "string") {
+      expect([r.l1.x1, r.l1.x2]).toEqual([60, 100]);
+      expect([r.l2.y1, r.l2.y2]).toEqual([10, 50]);
+      expect(r.extra).toMatchObject({ t: "arc", cx: 60, cy: 10, r: 10 });
+    }
+  });
+  it("odsunięcie: linia, okrąg i zamknięta polilinia na zewnątrz", () => {
+    expect(offsetItem(L(0, 0, 10, 0), 2, [5, 5])).toMatchObject({ t: "line", y1: 2, y2: 2 });
+    expect(offsetItem({ id: "c", t: "circle", k: "con", sw: "auto", fill: "none", cx: 0, cy: 0, r: 10 }, 2, [20, 0])).toMatchObject({ r: 12 });
+    const tri: Item = { id: "t", t: "poly", k: "con", sw: "auto", arrow: "none", fill: "none", closed: true, pts: [[0, 0], [40, 0], [40, 20], [0, 20]] };
+    const o = offsetItem(tri, 5, [-10, -10]);
+    expect(o?.t === "poly" && o.pts).toEqual([[-5, -5], [45, -5], [45, 25], [-5, 25]]);
+  });
+});

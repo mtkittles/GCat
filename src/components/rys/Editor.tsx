@@ -14,7 +14,7 @@ import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
 import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
-import { curvesPath, explode, extend, join, pickCurve, trim, type Curve } from "@/lib/rys/edit";
+import { cornerLines, cornerVertex, curvesPath, explode, extend, join, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
@@ -45,6 +45,9 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "axes", label: "Osie", key: "X", hint: "Przeciągnij od początku układu współrzędnych do końców osi X i Y. Nazwy osi (X/Y albo Z/X) i opisy wartości ustawisz w panelu." },
   { id: "trim", label: "Utnij", key: "U", hint: "Najedź na kawałek linii, łuku, okręgu albo boku figury między przecięciami — podświetli się na czerwono; kliknięcie go usuwa. Shift+klik — wydłuż." },
   { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
+  { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik." },
+  { id: "chamfer", label: "Fazuj", key: "K", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie fazę o długości z paska (na każdym boku). Dla dwóch linii: kliknij pierwszą, potem drugą." },
+  { id: "offset", label: "Odsuń", key: "W", hint: "Kliknij linię, okrąg, łuk, polilinię albo prostokąt, potem stronę — powstanie kopia odsunięta o odstęp z paska." },
 ];
 /** narzędzia edycji geometrii — osobna grupa na pasku */
 const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror"]);
@@ -64,7 +67,9 @@ type Draft =
   | { t: "dimr"; d: boolean; cx: number; cy: number; r: number; cur: P2 }
   | { t: "dima1"; seg?: [P2, P2]; v?: P2; p1?: P2; cur: P2 }
   | { t: "dima"; cx: number; cy: number; b1: number; b2: number; lines: boolean; cur: P2 }
-  | { t: "tan1"; c: Extract<Item, { t: "circle" | "arc" }>; click: P2; cur: P2 };
+  | { t: "tan1"; c: Extract<Item, { t: "circle" | "arc" }>; click: P2; cur: P2 }
+  | { t: "corner1"; id: string; click: P2 }
+  | { t: "off1"; id: string };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
@@ -109,7 +114,7 @@ function draftItem(d: Draft, st: Style): Item | null {
     const a = d.p1 ?? d.cur;
     return d.v ? { id: "draft", t: "poly", k: "cons", sw: "auto", arrow: "none", fill: "none", closed: false, pts: d.p1 ? [d.p1, d.v, d.cur] : [d.v, a] } : null;
   }
-  if (d.t === "tan1") return null; // podgląd liczy edytor (potrzebuje innych okręgów)
+  if (d.t === "tan1" || d.t === "corner1" || d.t === "off1") return null; // podgląd liczy edytor (potrzebuje innych elementów)
   if (d.t === "dima") {
     const sec = angleSector(d.b1, d.b2, angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), d.lines);
     return { id: "draft", t: "dima", cx: d.cx, cy: d.cy, ...sec, r: Math.max(4, q(Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy))), label: `${MEASURE}°`, size: st.dimSize, font: st.dimFont };
@@ -222,7 +227,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [snapKinds, setSnapKinds] = useState<ReadonlySet<SnapKind>>(() => new Set(SNAP_KINDS));
   const [lineMode, setLineMode] = useState<"free" | "tan">("free");
   const [xray, setXray] = useState(true); // kontury pod wypełnieniami widoczne w edytorze
-  const [hoverEdit, setHoverEdit] = useState<{ cut?: Curve[]; ext?: Item } | null>(null); // podgląd utnij / wydłuż
+  const [hoverEdit, setHoverEdit] = useState<{ cut?: Curve[]; ext?: Item; prev?: Item[] } | null>(null); // podgląd utnij / wydłuż / narożnik / odsunięcie
+  const [vals, setVals] = useState({ fillet: 5, chamfer: 3, offset: 5 }); // mm
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
   const [calPts, setCalPts] = useState<P2[]>([]);
@@ -408,6 +414,21 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     const [a, b] = pick.ab;
     return { id: newId(), t: "line", k: style.k, sw: style.sw, arrow: style.arrow, x1: q(a[0]), y1: q(a[1]), x2: q(b[0]), y2: q(b[1]) };
   }
+  /** Zaokrąglenie / faza pod kursorem: wierzchołek polilinii/prostokąta albo druga linia po wybraniu pierwszej. */
+  function cornerAt(p: P2): { patch: Record<string, Item>; add: Item[] } | string | null {
+    if (tool !== "fillet" && tool !== "chamfer") return null;
+    const v = (tool === "fillet" ? vals.fillet : vals.chamfer) * (doc.k || 1), ch = tool === "chamfer", items = doc.items.filter(pickable);
+    if (draft?.t === "corner1") {
+      const l1 = doc.items.find((it) => it.id === draft.id), tgt = pickCurve(items, p, 9 * u);
+      if (l1?.t !== "line" || tgt?.t !== "line" || tgt.id === l1.id) return null;
+      const r = cornerLines(l1, draft.click, tgt, p, v, ch);
+      return typeof r === "string" ? r : { patch: { [l1.id]: r.l1, [tgt.id]: r.l2 }, add: r.extra ? [onLayer(r.extra)] : [] };
+    }
+    const vx = vertexAt(items, p, 9 * u);
+    if (!vx) return null;
+    const r = cornerVertex(vx.it, vx.i, v, ch);
+    return typeof r === "string" ? r : { patch: { [vx.it.id]: r }, add: [] };
+  }
   /** Odcinek pod kursorem (do wymiaru kątowego). */
   const segAt = (p: P2): [P2, P2] | null => {
     let best: [P2, P2] | null = null, bd = 9 * u;
@@ -503,6 +524,22 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         if (!multi) dispatch({ type: "sel", sel: [] });
         drag.current = { kind: "marquee", start: p, add: multi ? sel : [] };
       }
+      return;
+    }
+    if (tool === "fillet" || tool === "chamfer") {
+      const r = cornerAt(p);
+      if (r && typeof r !== "string") { set({ ...doc, items: [...doc.items.map((it) => r.patch[it.id] ?? it), ...r.add] }, []); setDraft(null); setHoverEdit(null); setInfo(""); return; }
+      if (typeof r === "string") { setInfo(r); return; }
+      const tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
+      if (tgt?.t === "line" && draft?.t !== "corner1") { setDraft({ t: "corner1", id: tgt.id, click: p }); setInfo("kliknij drugą linię (po stronie, która ma zostać)"); }
+      else setInfo("kliknij narożnik polilinii albo prostokąta, albo dwie linie");
+      return;
+    }
+    if (tool === "offset") {
+      const src = draft?.t === "off1" ? doc.items.find((it) => it.id === draft.id) : null;
+      if (src) { const o = offsetItem(src, vals.offset * (doc.k || 1), p); if (o) add(o); else setInfo("tego odsunięcia nie da się zrobić (za mały promień albo za duży odstęp)"); setDraft(null); setHoverEdit(null); return; }
+      const tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
+      if (tgt) { setDraft({ t: "off1", id: tgt.id }); setInfo("kliknij stronę, po której ma powstać kopia"); } else setInfo("odsuń: kliknij linię, okrąg, łuk, polilinię albo prostokąt");
       return;
     }
     if (tool === "trim" || tool === "extend") {
@@ -640,6 +677,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (draft?.t === "arcc") setDraft({ ...draft, cur: snapAt(p, e, draft.s ? null : draft.c) });
     else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
     else if (draft?.t === "tan1") setDraft({ ...draft, cur: snapAt(p, e) });
+    else if (tool === "fillet" || tool === "chamfer") {
+      const r = cornerAt(p);
+      setHoverEdit(r && typeof r !== "string" ? { prev: [...Object.values(r.patch), ...r.add] } : null);
+      if (typeof r === "string") setInfo(r);
+    } else if (tool === "offset" && draft?.t === "off1") {
+      const src = doc.items.find((it) => it.id === draft.id), o = src ? offsetItem(src, vals.offset * (doc.k || 1), p) : null;
+      setHoverEdit(o ? { prev: [o] } : null);
+    }
     else if (tool === "trim" || tool === "extend") {
       const ext = (tool === "extend") !== e.shiftKey, tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
       if (!tgt) setHoverEdit(null);
@@ -880,6 +925,11 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
           <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
         </div>
         {actions && <div className="rys-actions">{actions}</div>}
+        {(tool === "fillet" || tool === "chamfer" || tool === "offset") && (
+          <label className="rys-step rys-val">{tool === "fillet" ? "Promień R" : tool === "chamfer" ? "Faza" : "Odstęp"}
+            <input type="number" min={0} step={0.5} value={vals[tool]} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) setVals((o) => ({ ...o, [tool]: v })); }} /> mm
+          </label>
+        )}
         {tool === "line" && (
           <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj linii">
             {([["free", "Zwykła"], ["tan", "Styczna do okręgu / dwóch okręgów"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={lineMode === v} onClick={() => { setLineMode(v); setDraft(null); setInfo(v === "tan" ? "styczna: kliknij okrąg albo łuk" : ""); }}>{l}</button>)}
@@ -928,6 +978,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               {draft?.t === "tan1" && <g pointerEvents="none">{selShape(draft.c, 0, "rys-tanc")}</g>}
               {hoverEdit?.cut && <path d={curvesPath(hoverEdit.cut)} className="rys-cutprev" pointerEvents="none" />}
               {hoverEdit?.ext && <g className="rys-draft" pointerEvents="none">{renderItem(hoverEdit.ext, c, doc.k)}</g>}
+              {hoverEdit?.prev && <g className="rys-draft rys-prev" pointerEvents="none">{hoverEdit.prev.map((it) => <g key={it.id}>{renderItem(it, c, doc.k)}</g>)}</g>}
+              {(draft?.t === "corner1" || draft?.t === "off1") && (() => { const it = doc.items.find((x) => x.id === draft.id); return it ? <g pointerEvents="none">{selShape(it, 0, "rys-tanc")}</g> : null; })()}
               {kalkaMode === "cal" && calPts.length > 0 && (
                 <g pointerEvents="none" className="rys-cal">
                   {calPts.length === 2 && <line x1={calPts[0][0]} y1={calPts[0][1]} x2={calPts[1][0]} y2={calPts[1][1]} />}
