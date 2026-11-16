@@ -41,5 +41,11 @@ export const icons = {
   unlock: <I><rect x="4.5" y="9" width="11" height="8" rx="1.2" /><path d="M7 9V6.5a3 3 0 0 1 5.8-1" /></I>,
   xray: <I><rect x="3" y="5" width="9" height="9" rx="1" /><rect x="8" y="8" width="9" height="9" rx="1" fill="currentColor" fillOpacity=".25" /><path d="M8 11.5V8h4" strokeDasharray="1.4 1.6" /></I>,
   chevron: <I><path d="M6 8l4 4 4-4" /></I>,
+  trim: <I><path d="M3 10h5M14 10h3" /><path d="M8.5 10h5" strokeDasharray="1.5 1.5" opacity=".6" /><path d="M8 4v12M14 4v12" /><path d="M9.5 7.5l3 5M12.5 7.5l-3 5" /></I>,
+  extend: <I><path d="M3 10h8" /><path d="M11 10h4" strokeDasharray="1.6 1.6" /><path d="M16.5 4v12" /><path d="M12.5 7.5L15 10l-2.5 2.5" /></I>,
+  fillet: <I><path d="M4 16V9a5 5 0 0 1 5-5h7" /><path d="M4 4h3M4 4v3" opacity=".5" /></I>,
+  chamfer: <I><path d="M4 16V9l5-5h7" /><path d="M4 4h3M4 4v3" opacity=".5" /></I>,
+  offset: <I><path d="M3 15l6-10h8" /><path d="M5.5 16.5l6-9.5h6" strokeDasharray="1.6 1.6" /></I>,
+  mirror: <I><path d="M10 3v14" strokeDasharray="1.6 1.6" /><path d="M8 6L3 14h5zM12 6l5 8h-5z" /></I>,
 };
 export type IconName = keyof typeof icons;

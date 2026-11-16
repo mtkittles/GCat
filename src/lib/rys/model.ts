@@ -64,7 +64,11 @@ export type P2 = [number, number];
 interface Base { id: string; g?: string; l?: string }
 interface Stroke { k: LineKind; sw: Width }
 export type LineItem = Base & Stroke & { t: "line"; arrow: Arrow; x1: number; y1: number; x2: number; y2: number };
-export type PolyItem = Base & Stroke & { t: "poly"; arrow: Arrow; fill: Fill; closed: boolean; pts: P2[] };
+/**
+  Polilinia; `b` — wypukłość odcinka od pts[i] do następnego (jak bulge w CAD): 0 = prosty, tan(θ/4) = łuk o kącie θ,
+  dodatnia — łuk zgodnie z ruchem wskazówek na ekranie. Brak `b` = same odcinki proste.
+*/
+export type PolyItem = Base & Stroke & { t: "poly"; arrow: Arrow; fill: Fill; closed: boolean; pts: P2[]; b?: number[] };
 export type RectItem = Base & Stroke & { t: "rect"; fill: Fill; x: number; y: number; w: number; h: number; r: number };
 export type CircleItem = Base & Stroke & { t: "circle"; fill: Fill; cx: number; cy: number; r: number };
 /** Łuk od kąta a0 do a1 zgodnie z ruchem wskazówek zegara na ekranie (oś Y w dół), kąty w stopniach, 0 = w prawo. */
@@ -200,7 +204,10 @@ function parseItemCore(raw: unknown): Item | null {
     case "poly": {
       const pts = Array.isArray(v.pts) ? (v.pts as unknown[]).flatMap((p): P2[] => (Array.isArray(p) && p.length === 2 ? [[num(p[0], 0), num(p[1], 0)]] : [])) : textToPts(v.pts);
       if (pts.length < 2) return null;
-      return { id, t: "poly", k, sw, arrow: oneOf(v.arrow, ARROWS, "none"), fill: oneOf(v.fill, FILLS, "none"), closed: bool(v.closed), pts: pts.slice(0, 400) };
+      const out: PolyItem = { id, t: "poly", k, sw, arrow: oneOf(v.arrow, ARROWS, "none"), fill: oneOf(v.fill, FILLS, "none"), closed: bool(v.closed), pts: pts.slice(0, 400) };
+      const bs = typeof v.b === "string" ? v.b.trim().split(/\s+/).map(Number) : [];
+      if (bs.some((x) => Number.isFinite(x) && x !== 0)) out.b = out.pts.map((_, i) => (Number.isFinite(bs[i]) ? Math.max(-20, Math.min(20, Math.round(bs[i] * 1e4) / 1e4)) : 0));
+      return out;
     }
     case "rect": return { id, t: "rect", k, sw, fill: oneOf(v.fill, FILLS, "none"), x: num(v.x, 0), y: num(v.y, 0), w: num(v.w, 10, 0.01), h: num(v.h, 10, 0.01), r: num(v.r, 0, 0, 100) };
     case "circle": return { id, t: "circle", k, sw, fill: oneOf(v.fill, FILLS, "none"), cx: num(v.cx, 0), cy: num(v.cy, 0), r: num(v.r, 5, 0.01, 800) };
@@ -247,7 +254,11 @@ export function storeItem(it: Item): StoredItem {
 function storeItemCore(it: Item): StoredItem {
   switch (it.t) {
     case "line": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2 };
-    case "poly": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, fill: it.fill, closed: it.closed, pts: ptsToText(it.pts) };
+    case "poly": {
+      const o: StoredItem = { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, fill: it.fill, closed: it.closed, pts: ptsToText(it.pts) };
+      if (it.b?.some((x) => x !== 0)) o.b = it.pts.map((_, i) => String(Math.round((it.b![i] ?? 0) * 1e4) / 1e4 + 0)).join(" ");
+      return o;
+    }
     case "rect": return { t: it.t, k: it.k, sw: it.sw, fill: it.fill, x: it.x, y: it.y, w: it.w, h: it.h, r: it.r };
     case "circle": return { t: it.t, k: it.k, sw: it.sw, fill: it.fill, cx: it.cx, cy: it.cy, r: it.r };
     case "arc": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, cx: it.cx, cy: it.cy, r: it.r, a0: it.a0, a1: it.a1 };
@@ -276,7 +287,31 @@ export function arcPath(a: Pick<ArcItem, "cx" | "cy" | "r" | "a0" | "a1">): stri
   const [ex, ey] = arcPoint(a.cx, a.cy, a.r, a.a1);
   return `M ${sx} ${sy} A ${a.r} ${a.r} 0 ${sweep > 180 ? 1 : 0} 1 ${ex} ${ey}`;
 }
-export const polyPath = (pts: P2[], closed: boolean) => pts.map(([x, y], i) => `${i ? "L" : "M"} ${r6(x)} ${r6(y)}`).join(" ") + (closed ? " Z" : "");
+/** Łuk odcinka polilinii o wypukłości b: środek, promień i kąty jak w ArcItem (a0 → a1 zgodnie z ruchem wskazówek). */
+export function bulgeArc(p: P2, qq: P2, b: number): { cx: number; cy: number; r: number; a0: number; a1: number } | null {
+  const dx = qq[0] - p[0], dy = qq[1] - p[1], c = Math.hypot(dx, dy);
+  if (!b || c < 1e-9) return null;
+  const h = (c / 2) * (1 - b * b) / (2 * b), nx = -dy / c, ny = dx / c; // normalna „w prawo” na ekranie
+  const cx = (p[0] + qq[0]) / 2 + nx * h, cy = (p[1] + qq[1]) / 2 + ny * h, r = (c * (1 + b * b)) / (4 * Math.abs(b));
+  const ap = Math.atan2(p[1] - cy, p[0] - cx) / RAD, aq = Math.atan2(qq[1] - cy, qq[0] - cx) / RAD;
+  return b > 0 ? { cx, cy, r, a0: ap, a1: aq } : { cx, cy, r, a0: aq, a1: ap };
+}
+/** Odcinki polilinii: [początek, koniec, wypukłość]. */
+export function polySegs(it: Pick<PolyItem, "pts" | "closed" | "b">): [P2, P2, number][] {
+  const n = it.pts.length, out: [P2, P2, number][] = [];
+  for (let i = 0; i < n - 1; i++) out.push([it.pts[i], it.pts[i + 1], it.b?.[i] ?? 0]);
+  if (it.closed && n > 2) out.push([it.pts[n - 1], it.pts[0], it.b?.[n - 1] ?? 0]);
+  return out;
+}
+export const polyPath = (pts: P2[], closed: boolean, b?: number[]) => {
+  if (!b?.some((x) => x)) return pts.map(([x, y], i) => `${i ? "L" : "M"} ${r6(x)} ${r6(y)}`).join(" ") + (closed ? " Z" : "");
+  let d = `M ${r6(pts[0][0])} ${r6(pts[0][1])}`;
+  for (const [p, qq, bb] of polySegs({ pts, closed, b })) {
+    const g = bb ? bulgeArc(p, qq, bb) : null;
+    d += g ? ` A ${r6(g.r)} ${r6(g.r)} 0 ${Math.abs(bb) > 1 ? 1 : 0} ${bb > 0 ? 1 : 0} ${r6(qq[0])} ${r6(qq[1])}` : ` L ${r6(qq[0])} ${r6(qq[1])}`;
+  }
+  return d + (closed ? " Z" : "");
+};
 export const angleOf = (cx: number, cy: number, x: number, y: number) => q(Math.atan2(y - cy, x - cx) / RAD);
 export const arcMidAngle = (a: Pick<ArcItem, "a0" | "a1">) => a.a0 + arcSweep(a.a0, a.a1) / 2;
 /** czy kąt (stopnie) leży na łuku a0 → a1 (zgodnie z zegarem) */
@@ -373,7 +408,12 @@ export function bbox(it: Item): [number, number, number, number] {
   switch (it.t) {
     case "line": return [Math.min(it.x1, it.x2), Math.min(it.y1, it.y2), Math.max(it.x1, it.x2), Math.max(it.y1, it.y2)];
     case "dim": { const g = dimGeom(it), xs = [it.x1, it.x2, g.A[0], g.B[0]], ys = [it.y1, it.y2, g.A[1], g.B[1]]; return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
-    case "poly": { const xs = it.pts.map((p) => p[0]), ys = it.pts.map((p) => p[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
+    case "poly": {
+      const ps = [...it.pts];
+      if (it.b?.some((x) => x)) for (const [p, qq, bb] of polySegs(it)) { const g = bb ? bulgeArc(p, qq, bb) : null; if (g) for (const a of [0, 90, 180, 270]) if (onArc(g, a)) ps.push(arcPoint(g.cx, g.cy, g.r, a)); }
+      const xs = ps.map((p) => p[0]), ys = ps.map((p) => p[1]);
+      return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+    }
     case "rect": case "grid": return [it.x, it.y, it.x + it.w, it.y + it.h];
     case "axes": return [it.x - it.xn, it.y - it.yp, it.x + it.xp, it.y + it.yn];
     case "circle": return [it.cx - it.r, it.cy - it.r, it.cx + it.r, it.cy + it.r];
@@ -616,7 +656,11 @@ export interface SnapCache { pts: { p: P2; kind: SnapKind }[]; segs: Seg[]; circ
 function geomOf(it: Item): { segs: Seg[]; circs: Circ[] } {
   switch (it.t) {
     case "line": return { segs: [[[it.x1, it.y1], [it.x2, it.y2]]], circs: [] };
-    case "poly": { const s: Seg[] = []; for (let i = 1; i < it.pts.length; i++) s.push([it.pts[i - 1], it.pts[i]]); if (it.closed && it.pts.length > 2) s.push([it.pts[it.pts.length - 1], it.pts[0]]); return { segs: s, circs: [] }; }
+    case "poly": {
+      const segs: Seg[] = [], circs: Circ[] = [];
+      for (const [p, qq, bb] of polySegs(it)) { const g = bb ? bulgeArc(p, qq, bb) : null; if (g) circs.push(g); else segs.push([p, qq]); }
+      return { segs, circs };
+    }
     case "rect": {
       const { x, y, w, h } = it, r = Math.min(it.r, w / 2, h / 2);
       const segs: Seg[] = [[[x + r, y], [x + w - r, y]], [[x + w, y + r], [x + w, y + h - r]], [[x + w - r, y + h], [x + r, y + h]], [[x, y + h - r], [x, y + r]]];
@@ -672,6 +716,10 @@ export function snapCache(items: Item[], skip: Set<string> = new Set(), extra: P
     for (const [a, b] of g.segs) pts.push({ p: a, kind: "end" }, { p: b, kind: "end" }, { p: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], kind: "mid" });
     if (it.t === "axes") { pts.push({ p: [it.x, it.y], kind: "center" }); if (it.ts > 0) for (let v = it.ts; v <= it.xp + 1e-6; v += it.ts) pts.push({ p: [q(it.x + v), it.y], kind: "end" }); if (it.ts > 0) for (let v = it.ts; v <= it.yp + 1e-6; v += it.ts) pts.push({ p: [it.x, q(it.y - v)], kind: "end" }); }
     if (it.t === "circle") { pts.push({ p: [it.cx, it.cy], kind: "center" }); for (const a of [0, 90, 180, 270]) pts.push({ p: arcPoint(it.cx, it.cy, it.r, a), kind: "quad" }); }
+    if (it.t === "poly" && it.b?.some((x) => x)) for (const [p, qq, bb] of polySegs(it)) {
+      const g = bb ? bulgeArc(p, qq, bb) : null;
+      if (g) pts.push({ p, kind: "end" }, { p: qq, kind: "end" }, { p: arcPoint(g.cx, g.cy, g.r, g.a0 + arcSweep(g.a0, g.a1) / 2), kind: "mid" }, { p: [g.cx, g.cy], kind: "center" });
+    }
     if (it.t === "arc") { const [s, m, e] = arcEnds(it); pts.push({ p: s, kind: "end" }, { p: e, kind: "end" }, { p: m, kind: "mid" }, { p: [it.cx, it.cy], kind: "center" }); }
   }
   // przecięcia (do 400 krzywych — więcej nie ma sensu na rysunku 360 × 480)

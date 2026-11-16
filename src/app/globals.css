@@ -3673,6 +3673,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-snapkinds-all { display: flex; gap: .3rem; }
 .rys-snapkinds-all button { flex: 1; padding: .3rem; border: 1px solid var(--line-strong); border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; cursor: pointer; }
 .fig .rys-xr-l { fill: none; stroke: var(--ink); stroke-width: .8; stroke-dasharray: 2 2.5; opacity: .45; vector-effect: non-scaling-stroke; }
+.fig .rys-cutprev { fill: none; stroke: var(--red, #ef4444); stroke-width: 3; stroke-linecap: round; opacity: .85; vector-effect: non-scaling-stroke; }
 .fig .rys-tanc { fill: none; stroke: #22D3EE; stroke-width: 2; opacity: .8; vector-effect: non-scaling-stroke; }
 .rys-svg.is-kalka-move { cursor: move; }
 .rys-svg.is-kalka-cal { cursor: crosshair; }

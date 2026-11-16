@@ -12,8 +12,8 @@ import { LINE_CLASS } from "./render";
 
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
-export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup";
-export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes";
+export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join";
+export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -263,6 +263,8 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             <button type="button" className="rys-btn" onClick={() => onAction("down")} title="Niżej ( [ )">{icons.down} Niżej</button>
             {one && (one.t === "line" || one.t === "arc") && <button type="button" className="rys-btn" onClick={() => onAction("flip")}>{icons.flip} Odwróć kierunek</button>}
             {items.length > 1 && <button type="button" className="rys-btn" onClick={() => onAction("group")} title="Ctrl+G — elementy zaznaczają się i przesuwają razem">Grupuj</button>}
+            {items.some((it) => it.t === "rect" || it.t === "poly") && <button type="button" className="rys-btn" onClick={() => onAction("explode")} title="Prostokąt i polilinia → osobne odcinki i łuki">Rozbij</button>}
+            {items.length > 1 && items.every((it) => it.t === "line" || it.t === "arc" || (it.t === "poly" && !it.closed)) && <button type="button" className="rys-btn" onClick={() => onAction("join")} title="Odcinki i łuki stykające się końcami → jedna polilinia">Złącz</button>}
             {items.some((it) => it.g) && <button type="button" className="rys-btn" onClick={() => onAction("ungroup")} title="Ctrl+Shift+G; podwójne kliknięcie w grupę zaznacza sam element">Rozgrupuj</button>}
           </div>
           <TransformRow onTransform={onTransform} />

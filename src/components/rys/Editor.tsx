@@ -14,6 +14,7 @@ import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
 import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
+import { curvesPath, explode, extend, join, pickCurve, trim, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
@@ -42,7 +43,11 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "step", label: "Krok", key: "N", hint: "Kliknij — kolejne numery kroków nadają się same." },
   { id: "grid", label: "Siatka", key: "G", hint: "Przeciągnij obszar siatki współrzędnych (element rysunku, widoczny na stronie)." },
   { id: "axes", label: "Osie", key: "X", hint: "Przeciągnij od początku układu współrzędnych do końców osi X i Y. Nazwy osi (X/Y albo Z/X) i opisy wartości ustawisz w panelu." },
+  { id: "trim", label: "Utnij", key: "U", hint: "Najedź na kawałek linii, łuku, okręgu albo boku figury między przecięciami — podświetli się na czerwono; kliknięcie go usuwa. Shift+klik — wydłuż." },
+  { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
 ];
+/** narzędzia edycji geometrii — osobna grupa na pasku */
+const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror"]);
 type DragTool = "line" | "rect" | "circle" | "grid" | "dim" | "axes";
 const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid", "axes"]);
 /** Po pierwszym punkcie wpisanie liczby otwiera pole wartości przy kursorze. */
@@ -141,7 +146,7 @@ function hit(it: Item): ReactNode {
 function selShape(it: Item, pad: number, cn = "rys-selbox"): ReactNode {
   switch (it.t) {
     case "line": return <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} className={cn} />;
-    case "poly": return <path d={polyPath(it.pts, it.closed)} className={cn} />;
+    case "poly": return <path d={polyPath(it.pts, it.closed, it.b)} className={cn} />;
     case "arc": return <path d={arcPath(it)} className={cn} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
     case "rect": case "grid": return <rect x={it.x} y={it.y} width={it.w} height={it.h} className={cn} />;
@@ -217,6 +222,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [snapKinds, setSnapKinds] = useState<ReadonlySet<SnapKind>>(() => new Set(SNAP_KINDS));
   const [lineMode, setLineMode] = useState<"free" | "tan">("free");
   const [xray, setXray] = useState(true); // kontury pod wypełnieniami widoczne w edytorze
+  const [hoverEdit, setHoverEdit] = useState<{ cut?: Curve[]; ext?: Item } | null>(null); // podgląd utnij / wydłuż
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
   const [calPts, setCalPts] = useState<P2[]>([]);
@@ -332,7 +338,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     set(addItems(base, [onLayer(it)]), [it.id]);
     if (focus) setFocusKey((k) => k + 1);
   };
-  const pickTool = (t: Tool) => { setTool(t); setDraft(null); setMark(null); if (t !== "select") dispatch({ type: "sel", sel: [] }); };
+  const pickTool = (t: Tool) => { setTool(t); setDraft(null); setMark(null); setHoverEdit(null); if (t !== "select") dispatch({ type: "sel", sel: [] }); };
 
   const act = (a: PanelAction) => {
     if (!sel.length) return;
@@ -342,6 +348,17 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (a === "group") set(group(doc, sel));
     else if (a === "ungroup") set(ungroup(doc, sel));
     else if (a === "flip") edit((it) => (it.t === "arc" ? { ...it, a0: it.a1, a1: it.a0 } : it.t === "line" ? { ...it, x1: it.x2, y1: it.y2, x2: it.x1, y2: it.y1 } : it));
+    else if (a === "explode") {
+      const out: Item[] = [], ids: string[] = [];
+      for (const it of doc.items) { const ex = sel.includes(it.id) ? explode(it) : null; if (ex) { out.push(...ex); ids.push(...ex.map((x) => x.id)); } else out.push(it); }
+      set({ ...doc, items: out }, ids);
+    } else if (a === "join") {
+      const j = join(doc.items.filter((it) => sel.includes(it.id)));
+      if (!j) { setInfo("nie da się złączyć: elementy muszą stykać się końcami"); return; }
+      const idx = doc.items.findIndex((it) => sel.includes(it.id));
+      const rest = doc.items.filter((it) => !sel.includes(it.id));
+      set({ ...doc, items: [...rest.slice(0, idx), j, ...rest.slice(idx)] }, [j.id]);
+    }
     else set(align(doc, sel, a === "atop" ? "top" : a === "abottom" ? "bottom" : a));
   };
 
@@ -488,6 +505,19 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       }
       return;
     }
+    if (tool === "trim" || tool === "extend") {
+      const ext = (tool === "extend") !== e.shiftKey, tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
+      if (!tgt) { setInfo(ext ? "wydłuż: kliknij blisko końca linii albo łuku" : "utnij: kliknij kawałek linii między przecięciami"); return; }
+      if (ext) {
+        const nx = extend(tgt, shown, p);
+        if (nx) set(patchItems(doc, [tgt.id], () => nx)); else setInfo("w tym kierunku nie ma krawędzi do wydłużenia");
+      } else {
+        const r = trim(tgt, shown, p);
+        if (r) { const i = doc.items.findIndex((it) => it.id === tgt.id); set({ ...doc, items: [...doc.items.slice(0, i), ...r.add, ...doc.items.slice(i + 1)] }, []); }
+      }
+      setHoverEdit(null);
+      return;
+    }
     if (tool === "line" && lineMode === "tan") {
       if (draft?.t === "tan1") { const ln = tanLine(draft, snapAt(p, e)); if (ln) { add(ln); setInfo(""); } else setInfo("z tego miejsca nie ma stycznej"); setDraft(null); return; }
       const cv = curveAt(p);
@@ -610,6 +640,12 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (draft?.t === "arcc") setDraft({ ...draft, cur: snapAt(p, e, draft.s ? null : draft.c) });
     else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
     else if (draft?.t === "tan1") setDraft({ ...draft, cur: snapAt(p, e) });
+    else if (tool === "trim" || tool === "extend") {
+      const ext = (tool === "extend") !== e.shiftKey, tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
+      if (!tgt) setHoverEdit(null);
+      else if (ext) { const nx = extend(tgt, shown, p); setHoverEdit(nx ? { ext: nx } : null); }
+      else { const r = trim(tgt, shown, p); setHoverEdit(r ? { cut: r.cut } : null); }
+    }
     else if (draft?.t === "dima1") setDraft({ ...draft, cur: draft.v ? snapAt(p, e, draft.v) : [q(p[0]), q(p[1])] });
     else if (tool !== "select") snapAt(p, e); // znacznik przyciągania także przed pierwszym kliknięciem
     else setMark(null);
@@ -816,7 +852,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     <div ref={root} className="rys-ed" tabIndex={0} onKeyDown={onKey} onKeyUp={onKeyUp} onBlur={() => setPanKey(false)} onCopy={onCopy} onCut={onCopy} onPaste={onPaste}>
       <div className="rys-bar" role="toolbar" aria-label="Narzędzia rysownika">
         <div className="rys-tools"><FileMenu items={menuItems} icon={icons.file} /></div>
-        <div className="rys-tools">{TOOLS.map(toolBtn)}</div>
+        <div className="rys-tools">{TOOLS.filter((t) => !EDIT_TOOLS.has(t.id)).map(toolBtn)}</div>
+        <div className="rys-tools" aria-label="Edycja geometrii">{TOOLS.filter((t) => EDIT_TOOLS.has(t.id)).map(toolBtn)}</div>
         <div className="rys-tools">
           <button type="button" className="rys-tool" disabled={!st.past.length} onClick={() => dispatch({ type: "undo" })} title="Cofnij (Ctrl+Z)">{icons.undo}<span>Cofnij</span></button>
           <button type="button" className="rys-tool" disabled={!st.future.length} onClick={() => dispatch({ type: "redo" })} title="Ponów (Ctrl+Shift+Z)">{icons.redo}<span>Ponów</span></button>
@@ -863,7 +900,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             <svg ref={svg} viewBox={`0 0 ${RYS_W} ${doc.h}`} className={`rys-svg tool-${tool}${kalkaMode ? ` is-kalka-${kalkaMode}` : ""}`} role="application" aria-label="Płótno rysunku"
               onMouseDown={(e) => e.preventDefault() /* fokus ustawia onDown; domyślny zabrałby go polu w panelu */}
               onContextMenu={(e) => e.preventDefault()}
-              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { setCursor(null); if (!draft && !drag.current) setMark(null); }}
+              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { setCursor(null); setHoverEdit(null); if (!draft && !drag.current) setMark(null); }}
               onDoubleClick={(e) => {
                 if (draft?.t === "poly") { finishPoly(draft.pts, false); return; }
                 if (tool !== "select") return;
@@ -889,6 +926,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                 <g className="rys-xr" pointerEvents="none">{shown.filter((it) => it.t !== "text" && it.t !== "pt" && it.t !== "step").map((it) => <g key={it.id}>{selShape(it, 0, "rys-xr-l")}</g>)}</g>
               )}
               {draft?.t === "tan1" && <g pointerEvents="none">{selShape(draft.c, 0, "rys-tanc")}</g>}
+              {hoverEdit?.cut && <path d={curvesPath(hoverEdit.cut)} className="rys-cutprev" pointerEvents="none" />}
+              {hoverEdit?.ext && <g className="rys-draft" pointerEvents="none">{renderItem(hoverEdit.ext, c, doc.k)}</g>}
               {kalkaMode === "cal" && calPts.length > 0 && (
                 <g pointerEvents="none" className="rys-cal">
                   {calPts.length === 2 && <line x1={calPts[0][0]} y1={calPts[0][1]} x2={calPts[1][0]} y2={calPts[1][1]} />}

@@ -172,8 +172,8 @@ export function renderItem(it: Item, c: Ctx, k = 1): ReactNode {
     }
     case "poly": {
       const sw = strokeOf(it.k, it.sw);
-      if (!it.closed && it.arrow !== "none" && it.k !== "none") return arrowedPoly(it.pts, it.k, sw, it.arrow);
-      return <path d={polyPath(it.pts, it.closed)} {...strokeProps(it.k, sw, fillStyle(it.fill, c))} />;
+      if (!it.closed && it.arrow !== "none" && it.k !== "none" && !it.b?.some((x) => x)) return arrowedPoly(it.pts, it.k, sw, it.arrow);
+      return <path d={polyPath(it.pts, it.closed, it.b)} {...strokeProps(it.k, sw, fillStyle(it.fill, c))} />;
     }
     case "rect": return <rect x={it.x} y={it.y} width={it.w} height={it.h} rx={it.r || undefined} {...strokeProps(it.k, strokeOf(it.k, it.sw), fillStyle(it.fill, c))} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} {...strokeProps(it.k, strokeOf(it.k, it.sw), fillStyle(it.fill, c))} />;
