@@ -5,7 +5,6 @@ import { EditLink, EditSwitch } from "@/components/edycja/EditMode";
 import Rys from "@/components/rys/Rys";
 import { rysunki } from "@/components/rys/registry";
 import { glossary } from "@/lib/content";
-import { panelUrl } from "@/lib/edycja";
 import { gcodes } from "@/lib/gcodes";
 
 export const metadata: Metadata = {
@@ -21,9 +20,9 @@ export default function EdycjaPage() {
     <div className="edit-page">
       <header className="edit-head">
         <h1>Tryb edycji</h1>
-        <p>Stąd poprawisz teksty serwisu i narysujesz własne rysunki. Każda zmiana trafia do repozytorium jako osobna propozycja (PR) i pojawia się na stronie po scaleniu.</p>
+        <p>Stąd poprawisz teksty serwisu i narysujesz własne rysunki. Edytujesz na stronie, z podglądem i historią wersji; „Opublikuj” zapisuje zmianę w repozytorium i po 2–3 minutach jest na stronie.</p>
         <EditSwitch />
-        <p className="edit-fine">Włączony tryb pokazuje pasek „Edytuj” na dole stron i ołówek przy hasłach. Zapis wymaga zalogowania w panelu przez GitHub.</p>
+        <p className="edit-fine">Włączony tryb pokazuje pasek „Edytuj” na dole stron, ołówek przy hasłach i „Edytuj rysunek” pod rysunkami w kartach.</p>
       </header>
 
       <section aria-labelledby="ed-co">
@@ -32,18 +31,18 @@ export default function EdycjaPage() {
           <article className="edit-tile">
             <h3>Karty kodów <small>{gcodes.length}</small></h3>
             <p>Opis kodu, składnia, artykuł z przykładami, typowe błędy, źródła. Na stronie karty kliknij „Edytuj tę kartę”.</p>
-            <a className="btn ghost" href={panelUrl("kody")}>Otwórz karty w panelu</a>
+            <Link className="btn ghost" href="/edytor">Otwórz edytor</Link>
           </article>
           <article className="edit-tile">
             <h3>Słownik <small>{glossary.length}</small></h3>
             <p>Definicja, nazwy zamienne, wzory z przykładem, rysunek, źródła. W słowniku przy każdym haśle jest ołówek.</p>
-            <a className="btn ghost" href={panelUrl("slownik")}>Otwórz hasła w panelu</a>
+            <Link className="btn ghost" href="/edytor#slownik">Hasła w edytorze</Link>
           </article>
           <article className="edit-tile is-main">
             <h3>Rysunki <small>{rysunki.length}</small></h3>
-            <p>Własne rysunki w stylu serwisu: linie, łuki, wymiary, siatki, opisy. Gotowy rysunek wstawiasz do karty albo hasła.</p>
+            <p>Własne rysunki w stylu serwisu: linie, łuki, wymiary, siatki, opisy. Rysujesz w edytorze karty albo hasła („Narysuj nowy”, „Przerysuj w rysowniku”) — rysunek publikuje się razem z treścią.</p>
             <div className="edit-tile-acts">
-              <a className="btn" href={panelUrl("rysunki", "create")}>Nowy rysunek</a>
+              <Link className="btn" href="/edytor">Do edytora</Link>
               <Link className="btn ghost" href="/rysownik">Brudnopis</Link>
             </div>
           </article>
@@ -54,10 +53,10 @@ export default function EdycjaPage() {
       <section aria-labelledby="ed-jak">
         <h2 id="ed-jak">Od poprawki do strony</h2>
         <ol className="edit-steps">
-          <li><b>Wejdź na stronę, którą chcesz poprawić,</b> i kliknij „Edytuj” na pasku u dołu. Otworzy się dokładnie ten wpis.</li>
-          <li><b>Popraw tekst albo otwórz rysownik</b> z pola „Rysunek”. Po „Gotowe” rysunek wraca do wpisu.</li>
-          <li><b>Zapisz na gałęzi <code>tresci/…</code>.</b> Na gałęzi <code>main</code> zapis jest zablokowany, więc panel poprosi o nową gałąź i założy PR.</li>
-          <li><b>Scal PR na GitHubie.</b> Vercel zbuduje stronę i zmiana jest widoczna po kilku minutach. Przed scaleniem obejrzysz ją na podglądzie gałęzi.</li>
+          <li><b>Wejdź na stronę, którą chcesz poprawić,</b> i kliknij „Edytuj tę kartę” na pasku u dołu (albo ołówek przy haśle, „Edytuj rysunek” pod rysunkiem).</li>
+          <li><b>Popraw tekst w miejscu</b> — klik w dowolny fragment strony. Rysunki otwierają się w rysowniku nad edytorem, obrazy wgrywasz z komputera.</li>
+          <li><b>Sprawdź „Podgląd”</b> (komputer, tablet, telefon) i zakładkę „Kontrola” — z błędami publikacja jest zablokowana, więc strona się nie rozsypie.</li>
+          <li><b>Kliknij „Opublikuj”.</b> Zmiana idzie przez gałąź <code>tresci/…</code> i PR, scala się sama i po 2–3 minutach jest na stronie. Każdą wcześniejszą wersję przywrócisz z „Historii”.</li>
         </ol>
       </section>
 

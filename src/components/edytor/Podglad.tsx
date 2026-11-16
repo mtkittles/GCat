@@ -1,14 +1,18 @@
 "use client";
 import { useEffect, useState, type ReactElement } from "react";
+import { Card } from "@/app/slownik/Glossary";
 import CardView, { normProgram, type CardArticle } from "@/components/karta/CardView";
+import { provideRys } from "@/components/rys/registry";
+import type { GlossaryEntry } from "@/lib/content";
+import type { RysFigure } from "@/lib/rys/model";
 import { splitFile } from "@/lib/edytor/plik";
 import type { GCode } from "@/lib/gcodes";
 import { compileContentMeta, renderContent } from "@/lib/mdx/compile";
 import { mdxComponents } from "@/lib/mdx/components";
-import { kodToGcode } from "@/lib/mdx/gcode";
+import { hasloToEntry, kodToGcode } from "@/lib/mdx/gcode";
 import { liveSources } from "@/lib/mdx/live";
 import { componentNames, diagramIds } from "@/lib/mdx/names";
-import { kodSchema } from "@/lib/mdx/schema";
+import { hasloSchema, kodSchema } from "@/lib/mdx/schema";
 
 /*
   Strona podglądu w ramce edytora (komputer / tablet / telefon): ta sama kompilacja MDX co przy buildzie
@@ -16,9 +20,13 @@ import { kodSchema } from "@/lib/mdx/schema";
 */
 
 const KEY = "gcat:edytor:podglad";
-interface State { g: GCode; article: CardArticle | null; error?: string }
+type State = { g: GCode; article: CardArticle | null } | { haslo: GlossaryEntry };
 
 async function build(path: string, text: string): Promise<State | { error: string }> {
+  if (path.startsWith("content/slownik/")) {
+    const r = hasloSchema.safeParse(splitFile(text, "yaml").data);
+    return r.success ? { haslo: hasloToEntry(r.data) } : { error: `Pola hasła: ${r.error.issues.map((i) => `${i.path.join(".")} — ${i.message}`).join("; ")}` };
+  }
   const f = splitFile(text);
   const r = kodSchema.safeParse(f.data);
   if (!r.success) return { error: `Pola karty: ${r.error.issues.map((i) => `${i.path.join(".")} — ${i.message}`).join("; ")}` };
@@ -41,12 +49,13 @@ export default function Podglad() {
   useEffect(() => {
     let last = "";
     const load = async () => {
-      let p: { path: string; text: string } | null = null;
+      let p: { path: string; text: string; rys?: RysFigure[] } | null = null;
       try { p = JSON.parse(localStorage.getItem(KEY) ?? "null"); } catch { p = null; }
       if (!p || p.text === last) return;
       last = p.text;
+      provideRys(p.rys ?? []);
       const r = await build(p.path, p.text);
-      if ("g" in r) { setSt(r); setError(""); } else setError(r.error);
+      if ("error" in r) setError(r.error); else { setSt(r); setError(""); }
     };
     load();
     const h = (e: StorageEvent) => { if (e.key === KEY) load(); };
@@ -56,7 +65,7 @@ export default function Podglad() {
   return (
     <>
       {error && <div className="ed-preview-err" role="alert"><b>Treść ma błędy — podgląd pokazuje ostatnią poprawną wersję.</b><pre>{error}</pre></div>}
-      {st ? <CardView g={st.g} article={st.article} /> : !error && <p className="text-muted">Wczytuję podgląd…</p>}
+      {st ? ("haslo" in st ? <div className="gl-page"><div className="gl-list"><Card e={st.haslo} lessons={[]} /></div></div> : <CardView g={st.g} article={st.article} />) : !error && <p className="text-muted">Wczytuję podgląd…</p>}
     </>
   );
 }

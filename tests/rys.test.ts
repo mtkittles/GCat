@@ -190,7 +190,7 @@ describe("<Rys> w treści i tryb edycji", () => {
   });
   it("strona serwisu → wpis w panelu", () => {
     expect(editTarget("/kody/g01")).toEqual({ href: "/edytor/kody/g01", label: "Edytuj tę kartę" });
-    expect(editTarget("/slownik/")?.href).toBe(panelUrl("slownik"));
+    expect(editTarget("/slownik/")?.href).toBe("/edytor#slownik");
     expect(editTarget("/nauka/frezowanie/f1-1")).toBeNull();
     expect(panelUrl("slownik", "kąt-przystawienia")).toMatch(/\/collection\/slownik\/item\/k%C4%85t-przystawienia$/);
     expect(panelUrl("rysunki", "create")).toMatch(/\/collection\/rysunki\/create$/);

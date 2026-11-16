@@ -3,8 +3,9 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
-import { GhError, history, publish, readFile, REPO, whoami, type Wersja } from "@/lib/edytor/github";
-import { rodzaj, sprawdzKarte } from "@/lib/edytor/walidacja";
+import { exists, GhError, history, publish, readFile, REPO, whoami, type Wersja } from "@/lib/edytor/github";
+import { rodzaj, sprawdzHaslo, sprawdzKarte, sprawdzObraz, sprawdzRysunek, type Problem } from "@/lib/edytor/walidacja";
+import { rysunki } from "@/components/rys/registry";
 
 /*
   API edytora treści (/edytor). Tryby jak panel Keystatic:
@@ -23,7 +24,7 @@ export const dynamic = "force-dynamic";
 
 const LOCAL = process.env.NODE_ENV === "development";
 const run = promisify(execFile);
-const MAX = 400_000;
+const MAX = 400_000, MAX_B64 = 2_800_000;
 
 const json = (body: unknown, status = 200) => Response.json(body, { status, headers: { "Cache-Control": "no-store" } });
 const blobSha = (text: string) => { const b = Buffer.from(text, "utf8"); return createHash("sha1").update(`blob ${b.length}\0`).update(b).digest("hex"); };
@@ -61,7 +62,7 @@ export async function GET(req: Request, ctx: { params: Promise<{ op: string }> }
       return fail(e);
     }
   }
-  if (!okPath(p)) return json({ error: "Niedozwolona ścieżka pliku." }, 400);
+  if (!okPath(p) || rodzaj(p)?.kind === "obraz") return json({ error: "Niedozwolona ścieżka pliku." }, 400);
   if (LOCAL) {
     if (op === "plik") { if (!existsSync(abs(p))) return json({ error: "Nie ma takiego pliku." }, 404); const text = readFileSync(abs(p), "utf8"); return json({ text, sha: blobSha(text) }); }
     if (op === "historia") return json({ versions: await gitLog(p) });
@@ -87,7 +88,8 @@ export async function GET(req: Request, ctx: { params: Promise<{ op: string }> }
   return json({ error: "Nieznana operacja." }, 404);
 }
 
-interface ZapiszBody { files?: { path: string; text: string }[]; message?: string; base?: Record<string, string | null> }
+interface Plik { path: string; text?: string; base64?: string }
+interface ZapiszBody { files?: Plik[]; message?: string; base?: Record<string, string | null> }
 
 export async function POST(req: Request, ctx: { params: Promise<{ op: string }> }) {
   const { op } = await ctx.params;
@@ -96,28 +98,48 @@ export async function POST(req: Request, ctx: { params: Promise<{ op: string }> 
   let body: ZapiszBody;
   try { body = (await req.json()) as ZapiszBody; } catch { return json({ error: "Złe dane." }, 400); }
   const files = body.files ?? [];
-  if (!files.length || files.length > 10 || files.some((f) => !okPath(f.path) || typeof f.text !== "string" || f.text.length > MAX)) return json({ error: "Złe pliki do zapisu." }, 400);
+  const bad = (f: Plik) => !okPath(f.path) || (rodzaj(f.path)!.kind === "obraz"
+    ? typeof f.base64 !== "string" || f.base64.length > MAX_B64 || f.text !== undefined
+    : typeof f.text !== "string" || f.text.length > MAX || f.base64 !== undefined);
+  if (!files.length || files.length > 12 || files.some(bad) || new Set(files.map((f) => f.path)).size !== files.length) return json({ error: "Złe pliki do zapisu." }, 400);
   const message = (body.message ?? "").trim().slice(0, 200) || `Treść: ${files.map((f) => f.path.split("/").pop()).join(", ")}`;
 
-  // ta sama kontrola co `npm run tresci` przy buildzie
-  const publicFile = (src: string) => existsSync(path.join(process.cwd(), "public", src));
+  // ta sama kontrola co `npm run tresci` przy buildzie (rysunki i obrazy z tej samej publikacji się liczą)
+  const token0 = LOCAL ? null : tokenOf(req);
+  if (!LOCAL && !token0) return json({ error: "Zaloguj się przez GitHub.", login: true }, 401);
+  const newRys = new Set(files.map((f) => f.path.match(/^content\/rysunki\/(.+)\.yaml$/)?.[1]).filter((x): x is string => !!x));
+  const rysIds = new Set([...rysunki.map((r) => r.slug), ...newRys]);
+  const newImg = new Set(files.filter((f) => f.base64 !== undefined).map((f) => f.path.replace(/^public/, "")));
+  const problems: (Problem & { file: string })[] = [];
   for (const f of files) {
-    const r = await sprawdzKarte(f.path, f.text, LOCAL ? { publicFile } : {});
-    if (r.problems.length) return json({ error: "Treść ma błędy — popraw je przed zapisem.", problems: r.problems.map((x) => ({ ...x, file: f.path })) }, 422);
+    const kind = rodzaj(f.path)!.kind;
+    let pr: Problem[] = [];
+    if (kind === "obraz") pr = sprawdzObraz(f.path, new Uint8Array(Buffer.from(f.base64!, "base64")));
+    else if (kind === "rysunek") pr = sprawdzRysunek(f.path, f.text!);
+    else if (kind === "haslo") pr = sprawdzHaslo(f.path, f.text!, { rysIds });
+    else {
+      // obrazy z <Obraz>: w tej publikacji, na dysku (lokalnie) albo w repozytorium
+      const srcs = [...f.text!.matchAll(/<Obraz[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]).filter((s) => s.startsWith("/rysunki/") && !newImg.has(s));
+      const known = new Set<string>(newImg);
+      for (const s of srcs) if (LOCAL ? existsSync(path.join(process.cwd(), "public", s)) : await exists(token0!, `public${s}`).catch(() => false)) known.add(s);
+      pr = (await sprawdzKarte(f.path, f.text!, { rysIds, publicFile: (s) => known.has(s) })).problems;
+    }
+    problems.push(...pr.map((x) => ({ ...x, file: f.path })));
   }
+  if (problems.length) return json({ error: "Treść ma błędy — popraw je przed zapisem.", problems }, 422);
 
   if (LOCAL) {
     for (const f of files) {
+      if (f.text === undefined) continue;
       const cur = existsSync(abs(f.path)) ? readFileSync(abs(f.path), "utf8") : null;
       const base = body.base?.[f.path];
       if (base && cur !== null && blobSha(cur) !== base) return json({ error: `Plik ${f.path} zmienił się na dysku od otwarcia w edytorze.`, conflict: f.path }, 409);
     }
-    for (const f of files) writeFileSync(abs(f.path), f.text);
-    return json({ mode: "local", merged: true, files: files.map((f) => ({ path: f.path, sha: blobSha(f.text) })) });
+    for (const f of files) writeFileSync(abs(f.path), f.base64 !== undefined ? Buffer.from(f.base64, "base64") : f.text!);
+    return json({ mode: "local", merged: true, files: files.map((f) => ({ path: f.path, sha: f.text !== undefined ? blobSha(f.text) : "" })) });
   }
 
-  const token = tokenOf(req);
-  if (!token) return json({ error: "Zaloguj się przez GitHub.", login: true }, 401);
+  const token = token0!;
   try {
     for (const f of files) {
       const base = body.base?.[f.path];
@@ -127,6 +149,6 @@ export async function POST(req: Request, ctx: { params: Promise<{ op: string }> 
     }
     const slug = files[0].path.split("/").pop()!.replace(/\.[a-z]+$/, "");
     const r = await publish(token, files, message, slug);
-    return json({ mode: "github", repo: `${REPO.owner}/${REPO.name}`, ...r, files: files.map((f) => ({ path: f.path, sha: blobSha(f.text) })) });
+    return json({ mode: "github", repo: `${REPO.owner}/${REPO.name}`, ...r, files: files.map((f) => ({ path: f.path, sha: f.text !== undefined ? blobSha(f.text) : "" })) });
   } catch (e) { return fail(e); }
 }

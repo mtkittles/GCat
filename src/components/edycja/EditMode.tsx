@@ -16,7 +16,18 @@ export function EditLink({ kolekcja, slug, label = "Edytuj" }: { kolekcja: Kolek
   const on = useEditMode();
   const admin = useAdmin();
   if (!on || admin !== "yes") return null;
-  return <a className="edit-link" href={panelUrl(kolekcja, slug)}><Pencil />{label}</a>;
+  const href = kolekcja === "slownik" ? `/edytor/slownik/${encodeURIComponent(slug)}` : panelUrl(kolekcja, slug);
+  return <a className="edit-link" href={href}><Pencil />{label}</a>;
+}
+
+/** „Edytuj rysunek” pod rysunkiem w treści karty (tryb edycji): edytor karty otwiera ten rysunek w rysowniku. */
+export function FigEdit({ kind, id }: { kind: "diagram" | "rys"; id: string }) {
+  const on = useEditMode();
+  const admin = useAdmin();
+  const path = usePathname() ?? "";
+  const m = path.match(/^\/kody\/([^/]+)\/?$/);
+  if (!on || admin !== "yes" || !m) return null;
+  return <a className="edit-link fig-edit" href={`/edytor/kody/${m[1]}?rysunek=${kind}:${encodeURIComponent(id)}`}><Pencil />Edytuj rysunek</a>;
 }
 
 /** Pasek trybu edycji: przy dolnej krawędzi każdej strony serwisu, tylko gdy tryb jest włączony i przeglądarka należy do właściciela. */

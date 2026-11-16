@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
-import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { glossary, type GlossaryEntry } from "@/lib/content";
 import { bySlug } from "@/lib/gcodes";
 import { diagrams } from "@/components/diagrams";
 import { EditLink } from "@/components/edycja/EditMode";
 import Rys from "@/components/rys/Rys";
 import { rysBySlug } from "@/components/rys/registry";
+import type { RysFigure } from "@/lib/rys/model";
 import { sources } from "@/content/nauka/sources";
 import { DIGITS, groupOf, hasla } from "@/lib/glossaryIndex";
 
-type LessonLink = { id: string; title: string; href: string };
+export type LessonLink = { id: string; title: string; href: string };
 
 const SORTED = [...glossary].sort((a, b) => a.term.localeCompare(b.term, "pl"));
 const GROUPS = [...new Set(SORTED.map((e) => groupOf(e.term)))];
@@ -37,9 +38,14 @@ function Title({ term }: { term: string }) {
   return m ? <><span className="gl-sym">{m[1]}</span> {m[2]}</> : <>{term}</>;
 }
 
-function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
+/**
+ * Karta hasła — ta sama na stronie /slownik i w edytorze treści. `edit` (edytor) owija pola w „kliknij i edytuj”,
+ * `figure` podaje rysunki z rysownika jeszcze nieopublikowane.
+ */
+export function Card({ e, lessons, edit, figure = rysBySlug }: { e: GlossaryEntry; lessons: LessonLink[]; edit?: (key: string, view: ReactNode) => ReactNode; figure?: (slug: string) => RysFigure | undefined }) {
+  const ed = edit ?? ((_k: string, v: ReactNode) => v);
   // rysunek z rysownika ma pierwszeństwo przed rysunkiem z kodu strony
-  const drawn = e.rysunek ? rysBySlug(e.rysunek) : undefined;
+  const drawn = e.rysunek ? figure(e.rysunek) : undefined;
   const fig = drawn ? () => <Rys fig={drawn} /> : e.diagram ? diagrams[e.diagram] : undefined;
   const codes = e.see.map((s) => bySlug(s)).filter((g): g is NonNullable<typeof g> => !!g);
   // nazwy zamienne bez powtórzeń tytułu („n — obroty wrzeciona” nie pokazuje „n” ani „obroty wrzeciona”)
@@ -48,10 +54,10 @@ function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
   return (
     <article id={e.anchor} className={`gl-card${fig ? " is-wide" : ""}`}>
       <div className="gl-text">
-        <h3><Title term={e.term} /> <EditLink kolekcja="slownik" slug={e.anchor} /></h3>
-        {also.length > 0 && <p className="gl-alias">Także: {also.join(", ")}</p>}
-        <p className="gl-def">{e.def}</p>
-        {e.formulas?.map((f) => (
+        {ed("term", <h3><Title term={e.term} /> {!edit && <EditLink kolekcja="slownik" slug={e.anchor} />}</h3>)}
+        {ed("aliases", also.length > 0 ? <p className="gl-alias">Także: {also.join(", ")}</p> : edit ? <p className="gl-alias">Nazwy zamienne: brak</p> : null)}
+        {ed("def", <p className="gl-def">{e.def}</p>)}
+        {ed("formulas", <>{e.formulas?.map((f) => (
           <div key={f.expr} className="gl-formula">
             <p className="gl-expr">{f.expr}</p>
             {f.where.length > 0 && (
@@ -65,8 +71,8 @@ function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
             )}
             {f.example && <p className="gl-ex"><b>Przykład.</b> {f.example}</p>}
           </div>
-        ))}
-        {(lessons.length > 0 || codes.length > 0 || !!e.sources?.length) && (
+        ))}{edit && !e.formulas?.length && <p className="gl-alias">Wzory: brak</p>}</>)}
+        {(lessons.length > 0 || codes.length > 0 || !!e.sources?.length) && ed("meta", (
           <dl className="gl-meta">
             {lessons.length > 0 && (
               <div><dt>W lekcjach</dt><dd>{lessons.map((l) => <Link key={l.href} href={l.href} title={l.title} className="gl-chip">{l.id}</Link>)}</dd></div>
@@ -82,9 +88,9 @@ function Card({ e, lessons }: { e: GlossaryEntry; lessons: LessonLink[] }) {
               })}</dd></div>
             ) : null}
           </dl>
-        )}
+        ))}
       </div>
-      {fig && <div className="gl-fig glossary-fig">{fig()}</div>}
+      {fig ? ed("fig", <div className="gl-fig glossary-fig">{fig()}</div>) : edit ? ed("fig", <div className="gl-fig glossary-fig ed-empty">Bez rysunku — kliknij, żeby dodać</div>) : null}
     </article>
   );
 }

@@ -6,6 +6,10 @@ import { describe, expect, it } from "vitest";
 import { canon, docToMdx, mdxToDoc } from "@/lib/edytor/mdx";
 import { gcatExtensions } from "@/lib/edytor/schema";
 import { joinFile, splitFile } from "@/lib/edytor/plik";
+import { rysunekYaml } from "@/lib/edytor/rysunek";
+import { rodzaj, sprawdzHaslo, sprawdzObraz, sprawdzRysunek } from "@/lib/edytor/walidacja";
+import { rysunki } from "@/components/rys/registry";
+import { parseDoc } from "@/lib/rys/model";
 import { compileContent, renderContent } from "@/lib/mdx/compile";
 import { componentNames, diagramIds, mdxComponents } from "@/lib/mdx/components";
 import { liveSources } from "@/lib/mdx/live";
@@ -99,5 +103,35 @@ describe("edytor: plik i frontmatter", () => {
     const out = joinFile(f, { ...f.data, name: "Ruch szybki" });
     const changed = out.split("\n").filter((l, k) => l !== src.split("\n")[k]);
     expect(changed).toEqual(["name: Ruch szybki"]);
+  });
+});
+
+describe("edytor: słownik i rysunki", () => {
+  const HASLA = readdirSync("content/slownik").filter((f) => f.endsWith(".yaml")).sort();
+  it.each(HASLA)("%s: plik hasła bez zmian składa się identycznie, zmiana pola rusza tylko to pole", (f) => {
+    const src = readFileSync(`content/slownik/${f}`, "utf8");
+    const p = splitFile(src, "yaml");
+    expect(joinFile(p, p.data)).toBe(src);
+    const out = joinFile(p, { ...p.data, def: "Nowa definicja." });
+    const before = src.split("\n"), after = out.split("\n");
+    expect(after.filter((l) => !before.includes(l))).toEqual(["def: Nowa definicja."]);
+    expect(sprawdzHaslo(`content/slownik/${f}`, src, { rysIds: new Set(rysunki.map((r) => r.slug)) })).toEqual([]);
+  });
+
+  it("nowy rysunek z rysownika zapisuje się w formacie, który przyjmuje loader", () => {
+    const doc = parseDoc({ h: 200, items: [{ t: "line", k: "cut", x1: 10, y1: 10, x2: 100, y2: 50, arrow: "end" }, { t: "circle", cx: 50, cy: 50, r: 20 }, { t: "text", x: 5, y: 5, s: "Opis [[G01]]" }] });
+    const text = rysunekYaml({ title: "Test", code: "", caption: "Zob. [[G01]]", legend: [] }, doc);
+    expect(sprawdzRysunek("content/rysunki/test.yaml", text)).toEqual([]);
+    expect(sprawdzRysunek("content/rysunki/test.yaml", text.replace("[[G01]]", "[[nie-ma-takiego]]"))[0]?.message).toMatch(/nie ma takiej karty/);
+  });
+
+  it("obraz: sygnatura pliku zgodna z rozszerzeniem, SVG bez skryptów", () => {
+    const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+    expect(sprawdzObraz("public/rysunki/a.png", png)).toEqual([]);
+    expect(sprawdzObraz("public/rysunki/a.jpg", png)[0].message).toMatch(/JPG/);
+    expect(sprawdzObraz("public/rysunki/a.svg", new TextEncoder().encode('<svg onload="x()"></svg>'))[0].message).toMatch(/skrypt/);
+    expect(rodzaj("public/rysunki/a.png")?.kind).toBe("obraz");
+    expect(rodzaj("public/inne/a.png")).toBeUndefined();
+    expect(rodzaj("content/slownik/kąt-przystawienia.yaml")?.kind).toBe("haslo");
   });
 });
