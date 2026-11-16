@@ -37,7 +37,7 @@ export function curvesOf(it: Item): { cs: Curve[]; closed: boolean } | null {
         const sw = arcSweep(g.a0, g.a1);
         return b > 0 ? { k: "A", cx: g.cx, cy: g.cy, r: g.r, s: g.a0, w: sw } : { k: "A", cx: g.cx, cy: g.cy, r: g.r, s: g.a1, w: -sw };
       }),
-      closed: it.closed && it.pts.length > 2,
+      closed: it.closed && (it.pts.length > 2 || !!it.b?.[1]),
     };
     case "rect": {
       const { x, y, w, h } = it, r = Math.min(it.r, w / 2, h / 2);
@@ -149,9 +149,11 @@ export function toItem(cs0: Curve[], st: Styled, src: Item, closed = false, fill
     const [a0, a1] = c.w > 0 ? [c.s, c.s + c.w] : [c.s + c.w, c.s];
     return { ...base, t: "arc", arrow: "none", cx: q(c.cx), cy: q(c.cy), r: q(c.r), a0: q(n360(a0)), a1: q(n360(a1)) } satisfies ArcItem;
   }
-  const pts: P2[] = cs.map((c) => { const p = at(c, 0); return [q(p[0]), q(p[1])]; });
-  if (!closed) { const e = at(cs[cs.length - 1], 1); pts.push([q(e[0]), q(e[1])]); }
-  const b = cs.map((c) => (c.k === "A" ? Math.round(Math.tan((c.w * RAD) / 4) * 1e4) / 1e4 : 0));
+  // w polilinii łuk ponad 180° dzielimy na połowy — wypukłość zostaje skończona (pełny okrąg = dwa półokręgi)
+  const segs = cs.flatMap((c): Curve[] => (c.k === "A" && Math.abs(c.w) > 180 + 1e-9 ? [{ ...c, w: c.w / 2 }, { ...c, s: c.s + c.w / 2, w: c.w / 2 }] : [c]));
+  const pts: P2[] = segs.map((c) => { const p = at(c, 0); return [q(p[0]), q(p[1])]; });
+  if (!closed) { const e = at(segs[segs.length - 1], 1); pts.push([q(e[0]), q(e[1])]); }
+  const b = segs.map((c) => (c.k === "A" ? Math.round(Math.tan((c.w * RAD) / 4) * 1e4) / 1e4 : 0));
   if (!closed) b.push(0);
   return { ...base, t: "poly", arrow: "none", fill: closed ? fill : "none", closed, pts, ...(b.some((x) => x) ? { b } : {}) };
 }

@@ -12,8 +12,8 @@ import { LINE_CLASS } from "./render";
 
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
-export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join";
-export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror";
+export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join" | "union" | "subtract" | "intersect" | "xor";
+export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -233,6 +233,16 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             {one?.t === "poly" && <div className="rys-checks"><label><input type="checkbox" checked={one.closed} onChange={(e) => edit(set("closed", e.target.checked))} /> Zamknięta</label></div>}
           </>
         )}
+        {styled && (() => {
+          const ops = items.map((it) => it.op ?? 1), v = ops.every((x) => x === ops[0]) ? ops[0] : null;
+          const apply = (x: number, mode: "set" | "live") => edit((it) => { const o = { ...it }; if (x >= 1) delete o.op; else o.op = x; return o; }, mode);
+          return (
+            <label className="rys-range">Krycie
+              <input type="range" min={10} max={100} step={5} value={Math.round((v ?? 1) * 100)} onChange={(e) => apply(+e.target.value / 100, "live")} onPointerUp={settle} onKeyUp={settle} onBlur={settle} />
+              <b>{v === null ? "—" : `${Math.round(v * 100)}%`}</b>
+            </label>
+          );
+        })()}
       </Group>
 
       {one && one.t !== "poly" && (
@@ -265,6 +275,14 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             {items.length > 1 && <button type="button" className="rys-btn" onClick={() => onAction("group")} title="Ctrl+G — elementy zaznaczają się i przesuwają razem">Grupuj</button>}
             {items.some((it) => it.t === "rect" || it.t === "poly") && <button type="button" className="rys-btn" onClick={() => onAction("explode")} title="Prostokąt i polilinia → osobne odcinki i łuki">Rozbij</button>}
             {items.length > 1 && items.every((it) => it.t === "line" || it.t === "arc" || (it.t === "poly" && !it.closed)) && <button type="button" className="rys-btn" onClick={() => onAction("join")} title="Odcinki i łuki stykające się końcami → jedna polilinia">Złącz</button>}
+            {items.length > 1 && items.every((it) => it.t === "rect" || it.t === "circle" || (it.t === "poly" && it.closed)) && (
+              <div className="rys-bool" role="group" aria-label="Operacje na figurach">
+                <button type="button" className="rys-btn" onClick={() => onAction("union")} title="Jedna figura z obrysu wszystkich zaznaczonych">Połącz</button>
+                <button type="button" className="rys-btn" onClick={() => onAction("subtract")} title="Pierwsza zaznaczona figura minus pozostałe">Odejmij</button>
+                <button type="button" className="rys-btn" onClick={() => onAction("intersect")} title="Tylko część wspólna wszystkich zaznaczonych">Część wspólna</button>
+                <button type="button" className="rys-btn" onClick={() => onAction("xor")} title="Wszystko poza częścią wspólną">Poza wspólną</button>
+              </div>
+            )}
             {items.some((it) => it.g) && <button type="button" className="rys-btn" onClick={() => onAction("ungroup")} title="Ctrl+Shift+G; podwójne kliknięcie w grupę zaznacza sam element">Rozgrupuj</button>}
           </div>
           <TransformRow onTransform={onTransform} />

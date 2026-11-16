@@ -26,6 +26,9 @@ function fillStyle(f: Fill, c: Ctx): CSSProperties {
     case "acc": return { fill: "color-mix(in srgb, var(--accent) 22%, transparent)" };
     case "cut": return { fill: "color-mix(in srgb, var(--green) 16%, transparent)" };
     case "bad": return { fill: "color-mix(in srgb, var(--red) 16%, transparent)" };
+    case "arc": return { fill: "color-mix(in srgb, var(--blue) 18%, transparent)" };
+    case "rap": return { fill: "color-mix(in srgb, var(--amber) 20%, transparent)" };
+    case "mut": return { fill: "color-mix(in srgb, var(--ink) 10%, transparent)" };
     default: return { fill: "none" };
   }
 }

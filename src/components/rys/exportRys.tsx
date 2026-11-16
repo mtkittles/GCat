@@ -2,7 +2,7 @@
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { FigDefs, figCtx } from "@/components/fig";
-import { layersOf, RYS_W, storeItem, visibleItems, type RysDoc } from "@/lib/rys/model";
+import { layersOf, opacityOf, RYS_W, storeItem, visibleItems, type RysDoc } from "@/lib/rys/model";
 import { renderItem } from "./render";
 
 /*
@@ -57,7 +57,7 @@ function renderOff(doc: RysDoc, theme: Theme): { svg: SVGSVGElement; host: HTMLD
     <div className="fig" style={{ padding: 0, border: 0, background: "none" }}>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox={`0 0 ${RYS_W} ${doc.h}`} width={RYS_W * 2} height={doc.h * 2} data-rk={doc.k}>
         <FigDefs id={id} />
-        {visibleItems(doc).map((it) => <g key={it.id} data-ri={JSON.stringify(storeItem(it))}>{renderItem(it, c, doc.k)}</g>)}
+        {visibleItems(doc).map((it) => <g key={it.id} data-ri={JSON.stringify(storeItem(it))} opacity={opacityOf(doc, it) < 1 ? opacityOf(doc, it) : undefined}>{renderItem(it, c, doc.k)}</g>)}
       </svg>
     </div>,
   ));

@@ -107,7 +107,7 @@ export const rysunekSchema = z.strictObject({
   rys: z.strictObject({
     h: z.number(), k: z.number().default(1), items: z.array(z.record(z.string(), z.union([z.string(), z.number(), z.boolean()]))),
     /** warstwy (brak = jedna warstwa „Rysunek”); elementy wskazują warstwę polem `l` */
-    layers: z.array(z.strictObject({ id: z.string(), name: z.string(), vis: z.boolean(), lock: z.boolean() })).optional(),
+    layers: z.array(z.strictObject({ id: z.string(), name: z.string(), vis: z.boolean(), lock: z.boolean(), op: z.number().optional() })).optional(),
   }),
 });
 export type Rysunek = z.infer<typeof rysunekSchema>;

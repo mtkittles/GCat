@@ -16,7 +16,8 @@ Plików nie pisze się ręcznie. Rysunek powstaje w panelu treści (`/keystatic`
 | `legend` | lista `{ k, label }`; pusta = legenda automatyczna z rodzajów linii użytych na rysunku |
 | `rys` | `{ h, k, items, layers? }` — wysokość (szerokość zawsze 360), skala, elementy i warstwy; zapisuje je rysownik |
 
-Element może mieć pole `g` (grupa — zaznacza się i przesuwa razem z resztą grupy) i `l` (warstwa). Warstwa ukryta
+Element może mieć pole `g` (grupa — zaznacza się i przesuwa razem z resztą grupy), `l` (warstwa) i `op` (krycie 0,1–1;
+warstwa też może mieć `op`). Polilinia może mieć `b` — wypukłość odcinków (łuki w polilinii, jak bulge w CAD). Warstwa ukryta
 (`vis: false`) nie pojawia się na stronie ani w legendzie automatycznej.
 
 ## Gdzie rysunek się pojawia

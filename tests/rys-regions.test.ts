@@ -65,10 +65,30 @@ describe("operacje logiczne", () => {
       expect(res[0].g).toBeDefined();
       expect(res[0].g).toBe(res[1].g);
       const hole = res[1];
-      expect(hole.t === "poly" && hole.b?.every((x) => x !== 0)).toBe(true); // otwór z łuków
+      expect(hole.t === "poly" && hole.b?.every((x) => x !== 0 && Math.abs(x) <= 1)).toBe(true); // otwór z łuków, wypukłość skończona
+      expect(hole.t === "poly" && hole.pts.length).toBe(2); // pełny okrąg = dwa półokręgi
+      expect(polyArea(hole)).toBeCloseTo(Math.PI * 100, 0);
     }
   });
   it("figury rozłączne nie mają części wspólnej", () => {
     expect(boolShapes([R(0, 0, 10, 10, "a"), R(50, 50, 10, 10, "b")], "intersect")).toBe("figury nie mają części wspólnej");
+  });
+});
+
+import { rysunekSchema } from "@/lib/mdx/schema";
+import { opacityOf, parseDoc, storeDoc } from "@/lib/rys/model";
+describe("krycie i kolory wypełnień", () => {
+  it("krycie elementu i warstwy: zapis tylko poniżej 100%, iloczyn przy rysowaniu", () => {
+    const d = parseDoc({ h: 100, k: 1, layers: [{ id: "0", name: "Rysunek", vis: true, lock: false }, { id: "p", name: "Pomoc", vis: true, lock: false, op: 0.5 }],
+      items: [{ t: "rect", x: 0, y: 0, w: 10, h: 10, fill: "arc", op: 0.5 }, { t: "line", x1: 0, y1: 0, x2: 1, y2: 1, l: "p", op: 0.33 }, { t: "line", x1: 0, y1: 0, x2: 1, y2: 1, op: 1 }] });
+    expect(d.items.map((it) => it.op)).toEqual([0.5, 0.35, undefined]);
+    expect(opacityOf(d, d.items[1])).toBeCloseTo(0.18, 2);
+    const s = storeDoc(d);
+    expect(s.items[0]).toMatchObject({ fill: "arc", op: 0.5 });
+    expect("op" in s.items[2]).toBe(false);
+    expect(s.layers?.[1]).toMatchObject({ op: 0.5 });
+    expect("op" in (s.layers?.[0] ?? {})).toBe(false);
+    expect(JSON.stringify(storeDoc(parseDoc(s)))).toBe(JSON.stringify(s));
+    expect(rysunekSchema.safeParse({ title: "T", rys: s }).success).toBe(true);
   });
 });
