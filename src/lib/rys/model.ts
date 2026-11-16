@@ -60,7 +60,8 @@ export const DIM_ORIENT_LABEL: Record<DimOrient, string> = { a: "Wyrównany", h:
 export const MEASURE = "<>";
 
 export type P2 = [number, number];
-interface Base { id: string }
+/** g — grupa (elementy zaznaczają się i przesuwają razem), l — warstwa (brak = warstwa podstawowa „0”). */
+interface Base { id: string; g?: string; l?: string }
 interface Stroke { k: LineKind; sw: Width }
 export type LineItem = Base & Stroke & { t: "line"; arrow: Arrow; x1: number; y1: number; x2: number; y2: number };
 export type PolyItem = Base & Stroke & { t: "poly"; arrow: Arrow; fill: Fill; closed: boolean; pts: P2[] };
@@ -79,24 +80,42 @@ export type PtItem = Base & { t: "pt"; x: number; y: number; label: string; pos:
 export type StepItem = Base & { t: "step"; x: number; y: number; n: number };
 export type GridItem = Base & { t: "grid"; x: number; y: number; w: number; h: number; minor: number; major: number };
 /**
+  Układ współrzędnych jak w rysunkach z kodu (fig.tsx: Grid): początek (x, y), długości osi w obie strony,
+  nazwy osi (X/Y, na tokarce Z/X), co `ts` jednostek rysunku opis wartości rosnącej o `tv` (ts = 0 — bez opisów).
+*/
+export type AxesItem = Base & { t: "axes"; x: number; y: number; xn: number; xp: number; yn: number; yp: number; xl: string; yl: string; ts: number; tv: number };
+/**
   Wymiar promienia (d: false) albo średnicy (d: true) okręgu/łuku o środku (cx, cy) i promieniu r.
   Linia wymiarowa pod kątem `a` (stopnie, jak łuki), opis za okręgiem w odległości `ext`.
 */
 export type DimRItem = Base & { t: "dimr"; d: boolean; cx: number; cy: number; r: number; a: number; ext: number; label: string; size: number; font: Font };
 /** Wymiar kątowy: wierzchołek (cx, cy), ramiona pod kątami a1 → a2 (zgodnie z ruchem wskazówek na ekranie), łuk wymiarowy o promieniu r. */
 export type DimAItem = Base & { t: "dima"; cx: number; cy: number; a1: number; a2: number; r: number; label: string; size: number; font: Font };
-export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | DimRItem | DimAItem | PtItem | StepItem | GridItem;
+export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | DimRItem | DimAItem | PtItem | StepItem | GridItem | AxesItem;
 export type ItemType = Item["t"];
 export const ITEM_LABEL: Record<ItemType, string> = {
-  line: "Linia", poly: "Polilinia", rect: "Prostokąt", circle: "Okrąg", arc: "Łuk", text: "Tekst", dim: "Wymiar", dimr: "Wymiar ⌀ / R", dima: "Wymiar kątowy", pt: "Punkt", step: "Numer kroku", grid: "Siatka",
+  line: "Linia", poly: "Polilinia", rect: "Prostokąt", circle: "Okrąg", arc: "Łuk", text: "Tekst", dim: "Wymiar", dimr: "Wymiar ⌀ / R", dima: "Wymiar kątowy", pt: "Punkt", step: "Numer kroku", grid: "Siatka", axes: "Układ współrzędnych",
 };
 export const isDim = (it: Item): it is DimItem | DimRItem | DimAItem => it.t === "dim" || it.t === "dimr" || it.t === "dima";
 
-/** k — skala: ile jednostek rysunku to 1 mm (wymiar „<>” pokazuje długość / k). */
-export interface RysDoc { h: number; k: number; items: Item[] }
+/** Warstwa: ukryta nie pojawia się na stronie ani w eksporcie, zablokowana nie daje się zaznaczyć. */
+export interface Layer { id: string; name: string; vis: boolean; lock: boolean }
+export const LAYER0: Layer = { id: "0", name: "Rysunek", vis: true, lock: false };
+/** k — skala: ile jednostek rysunku to 1 mm (wymiar „<>” pokazuje długość / k). layers — brak = tylko warstwa „0”. */
+export interface RysDoc { h: number; k: number; items: Item[]; layers?: Layer[] }
 /** Zapis w pliku: bez id, punkty polilinii jako tekst „x,y x,y”. */
 export type StoredItem = Record<string, string | number | boolean>;
-export interface StoredDoc { h: number; k: number; items: StoredItem[] }
+export interface StoredDoc { h: number; k: number; items: StoredItem[]; layers?: Layer[] }
+
+/** Element bez pola grupy albo warstwy. */
+export const drop = (it: Item, key: "g" | "l"): Item => { const o = { ...it }; delete o[key]; return o; };
+export const layersOf = (doc: Pick<RysDoc, "layers">): Layer[] => (doc.layers?.length ? doc.layers : [LAYER0]);
+export const layerOf = (it: Item) => it.l ?? "0";
+/** Elementy z widocznych warstw — to, co trafia na stronę i do eksportu. */
+export function visibleItems(doc: Pick<RysDoc, "items" | "layers">): Item[] {
+  const hidden = new Set(layersOf(doc).filter((l) => !l.vis).map((l) => l.id));
+  return hidden.size ? doc.items.filter((it) => !hidden.has(layerOf(it))) : doc.items;
+}
 
 /* ───────────── liczby ───────────── */
 /** Współrzędne z dokładnością 0,01: przecięcia i punkty na łukach łączą się dokładnie, a plik zostaje czytelny. */
@@ -132,16 +151,43 @@ export function textToPts(s: unknown): P2[] {
 
 /** Dowolna wartość (plik, schowek, szkic z localStorage, import) → poprawny rysunek. Nieznane elementy i pola są pomijane. */
 export function parseDoc(raw: unknown): RysDoc {
-  const o = (raw && typeof raw === "object" ? raw : {}) as { h?: unknown; k?: unknown; items?: unknown };
+  const o = (raw && typeof raw === "object" ? raw : {}) as { h?: unknown; k?: unknown; items?: unknown; layers?: unknown };
+  const layers = parseLayers(o.layers);
+  const known = new Set(layers.map((l) => l.id));
   const items: Item[] = [];
   for (const it of Array.isArray(o.items) ? o.items.slice(0, 1500) : []) {
     const item = parseItem(it);
-    if (item) items.push(item);
+    if (!item) continue;
+    if (item.l && !known.has(item.l)) delete item.l;
+    items.push(item);
   }
-  return { h: num(o.h, H_DEFAULT, H_MIN, H_MAX), k: num(o.k, 1, 0.05, 50), items };
+  const doc: RysDoc = { h: num(o.h, H_DEFAULT, H_MIN, H_MAX), k: num(o.k, 1, 0.05, 50), items };
+  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock) doc.layers = layers;
+  return doc;
+}
+const ID_RE = /^[\w-]{1,24}$/;
+function parseLayers(raw: unknown): Layer[] {
+  const out: Layer[] = [];
+  for (const v of Array.isArray(raw) ? raw.slice(0, 20) : []) {
+    if (!v || typeof v !== "object") continue;
+    const o = v as Record<string, unknown>;
+    const id = typeof o.id === "string" && ID_RE.test(o.id) ? o.id : null;
+    if (!id || out.some((l) => l.id === id)) continue;
+    out.push({ id, name: str(o.name, 40).trim() || (id === "0" ? LAYER0.name : `Warstwa ${out.length + 1}`), vis: bool(o.vis, true), lock: bool(o.lock) });
+  }
+  const zero = out.find((l) => l.id === "0") ?? LAYER0;
+  return [zero, ...out.filter((l) => l.id !== "0")];
 }
 
 export function parseItem(raw: unknown): Item | null {
+  const it = parseItemCore(raw);
+  if (!it) return null;
+  const v = raw as Record<string, unknown>;
+  if (typeof v.g === "string" && ID_RE.test(v.g)) it.g = v.g;
+  if (typeof v.l === "string" && ID_RE.test(v.l) && v.l !== "0") it.l = v.l;
+  return it;
+}
+function parseItemCore(raw: unknown): Item | null {
   if (!raw || typeof raw !== "object") return null;
   const v = raw as Record<string, unknown>;
   const id = newId();
@@ -180,15 +226,25 @@ export function parseItem(raw: unknown): Item | null {
     case "pt": return { id, t: "pt", x: num(v.x, 0), y: num(v.y, 0), label: str(v.label, 40), pos: oneOf(v.pos, POSITIONS, "ne"), color: oneOf(v.color, PT_COLORS, "ink") };
     case "step": return { id, t: "step", x: num(v.x, 0), y: num(v.y, 0), n: Math.round(num(v.n, 1, 1, 99)) };
     case "grid": return { id, t: "grid", x: num(v.x, 0), y: num(v.y, 0), w: num(v.w, 100, 5), h: num(v.h, 100, 5), minor: num(v.minor, 5, 2.5, 50), major: num(v.major, 10, 5, 100) };
+    case "axes": return { id, t: "axes", x: num(v.x, 0), y: num(v.y, 0), xn: num(v.xn, 0, 0, 800), xp: num(v.xp, 100, 5, 800), yn: num(v.yn, 0, 0, 800), yp: num(v.yp, 100, 5, 800), xl: str(v.xl, 8) || "X", yl: str(v.yl, 8) || "Y", ts: num(v.ts, 0, 0, 200), tv: num(v.tv, 10, -1000, 1000) };
     default: return null;
   }
 }
 
 /** Rysunek → zapis w pliku. Stała kolejność kluczy, bez id — ten sam rysunek daje zawsze ten sam plik. */
 export function storeDoc(doc: RysDoc): StoredDoc {
-  return { h: doc.h, k: doc.k, items: doc.items.map(storeItem) };
+  const out: StoredDoc = { h: doc.h, k: doc.k, items: doc.items.map(storeItem) };
+  const layers = layersOf(doc);
+  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock) out.layers = layers.map((l) => ({ id: l.id, name: l.name, vis: l.vis, lock: l.lock }));
+  return out;
 }
 export function storeItem(it: Item): StoredItem {
+  const s = storeItemCore(it);
+  if (it.g) s.g = it.g;
+  if (it.l && it.l !== "0") s.l = it.l;
+  return s;
+}
+function storeItemCore(it: Item): StoredItem {
   switch (it.t) {
     case "line": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2 };
     case "poly": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, fill: it.fill, closed: it.closed, pts: ptsToText(it.pts) };
@@ -202,6 +258,7 @@ export function storeItem(it: Item): StoredItem {
     case "pt": return { t: it.t, x: it.x, y: it.y, label: it.label, pos: it.pos, color: it.color };
     case "step": return { t: it.t, x: it.x, y: it.y, n: it.n };
     case "grid": return { t: it.t, x: it.x, y: it.y, w: it.w, h: it.h, minor: it.minor, major: it.major };
+    case "axes": return { t: it.t, x: it.x, y: it.y, xn: it.xn, xp: it.xp, yn: it.yn, yp: it.yp, xl: it.xl, yl: it.yl, ts: it.ts, tv: it.tv };
   }
 }
 
@@ -318,6 +375,7 @@ export function bbox(it: Item): [number, number, number, number] {
     case "dim": { const g = dimGeom(it), xs = [it.x1, it.x2, g.A[0], g.B[0]], ys = [it.y1, it.y2, g.A[1], g.B[1]]; return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
     case "poly": { const xs = it.pts.map((p) => p[0]), ys = it.pts.map((p) => p[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
     case "rect": case "grid": return [it.x, it.y, it.x + it.w, it.y + it.h];
+    case "axes": return [it.x - it.xn, it.y - it.yp, it.x + it.xp, it.y + it.yn];
     case "circle": return [it.cx - it.r, it.cy - it.r, it.cx + it.r, it.cy + it.r];
     case "arc": {
       const pts = arcEnds(it), xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
@@ -389,6 +447,7 @@ export function scaleItem(it: Item, c: P2, k: number): Item {
     case "poly": return { ...it, pts: it.pts.map((p) => scP(p, c, k)) };
     case "rect": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], w: Math.max(0.01, L(it.w)), h: Math.max(0.01, L(it.h)), r: L(it.r) }; }
     case "grid": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], w: Math.max(5, L(it.w)), h: Math.max(5, L(it.h)) }; }
+    case "axes": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], xn: L(it.xn), xp: Math.max(5, L(it.xp)), yn: L(it.yn), yp: Math.max(5, L(it.yp)), ts: L(it.ts) }; }
     case "circle": case "arc": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(0.01, L(it.r)) }; }
     case "dimr": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(0.01, L(it.r)), ext: L(it.ext) }; }
     case "dima": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(1, L(it.r)) }; }
@@ -409,6 +468,7 @@ export function handles(it: Item): Handle[] {
     case "poly": return it.pts.map(([x, y], i) => ({ key: `v${i}`, x, y }));
     case "rect": case "grid": return [{ key: "nw", x: it.x, y: it.y }, { key: "ne", x: it.x + it.w, y: it.y }, { key: "se", x: it.x + it.w, y: it.y + it.h }, { key: "sw", x: it.x, y: it.y + it.h }];
     case "circle": return [{ key: "r", x: it.cx + it.r, y: it.cy }];
+    case "axes": return [{ key: "xp", x: it.x + it.xp, y: it.y }, { key: "yp", x: it.x, y: it.y - it.yp }, ...(it.xn ? [{ key: "xn", x: it.x - it.xn, y: it.y }] : []), ...(it.yn ? [{ key: "yn", x: it.x, y: it.y + it.yn }] : [])];
     case "dimr": { const g = dimrGeom(it); return [{ key: "a", x: g.E[0], y: g.E[1] }]; }
     case "dima": { const p = arcPoint(it.cx, it.cy, it.r, it.a1 + arcSweep(it.a1, it.a2) / 2); return [{ key: "r", x: p[0], y: p[1] }]; }
     case "arc": { const [s, m, e] = arcEnds(it); return [{ key: "c", x: it.cx, y: it.cy }, { key: "s", x: s[0], y: s[1] }, { key: "m", x: m[0], y: m[1] }, { key: "e", x: e[0], y: e[1] }]; }
@@ -436,6 +496,13 @@ export function moveHandle(it: Item, key: string, x: number, y: number): Item {
       return { ...it, off: dimOffsetAt(it, [x, y]) };
     }
     case "poly": { const i = +key.slice(1); return { ...it, pts: it.pts.map((p, j): P2 => (j === i ? [x, y] : p)) }; }
+    case "axes": {
+      if (key === "xp") return { ...it, xp: Math.max(5, q(x - it.x)) };
+      if (key === "yp") return { ...it, yp: Math.max(5, q(it.y - y)) };
+      if (key === "xn") return { ...it, xn: Math.max(0, q(it.x - x)) };
+      if (key === "yn") return { ...it, yn: Math.max(0, q(y - it.y)) };
+      return it;
+    }
     case "rect": case "grid": {
       const x0 = key === "nw" || key === "sw" ? it.x + it.w : it.x, y0 = key === "nw" || key === "ne" ? it.y + it.h : it.y; // róg przeciwległy zostaje
       const min = it.t === "grid" ? 5 : 0.01;
@@ -482,6 +549,7 @@ function geomOf(it: Item): { segs: Seg[]; circs: Circ[] } {
     }
     case "circle": return { segs: [], circs: [{ cx: it.cx, cy: it.cy, r: it.r }] };
     case "arc": return { segs: [], circs: [{ cx: it.cx, cy: it.cy, r: it.r, a0: it.a0, a1: it.a1 }] };
+    case "axes": return { segs: [[[it.x - it.xn, it.y], [it.x + it.xp, it.y]], [[it.x, it.y + it.yn], [it.x, it.y - it.yp]]], circs: [] };
     default: return { segs: [], circs: [] };
   }
 }
@@ -526,6 +594,7 @@ export function snapCache(items: Item[], skip: Set<string> = new Set(), extra: P
     const g = geomOf(it);
     segs.push(...g.segs); circs.push(...g.circs);
     for (const [a, b] of g.segs) pts.push({ p: a, kind: "end" }, { p: b, kind: "end" }, { p: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], kind: "mid" });
+    if (it.t === "axes") { pts.push({ p: [it.x, it.y], kind: "center" }); if (it.ts > 0) for (let v = it.ts; v <= it.xp + 1e-6; v += it.ts) pts.push({ p: [q(it.x + v), it.y], kind: "end" }); if (it.ts > 0) for (let v = it.ts; v <= it.yp + 1e-6; v += it.ts) pts.push({ p: [it.x, q(it.y - v)], kind: "end" }); }
     if (it.t === "circle") { pts.push({ p: [it.cx, it.cy], kind: "center" }); for (const a of [0, 90, 180, 270]) pts.push({ p: arcPoint(it.cx, it.cy, it.r, a), kind: "quad" }); }
     if (it.t === "arc") { const [s, m, e] = arcEnds(it); pts.push({ p: s, kind: "end" }, { p: e, kind: "end" }, { p: m, kind: "mid" }, { p: [it.cx, it.cy], kind: "center" }); }
   }
@@ -600,9 +669,9 @@ export const LEGEND_LABEL: Record<LegendKey, string> = {
   arc: "G02/G03 — łuk", acc: "parametr", bad: "błąd / kolizja", stock: "półfabrykat", tool: "narzędzie", hatch: "materiał",
 };
 /** Legenda automatyczna: rodzaje linii i wypełnień użyte na rysunku, w stałej kolejności. */
-export function autoLegend(doc: Pick<RysDoc, "items">): LegendKey[] {
+export function autoLegend(doc: Pick<RysDoc, "items" | "layers">): LegendKey[] {
   const used = new Set<string>();
-  for (const it of doc.items) {
+  for (const it of visibleItems(doc)) {
     if (isDim(it)) used.add("dim");
     if ("k" in it) used.add(it.k);
     if ("fill" in it && it.fill === "hatch") used.add("hatch");
@@ -611,4 +680,4 @@ export function autoLegend(doc: Pick<RysDoc, "items">): LegendKey[] {
   return order.filter((k) => used.has(k));
 }
 
-export interface RysFigure { slug: string; title: string; code: string; caption: string; legend: { k: LegendKey; label: string }[]; h: number; k: number; items: StoredItem[] }
+export interface RysFigure { slug: string; title: string; code: string; caption: string; legend: { k: LegendKey; label: string }[]; h: number; k: number; items: StoredItem[]; layers?: Layer[] }

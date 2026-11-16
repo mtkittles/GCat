@@ -138,7 +138,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     const canon = storeDoc(parseDoc(data.rys));
     if (JSON.stringify(canon) !== JSON.stringify(data.rys)) fail(file, [{ message: "pole „rys”: zapis inny niż z rysownika (nieznany element, wartość spoza zakresu albo inna kolejność pól) — otwórz rysunek w panelu i zapisz" }]);
     rysIds.add(s);
-    rysRaw.push({ file, data: { slug: s, title: data.title, code: data.code, caption: data.caption, legend: data.legend, h: canon.h, k: canon.k, items: canon.items } });
+    rysRaw.push({ file, data: { slug: s, title: data.title, code: data.code, caption: data.caption, legend: data.legend, h: canon.h, k: canon.k, items: canon.items, ...(canon.layers ? { layers: canon.layers } : {}) } });
   }
 
   // ── faza 1: frontmatter kart i hasła słownika (z nich powstają źródła markerów [[…]])

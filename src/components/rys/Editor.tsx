@@ -6,14 +6,20 @@ import { FigDefs, figCtx } from "@/components/fig";
 import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
   snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
-  type DimOrient, type Item, type P2, type RysDoc, type SnapCache, type SnapKind,
+  layersOf, layerOf, parseDoc, storeDoc, drop,
+  type DimOrient, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
+import { parse as parseYaml } from "yaml";
+import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
+import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
+import { download } from "./exportRys";
+import { sanitizeSvg, svgToDoc } from "./importSvg";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
 import { renderItem } from "./render";
 import { cadAngle, snapAngle, track, type Guide } from "@/lib/rys/track";
-import { addItems, align, duplicate, edReducer, initEd, patchItems, removeItems, reorder } from "./state";
+import { addItems, align, duplicate, edReducer, group, initEd, patchItems, regroup, removeItems, reorder, ungroup, withGroups } from "./state";
 
 /*
   Edytor rysownika GCat (paczka RA): płótno SVG 360 × h rysowane tym samym kodem co rysunki na stronie.
@@ -35,9 +41,12 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "pt", label: "Punkt", key: "O", hint: "Kliknij położenie punktu, opis wpisz w panelu." },
   { id: "step", label: "Krok", key: "N", hint: "Kliknij — kolejne numery kroków nadają się same." },
   { id: "grid", label: "Siatka", key: "G", hint: "Przeciągnij obszar siatki współrzędnych (element rysunku, widoczny na stronie)." },
+  { id: "axes", label: "Osie", key: "X", hint: "Przeciągnij od początku układu współrzędnych do końców osi X i Y. Nazwy osi (X/Y albo Z/X) i opisy wartości ustawisz w panelu." },
 ];
-type DragTool = "line" | "rect" | "circle" | "grid" | "dim";
-const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid"]);
+type DragTool = "line" | "rect" | "circle" | "grid" | "dim" | "axes";
+const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid", "axes"]);
+/** Po pierwszym punkcie wpisanie liczby otwiera pole wartości przy kursorze. */
+const DYN_TOOL: Partial<Record<Tool, Dyn["kind"]>> = { line: "line", poly: "line", rect: "rect", grid: "rect", circle: "circle" };
 const GRID_STEPS = [0, 1, 2.5, 5, 10];
 const Z_MIN = 0.5, Z_MAX = 24;
 
@@ -56,6 +65,7 @@ type Drag =
   | { kind: "marquee"; start: P2; add: string[] }
   | { kind: "rotate"; from: RysDoc; ids: string[]; c: P2; a0: number; base: number | null }
   | { kind: "pivot"; key: string }
+  | { kind: "kalka"; start: P2; x: number; y: number }
   | { kind: "scale"; from: RysDoc; ids: string[]; anchor: P2; d0: number };
 
 /** Rodzaje wymiaru na pasku (jak w CAD). */
@@ -75,6 +85,7 @@ function fromDrag(tool: DragTool, a: P2, b: P2, st: Style): Item | null {
   if (tool === "rect") return { id, t: "rect", k: st.k, sw: st.sw, fill: st.fill, x, y, w, h, r: 0 };
   if (tool === "grid") return { id, t: "grid", x, y, w, h, minor: 5, major: 10 };
   if (tool === "circle") return { id, t: "circle", k: st.k, sw: st.sw, fill: st.fill, cx: a[0], cy: a[1], r: q(Math.hypot(b[0] - a[0], b[1] - a[1])) };
+  if (tool === "axes") return { id, t: "axes", x: a[0], y: a[1], xn: 0, xp: Math.max(5, w), yn: 0, yp: Math.max(5, h), xl: "X", yl: "Y", ts: 0, tv: 10 };
   return null;
 }
 const dimItem = (p1: P2, p2: P2, o: DimOrient, off: number, st: Style, id = newId()): Item =>
@@ -113,6 +124,7 @@ function hit(it: Item): ReactNode {
     case "dimr": { const g = dimrGeom(it), s0 = it.d ? g.Q : [it.cx, it.cy]; return <line x1={s0[0]} y1={s0[1]} x2={g.E[0]} y2={g.E[1]} className={cn} />; }
     case "dima": return <path d={arcPath({ cx: it.cx, cy: it.cy, r: it.r, a0: it.a1, a1: it.a2 })} className={cn} />;
     case "rect": case "grid": return <rect x={it.x} y={it.y} width={it.w} height={it.h} className={cn} />;
+    case "axes": return <path d={`M ${it.x - it.xn} ${it.y} H ${it.x + it.xp} M ${it.x} ${it.y + it.yn} V ${it.y - it.yp}`} className={cn} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
     case "pt": case "step": return <circle cx={it.x} cy={it.y} r={8} className="rys-hit is-fill" />;
     case "text": { const b = bbox(it); return <rect x={b[0] - 2} y={b[1] - 2} width={b[2] - b[0] + 4} height={b[3] - b[1] + 4} className="rys-hit is-fill" />; }
@@ -129,6 +141,7 @@ function selShape(it: Item, pad: number): ReactNode {
     case "arc": return <path d={arcPath(it)} className={cn} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
     case "rect": case "grid": return <rect x={it.x} y={it.y} width={it.w} height={it.h} className={cn} />;
+    case "axes": return <path d={`M ${it.x - it.xn} ${it.y} H ${it.x + it.xp} M ${it.x} ${it.y + it.yn} V ${it.y - it.yp}`} className={cn} />;
     case "dim": { const g = dimGeom(it); return <path d={`M ${it.x1} ${it.y1} L ${g.A[0]} ${g.A[1]} L ${g.B[0]} ${g.B[1]} L ${it.x2} ${it.y2}`} className={cn} />; }
     case "dimr": { const g = dimrGeom(it), s0 = it.d ? g.Q : [it.cx, it.cy]; return <line x1={s0[0]} y1={s0[1]} x2={g.E[0]} y2={g.E[1]} className={cn} />; }
     case "dima": return <path d={arcPath({ cx: it.cx, cy: it.cy, r: it.r, a0: it.a1, a1: it.a2 })} className={cn} />;
@@ -157,9 +170,18 @@ export interface EditorProps {
   onChange?: (doc: RysDoc) => void;
   /** przyciski po prawej stronie paska narzędzi (Zapisz, Gotowe…) */
   actions?: ReactNode;
+  /** pozycje menu Plik od gospodarza (np. Nowy, Moje rysunki) — na początku listy */
+  menu?: MenuItem[];
+  /** klucz kalki w pamięci przeglądarki; bez niego kalka żyje tylko do zamknięcia edytora */
+  kalkaKey?: string;
 }
 
-export default function Editor({ initial, onChange, actions }: EditorProps) {
+const fitLayers = (items: Item[], layers: Layer[]): Item[] => {
+  const ok = new Set(layers.map((l) => l.id));
+  return items.map((it) => (it.l && !ok.has(it.l) ? drop(it, "l") : it));
+};
+
+export default function Editor({ initial, onChange, actions, menu, kalkaKey }: EditorProps) {
   const [st, dispatch] = useReducer(edReducer, initial, initEd);
   const { doc, sel } = st;
   const [tool, setTool] = useState<Tool>("select");
@@ -184,7 +206,15 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const [guides, setGuides] = useState<Guide[]>([]);
   const [info, setInfo] = useState("");
   // punkt obrotu (jak punkt bazowy w CAD) — ważny dla tego zaznaczenia, po zmianie zaznaczenia wraca domyślny
-  const [pivotSt, setPivotSt] = useState<{ key: string; p: P2 } | null>(null); // podpowiedź śledzenia / kąt obrotu / skala — pasek stanu
+  const [pivotSt, setPivotSt] = useState<{ key: string; p: P2 } | null>(null);
+  const [active, setActive] = useState("0"); // warstwa, na którą trafiają nowe elementy
+  const [kalka, setKalka] = useState<Kalka | null>(null);
+  const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
+  const [calPts, setCalPts] = useState<P2[]>([]);
+  const [dyn, setDyn] = useState<Dyn | null>(null);
+  const [exporting, setExporting] = useState<ExportFormat | null>(null);
+  const fileIn = useRef<HTMLInputElement>(null), kalkaIn = useRef<HTMLInputElement>(null);
+  const lastXY = useRef<[number, number]>([0, 0]);
   const root = useRef<HTMLDivElement>(null), stage = useRef<HTMLDivElement>(null), svg = useRef<SVGSVGElement>(null);
   const drag = useRef<Drag | null>(null);
   const liveFrom = useRef<RysDoc | null>(null);
@@ -195,6 +225,17 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const notify = useEffectEvent((d: RysDoc) => onChange?.(d));
   useEffect(() => { notify(doc); }, [doc]);
   useEffect(() => { root.current?.focus({ preventScroll: true }); }, []); // skróty klawiszowe działają od razu
+  useEffect(() => {
+    if (!kalkaKey) return;
+    let live = true;
+    void idbGet<Kalka>(`kalka:${kalkaKey}`).then((k) => { if (live && k?.src) setKalka(k); });
+    return () => { live = false; };
+  }, [kalkaKey]);
+  const saveKalka = (k: Kalka | null) => {
+    setKalka(k);
+    if (!kalkaKey) return;
+    if (k) void idbSet(`kalka:${kalkaKey}`, k); else void idbDel(`kalka:${kalkaKey}`);
+  };
   useEffect(() => {
     const el = stage.current;
     if (!el) return;
@@ -251,6 +292,14 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   };
   const onStageUp = (e: PointerEvent<HTMLDivElement>) => { if (pan.current?.id === e.pointerId) { pan.current = null; setPanning(false); } };
 
+  /* ───────────── warstwy ───────────── */
+  const layers = layersOf(doc);
+  const hiddenL = new Set(layers.filter((l) => !l.vis).map((l) => l.id)), lockedL = new Set(layers.filter((l) => l.lock).map((l) => l.id));
+  const activeL = layers.some((l) => l.id === active) ? active : "0";
+  const shown = hiddenL.size ? doc.items.filter((it) => !hiddenL.has(layerOf(it))) : doc.items;
+  const pickable = (it: Item) => !hiddenL.has(layerOf(it)) && !lockedL.has(layerOf(it));
+  const onLayer = (it: Item): Item => (activeL === "0" ? it : { ...it, l: activeL });
+
   /* ───────────── zmiany ───────────── */
   const set = (next: RysDoc, nextSel?: string[]) => dispatch({ type: "set", doc: next, sel: nextSel });
   const edit = (fn: (it: Item) => Item, mode: "set" | "live" = "set") => {
@@ -265,7 +314,15 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     if (blank.length) dispatch({ type: "live", doc: removeItems(doc, blank) });
     dispatch({ type: "settle", from });
   };
-  const add = (it: Item, focus = false) => { set(addItems(doc, [it]), [it.id]); if (focus) setFocusKey((k) => k + 1); };
+  const add = (it: Item, focus = false) => {
+    let base = doc;
+    if (hiddenL.has(activeL) || lockedL.has(activeL)) { // rysowanie na ukrytej albo zablokowanej warstwie: pokaż ją i odblokuj
+      base = { ...doc, layers: layers.map((l) => (l.id === activeL ? { ...l, vis: true, lock: false } : l)) };
+      setInfo(`warstwa „${layers.find((l) => l.id === activeL)?.name}” znów widoczna — rysujesz na niej`);
+    }
+    set(addItems(base, [onLayer(it)]), [it.id]);
+    if (focus) setFocusKey((k) => k + 1);
+  };
   const pickTool = (t: Tool) => { setTool(t); setDraft(null); setMark(null); if (t !== "select") dispatch({ type: "sel", sel: [] }); };
 
   const act = (a: PanelAction) => {
@@ -273,16 +330,18 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     if (a === "del") set(removeItems(doc, sel), []);
     else if (a === "dup") { const d = duplicate(doc, sel); set(d.doc, d.ids); }
     else if (a === "up" || a === "down" || a === "top" || a === "bottom") set(reorder(doc, sel, a));
+    else if (a === "group") set(group(doc, sel));
+    else if (a === "ungroup") set(ungroup(doc, sel));
     else if (a === "flip") edit((it) => (it.t === "arc" ? { ...it, a0: it.a1, a1: it.a0 } : it.t === "line" ? { ...it, x1: it.x2, y1: it.y2, x2: it.x1, y2: it.y1 } : it));
     else set(align(doc, sel, a === "atop" ? "top" : a === "abottom" ? "bottom" : a));
   };
 
   /* ───────────── przyciąganie ───────────── */
   const cacheFor = (skip: string[], extra: P2[]): SnapCache => {
-    const key = `${skip.join(",")}|${extra.map((p) => p.join(",")).join(" ")}`;
+    const key = `${skip.join(",")}|${extra.map((p) => p.join(",")).join(" ")}|${[...hiddenL].join(",")}`;
     const hc = cacheRef.current;
     if (hc && hc.items === doc.items && hc.key === key) return hc.c;
-    const cc = snapCache(doc.items, new Set(skip), extra);
+    const cc = snapCache(shown, new Set(skip), extra);
     cacheRef.current = { items: doc.items, key, c: cc };
     return cc;
   };
@@ -305,7 +364,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   /** Okrąg albo łuk pod kursorem (do wymiaru ⌀/R). */
   const curveAt = (p: P2): Extract<Item, { t: "circle" | "arc" }> | null => {
     let best: Extract<Item, { t: "circle" | "arc" }> | null = null, bd = 9 * u;
-    for (const it of doc.items) {
+    for (const it of shown) {
       if (it.t !== "circle" && it.t !== "arc") continue;
       const d = Math.abs(Math.hypot(p[0] - it.cx, p[1] - it.cy) - it.r);
       if (d < bd && (it.t === "circle" || onArc(it, angleOf(it.cx, it.cy, p[0], p[1])))) { bd = d; best = it; }
@@ -372,6 +431,14 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     if (e.button !== 0) return;
     root.current?.focus({ preventScroll: true });
     const p = at(e), target = e.target as Element;
+    if (kalka && kalkaMode === "move") { e.currentTarget.setPointerCapture(e.pointerId); drag.current = { kind: "kalka", start: p, x: kalka.x, y: kalka.y }; return; }
+    if (kalka && kalkaMode === "cal") {
+      const pts = calPts.length >= 2 ? [p] : [...calPts, p];
+      setCalPts(pts);
+      if (pts.length === 2) { setDyn({ kind: "cal", a: "", b: "", at: [e.clientX, e.clientY] }); setInfo("wpisz rzeczywistą odległość tych punktów"); }
+      else setInfo("kliknij drugi punkt na kalce");
+      return;
+    }
     if (tool === "select") {
       e.currentTarget.setPointerCapture(e.pointerId);
       const h = target.closest("[data-h]"), g = target.closest("[data-g]"), el = target.closest("[data-id]");
@@ -390,8 +457,8 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
           drag.current = { kind: "scale", from: doc, ids: sel, anchor, d0: Math.hypot(corner[0] - anchor[0], corner[1] - anchor[1]) || 1 };
         }
       } else if (el) {
-        const id = el.getAttribute("data-id")!;
-        const next = multi ? (sel.includes(id) ? sel.filter((s) => s !== id) : [...sel, id]) : sel.includes(id) ? sel : [id];
+        const id = el.getAttribute("data-id")!, grp = withGroups(doc, [id]);
+        const next = multi ? (sel.includes(id) ? sel.filter((s) => !grp.includes(s)) : [...new Set([...sel, ...grp])]) : sel.includes(id) ? sel : grp;
         dispatch({ type: "sel", sel: next });
         // punkt chwytu przyciągnięty (np. do końca linii) — przy upuszczeniu trafi dokładnie w punkt innej linii
         drag.current = next.includes(id) ? { kind: "move", base: snapAt(p, e), from: doc, ids: next } : null;
@@ -461,8 +528,10 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const onMove = (e: PointerEvent<SVGSVGElement>) => {
     if (pan.current) return;
     const p = at(e);
+    lastXY.current = [e.clientX, e.clientY];
     setCursor([q(p[0]), q(p[1])]);
     const d = drag.current;
+    if (d?.kind === "kalka") { if (kalka) setKalka({ ...kalka, x: q(d.x + p[0] - d.start[0]), y: q(d.y + p[1] - d.start[1]) }); return; }
     if (d?.kind === "move") {
       const t = snapAt(p, e, null, d.ids);
       let dx = t[0] - d.base[0], dy = t[1] - d.base[1];
@@ -515,9 +584,10 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     drag.current = null;
     if (d?.kind === "move" || d?.kind === "handle" || d?.kind === "rotate" || d?.kind === "scale") { dispatch({ type: "settle", from: d.from }); setMark(null); setInfo(""); setGuides([]); }
     else if (d?.kind === "pivot") { setMark(null); setGuides([]); setInfo(""); }
+    else if (d?.kind === "kalka") saveKalka(kalka);
     else if (d?.kind === "marquee") {
       if (marquee && (marquee[2] - marquee[0] > 1 || marquee[3] - marquee[1] > 1)) {
-        const inside = doc.items.filter((it) => intersects(bbox(it), marquee)).map((it) => it.id);
+        const inside = withGroups(doc, doc.items.filter((it) => pickable(it) && intersects(bbox(it), marquee)).map((it) => it.id));
         dispatch({ type: "sel", sel: [...new Set([...d.add, ...inside])] });
       }
       setMarquee(null);
@@ -537,10 +607,18 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     const mod = e.ctrlKey || e.metaKey, k = e.key.toLowerCase();
     const done = () => e.preventDefault();
     if (e.key === " ") { done(); setPanKey(true); return; }
+    // liczba po pierwszym punkcie → pole wartości przy kursorze (jak w CAD)
+    const dk = DYN_TOOL[tool];
+    if (!mod && dk && /^[0-9.,-]$/.test(e.key) && ((draft?.t === "drag" && draft.click && DYN_TOOL[draft.tool as Tool] === dk) || (draft?.t === "poly" && dk === "line"))) {
+      done(); setDyn({ kind: dk, a: e.key, b: "", at: lastXY.current }); return;
+    }
+    if (mod && k === "s") { done(); saveCopy(); return; }
+    if (mod && k === "o") { done(); fileIn.current?.click(); return; }
+    if (mod && k === "g") { done(); if (e.shiftKey) act("ungroup"); else if (sel.length > 1) act("group"); return; }
     if (mod && k === "z") { done(); dispatch({ type: e.shiftKey ? "redo" : "undo" }); }
     else if (mod && k === "y") { done(); dispatch({ type: "redo" }); }
     else if (mod && k === "d") { done(); act("dup"); }
-    else if (mod && k === "a") { done(); setTool("select"); dispatch({ type: "sel", sel: doc.items.map((it) => it.id) }); }
+    else if (mod && k === "a") { done(); setTool("select"); dispatch({ type: "sel", sel: doc.items.filter(pickable).map((it) => it.id) }); }
     else if (mod && (k === "=" || k === "+")) { done(); zoomTo(zoom * 1.25); }
     else if (mod && k === "-") { done(); zoomTo(zoom / 1.25); }
     else if (mod && k === "0") { done(); zoomTo(1); }
@@ -549,7 +627,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     else if (e.key === "-") zoomTo(zoom / 1.25);
     else if (e.key === "0") zoomTo(1);
     else if (e.key === "Delete" || e.key === "Backspace") { done(); act("del"); }
-    else if (e.key === "Escape") { if (draft || tool !== "select") { endDraft(); pickTool("select"); } else if (sel.length) dispatch({ type: "sel", sel: [] }); }
+    else if (e.key === "Escape") { if (kalkaMode) { setKalkaMode(null); setCalPts([]); setInfo(""); } else if (draft || tool !== "select") { endDraft(); pickTool("select"); } else if (sel.length) dispatch({ type: "sel", sel: [] }); }
     else if (e.key === "Enter" && draft) { done(); endDraft(); }
     else if (e.key === "]") act("up");
     else if (e.key === "[") act("down");
@@ -569,11 +647,13 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   };
   const onPaste = (e: ClipboardEvent) => {
     if (typing(e.target) || inDialog(e.target)) return;
+    const img = Array.from(e.clipboardData.files).find((f) => f.type.startsWith("image/"));
+    if (img) { e.preventDefault(); void loadKalka(img); return; }
     try {
       const data = JSON.parse(e.clipboardData.getData("text/plain")) as { items?: unknown[] };
       const raw = Array.isArray(data.items) ? data.items : [];
       const same = raw.length > 0 && doc.items.some((it) => JSON.stringify(storeItem(it)) === JSON.stringify(raw[0])); // wklejane na to samo miejsce → odsuń
-      const items = raw.flatMap((r) => { const it = parseItem(r); return it ? [same ? translate(it, 10, 10) : it] : []; });
+      const items = regroup(raw.flatMap((r) => { const it = parseItem(r); return it ? [same ? translate(it, 10, 10) : it] : []; })).map((it) => onLayer(drop(it, "l")));
       if (!items.length) return;
       e.preventDefault();
       setTool("select");
@@ -582,7 +662,8 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   };
 
   /* ───────────── widok ───────────── */
-  const preview = draft ? draftItem(draft, style) : null;
+  const dynPt = dyn ? dynPoint(dyn) : null; // wpisywana wartość widoczna od razu na płótnie
+  const preview = draft ? draftItem(dynPt ? (draft.t === "poly" ? { ...draft, cur: dynPt } : draft.t === "drag" ? { ...draft, b: dynPt } : draft) : draft, style) : null;
   const one = sel.length === 1 ? doc.items.find((it) => it.id === sel[0]) : undefined;
   const hr = 4.5 * u; // uchwyt: stały rozmiar na ekranie
   const gs = grid >= 2.5 ? grid : 10;
@@ -605,9 +686,88 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
 
   const doImport = (r: { items: Item[]; h: number; k: number }, mode: "replace" | "add") => {
     setTool("select");
-    if (mode === "replace") { set({ h: r.h, k: r.k, items: r.items }, []); zoomTo(1); }
-    else { const fresh = r.items.map((it) => ({ ...it, id: newId() })); set(addItems(doc, fresh), fresh.map((it) => it.id)); }
+    if (mode === "replace") { set({ h: r.h, k: r.k, items: fitLayers(r.items, layersOf(doc)), ...(doc.layers ? { layers: doc.layers } : {}) }, []); zoomTo(1); }
+    else { const fresh = regroup(r.items).map((it) => onLayer(drop(it, "l"))); set(addItems(doc, fresh), fresh.map((it) => it.id)); }
   };
+
+  /* ───────────── plik, kalka, wartości z klawiatury ───────────── */
+  const saveCopy = () => download(JSON.stringify({ "gcat-rys": 1, ...storeDoc(doc) }, null, 1), `rysunek-${new Date().toISOString().slice(0, 10)}.gcat-rys.json`, "application/json");
+  const openFile = async (f: File) => {
+    try {
+      const text = await f.text(), name = f.name.toLowerCase();
+      let next: RysDoc;
+      if (name.endsWith(".svg") || text.trimStart().startsWith("<")) {
+        const parsed = new DOMParser().parseFromString(text, "image/svg+xml").documentElement;
+        if (parsed.tagName.toLowerCase() !== "svg") throw new Error("plik SVG jest uszkodzony");
+        sanitizeSvg(parsed);
+        const host = document.createElement("div");
+        host.style.cssText = "position:fixed;left:-20000px;top:0;width:720px";
+        host.className = "fig";
+        const el = document.importNode(parsed, true) as unknown as SVGSVGElement;
+        host.appendChild(el); document.body.appendChild(host);
+        try {
+          const r = svgToDoc(el);
+          let ly: unknown;
+          try { ly = JSON.parse(el.getAttribute("data-rl") ?? "null"); } catch { ly = null; }
+          next = parseDoc({ h: r.h, k: r.k, items: r.items.map(storeItem), layers: ly });
+          if (r.approx) setInfo(`plik wczytany, ${r.approx} przybliżeń (krzywe, obce style)`);
+        } finally { host.remove(); }
+      } else if (name.endsWith(".yaml") || name.endsWith(".yml")) {
+        const y = parseYaml(text) as { rys?: unknown } | null;
+        next = parseDoc(y && typeof y === "object" && "rys" in y ? y.rys : y);
+      } else next = parseDoc(JSON.parse(text));
+      if (!next.items.length) throw new Error("w pliku nie ma elementów rysunku");
+      setTool("select"); setActive("0"); set(next, []); zoomTo(1);
+      setInfo(`otwarto „${f.name}” — Ctrl+Z wraca do poprzedniego rysunku`);
+    } catch (err) { setInfo(`nie udało się otworzyć „${f.name}”: ${err instanceof Error ? err.message : "nieznany format"}`); }
+  };
+  const loadKalka = async (f: Blob) => {
+    try { saveKalka(await readKalka(f, doc.h)); setInfo("kalka wczytana — ustawienia w panelu po prawej"); }
+    catch (err) { setInfo(err instanceof Error ? err.message : "nie udało się wczytać obrazu"); }
+  };
+  /** punkt z wartości wpisanych przy kursorze (null — brak liczby albo brak punktu początkowego) */
+  function dynPoint(d: Dyn): P2 | null {
+    const v1 = parseNum(d.a), v2 = parseNum(d.b), kk = doc.k || 1;
+    const from = draft?.t === "poly" ? draft.pts[draft.pts.length - 1] : draft?.t === "drag" ? draft.a : null;
+    const cur = draft?.t === "poly" ? draft.cur : draft?.t === "drag" ? draft.b : null;
+    if (v1 === null || !from || !cur || d.kind === "cal") return null;
+    if (d.kind === "line") {
+      const ang = v2 !== null ? (-v2 * Math.PI) / 180 : Math.hypot(cur[0] - from[0], cur[1] - from[1]) > 0.01 ? Math.atan2(cur[1] - from[1], cur[0] - from[0]) : 0;
+      return [q(from[0] + v1 * kk * Math.cos(ang)), q(from[1] + v1 * kk * Math.sin(ang))];
+    }
+    if (d.kind === "rect") {
+      const sx = Math.sign(cur[0] - from[0]) || 1, sy = Math.sign(cur[1] - from[1]) || -1;
+      return [q(from[0] + sx * Math.abs(v1) * kk), q(from[1] + sy * Math.abs(v2 ?? v1) * kk)];
+    }
+    return [q(from[0] + Math.abs(v1) * kk), from[1]];
+  }
+  const applyDyn = (d: Dyn) => {
+    const v1 = parseNum(d.a), kk = doc.k || 1;
+    const close = () => { setDyn(null); root.current?.focus({ preventScroll: true }); };
+    if (d.kind === "cal") {
+      if (kalka && calPts.length === 2 && v1 && v1 > 0) {
+        const [p1, p2] = calPts, dist = Math.hypot(p2[0] - p1[0], p2[1] - p1[1]);
+        if (dist > 0.01) { const sc = (v1 * kk) / dist; saveKalka({ ...kalka, w: q(kalka.w * sc), x: q(p1[0] - (p1[0] - kalka.x) * sc), y: q(p1[1] - (p1[1] - kalka.y) * sc) }); setInfo(`kalka przeskalowana × ${fmtN(sc)}`); }
+      }
+      setCalPts([]); setKalkaMode(null); close(); return;
+    }
+    if (v1 === null) return;
+    const pt = dynPoint(d);
+    if (!pt || !draft) { close(); return; }
+    if (draft.t === "poly") setDraft({ ...draft, pts: [...draft.pts, pt], cur: pt });
+    else if (draft.t === "drag") finishDrag(draft, pt, true);
+    close();
+  };
+  const menuItems: MenuItem[] = [
+    ...(menu ?? []),
+    { label: "Otwórz plik…", key: "Ctrl+O", hint: "Kopia z dysku (.gcat-rys.json), plik rysunku z treści (.yaml) albo SVG wyeksportowany z rysownika", onClick: () => fileIn.current?.click(), sep: !!menu?.length },
+    { label: "Zapisz kopię na dysk", key: "Ctrl+S", hint: "Plik .gcat-rys.json — pełny zapis rysunku z warstwami; otworzysz go przez „Otwórz plik”", onClick: saveCopy },
+    { label: "Eksport SVG…", onClick: () => setExporting("svg"), sep: true },
+    { label: "Eksport PNG…", onClick: () => setExporting("png") },
+    { label: "Eksport PDF…", onClick: () => setExporting("pdf") },
+    { label: kalka ? "Wymień kalkę (obraz)…" : "Wczytaj kalkę (obraz)…", hint: "Obraz pod rysunkiem do odrysowania (zdjęcie, skan, zrzut). Nie trafia na stronę. Można też wkleić obraz Ctrl+V.", onClick: () => kalkaIn.current?.click(), sep: true },
+    { label: "Import ze strony serwisu…", hint: "Rysunek z dowolnej strony GCat do edycji", onClick: () => setImporting(true) },
+  ];
 
   const gbox = tool === "select" && sel.length ? selBox(sel) : null;
   const pivot = gbox ? pivotOf(sel) : null;
@@ -616,6 +776,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   return (
     <div ref={root} className="rys-ed" tabIndex={0} onKeyDown={onKey} onKeyUp={onKeyUp} onBlur={() => setPanKey(false)} onCopy={onCopy} onCut={onCopy} onPaste={onPaste}>
       <div className="rys-bar" role="toolbar" aria-label="Narzędzia rysownika">
+        <div className="rys-tools"><FileMenu items={menuItems} icon={icons.file} /></div>
         <div className="rys-tools">{TOOLS.map(toolBtn)}</div>
         <div className="rys-tools">
           <button type="button" className="rys-tool" disabled={!st.past.length} onClick={() => dispatch({ type: "undo" })} title="Cofnij (Ctrl+Z)">{icons.undo}<span>Cofnij</span></button>
@@ -640,9 +801,6 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
           <button type="button" className="rys-tool rys-zoom" onClick={() => zoomTo(1)} title="Dopasuj do okna (0)">{icons.fit}<span>{Math.round(zoom * 100)}%</span></button>
           <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
         </div>
-        <div className="rys-tools">
-          <button type="button" className="rys-tool" onClick={() => setImporting(true)} title="Wczytaj rysunek z dowolnej strony serwisu do edycji">{icons.import}<span>Import</span></button>
-        </div>
         {actions && <div className="rys-actions">{actions}</div>}
         {tool === "dim" && (
           <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj wymiaru">
@@ -656,23 +814,37 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
         onMouseDown={(e) => { if (e.button === 1) e.preventDefault(); /* bez autoprzewijania środkowym przyciskiem */ }}>
         <div className="rys-pad">
           <div className="fig rys-sheet" style={{ width: RYS_W * S, height: doc.h * S }}>
-            <svg ref={svg} viewBox={`0 0 ${RYS_W} ${doc.h}`} className={`rys-svg tool-${tool}`} role="application" aria-label="Płótno rysunku"
+            <svg ref={svg} viewBox={`0 0 ${RYS_W} ${doc.h}`} className={`rys-svg tool-${tool}${kalkaMode ? ` is-kalka-${kalkaMode}` : ""}`} role="application" aria-label="Płótno rysunku"
               onMouseDown={(e) => e.preventDefault() /* fokus ustawia onDown; domyślny zabrałby go polu w panelu */}
               onContextMenu={(e) => e.preventDefault()}
               onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { setCursor(null); if (!draft && !drag.current) setMark(null); }}
-              onDoubleClick={() => { if (draft?.t === "poly") finishPoly(draft.pts, false); else if (tool === "select" && sel.length === 1) setFocusKey((k) => k + 1); }}>
+              onDoubleClick={(e) => {
+                if (draft?.t === "poly") { finishPoly(draft.pts, false); return; }
+                if (tool !== "select") return;
+                const id = (e.target as Element).closest("[data-id]")?.getAttribute("data-id");
+                const it = id ? doc.items.find((x) => x.id === id) : null;
+                if (it?.g && sel.length > 1) dispatch({ type: "sel", sel: [it.id] }); // podwójne kliknięcie w grupę — sam element
+                else if (sel.length === 1) setFocusKey((k) => k + 1);
+              }}>
               <FigDefs id={ED} />
               <defs>
                 <pattern id={`${ED}-g`} width={gs} height={gs} patternUnits="userSpaceOnUse"><path d={`M ${gs} 0 H 0 V ${gs}`} className="rys-gmin" /></pattern>
                 <pattern id={`${ED}-G`} width="50" height="50" patternUnits="userSpaceOnUse"><path d="M 50 0 H 0 V 50" className="rys-gmaj" /></pattern>
               </defs>
               {showGrid && <g pointerEvents="none">{gs * S >= 6 && <rect width={RYS_W} height={doc.h} fill={`url(#${ED}-g)`} />}<rect width={RYS_W} height={doc.h} fill={`url(#${ED}-G)`} /></g>}
-              {doc.items.map((it) => (
+              {kalka?.vis && <image href={kalka.src} x={kalka.x} y={kalka.y} width={kalka.w} height={kalka.w * kalka.ar} opacity={kalka.op} preserveAspectRatio="none" pointerEvents="none" className="rys-kalka-img" />}
+              {shown.map((it) => lockedL.has(layerOf(it)) ? <g key={it.id} className="rys-item is-locked" pointerEvents="none">{renderItem(it, c, doc.k)}</g> : (
                 <g key={it.id} data-id={it.id} className="rys-item">
                   {renderItem(it, c, doc.k)}
                   {it.t === "poly" || it.t === "arc" ? <g className={`rys-hitwrap${it.t === "poly" && it.fill !== "none" ? " is-fill" : ""}`}>{renderItem({ ...it, arrow: "none" } as Item, c)}</g> : hit(it)}
                 </g>
               ))}
+              {kalkaMode === "cal" && calPts.length > 0 && (
+                <g pointerEvents="none" className="rys-cal">
+                  {calPts.length === 2 && <line x1={calPts[0][0]} y1={calPts[0][1]} x2={calPts[1][0]} y2={calPts[1][1]} />}
+                  {calPts.map((pt, i) => <circle key={i} cx={pt[0]} cy={pt[1]} r={hr} />)}
+                </g>
+              )}
               {preview && <g className="rys-draft" pointerEvents="none">{renderItem(preview, c, doc.k)}</g>}
               {draft?.t === "poly" && <circle cx={draft.pts[0][0]} cy={draft.pts[0][1]} r={hr} className="rys-close" pointerEvents="none" />}
               {draft?.t === "arc3" && draft.e && <line x1={draft.s[0]} y1={draft.s[1]} x2={draft.e[0]} y2={draft.e[1]} className="rys-chord" pointerEvents="none" />}
@@ -699,7 +871,14 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
         edit={edit} settle={settle} onStyle={(p) => setStyle((s) => ({ ...s, ...p }))}
         onDoc={(p) => { liveFrom.current ??= doc; dispatch({ type: "live", doc: { ...doc, ...p } }); }}
         onSelect={(ids) => { setTool("select"); dispatch({ type: "sel", sel: ids }); }} onAction={act}
-        onTransform={(kind, v) => { const c = pivotOf(sel); if (c) set(patchItems(doc, sel, (it) => (kind === "rot" ? rotateItem(it, c, -v) : scaleItem(it, c, v)))); }} />
+        onTransform={(kind, v) => { const c = pivotOf(sel); if (c) set(patchItems(doc, sel, (it) => (kind === "rot" ? rotateItem(it, c, -v) : scaleItem(it, c, v)))); }}
+        sections={[
+          ...(kalka ? [{ title: "Kalka", body: <KalkaPanel kalka={kalka} mode={kalkaMode} k={doc.k} onChange={(pp) => saveKalka({ ...kalka, ...pp })} onRemove={() => { saveKalka(null); setKalkaMode(null); setCalPts([]); }}
+            onMode={(m) => { setKalkaMode(m); setCalPts([]); setInfo(m === "move" ? "przeciągnij kalkę myszą, Esc kończy" : m === "cal" ? "kliknij pierwszy punkt o znanej odległości" : ""); if (m) { pickTool("select"); dispatch({ type: "sel", sel: [] }); } root.current?.focus({ preventScroll: true }); }} /> }] : []),
+          { title: "Warstwy", body: <LayersPanel doc={doc} active={activeL} sel={sel} onActive={setActive}
+            onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
+            onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} /> },
+        ]} />
 
       <div className="rys-status">
         <span className="rys-coords">{cursor ? `X ${fmt(cursor[0])} · Y ${fmt(cursor[1])}` : `360 × ${doc.h}`}</span>
@@ -708,6 +887,10 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
         {measure && <span className="rys-measure">{measure}</span>}
         <span className="rys-hint">{hint} Kółko myszy — powiększenie, środkowy przycisk albo spacja — przesuwanie widoku.</span>
       </div>
+      {dyn && <DynInput dyn={dyn} onChange={setDyn} onApply={applyDyn} onClose={() => { setDyn(null); if (dyn.kind === "cal") { setCalPts([]); setKalkaMode(null); } root.current?.focus({ preventScroll: true }); }} />}
+      {exporting && <ExportDialog doc={doc} format={exporting} onClose={() => { setExporting(null); root.current?.focus({ preventScroll: true }); }} />}
+      <input ref={fileIn} type="file" hidden accept=".json,.yaml,.yml,.svg,application/json,image/svg+xml" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void openFile(f); }} />
+      <input ref={kalkaIn} type="file" hidden accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void loadKalka(f); }} />
       {importing && <ImportDialog onImport={doImport} onClose={() => { setImporting(false); root.current?.focus({ preventScroll: true }); }} />}
     </div>
   );

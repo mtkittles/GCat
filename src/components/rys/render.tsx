@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { Pt, Step, type Ctx } from "@/components/fig";
+import { Pt, Step, T, type Ctx } from "@/components/fig";
 import {
   arcPoint, arcSweep, dimGeom, dimrGeom, dimText, FONT_CSS, measureText, polyPath, r6, strokeOf, type Arrow, type DimAItem, type DimItem, type DimRItem, type Fill, type Item, type LineKind, type P2, type PtColor, type TextItem,
 } from "@/lib/rys/model";
@@ -184,6 +184,23 @@ export function renderItem(it: Item, c: Ctx, k = 1): ReactNode {
     case "dima": return <DimAView d={it} />;
     case "pt": return <Pt x={it.x} y={it.y} label={it.label || undefined} pos={it.pos} dot={PT_CLASS[it.color]} />;
     case "step": return <Step x={it.x} y={it.y} n={it.n} />;
+    case "axes": {
+      // jak Grid z fig.tsx: osie ze strzałką i nazwą, opisy wartości co `ts`
+      // bez opisu tuż przy grocie i nazwie osi (jak Grid w fig.tsx)
+      const xs = it.ts > 0 ? steps(it.ts, it.xp - Math.max(it.ts * 0.3, 14), it.ts).concat(steps(it.ts, it.xn - it.ts * 0.3, it.ts).map((v) => -v)) : [];
+      const ys = it.ts > 0 ? steps(it.ts, it.yp - Math.max(it.ts * 0.3, 16), it.ts).concat(steps(it.ts, it.yn - it.ts * 0.3, it.ts).map((v) => -v)) : [];
+      const val = (v: number) => String(Math.round((v / it.ts) * it.tv * 100) / 100 + 0).replace(".", ",");
+      return (
+        <g>
+          <line x1={it.x - it.xn} y1={it.y} x2={it.x + it.xp} y2={it.y} className="ax" markerEnd={c.a("dim")} />
+          <line x1={it.x} y1={it.y + it.yn} x2={it.x} y2={it.y - it.yp} className="ax" markerEnd={c.a("dim")} />
+          <T x={it.x + it.xp - 2} y={it.y + 15} anchor="end" cls="t-ax">{it.xl}</T>
+          <T x={it.x + 8} y={it.y - it.yp + 8} cls="t-ax">{it.yl}</T>
+          {xs.map((v) => <T key={`x${v}`} x={r6(it.x + v)} y={it.y + 12} anchor="middle" cls="t-tick">{val(v)}</T>)}
+          {ys.map((v) => <T key={`y${v}`} x={it.x - 4} y={r6(it.y - v + 3.5)} anchor="end" cls="t-tick">{val(v)}</T>)}
+        </g>
+      );
+    }
     case "grid": {
       const isMaj = (v: number) => Math.abs(v / it.major - Math.round(v / it.major)) < 1e-6;
       return (

@@ -33,5 +33,11 @@ export const icons = {
   flip: <I><path d="M4 8h12l-3-3M16 12H4l3 3" /></I>,
   polar: <I><path d="M3 16h14" /><path d="M3 16L14 5" /><path d="M9 16a6 6 0 0 0-1.8-4.2" /></I>,
   track: <I><path d="M3 10h14M10 3v14" strokeDasharray="1.6 1.8" /><circle cx="10" cy="10" r="2" fill="currentColor" /></I>,
+  axes: <I><path d="M5 16V3.5M5 16h12" /><path d="M3.5 5L5 3.5 6.5 5M15.5 14.5L17 16l-1.5 1.5" /></I>,
+  file: <I><path d="M5 2.5h7l3.5 3.5v11.5h-10.5z" /><path d="M12 2.5V6h3.5" /></I>,
+  eye: <I><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z" /><circle cx="10" cy="10" r="2.3" /></I>,
+  eyeOff: <I><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z" opacity=".45" /><path d="M3.5 16.5l13-13" /></I>,
+  lock: <I><rect x="4.5" y="9" width="11" height="8" rx="1.2" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></I>,
+  unlock: <I><rect x="4.5" y="9" width="11" height="8" rx="1.2" /><path d="M7 9V6.5a3 3 0 0 1 5.8-1" /></I>,
 };
 export type IconName = keyof typeof icons;
