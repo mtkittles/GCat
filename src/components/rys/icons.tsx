@@ -39,5 +39,7 @@ export const icons = {
   eyeOff: <I><path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z" opacity=".45" /><path d="M3.5 16.5l13-13" /></I>,
   lock: <I><rect x="4.5" y="9" width="11" height="8" rx="1.2" /><path d="M7 9V6.5a3 3 0 0 1 6 0V9" /></I>,
   unlock: <I><rect x="4.5" y="9" width="11" height="8" rx="1.2" /><path d="M7 9V6.5a3 3 0 0 1 5.8-1" /></I>,
+  xray: <I><rect x="3" y="5" width="9" height="9" rx="1" /><rect x="8" y="8" width="9" height="9" rx="1" fill="currentColor" fillOpacity=".25" /><path d="M8 11.5V8h4" strokeDasharray="1.4 1.6" /></I>,
+  chevron: <I><path d="M6 8l4 4 4-4" /></I>,
 };
 export type IconName = keyof typeof icons;

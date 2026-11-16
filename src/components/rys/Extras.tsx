@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { fmt, layersOf, LAYER0, layerOf, newId, RYS_W, type Layer, type RysDoc } from "@/lib/rys/model";
+import { fmt, layersOf, LAYER0, layerOf, newId, RYS_W, SNAP_KINDS, SNAP_LABEL, type Layer, type RysDoc, type SnapKind } from "@/lib/rys/model";
 import { download, exportPdf, exportPng, exportSvg, type Theme } from "./exportRys";
 import { icons } from "./icons";
 
@@ -65,6 +65,34 @@ export function FileMenu({ items, icon }: { items: MenuItem[]; icon: ReactNode }
               </button>
             </div>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ───────────── rodzaje przyciągania (jak ustawienia OSNAP) ───────────── */
+export function SnapMenu({ kinds, onChange }: { kinds: ReadonlySet<SnapKind>; onChange: (k: ReadonlySet<SnapKind>) => void }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const off = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", off);
+    return () => document.removeEventListener("pointerdown", off);
+  }, [open]);
+  const toggle = (k: SnapKind) => { const n = new Set(kinds); if (n.has(k)) n.delete(k); else n.add(k); onChange(n); };
+  return (
+    <div ref={box} className="rys-menu">
+      <button type="button" className="rys-tool rys-tool-narrow" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((v) => !v)} title="Rodzaje przyciągania" aria-label="Rodzaje przyciągania">{icons.chevron}</button>
+      {open && (
+        <div className="rys-menu-list rys-snapkinds" role="group" aria-label="Rodzaje przyciągania">
+          {SNAP_KINDS.map((k) => <label key={k}><input type="checkbox" checked={kinds.has(k)} onChange={() => toggle(k)} /> {SNAP_LABEL[k]}</label>)}
+          <hr />
+          <div className="rys-snapkinds-all">
+            <button type="button" onClick={() => onChange(new Set(SNAP_KINDS))}>Wszystkie</button>
+            <button type="button" onClick={() => onChange(new Set(["end", "mid", "center", "int"] as SnapKind[]))}>Tylko punkty</button>
+          </div>
         </div>
       )}
     </div>

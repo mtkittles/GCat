@@ -29,7 +29,7 @@ export const strokeOf = (k: LineKind, sw: Width) => (k === "none" ? 0 : sw === "
 export const FILLS = ["none", "hatch", "hole", "acc", "cut", "bad"] as const;
 export type Fill = (typeof FILLS)[number];
 export const FILL_LABEL: Record<Fill, string> = {
-  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór (tło)", acc: "Akcent", cut: "Strefa skrawania", bad: "Błąd",
+  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór — zakrywa to, co pod spodem", acc: "Akcent", cut: "Strefa skrawania", bad: "Błąd",
 };
 
 export const ARROWS = ["none", "end", "start", "both"] as const;
@@ -603,9 +603,11 @@ export function moveHandle(it: Item, key: string, x: number, y: number): Item {
 }
 
 /* ───────────── przyciąganie (jak OSNAP w CAD) ───────────── */
-export type SnapKind = "end" | "center" | "int" | "mid" | "quad" | "perp" | "near" | "grid" | "free";
+export type SnapKind = "end" | "center" | "int" | "mid" | "quad" | "perp" | "tan" | "ext" | "near" | "grid" | "free";
+/** rodzaje przyciągania, które da się wyłączyć w edytorze (jak ustawienia OSNAP w CAD) */
+export const SNAP_KINDS = ["end", "mid", "center", "quad", "int", "perp", "tan", "ext", "near"] as const;
 export const SNAP_LABEL: Record<SnapKind, string> = {
-  end: "koniec", center: "środek okręgu", int: "przecięcie", mid: "środek odcinka", quad: "kwadrant", perp: "prostopadle", near: "na linii", grid: "siatka", free: "",
+  end: "koniec", center: "środek okręgu", int: "przecięcie", mid: "środek odcinka", quad: "kwadrant", perp: "prostopadle", tan: "styczna", ext: "przedłużenie", near: "na linii", grid: "siatka", free: "",
 };
 type Seg = [P2, P2];
 type Circ = { cx: number; cy: number; r: number; a0?: number; a1?: number };
@@ -681,8 +683,24 @@ export function snapCache(items: Item[], skip: Set<string> = new Set(), extra: P
   return { pts, segs, circs };
 }
 
-const PRIORITY: Record<SnapKind, number> = { end: 0, center: 0, int: 1, quad: 2, mid: 2, perp: 3, near: 4, grid: 5, free: 6 };
-export interface SnapOptions { grid: number; tol?: number; cache?: SnapCache; from?: P2 | null }
+const PRIORITY: Record<SnapKind, number> = { end: 0, center: 0, int: 1, quad: 2, mid: 2, tan: 2, perp: 3, ext: 3.5, near: 4, grid: 5, free: 6 };
+export interface SnapOptions { grid: number; tol?: number; cache?: SnapCache; from?: P2 | null; kinds?: ReadonlySet<SnapKind> }
+
+/** Punkty styczności z punktu P do okręgu (0 albo 2). */
+export function tangentPts(P: P2, cx: number, cy: number, r: number): P2[] {
+  const dx = P[0] - cx, dy = P[1] - cy, d = Math.hypot(dx, dy);
+  if (d <= r + 1e-9) return [];
+  const b = Math.atan2(dy, dx), g = Math.acos(r / d);
+  return [b + g, b - g].map((a): P2 => [cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+}
+/** Wspólne styczne dwóch okręgów: pary punktów styczności (zewnętrzne i wewnętrzne, do 4). */
+export function commonTangents(c1: Pick<CircleItem, "cx" | "cy" | "r">, c2: Pick<CircleItem, "cx" | "cy" | "r">): [P2, P2][] {
+  const dx = c2.cx - c1.cx, dy = c2.cy - c1.cy, d = Math.hypot(dx, dy), th = Math.atan2(dy, dx), out: [P2, P2][] = [];
+  const pt = (c: Pick<CircleItem, "cx" | "cy" | "r">, a: number): P2 => [c.cx + c.r * Math.cos(a), c.cy + c.r * Math.sin(a)];
+  if (d > Math.abs(c1.r - c2.r) + 1e-9) { const a = Math.acos((c1.r - c2.r) / d); for (const s of [1, -1]) out.push([pt(c1, th + s * a), pt(c2, th + s * a)]); }
+  if (d > c1.r + c2.r + 1e-9) { const a = Math.acos((c1.r + c2.r) / d); for (const s of [1, -1]) out.push([pt(c1, th + s * a), pt(c2, th + s * a + Math.PI)]); }
+  return out;
+}
 export interface Snapped { x: number; y: number; to: SnapKind }
 /**
   Przyciąganie jak w CAD: koniec / środek okręgu → przecięcie → środek odcinka / kwadrant → prostopadle (z punktu `from`)
@@ -693,6 +711,7 @@ export function snap(x: number, y: number, o: SnapOptions): Snapped {
   if (c) {
     let best: Snapped | null = null, bd = Infinity;
     const take = (p: P2, kind: SnapKind) => {
+      if (o.kinds && !o.kinds.has(kind)) return;
       const d = Math.hypot(p[0] - x, p[1] - y);
       if (d > tol) return;
       const score = PRIORITY[kind] * tol + d; // wyższy priorytet wygrywa w zasięgu
@@ -704,6 +723,20 @@ export function snap(x: number, y: number, o: SnapOptions): Snapped {
       if (L2 < 1e-9) continue;
       const t = ((o.from[0] - a[0]) * dx + (o.from[1] - a[1]) * dy) / L2;
       if (t > 0 && t < 1) take([a[0] + t * dx, a[1] + t * dy], "perp");
+    }
+    if (o.from) for (const ci of c.circs) {
+      // styczna z punktu początkowego do okręgu/łuku i prostopadła (przez środek)
+      for (const p of tangentPts(o.from, ci.cx, ci.cy, ci.r)) if (onC(ci, p)) take(p, "tan");
+      const d = Math.hypot(o.from[0] - ci.cx, o.from[1] - ci.cy);
+      if (d > 1e-9) for (const s of [1, -1]) { const p: P2 = [ci.cx + (s * (o.from[0] - ci.cx) / d) * ci.r, ci.cy + (s * (o.from[1] - ci.cy) / d) * ci.r]; if (onC(ci, p)) take(p, "perp"); }
+    }
+    // przedłużenie odcinka poza jego koniec (do 150 jednostek), jak EXT w CAD
+    for (const [a, b] of c.segs) {
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+      if (L < 1e-6) continue;
+      const t = ((x - a[0]) * dx + (y - a[1]) * dy) / (L * L);
+      const over = t < 0 ? -t * L : t > 1 ? (t - 1) * L : 0;
+      if (over > tol && over < 150) take([a[0] + t * dx, a[1] + t * dy], "ext");
     }
     for (const [a, b] of c.segs) {
       const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;

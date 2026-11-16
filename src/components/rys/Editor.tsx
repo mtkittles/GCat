@@ -6,12 +6,12 @@ import { FigDefs, figCtx } from "@/components/fig";
 import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
   snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
-  layersOf, layerOf, parseDoc, storeDoc, drop, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
+  layersOf, layerOf, parseDoc, storeDoc, drop, SNAP_KINDS, tangentPts, commonTangents, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
   type DimOrient, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
 import { parse as parseYaml } from "yaml";
 import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
-import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
+import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
 import { icons, type IconName } from "./icons";
@@ -58,7 +58,8 @@ type Draft =
   | { t: "dimoff"; p1: P2; p2: P2; o: DimOrient; off: number }
   | { t: "dimr"; d: boolean; cx: number; cy: number; r: number; cur: P2 }
   | { t: "dima1"; seg?: [P2, P2]; v?: P2; p1?: P2; cur: P2 }
-  | { t: "dima"; cx: number; cy: number; b1: number; b2: number; lines: boolean; cur: P2 };
+  | { t: "dima"; cx: number; cy: number; b1: number; b2: number; lines: boolean; cur: P2 }
+  | { t: "tan1"; c: Extract<Item, { t: "circle" | "arc" }>; click: P2; cur: P2 };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
@@ -103,6 +104,7 @@ function draftItem(d: Draft, st: Style): Item | null {
     const a = d.p1 ?? d.cur;
     return d.v ? { id: "draft", t: "poly", k: "cons", sw: "auto", arrow: "none", fill: "none", closed: false, pts: d.p1 ? [d.p1, d.v, d.cur] : [d.v, a] } : null;
   }
+  if (d.t === "tan1") return null; // podgląd liczy edytor (potrzebuje innych okręgów)
   if (d.t === "dima") {
     const sec = angleSector(d.b1, d.b2, angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), d.lines);
     return { id: "draft", t: "dima", cx: d.cx, cy: d.cy, ...sec, r: Math.max(4, q(Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy))), label: `${MEASURE}°`, size: st.dimSize, font: st.dimFont };
@@ -136,8 +138,7 @@ function hit(it: Item): ReactNode {
 }
 
 /** Obrys zaznaczenia po kształcie elementu (jak podświetlenie w CAD); prostokąt tylko dla tekstu i punktów. */
-function selShape(it: Item, pad: number): ReactNode {
-  const cn = "rys-selbox";
+function selShape(it: Item, pad: number, cn = "rys-selbox"): ReactNode {
   switch (it.t) {
     case "line": return <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} className={cn} />;
     case "poly": return <path d={polyPath(it.pts, it.closed)} className={cn} />;
@@ -162,6 +163,8 @@ function SnapMark({ x, y, kind, u }: { x: number; y: number; kind: SnapKind; u: 
     mid: `M ${x} ${y - s * 1.2} L ${x + s * 1.1} ${y + s * 0.8} L ${x - s * 1.1} ${y + s * 0.8} Z`,
     quad: `M ${x} ${y - s * 1.2} L ${x + s * 1.2} ${y} L ${x} ${y + s * 1.2} L ${x - s * 1.2} ${y} Z`,
     perp: `M ${x - s} ${y + s} H ${x + s} M ${x} ${y + s} V ${y - s}`,
+    tan: `M ${x - s} ${y - s} H ${x + s} M ${x - s * 0.8} ${y + s * 0.15} a ${s * 0.8} ${s * 0.8} 0 1 0 ${s * 1.6} 0 a ${s * 0.8} ${s * 0.8} 0 1 0 ${-s * 1.6} 0`,
+    ext: `M ${x - s * 1.4} ${y} h ${s * 0.5} M ${x - s * 0.5} ${y} h ${s * 0.5} M ${x + s * 0.4} ${y} h ${s * 0.5} M ${x - s * 0.4} ${y - s * 0.4} L ${x + s * 0.4} ${y + s * 0.4} M ${x + s * 0.4} ${y - s * 0.4} L ${x - s * 0.4} ${y + s * 0.4}`,
     near: `M ${x - s} ${y - s} H ${x + s} L ${x - s} ${y + s} H ${x + s} Z`,
     grid: "", free: "",
   };
@@ -211,6 +214,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   // punkt obrotu (jak punkt bazowy w CAD) — ważny dla tego zaznaczenia, po zmianie zaznaczenia wraca domyślny
   const [pivotSt, setPivotSt] = useState<{ key: string; p: P2 } | null>(null);
   const [active, setActive] = useState("0"); // warstwa, na którą trafiają nowe elementy
+  const [snapKinds, setSnapKinds] = useState<ReadonlySet<SnapKind>>(() => new Set(SNAP_KINDS));
+  const [lineMode, setLineMode] = useState<"free" | "tan">("free");
+  const [xray, setXray] = useState(true); // kontury pod wypełnieniami widoczne w edytorze
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
   const [calPts, setCalPts] = useState<P2[]>([]);
@@ -354,9 +360,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     if (e.altKey) { setMark(null); setGuides([]); setInfo(""); return [q(p[0]), q(p[1])]; }
     const pp = e.shiftKey && from ? constrain(from[0], from[1], p[0], p[1]) : p;
     const cache = snapOn && !(e.shiftKey && from) ? cacheFor(skip, draftPts(draft)) : undefined;
-    const s = snap(pp[0], pp[1], { grid, from, tol: 9 * u, cache });
+    const s = snap(pp[0], pp[1], { grid, from, tol: 9 * u, cache, kinds: snapKinds });
     // punkt charakterystyczny wygrywa; inaczej śledzenie (kąty, równoległość, prostopadłość, wyrównanie) przed siatką i „na linii”
-    if (!["end", "center", "int", "mid", "quad"].includes(s.to) && !(e.shiftKey && from) && (polar || trackOn)) {
+    if (!["end", "center", "int", "mid", "quad", "tan", "perp", "ext"].includes(s.to) && !(e.shiftKey && from) && (polar || trackOn)) {
       const t = track(p, { from, polar: polar ? polarStep : 0, parallel: trackOn, align: trackOn, cache: cache ?? cacheFor(skip, draftPts(draft)), tol: 7 * u });
       if (t) { setMark(null); setGuides(t.guides); setInfo(t.label); return t.p; }
     }
@@ -374,6 +380,17 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     }
     return best;
   };
+  const onCurve = (c: Extract<Item, { t: "circle" | "arc" }>, p: P2) => c.t === "circle" || onArc(c, angleOf(c.cx, c.cy, p[0], p[1]));
+  /** Linia styczna: do dwóch okręgów (gdy kursor jest na drugim) albo z punktu kursora do okręgu; wybór najbliższy kliknięciom. */
+  function tanLine(d: Extract<Draft, { t: "tan1" }>, cur: P2): Item | null {
+    const c2 = curveAt(cur), pick: { v: number; ab: [P2, P2] | null } = { v: Infinity, ab: null };
+    const consider = (a: P2, b: P2, r1: P2, r2: P2) => { const v = Math.hypot(a[0] - r1[0], a[1] - r1[1]) + Math.hypot(b[0] - r2[0], b[1] - r2[1]); if (v < pick.v) { pick.v = v; pick.ab = [a, b]; } };
+    if (c2 && c2.id !== d.c.id) for (const [a, b] of commonTangents(d.c, c2)) if (onCurve(d.c, a) && onCurve(c2, b)) consider(a, b, d.click, cur);
+    if (!pick.ab) for (const a of tangentPts(cur, d.c.cx, d.c.cy, d.c.r)) if (onCurve(d.c, a)) consider(a, cur, d.click, cur);
+    if (!pick.ab) return null;
+    const [a, b] = pick.ab;
+    return { id: newId(), t: "line", k: style.k, sw: style.sw, arrow: style.arrow, x1: q(a[0]), y1: q(a[1]), x2: q(b[0]), y2: q(b[1]) };
+  }
   /** Odcinek pod kursorem (do wymiaru kątowego). */
   const segAt = (p: P2): [P2, P2] | null => {
     let best: [P2, P2] | null = null, bd = 9 * u;
@@ -469,6 +486,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         if (!multi) dispatch({ type: "sel", sel: [] });
         drag.current = { kind: "marquee", start: p, add: multi ? sel : [] };
       }
+      return;
+    }
+    if (tool === "line" && lineMode === "tan") {
+      if (draft?.t === "tan1") { const ln = tanLine(draft, snapAt(p, e)); if (ln) { add(ln); setInfo(""); } else setInfo("z tego miejsca nie ma stycznej"); setDraft(null); return; }
+      const cv = curveAt(p);
+      if (!cv) { setInfo("styczna: kliknij okrąg albo łuk"); return; }
+      setDraft({ t: "tan1", c: cv, click: p, cur: p }); setInfo("styczna: kliknij drugi okrąg/łuk albo punkt końcowy");
       return;
     }
     if (draft?.t === "dimoff") { add(dimItem(draft.p1, draft.p2, draft.o, draft.off, style)); setDraft(null); setMark(null); return; }
@@ -585,6 +609,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (draft?.t === "arc3") setDraft({ ...draft, cur: snapAt(p, e, draft.e ? null : draft.s) });
     else if (draft?.t === "arcc") setDraft({ ...draft, cur: snapAt(p, e, draft.s ? null : draft.c) });
     else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
+    else if (draft?.t === "tan1") setDraft({ ...draft, cur: snapAt(p, e) });
     else if (draft?.t === "dima1") setDraft({ ...draft, cur: draft.v ? snapAt(p, e, draft.v) : [q(p[0]), q(p[1])] });
     else if (tool !== "select") snapAt(p, e); // znacznik przyciągania także przed pierwszym kliknięciem
     else setMark(null);
@@ -674,7 +699,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
 
   /* ───────────── widok ───────────── */
   const dynPt = dyn ? dynPoint(dyn) : null; // wpisywana wartość widoczna od razu na płótnie
-  const preview = draft ? draftItem(dynPt ? (draft.t === "poly" ? { ...draft, cur: dynPt } : draft.t === "drag" ? { ...draft, b: dynPt } : draft) : draft, style) : null;
+  const preview = draft?.t === "tan1" ? tanLine(draft, draft.cur) : draft ? draftItem(dynPt ? (draft.t === "poly" ? { ...draft, cur: dynPt } : draft.t === "drag" ? { ...draft, b: dynPt } : draft) : draft, style) : null;
   const one = sel.length === 1 ? doc.items.find((it) => it.id === sel[0]) : undefined;
   const hr = 4.5 * u; // uchwyt: stały rozmiar na ekranie
   const gs = grid >= 2.5 ? grid : 10;
@@ -798,6 +823,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         </div>
         <div className="rys-tools">
           <button type="button" className="rys-tool" aria-pressed={snapOn} onClick={() => setSnapOn((v) => !v)} title="Przyciąganie do końców, środków, przecięć i linii (Alt wyłącza na chwilę)">{icons.magnet}<span>Punkty</span></button>
+          <SnapMenu kinds={snapKinds} onChange={setSnapKinds} />
+          <button type="button" className="rys-tool" aria-pressed={xray} onClick={() => setXray((v) => !v)} title="Kontury pod wypełnieniami: cienki podgląd krawędzi zakrytych przez wypełnienie (tylko w edytorze)">{icons.xray}<span>Kontury</span></button>
           <button type="button" className="rys-tool" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Pokaż siatkę roboczą (nie trafia na rysunek)">{icons.dots}<span>Siatka</span></button>
           <label className="rys-step" title="Skok przyciągania do siatki, w jednostkach rysunku (brak — bez dociągania do siatki)">Skok
             <select value={grid} onChange={(e) => setGrid(+e.target.value)}>{GRID_STEPS.map((g) => <option key={g} value={g}>{g === 0 ? "brak" : fmt(g)}</option>)}</select>
@@ -816,6 +843,11 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
           <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
         </div>
         {actions && <div className="rys-actions">{actions}</div>}
+        {tool === "line" && (
+          <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj linii">
+            {([["free", "Zwykła"], ["tan", "Styczna do okręgu / dwóch okręgów"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={lineMode === v} onClick={() => { setLineMode(v); setDraft(null); setInfo(v === "tan" ? "styczna: kliknij okrąg albo łuk" : ""); }}>{l}</button>)}
+          </div>
+        )}
         {tool === "dim" && (
           <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj wymiaru">
             {DIM_TYPES.map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={dimType === v} onClick={() => { setDimType(v); setDraft(null); setInfo(""); }}>{l}</button>)}
@@ -853,6 +885,10 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                   {it.t === "poly" || it.t === "arc" ? <g className={`rys-hitwrap${it.t === "poly" && it.fill !== "none" ? " is-fill" : ""}`}>{renderItem({ ...it, arrow: "none" } as Item, c)}</g> : hit(it)}
                 </g>
               ))}
+              {xray && shown.some((it) => "fill" in it && it.fill !== "none") && (
+                <g className="rys-xr" pointerEvents="none">{shown.filter((it) => it.t !== "text" && it.t !== "pt" && it.t !== "step").map((it) => <g key={it.id}>{selShape(it, 0, "rys-xr-l")}</g>)}</g>
+              )}
+              {draft?.t === "tan1" && <g pointerEvents="none">{selShape(draft.c, 0, "rys-tanc")}</g>}
               {kalkaMode === "cal" && calPts.length > 0 && (
                 <g pointerEvents="none" className="rys-cal">
                   {calPts.length === 2 && <line x1={calPts[0][0]} y1={calPts[0][1]} x2={calPts[1][0]} y2={calPts[1][1]} />}

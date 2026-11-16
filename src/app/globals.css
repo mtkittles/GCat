@@ -3664,6 +3664,16 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-lib-open .rys-thumb { margin: 0; padding: .3rem; max-width: none; }
 .rys-lib-open:focus-visible { outline: 2px solid var(--accent); }
 .rys-lib-acts { display: flex; gap: .35rem; }
+.rys-tool-narrow { min-width: 0; padding-inline: .15rem; }
+.rys-tool-narrow svg { width: 14px; height: 14px; }
+.rys-snapkinds { min-width: 13rem; }
+.rys-snapkinds label { display: flex; align-items: center; gap: .5rem; padding: .3rem .5rem; border-radius: 6px; font-size: 13.5px; color: var(--ink); cursor: pointer; }
+.rys-snapkinds label:hover { background: var(--surface-2); }
+.rys-snapkinds input { accent-color: var(--accent); }
+.rys-snapkinds-all { display: flex; gap: .3rem; }
+.rys-snapkinds-all button { flex: 1; padding: .3rem; border: 1px solid var(--line-strong); border-radius: 6px; background: none; color: var(--ink-2); font: inherit; font-size: 12.5px; cursor: pointer; }
+.fig .rys-xr-l { fill: none; stroke: var(--ink); stroke-width: .8; stroke-dasharray: 2 2.5; opacity: .45; vector-effect: non-scaling-stroke; }
+.fig .rys-tanc { fill: none; stroke: #22D3EE; stroke-width: 2; opacity: .8; vector-effect: non-scaling-stroke; }
 .rys-svg.is-kalka-move { cursor: move; }
 .rys-svg.is-kalka-cal { cursor: crosshair; }
 .fig .rys-item.is-locked { opacity: .55; }
