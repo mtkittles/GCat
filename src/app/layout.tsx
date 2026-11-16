@@ -49,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/regulamin" className="text-muted">Regulamin</Link>
             <Link href="/polityka-prywatnosci" className="text-muted">Polityka prywatności</Link>
             <Link href="/konto" className="text-muted">Konto</Link>
+            <Link href="/edycja" className="text-muted">Tryb edycji</Link>
           </nav>
           <div className="wrap pb-6 text-sm text-muted max-w-prose">
             Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.

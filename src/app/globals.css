@@ -1101,6 +1101,10 @@ html { scroll-behavior: smooth; }
 /* wejście strony przy każdej nawigacji (template.tsx). Fill "backwards" — po animacji
    nie zostaje żaden transform, więc nie psuje position:fixed w środku strony. */
 .page-enter { animation: page-in .32s cubic-bezier(.2,.8,.2,1) backwards; }
+/* panel treści (/keystatic): cały ekran, bez nagłówka, stopki i paska strony; bez z-index — patrz src/app/keystatic/keystatic.tsx */
+.ks-panel { position: fixed; inset: 0; overflow: auto; background: #fff; }
+body:has(.ks-panel) > :is(.site-header, .site-footer, .bottom-nav, .edit-bar) { display: none; }
+body:has(.ks-panel) .page-enter { animation: none; }
 @keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes sheet-up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
