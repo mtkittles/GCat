@@ -1,7 +1,7 @@
 "use client";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  ANCHORS, ARROWS, ARROW_LABEL, dimGeom, DIM_ORIENT, DIM_ORIENT_LABEL, FILLS, FILL_LABEL, fmt, FONTS, FONT_LABEL, FONT_SIZES, H_MAX, H_MIN, ITEM_LABEL, KIND_LABEL, LINE_KINDS,
+  ANCHORS, ARROWS, ARROW_LABEL, isDim, measure, DIM_ORIENT, DIM_ORIENT_LABEL, FILLS, FILL_LABEL, fmt, FONTS, FONT_LABEL, FONT_SIZES, H_MAX, H_MIN, ITEM_LABEL, KIND_LABEL, LINE_KINDS,
   MEASURE, POSITIONS, PT_COLORS, strokeOf, TEXT_COLORS, TEXT_COLOR_LABEL, WIDTHS, WIDTH_LABEL,
   type Arrow, type Fill, type Font, type Item, type LineKind, type RysDoc, type TextColor, type Width,
 } from "@/lib/rys/model";
@@ -10,8 +10,8 @@ import { LINE_CLASS } from "./render";
 
 /* Panel właściwości rysownika: styl z zamkniętych list, dokładne współrzędne, kolejność i lista elementów. */
 
-export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimMode: "auto" | "a"; dimSize: number; dimFont: Font }
-export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimMode: "auto", dimSize: 10.5, dimFont: "mono" };
+export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
+export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
 export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom";
 export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid";
 
@@ -24,6 +24,8 @@ interface Props {
   onDoc: (p: Partial<Pick<RysDoc, "h" | "k">>) => void;
   onSelect: (ids: string[]) => void;
   onAction: (a: PanelAction) => void;
+  /** obrót o kąt (stopnie, + przeciwnie do zegara jak w CAD) albo skala względem punktu obrotu zaznaczenia */
+  onTransform: (kind: "rot" | "scale", v: number) => void;
 }
 
 const ANCHOR_LABEL = { start: "od lewej", middle: "środek", end: "do prawej" } as const;
@@ -106,14 +108,28 @@ const set = (key: string, v: unknown) => (it: Item): Item => (key in it ? ({ ...
 
 function describe(it: Item): string {
   if (it.t === "text") return `„${it.s}”`;
-  if (it.t === "dim") return it.label === MEASURE ? "" : `„${it.label}”`;
+  if (isDim(it)) return it.label.replace(MEASURE, "").replace(/^[⌀R]?°?$/, "") ? `„${it.label}”` : "";
   if (it.t === "pt") return it.label ? `„${it.label}”` : "";
   if (it.t === "step") return String(it.n);
   if ("k" in it) return KIND_LABEL[it.k].toLowerCase();
   return "";
 }
 
-export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, settle, onStyle, onDoc, onSelect, onAction }: Props) {
+/** Obrót o kąt i skala z klawiatury (jak ROTATE / SCALE w CAD). */
+function TransformRow({ onTransform }: { onTransform: Props["onTransform"] }) {
+  const [rot, setRot] = useState("90"), [sc, setSc] = useState("2");
+  const go = (kind: "rot" | "scale", v: string) => { const n = Number(v.replace(",", ".")); if (Number.isFinite(n) && (kind === "rot" ? n !== 0 : n > 0)) onTransform(kind, n); };
+  return (
+    <div className="rys-xform">
+      <label>Obróć o <input type="text" inputMode="decimal" value={rot} onChange={(e) => setRot(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") go("rot", rot); }} />°</label>
+      <button type="button" className="rys-btn" onClick={() => go("rot", rot)} title="Obrót wokół punktu obrotu zaznaczenia, + przeciwnie do ruchu wskazówek zegara">Obróć</button>
+      <label>Skala × <input type="text" inputMode="decimal" value={sc} onChange={(e) => setSc(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") go("scale", sc); }} /></label>
+      <button type="button" className="rys-btn" onClick={() => go("scale", sc)} title="Skala względem punktu obrotu zaznaczenia">Skaluj</button>
+    </div>
+  );
+}
+
+export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, settle, onStyle, onDoc, onSelect, onAction, onTransform }: Props) {
   const items = doc.items.filter((it) => sel.includes(it.id));
   const one = items.length === 1 ? items[0] : null;
   const first = useRef<HTMLInputElement>(null);
@@ -131,10 +147,10 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
   const arrowish = styled ? has(items, "arrow") : ARROW_TOOLS.has(tool);
   const fillish = styled ? has(items, "fill") : FILL_TOOLS.has(tool);
   const texty = styled ? items.every((it) => it.t === "text") : tool === "text";
-  const dimmy = styled ? items.every((it) => it.t === "dim") : tool === "dim";
+  const dimmy = styled ? items.every(isDim) : tool === "dim";
 
   const title = styled ? (one ? ITEM_LABEL[one.t] : `Zaznaczono: ${items.length}`) : tool === "dim" ? "Nowy wymiar" : tool === "text" ? "Nowy tekst" : LINE_TOOLS.has(tool) ? "Styl nowego elementu" : "Rysunek";
-  const measured = one?.t === "dim" ? fmt(dimGeom(one).len / (doc.k || 1)) : "";
+  const measured = one && isDim(one) ? fmt(measure(one, doc.k || 1)) + (one.t === "dima" ? "°" : "") : "";
 
   return (
     <aside className="rys-panel" aria-label="Właściwości">
@@ -160,25 +176,27 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
           </>
         )}
 
-        {one?.t === "dim" && (
+        {one && isDim(one) && (
           <>
             <Row label="Opis"><input ref={first} type="text" value={one.label} maxLength={40} placeholder={MEASURE} onBlur={settle} onChange={(e) => edit(set("label", e.target.value), "live")} /></Row>
             <p className="rys-tip">Zmierzono: <b className="rys-mono">{measured}</b>. W opisie <code>{MEASURE}</code> to ta wartość, np. <code>⌀{MEASURE}</code>, <code>R{MEASURE}</code>, <code>{MEASURE} h7</code>.</p>
-            <Seg label="Kierunek wymiaru" options={DIM_ORIENT} value={one.o} onPick={(v) => edit(set("o", v))} text={(v) => DIM_ORIENT_LABEL[v]} />
+            {one.t === "dim" && <Seg label="Kierunek wymiaru" options={DIM_ORIENT} value={one.o} onPick={(v) => edit(set("o", v))} text={(v) => DIM_ORIENT_LABEL[v]} />}
+            {one.t === "dimr" && <Seg label="Rodzaj" options={["d", "r"] as const} value={one.d ? "d" : "r"} onPick={(v) => edit((it) => (it.t === "dimr" ? { ...it, d: v === "d", label: it.label.replace(/^[⌀R]/, v === "d" ? "⌀" : "R") } : it))} text={(v) => (v === "d" ? "Średnica ⌀" : "Promień R")} />}
+            {one.t === "dimr" && <p className="rys-tip">Przeciągnij uchwyt na końcu linii, żeby zmienić kierunek i położenie opisu (do środka albo na zewnątrz).</p>}
+            {one.t === "dima" && <p className="rys-tip">Uchwyt na łuku zmienia promień łuku wymiarowego i ćwiartkę mierzonego kąta.</p>}
           </>
         )}
         {dimmy && (
           <>
-            {!styled && <Seg label="Kierunek nowego wymiaru" options={["auto", "a"] as const} value={style.dimMode} onPick={(v) => onStyle({ dimMode: v })} text={(v) => (v === "auto" ? "Poziomy / pionowy" : "Wyrównany")} />}
             <Seg label="Czcionka opisu" options={FONTS} value={val("dimFont", "font")} onPick={(v) => pick("dimFont", v, "font")} text={(v) => FONT_LABEL[v]} />
             <SizeSelect value={val("dimSize", "size")} onPick={(v) => pick("dimSize", v, "size")} />
-            {styled && (
+            {styled && items.every((it) => it.t === "dim") && (
               <div className="rys-checks">
                 <label><input type="checkbox" checked={common(items, "hz") === true} onChange={(e) => edit(set("hz", e.target.checked))} /> Opis zawsze poziomo</label>
                 <button type="button" className="rys-btn" onClick={() => edit((it) => (it.t === "dim" ? { ...it, side: it.side === 1 ? -1 : 1 } : it))}>{icons.flip} Opis na drugą stronę</button>
               </div>
             )}
-            {!styled && <p className="rys-tip">Kliknij dwa mierzone punkty (albo przeciągnij), potem odsuń linię wymiarową myszą i kliknij. Przy „poziomy / pionowy” kierunek wybiera położenie kursora, jak w CAD.</p>}
+            {!styled && <p className="rys-tip">Rodzaj wymiaru wybierasz na pasku nad rysunkiem. W trybie „Auto” kliknięcie w okrąg daje średnicę, w łuk — promień, a dwa punkty — wymiar poziomy albo pionowy zależnie od położenia kursora, jak w CAD.</p>}
           </>
         )}
 
@@ -210,7 +228,9 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             {(one.t === "grid" || one.t === "rect") && <>{num("Szer.", "w", { min: 0.01 })}{num("Wys.", "h", { min: 0.01 })}</>}
             {one.t === "rect" && num("Naroże R", "r", { step: 1, min: 0, max: 100 })}
             {(one.t === "circle" || one.t === "arc") && num("Promień", "r", { min: 0.01 })}
-            {num("Kąt od", "a0", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a1", { step: 15, min: -720, max: 720 })}
+            {one.t === "arc" && <>{num("Kąt od", "a0", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a1", { step: 15, min: -720, max: 720 })}</>}
+            {one.t === "dimr" && <>{num("Promień", "r", { min: 0.01 })}{num("Kierunek °", "a", { step: 15, min: -720, max: 720 })}{num("Wysięg opisu", "ext", { min: -800, max: 400 })}</>}
+            {one.t === "dima" && <>{num("Kąt od", "a1", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a2", { step: 15, min: -720, max: 720 })}{num("Promień łuku", "r", { min: 1, max: 800 })}</>}
             {num("Odsunięcie", "off", { min: -400, max: 400 })}
             {num("Numer", "n", { step: 1, min: 1, max: 99 })}
             {num("Drobna", "minor", { step: 2.5, min: 2.5, max: 50 })}{num("Gruba", "major", { step: 5, min: 5, max: 100 })}
@@ -227,6 +247,7 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             <button type="button" className="rys-btn" onClick={() => onAction("down")} title="Niżej ( [ )">{icons.down} Niżej</button>
             {one && (one.t === "line" || one.t === "arc") && <button type="button" className="rys-btn" onClick={() => onAction("flip")}>{icons.flip} Odwróć kierunek</button>}
           </div>
+          <TransformRow onTransform={onTransform} />
           {items.length > 1 && (
             <div className="rys-seg" aria-label="Wyrównaj zaznaczone">
               {([["left", "⇤"], ["cx", "↔"], ["right", "⇥"], ["atop", "⤒"], ["cy", "↕"], ["abottom", "⤓"]] as const).map(([a, t]) => (

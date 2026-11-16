@@ -1,7 +1,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Pt, Step, type Ctx } from "@/components/fig";
 import {
-  arcPoint, arcSweep, dimGeom, dimText, FONT_CSS, polyPath, r6, strokeOf, type Arrow, type DimItem, type Fill, type Item, type LineKind, type P2, type PtColor, type TextItem,
+  arcPoint, arcSweep, dimGeom, dimrGeom, dimText, FONT_CSS, measureText, polyPath, r6, strokeOf, type Arrow, type DimAItem, type DimItem, type DimRItem, type Fill, type Item, type LineKind, type P2, type PtColor, type TextItem,
 } from "@/lib/rys/model";
 
 /*
@@ -113,6 +113,52 @@ export function DimView({ d, k }: { d: DimItem; k: number }) {
   );
 }
 
+const DAL = 8.5; // grot wymiaru
+
+/** Wymiar ⌀/R: linia przez środek (średnica) albo od środka (promień), groty na okręgu, opis poziomo za okręgiem. */
+function DimRView({ d, k }: { d: DimRItem; k: number }) {
+  const { P, Q, E, u } = dimrGeom(d);
+  const out = d.ext >= 0;
+  const start: P2 = d.d ? Q : [d.cx, d.cy];
+  const heads: ReactNode[] = [head(P, out ? [-u[0], -u[1]] : u, DAL, "mk-dim", "p", 0.4)];
+  if (d.d) heads.push(head(Q, out ? u : [-u[0], -u[1]], DAL, "mk-dim", "q", 0.4));
+  // linia: od Q (albo środka) do końca opisu; przy opisie na zewnątrz groty wskazują okrąg od środka
+  const a = d.d ? back(Q, out ? u : [-u[0], -u[1]], 0) : start;
+  const tail: P2 = out ? E : P;
+  const style = textStyle(d.size, d.font);
+  const right = u[0] >= -1e-9;
+  const tx = E[0] + (right ? 2.5 : -2.5), ty = E[1] + d.size * 0.35 + (Math.abs(u[0]) < 0.3 ? (u[1] > 0 ? d.size * 0.6 : -d.size * 0.4) : 0);
+  return (
+    <g>
+      <line x1={r6(a[0])} y1={r6(a[1])} x2={r6(tail[0])} y2={r6(tail[1])} className="p-dim" />
+      {heads}
+      <text x={r6(tx)} y={r6(ty)} textAnchor={Math.abs(u[0]) < 0.3 ? "middle" : right ? "start" : "end"} className="t-dim" style={style}>{measureText(d, k)}</text>
+    </g>
+  );
+}
+
+/** Wymiar kątowy: łuk wymiarowy z grotami, linie pomocnicze wzdłuż ramion, opis przy środku łuku. */
+function DimAView({ d }: { d: DimAItem }) {
+  const sweep = arcSweep(d.a1, d.a2);
+  const s = arcPoint(d.cx, d.cy, d.r, d.a1), e = arcPoint(d.cx, d.cy, d.r, d.a1 + sweep);
+  const len = (sweep * Math.PI / 180) * d.r;
+  const inside = len > 2.6 * DAL;
+  const tan = (a: number, dir: 1 | -1): P2 => { const r = (a * Math.PI) / 180; return [-Math.sin(r) * dir, Math.cos(r) * dir]; };
+  // groty styczne: wewnątrz łuku wskazują jego końce; przy krótkim łuku — od zewnątrz
+  const heads = inside ? [head(s, tan(d.a1, -1), DAL, "mk-dim", "s", 0.4), head(e, tan(d.a1 + sweep, 1), DAL, "mk-dim", "e", 0.4)]
+    : [head(s, tan(d.a1, 1), DAL, "mk-dim", "s", 0.4), head(e, tan(d.a1 + sweep, -1), DAL, "mk-dim", "e", 0.4)];
+  const ext = (a: number) => { const p0 = arcPoint(d.cx, d.cy, Math.max(0, d.r * 0.15), a), p1 = arcPoint(d.cx, d.cy, d.r + 3, a); return <line key={a} x1={p0[0]} y1={p0[1]} x2={p1[0]} y2={p1[1]} className="p-ext" />; };
+  const mid = d.a1 + sweep / 2, tp = arcPoint(d.cx, d.cy, d.r + 4 + d.size * 0.55, mid);
+  return (
+    <g>
+      {ext(d.a1)}{ext(d.a1 + sweep)}
+      <path d={`M ${s[0]} ${s[1]} A ${d.r} ${d.r} 0 ${sweep > 180 ? 1 : 0} 1 ${e[0]} ${e[1]}`} className="p-dim" fill="none" />
+      {heads}
+      <text x={r6(tp[0])} y={r6(tp[1] + d.size * 0.35)} textAnchor="middle" className="t-dim" style={textStyle(d.size, d.font)}>{measureText(d, 1)}</text>
+    </g>
+  );
+}
+
 const steps = (a: number, b: number, s: number) => { const r: number[] = []; for (let v = Math.ceil(a / s) * s; v <= b + 1e-9; v += s) r.push(+v.toFixed(3)); return r; };
 
 /** `k` — skala rysunku (jednostek na mm) dla opisu wymiarów „<>”. */
@@ -134,6 +180,8 @@ export function renderItem(it: Item, c: Ctx, k = 1): ReactNode {
     case "arc": return arcWithArrows(it, strokeOf(it.k, it.sw));
     case "text": return <text x={it.x} y={it.y} textAnchor={it.anchor} className={textClass(it)} style={textStyle(it.size, it.font, it.bold)}>{it.s}</text>;
     case "dim": return <DimView d={it} k={k} />;
+    case "dimr": return <DimRView d={it} k={k} />;
+    case "dima": return <DimAView d={it} />;
     case "pt": return <Pt x={it.x} y={it.y} label={it.label || undefined} pos={it.pos} dot={PT_CLASS[it.color]} />;
     case "step": return <Step x={it.x} y={it.y} n={it.n} />;
     case "grid": {
