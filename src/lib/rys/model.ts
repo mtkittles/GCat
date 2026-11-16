@@ -29,7 +29,7 @@ export const strokeOf = (k: LineKind, sw: Width) => (k === "none" ? 0 : sw === "
 export const FILLS = ["none", "hatch", "hole", "acc", "cut", "bad"] as const;
 export type Fill = (typeof FILLS)[number];
 export const FILL_LABEL: Record<Fill, string> = {
-  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór (tło)", acc: "Akcent", cut: "Strefa skrawania", bad: "Błąd",
+  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór — zakrywa to, co pod spodem", acc: "Akcent", cut: "Strefa skrawania", bad: "Błąd",
 };
 
 export const ARROWS = ["none", "end", "start", "both"] as const;
@@ -64,7 +64,11 @@ export type P2 = [number, number];
 interface Base { id: string; g?: string; l?: string }
 interface Stroke { k: LineKind; sw: Width }
 export type LineItem = Base & Stroke & { t: "line"; arrow: Arrow; x1: number; y1: number; x2: number; y2: number };
-export type PolyItem = Base & Stroke & { t: "poly"; arrow: Arrow; fill: Fill; closed: boolean; pts: P2[] };
+/**
+  Polilinia; `b` — wypukłość odcinka od pts[i] do następnego (jak bulge w CAD): 0 = prosty, tan(θ/4) = łuk o kącie θ,
+  dodatnia — łuk zgodnie z ruchem wskazówek na ekranie. Brak `b` = same odcinki proste.
+*/
+export type PolyItem = Base & Stroke & { t: "poly"; arrow: Arrow; fill: Fill; closed: boolean; pts: P2[]; b?: number[] };
 export type RectItem = Base & Stroke & { t: "rect"; fill: Fill; x: number; y: number; w: number; h: number; r: number };
 export type CircleItem = Base & Stroke & { t: "circle"; fill: Fill; cx: number; cy: number; r: number };
 /** Łuk od kąta a0 do a1 zgodnie z ruchem wskazówek zegara na ekranie (oś Y w dół), kąty w stopniach, 0 = w prawo. */
@@ -200,7 +204,10 @@ function parseItemCore(raw: unknown): Item | null {
     case "poly": {
       const pts = Array.isArray(v.pts) ? (v.pts as unknown[]).flatMap((p): P2[] => (Array.isArray(p) && p.length === 2 ? [[num(p[0], 0), num(p[1], 0)]] : [])) : textToPts(v.pts);
       if (pts.length < 2) return null;
-      return { id, t: "poly", k, sw, arrow: oneOf(v.arrow, ARROWS, "none"), fill: oneOf(v.fill, FILLS, "none"), closed: bool(v.closed), pts: pts.slice(0, 400) };
+      const out: PolyItem = { id, t: "poly", k, sw, arrow: oneOf(v.arrow, ARROWS, "none"), fill: oneOf(v.fill, FILLS, "none"), closed: bool(v.closed), pts: pts.slice(0, 400) };
+      const bs = typeof v.b === "string" ? v.b.trim().split(/\s+/).map(Number) : [];
+      if (bs.some((x) => Number.isFinite(x) && x !== 0)) out.b = out.pts.map((_, i) => (Number.isFinite(bs[i]) ? Math.max(-20, Math.min(20, Math.round(bs[i] * 1e4) / 1e4)) : 0));
+      return out;
     }
     case "rect": return { id, t: "rect", k, sw, fill: oneOf(v.fill, FILLS, "none"), x: num(v.x, 0), y: num(v.y, 0), w: num(v.w, 10, 0.01), h: num(v.h, 10, 0.01), r: num(v.r, 0, 0, 100) };
     case "circle": return { id, t: "circle", k, sw, fill: oneOf(v.fill, FILLS, "none"), cx: num(v.cx, 0), cy: num(v.cy, 0), r: num(v.r, 5, 0.01, 800) };
@@ -247,7 +254,11 @@ export function storeItem(it: Item): StoredItem {
 function storeItemCore(it: Item): StoredItem {
   switch (it.t) {
     case "line": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2 };
-    case "poly": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, fill: it.fill, closed: it.closed, pts: ptsToText(it.pts) };
+    case "poly": {
+      const o: StoredItem = { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, fill: it.fill, closed: it.closed, pts: ptsToText(it.pts) };
+      if (it.b?.some((x) => x !== 0)) o.b = it.pts.map((_, i) => String(Math.round((it.b![i] ?? 0) * 1e4) / 1e4 + 0)).join(" ");
+      return o;
+    }
     case "rect": return { t: it.t, k: it.k, sw: it.sw, fill: it.fill, x: it.x, y: it.y, w: it.w, h: it.h, r: it.r };
     case "circle": return { t: it.t, k: it.k, sw: it.sw, fill: it.fill, cx: it.cx, cy: it.cy, r: it.r };
     case "arc": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, cx: it.cx, cy: it.cy, r: it.r, a0: it.a0, a1: it.a1 };
@@ -276,7 +287,31 @@ export function arcPath(a: Pick<ArcItem, "cx" | "cy" | "r" | "a0" | "a1">): stri
   const [ex, ey] = arcPoint(a.cx, a.cy, a.r, a.a1);
   return `M ${sx} ${sy} A ${a.r} ${a.r} 0 ${sweep > 180 ? 1 : 0} 1 ${ex} ${ey}`;
 }
-export const polyPath = (pts: P2[], closed: boolean) => pts.map(([x, y], i) => `${i ? "L" : "M"} ${r6(x)} ${r6(y)}`).join(" ") + (closed ? " Z" : "");
+/** Łuk odcinka polilinii o wypukłości b: środek, promień i kąty jak w ArcItem (a0 → a1 zgodnie z ruchem wskazówek). */
+export function bulgeArc(p: P2, qq: P2, b: number): { cx: number; cy: number; r: number; a0: number; a1: number } | null {
+  const dx = qq[0] - p[0], dy = qq[1] - p[1], c = Math.hypot(dx, dy);
+  if (!b || c < 1e-9) return null;
+  const h = (c / 2) * (1 - b * b) / (2 * b), nx = -dy / c, ny = dx / c; // normalna „w prawo” na ekranie
+  const cx = (p[0] + qq[0]) / 2 + nx * h, cy = (p[1] + qq[1]) / 2 + ny * h, r = (c * (1 + b * b)) / (4 * Math.abs(b));
+  const ap = Math.atan2(p[1] - cy, p[0] - cx) / RAD, aq = Math.atan2(qq[1] - cy, qq[0] - cx) / RAD;
+  return b > 0 ? { cx, cy, r, a0: ap, a1: aq } : { cx, cy, r, a0: aq, a1: ap };
+}
+/** Odcinki polilinii: [początek, koniec, wypukłość]. */
+export function polySegs(it: Pick<PolyItem, "pts" | "closed" | "b">): [P2, P2, number][] {
+  const n = it.pts.length, out: [P2, P2, number][] = [];
+  for (let i = 0; i < n - 1; i++) out.push([it.pts[i], it.pts[i + 1], it.b?.[i] ?? 0]);
+  if (it.closed && n > 2) out.push([it.pts[n - 1], it.pts[0], it.b?.[n - 1] ?? 0]);
+  return out;
+}
+export const polyPath = (pts: P2[], closed: boolean, b?: number[]) => {
+  if (!b?.some((x) => x)) return pts.map(([x, y], i) => `${i ? "L" : "M"} ${r6(x)} ${r6(y)}`).join(" ") + (closed ? " Z" : "");
+  let d = `M ${r6(pts[0][0])} ${r6(pts[0][1])}`;
+  for (const [p, qq, bb] of polySegs({ pts, closed, b })) {
+    const g = bb ? bulgeArc(p, qq, bb) : null;
+    d += g ? ` A ${r6(g.r)} ${r6(g.r)} 0 ${Math.abs(bb) > 1 ? 1 : 0} ${bb > 0 ? 1 : 0} ${r6(qq[0])} ${r6(qq[1])}` : ` L ${r6(qq[0])} ${r6(qq[1])}`;
+  }
+  return d + (closed ? " Z" : "");
+};
 export const angleOf = (cx: number, cy: number, x: number, y: number) => q(Math.atan2(y - cy, x - cx) / RAD);
 export const arcMidAngle = (a: Pick<ArcItem, "a0" | "a1">) => a.a0 + arcSweep(a.a0, a.a1) / 2;
 /** czy kąt (stopnie) leży na łuku a0 → a1 (zgodnie z zegarem) */
@@ -373,7 +408,12 @@ export function bbox(it: Item): [number, number, number, number] {
   switch (it.t) {
     case "line": return [Math.min(it.x1, it.x2), Math.min(it.y1, it.y2), Math.max(it.x1, it.x2), Math.max(it.y1, it.y2)];
     case "dim": { const g = dimGeom(it), xs = [it.x1, it.x2, g.A[0], g.B[0]], ys = [it.y1, it.y2, g.A[1], g.B[1]]; return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
-    case "poly": { const xs = it.pts.map((p) => p[0]), ys = it.pts.map((p) => p[1]); return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
+    case "poly": {
+      const ps = [...it.pts];
+      if (it.b?.some((x) => x)) for (const [p, qq, bb] of polySegs(it)) { const g = bb ? bulgeArc(p, qq, bb) : null; if (g) for (const a of [0, 90, 180, 270]) if (onArc(g, a)) ps.push(arcPoint(g.cx, g.cy, g.r, a)); }
+      const xs = ps.map((p) => p[0]), ys = ps.map((p) => p[1]);
+      return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+    }
     case "rect": case "grid": return [it.x, it.y, it.x + it.w, it.y + it.h];
     case "axes": return [it.x - it.xn, it.y - it.yp, it.x + it.xp, it.y + it.yn];
     case "circle": return [it.cx - it.r, it.cy - it.r, it.cx + it.r, it.cy + it.r];
@@ -456,6 +496,80 @@ export function scaleItem(it: Item, c: P2, k: number): Item {
   }
 }
 
+/* ───────────── ramka zaznaczenia obrócona razem z figurą ───────────── */
+/** Kierunek „własny” elementu do ramki, sprowadzony do (−45°, 45°]; null — element bez kierunku (okrąg, tekst, punkt). */
+export function orient(it: Item): number | null {
+  if (it.t === "rect" || it.t === "grid" || it.t === "axes" || (it.t === "dim" && it.o !== "a")) return 0;
+  const a = refAngle(it);
+  if (a === null) return null;
+  let n = ((a % 90) + 90) % 90;
+  if (n > 45) n -= 90;
+  return Math.round(n * 1e4) / 1e4;
+}
+/** Kąt ramki zaznaczenia: wspólny kierunek elementów (z dokładnością 0,5°), inaczej 0. */
+export function frameAngle(items: Item[]): number {
+  const as = items.map(orient).filter((a): a is number => a !== null);
+  if (!as.length) return 0;
+  const a0 = as[0];
+  return as.every((a) => Math.abs(a - a0) < 0.5 || Math.abs(Math.abs(a - a0) - 90) < 0.5) ? a0 : 0;
+}
+export interface Frame { c: P2; a: number; hw: number; hh: number }
+/** Prostokąt otaczający w układzie obróconym o `a` (stopnie): środek, połowy szerokości i wysokości. */
+export function frameOf(items: Item[], a: number): Frame | null {
+  if (!items.length) return null;
+  const bs = items.map((it) => bbox(a ? rotateItem(it, [0, 0], -a) : it));
+  const x0 = Math.min(...bs.map((b) => b[0])), y0 = Math.min(...bs.map((b) => b[1])), x1 = Math.max(...bs.map((b) => b[2])), y1 = Math.max(...bs.map((b) => b[3]));
+  const lc: P2 = [(x0 + x1) / 2, (y0 + y1) / 2], r = a * RAD;
+  return { c: [lc[0] * Math.cos(r) - lc[1] * Math.sin(r), lc[0] * Math.sin(r) + lc[1] * Math.cos(r)], a, hw: (x1 - x0) / 2, hh: (y1 - y0) / 2 };
+}
+/** Punkt ramki: sx, sy ∈ {−1, 0, 1} (lewo/środek/prawo, góra/środek/dół w układzie ramki), `pad` — odsunięcie na zewnątrz. */
+export function framePt(f: Frame, sx: number, sy: number, pad = 0): P2 {
+  const r = f.a * RAD, lx = sx * (f.hw + (sx ? pad : 0)), ly = sy * (f.hh + (sy ? pad : 0));
+  return [f.c[0] + lx * Math.cos(r) - ly * Math.sin(r), f.c[1] + lx * Math.sin(r) + ly * Math.cos(r)];
+}
+/** Do układu ramki (obrót o −a wokół c) i z powrotem. */
+export const toLocal = (p: P2, c: P2, a: number): P2 => { const r = -a * RAD, dx = p[0] - c[0], dy = p[1] - c[1]; return [dx * Math.cos(r) - dy * Math.sin(r), dx * Math.sin(r) + dy * Math.cos(r)]; };
+
+/**
+  Rozciągnięcie wzdłuż osi obróconych o `a`: kx wzdłuż „szerokości”, ky wzdłuż „wysokości”, punkt stały c.
+  Okrąg, łuk, tekst i punkty nie mają osobnych osi — dostają skalę średnią (geometryczną) i przesunięcie środka.
+*/
+export function stretchItem(it: Item, c: P2, a: number, kx: number, ky: number): Item {
+  if (Math.abs(kx - ky) < 1e-9) return scaleItem(it, c, kx);
+  const r = a * RAD, co = Math.cos(r), si = Math.sin(r);
+  const M = (p: P2): P2 => { const dx = p[0] - c[0], dy = p[1] - c[1]; const lx = (dx * co + dy * si) * kx, ly = (-dx * si + dy * co) * ky; return [q(c[0] + lx * co - ly * si), q(c[1] + lx * si + ly * co)]; };
+  const km = Math.sqrt(Math.abs(kx * ky)), right = Math.abs(((a % 90) + 90) % 90) < 1e-6 || Math.abs(((a % 90) + 90) % 90 - 90) < 1e-6;
+  switch (it.t) {
+    case "line": { const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])]; return { ...it, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] }; }
+    case "dim": {
+      const g = dimGeom(it), mid = M([(g.A[0] + g.B[0]) / 2, (g.A[1] + g.B[1]) / 2]);
+      const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])];
+      const nd = { ...it, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] };
+      return { ...nd, off: dimOffsetAt(nd, mid) };
+    }
+    case "poly": return { ...it, pts: it.pts.map(M) };
+    case "rect": case "grid": {
+      const cs = [[it.x, it.y], [it.x + it.w, it.y], [it.x + it.w, it.y + it.h], [it.x, it.y + it.h]].map((p) => M(p as P2));
+      if (right) {
+        const xs = cs.map((p) => p[0]), ys = cs.map((p) => p[1]);
+        const w = q(Math.max(...xs) - Math.min(...xs)), h = q(Math.max(...ys) - Math.min(...ys));
+        return it.t === "rect" ? { ...it, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(0.01, w), h: Math.max(0.01, h), r: q(it.r * Math.min(Math.abs(kx), Math.abs(ky))) }
+          : { ...it, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(5, w), h: Math.max(5, h) };
+      }
+      if (it.t === "grid") { const m = M([it.x + it.w / 2, it.y + it.h / 2]); return { ...it, x: q(m[0] - it.w / 2), y: q(m[1] - it.h / 2) }; }
+      return { id: it.id, ...(it.g ? { g: it.g } : {}), ...(it.l ? { l: it.l } : {}), t: "poly", k: it.k, sw: it.sw, arrow: "none", fill: it.fill, closed: true, pts: cs };
+    }
+    case "axes": {
+      const o = M([it.x, it.y]);
+      if (!right) return { ...it, x: o[0], y: o[1] };
+      const swap = Math.abs(((a % 180) + 180) % 180 - 90) < 1e-6, fx = Math.abs(swap ? ky : kx), fy = Math.abs(swap ? kx : ky);
+      return { ...it, x: o[0], y: o[1], xp: Math.max(5, q(it.xp * fx)), xn: q(it.xn * fx), yp: Math.max(5, q(it.yp * fy)), yn: q(it.yn * fy), ts: q(it.ts * fx) };
+    }
+    case "circle": case "arc": case "dimr": case "dima": { const m = M([it.cx, it.cy]); return { ...scaleItem(it, [it.cx, it.cy], km), cx: m[0], cy: m[1] } as Item; }
+    default: { const m = M([it.x, it.y]); return { ...scaleItem(it, [it.x, it.y], km), x: m[0], y: m[1] } as Item; }
+  }
+}
+
 export interface Handle { key: string; x: number; y: number }
 /** Uchwyty do zmiany kształtu zaznaczonego elementu. */
 export function handles(it: Item): Handle[] {
@@ -529,9 +643,11 @@ export function moveHandle(it: Item, key: string, x: number, y: number): Item {
 }
 
 /* ───────────── przyciąganie (jak OSNAP w CAD) ───────────── */
-export type SnapKind = "end" | "center" | "int" | "mid" | "quad" | "perp" | "near" | "grid" | "free";
+export type SnapKind = "end" | "center" | "int" | "mid" | "quad" | "perp" | "tan" | "ext" | "near" | "grid" | "free";
+/** rodzaje przyciągania, które da się wyłączyć w edytorze (jak ustawienia OSNAP w CAD) */
+export const SNAP_KINDS = ["end", "mid", "center", "quad", "int", "perp", "tan", "ext", "near"] as const;
 export const SNAP_LABEL: Record<SnapKind, string> = {
-  end: "koniec", center: "środek okręgu", int: "przecięcie", mid: "środek odcinka", quad: "kwadrant", perp: "prostopadle", near: "na linii", grid: "siatka", free: "",
+  end: "koniec", center: "środek okręgu", int: "przecięcie", mid: "środek odcinka", quad: "kwadrant", perp: "prostopadle", tan: "styczna", ext: "przedłużenie", near: "na linii", grid: "siatka", free: "",
 };
 type Seg = [P2, P2];
 type Circ = { cx: number; cy: number; r: number; a0?: number; a1?: number };
@@ -540,7 +656,11 @@ export interface SnapCache { pts: { p: P2; kind: SnapKind }[]; segs: Seg[]; circ
 function geomOf(it: Item): { segs: Seg[]; circs: Circ[] } {
   switch (it.t) {
     case "line": return { segs: [[[it.x1, it.y1], [it.x2, it.y2]]], circs: [] };
-    case "poly": { const s: Seg[] = []; for (let i = 1; i < it.pts.length; i++) s.push([it.pts[i - 1], it.pts[i]]); if (it.closed && it.pts.length > 2) s.push([it.pts[it.pts.length - 1], it.pts[0]]); return { segs: s, circs: [] }; }
+    case "poly": {
+      const segs: Seg[] = [], circs: Circ[] = [];
+      for (const [p, qq, bb] of polySegs(it)) { const g = bb ? bulgeArc(p, qq, bb) : null; if (g) circs.push(g); else segs.push([p, qq]); }
+      return { segs, circs };
+    }
     case "rect": {
       const { x, y, w, h } = it, r = Math.min(it.r, w / 2, h / 2);
       const segs: Seg[] = [[[x + r, y], [x + w - r, y]], [[x + w, y + r], [x + w, y + h - r]], [[x + w - r, y + h], [x + r, y + h]], [[x, y + h - r], [x, y + r]]];
@@ -596,6 +716,10 @@ export function snapCache(items: Item[], skip: Set<string> = new Set(), extra: P
     for (const [a, b] of g.segs) pts.push({ p: a, kind: "end" }, { p: b, kind: "end" }, { p: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], kind: "mid" });
     if (it.t === "axes") { pts.push({ p: [it.x, it.y], kind: "center" }); if (it.ts > 0) for (let v = it.ts; v <= it.xp + 1e-6; v += it.ts) pts.push({ p: [q(it.x + v), it.y], kind: "end" }); if (it.ts > 0) for (let v = it.ts; v <= it.yp + 1e-6; v += it.ts) pts.push({ p: [it.x, q(it.y - v)], kind: "end" }); }
     if (it.t === "circle") { pts.push({ p: [it.cx, it.cy], kind: "center" }); for (const a of [0, 90, 180, 270]) pts.push({ p: arcPoint(it.cx, it.cy, it.r, a), kind: "quad" }); }
+    if (it.t === "poly" && it.b?.some((x) => x)) for (const [p, qq, bb] of polySegs(it)) {
+      const g = bb ? bulgeArc(p, qq, bb) : null;
+      if (g) pts.push({ p, kind: "end" }, { p: qq, kind: "end" }, { p: arcPoint(g.cx, g.cy, g.r, g.a0 + arcSweep(g.a0, g.a1) / 2), kind: "mid" }, { p: [g.cx, g.cy], kind: "center" });
+    }
     if (it.t === "arc") { const [s, m, e] = arcEnds(it); pts.push({ p: s, kind: "end" }, { p: e, kind: "end" }, { p: m, kind: "mid" }, { p: [it.cx, it.cy], kind: "center" }); }
   }
   // przecięcia (do 400 krzywych — więcej nie ma sensu na rysunku 360 × 480)
@@ -607,8 +731,24 @@ export function snapCache(items: Item[], skip: Set<string> = new Set(), extra: P
   return { pts, segs, circs };
 }
 
-const PRIORITY: Record<SnapKind, number> = { end: 0, center: 0, int: 1, quad: 2, mid: 2, perp: 3, near: 4, grid: 5, free: 6 };
-export interface SnapOptions { grid: number; tol?: number; cache?: SnapCache; from?: P2 | null }
+const PRIORITY: Record<SnapKind, number> = { end: 0, center: 0, int: 1, quad: 2, mid: 2, tan: 2, perp: 3, ext: 3.5, near: 4, grid: 5, free: 6 };
+export interface SnapOptions { grid: number; tol?: number; cache?: SnapCache; from?: P2 | null; kinds?: ReadonlySet<SnapKind> }
+
+/** Punkty styczności z punktu P do okręgu (0 albo 2). */
+export function tangentPts(P: P2, cx: number, cy: number, r: number): P2[] {
+  const dx = P[0] - cx, dy = P[1] - cy, d = Math.hypot(dx, dy);
+  if (d <= r + 1e-9) return [];
+  const b = Math.atan2(dy, dx), g = Math.acos(r / d);
+  return [b + g, b - g].map((a): P2 => [cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+}
+/** Wspólne styczne dwóch okręgów: pary punktów styczności (zewnętrzne i wewnętrzne, do 4). */
+export function commonTangents(c1: Pick<CircleItem, "cx" | "cy" | "r">, c2: Pick<CircleItem, "cx" | "cy" | "r">): [P2, P2][] {
+  const dx = c2.cx - c1.cx, dy = c2.cy - c1.cy, d = Math.hypot(dx, dy), th = Math.atan2(dy, dx), out: [P2, P2][] = [];
+  const pt = (c: Pick<CircleItem, "cx" | "cy" | "r">, a: number): P2 => [c.cx + c.r * Math.cos(a), c.cy + c.r * Math.sin(a)];
+  if (d > Math.abs(c1.r - c2.r) + 1e-9) { const a = Math.acos((c1.r - c2.r) / d); for (const s of [1, -1]) out.push([pt(c1, th + s * a), pt(c2, th + s * a)]); }
+  if (d > c1.r + c2.r + 1e-9) { const a = Math.acos((c1.r + c2.r) / d); for (const s of [1, -1]) out.push([pt(c1, th + s * a), pt(c2, th + s * a + Math.PI)]); }
+  return out;
+}
 export interface Snapped { x: number; y: number; to: SnapKind }
 /**
   Przyciąganie jak w CAD: koniec / środek okręgu → przecięcie → środek odcinka / kwadrant → prostopadle (z punktu `from`)
@@ -619,6 +759,7 @@ export function snap(x: number, y: number, o: SnapOptions): Snapped {
   if (c) {
     let best: Snapped | null = null, bd = Infinity;
     const take = (p: P2, kind: SnapKind) => {
+      if (o.kinds && !o.kinds.has(kind)) return;
       const d = Math.hypot(p[0] - x, p[1] - y);
       if (d > tol) return;
       const score = PRIORITY[kind] * tol + d; // wyższy priorytet wygrywa w zasięgu
@@ -630,6 +771,20 @@ export function snap(x: number, y: number, o: SnapOptions): Snapped {
       if (L2 < 1e-9) continue;
       const t = ((o.from[0] - a[0]) * dx + (o.from[1] - a[1]) * dy) / L2;
       if (t > 0 && t < 1) take([a[0] + t * dx, a[1] + t * dy], "perp");
+    }
+    if (o.from) for (const ci of c.circs) {
+      // styczna z punktu początkowego do okręgu/łuku i prostopadła (przez środek)
+      for (const p of tangentPts(o.from, ci.cx, ci.cy, ci.r)) if (onC(ci, p)) take(p, "tan");
+      const d = Math.hypot(o.from[0] - ci.cx, o.from[1] - ci.cy);
+      if (d > 1e-9) for (const s of [1, -1]) { const p: P2 = [ci.cx + (s * (o.from[0] - ci.cx) / d) * ci.r, ci.cy + (s * (o.from[1] - ci.cy) / d) * ci.r]; if (onC(ci, p)) take(p, "perp"); }
+    }
+    // przedłużenie odcinka poza jego koniec (do 150 jednostek), jak EXT w CAD
+    for (const [a, b] of c.segs) {
+      const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy);
+      if (L < 1e-6) continue;
+      const t = ((x - a[0]) * dx + (y - a[1]) * dy) / (L * L);
+      const over = t < 0 ? -t * L : t > 1 ? (t - 1) * L : 0;
+      if (over > tol && over < 150) take([a[0] + t * dx, a[1] + t * dy], "ext");
     }
     for (const [a, b] of c.segs) {
       const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
