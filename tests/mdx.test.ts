@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { createElement as h, Fragment } from "react";
@@ -27,7 +27,9 @@ const CARD = `${FIX}/kody/g17-g19.mdx`;
 /** id z useId() (aria-controls) zależy od kolejności renderu — pomijany w porównaniach */
 const N = (s: string) => s.replace(/ aria-controls="[^"]*"/g, "");
 const html = async (code: string, components = {}) => N(renderToStaticMarkup(await renderContent(code, { ...mdxComponents, ...components })));
-const opts = { file: "test.mdx", components: componentNames, diagramIds, sources: liveSources };
+// kontrola plików <Obraz> jak w loaderze (npm run tresci); kompilacja w edytorze działa bez dysku
+const publicFile = (src: string) => existsSync(path.join(process.cwd(), "public", src));
+const opts = { file: "test.mdx", components: componentNames, diagramIds, sources: liveSources, publicFile };
 const md = (src: string, extra: Partial<Parameters<typeof compileContent>[1]> = {}) => compileContent(src, { ...opts, ...extra });
 const hashDir = (dir: string): string => {
   const hsh = createHash("sha1");

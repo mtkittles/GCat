@@ -88,7 +88,8 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   const fail = (file: string, issues: ContentIssue[]) => { if (issues.length) errors.push(new ContentError(rel(file), issues)); };
   let sources: TermSources = { gcodes: [], glossary: [] };
   const rysIds = new Set<string>();
-  const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds, rysIds });
+  const publicFile = (src: string) => existsSync(path.join(process.cwd(), "public", src));
+  const compileOpts = (file: string) => ({ file: rel(file), sources, components, diagramIds, rysIds, publicFile });
   const tryCompileMeta = async (file: string, src: string, extra: { autoCodes?: { known: Set<string>; self: string[] } } = {}) => {
     try { return await compileContentMeta(src, { ...compileOpts(file), ...extra }); } catch (e) {
       if (e instanceof ContentError) errors.push(e); else throw e;

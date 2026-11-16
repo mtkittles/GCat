@@ -94,6 +94,11 @@ export function Table({ caption, children }: { caption?: string; children?: Reac
   return <figure className="grid gap-1">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<div className="overflow-x-auto">{children}</div></figure>;
 }
 
-export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table } satisfies MDXComponents;
+/** <Kolor k="g00|g01|g02|akcent|blad">tekst</Kolor> — wyróżnienie kolorem z gotowego zestawu (kolory ruchów jak w symulatorze). */
+export function Kolor({ k, children }: { k: "g00" | "g01" | "g02" | "akcent" | "blad"; children?: ReactNode }) {
+  return <span className={`kolor kolor-${k}`}>{children}</span>;
+}
+
+export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table, Kolor } satisfies MDXComponents;
 
 export { componentNames, diagramIds } from "./names";
