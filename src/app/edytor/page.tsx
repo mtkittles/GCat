@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import AdminGate from "@/components/edycja/AdminGate";
 import PageBanner from "@/components/ui/PageBanner";
+import { glossary } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 import { panelUrl } from "@/lib/edycja";
 
@@ -25,10 +26,17 @@ export default function EdytorIndex() {
         </section>
       ))}
       <section className="grid gap-2">
+        <h2 className="card-h" id="slownik">Słownik</h2>
+        <div className="ed-index-grid">
+          {[...glossary].sort((a, b) => a.term.localeCompare(b.term, "pl")).map((h) => (
+            <Link key={h.anchor} href={`/edytor/slownik/${encodeURIComponent(h.anchor)}`}><code>{h.term.split(" — ")[0]}</code><span>{h.term.includes(" — ") ? h.term.split(" — ")[1] : h.aliases.slice(0, 2).join(", ")}</span></Link>
+          ))}
+        </div>
+      </section>
+      <section className="grid gap-2">
         <h2 className="card-h">Inne treści</h2>
         <div className="ed-index-grid">
           <Link href="/rysownik"><code>Rysownik</code><span>Rysunki w stylu strony</span></Link>
-          <a href={panelUrl("slownik")}><code>Słownik</code><span>Hasła — na razie w panelu Keystatic</span></a>
           <a href={panelUrl()}><code>Panel Keystatic</code><span>Zapasowo: dotychczasowy panel treści</span></a>
         </div>
       </section>

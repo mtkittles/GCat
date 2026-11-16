@@ -3854,3 +3854,18 @@ a.rys-btn { text-decoration: none; }
 .edit-gate h1 { margin: 0; font: 700 1.4rem/1.2 var(--font-display); }
 .edit-gate p { margin: 0; color: var(--ink-2); line-height: 1.6; }
 .edit-gate-wait { margin: 3rem auto; max-width: 40rem; color: var(--muted); }
+/* edytor: rysunki i obrazy w treści, rysownik nad edytorem, słownik */
+.ed-fig-bar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.ed-fig-bar .ed-mini { cursor: pointer; }
+.ed-rys-err { color: var(--red-ink); font-size: 12.5px; font-weight: 600; }
+.ed-rys-shell { z-index: 1200; }
+.ed-rys-top { gap: .5rem .8rem; }
+.ed-rys-f { display: grid; gap: .1rem; font-size: 11.5px; color: var(--muted); }
+.ed-rys-f input { width: 12rem; padding: .3rem .5rem; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface); color: var(--ink); font: inherit; font-size: 13.5px; }
+.ed-rys-f.is-wide input { width: 22rem; }
+.ed-rys-f input.is-mono { font-family: var(--font-mono); font-size: 12.5px; }
+.ed-rys-f input:disabled { opacity: .7; }
+.ed-formula { display: grid; gap: .4rem; padding: .6rem; border: 1px solid var(--line); border-radius: 8px; }
+.ed-gl .gl-list { max-width: 60rem; }
+.ed-gl .gl-fig.ed-empty { min-height: 8rem; }
+.fig-edit { margin: .45rem 0 0; }

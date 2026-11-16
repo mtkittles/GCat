@@ -120,6 +120,8 @@ export type PubState =
 type PubProps = {
   open: boolean; onClose: () => void; ja: Ja | null; onLogin: () => void; diff: DiffLine[]; problems: Problem[];
   onPublish: (message: string) => void; state: PubState; defaultMessage: string; liveHref: string;
+  /** pliki dołączane do publikacji (rysunki, obrazy) */
+  extra?: string[];
 };
 export function PublishDialog(p: PubProps) {
   const ref = useModal(p.open, p.onClose);
@@ -131,7 +133,7 @@ export function PublishDialog(p: PubProps) {
   );
 }
 
-function PublishBody({ ja, onLogin, diff, problems, onPublish, state, defaultMessage, liveHref }: PubProps) {
+function PublishBody({ ja, onLogin, diff, problems, onPublish, state, defaultMessage, liveHref, extra = [] }: PubProps) {
   const [msg, setMsg] = useState(defaultMessage);
   const local = ja?.mode === "local";
   const needLogin = !local && !ja?.user;
@@ -168,6 +170,7 @@ function PublishBody({ ja, onLogin, diff, problems, onPublish, state, defaultMes
               <div className="ed-err"><b>Najpierw popraw błędy ({problems.length})</b> — zakładka „Kontrola” w panelu. Z błędami strona by się nie zbudowała.</div>
             )}
             <label className="ed-field"><span>Opis zmiany (widoczny w historii wersji)</span><input value={msg} onChange={(e) => setMsg(e.target.value)} /></label>
+            {extra.length > 0 && <p className="rys-tip">Razem z treścią: {extra.join(", ")}.</p>}
             <details className="ed-pub-diff" open={changes <= 30}>
               <summary>Zmienione linie pliku: {changes}</summary>
               <DiffView lines={diff} empty="Brak zmian względem opublikowanej wersji." />
@@ -179,7 +182,7 @@ function PublishBody({ ja, onLogin, diff, problems, onPublish, state, defaultMes
               </div>
             )}
             <div className="ed-pub-acts">
-              <button type="button" className="btn" disabled={needLogin || (!local && !ja?.canWrite) || problems.length > 0 || changes === 0 || state.s === "busy"} onClick={() => onPublish(msg)}>
+              <button type="button" className="btn" disabled={needLogin || (!local && !ja?.canWrite) || problems.length > 0 || (changes === 0 && !extra.length) || state.s === "busy"} onClick={() => onPublish(msg)}>
                 {ei.publish}{state.s === "busy" ? state.step : local ? "Zapisz na dysk" : "Opublikuj"}
               </button>
               {!local && <span className="rys-tip">Zapis idzie przez gałąź tresci/… i PR (reguła repozytorium), a potem od razu do strony.</span>}

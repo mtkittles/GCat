@@ -56,13 +56,21 @@ export async function history(token: string, path: string): Promise<Wersja[]> {
 export interface Publikacja { merged: boolean; branch: string; commit?: string; pr?: { number: number; url: string }; compare?: string; note?: string }
 
 /** Gałąź tresci/<nazwa>-<czas> z jednym commitem, PR do main i scalenie. */
-export async function publish(token: string, files: { path: string; text: string }[], message: string, slug: string): Promise<Publikacja> {
+/** Czy plik jest w repozytorium (np. obraz wskazany w <Obraz>). */
+export async function exists(token: string, path: string): Promise<boolean> {
+  try { await gh(token, `/contents/${encodeURI(path)}?ref=${REPO.branch}`); return true; } catch (e) { if (e instanceof GhError && e.status === 404) return false; throw e; }
+}
+
+export async function publish(token: string, files: { path: string; text?: string; base64?: string }[], message: string, slug: string): Promise<Publikacja> {
   const head = await gh<{ object: { sha: string } }>(token, `/git/ref/heads/${REPO.branch}`);
   const baseCommit = await gh<{ tree: { sha: string } }>(token, `/git/commits/${head.object.sha}`);
-  const tree = await gh<{ sha: string }>(token, "/git/trees", {
-    method: "POST",
-    body: JSON.stringify({ base_tree: baseCommit.tree.sha, tree: files.map((f) => ({ path: f.path, mode: "100644", type: "blob", content: f.text })) }),
-  });
+  const entries = await Promise.all(files.map(async (f) => {
+    if (f.base64 === undefined) return { path: f.path, mode: "100644", type: "blob", content: f.text ?? "" };
+    // plik binarny (obraz): najpierw blob w base64
+    const b = await gh<{ sha: string }>(token, "/git/blobs", { method: "POST", body: JSON.stringify({ content: f.base64, encoding: "base64" }) });
+    return { path: f.path, mode: "100644", type: "blob", sha: b.sha };
+  }));
+  const tree = await gh<{ sha: string }>(token, "/git/trees", { method: "POST", body: JSON.stringify({ base_tree: baseCommit.tree.sha, tree: entries }) });
   const commit = await gh<{ sha: string }>(token, "/git/commits", { method: "POST", body: JSON.stringify({ message, tree: tree.sha, parents: [head.object.sha] }) });
   const stamp = new Date().toISOString().replace(/[-:]/g, "").replace(/\..*/, "").replace("T", "-");
   const branch = `tresci/${slug}-${stamp}`;

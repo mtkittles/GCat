@@ -12,6 +12,7 @@ import { gcodes } from "@/lib/gcodes";
 import { simHref } from "@/lib/simLink";
 import { around, deleteBlock, duplicateBlock, moveBlock, topBlock } from "./blocks";
 import { ei } from "./icons";
+import { usePendingCtx } from "./pending";
 import { TermPicker } from "./Toolbar";
 
 /*
@@ -46,6 +47,7 @@ function Act({ icon, children, onClick, danger }: { icon: keyof typeof ei; child
 /* ───────────── Blok ───────────── */
 
 function BlockPanel({ editor }: { editor: Editor }) {
+  const pend = usePendingCtx();
   const st = useEditorState({
     editor,
     selector: ({ editor: e }) => {
@@ -114,13 +116,18 @@ function BlockPanel({ editor }: { editor: Editor }) {
   else if (c?.type === "diagram") body = <DiagramPick id={String(a.id)} onPick={(id) => set({ id })} />;
   else if (c?.type === "rys") body = (
     <Group title="Rysunek z rysownika">
-      <div className="ed-list">{rysunki.map((r) => <button key={r.slug} type="button" aria-pressed={r.slug === a.id} onClick={() => set({ id: r.slug })}><b>{r.title}</b><span>{r.slug}</span></button>)}</div>
-      <a className="rys-btn" href="/rysownik" target="_blank" rel="noreferrer">{ei.rys}Otwórz rysownik ↗</a>
+      {pend && <Acts>
+        {a.id ? <Act icon="rys" onClick={() => pend.openRys({ kind: "rys", slug: String(a.id) })}>Edytuj w rysowniku</Act> : null}
+        <Act icon="plus" onClick={() => pend.openRys({ kind: "new", onDone: (id) => set({ id }) })}>Narysuj nowy</Act>
+      </Acts>}
+      {a.was ? <Acts><Act icon="history" onClick={() => editor.chain().command(({ tr, state }) => { tr.setNodeMarkup(c.pos, state.schema.nodes.diagram, { id: a.was }); return true; }).run()}>Wróć do rysunku „{String(a.was)}”</Act></Acts> : null}
+      <p className="rys-tip">Albo wybierz istniejący:</p>
+      <div className="ed-list">{[...Object.values(pend?.pending.rys ?? {}), ...rysunki.filter((r) => !pend?.pending.rys[r.slug])].map((r) => <button key={r.slug} type="button" aria-pressed={r.slug === a.id} onClick={() => set({ id: r.slug })}><b>{r.title}</b><span>{r.slug}{pend?.pending.rys[r.slug] ? " · nowy" : ""}</span></button>)}</div>
     </Group>
   );
   else if (c?.type === "obraz") body = (
     <Group title="Obraz">
-      <Text label="Plik" mono value={String(a.src ?? "")} placeholder="/rysunki/plik.png" onChange={(v) => set({ src: v })} hint="Plik z katalogu public/rysunki/ (wgrywanie z edytora — w następnej paczce)." />
+      <Text label="Plik" mono value={String(a.src ?? "")} placeholder="/rysunki/plik.png" onChange={(v) => set({ src: v })} hint="Plik z public/rysunki/. Nowy plik wgrasz przyciskiem „Wgraj z komputera” nad obrazem (PNG, JPG, WebP, SVG, do 2 MB)." />
       <Text label="Opis dla czytników ekranu" value={String(a.alt ?? "")} onChange={(v) => set({ alt: v })} />
       <Text label="Podpis" value={String(a.caption ?? "")} onChange={(v) => set({ caption: v })} />
     </Group>

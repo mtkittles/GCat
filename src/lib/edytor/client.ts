@@ -32,7 +32,7 @@ export const api = {
   historia: (path: string) => call<{ versions: Wersja[] }>(`/api/edytor/historia?${q({ path })}`).then((r) => r.versions),
   wersja: (path: string, sha: string) => call<{ text: string }>(`/api/edytor/wersja?${q({ path, sha })}`).then((r) => r.text),
   strona: () => call<{ commit: string | null }>("/api/edytor/strona").then((r) => r.commit),
-  zapisz: (files: { path: string; text: string }[], message: string, base: Record<string, string | null>) =>
+  zapisz: (files: { path: string; text?: string; base64?: string }[], message: string, base: Record<string, string | null>) =>
     call<ZapisWynik>("/api/edytor/zapisz", { method: "POST", headers: { "Content-Type": "application/json", "x-gcat-edytor": "1" }, body: JSON.stringify({ files, message, base }) }),
 };
 

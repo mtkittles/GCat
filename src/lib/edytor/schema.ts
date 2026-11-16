@@ -92,7 +92,7 @@ const atomBlock = (name: string, attrs: Record<string, ReturnType<typeof str>>) 
   renderHTML({ HTMLAttributes }) { return ["div", mergeAttributes(HTMLAttributes, { [`data-${name}`]: "" })]; },
 });
 export const DiagramNode = atomBlock("diagram", { id: str("id") });
-export const RysNode = atomBlock("rys", { id: str("id") });
+export const RysNode = atomBlock("rys", { id: str("id"), /** rysunek z biblioteki, który ten zastąpił (przywrócenie w panelu; nie trafia do pliku) */ was: { default: "", rendered: false } as unknown as ReturnType<typeof str> });
 export const ObrazNode = atomBlock("obraz", { src: str("src"), alt: str("alt"), caption: str("caption") });
 export const WidgetNode = atomBlock("widget", { id: str("id", "rij") });
 /** Blok, którego edytor nie zna — zostaje w pliku bez zmian (źródło MDX widoczne i edytowalne jako tekst). */

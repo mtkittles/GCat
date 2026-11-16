@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type { MDXComponents } from "mdx/types";
 import ArcCalc from "@/components/ArcCalc";
 import { diagrams } from "@/components/diagrams";
+import { FigEdit } from "@/components/edycja/EditMode";
 import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
 import RijCalc from "@/components/RijCalc";
@@ -23,13 +24,13 @@ type Mode = "mill" | "lathe";
 
 /** <Diagram id="g01" /> — rysunek z rejestru diagrams.tsx (blok `diagram`). */
 export function Diagram({ id }: { id: string }) {
-  return <div>{diagrams[id]?.()}</div>;
+  return <div>{diagrams[id]?.()}<FigEdit kind="diagram" id={id} /></div>;
 }
 
 /** <Rys id="nazwa" /> — rysunek z rysownika (content/rysunki/<nazwa>.yaml). */
 export function RysBlock({ id }: { id: string }) {
   const fig = rysBySlug(id);
-  return fig ? <div><Rys fig={fig} /></div> : null;
+  return fig ? <div><Rys fig={fig} /><FigEdit kind="rys" id={id} /></div> : null;
 }
 
 /** <Obraz src="/rysunki/plik.png" alt="…" caption="…" /> — obraz wgrany przez Keystatic do public/rysunki/. */

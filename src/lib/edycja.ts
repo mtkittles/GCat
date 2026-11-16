@@ -22,7 +22,7 @@ export function editTarget(pathname: string): { href: string; label: string } | 
   const kod = p.match(/^\/kody\/([^/]+)$/);
   if (kod) return { href: `/edytor/kody/${kod[1]}`, label: "Edytuj tę kartę" };
   if (p === "/kody") return { href: "/edytor", label: "Edytor treści" };
-  if (p === "/slownik") return { href: panelUrl("slownik"), label: "Hasła w panelu" };
+  if (p === "/slownik") return { href: "/edytor#slownik", label: "Hasła w edytorze" };
   return null;
 }
 
