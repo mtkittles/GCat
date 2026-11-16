@@ -99,6 +99,34 @@ export function SnapMenu({ kinds, onChange }: { kinds: ReadonlySet<SnapKind>; on
   );
 }
 
+/* ───────────── szyk (ARRAY) ───────────── */
+export type ArrayParams = { kind: "rect"; cols: number; rows: number; dx: number; dy: number } | { kind: "polar"; n: number; ang: number };
+export function ArrayPanel({ onMake }: { onMake: (p: ArrayParams) => void }) {
+  const [kind, setKind] = useState<"rect" | "polar">("rect");
+  const [v, setV] = useState({ cols: 3, rows: 1, dx: 20, dy: 20, n: 6, ang: 360 });
+  const f = (label: string, key: keyof typeof v, o: { min?: number; max?: number; step?: number } = {}) => (
+    <label className="rys-num"><span>{label}</span>
+      <input type="number" value={v[key]} min={o.min} max={o.max} step={o.step ?? 1} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x)) setV((s) => ({ ...s, [key]: x })); }} />
+    </label>
+  );
+  const count = kind === "rect" ? Math.max(1, Math.round(v.cols)) * Math.max(1, Math.round(v.rows)) : Math.max(2, Math.round(v.n));
+  return (
+    <div className="rys-kalka">
+      <div className="rys-seg" role="radiogroup" aria-label="Rodzaj szyku">
+        <button type="button" role="radio" aria-checked={kind === "rect"} onClick={() => setKind("rect")}>Prostokątny</button>
+        <button type="button" role="radio" aria-checked={kind === "polar"} onClick={() => setKind("polar")}>Kołowy</button>
+      </div>
+      {kind === "rect"
+        ? <div className="rys-nums">{f("Kolumny", "cols", { min: 1, max: 50 })}{f("Wiersze", "rows", { min: 1, max: 50 })}{f("Odstęp X, mm", "dx", { step: 0.5 })}{f("Odstęp Y (w górę), mm", "dy", { step: 0.5 })}</div>
+        : <div className="rys-nums">{f("Liczba", "n", { min: 2, max: 72 })}{f("Kąt całkowity °", "ang", { min: -360, max: 360, step: 15 })}</div>}
+      {kind === "polar" && <p className="rys-tip">Wokół punktu obrotu zaznaczenia (krzyżyk — można go przesunąć). 360° — kopie rozłożone równo na całym obwodzie.</p>}
+      <button type="button" className="rys-btn" disabled={count > 200} onClick={() => onMake(kind === "rect" ? { kind, cols: Math.max(1, Math.round(v.cols)), rows: Math.max(1, Math.round(v.rows)), dx: v.dx, dy: v.dy } : { kind, n: Math.max(2, Math.round(v.n)), ang: v.ang })}>
+        Utwórz szyk ({count} szt.)
+      </button>
+    </div>
+  );
+}
+
 /* ───────────── okno eksportu ───────────── */
 export type ExportFormat = "svg" | "png" | "pdf";
 const FORMAT_LABEL: Record<ExportFormat, string> = { svg: "SVG — wektor, do dalszej edycji i na strony", png: "PNG — obraz, do prezentacji i dokumentów", pdf: "PDF — strona A4 do druku" };

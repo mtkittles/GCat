@@ -110,3 +110,28 @@ describe("zaokrąglenie, faza, odsunięcie", () => {
     expect(o?.t === "poly" && o.pts).toEqual([[-5, -5], [45, -5], [45, 25], [-5, 25]]);
   });
 });
+
+import { mirrorItem } from "@/lib/rys/edit";
+import { frameAngle, frameOf, stretchItem } from "@/lib/rys/model";
+describe("lustro i ramka obrócona", () => {
+  it("odbicie względem osi pionowej: linia, łuk (kierunek odwrócony), polilinia z łukiem", () => {
+    const ax: [[number, number], [number, number]] = [[50, 0], [50, 10]];
+    expect(mirrorItem(L(0, 0, 10, 5), ...ax)).toMatchObject({ x1: 100, y1: 0, x2: 90, y2: 5 });
+    expect(mirrorItem({ id: "a", t: "arc", k: "con", sw: "auto", arrow: "none", cx: 40, cy: 0, r: 5, a0: 0, a1: 90 }, ...ax)).toMatchObject({ cx: 60, a0: 90, a1: 180 });
+    const p = mirrorItem({ id: "p", t: "poly", k: "con", sw: "auto", arrow: "none", fill: "none", closed: false, pts: [[0, 0], [10, 0]], b: [0.5, 0] }, ...ax);
+    expect(p.t === "poly" && p.b).toEqual([-0.5, 0]);
+  });
+  it("ramka obróconego prostokąta ma jego kąt i wymiary, rozciągnięcie zostawia kąty proste", () => {
+    const poly: Item = { id: "p", t: "poly", k: "con", sw: "auto", arrow: "none", fill: "none", closed: true, pts: [[0, 0], [86.6, -50], [111.6, -6.7], [25, 43.3]] };
+    expect(frameAngle([poly])).toBeCloseTo(-30, 1);
+    const f = frameOf([poly], frameAngle([poly]))!;
+    expect(f.hw * 2).toBeCloseTo(100, 0);
+    expect(f.hh * 2).toBeCloseTo(50, 0);
+    const s = stretchItem(poly, poly.t === "poly" ? poly.pts[0] : [0, 0], f.a, 1.5, 1);
+    if (s.t === "poly") {
+      const [a, b, c] = s.pts;
+      expect(Math.hypot(b[0] - a[0], b[1] - a[1])).toBeCloseTo(150, 0);
+      expect((a[0] - b[0]) * (c[0] - b[0]) + (a[1] - b[1]) * (c[1] - b[1])).toBeCloseTo(0, -1);
+    }
+  });
+});

@@ -11,10 +11,10 @@ import {
 } from "@/lib/rys/model";
 import { parse as parseYaml } from "yaml";
 import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
-import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
+import { ArrayPanel, DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, type ArrayParams, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
-import { cornerLines, cornerVertex, curvesPath, explode, extend, join, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
+import { cornerLines, cornerVertex, curvesPath, explode, extend, join, mirrorItem, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
@@ -47,6 +47,7 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
   { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik." },
   { id: "chamfer", label: "Fazuj", key: "K", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie fazę o długości z paska (na każdym boku). Dla dwóch linii: kliknij pierwszą, potem drugą." },
+  { id: "mirror", label: "Lustro", key: "M", hint: "Zaznacz elementy, wybierz Lustro i kliknij dwa punkty osi odbicia — powstanie odbita kopia. Shift przy drugim kliknięciu — bez oryginału." },
   { id: "offset", label: "Odsuń", key: "W", hint: "Kliknij linię, okrąg, łuk, polilinię albo prostokąt, potem stronę — powstanie kopia odsunięta o odstęp z paska." },
 ];
 /** narzędzia edycji geometrii — osobna grupa na pasku */
@@ -69,7 +70,8 @@ type Draft =
   | { t: "dima"; cx: number; cy: number; b1: number; b2: number; lines: boolean; cur: P2 }
   | { t: "tan1"; c: Extract<Item, { t: "circle" | "arc" }>; click: P2; cur: P2 }
   | { t: "corner1"; id: string; click: P2 }
-  | { t: "off1"; id: string };
+  | { t: "off1"; id: string }
+  | { t: "mir1"; a: P2; cur: P2 };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
@@ -114,7 +116,7 @@ function draftItem(d: Draft, st: Style): Item | null {
     const a = d.p1 ?? d.cur;
     return d.v ? { id: "draft", t: "poly", k: "cons", sw: "auto", arrow: "none", fill: "none", closed: false, pts: d.p1 ? [d.p1, d.v, d.cur] : [d.v, a] } : null;
   }
-  if (d.t === "tan1" || d.t === "corner1" || d.t === "off1") return null; // podgląd liczy edytor (potrzebuje innych elementów)
+  if (d.t === "tan1" || d.t === "corner1" || d.t === "off1" || d.t === "mir1") return null; // podgląd liczy edytor (potrzebuje innych elementów)
   if (d.t === "dima") {
     const sec = angleSector(d.b1, d.b2, angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), d.lines);
     return { id: "draft", t: "dima", cx: d.cx, cy: d.cy, ...sec, r: Math.max(4, q(Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy))), label: `${MEASURE}°`, size: st.dimSize, font: st.dimFont };
@@ -344,7 +346,11 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     set(addItems(base, [onLayer(it)]), [it.id]);
     if (focus) setFocusKey((k) => k + 1);
   };
-  const pickTool = (t: Tool) => { setTool(t); setDraft(null); setMark(null); setHoverEdit(null); if (t !== "select") dispatch({ type: "sel", sel: [] }); };
+  const pickTool = (t: Tool) => {
+    setTool(t); setDraft(null); setMark(null); setHoverEdit(null);
+    if (t === "mirror") setInfo(sel.length ? "lustro: kliknij pierwszy punkt osi odbicia" : "lustro: najpierw zaznacz elementy (Zaznacz), potem Lustro");
+    else if (t !== "select") dispatch({ type: "sel", sel: [] });
+  };
 
   const act = (a: PanelAction) => {
     if (!sel.length) return;
@@ -377,7 +383,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     cacheRef.current = { items: doc.items, key, c: cc };
     return cc;
   };
-  const draftPts = (d: Draft | null): P2[] => !d ? [] : d.t === "poly" ? d.pts : d.t === "drag" ? [d.a] : d.t === "arc3" ? (d.e ? [d.s, d.e] : [d.s]) : d.t === "arcc" ? (d.s ? [d.c, d.s] : [d.c]) : d.t === "dimoff" ? [d.p1, d.p2] : d.t === "dima1" && d.v ? [d.v] : [];
+  const draftPts = (d: Draft | null): P2[] => !d ? [] : d.t === "poly" ? d.pts : d.t === "drag" ? [d.a] : d.t === "arc3" ? (d.e ? [d.s, d.e] : [d.s]) : d.t === "arcc" ? (d.s ? [d.c, d.s] : [d.c]) : d.t === "dimoff" ? [d.p1, d.p2] : d.t === "dima1" && d.v ? [d.v] : d.t === "mir1" ? [d.a] : [];
   /** punkt kursora po przyciągnięciu; `from` — punkt początkowy (Shift co 45°, prostopadle) */
   const snapAt = (p: P2, e: { altKey: boolean; shiftKey: boolean }, from?: P2 | null, skip: string[] = []): P2 => {
     if (e.altKey) { setMark(null); setGuides([]); setInfo(""); return [q(p[0]), q(p[1])]; }
@@ -535,6 +541,16 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       else setInfo("kliknij narożnik polilinii albo prostokąta, albo dwie linie");
       return;
     }
+    if (tool === "mirror") {
+      if (!sel.length) { setInfo("lustro: najpierw zaznacz elementy (Zaznacz), potem Lustro"); return; }
+      const sp = snapAt(p, e, draft?.t === "mir1" ? draft.a : null);
+      if (draft?.t !== "mir1") { setDraft({ t: "mir1", a: sp, cur: sp }); setInfo("lustro: kliknij drugi punkt osi (Shift — bez oryginału)"); return; }
+      if (Math.hypot(sp[0] - draft.a[0], sp[1] - draft.a[1]) < 0.5) return;
+      const copies = regroup(doc.items.filter((it) => sel.includes(it.id)).map((it) => mirrorItem(it, draft.a, sp)));
+      const base = e.shiftKey ? removeItems(doc, sel) : doc;
+      set(addItems(base, copies), copies.map((x) => x.id)); setDraft(null); setInfo(""); setTool("select");
+      return;
+    }
     if (tool === "offset") {
       const src = draft?.t === "off1" ? doc.items.find((it) => it.id === draft.id) : null;
       if (src) { const o = offsetItem(src, vals.offset * (doc.k || 1), p); if (o) add(o); else setInfo("tego odsunięcia nie da się zrobić (za mały promień albo za duży odstęp)"); setDraft(null); setHoverEdit(null); return; }
@@ -677,6 +693,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (draft?.t === "arcc") setDraft({ ...draft, cur: snapAt(p, e, draft.s ? null : draft.c) });
     else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
     else if (draft?.t === "tan1") setDraft({ ...draft, cur: snapAt(p, e) });
+    else if (draft?.t === "mir1") setDraft({ ...draft, cur: snapAt(p, e, draft.a) });
     else if (tool === "fillet" || tool === "chamfer") {
       const r = cornerAt(p);
       setHoverEdit(r && typeof r !== "string" ? { prev: [...Object.values(r.patch), ...r.add] } : null);
@@ -805,6 +822,21 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     setTool("select");
     if (mode === "replace") { set({ h: r.h, k: r.k, items: fitLayers(r.items, layersOf(doc)), ...(doc.layers ? { layers: doc.layers } : {}) }, []); zoomTo(1); }
     else { const fresh = regroup(r.items).map((it) => onLayer(drop(it, "l"))); set(addItems(doc, fresh), fresh.map((it) => it.id)); }
+  };
+
+  /** Szyk prostokątny (odstępy w mm, Y w górę jak w CAD) albo kołowy wokół punktu obrotu zaznaczenia. */
+  const makeArray = (pa: ArrayParams) => {
+    const src = doc.items.filter((it) => sel.includes(it.id)), kk = doc.k || 1, out: Item[] = [];
+    if (pa.kind === "rect") {
+      for (let r = 0; r < pa.rows; r++) for (let cc = 0; cc < pa.cols; cc++) if (r || cc) out.push(...regroup(src).map((it) => translate(it, q(cc * pa.dx * kk), q(-r * pa.dy * kk))));
+    } else {
+      const c0 = pivotOf(sel);
+      if (!c0) return;
+      const step = Math.abs(Math.abs(pa.ang) - 360) < 1e-9 ? pa.ang / pa.n : pa.ang / (pa.n - 1);
+      for (let i = 1; i < pa.n; i++) out.push(...regroup(src).map((it) => rotateItem(it, c0, -step * i)));
+    }
+    set(addItems(doc, out.map(onLayer)), [...sel, ...out.map((x) => x.id)]);
+    setInfo(`szyk: ${out.length / Math.max(1, src.length) + 1} szt.`);
   };
 
   /* ───────────── plik, kalka, wartości z klawiatury ───────────── */
@@ -978,6 +1010,12 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               {draft?.t === "tan1" && <g pointerEvents="none">{selShape(draft.c, 0, "rys-tanc")}</g>}
               {hoverEdit?.cut && <path d={curvesPath(hoverEdit.cut)} className="rys-cutprev" pointerEvents="none" />}
               {hoverEdit?.ext && <g className="rys-draft" pointerEvents="none">{renderItem(hoverEdit.ext, c, doc.k)}</g>}
+              {draft?.t === "mir1" && Math.hypot(draft.cur[0] - draft.a[0], draft.cur[1] - draft.a[1]) > 0.5 && (
+                <g pointerEvents="none">
+                  <line x1={draft.a[0] - (draft.cur[0] - draft.a[0]) * 20} y1={draft.a[1] - (draft.cur[1] - draft.a[1]) * 20} x2={draft.a[0] + (draft.cur[0] - draft.a[0]) * 20} y2={draft.a[1] + (draft.cur[1] - draft.a[1]) * 20} className="rys-guide" />
+                  <g className="rys-draft">{doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id}>{renderItem(mirrorItem(it, draft.a, draft.cur), c, doc.k)}</g>)}</g>
+                </g>
+              )}
               {hoverEdit?.prev && <g className="rys-draft rys-prev" pointerEvents="none">{hoverEdit.prev.map((it) => <g key={it.id}>{renderItem(it, c, doc.k)}</g>)}</g>}
               {(draft?.t === "corner1" || draft?.t === "off1") && (() => { const it = doc.items.find((x) => x.id === draft.id); return it ? <g pointerEvents="none">{selShape(it, 0, "rys-tanc")}</g> : null; })()}
               {kalkaMode === "cal" && calPts.length > 0 && (
@@ -989,7 +1027,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               {preview && <g className="rys-draft" pointerEvents="none">{renderItem(preview, c, doc.k)}</g>}
               {draft?.t === "poly" && <circle cx={draft.pts[0][0]} cy={draft.pts[0][1]} r={hr} className="rys-close" pointerEvents="none" />}
               {draft?.t === "arc3" && draft.e && <line x1={draft.s[0]} y1={draft.s[1]} x2={draft.e[0]} y2={draft.e[1]} className="rys-chord" pointerEvents="none" />}
-              {tool === "select" && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
+              {(tool === "select" || tool === "mirror") && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
               {tool === "select" && gbox && (
                 <g>
                   {sel.length > 1 && <polygon points={[fp(-1, -1, 5 * u), fp(1, -1, 5 * u), fp(1, 1, 5 * u), fp(-1, 1, 5 * u)].map((p) => p.join(",")).join(" ")} className="rys-gframe" pointerEvents="none" />}
@@ -1019,6 +1057,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         sections={[
           ...(kalka ? [{ title: "Kalka", body: <KalkaPanel kalka={kalka} mode={kalkaMode} k={doc.k} onChange={(pp) => saveKalka({ ...kalka, ...pp })} onRemove={() => { saveKalka(null); setKalkaMode(null); setCalPts([]); }}
             onMode={(m) => { setKalkaMode(m); setCalPts([]); setInfo(m === "move" ? "przeciągnij kalkę myszą, Esc kończy" : m === "cal" ? "kliknij pierwszy punkt o znanej odległości" : ""); if (m) { pickTool("select"); dispatch({ type: "sel", sel: [] }); } root.current?.focus({ preventScroll: true }); }} /> }] : []),
+          ...(sel.length && tool === "select" ? [{ title: "Szyk", body: <ArrayPanel onMake={makeArray} /> }] : []),
           { title: "Warstwy", body: <LayersPanel doc={doc} active={activeL} sel={sel} onActive={setActive}
             onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
             onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} /> },
