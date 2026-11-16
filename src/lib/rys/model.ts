@@ -456,6 +456,80 @@ export function scaleItem(it: Item, c: P2, k: number): Item {
   }
 }
 
+/* ───────────── ramka zaznaczenia obrócona razem z figurą ───────────── */
+/** Kierunek „własny” elementu do ramki, sprowadzony do (−45°, 45°]; null — element bez kierunku (okrąg, tekst, punkt). */
+export function orient(it: Item): number | null {
+  if (it.t === "rect" || it.t === "grid" || it.t === "axes" || (it.t === "dim" && it.o !== "a")) return 0;
+  const a = refAngle(it);
+  if (a === null) return null;
+  let n = ((a % 90) + 90) % 90;
+  if (n > 45) n -= 90;
+  return Math.round(n * 1e4) / 1e4;
+}
+/** Kąt ramki zaznaczenia: wspólny kierunek elementów (z dokładnością 0,5°), inaczej 0. */
+export function frameAngle(items: Item[]): number {
+  const as = items.map(orient).filter((a): a is number => a !== null);
+  if (!as.length) return 0;
+  const a0 = as[0];
+  return as.every((a) => Math.abs(a - a0) < 0.5 || Math.abs(Math.abs(a - a0) - 90) < 0.5) ? a0 : 0;
+}
+export interface Frame { c: P2; a: number; hw: number; hh: number }
+/** Prostokąt otaczający w układzie obróconym o `a` (stopnie): środek, połowy szerokości i wysokości. */
+export function frameOf(items: Item[], a: number): Frame | null {
+  if (!items.length) return null;
+  const bs = items.map((it) => bbox(a ? rotateItem(it, [0, 0], -a) : it));
+  const x0 = Math.min(...bs.map((b) => b[0])), y0 = Math.min(...bs.map((b) => b[1])), x1 = Math.max(...bs.map((b) => b[2])), y1 = Math.max(...bs.map((b) => b[3]));
+  const lc: P2 = [(x0 + x1) / 2, (y0 + y1) / 2], r = a * RAD;
+  return { c: [lc[0] * Math.cos(r) - lc[1] * Math.sin(r), lc[0] * Math.sin(r) + lc[1] * Math.cos(r)], a, hw: (x1 - x0) / 2, hh: (y1 - y0) / 2 };
+}
+/** Punkt ramki: sx, sy ∈ {−1, 0, 1} (lewo/środek/prawo, góra/środek/dół w układzie ramki), `pad` — odsunięcie na zewnątrz. */
+export function framePt(f: Frame, sx: number, sy: number, pad = 0): P2 {
+  const r = f.a * RAD, lx = sx * (f.hw + (sx ? pad : 0)), ly = sy * (f.hh + (sy ? pad : 0));
+  return [f.c[0] + lx * Math.cos(r) - ly * Math.sin(r), f.c[1] + lx * Math.sin(r) + ly * Math.cos(r)];
+}
+/** Do układu ramki (obrót o −a wokół c) i z powrotem. */
+export const toLocal = (p: P2, c: P2, a: number): P2 => { const r = -a * RAD, dx = p[0] - c[0], dy = p[1] - c[1]; return [dx * Math.cos(r) - dy * Math.sin(r), dx * Math.sin(r) + dy * Math.cos(r)]; };
+
+/**
+  Rozciągnięcie wzdłuż osi obróconych o `a`: kx wzdłuż „szerokości”, ky wzdłuż „wysokości”, punkt stały c.
+  Okrąg, łuk, tekst i punkty nie mają osobnych osi — dostają skalę średnią (geometryczną) i przesunięcie środka.
+*/
+export function stretchItem(it: Item, c: P2, a: number, kx: number, ky: number): Item {
+  if (Math.abs(kx - ky) < 1e-9) return scaleItem(it, c, kx);
+  const r = a * RAD, co = Math.cos(r), si = Math.sin(r);
+  const M = (p: P2): P2 => { const dx = p[0] - c[0], dy = p[1] - c[1]; const lx = (dx * co + dy * si) * kx, ly = (-dx * si + dy * co) * ky; return [q(c[0] + lx * co - ly * si), q(c[1] + lx * si + ly * co)]; };
+  const km = Math.sqrt(Math.abs(kx * ky)), right = Math.abs(((a % 90) + 90) % 90) < 1e-6 || Math.abs(((a % 90) + 90) % 90 - 90) < 1e-6;
+  switch (it.t) {
+    case "line": { const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])]; return { ...it, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] }; }
+    case "dim": {
+      const g = dimGeom(it), mid = M([(g.A[0] + g.B[0]) / 2, (g.A[1] + g.B[1]) / 2]);
+      const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])];
+      const nd = { ...it, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] };
+      return { ...nd, off: dimOffsetAt(nd, mid) };
+    }
+    case "poly": return { ...it, pts: it.pts.map(M) };
+    case "rect": case "grid": {
+      const cs = [[it.x, it.y], [it.x + it.w, it.y], [it.x + it.w, it.y + it.h], [it.x, it.y + it.h]].map((p) => M(p as P2));
+      if (right) {
+        const xs = cs.map((p) => p[0]), ys = cs.map((p) => p[1]);
+        const w = q(Math.max(...xs) - Math.min(...xs)), h = q(Math.max(...ys) - Math.min(...ys));
+        return it.t === "rect" ? { ...it, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(0.01, w), h: Math.max(0.01, h), r: q(it.r * Math.min(Math.abs(kx), Math.abs(ky))) }
+          : { ...it, x: Math.min(...xs), y: Math.min(...ys), w: Math.max(5, w), h: Math.max(5, h) };
+      }
+      if (it.t === "grid") { const m = M([it.x + it.w / 2, it.y + it.h / 2]); return { ...it, x: q(m[0] - it.w / 2), y: q(m[1] - it.h / 2) }; }
+      return { id: it.id, ...(it.g ? { g: it.g } : {}), ...(it.l ? { l: it.l } : {}), t: "poly", k: it.k, sw: it.sw, arrow: "none", fill: it.fill, closed: true, pts: cs };
+    }
+    case "axes": {
+      const o = M([it.x, it.y]);
+      if (!right) return { ...it, x: o[0], y: o[1] };
+      const swap = Math.abs(((a % 180) + 180) % 180 - 90) < 1e-6, fx = Math.abs(swap ? ky : kx), fy = Math.abs(swap ? kx : ky);
+      return { ...it, x: o[0], y: o[1], xp: Math.max(5, q(it.xp * fx)), xn: q(it.xn * fx), yp: Math.max(5, q(it.yp * fy)), yn: q(it.yn * fy), ts: q(it.ts * fx) };
+    }
+    case "circle": case "arc": case "dimr": case "dima": { const m = M([it.cx, it.cy]); return { ...scaleItem(it, [it.cx, it.cy], km), cx: m[0], cy: m[1] } as Item; }
+    default: { const m = M([it.x, it.y]); return { ...scaleItem(it, [it.x, it.y], km), x: m[0], y: m[1] } as Item; }
+  }
+}
+
 export interface Handle { key: string; x: number; y: number }
 /** Uchwyty do zmiany kształtu zaznaczonego elementu. */
 export function handles(it: Item): Handle[] {

@@ -6,7 +6,7 @@ import { FigDefs, figCtx } from "@/components/fig";
 import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
   snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
-  layersOf, layerOf, parseDoc, storeDoc, drop,
+  layersOf, layerOf, parseDoc, storeDoc, drop, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
   type DimOrient, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
 import { parse as parseYaml } from "yaml";
@@ -66,14 +66,17 @@ type Drag =
   | { kind: "rotate"; from: RysDoc; ids: string[]; c: P2; a0: number; base: number | null }
   | { kind: "pivot"; key: string }
   | { kind: "kalka"; start: P2; x: number; y: number }
-  | { kind: "scale"; from: RysDoc; ids: string[]; anchor: P2; d0: number };
+  | { kind: "scale"; from: RysDoc; ids: string[]; anchor: P2; a: number; sx: number; sy: number; l0: P2; uni: boolean; f: Frame; grab: P2 };
 
 /** Rodzaje wymiaru na pasku (jak w CAD). */
 export const DIM_TYPES = [["auto", "Auto"], ["h", "Poziomy"], ["v", "Pionowy"], ["a", "Wyrównany"], ["ang", "Kątowy"], ["r", "Promień"], ["d", "Średnica"]] as const;
 type DimType = (typeof DIM_TYPES)[number][0];
 const POLAR_STEPS = [90, 45, 30, 15];
 /** Elementy, dla których przy pojedynczym zaznaczeniu pokazujemy też uchwyty skali (reszta ma własne uchwyty kształtu). */
-const SCALE_ONE = new Set(["poly", "text", "dim", "dimr", "dima", "pt", "step"]);
+const SCALE_ONE = new Set(["poly", "text", "dim", "dimr", "dima", "pt", "step", "axes"]);
+/** elementy, które da się rozciągać osobno w szerokość i wysokość (reszta tylko proporcjonalnie) */
+const STRETCH = new Set(["poly", "line", "rect", "grid", "axes", "dim"]);
+const FRAME_H: [number, number][] = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]];
 
 const ED = "rys-ed";
 const CLIP = "gcat-rys";
@@ -392,14 +395,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       if (it.t === "line") return [q((it.x1 + it.x2) / 2), q((it.y1 + it.y2) / 2)];
       if (it.t === "circle" || it.t === "arc" || it.t === "dimr" || it.t === "dima") return [it.cx, it.cy];
     }
-    const b = selBox(ids);
-    return b ? [q((b[0] + b[2]) / 2), q((b[1] + b[3]) / 2)] : null;
+    const f = frameFor(ids);
+    return f ? [q(f.c[0]), q(f.c[1])] : null;
   };
-  /** Ramka zaznaczenia (obrót, skala grupy). */
-  const selBox = (ids: string[]) => {
-    const bs = doc.items.filter((it) => ids.includes(it.id)).map(bbox);
-    if (!bs.length) return null;
-    return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))] as [number, number, number, number];
+  /** Ramka zaznaczenia obrócona razem z figurą (wspólny kierunek elementów). */
+  const frameFor = (ids: string[]): Frame | null => {
+    const its = doc.items.filter((it) => ids.includes(it.id));
+    return frameOf(its, frameAngle(its));
   };
 
   /* ───────────── mysz ───────────── */
@@ -443,18 +445,19 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       e.currentTarget.setPointerCapture(e.pointerId);
       const h = target.closest("[data-h]"), g = target.closest("[data-g]"), el = target.closest("[data-id]");
       const multi = e.shiftKey || e.ctrlKey || e.metaKey;
-      const sb = selBox(sel);
+      const sb = frameFor(sel);
       if (h && sel.length === 1) drag.current = { kind: "handle", id: sel[0], key: h.getAttribute("data-h")!, from: doc };
       else if (g && sb) {
         const key = g.getAttribute("data-g")!;
         if (key === "pivot") drag.current = { kind: "pivot", key: sel.join(",") };
         else if (key === "rot") {
           const c = pivotOf(sel)!, its = doc.items.filter((it) => sel.includes(it.id));
-          drag.current = { kind: "rotate", from: doc, ids: sel, c, a0: Math.atan2(p[1] - c[1], p[0] - c[0]) * 180 / Math.PI, base: its.length === 1 ? refAngle(its[0]) : null };
-        }
-        else {
-          const corner: P2 = [key.includes("w") ? sb[0] : sb[2], key.includes("n") ? sb[1] : sb[3]], anchor: P2 = [key.includes("w") ? sb[2] : sb[0], key.includes("n") ? sb[3] : sb[1]];
-          drag.current = { kind: "scale", from: doc, ids: sel, anchor, d0: Math.hypot(corner[0] - anchor[0], corner[1] - anchor[1]) || 1 };
+          drag.current = { kind: "rotate", from: doc, ids: sel, c, a0: Math.atan2(p[1] - c[1], p[0] - c[0]) * 180 / Math.PI, base: its.length === 1 ? refAngle(its[0]) : its.length > 1 ? sb.a : null };
+        } else if (key.startsWith("s:")) {
+          // uchwyt ramki: punkt przeciwległy stoi, przeciągany idzie za kursorem (z przyciąganiem) w układzie ramki
+          const [sx, sy] = key.slice(2).split(":").map(Number), its = doc.items.filter((it) => sel.includes(it.id));
+          const anchor = framePt(sb, -sx, -sy), hp = framePt(sb, sx, sy);
+          drag.current = { kind: "scale", from: doc, ids: sel, anchor, a: sb.a, sx, sy, l0: toLocal(hp, anchor, sb.a), uni: !its.some((it) => STRETCH.has(it.t)), f: sb, grab: [hp[0] - p[0], hp[1] - p[1]] };
         }
       } else if (el) {
         const id = el.getAttribute("data-id")!, grp = withGroups(doc, [id]);
@@ -555,12 +558,20 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       const b0 = d.base ?? 0, step = e.shiftKey ? 15 : polar ? polarStep : 0;
       const abs = step ? snapAngle(b0 + raw, step, e.shiftKey) : Math.round((b0 + raw) * 10) / 10;
       const ang = abs - b0;
-      setInfo(d.base !== null ? `kąt ${fmtN(cadAngle(abs))}° · obrót ${fmtN(-ang)}°` : `obrót ${fmtN(-ang)}°`);
+      setInfo(d.base !== null && d.ids.length === 1 ? `kąt ${fmtN(cadAngle(abs))}° · obrót ${fmtN(-ang)}°` : `obrót ${fmtN(-ang)}°`);
       dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => rotateItem(it, d.c, ang)) });
     } else if (d?.kind === "scale") {
-      const k = Math.max(0.05, Math.round((Math.hypot(p[0] - d.anchor[0], p[1] - d.anchor[1]) / d.d0) * 100) / 100);
-      setInfo(`skala × ${fmtN(k)}`);
-      dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => scaleItem(it, d.anchor, k)) });
+      // przyciąga się narożnik/bok figury (nie kursor obok niego)
+      const t = snapAt([p[0] + d.grab[0], p[1] + d.grab[1]], e, null, d.ids), l = toLocal(t, d.anchor, d.a);
+      let kx = d.sx ? l[0] / d.l0[0] : 1, ky = d.sy ? l[1] / d.l0[1] : 1;
+      if (d.uni || e.shiftKey) { // proporcjonalnie: rzut kursora na przekątną (narożnik) albo skala z jednej osi (bok)
+        const k = d.sx && d.sy ? (l[0] * d.l0[0] + l[1] * d.l0[1]) / (d.l0[0] ** 2 + d.l0[1] ** 2) : d.sx ? kx : ky;
+        kx = ky = k;
+      }
+      kx = Math.max(0.02, Math.round(kx * 1e4) / 1e4); ky = Math.max(0.02, Math.round(ky * 1e4) / 1e4);
+      const mmv = (v: number) => fmtN(v / (doc.k || 1));
+      setInfo(kx === ky && (d.uni || e.shiftKey) ? `skala × ${fmtN(kx)}` : `${mmv(2 * d.f.hw * kx)} × ${mmv(2 * d.f.hh * ky)} mm`);
+      dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => stretchItem(it, d.anchor, d.a, kx, ky)) });
     } else if (d?.kind === "marquee") setMarquee([Math.min(d.start[0], p[0]), Math.min(d.start[1], p[1]), Math.max(d.start[0], p[0]), Math.max(d.start[1], p[1])]);
     else if (draft?.t === "drag") {
       let b = snapAt(p, e, draft.tool === "line" || draft.tool === "dim" ? draft.a : null);
@@ -769,9 +780,12 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     { label: "Import ze strony serwisu…", hint: "Rysunek z dowolnej strony GCat do edycji", onClick: () => setImporting(true) },
   ];
 
-  const gbox = tool === "select" && sel.length ? selBox(sel) : null;
+  const gbox = tool === "select" && sel.length ? frameFor(sel) : null;
   const pivot = gbox ? pivotOf(sel) : null;
   const showScale = sel.length > 1 || (!!one && SCALE_ONE.has(one.t));
+  const selItems = doc.items.filter((it) => sel.includes(it.id));
+  const edgeH = selItems.some((it) => STRETCH.has(it.t)); // uchwyty na bokach tylko, gdy da się rozciągać osobno
+  const fp = (sx: number, sy: number, pad: number) => (gbox ? framePt(gbox, sx, sy, pad) : ([0, 0] as P2));
 
   return (
     <div ref={root} className="rys-ed" tabIndex={0} onKeyDown={onKey} onKeyUp={onKeyUp} onBlur={() => setPanKey(false)} onCopy={onCopy} onCut={onCopy} onPaste={onPaste}>
@@ -851,11 +865,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               {tool === "select" && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
               {tool === "select" && gbox && (
                 <g>
-                  {sel.length > 1 && <rect x={gbox[0] - 5 * u} y={gbox[1] - 5 * u} width={gbox[2] - gbox[0] + 10 * u} height={gbox[3] - gbox[1] + 10 * u} className="rys-gframe" pointerEvents="none" />}
-                  {showScale && (["nw", "ne", "se", "sw"] as const).map((k) => <rect key={k} data-g={k} x={(k.includes("w") ? gbox[0] - 5 * u : gbox[2] + 5 * u) - hr} y={(k.includes("n") ? gbox[1] - 5 * u : gbox[3] + 5 * u) - hr} width={2 * hr} height={2 * hr} className={`rys-ghandle is-${k}`} />)}
-                  <line x1={gbox[2] + 5 * u} y1={gbox[1] - 5 * u} x2={gbox[2] + 18 * u} y2={gbox[1] - 18 * u} className="rys-rotline" pointerEvents="none" />
+                  {sel.length > 1 && <polygon points={[fp(-1, -1, 5 * u), fp(1, -1, 5 * u), fp(1, 1, 5 * u), fp(-1, 1, 5 * u)].map((p) => p.join(",")).join(" ")} className="rys-gframe" pointerEvents="none" />}
+                  {showScale && FRAME_H.filter(([sx, sy]) => (sx && sy) || (edgeH && (sx ? gbox.hh : gbox.hw) * 2 > 12 * u)).map(([sx, sy]) => {
+                    const [x, y] = fp(sx, sy, 5 * u), dir = Math.round(((Math.atan2(sy, sx) * 180) / Math.PI + gbox.a + 360) % 180 / 45) % 4;
+                    return <rect key={`${sx}${sy}`} data-g={`s:${sx}:${sy}`} x={x - hr} y={y - hr} width={2 * hr} height={2 * hr} transform={`rotate(${gbox.a} ${x} ${y})`} className={`rys-ghandle is-d${dir}`} />;
+                  })}
+                  <line x1={fp(1, -1, 5 * u)[0]} y1={fp(1, -1, 5 * u)[1]} x2={fp(1, -1, 18 * u)[0]} y2={fp(1, -1, 18 * u)[1]} className="rys-rotline" pointerEvents="none" />
                   {pivot && <g data-g="pivot" className="rys-pivot"><circle cx={pivot[0]} cy={pivot[1]} r={hr * 1.3} /><path d={`M ${pivot[0] - hr * 2.2} ${pivot[1]} h ${hr * 4.4} M ${pivot[0]} ${pivot[1] - hr * 2.2} v ${hr * 4.4}`} /><title>Punkt obrotu — przeciągnij, przyciąga się do punktów</title></g>}
-                  <g data-g="rot" className="rys-rot"><title>Obrót (Shift — co 15°)</title><circle cx={gbox[2] + 18 * u} cy={gbox[1] - 18 * u} r={hr * 1.6} /><path d={`M ${gbox[2] + 18 * u - hr * 0.8} ${gbox[1] - 18 * u} a ${hr * 0.8} ${hr * 0.8} 0 1 1 ${hr * 0.8} ${hr * 0.8}`} /></g>
+                  <g data-g="rot" className="rys-rot"><title>Obrót (Shift — co 15°)</title><circle cx={fp(1, -1, 18 * u)[0]} cy={fp(1, -1, 18 * u)[1]} r={hr * 1.6} /><path d={`M ${fp(1, -1, 18 * u)[0] - hr * 0.8} ${fp(1, -1, 18 * u)[1]} a ${hr * 0.8} ${hr * 0.8} 0 1 1 ${hr * 0.8} ${hr * 0.8}`} /></g>
                 </g>
               )}
               {tool === "select" && one && handles(one).map((h) => <circle key={h.key} data-h={h.key} cx={h.x} cy={h.y} r={hr} className={`rys-handle${h.key === "off" || h.key === "c" || h.key === "m" ? " is-alt" : ""}`} />)}
