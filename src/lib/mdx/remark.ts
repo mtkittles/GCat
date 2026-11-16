@@ -1,5 +1,3 @@
-import { existsSync } from "node:fs";
-import path from "node:path";
 import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
@@ -27,6 +25,8 @@ const ENUMS: Record<string, Record<string, string[]>> = {
   Sim: { mode: ["mill", "lathe"] },
   Demo: { mode: ["mill", "lathe"] },
   Widget: { id: ["rij", "arc", "jog"] },
+  /** kolor wyróżnienia w tekście — gotowy zestaw jak kolory ruchów (rysownik, symulator) */
+  Kolor: { k: ["g00", "g01", "g02", "akcent", "blad"] },
 };
 const WITH_SRC = new Set(["Code", "Sim", "Demo"]);
 
@@ -64,6 +64,8 @@ export interface GcatRemarkOptions {
   rysIds?: Set<string>;
   /** Wymagaj jawnej kotwicy {#id} w każdym nagłówku (domyślnie tak). */
   requireHeadingIds?: boolean;
+  /** Czy plik public/<src> istnieje (dla <Obraz>); brak = bez kontroli — kompilacja w przeglądarce (edytor) nie ma dysku. */
+  publicFile?: (src: string) => boolean;
 }
 
 export interface ContentIssue { line?: number; column?: number; message: string }
@@ -195,12 +197,12 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         if (el.name === "Obraz") {
           const src = strAttr(el, "src");
           if (typeof src !== "string" || !src.startsWith("/rysunki/") || src.includes("..")) at(n, `<Obraz> wymaga src="/rysunki/…" (plik w public/rysunki/)`);
-          else if (!existsSync(path.join(process.cwd(), "public", src))) at(n, `<Obraz src="${src}" /> — nie ma pliku public${src}`);
+          else if (opts.publicFile && !opts.publicFile(src)) at(n, `<Obraz src="${src}" /> — nie ma pliku public${src}`);
         }
         for (const [name, values] of Object.entries(ENUMS[el.name] ?? {})) {
           const v = strAttr(el, name);
           if (v !== undefined && !values.includes(String(v))) at(n, `<${el.name} ${name}="${v}">: dozwolone ${values.join(" | ")}`);
-          if (v === undefined && (el.name === "Note" || el.name === "Widget") ) at(n, `<${el.name}> wymaga ${name}="…" (${values.join(" | ")})`);
+          if (v === undefined && (el.name === "Note" || el.name === "Widget" || el.name === "Kolor")) at(n, `<${el.name}> wymaga ${name}="…" (${values.join(" | ")})`);
         }
         // markery w podpisach i tytułach (renderowane przez rich() w komponencie)
         for (const name of ["caption", "title"]) {

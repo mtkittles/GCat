@@ -20,8 +20,8 @@ export function panelUrl(kolekcja?: Kolekcja, slug?: string | "create"): string 
 export function editTarget(pathname: string): { href: string; label: string } | null {
   const p = pathname.replace(/\/+$/, "") || "/";
   const kod = p.match(/^\/kody\/([^/]+)$/);
-  if (kod) return { href: panelUrl("kody", decodeURIComponent(kod[1])), label: "Edytuj tę kartę" };
-  if (p === "/kody") return { href: panelUrl("kody"), label: "Karty w panelu" };
+  if (kod) return { href: `/edytor/kody/${kod[1]}`, label: "Edytuj tę kartę" };
+  if (p === "/kody") return { href: "/edytor", label: "Edytor treści" };
   if (p === "/slownik") return { href: panelUrl("slownik"), label: "Hasła w panelu" };
   return null;
 }

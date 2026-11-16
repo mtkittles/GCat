@@ -21,7 +21,7 @@ export function EditLink({ kolekcja, slug, label = "Edytuj" }: { kolekcja: Kolek
 export function EditBar() {
   const on = useEditMode();
   const path = usePathname() ?? "/";
-  if (!on || path.startsWith("/keystatic") || path.startsWith("/rysownik")) return null;
+  if (!on || path.startsWith("/keystatic") || path.startsWith("/rysownik") || path.startsWith("/edytor")) return null;
   const target = editTarget(path);
   return (
     <aside className="edit-bar" aria-label="Tryb edycji">
@@ -29,6 +29,7 @@ export function EditBar() {
       {target
         ? <a className="edit-bar-main" href={target.href}><Pencil />{target.label}</a>
         : <span className="edit-bar-note">{path === "/edycja" ? "włączony" : "tej strony nie ma jeszcze w panelu"}</span>}
+      <Link href="/edytor" className="edit-bar-desk">Edytor</Link>
       <Link href="/rysownik" className="edit-bar-desk">Rysownik</Link>
       <Link href="/edycja">Pulpit</Link>
       <button type="button" onClick={() => editStore.set(false)} aria-label="Wyłącz tryb edycji" title="Wyłącz tryb edycji">×</button>
