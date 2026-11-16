@@ -120,7 +120,7 @@ function RysOverlay({ req, figure, taken, onDone, onCancel }: { req: RysReq; fig
           <button type="button" className="btn" disabled={clash || badSlug} onClick={done}>Gotowe</button>
         </div>
       </header>
-      <Editor initial={start.doc} onChange={setDoc} />
+      <Editor initial={start.doc} onChange={setDoc} kalkaKey={`rys:${slug || "nowy"}`} />
     </div>
   );
 }

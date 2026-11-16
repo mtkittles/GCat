@@ -193,6 +193,47 @@ export function svgToDoc(svg: SVGSVGElement): ImportResult {
     } else if (tag === "path") path(el as SVGPathElement, s);
   }
 
+  /**
+    Siatka z osiami z fig.tsx (Grid: linie gr-min/gr-maj, dwie osie .ax, opisy t-ax i t-tick) → jeden element „Siatka”
+    i jeden „Układ współrzędnych” w jednej grupie, zamiast setek osobnych linii i tekstów.
+  */
+  function figGrid(g: Element): boolean {
+    const kids = Array.from(g.children);
+    const lines = (cls: string[]) => kids.filter((c) => c.tagName.toLowerCase() === "line" && cls.some((x) => c.classList.contains(x))) as SVGLineElement[];
+    const ax = lines(["ax"]), gr = lines(["gr-min", "gr-maj"]);
+    if (ax.length !== 2) return false;
+    const L = (l: SVGLineElement): [P2, P2] => { const m = M(l); return [P(m, l.x1.baseVal.value, l.y1.baseVal.value), P(m, l.x2.baseVal.value, l.y2.baseVal.value)]; };
+    const hz = ax.map(L).find(([a, b]) => Math.abs(a[1] - b[1]) < 0.05), vt = ax.map(L).find(([a, b]) => Math.abs(a[0] - b[0]) < 0.05);
+    if (!hz || !vt) return false;
+    const grp = newId(), ox = vt[0][0], oy = hz[0][1];
+    const uniq = (v: number[]) => [...new Set(v.map((x) => q(x)))].sort((a, b) => a - b);
+    const step = (v: number[]) => { let m = Infinity; for (let i = 1; i < v.length; i++) if (v[i] - v[i - 1] > 0.05) m = Math.min(m, v[i] - v[i - 1]); return Number.isFinite(m) ? q(m) : 0; };
+    if (gr.length >= 2) {
+      const segs = gr.map((l) => ({ l, s: L(l) }));
+      const vx = uniq(segs.filter(({ s: [a, b] }) => Math.abs(a[0] - b[0]) < 0.05).map(({ s }) => s[0][0]));
+      const hy = uniq(segs.filter(({ s: [a, b] }) => Math.abs(a[1] - b[1]) < 0.05).map(({ s }) => s[0][1]));
+      const majX = uniq(segs.filter(({ l, s: [a, b] }) => l.classList.contains("gr-maj") && Math.abs(a[0] - b[0]) < 0.05).map(({ s }) => s[0][0]));
+      if (vx.length >= 2 && hy.length >= 2) {
+        const minor = step([...vx]) || step(hy), major = step(majX) || minor * 2;
+        items.push({ id: newId(), g: grp, t: "grid", x: vx[0], y: hy[0], w: q(vx[vx.length - 1] - vx[0]), h: q(hy[hy.length - 1] - hy[0]), minor: Math.min(50, Math.max(2.5, minor)), major: Math.min(100, Math.max(5, major)) });
+      }
+    }
+    const texts = kids.filter((c) => c.tagName.toLowerCase() === "text") as SVGTextElement[];
+    const at = (t: SVGTextElement): P2 => { const x = t.x.baseVal.length ? t.x.baseVal.getItem(0).value : 0, y = t.y.baseVal.length ? t.y.baseVal.getItem(0).value : 0; return P(M(t), x, y); };
+    const labels = texts.filter((t) => t.classList.contains("t-ax")).map((t) => (t.textContent ?? "").trim());
+    const ticks = texts.filter((t) => t.classList.contains("t-tick")).map((t) => ({ p: at(t), v: Number((t.textContent ?? "").trim().replace(",", ".").replace("−", "-")) })).filter((t) => Number.isFinite(t.v));
+    const xt = ticks.filter((t) => Math.abs(t.p[1] - oy) < 20 && t.p[1] > oy).sort((a, b) => a.p[0] - b.p[0]);
+    let ts = 0, tv = 10;
+    if (xt.length >= 2) { ts = q(xt[1].p[0] - xt[0].p[0]); tv = q(xt[1].v - xt[0].v); }
+    else if (xt.length === 1 && Math.abs(xt[0].p[0] - ox) > 1) { ts = q(Math.abs(xt[0].p[0] - ox)); tv = q(Math.abs(xt[0].v)); }
+    const xs = [hz[0][0], hz[1][0]], ys = [vt[0][1], vt[1][1]];
+    items.push({
+      id: newId(), g: grp, t: "axes", x: ox, y: oy, xn: q(Math.max(0, ox - Math.min(...xs))), xp: q(Math.max(5, Math.max(...xs) - ox)), yn: q(Math.max(0, Math.max(...ys) - oy)), yp: q(Math.max(5, oy - Math.min(...ys))),
+      xl: (labels[0] || "X").slice(0, 8), yl: (labels[1] || "Y").slice(0, 8), ts: Math.min(200, ts), tv,
+    });
+    return true;
+  }
+
   function walk(node: Element) {
     for (const el of Array.from(node.children)) {
       const tag = el.tagName.toLowerCase();
@@ -231,6 +272,7 @@ export function svgToDoc(svg: SVGSVGElement): ImportResult {
         if (c) { const [x, y] = P(M(c), (c as SVGCircleElement).cx.baseVal.value, (c as SVGCircleElement).cy.baseVal.value); items.push({ id: newId(), t: "step", x, y, n: Math.max(1, Math.min(99, +ds || 1)) }); }
         continue;
       }
+      if (tag === "g" && figGrid(el)) continue;
       if (tag === "g" || tag === "a" || tag === "svg") { walk(el); continue; }
       if (tag === "use" || tag === "image") { approx++; continue; }
       shape(el);

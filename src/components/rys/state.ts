@@ -1,4 +1,4 @@
-import { bbox, newId, translate, type Item, type RysDoc } from "@/lib/rys/model";
+import { bbox, drop, newId, translate, type Item, type RysDoc } from "@/lib/rys/model";
 
 /*
   Stan edytora rysownika: rysunek, zaznaczenie i historia cofania.
@@ -36,9 +36,26 @@ export const patchItems = (doc: RysDoc, ids: string[], fn: (it: Item) => Item): 
 export const removeItems = (doc: RysDoc, ids: string[]): RysDoc => ({ ...doc, items: doc.items.filter((it) => !ids.includes(it.id)) });
 export const addItems = (doc: RysDoc, items: Item[]): RysDoc => ({ ...doc, items: [...doc.items, ...items] });
 
+/** Nowe id elementów i nowe grupy (kopie, wklejanie, import) — kopia grupy jest osobną grupą, nie dołącza do oryginału. */
+export function regroup(items: Item[]): Item[] {
+  const map = new Map<string, string>();
+  return items.map((it) => {
+    const out = { ...it, id: newId() };
+    if (it.g) { if (!map.has(it.g)) map.set(it.g, newId()); out.g = map.get(it.g)!; }
+    return out;
+  });
+}
+/** Zaznaczenie rozszerzone o całe grupy, do których należą elementy. */
+export function withGroups(doc: RysDoc, ids: string[]): string[] {
+  const gs = new Set(doc.items.filter((it) => it.g && ids.includes(it.id)).map((it) => it.g));
+  return gs.size ? doc.items.filter((it) => ids.includes(it.id) || (it.g && gs.has(it.g))).map((it) => it.id) : ids;
+}
+export const group = (doc: RysDoc, ids: string[]): RysDoc => { const g = newId(); return patchItems(doc, ids, (it) => ({ ...it, g })); };
+export const ungroup = (doc: RysDoc, ids: string[]): RysDoc => patchItems(doc, ids, (it) => drop(it, "g"));
+
 /** Kopie zaznaczonych elementów przesunięte o (dx, dy); zwraca rysunek i id kopii. */
 export function duplicate(doc: RysDoc, ids: string[], dx = 10, dy = 10): { doc: RysDoc; ids: string[] } {
-  const copies = doc.items.filter((it) => ids.includes(it.id)).map((it) => translate({ ...it, id: newId() }, dx, dy));
+  const copies = regroup(doc.items.filter((it) => ids.includes(it.id))).map((it) => translate(it, dx, dy));
   return { doc: addItems(doc, copies), ids: copies.map((c) => c.id) };
 }
 

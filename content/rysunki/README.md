@@ -14,7 +14,10 @@ Plików nie pisze się ręcznie. Rysunek powstaje w panelu treści (`/keystatic`
 | `code` | etykieta przy tytule, np. `G01`; puste = brak |
 | `caption` | podpis pod rysunkiem; działają `**pogrubienie**`, `` `kod` `` i `[[hasło]]` |
 | `legend` | lista `{ k, label }`; pusta = legenda automatyczna z rodzajów linii użytych na rysunku |
-| `rys` | `{ h, items }` — wysokość (szerokość zawsze 360) i elementy; zapisuje je rysownik |
+| `rys` | `{ h, k, items, layers? }` — wysokość (szerokość zawsze 360), skala, elementy i warstwy; zapisuje je rysownik |
+
+Element może mieć pole `g` (grupa — zaznacza się i przesuwa razem z resztą grupy) i `l` (warstwa). Warstwa ukryta
+(`vis: false`) nie pojawia się na stronie ani w legendzie automatycznej.
 
 ## Gdzie rysunek się pojawia
 

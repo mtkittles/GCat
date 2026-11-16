@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  ANCHORS, ARROWS, ARROW_LABEL, isDim, measure, DIM_ORIENT, DIM_ORIENT_LABEL, FILLS, FILL_LABEL, fmt, FONTS, FONT_LABEL, FONT_SIZES, H_MAX, H_MIN, ITEM_LABEL, KIND_LABEL, LINE_KINDS,
+  ANCHORS, ARROWS, ARROW_LABEL, isDim, measure, layersOf, DIM_ORIENT, DIM_ORIENT_LABEL, FILLS, FILL_LABEL, fmt, FONTS, FONT_LABEL, FONT_SIZES, H_MAX, H_MIN, ITEM_LABEL, KIND_LABEL, LINE_KINDS,
   MEASURE, POSITIONS, PT_COLORS, strokeOf, TEXT_COLORS, TEXT_COLOR_LABEL, WIDTHS, WIDTH_LABEL,
   type Arrow, type Fill, type Font, type Item, type LineKind, type RysDoc, type TextColor, type Width,
 } from "@/lib/rys/model";
@@ -12,8 +12,8 @@ import { LINE_CLASS } from "./render";
 
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
-export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom";
-export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid";
+export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup";
+export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -26,6 +26,8 @@ interface Props {
   onAction: (a: PanelAction) => void;
   /** obrót o kąt (stopnie, + przeciwnie do zegara jak w CAD) albo skala względem punktu obrotu zaznaczenia */
   onTransform: (kind: "rot" | "scale", v: number) => void;
+  /** dodatkowe sekcje panelu nad listą elementów (kalka, warstwy) */
+  sections?: { title: string; body: ReactNode }[];
 }
 
 const ANCHOR_LABEL = { start: "od lewej", middle: "środek", end: "do prawej" } as const;
@@ -129,7 +131,7 @@ function TransformRow({ onTransform }: { onTransform: Props["onTransform"] }) {
   );
 }
 
-export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, settle, onStyle, onDoc, onSelect, onAction, onTransform }: Props) {
+export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, settle, onStyle, onDoc, onSelect, onAction, onTransform, sections = [] }: Props) {
   const items = doc.items.filter((it) => sel.includes(it.id));
   const one = items.length === 1 ? items[0] : null;
   const first = useRef<HTMLInputElement>(null);
@@ -140,6 +142,7 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
     one && key in one ? <Num key={key} label={label} value={(one as unknown as Record<string, number>)[key]} onLive={live(key)} settle={settle} {...o} /> : null;
 
   const styled = items.length > 0;
+  const lys = layersOf(doc);
   // bez zaznaczenia panel ustawia styl następnego elementu; wybrany styl zostaje też dla następnych („ostatnio użyty”)
   const pick = <K extends keyof Style>(key: K, v: Style[K], itemKey: string = key) => { if (styled) edit(set(itemKey, v)); onStyle({ [key]: v } as Partial<Style>); };
   const val = <K extends keyof Style>(key: K, itemKey: string = key): Style[K] | null => (styled ? (common(items, itemKey) as Style[K] | null) : style[key]);
@@ -200,6 +203,18 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
           </>
         )}
 
+        {one?.t === "axes" && (
+          <>
+            <div className="rys-nums">
+              <Row label="Oś pozioma"><input ref={first} type="text" value={one.xl} maxLength={8} onBlur={settle} onChange={(e) => edit(set("xl", e.target.value), "live")} /></Row>
+              <Row label="Oś pionowa"><input type="text" value={one.yl} maxLength={8} onBlur={settle} onChange={(e) => edit(set("yl", e.target.value), "live")} /></Row>
+            </div>
+            <Seg label="Maszyna" options={["mill", "lathe"] as const} value={one.xl === "Z" && one.yl === "X" ? "lathe" : one.xl === "X" && one.yl === "Y" ? "mill" : null}
+              onPick={(v) => edit((it) => (it.t === "axes" ? { ...it, xl: v === "lathe" ? "Z" : "X", yl: v === "lathe" ? "X" : "Y" } : it))} text={(v) => (v === "lathe" ? "Tokarka (Z / X)" : "Frezarka (X / Y)")} />
+            <p className="rys-tip">„Opis co” — odstęp opisów wartości w jednostkach rysunku (0 — bez opisów), „Wartość co” — o ile rośnie opis.</p>
+          </>
+        )}
+
         {one?.t === "pt" && (
           <>
             <Row label="Opis"><input ref={first} type="text" value={one.label} maxLength={40} placeholder="np. W albo P1" onBlur={settle} onChange={(e) => edit(set("label", e.target.value), "live")} /></Row>
@@ -229,6 +244,7 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             {one.t === "rect" && num("Naroże R", "r", { step: 1, min: 0, max: 100 })}
             {(one.t === "circle" || one.t === "arc") && num("Promień", "r", { min: 0.01 })}
             {one.t === "arc" && <>{num("Kąt od", "a0", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a1", { step: 15, min: -720, max: 720 })}</>}
+            {one.t === "axes" && <>{num("Oś X +", "xp", { min: 5, max: 800 })}{num("Oś X −", "xn", { min: 0, max: 800 })}{num("Oś Y +", "yp", { min: 5, max: 800 })}{num("Oś Y −", "yn", { min: 0, max: 800 })}{num("Opis co (jedn.)", "ts", { step: 5, min: 0, max: 200 })}{num("Wartość co", "tv", { step: 1, min: -1000, max: 1000 })}</>}
             {one.t === "dimr" && <>{num("Promień", "r", { min: 0.01 })}{num("Kierunek °", "a", { step: 15, min: -720, max: 720 })}{num("Wysięg opisu", "ext", { min: -800, max: 400 })}</>}
             {one.t === "dima" && <>{num("Kąt od", "a1", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a2", { step: 15, min: -720, max: 720 })}{num("Promień łuku", "r", { min: 1, max: 800 })}</>}
             {num("Odsunięcie", "off", { min: -400, max: 400 })}
@@ -246,6 +262,8 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             <button type="button" className="rys-btn" onClick={() => onAction("up")} title="Wyżej ( ] )">{icons.up} Wyżej</button>
             <button type="button" className="rys-btn" onClick={() => onAction("down")} title="Niżej ( [ )">{icons.down} Niżej</button>
             {one && (one.t === "line" || one.t === "arc") && <button type="button" className="rys-btn" onClick={() => onAction("flip")}>{icons.flip} Odwróć kierunek</button>}
+            {items.length > 1 && <button type="button" className="rys-btn" onClick={() => onAction("group")} title="Ctrl+G — elementy zaznaczają się i przesuwają razem">Grupuj</button>}
+            {items.some((it) => it.g) && <button type="button" className="rys-btn" onClick={() => onAction("ungroup")} title="Ctrl+Shift+G; podwójne kliknięcie w grupę zaznacza sam element">Rozgrupuj</button>}
           </div>
           <TransformRow onTransform={onTransform} />
           {items.length > 1 && (
@@ -258,16 +276,22 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
         </Group>
       )}
 
+      {sections.map((x) => <Group key={x.title} title={x.title}>{x.body}</Group>)}
+
       <Group title={`Elementy (${doc.items.length})`}>
         {doc.items.length === 0 ? <p className="rys-tip">Pusty rysunek. Zacznij od konturu (Prostokąt albo Polilinia) albo zaimportuj rysunek ze strony.</p> : (
           <ol className="rys-layers">
-            {[...doc.items].reverse().slice(0, 300).map((it) => (
+            {[...doc.items].reverse().slice(0, 300).map((it) => {
+              const ly = lys.find((l) => l.id === (it.l ?? "0")), off = !!ly && (!ly.vis || ly.lock);
+              return (
               <li key={it.id}>
-                <button type="button" aria-pressed={sel.includes(it.id)} onClick={(e) => onSelect(e.shiftKey ? (sel.includes(it.id) ? sel.filter((s) => s !== it.id) : [...sel, it.id]) : [it.id])}>
-                  <b>{ITEM_LABEL[it.t]}</b> <span>{describe(it)}</span>
+                <button type="button" aria-pressed={sel.includes(it.id)} disabled={off} title={off ? `Warstwa „${ly!.name}” jest ${ly!.vis ? "zablokowana" : "ukryta"}` : undefined}
+                  onClick={(e) => onSelect(e.shiftKey || e.ctrlKey || e.metaKey ? (sel.includes(it.id) ? sel.filter((s) => s !== it.id) : [...sel, it.id]) : [it.id])}>
+                  <b>{ITEM_LABEL[it.t]}</b> <span>{describe(it)}</span>{it.g && <i className="rys-tag">grupa</i>}{lys.length > 1 && ly && <i className="rys-tag">{ly.name}</i>}
                 </button>
               </li>
-            ))}
+              );
+            })}
           </ol>
         )}
       </Group>

@@ -3590,7 +3590,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-layers span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rys-status { grid-column: 1 / -1; display: flex; gap: 1rem; align-items: baseline; white-space: nowrap; overflow: hidden; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
 .rys-coords { font-family: var(--font-mono); color: var(--ink-2); min-width: 9.5rem; }
-.rys-snapname { color: #22D3EE; font-weight: 600; min-width: 6.5rem; }
+.rys-snapname { color: #22D3EE; font-weight: 600; min-width: 6.5rem; flex-shrink: 0; }
 .rys-measure { font-family: var(--font-mono); color: var(--ink); min-width: 7rem; }
 .rys-hint { overflow: hidden; text-overflow: ellipsis; }
 .rys-zoom span { font-family: var(--font-mono); }
@@ -3606,6 +3606,68 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-widths button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .fig .rys-sw-fill { fill: color-mix(in srgb, var(--accent) 30%, transparent); stroke: none; }
 /* okno importu ze strony */
+/* RB2: menu Plik, okno eksportu, wartość przy kursorze, warstwy, kalka */
+.rys-menu { position: relative; }
+.rys-menu-list { position: absolute; z-index: 30; top: calc(100% + 4px); left: 0; min-width: 17rem; padding: .3rem; display: grid; background: var(--surface); border: 1px solid var(--line-strong); border-radius: 10px; box-shadow: 0 12px 32px rgba(0, 0, 0, .35); }
+.rys-menu-list hr { margin: .3rem .2rem; border: 0; border-top: 1px solid var(--line); }
+.rys-menu-list button { display: flex; justify-content: space-between; align-items: center; gap: 1rem; width: 100%; padding: .42rem .6rem; border: 0; border-radius: 6px; background: none; color: var(--ink); font: inherit; font-size: 13.5px; text-align: left; cursor: pointer; }
+.rys-menu-list button:hover, .rys-menu-list button:focus-visible { background: var(--surface-2); outline: none; }
+.rys-menu-list kbd { font: 11.5px var(--font-mono); color: var(--muted); }
+.rys-dialog { margin: auto; width: min(30rem, 94vw); padding: 1.1rem 1.2rem; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); }
+.rys-dialog::backdrop { background: rgba(0, 0, 0, .6); }
+.rys-dialog form { display: grid; gap: .9rem; }
+.rys-dialog h2 { margin: 0; font: 700 1.1rem/1.2 var(--font-display); }
+.rys-dialog fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: .3rem; }
+.rys-dialog legend { margin-bottom: .3rem; font-size: var(--fs-label); font-weight: 600; color: var(--muted); }
+.rys-radio { display: flex; align-items: center; gap: .5rem; font-size: 14px; cursor: pointer; }
+.rys-radio input { accent-color: var(--accent); }
+.rys-dlg-field { display: grid; gap: .25rem; font-size: var(--fs-label); color: var(--muted); }
+.rys-dlg-field input { padding: .4rem .5rem; border: 1px solid var(--line-strong); border-radius: 7px; background: var(--surface-2); color: var(--ink); font: inherit; font-size: 14px; }
+.rys-err { margin: 0; color: var(--red-ink); font-size: 13.5px; }
+.rys-dialog-actions { display: flex; justify-content: flex-end; gap: .5rem; }
+.rys-dyn { position: fixed; z-index: 40; display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .6rem; max-width: 22rem; padding: .4rem .55rem; border: 1px solid var(--accent); border-radius: 8px; background: var(--surface); box-shadow: 0 8px 24px rgba(0, 0, 0, .35); font-size: 12.5px; color: var(--ink-2); }
+.rys-dyn label { display: flex; align-items: center; gap: .3rem; }
+.rys-dyn input { width: 5.2rem; padding: .2rem .35rem; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--surface-2); color: var(--ink); font: 13px var(--font-mono); }
+.rys-dyn input:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.rys-dyn small { flex-basis: 100%; color: var(--muted); font-size: 11.5px; }
+.rys-lys ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.rys-lys li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto auto auto; align-items: center; gap: .25rem; padding: .15rem .25rem; border-radius: 7px; }
+.rys-lys li.is-active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.rys-lys input[type="radio"] { accent-color: var(--accent); margin: 0; }
+.rys-lys input[type="text"] { min-width: 0; padding: .2rem .35rem; border: 1px solid transparent; border-radius: 5px; background: none; color: var(--ink); font: inherit; font-size: 13px; }
+.rys-lys input[type="text"]:hover, .rys-lys input[type="text"]:focus { border-color: var(--line-strong); background: var(--surface); }
+.rys-lys li button { display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 5px; background: none; color: var(--ink-2); cursor: pointer; }
+.rys-lys li button:hover { background: var(--surface-2); color: var(--ink); }
+.rys-lys li button svg { width: 16px; height: 16px; }
+.rys-lys li button[aria-pressed="false"]:first-of-type { color: var(--muted); }
+.rys-lys-n { min-width: 1.6rem; font: 11.5px var(--font-mono); color: var(--muted); text-align: right; }
+.rys-lys-acts { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .45rem; align-items: center; }
+.rys-lys-move { display: flex; align-items: center; gap: .35rem; font-size: 12.5px; color: var(--muted); }
+.rys-lys-move select { background: var(--surface); color: var(--ink); border: 1px solid var(--line-strong); border-radius: 6px; padding: .25rem .35rem; font: inherit; font-size: 12.5px; }
+.rys-tag { margin-left: auto; padding: 0 .35rem; border-radius: 4px; background: var(--surface-3); color: var(--muted); font-style: normal; font-size: 11px; white-space: nowrap; }
+.rys-tag + .rys-tag { margin-left: .25rem; }
+.rys-layers button:disabled { opacity: .5; cursor: default; }
+.rys-kalka { display: grid; gap: .55rem; }
+.rys-range { display: flex; align-items: center; gap: .5rem; font-size: 13px; color: var(--ink-2); }
+.rys-range input { flex: 1; accent-color: var(--accent); }
+.rys-range b { min-width: 2.6rem; text-align: right; font: 12px var(--font-mono); }
+.fig .rys-cal line { stroke: #22D3EE; stroke-width: 1.4; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
+.fig .rys-cal circle { fill: #22D3EE; }
+.rys-lib { width: min(56rem, 94vw); max-height: 88vh; overflow: auto; display: none; gap: .8rem; }
+.rys-lib[open] { display: grid; }
+.rys-lib h3 { margin: .3rem 0 0; font: 600 var(--fs-label)/1.2 var(--font-display); color: var(--muted); }
+.rys-lib ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr)); gap: .7rem; }
+.rys-lib-card { display: grid; gap: .4rem; padding: .5rem; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); font-size: 13px; }
+.rys-lib-card b { display: block; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rys-lib-card span { color: var(--muted); font-size: 12px; }
+.rys-lib-open { padding: 0; border: 0; background: none; cursor: pointer; border-radius: 8px; }
+.rys-lib-open .rys-thumb { margin: 0; padding: .3rem; max-width: none; }
+.rys-lib-open:focus-visible { outline: 2px solid var(--accent); }
+.rys-lib-acts { display: flex; gap: .35rem; }
+.rys-svg.is-kalka-move { cursor: move; }
+.rys-svg.is-kalka-cal { cursor: crosshair; }
+.fig .rys-item.is-locked { opacity: .55; }
+
 .rys-import { margin: auto; width: min(64rem, 94vw); max-height: 88vh; padding: 0; border: 1px solid var(--line-strong); border-radius: var(--radius-lg); background: var(--surface); color: var(--ink); display: none; }
 .rys-import[open] { display: grid; grid-template-rows: auto auto auto minmax(0, 1fr); }
 .rys-import::backdrop { background: rgba(0, 0, 0, .6); }

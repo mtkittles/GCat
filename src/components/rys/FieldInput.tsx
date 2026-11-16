@@ -33,7 +33,7 @@ export default function RysFieldInput({ value, onChange, label }: { value: Store
               <button type="button" className="btn" onClick={done}>Gotowe</button>
             </div>
           </header>
-          <Editor initial={open} onChange={setWork} />
+          <Editor initial={open} onChange={setWork} kalkaKey="panel" />
           <p className="rys-narrow">Rysownik działa na komputerze: potrzebuje myszy i okna o szerokości co najmniej 900 px.</p>
         </div>, document.body)}
     </div>

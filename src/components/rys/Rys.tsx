@@ -1,6 +1,6 @@
 import { Fig, type LegendItem } from "@/components/fig";
 import { rich } from "@/components/Rich";
-import { autoLegend, LEGEND_LABEL, parseDoc, storeItem, type LegendKey, type RysFigure } from "@/lib/rys/model";
+import { autoLegend, LEGEND_LABEL, parseDoc, storeItem, visibleItems, type LegendKey, type RysFigure } from "@/lib/rys/model";
 import { renderItem } from "./render";
 
 /** klucz legendy → klasa znaczka .lg-… (stock = kreskowany materiał z rysunków kodowych, outline = obrys półfabrykatu) */
@@ -16,7 +16,7 @@ export default function Rys({ fig }: { fig: RysFigure }) {
   const legend = fig.legend.length ? fig.legend : autoLegend(doc).map((k) => ({ k, label: "" }));
   return (
     <Fig id={`rys-${fig.slug}`} code={fig.code || undefined} title={fig.title} h={doc.h} legend={legendItems(legend)} caption={fig.caption ? rich(fig.caption) : undefined}>
-      {(c) => <g data-rk={doc.k}>{doc.items.map((it, i) => <g key={i} data-ri={JSON.stringify(storeItem(it))}>{renderItem(it, c, doc.k)}</g>)}</g>}
+      {(c) => <g data-rk={doc.k}>{visibleItems(doc).map((it, i) => <g key={i} data-ri={JSON.stringify(storeItem(it))}>{renderItem(it, c, doc.k)}</g>)}</g>}
     </Fig>
   );
 }
