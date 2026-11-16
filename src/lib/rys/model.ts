@@ -78,11 +78,19 @@ export type DimItem = Base & { t: "dim"; o: DimOrient; x1: number; y1: number; x
 export type PtItem = Base & { t: "pt"; x: number; y: number; label: string; pos: Pos; color: PtColor };
 export type StepItem = Base & { t: "step"; x: number; y: number; n: number };
 export type GridItem = Base & { t: "grid"; x: number; y: number; w: number; h: number; minor: number; major: number };
-export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | PtItem | StepItem | GridItem;
+/**
+  Wymiar promienia (d: false) albo średnicy (d: true) okręgu/łuku o środku (cx, cy) i promieniu r.
+  Linia wymiarowa pod kątem `a` (stopnie, jak łuki), opis za okręgiem w odległości `ext`.
+*/
+export type DimRItem = Base & { t: "dimr"; d: boolean; cx: number; cy: number; r: number; a: number; ext: number; label: string; size: number; font: Font };
+/** Wymiar kątowy: wierzchołek (cx, cy), ramiona pod kątami a1 → a2 (zgodnie z ruchem wskazówek na ekranie), łuk wymiarowy o promieniu r. */
+export type DimAItem = Base & { t: "dima"; cx: number; cy: number; a1: number; a2: number; r: number; label: string; size: number; font: Font };
+export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | DimRItem | DimAItem | PtItem | StepItem | GridItem;
 export type ItemType = Item["t"];
 export const ITEM_LABEL: Record<ItemType, string> = {
-  line: "Linia", poly: "Polilinia", rect: "Prostokąt", circle: "Okrąg", arc: "Łuk", text: "Tekst", dim: "Wymiar", pt: "Punkt", step: "Numer kroku", grid: "Siatka",
+  line: "Linia", poly: "Polilinia", rect: "Prostokąt", circle: "Okrąg", arc: "Łuk", text: "Tekst", dim: "Wymiar", dimr: "Wymiar ⌀ / R", dima: "Wymiar kątowy", pt: "Punkt", step: "Numer kroku", grid: "Siatka",
 };
+export const isDim = (it: Item): it is DimItem | DimRItem | DimAItem => it.t === "dim" || it.t === "dimr" || it.t === "dima";
 
 /** k — skala: ile jednostek rysunku to 1 mm (wymiar „<>” pokazuje długość / k). */
 export interface RysDoc { h: number; k: number; items: Item[] }
@@ -160,6 +168,15 @@ export function parseItem(raw: unknown): Item | null {
       id, t: "dim", o: oneOf(v.o, DIM_ORIENT, "a"), x1: num(v.x1, 0), y1: num(v.y1, 0), x2: num(v.x2, 0), y2: num(v.y2, 0), off: num(v.off, 0, -400, 400),
       label: typeof v.label === "string" ? str(v.label, 40) : MEASURE, side: v.side === 1 ? 1 : -1, size: size(v.size, 10.5), font: font("mono"), hz: bool(v.hz),
     };
+    case "dimr": {
+      const d = bool(v.d);
+      return { id, t: "dimr", d, cx: num(v.cx, 0), cy: num(v.cy, 0), r: num(v.r, 5, 0.01, 800), a: num(v.a, -45, -720, 720), ext: num(v.ext, 12, -800, 400),
+        label: typeof v.label === "string" ? str(v.label, 40) : d ? `⌀${MEASURE}` : `R${MEASURE}`, size: size(v.size, 10.5), font: font("mono") };
+    }
+    case "dima": return {
+      id, t: "dima", cx: num(v.cx, 0), cy: num(v.cy, 0), a1: num(v.a1, 0, -720, 720), a2: num(v.a2, 45, -720, 720), r: num(v.r, 20, 1, 800),
+      label: typeof v.label === "string" ? str(v.label, 40) : `${MEASURE}°`, size: size(v.size, 10.5), font: font("mono"),
+    };
     case "pt": return { id, t: "pt", x: num(v.x, 0), y: num(v.y, 0), label: str(v.label, 40), pos: oneOf(v.pos, POSITIONS, "ne"), color: oneOf(v.color, PT_COLORS, "ink") };
     case "step": return { id, t: "step", x: num(v.x, 0), y: num(v.y, 0), n: Math.round(num(v.n, 1, 1, 99)) };
     case "grid": return { id, t: "grid", x: num(v.x, 0), y: num(v.y, 0), w: num(v.w, 100, 5), h: num(v.h, 100, 5), minor: num(v.minor, 5, 2.5, 50), major: num(v.major, 10, 5, 100) };
@@ -180,6 +197,8 @@ export function storeItem(it: Item): StoredItem {
     case "arc": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, cx: it.cx, cy: it.cy, r: it.r, a0: it.a0, a1: it.a1 };
     case "text": return { t: it.t, x: it.x, y: it.y, s: it.s, anchor: it.anchor, size: it.size, font: it.font, bold: it.bold, color: it.color };
     case "dim": return { t: it.t, o: it.o, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, off: it.off, label: it.label, side: it.side, size: it.size, font: it.font, hz: it.hz };
+    case "dimr": return { t: it.t, d: it.d, cx: it.cx, cy: it.cy, r: it.r, a: it.a, ext: it.ext, label: it.label, size: it.size, font: it.font };
+    case "dima": return { t: it.t, cx: it.cx, cy: it.cy, a1: it.a1, a2: it.a2, r: it.r, label: it.label, size: it.size, font: it.font };
     case "pt": return { t: it.t, x: it.x, y: it.y, label: it.label, pos: it.pos, color: it.color };
     case "step": return { t: it.t, x: it.x, y: it.y, n: it.n };
     case "grid": return { t: it.t, x: it.x, y: it.y, w: it.w, h: it.h, minor: it.minor, major: it.major };
@@ -255,6 +274,27 @@ export function dimGeom(d: Pick<DimItem, "o" | "x1" | "y1" | "x2" | "y2" | "off"
 }
 /** Opis wymiaru: „<>” → zmierzona wartość w mm (długość / k). */
 export const dimText = (d: Pick<DimItem, "label">, g: DimGeom, k: number) => d.label.split(MEASURE).join(fmt(g.len / (k || 1)));
+
+/** Zmierzona wartość: wymiar liniowy i ⌀/R w mm wg skali, kątowy w stopniach. */
+export function measure(it: DimItem | DimRItem | DimAItem, k: number): number {
+  if (it.t === "dim") return dimGeom(it).len / (k || 1);
+  if (it.t === "dimr") return (it.d ? 2 * it.r : it.r) / (k || 1);
+  return arcSweep(it.a1, it.a2);
+}
+export const measureText = (it: DimItem | DimRItem | DimAItem, k: number) => it.label.split(MEASURE).join(fmt(measure(it, k)));
+
+/** Wymiar ⌀/R: punkt na okręgu w kierunku a (P), punkt naprzeciw (Q) i koniec linii z opisem (E). */
+export function dimrGeom(d: Pick<DimRItem, "cx" | "cy" | "r" | "a" | "ext">): { P: P2; Q: P2; E: P2; u: P2 } {
+  const u: P2 = [Math.cos(d.a * RAD), Math.sin(d.a * RAD)];
+  return { u, P: [d.cx + u[0] * d.r, d.cy + u[1] * d.r], Q: [d.cx - u[0] * d.r, d.cy - u[1] * d.r], E: [d.cx + u[0] * (d.r + d.ext), d.cy + u[1] * (d.r + d.ext)] };
+}
+/** Sektor między dwiema prostymi przez wierzchołek, w którym leży kursor (4 możliwe jak w CAD): kąty a1 → a2. */
+export function angleSector(b1: number, b2: number, cursorAng: number, lines = true): { a1: number; a2: number } {
+  if (lines && arcSweep(b1, b2) > 180) [b1, b2] = [b2, b1]; // kolejność ramion: drugie zgodnie z zegarem w mniej niż 180°
+  const cand = lines ? [[b1, b2], [b2, b1 + 180], [b1 + 180, b2 + 180], [b2 + 180, b1 + 360]] : [[b1, b2], [b2, b1]];
+  for (const [x, y] of cand) if (arcSweep(x, cursorAng) <= arcSweep(x, y)) return { a1: q(((x % 360) + 360) % 360), a2: q(((y % 360) + 360) % 360) };
+  return { a1: b1, a2: b2 };
+}
 /** Orientacja jak DIMLINEAR w CAD: kursor nad/pod mierzonym odcinkiem → poziomy, z boku → pionowy. */
 export function autoOrient(p1: P2, p2: P2, c: P2): DimOrient {
   if (Math.abs(p1[1] - p2[1]) < 1e-6) return "h";
@@ -285,6 +325,8 @@ export function bbox(it: Item): [number, number, number, number] {
       return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
     }
     case "text": { const w = it.s.length * it.size * (it.font === "mono" ? 0.6 : 0.55), x0 = it.anchor === "start" ? it.x : it.anchor === "middle" ? it.x - w / 2 : it.x - w; return [x0, it.y - it.size * 0.9, x0 + w, it.y + it.size * 0.25]; }
+    case "dimr": { const g = dimrGeom(it), a = it.d ? g.Q : [it.cx, it.cy] as P2, xs = [a[0], g.P[0], g.E[0]], ys = [a[1], g.P[1], g.E[1]]; return [Math.min(...xs) - 2, Math.min(...ys) - 2, Math.max(...xs) + 2, Math.max(...ys) + 2]; }
+    case "dima": { const xs = [it.cx], ys = [it.cy]; for (const a of [it.a1, it.a2, it.a1 + arcSweep(it.a1, it.a2) / 2]) { const p = arcPoint(it.cx, it.cy, it.r + 4, a); xs.push(p[0]); ys.push(p[1]); } return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
     case "pt": return [it.x - 4, it.y - 4, it.x + 4, it.y + 4];
     case "step": return [it.x - 8, it.y - 8, it.x + 8, it.y + 8];
   }
@@ -294,8 +336,64 @@ export function translate<T extends Item>(it: T, dx: number, dy: number): T {
   switch (it.t) {
     case "line": case "dim": return { ...it, x1: q(it.x1 + dx), y1: q(it.y1 + dy), x2: q(it.x2 + dx), y2: q(it.y2 + dy) };
     case "poly": return { ...it, pts: it.pts.map(([x, y]): P2 => [q(x + dx), q(y + dy)]) };
-    case "circle": case "arc": return { ...it, cx: q(it.cx + dx), cy: q(it.cy + dy) };
+    case "circle": case "arc": case "dimr": case "dima": return { ...it, cx: q(it.cx + dx), cy: q(it.cy + dy) };
     default: return { ...it, x: q(it.x + dx), y: q(it.y + dy) };
+  }
+}
+
+/* ───────────── obrót i skala grupy (jak ROTATE / SCALE w CAD) ───────────── */
+const rotP = (p: P2, c: P2, deg: number): P2 => {
+  const r = deg * RAD, s = Math.sin(r), co = Math.cos(r), dx = p[0] - c[0], dy = p[1] - c[1];
+  return [q(c[0] + dx * co - dy * s), q(c[1] + dx * s + dy * co)];
+};
+const scP = (p: P2, c: P2, k: number): P2 => [q(c[0] + (p[0] - c[0]) * k), q(c[1] + (p[1] - c[1]) * k)];
+const norm360 = (a: number) => ((a % 360) + 360) % 360;
+
+/** Obrót o `deg` stopni wokół c (zgodnie z ruchem wskazówek na ekranie). Prostokąt pod kątem innym niż 90° staje się polilinią. */
+export function rotateItem(it: Item, c: P2, deg: number): Item {
+  const n = norm360(deg);
+  if (n < 1e-9) return it;
+  const right = Math.abs(n % 90) < 1e-9;
+  switch (it.t) {
+    case "line": { const [a, b] = [rotP([it.x1, it.y1], c, deg), rotP([it.x2, it.y2], c, deg)]; return { ...it, x1: a[0], y1: a[1], x2: b[0], y2: b[1] }; }
+    case "dim": {
+      const g = dimGeom(it), mid = rotP([(g.A[0] + g.B[0]) / 2, (g.A[1] + g.B[1]) / 2], c, deg);
+      const [a, b] = [rotP([it.x1, it.y1], c, deg), rotP([it.x2, it.y2], c, deg)];
+      const o: DimOrient = it.o === "a" || !right ? "a" : Math.abs(n % 180) < 1e-9 ? it.o : it.o === "h" ? "v" : "h";
+      const nd = { ...it, o, x1: a[0], y1: a[1], x2: b[0], y2: b[1] };
+      return { ...nd, off: dimOffsetAt(nd, mid) };
+    }
+    case "poly": return { ...it, pts: it.pts.map((p) => rotP(p, c, deg)) };
+    case "rect": {
+      const ctr = rotP([it.x + it.w / 2, it.y + it.h / 2], c, deg);
+      if (right) { const sw = Math.abs(n % 180) > 1e-9; const w = sw ? it.h : it.w, h = sw ? it.w : it.h; return { ...it, x: q(ctr[0] - w / 2), y: q(ctr[1] - h / 2), w, h }; }
+      const pts: P2[] = [[it.x, it.y], [it.x + it.w, it.y], [it.x + it.w, it.y + it.h], [it.x, it.y + it.h]].map((p) => rotP(p as P2, c, deg));
+      return { id: it.id, t: "poly", k: it.k, sw: it.sw, arrow: "none", fill: it.fill, closed: true, pts };
+    }
+    case "circle": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1] }; }
+    case "arc": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1], a0: q(norm360(it.a0 + deg)), a1: q(norm360(it.a1 + deg)) }; }
+    case "dimr": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1], a: q(norm360(it.a + deg)) }; }
+    case "dima": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1], a1: q(norm360(it.a1 + deg)), a2: q(norm360(it.a2 + deg)) }; }
+    case "grid": { const p = rotP([it.x + it.w / 2, it.y + it.h / 2], c, deg); const sw = right && Math.abs(n % 180) > 1e-9; const w = sw ? it.h : it.w, h = sw ? it.w : it.h; return { ...it, x: q(p[0] - w / 2), y: q(p[1] - h / 2), w, h }; }
+    default: { const p = rotP([it.x, it.y], c, deg); return { ...it, x: p[0], y: p[1] }; }
+  }
+}
+
+/** Skala jednolita `k` względem punktu c. Tekst dobiera najbliższy rozmiar z listy. */
+export function scaleItem(it: Item, c: P2, k: number): Item {
+  if (!(k > 0) || Math.abs(k - 1) < 1e-9) return it;
+  const L = (v: number) => q(v * k);
+  switch (it.t) {
+    case "line": { const [a, b] = [scP([it.x1, it.y1], c, k), scP([it.x2, it.y2], c, k)]; return { ...it, x1: a[0], y1: a[1], x2: b[0], y2: b[1] }; }
+    case "dim": { const [a, b] = [scP([it.x1, it.y1], c, k), scP([it.x2, it.y2], c, k)]; return { ...it, x1: a[0], y1: a[1], x2: b[0], y2: b[1], off: L(it.off) }; }
+    case "poly": return { ...it, pts: it.pts.map((p) => scP(p, c, k)) };
+    case "rect": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], w: Math.max(0.01, L(it.w)), h: Math.max(0.01, L(it.h)), r: L(it.r) }; }
+    case "grid": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], w: Math.max(5, L(it.w)), h: Math.max(5, L(it.h)) }; }
+    case "circle": case "arc": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(0.01, L(it.r)) }; }
+    case "dimr": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(0.01, L(it.r)), ext: L(it.ext) }; }
+    case "dima": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(1, L(it.r)) }; }
+    case "text": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], size: nearestSize(it.size * k) }; }
+    default: { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1] }; }
   }
 }
 
@@ -303,7 +401,7 @@ export interface Handle { key: string; x: number; y: number }
 /** Uchwyty do zmiany kształtu zaznaczonego elementu. */
 export function handles(it: Item): Handle[] {
   switch (it.t) {
-    case "line": return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }];
+    case "line": return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }, { key: "m", x: (it.x1 + it.x2) / 2, y: (it.y1 + it.y2) / 2 }];
     case "dim": {
       const g = dimGeom(it);
       return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }, { key: "off", x: (g.A[0] + g.B[0]) / 2, y: (g.A[1] + g.B[1]) / 2 }];
@@ -311,15 +409,27 @@ export function handles(it: Item): Handle[] {
     case "poly": return it.pts.map(([x, y], i) => ({ key: `v${i}`, x, y }));
     case "rect": case "grid": return [{ key: "nw", x: it.x, y: it.y }, { key: "ne", x: it.x + it.w, y: it.y }, { key: "se", x: it.x + it.w, y: it.y + it.h }, { key: "sw", x: it.x, y: it.y + it.h }];
     case "circle": return [{ key: "r", x: it.cx + it.r, y: it.cy }];
+    case "dimr": { const g = dimrGeom(it); return [{ key: "a", x: g.E[0], y: g.E[1] }]; }
+    case "dima": { const p = arcPoint(it.cx, it.cy, it.r, it.a1 + arcSweep(it.a1, it.a2) / 2); return [{ key: "r", x: p[0], y: p[1] }]; }
     case "arc": { const [s, m, e] = arcEnds(it); return [{ key: "c", x: it.cx, y: it.cy }, { key: "s", x: s[0], y: s[1] }, { key: "m", x: m[0], y: m[1] }, { key: "e", x: e[0], y: e[1] }]; }
     default: return [];
   }
 }
 
+/** Kierunek elementu w stopniach (oś Y w dół) — obrót dociąga wtedy wynikowy kąt, a nie sam przyrost. null = brak kierunku. */
+export function refAngle(it: Item): number | null {
+  if (it.t === "line" || (it.t === "dim" && it.o === "a")) return Math.atan2(it.y2 - it.y1, it.x2 - it.x1) / RAD;
+  if (it.t === "poly" && it.pts.length > 1) { const [a, b] = it.pts; return Math.atan2(b[1] - a[1], b[0] - a[0]) / RAD; }
+  return null;
+}
+
 /** Przeciągnięcie uchwytu `key` do punktu (x, y). */
 export function moveHandle(it: Item, key: string, x: number, y: number): Item {
   switch (it.t) {
-    case "line": return key === "p1" ? { ...it, x1: x, y1: y } : { ...it, x2: x, y2: y };
+    case "line": {
+      if (key === "m") { const dx = x - (it.x1 + it.x2) / 2, dy = y - (it.y1 + it.y2) / 2; return { ...it, x1: q(it.x1 + dx), y1: q(it.y1 + dy), x2: q(it.x2 + dx), y2: q(it.y2 + dy) }; }
+      return key === "p1" ? { ...it, x1: x, y1: y } : { ...it, x2: x, y2: y };
+    }
     case "dim": {
       if (key === "p1") return { ...it, x1: x, y1: y };
       if (key === "p2") return { ...it, x2: x, y2: y };
@@ -332,6 +442,13 @@ export function moveHandle(it: Item, key: string, x: number, y: number): Item {
       return { ...it, x: Math.min(x0, x), y: Math.min(y0, y), w: Math.max(min, q(Math.abs(x - x0))), h: Math.max(min, q(Math.abs(y - y0))) };
     }
     case "circle": return { ...it, r: Math.max(0.01, q(Math.hypot(x - it.cx, y - it.cy))) };
+    case "dimr": { const dist = Math.hypot(x - it.cx, y - it.cy); return { ...it, a: angleOf(it.cx, it.cy, x, y), ext: q(Math.max(-it.r + 2, dist - it.r)) }; }
+    case "dima": {
+      // łuk wymiarowy przez kursor; kursor w innym sektorze → wymiar tego sektora (kąt wierzchołkowy, przyległy)
+      const r = Math.max(1, q(Math.hypot(x - it.cx, y - it.cy)));
+      const sec = angleSector(it.a1, it.a2, angleOf(it.cx, it.cy, x, y));
+      return { ...it, r, ...sec };
+    }
     case "arc": {
       if (key === "c") return translate(it, x - it.cx, y - it.cy);
       // jak w CAD: końce i punkt środkowy łuku przesuwa się, pozostałe dwa punkty zostają
@@ -486,7 +603,7 @@ export const LEGEND_LABEL: Record<LegendKey, string> = {
 export function autoLegend(doc: Pick<RysDoc, "items">): LegendKey[] {
   const used = new Set<string>();
   for (const it of doc.items) {
-    if (it.t === "dim") used.add("dim");
+    if (isDim(it)) used.add("dim");
     if ("k" in it) used.add(it.k);
     if ("fill" in it && it.fill === "hatch") used.add("hatch");
   }

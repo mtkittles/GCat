@@ -1,5 +1,5 @@
 import {
-  FONT_SIZES, H_MAX, H_MIN, MEASURE, newId, parseItem, q, RYS_W, type Arrow, type Fill, type Font, type Item, type LineKind, type P2, type PtColor, type TextItem, type Width,
+  FONT_SIZES, H_MAX, H_MIN, MEASURE, newId, parseItem, q, RYS_W, translate, type Arrow, type Fill, type Font, type Item, type LineKind, type P2, type PtColor, type TextItem, type Width,
 } from "@/lib/rys/model";
 
 /*
@@ -241,14 +241,7 @@ export function svgToDoc(svg: SVGSVGElement): ImportResult {
   return { items: items.slice(0, 1500), h, k, approx };
 }
 
-function shift(it: Item, dx: number, dy: number): Item {
-  switch (it.t) {
-    case "line": case "dim": return { ...it, x1: q(it.x1 + dx), y1: q(it.y1 + dy), x2: q(it.x2 + dx), y2: q(it.y2 + dy) };
-    case "poly": return { ...it, pts: it.pts.map(([x, y]): P2 => [q(x + dx), q(y + dy)]) };
-    case "circle": case "arc": return { ...it, cx: q(it.cx + dx), cy: q(it.cy + dy) };
-    default: return { ...it, x: q(it.x + dx), y: q(it.y + dy) };
-  }
-}
+const shift = (it: Item, dx: number, dy: number): Item => translate(it, dx, dy);
 
 /** Środek łuku SVG o promieniu r z punktu a do b (SVG 1.1, F.6.5, rx = ry, bez obrotu). */
 export function arcCenter(a: P2, b: P2, r: number, large: number, sweep: number): { cx: number; cy: number; r: number } | null {

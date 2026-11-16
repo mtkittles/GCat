@@ -31,5 +31,7 @@ export const icons = {
   zout: <I><circle cx="8.5" cy="8.5" r="5" /><path d="M12.2 12.2L16.5 16.5M6.3 8.5h4.4" /></I>,
   fit: <I><path d="M3.5 7V3.5H7M13 3.5h3.5V7M16.5 13v3.5H13M7 16.5H3.5V13" /><rect x="7" y="7" width="6" height="6" rx="1" /></I>,
   flip: <I><path d="M4 8h12l-3-3M16 12H4l3 3" /></I>,
+  polar: <I><path d="M3 16h14" /><path d="M3 16L14 5" /><path d="M9 16a6 6 0 0 0-1.8-4.2" /></I>,
+  track: <I><path d="M3 10h14M10 3v14" strokeDasharray="1.6 1.8" /><circle cx="10" cy="10" r="2" fill="currentColor" /></I>,
 };
 export type IconName = keyof typeof icons;

@@ -5,12 +5,14 @@ import {
 import { FigDefs, figCtx } from "@/components/fig";
 import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
-  snap, snapCache, SNAP_LABEL, storeItem, translate, type DimOrient, type Item, type P2, type RysDoc, type SnapCache, type SnapKind,
+  snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
+  type DimOrient, type Item, type P2, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
 import { renderItem } from "./render";
+import { cadAngle, snapAngle, track, type Guide } from "@/lib/rys/track";
 import { addItems, align, duplicate, edReducer, initEd, patchItems, removeItems, reorder } from "./state";
 
 /*
@@ -21,14 +23,14 @@ import { addItems, align, duplicate, edReducer, initEd, patchItems, removeItems,
 
 export type Tool = PanelTool;
 const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
-  { id: "select", label: "Zaznacz", key: "V", hint: "Kliknij element, żeby go zaznaczyć; przeciągnij, żeby przesunąć (punkt chwytu przyciąga się do innych linii). Shift dodaje do zaznaczenia, przeciągnięcie po pustym polu zaznacza obszar." },
+  { id: "select", label: "Zaznacz", key: "V", hint: "Kliknij element, żeby go zaznaczyć; przeciągnij, żeby przesunąć. Ctrl albo Shift dodaje do zaznaczenia, przeciągnięcie po pustym polu zaznacza obszar. Kółko nad ramką obraca, narożniki skalują (Shift — obrót co 15°)." },
   { id: "line", label: "Linia", key: "L", hint: "Klikaj kolejne punkty — linie łączą się w łańcuch; Esc albo prawy przycisk kończy. Można też przeciągnąć. Shift — kierunek co 45°, Alt — bez przyciągania." },
   { id: "poly", label: "Polilinia", key: "P", hint: "Klikaj kolejne punkty. Enter, prawy przycisk albo podwójne kliknięcie kończy; kliknięcie w pierwszy punkt zamyka kontur." },
   { id: "rect", label: "Prostokąt", key: "R", hint: "Kliknij dwa przeciwległe rogi albo przeciągnij. Shift — kwadrat." },
   { id: "circle", label: "Okrąg", key: "C", hint: "Kliknij środek, potem punkt na okręgu (albo przeciągnij)." },
   { id: "arc", label: "Łuk", key: "A", hint: "Łuk z cięciwy: kliknij początek, koniec, potem wyciągnij łuk myszą i kliknij." },
   { id: "arcc", label: "Łuk ze środka", key: "S", hint: "Kliknij środek, początek i koniec łuku. Łuk biegnie zgodnie z ruchem wskazówek zegara — kierunek odwrócisz w panelu." },
-  { id: "dim", label: "Wymiar", key: "D", hint: "Kliknij dwa mierzone punkty (albo przeciągnij), odsuń linię wymiarową myszą i kliknij. Kursor nad/pod — wymiar poziomy, z boku — pionowy." },
+  { id: "dim", label: "Wymiar", key: "D", hint: "Rodzaj wymiaru wybierasz na pasku. Auto: kliknięcie w okrąg — średnica, w łuk — promień; dwa punkty — wymiar liniowy (kursor nad/pod — poziomy, z boku — pionowy). Kątowy: kliknij dwie linie (albo wierzchołek i dwa punkty), potem położenie łuku." },
   { id: "text", label: "Tekst", key: "T", hint: "Kliknij miejsce tekstu i wpisz treść w panelu." },
   { id: "pt", label: "Punkt", key: "O", hint: "Kliknij położenie punktu, opis wpisz w panelu." },
   { id: "step", label: "Krok", key: "N", hint: "Kliknij — kolejne numery kroków nadają się same." },
@@ -44,11 +46,24 @@ type Draft =
   | { t: "poly"; pts: P2[]; cur: P2 }
   | { t: "arc3"; s: P2; e: P2 | null; cur: P2 }
   | { t: "arcc"; c: P2; s: P2 | null; cur: P2 }
-  | { t: "dimoff"; p1: P2; p2: P2; o: DimOrient; off: number };
+  | { t: "dimoff"; p1: P2; p2: P2; o: DimOrient; off: number }
+  | { t: "dimr"; d: boolean; cx: number; cy: number; r: number; cur: P2 }
+  | { t: "dima1"; seg?: [P2, P2]; v?: P2; p1?: P2; cur: P2 }
+  | { t: "dima"; cx: number; cy: number; b1: number; b2: number; lines: boolean; cur: P2 };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
-  | { kind: "marquee"; start: P2; add: string[] };
+  | { kind: "marquee"; start: P2; add: string[] }
+  | { kind: "rotate"; from: RysDoc; ids: string[]; c: P2; a0: number; base: number | null }
+  | { kind: "pivot"; key: string }
+  | { kind: "scale"; from: RysDoc; ids: string[]; anchor: P2; d0: number };
+
+/** Rodzaje wymiaru na pasku (jak w CAD). */
+export const DIM_TYPES = [["auto", "Auto"], ["h", "Poziomy"], ["v", "Pionowy"], ["a", "Wyrównany"], ["ang", "Kątowy"], ["r", "Promień"], ["d", "Średnica"]] as const;
+type DimType = (typeof DIM_TYPES)[number][0];
+const POLAR_STEPS = [90, 45, 30, 15];
+/** Elementy, dla których przy pojedynczym zaznaczeniu pokazujemy też uchwyty skali (reszta ma własne uchwyty kształtu). */
+const SCALE_ONE = new Set(["poly", "text", "dim", "dimr", "dima", "pt", "step"]);
 
 const ED = "rys-ed";
 const CLIP = "gcat-rys";
@@ -68,6 +83,16 @@ const dimItem = (p1: P2, p2: P2, o: DimOrient, off: number, st: Style, id = newI
 function draftItem(d: Draft, st: Style): Item | null {
   if (d.t === "drag") return d.tool === "dim" ? { id: "draft", t: "line", k: "cons", sw: "auto", arrow: "none", x1: d.a[0], y1: d.a[1], x2: d.b[0], y2: d.b[1] } : fromDrag(d.tool, d.a, d.b, st);
   if (d.t === "dimoff") return dimItem(d.p1, d.p2, d.o, d.off, st, "draft");
+  if (d.t === "dimr") { const dist = Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy); return { id: "draft", t: "dimr", d: d.d, cx: d.cx, cy: d.cy, r: d.r, a: angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), ext: q(Math.max(-d.r + 2, dist - d.r)), label: d.d ? `⌀${MEASURE}` : `R${MEASURE}`, size: st.dimSize, font: st.dimFont }; }
+  if (d.t === "dima1") {
+    if (d.seg) return { id: "draft", t: "line", k: "acc", sw: "m", arrow: "none", x1: d.seg[0][0], y1: d.seg[0][1], x2: d.seg[1][0], y2: d.seg[1][1] };
+    const a = d.p1 ?? d.cur;
+    return d.v ? { id: "draft", t: "poly", k: "cons", sw: "auto", arrow: "none", fill: "none", closed: false, pts: d.p1 ? [d.p1, d.v, d.cur] : [d.v, a] } : null;
+  }
+  if (d.t === "dima") {
+    const sec = angleSector(d.b1, d.b2, angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), d.lines);
+    return { id: "draft", t: "dima", cx: d.cx, cy: d.cy, ...sec, r: Math.max(4, q(Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy))), label: `${MEASURE}°`, size: st.dimSize, font: st.dimFont };
+  }
   if (d.t === "poly") return { id: "draft", t: "poly", k: st.k, sw: st.sw, arrow: "none", fill: "none", closed: false, pts: [...d.pts, d.cur] };
   if (d.t === "arc3") {
     if (!d.e) return { id: "draft", t: "line", k: "cons", sw: "auto", arrow: "none", x1: d.s[0], y1: d.s[1], x2: d.cur[0], y2: d.cur[1] };
@@ -85,11 +110,29 @@ function hit(it: Item): ReactNode {
   switch (it.t) {
     case "line": return <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} className={cn} />;
     case "dim": { const g = dimGeom(it); return <line x1={g.A[0]} y1={g.A[1]} x2={g.B[0]} y2={g.B[1]} className={cn} />; }
+    case "dimr": { const g = dimrGeom(it), s0 = it.d ? g.Q : [it.cx, it.cy]; return <line x1={s0[0]} y1={s0[1]} x2={g.E[0]} y2={g.E[1]} className={cn} />; }
+    case "dima": return <path d={arcPath({ cx: it.cx, cy: it.cy, r: it.r, a0: it.a1, a1: it.a2 })} className={cn} />;
     case "rect": case "grid": return <rect x={it.x} y={it.y} width={it.w} height={it.h} className={cn} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
     case "pt": case "step": return <circle cx={it.x} cy={it.y} r={8} className="rys-hit is-fill" />;
     case "text": { const b = bbox(it); return <rect x={b[0] - 2} y={b[1] - 2} width={b[2] - b[0] + 4} height={b[3] - b[1] + 4} className="rys-hit is-fill" />; }
     default: return null; // poly i arc: kształt z renderera powtarzany niżej
+  }
+}
+
+/** Obrys zaznaczenia po kształcie elementu (jak podświetlenie w CAD); prostokąt tylko dla tekstu i punktów. */
+function selShape(it: Item, pad: number): ReactNode {
+  const cn = "rys-selbox";
+  switch (it.t) {
+    case "line": return <line x1={it.x1} y1={it.y1} x2={it.x2} y2={it.y2} className={cn} />;
+    case "poly": return <path d={polyPath(it.pts, it.closed)} className={cn} />;
+    case "arc": return <path d={arcPath(it)} className={cn} />;
+    case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
+    case "rect": case "grid": return <rect x={it.x} y={it.y} width={it.w} height={it.h} className={cn} />;
+    case "dim": { const g = dimGeom(it); return <path d={`M ${it.x1} ${it.y1} L ${g.A[0]} ${g.A[1]} L ${g.B[0]} ${g.B[1]} L ${it.x2} ${it.y2}`} className={cn} />; }
+    case "dimr": { const g = dimrGeom(it), s0 = it.d ? g.Q : [it.cx, it.cy]; return <line x1={s0[0]} y1={s0[1]} x2={g.E[0]} y2={g.E[1]} className={cn} />; }
+    case "dima": return <path d={arcPath({ cx: it.cx, cy: it.cy, r: it.r, a0: it.a1, a1: it.a2 })} className={cn} />;
+    default: { const b = bbox(it); return <rect x={b[0] - pad} y={b[1] - pad} width={b[2] - b[0] + 2 * pad} height={b[3] - b[1] + 2 * pad} className={cn} />; }
   }
 }
 
@@ -134,6 +177,14 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const [panning, setPanning] = useState(false);
   const [importing, setImporting] = useState(false);
   const [focusKey, setFocusKey] = useState(0);
+  const [dimType, setDimType] = useState<DimType>("auto");
+  const [polar, setPolar] = useState(true);
+  const [polarStep, setPolarStep] = useState(15);
+  const [trackOn, setTrackOn] = useState(true);
+  const [guides, setGuides] = useState<Guide[]>([]);
+  const [info, setInfo] = useState("");
+  // punkt obrotu (jak punkt bazowy w CAD) — ważny dla tego zaznaczenia, po zmianie zaznaczenia wraca domyślny
+  const [pivotSt, setPivotSt] = useState<{ key: string; p: P2 } | null>(null); // podpowiedź śledzenia / kąt obrotu / skala — pasek stanu
   const root = useRef<HTMLDivElement>(null), stage = useRef<HTMLDivElement>(null), svg = useRef<SVGSVGElement>(null);
   const drag = useRef<Drag | null>(null);
   const liveFrom = useRef<RysDoc | null>(null);
@@ -235,14 +286,61 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     cacheRef.current = { items: doc.items, key, c: cc };
     return cc;
   };
-  const draftPts = (d: Draft | null): P2[] => !d ? [] : d.t === "poly" ? d.pts : d.t === "drag" ? [d.a] : d.t === "arc3" ? (d.e ? [d.s, d.e] : [d.s]) : d.t === "arcc" ? (d.s ? [d.c, d.s] : [d.c]) : [d.p1, d.p2];
+  const draftPts = (d: Draft | null): P2[] => !d ? [] : d.t === "poly" ? d.pts : d.t === "drag" ? [d.a] : d.t === "arc3" ? (d.e ? [d.s, d.e] : [d.s]) : d.t === "arcc" ? (d.s ? [d.c, d.s] : [d.c]) : d.t === "dimoff" ? [d.p1, d.p2] : d.t === "dima1" && d.v ? [d.v] : [];
   /** punkt kursora po przyciągnięciu; `from` — punkt początkowy (Shift co 45°, prostopadle) */
   const snapAt = (p: P2, e: { altKey: boolean; shiftKey: boolean }, from?: P2 | null, skip: string[] = []): P2 => {
-    if (e.altKey) { setMark(null); return [q(p[0]), q(p[1])]; }
+    if (e.altKey) { setMark(null); setGuides([]); setInfo(""); return [q(p[0]), q(p[1])]; }
     const pp = e.shiftKey && from ? constrain(from[0], from[1], p[0], p[1]) : p;
-    const s = snap(pp[0], pp[1], { grid, from, tol: 9 * u, cache: snapOn && !(e.shiftKey && from) ? cacheFor(skip, draftPts(draft)) : undefined });
+    const cache = snapOn && !(e.shiftKey && from) ? cacheFor(skip, draftPts(draft)) : undefined;
+    const s = snap(pp[0], pp[1], { grid, from, tol: 9 * u, cache });
+    // punkt charakterystyczny wygrywa; inaczej śledzenie (kąty, równoległość, prostopadłość, wyrównanie) przed siatką i „na linii”
+    if (!["end", "center", "int", "mid", "quad"].includes(s.to) && !(e.shiftKey && from) && (polar || trackOn)) {
+      const t = track(p, { from, polar: polar ? polarStep : 0, parallel: trackOn, align: trackOn, cache: cache ?? cacheFor(skip, draftPts(draft)), tol: 7 * u });
+      if (t) { setMark(null); setGuides(t.guides); setInfo(t.label); return t.p; }
+    }
+    setGuides([]); setInfo("");
     setMark(s.to === "grid" || s.to === "free" ? null : { x: s.x, y: s.y, kind: s.to });
     return [s.x, s.y];
+  };
+  /** Okrąg albo łuk pod kursorem (do wymiaru ⌀/R). */
+  const curveAt = (p: P2): Extract<Item, { t: "circle" | "arc" }> | null => {
+    let best: Extract<Item, { t: "circle" | "arc" }> | null = null, bd = 9 * u;
+    for (const it of doc.items) {
+      if (it.t !== "circle" && it.t !== "arc") continue;
+      const d = Math.abs(Math.hypot(p[0] - it.cx, p[1] - it.cy) - it.r);
+      if (d < bd && (it.t === "circle" || onArc(it, angleOf(it.cx, it.cy, p[0], p[1])))) { bd = d; best = it; }
+    }
+    return best;
+  };
+  /** Odcinek pod kursorem (do wymiaru kątowego). */
+  const segAt = (p: P2): [P2, P2] | null => {
+    let best: [P2, P2] | null = null, bd = 9 * u;
+    for (const [a, b] of cacheFor([], []).segs) {
+      const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy;
+      if (L2 < 1e-9) continue;
+      const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2));
+      const d = Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+      if (d < bd) { bd = d; best = [a, b]; }
+    }
+    return best;
+  };
+  /** Domyślny punkt obrotu: środek odcinka, środek okręgu/łuku, inaczej środek ramki. Można go przesunąć (przyciąga się). */
+  const pivotOf = (ids: string[]): P2 | null => {
+    if (pivotSt && pivotSt.key === ids.join(",")) return pivotSt.p;
+    const its = doc.items.filter((it) => ids.includes(it.id));
+    if (its.length === 1) {
+      const it = its[0];
+      if (it.t === "line") return [q((it.x1 + it.x2) / 2), q((it.y1 + it.y2) / 2)];
+      if (it.t === "circle" || it.t === "arc" || it.t === "dimr" || it.t === "dima") return [it.cx, it.cy];
+    }
+    const b = selBox(ids);
+    return b ? [q((b[0] + b[2]) / 2), q((b[1] + b[3]) / 2)] : null;
+  };
+  /** Ramka zaznaczenia (obrót, skala grupy). */
+  const selBox = (ids: string[]) => {
+    const bs = doc.items.filter((it) => ids.includes(it.id)).map(bbox);
+    if (!bs.length) return null;
+    return [Math.min(...bs.map((b) => b[0])), Math.min(...bs.map((b) => b[1])), Math.max(...bs.map((b) => b[2])), Math.max(...bs.map((b) => b[3]))] as [number, number, number, number];
   };
 
   /* ───────────── mysz ───────────── */
@@ -254,7 +352,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const finishDrag = (d: Extract<Draft, { t: "drag" }>, b: P2, chain: boolean) => {
     if (d.tool === "dim") {
       if (Math.hypot(b[0] - d.a[0], b[1] - d.a[1]) < 0.5) { setDraft(null); return; }
-      setDraft({ t: "dimoff", p1: d.a, p2: b, o: style.dimMode === "a" ? "a" : autoOrient(d.a, b, b), off: 0 });
+      setDraft({ t: "dimoff", p1: d.a, p2: b, o: dimType === "h" || dimType === "v" || dimType === "a" ? dimType : autoOrient(d.a, b, b), off: 0 });
       return;
     }
     const flat = (d.tool === "rect" || d.tool === "grid") && (b[0] === d.a[0] || b[1] === d.a[1]);
@@ -267,7 +365,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     const clean = pts.filter((p, i) => i === 0 || Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) >= 0.01); // punkty podwojone podwójnym kliknięciem odpadają
     if (clean.length >= 2) add({ id: newId(), t: "poly", k: style.k, sw: style.sw, arrow: closed ? "none" : style.arrow, fill: closed ? style.fill : "none", closed, pts: clean });
   };
-  const endDraft = () => { if (draft?.t === "poly") finishPoly(draft.pts, false); else setDraft(null); setMark(null); };
+  const endDraft = () => { if (draft?.t === "poly") finishPoly(draft.pts, false); else setDraft(null); setMark(null); setGuides([]); setInfo(""); };
 
   const onDown = (e: PointerEvent<SVGSVGElement>) => {
     if (e.button === 2) { e.preventDefault(); endDraft(); return; }
@@ -276,21 +374,62 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     const p = at(e), target = e.target as Element;
     if (tool === "select") {
       e.currentTarget.setPointerCapture(e.pointerId);
-      const h = target.closest("[data-h]"), el = target.closest("[data-id]");
+      const h = target.closest("[data-h]"), g = target.closest("[data-g]"), el = target.closest("[data-id]");
+      const multi = e.shiftKey || e.ctrlKey || e.metaKey;
+      const sb = selBox(sel);
       if (h && sel.length === 1) drag.current = { kind: "handle", id: sel[0], key: h.getAttribute("data-h")!, from: doc };
-      else if (el) {
+      else if (g && sb) {
+        const key = g.getAttribute("data-g")!;
+        if (key === "pivot") drag.current = { kind: "pivot", key: sel.join(",") };
+        else if (key === "rot") {
+          const c = pivotOf(sel)!, its = doc.items.filter((it) => sel.includes(it.id));
+          drag.current = { kind: "rotate", from: doc, ids: sel, c, a0: Math.atan2(p[1] - c[1], p[0] - c[0]) * 180 / Math.PI, base: its.length === 1 ? refAngle(its[0]) : null };
+        }
+        else {
+          const corner: P2 = [key.includes("w") ? sb[0] : sb[2], key.includes("n") ? sb[1] : sb[3]], anchor: P2 = [key.includes("w") ? sb[2] : sb[0], key.includes("n") ? sb[3] : sb[1]];
+          drag.current = { kind: "scale", from: doc, ids: sel, anchor, d0: Math.hypot(corner[0] - anchor[0], corner[1] - anchor[1]) || 1 };
+        }
+      } else if (el) {
         const id = el.getAttribute("data-id")!;
-        const next = e.shiftKey ? (sel.includes(id) ? sel.filter((s) => s !== id) : [...sel, id]) : sel.includes(id) ? sel : [id];
+        const next = multi ? (sel.includes(id) ? sel.filter((s) => s !== id) : [...sel, id]) : sel.includes(id) ? sel : [id];
         dispatch({ type: "sel", sel: next });
         // punkt chwytu przyciągnięty (np. do końca linii) — przy upuszczeniu trafi dokładnie w punkt innej linii
         drag.current = next.includes(id) ? { kind: "move", base: snapAt(p, e), from: doc, ids: next } : null;
       } else {
-        if (!e.shiftKey) dispatch({ type: "sel", sel: [] });
-        drag.current = { kind: "marquee", start: p, add: e.shiftKey ? sel : [] };
+        if (!multi) dispatch({ type: "sel", sel: [] });
+        drag.current = { kind: "marquee", start: p, add: multi ? sel : [] };
       }
       return;
     }
     if (draft?.t === "dimoff") { add(dimItem(draft.p1, draft.p2, draft.o, draft.off, style)); setDraft(null); setMark(null); return; }
+    if (draft?.t === "dimr" || draft?.t === "dima") { const it = draftItem({ ...draft, cur: p }, style); setDraft(null); if (it) add({ ...it, id: newId() }); setInfo(""); return; }
+    if (tool === "dim" && dimType === "ang") {
+      const sp = snapAt(p, e);
+      if (draft?.t === "dima1") {
+        if (draft.seg) {
+          const s2 = segAt(p);
+          if (!s2) { setInfo("kliknij drugą linię"); return; }
+          const [a, b] = draft.seg, [c2, d2] = s2;
+          const d1x = b[0] - a[0], d1y = b[1] - a[1], ex = d2[0] - c2[0], ey = d2[1] - c2[1], den = d1x * ey - d1y * ex;
+          if (Math.abs(den) < 1e-9) { setInfo("linie są równoległe — wybierz inną"); return; }
+          const t = ((c2[0] - a[0]) * ey - (c2[1] - a[1]) * ex) / den;
+          const v: P2 = [a[0] + t * d1x, a[1] + t * d1y];
+          setDraft({ t: "dima", cx: q(v[0]), cy: q(v[1]), b1: angleOf(a[0], a[1], b[0], b[1]), b2: angleOf(c2[0], c2[1], d2[0], d2[1]), lines: true, cur: p });
+        } else if (draft.v && !draft.p1) setDraft({ ...draft, p1: sp, cur: sp });
+        else if (draft.v && draft.p1) setDraft({ t: "dima", cx: draft.v[0], cy: draft.v[1], b1: angleOf(draft.v[0], draft.v[1], draft.p1[0], draft.p1[1]), b2: angleOf(draft.v[0], draft.v[1], sp[0], sp[1]), lines: false, cur: p });
+        return;
+      }
+      const seg = mark && ["end", "int", "center", "mid", "quad"].includes(mark.kind) ? null : segAt(p);
+      setDraft(seg ? { t: "dima1", seg, cur: p } : { t: "dima1", v: sp, cur: sp });
+      setInfo(seg ? "kliknij drugą linię" : "kliknij punkt na pierwszym ramieniu");
+      return;
+    }
+    if (tool === "dim" && (dimType === "r" || dimType === "d" || dimType === "auto")) {
+      const strong = mark && ["end", "int", "center", "mid"].includes(mark.kind); // kwadrant okręgu to nadal „klik w okrąg”
+      const cv = !strong || dimType !== "auto" ? curveAt(p) : null;
+      if (cv) { setDraft({ t: "dimr", d: dimType === "d" || (dimType === "auto" && cv.t === "circle"), cx: cv.cx, cy: cv.cy, r: cv.r, cur: p }); return; }
+      if (dimType !== "auto") { setInfo("kliknij okrąg albo łuk"); return; }
+    }
     if (draft?.t === "drag" && draft.click) { finishDrag(draft, snapAt(p, e, draft.a), true); return; }
     const sp = snapAt(p, e, draft?.t === "poly" ? draft.pts[draft.pts.length - 1] : null);
     if (DRAG_TOOLS.has(tool)) { e.currentTarget.setPointerCapture(e.pointerId); setDraft({ t: "drag", tool: tool as DragTool, a: sp, b: sp, click: false }); return; }
@@ -331,9 +470,28 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
       dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => translate(it, dx, dy)) });
     } else if (d?.kind === "handle") {
       const it = d.from.items.find((x) => x.id === d.id);
-      const fromPt: P2 | null = it?.t === "line" ? (d.key === "p1" ? [it.x2, it.y2] : [it.x1, it.y1]) : null;
+      const ends = it?.t === "line" || it?.t === "dim";
+      const fromPt: P2 | null = ends && d.key === "p1" ? [it.x2, it.y2] : ends && d.key === "p2" ? [it.x1, it.y1] : it?.t === "poly" ? null : null;
       const sp = snapAt(p, e, fromPt, [d.id]);
+      if (fromPt) {
+        const L = Math.hypot(sp[0] - fromPt[0], sp[1] - fromPt[1]) / (doc.k || 1), A = cadAngle(Math.atan2(sp[1] - fromPt[1], sp[0] - fromPt[0]) * 180 / Math.PI);
+        setInfo((v) => `${v && !v.startsWith("L ") ? v + " · " : ""}L ${fmtN(L)} · ${fmtN(A)}°`);
+      }
       dispatch({ type: "live", doc: patchItems(d.from, [d.id], (x) => moveHandle(x, d.key, sp[0], sp[1])) });
+    } else if (d?.kind === "pivot") {
+      setPivotSt({ key: d.key, p: snapAt(p, e) });
+    } else if (d?.kind === "rotate") {
+      const raw = Math.atan2(p[1] - d.c[1], p[0] - d.c[0]) * 180 / Math.PI - d.a0;
+      // odcinek: dociągamy kąt wynikowy (0°, 15°, 30°, 45°, 90°…), nie sam przyrost — wtedy da się ustawić idealnie poziomo/pionowo
+      const b0 = d.base ?? 0, step = e.shiftKey ? 15 : polar ? polarStep : 0;
+      const abs = step ? snapAngle(b0 + raw, step, e.shiftKey) : Math.round((b0 + raw) * 10) / 10;
+      const ang = abs - b0;
+      setInfo(d.base !== null ? `kąt ${fmtN(cadAngle(abs))}° · obrót ${fmtN(-ang)}°` : `obrót ${fmtN(-ang)}°`);
+      dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => rotateItem(it, d.c, ang)) });
+    } else if (d?.kind === "scale") {
+      const k = Math.max(0.05, Math.round((Math.hypot(p[0] - d.anchor[0], p[1] - d.anchor[1]) / d.d0) * 100) / 100);
+      setInfo(`skala × ${fmtN(k)}`);
+      dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => scaleItem(it, d.anchor, k)) });
     } else if (d?.kind === "marquee") setMarquee([Math.min(d.start[0], p[0]), Math.min(d.start[1], p[1]), Math.max(d.start[0], p[0]), Math.max(d.start[1], p[1])]);
     else if (draft?.t === "drag") {
       let b = snapAt(p, e, draft.tool === "line" || draft.tool === "dim" ? draft.a : null);
@@ -341,11 +499,13 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
       setDraft({ ...draft, b });
     } else if (draft?.t === "dimoff") {
       const cpt = snapAt(p, e);
-      const o = style.dimMode === "a" ? "a" : autoOrient(draft.p1, draft.p2, cpt);
+      const o = dimType === "h" || dimType === "v" || dimType === "a" ? dimType : autoOrient(draft.p1, draft.p2, cpt);
       setDraft({ ...draft, o, off: dimOffsetAt({ o, x1: draft.p1[0], y1: draft.p1[1], x2: draft.p2[0], y2: draft.p2[1] }, cpt) });
     } else if (draft?.t === "poly") setDraft({ ...draft, cur: snapAt(p, e, draft.pts[draft.pts.length - 1]) });
     else if (draft?.t === "arc3") setDraft({ ...draft, cur: snapAt(p, e, draft.e ? null : draft.s) });
     else if (draft?.t === "arcc") setDraft({ ...draft, cur: snapAt(p, e, draft.s ? null : draft.c) });
+    else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
+    else if (draft?.t === "dima1") setDraft({ ...draft, cur: draft.v ? snapAt(p, e, draft.v) : [q(p[0]), q(p[1])] });
     else if (tool !== "select") snapAt(p, e); // znacznik przyciągania także przed pierwszym kliknięciem
     else setMark(null);
   };
@@ -353,7 +513,8 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
   const onUp = () => {
     const d = drag.current;
     drag.current = null;
-    if (d?.kind === "move" || d?.kind === "handle") { dispatch({ type: "settle", from: d.from }); setMark(null); }
+    if (d?.kind === "move" || d?.kind === "handle" || d?.kind === "rotate" || d?.kind === "scale") { dispatch({ type: "settle", from: d.from }); setMark(null); setInfo(""); setGuides([]); }
+    else if (d?.kind === "pivot") { setMark(null); setGuides([]); setInfo(""); }
     else if (d?.kind === "marquee") {
       if (marquee && (marquee[2] - marquee[0] > 1 || marquee[3] - marquee[1] > 1)) {
         const inside = doc.items.filter((it) => intersects(bbox(it), marquee)).map((it) => it.id);
@@ -388,7 +549,7 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     else if (e.key === "-") zoomTo(zoom / 1.25);
     else if (e.key === "0") zoomTo(1);
     else if (e.key === "Delete" || e.key === "Backspace") { done(); act("del"); }
-    else if (e.key === "Escape") { if (draft) endDraft(); else if (sel.length) dispatch({ type: "sel", sel: [] }); else setTool("select"); }
+    else if (e.key === "Escape") { if (draft || tool !== "select") { endDraft(); pickTool("select"); } else if (sel.length) dispatch({ type: "sel", sel: [] }); }
     else if (e.key === "Enter" && draft) { done(); endDraft(); }
     else if (e.key === "]") act("up");
     else if (e.key === "[") act("down");
@@ -448,6 +609,10 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
     else { const fresh = r.items.map((it) => ({ ...it, id: newId() })); set(addItems(doc, fresh), fresh.map((it) => it.id)); }
   };
 
+  const gbox = tool === "select" && sel.length ? selBox(sel) : null;
+  const pivot = gbox ? pivotOf(sel) : null;
+  const showScale = sel.length > 1 || (!!one && SCALE_ONE.has(one.t));
+
   return (
     <div ref={root} className="rys-ed" tabIndex={0} onKeyDown={onKey} onKeyUp={onKeyUp} onBlur={() => setPanKey(false)} onCopy={onCopy} onCut={onCopy} onPaste={onPaste}>
       <div className="rys-bar" role="toolbar" aria-label="Narzędzia rysownika">
@@ -459,9 +624,16 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
         <div className="rys-tools">
           <button type="button" className="rys-tool" aria-pressed={snapOn} onClick={() => setSnapOn((v) => !v)} title="Przyciąganie do końców, środków, przecięć i linii (Alt wyłącza na chwilę)">{icons.magnet}<span>Punkty</span></button>
           <button type="button" className="rys-tool" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Pokaż siatkę roboczą (nie trafia na rysunek)">{icons.dots}<span>Siatka</span></button>
-          <label className="rys-step" title="Skok przyciągania do siatki, w jednostkach rysunku">Skok
+          <label className="rys-step" title="Skok przyciągania do siatki, w jednostkach rysunku (brak — bez dociągania do siatki)">Skok
             <select value={grid} onChange={(e) => setGrid(+e.target.value)}>{GRID_STEPS.map((g) => <option key={g} value={g}>{g === 0 ? "brak" : fmt(g)}</option>)}</select>
           </label>
+        </div>
+        <div className="rys-tools">
+          <button type="button" className="rys-tool" aria-pressed={polar} onClick={() => setPolar((v) => !v)} title="Kąty: przy rysowaniu kierunek dociąga do wielokrotności wybranego kąta (jak POLAR w CAD)">{icons.polar}<span>Kąty</span></button>
+          <label className="rys-step" title="Krok kąta">
+            <select value={polarStep} onChange={(e) => { setPolarStep(+e.target.value); setPolar(true); }}>{POLAR_STEPS.map((a) => <option key={a} value={a}>{a}°</option>)}</select>
+          </label>
+          <button type="button" className="rys-tool" aria-pressed={trackOn} onClick={() => setTrackOn((v) => !v)} title="Śledzenie: równolegle i prostopadle do innych linii, wyrównanie z końcami, środkami i osiami symetrii (jak OTRACK w CAD)">{icons.track}<span>Śledzenie</span></button>
         </div>
         <div className="rys-tools">
           <button type="button" className="rys-tool" onClick={() => zoomTo(zoom / 1.25)} title="Pomniejsz (−, kółko myszy)">{icons.zout}<span>Pomniejsz</span></button>
@@ -472,6 +644,11 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
           <button type="button" className="rys-tool" onClick={() => setImporting(true)} title="Wczytaj rysunek z dowolnej strony serwisu do edycji">{icons.import}<span>Import</span></button>
         </div>
         {actions && <div className="rys-actions">{actions}</div>}
+        {tool === "dim" && (
+          <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj wymiaru">
+            {DIM_TYPES.map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={dimType === v} onClick={() => { setDimType(v); setDraft(null); setInfo(""); }}>{l}</button>)}
+          </div>
+        )}
       </div>
 
       <div ref={stage} className={`rys-stage${panKey || panning ? " is-pan" : ""}${panning ? " is-panning" : ""}`}
@@ -499,8 +676,18 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
               {preview && <g className="rys-draft" pointerEvents="none">{renderItem(preview, c, doc.k)}</g>}
               {draft?.t === "poly" && <circle cx={draft.pts[0][0]} cy={draft.pts[0][1]} r={hr} className="rys-close" pointerEvents="none" />}
               {draft?.t === "arc3" && draft.e && <line x1={draft.s[0]} y1={draft.s[1]} x2={draft.e[0]} y2={draft.e[1]} className="rys-chord" pointerEvents="none" />}
-              {tool === "select" && doc.items.filter((it) => sel.includes(it.id)).map((it) => { const b = bbox(it), pad = 3 * u; return <rect key={it.id} x={b[0] - pad} y={b[1] - pad} width={b[2] - b[0] + 2 * pad} height={b[3] - b[1] + 2 * pad} className="rys-selbox" pointerEvents="none" />; })}
+              {tool === "select" && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
+              {tool === "select" && gbox && (
+                <g>
+                  {sel.length > 1 && <rect x={gbox[0] - 5 * u} y={gbox[1] - 5 * u} width={gbox[2] - gbox[0] + 10 * u} height={gbox[3] - gbox[1] + 10 * u} className="rys-gframe" pointerEvents="none" />}
+                  {showScale && (["nw", "ne", "se", "sw"] as const).map((k) => <rect key={k} data-g={k} x={(k.includes("w") ? gbox[0] - 5 * u : gbox[2] + 5 * u) - hr} y={(k.includes("n") ? gbox[1] - 5 * u : gbox[3] + 5 * u) - hr} width={2 * hr} height={2 * hr} className={`rys-ghandle is-${k}`} />)}
+                  <line x1={gbox[2] + 5 * u} y1={gbox[1] - 5 * u} x2={gbox[2] + 18 * u} y2={gbox[1] - 18 * u} className="rys-rotline" pointerEvents="none" />
+                  {pivot && <g data-g="pivot" className="rys-pivot"><circle cx={pivot[0]} cy={pivot[1]} r={hr * 1.3} /><path d={`M ${pivot[0] - hr * 2.2} ${pivot[1]} h ${hr * 4.4} M ${pivot[0]} ${pivot[1] - hr * 2.2} v ${hr * 4.4}`} /><title>Punkt obrotu — przeciągnij, przyciąga się do punktów</title></g>}
+                  <g data-g="rot" className="rys-rot"><title>Obrót (Shift — co 15°)</title><circle cx={gbox[2] + 18 * u} cy={gbox[1] - 18 * u} r={hr * 1.6} /><path d={`M ${gbox[2] + 18 * u - hr * 0.8} ${gbox[1] - 18 * u} a ${hr * 0.8} ${hr * 0.8} 0 1 1 ${hr * 0.8} ${hr * 0.8}`} /></g>
+                </g>
+              )}
               {tool === "select" && one && handles(one).map((h) => <circle key={h.key} data-h={h.key} cx={h.x} cy={h.y} r={hr} className={`rys-handle${h.key === "off" || h.key === "c" || h.key === "m" ? " is-alt" : ""}`} />)}
+              {guides.map((g, i) => <line key={i} x1={g.a[0]} y1={g.a[1]} x2={g.b[0]} y2={g.b[1]} className={g.ref ? "rys-guide is-ref" : "rys-guide"} pointerEvents="none" />)}
               {marquee && <rect x={marquee[0]} y={marquee[1]} width={marquee[2] - marquee[0]} height={marquee[3] - marquee[1]} className="rys-marquee" pointerEvents="none" />}
               {mark && <SnapMark {...mark} u={u} />}
             </svg>
@@ -511,11 +698,13 @@ export default function Editor({ initial, onChange, actions }: EditorProps) {
       <PropsPanel doc={doc} sel={sel} tool={tool} style={style} focusKey={focusKey}
         edit={edit} settle={settle} onStyle={(p) => setStyle((s) => ({ ...s, ...p }))}
         onDoc={(p) => { liveFrom.current ??= doc; dispatch({ type: "live", doc: { ...doc, ...p } }); }}
-        onSelect={(ids) => { setTool("select"); dispatch({ type: "sel", sel: ids }); }} onAction={act} />
+        onSelect={(ids) => { setTool("select"); dispatch({ type: "sel", sel: ids }); }} onAction={act}
+        onTransform={(kind, v) => { const c = pivotOf(sel); if (c) set(patchItems(doc, sel, (it) => (kind === "rot" ? rotateItem(it, c, -v) : scaleItem(it, c, v)))); }} />
 
       <div className="rys-status">
         <span className="rys-coords">{cursor ? `X ${fmt(cursor[0])} · Y ${fmt(cursor[1])}` : `360 × ${doc.h}`}</span>
         {mark && <span className="rys-snapname">{SNAP_LABEL[mark.kind]}</span>}
+        {info && <span className="rys-snapname">{info}</span>}
         {measure && <span className="rys-measure">{measure}</span>}
         <span className="rys-hint">{hint} Kółko myszy — powiększenie, środkowy przycisk albo spacja — przesuwanie widoku.</span>
       </div>
