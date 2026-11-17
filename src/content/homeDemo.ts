@@ -49,3 +49,64 @@ M30`;
 
 /** Pierwsze linie czterech operacji (komentarze w programie) — podział na rozdziały sekcji przewijanej. */
 export const HOME_DEMO_OPS = ["(KONTUR", "(KIESZEN", "(DWA ROWKI", "(CZTERY OTWORY"];
+
+/*
+  Ten sam program w języku Sinumerika (pulpit na stronie głównej, przełącznik Fanuc / Sinumerik).
+  Różnice wg lekcji F5.1 i karty G81–G83: wywołanie narzędzia T D + M6 (korekcja długości bez G43),
+  G71 = wymiary w mm, promień łuku CR=, pełny okrąg z punktem końcowym = punkt startu,
+  cykl wiercenia MCALL CYCLE81(RTP, RFP, SDIS, DP) zamiast G99 G81 … R, puste MCALL kasuje wywołanie.
+  Tylko do pokazu: symulator czyta zapis ISO (Fanuc), więc „Otwórz w symulatorze” wysyła HOME_DEMO.
+*/
+export const HOME_DEMO_SINUMERIK = `; PLYTKA MOCUJACA 80 x 50
+G17 G90 G54 G40 G71
+T1 D1 ; FREZ FI10
+M6
+G0 Z50
+S2400 M3
+; KONTUR ZEWNETRZNY Z ZAOKRAGLENIAMI R10
+G0 X10 Y0 Z5
+G1 Z-3 F120
+G1 X70 F400
+G3 X80 Y10 CR=10
+G1 Y40
+G3 X70 Y50 CR=10
+G1 X10
+G3 X0 Y40 CR=10
+G1 Y10
+G3 X10 Y0 CR=10
+G0 Z5
+; KIESZEN OKRAGLA FI30 W SRODKU - DWA PRZEJSCIA WOKOL X40 Y25
+G0 X40 Y25
+G1 Z-2 F120
+G1 X34 F300
+G2 X34 Y25 I6 J0
+G1 X30
+G2 X30 Y25 I10 J0
+G1 X40
+G0 Z5
+; DWA ROWKI POPRZECZNE
+G0 X8 Y25
+G1 Z-2 F120
+G1 X18 F350
+G0 Z5
+G0 X62 Y25
+G1 Z-2 F120
+G1 X72 F350
+G0 Z5
+; CZTERY OTWORY MOCUJACE
+G0 Z50
+T2 D1 ; WIERTLO FI6
+M6
+G0 Z50
+S1400 M3
+F130
+MCALL CYCLE81(2, 0, 2, -14)
+X12 Y10
+X68
+Y40
+X12
+MCALL
+G0 Z50
+M30`;
+
+export const HOME_DEMO_SINUMERIK_OPS = ["; KONTUR", "; KIESZEN", "; DWA ROWKI", "; CZTERY OTWORY"];
