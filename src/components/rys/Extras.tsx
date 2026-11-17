@@ -248,30 +248,32 @@ export function LayerBar(props: { doc: RysDoc; active: string; sel: string[]; on
   }, [open]);
   return (
     <div className="rys-lbar">
-      <label className="rys-step">Warstwa
-        <select value={cur.id} onChange={(e) => onActive(e.target.value)} title="Nowe elementy trafiają na tę warstwę">
+      <div className="rys-lrow">
+        <select className="rys-lsel" value={cur.id} onChange={(e) => onActive(e.target.value)} aria-label="Aktywna warstwa" title="Aktywna warstwa — nowe elementy trafiają na nią">
           {layers.map((l) => <option key={l.id} value={l.id}>{l.name}{!l.vis ? " (ukryta)" : ""}{l.lock ? " (zablokowana)" : ""}</option>)}
         </select>
-      </label>
-      <button type="button" className="rys-ib" aria-pressed={cur.vis} onClick={() => patch({ vis: !cur.vis })} title={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"} aria-label={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"}>{cur.vis ? icons.eye : icons.eyeOff}</button>
-      <button type="button" className="rys-ib" aria-pressed={cur.lock} onClick={() => patch({ lock: !cur.lock })} title={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"} aria-label={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"}>{cur.lock ? icons.lock : icons.unlock}</button>
-      <label className="rys-step">Krycie
-        <select value={Math.round((cur.op ?? 1) * 100)} onChange={(e) => { const v = +e.target.value / 100; patch(v >= 1 ? { op: undefined } : { op: v }); }}>
-          {[100, 75, 50, 25].map((x) => <option key={x} value={x}>{x}%</option>)}
-        </select>
-      </label>
-      {layers.length < 20 && <button type="button" className="rys-btn" onClick={() => { const id = newId(); onLayers([...layers, { id, name: `Warstwa ${layers.length + 1}`, vis: true, lock: false }]); onActive(id); }}>+ Nowa warstwa</button>}
-      {sel.length > 0 && layers.length > 1 && (
-        <label className="rys-step">Zaznaczone na
-          <select value="" onChange={(e) => { if (e.target.value) onMove(e.target.value); }}>
-            <option value="">— wybierz —</option>
-            {layers.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+        <button type="button" className="rys-ib" aria-pressed={cur.vis} onClick={() => patch({ vis: !cur.vis })} title={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"} aria-label={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"}>{cur.vis ? icons.eye : icons.eyeOff}</button>
+        <button type="button" className="rys-ib" aria-pressed={cur.lock} onClick={() => patch({ lock: !cur.lock })} title={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"} aria-label={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"}>{cur.lock ? icons.lock : icons.unlock}</button>
+      </div>
+      <div className="rys-lrow">
+        <label className="rys-lfield">Krycie
+          <select value={Math.round((cur.op ?? 1) * 100)} onChange={(e) => { const v = +e.target.value / 100; patch(v >= 1 ? { op: undefined } : { op: v }); }}>
+            {[100, 75, 50, 25].map((x) => <option key={x} value={x}>{x}%</option>)}
           </select>
         </label>
-      )}
-      <div ref={box} className="rys-menu">
-        <button type="button" className="rys-btn" aria-expanded={open} onClick={() => setOpen((v) => !v)}>Wszystkie warstwy {icons.chevron}</button>
-        {open && <div className="rys-menu-list rys-lpop"><LayersPanel {...props} /></div>}
+        {layers.length < 20 && <button type="button" className="rys-sbtn" onClick={() => { const id = newId(); onLayers([...layers, { id, name: `Warstwa ${layers.length + 1}`, vis: true, lock: false }]); onActive(id); }} title="Nowa warstwa (od razu aktywna)">{icons.layers}<span>Nowa</span></button>}
+      </div>
+      <div className="rys-lrow">
+        {sel.length > 0 && layers.length > 1 && (
+          <select className="rys-lmove" value="" onChange={(e) => { if (e.target.value) onMove(e.target.value); }} aria-label="Przenieś zaznaczone na warstwę">
+            <option value="">Zaznaczone na…</option>
+            {layers.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+          </select>
+        )}
+        <div ref={box} className="rys-menu">
+          <button type="button" className="rys-sbtn" aria-expanded={open} onClick={() => setOpen((v) => !v)} title="Lista wszystkich warstw: nazwy, kolejność, widoczność, blokada, krycie">Wszystkie {icons.chevron}</button>
+          {open && <div className="rys-menu-list rys-lpop"><LayersPanel {...props} /></div>}
+        </div>
       </div>
     </div>
   );
