@@ -3,7 +3,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { FigDefs, figCtx } from "@/components/fig";
 import {
   ARROWS, ARROW_LABEL, FILLS, FILL_LABEL, FONTS, FONT_LABEL, FONT_SIZES, KIND_LABEL, LINE_KINDS, strokeOf, TEXT_COLORS, TEXT_COLOR_LABEL,
-  WIDTHS, WIDTH_LABEL, type Item,
+  WIDTHS, WIDTH_LABEL, GDT_SYMS, GDT_LABEL, ROUGH_KINDS, ROUGH_LABEL, type Item,
 } from "@/lib/rys/model";
 import { renderItem } from "./render";
 
@@ -14,6 +14,11 @@ import { renderItem } from "./render";
 */
 
 const ID = "rysstd", c = figCtx(ID);
+/** Przykładowe wpisy ramek: tolerancja|bazy (cechy kształtu bez bazy). */
+const GDT_EXAMPLE: Record<(typeof GDT_SYMS)[number], string> = {
+  str: "0,02", flat: "0,05", circ: "0,01", cyl: "0,02", pline: "0,1", psurf: "0,1|A", par: "0,05|A", perp: "0,05|A", ang: "0,1|A",
+  pos: "⌀0,1|A|B", coax: "⌀0,02|A", sym: "0,1|A", run: "0,05|A", trun: "0,05|A-B",
+};
 const base = { k: "con" as const, sw: "auto" as const };
 
 function Sample({ w = 120, h = 24, items }: { w?: number; h?: number; items: Item[] }) {
@@ -63,6 +68,17 @@ export function StandardDialog({ onClose }: { onClose: () => void }) {
             <Row sample={<Sample h={40} items={[{ id: "c", t: "circle", ...base, fill: "none", cx: 40, cy: 20, r: 14 }, { id: "d2", t: "dimr", d: true, cx: 40, cy: 20, r: 14, a: -30, ext: 16, label: "⌀<>", size: 10.5, font: "mono" }]} />} name="Średnica / promień" />
             <Row sample={<Sample items={[{ id: "p", t: "pt", x: 20, y: 12, label: "P1", pos: "e", color: "cut" }, { id: "s", t: "step", x: 80, y: 12, n: 1 }]} />} name="Punkt i numer kroku" />
           </ul>
+          <h3>Symbole (ISO 1101, ISO 5459, ISO 21920-1)</h3>
+          <ul>
+            <Row sample={<Sample h={30} items={[{ id: "g1", t: "gdt", x: 4, y: 15, sym: "pos", tol: "0,1", dia: true, mod: "M", dat: "A|B|C", size: 10.5, font: "mono" }]} />} name="Ramka tolerancji" note="cecha · tolerancja (⌀ — pole walcowe) · modyfikator · bazy" />
+            {GDT_SYMS.map((v) => {
+              const [tol, ...dat] = GDT_EXAMPLE[v].split("|");
+              return <Row key={v} sample={<Sample h={26} items={[{ id: v, t: "gdt", x: 4, y: 13, sym: v, tol: tol.replace("⌀", ""), dia: tol.startsWith("⌀"), mod: "", dat: dat.join("|"), size: 9.5, font: "mono" }]} />} name={GDT_LABEL[v]} note={dat.length ? "względem bazy" : "bez bazy (kształt)"} />;
+            })}
+            <Row sample={<Sample h={40} items={[{ id: "bl", t: "line", ...base, arrow: "none", x1: 10, y1: 34, x2: 70, y2: 34 }, { id: "b", t: "datum", x: 40, y: 34, bx: 40, by: 12, s: "A", solid: true, size: 10.5, font: "mono" }]} />} name="Baza" note="trójkąt na elemencie, litera w ramce" />
+            {ROUGH_KINDS.map((v) => <Row key={v} sample={<Sample h={36} items={[{ id: "rl", t: "line", ...base, arrow: "none", x1: 4, y1: 32, x2: 116, y2: 32 }, { id: v, t: "rough", x: 22, y: 32, a: 0, kind: v, s: "Ra 1,6", size: 9.5, font: "mono" }]} />} name={`Chropowatość: ${ROUGH_LABEL[v].toLowerCase()}`} />)}
+          </ul>
+          <p className="rys-tip">Wartości w ramkach są przykładowe.</p>
         </section>
       </div>
       <form method="dialog" className="rys-dialog-actions"><button className="btn ghost">Zamknij</button></form>
