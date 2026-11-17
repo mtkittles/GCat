@@ -93,6 +93,18 @@ describe("zaokrąglenie, faza, odsunięcie", () => {
     expect(typeof p !== "string" && p.pts.slice(0, 2)).toEqual([[0, 3], [3, 0]]);
     expect(cornerVertex(sq, 0, 30, false)).toBe("promień za duży dla tych boków");
   });
+  it("faza: dwie długości i długość × kąt (jak w CAD/NX)", () => {
+    // wierzchołek 1 prostokąta (40, 0): pierwszy bok dochodzi z (0, 0), drugi idzie do (40, 20)
+    const two = cornerVertex(sq, 1, 4, true, { d2: 2 });
+    expect(typeof two !== "string" && two.pts.slice(1, 3)).toEqual([[36, 0], [40, 2]]);
+    const near = cornerVertex(sq, 1, 4, true, { d2: 2 }, [40, 10]); // kursor przy drugim boku — on dostaje pierwszą długość
+    expect(typeof near !== "string" && near.pts.slice(1, 3)).toEqual([[38, 0], [40, 4]]);
+    const a30 = cornerVertex(sq, 1, 6, true, { ang: 30 }); // narożnik 90°: d2 = 6·tg 30°
+    expect(typeof a30 !== "string" && a30.pts[2][1]).toBeCloseTo(6 * Math.tan(Math.PI / 6), 2);
+    expect(cornerVertex(sq, 1, 6, true, { ang: 90 })).toBe("kąt fazy za duży dla tego narożnika");
+    const r = cornerLines(L(0, 0, 100, 0, "a") as never, [80, 0], L(50, -50, 50, 50, "b") as never, [50, 40], 2, true, { ang: 45 });
+    expect(typeof r !== "string" && r.extra).toMatchObject({ t: "line", x1: 52, y1: 0, x2: 50, y2: 2 });
+  });
   it("dwie linie: łuk styczny R10 i linie skrócone do punktów styczności", () => {
     const r = cornerLines(L(0, 0, 100, 0, "a") as never, [80, 0], L(50, -50, 50, 50, "b") as never, [50, 40], 10, false);
     expect(typeof r).not.toBe("string");

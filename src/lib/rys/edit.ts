@@ -302,16 +302,37 @@ export function vertexAt(items: Item[], p: P2, tol: number): { it: Item; i: numb
   }
   return null;
 }
-/** Zaokrąglenie (r) albo faza (chamfer: d wzdłuż obu boków) w wierzchołku i polilinii/prostokąta. */
-export function cornerVertex(it: Item, i: number, v: number, chamfer: boolean): PolyItem | string {
+/** Faza jak w CAD/NX: równa (d na obu bokach), dwie długości (d na pierwszym, d2 na drugim) albo długość i kąt do pierwszego boku. */
+export interface ChamferSpec { d2?: number; ang?: number }
+/** Długości fazy na pierwszym i drugim boku; phi — kąt wewnętrzny narożnika (rad). Z twierdzenia sinusów: d2 = d·sin α / sin(φ + α). */
+export function chamferLegs(d: number, phi: number, ch?: ChamferSpec): [number, number] | string {
+  if (ch?.ang != null) {
+    const a = ch.ang * RAD, s = Math.sin(phi + a);
+    if (ch.ang <= 0 || phi + a >= Math.PI - 1e-6 || s < 1e-6) return "kąt fazy za duży dla tego narożnika";
+    return [d, (d * Math.sin(a)) / s];
+  }
+  return [d, ch?.d2 ?? d];
+}
+const segD = (p: P2, a: P2, b: P2) => {
+  const dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy, t = L2 ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2)) : 0;
+  return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy);
+};
+/**
+  Zaokrąglenie (r) albo faza (chamfer: d wzdłuż boków, `ch` — dwie długości albo długość i kąt) w wierzchołku polilinii/prostokąta.
+  Pierwszy bok fazy — ten bliżej punktu `near` (kursora), a bez niego bok dochodzący do wierzchołka.
+*/
+export function cornerVertex(it: Item, i: number, v: number, chamfer: boolean, ch?: ChamferSpec, near?: P2): PolyItem | string {
   const pl = rectToPoly(it);
   if (!pl) return "to nie jest polilinia ani prostokąt";
   const n = pl.pts.length, P = pl.pts[(i - 1 + n) % n], V = pl.pts[i], N = pl.pts[(i + 1) % n];
   const d1 = unit(P, V), d2 = unit(V, N), cos = Math.max(-1, Math.min(1, d1[0] * d2[0] + d1[1] * d2[1])), th = Math.acos(cos);
   if (th < 1e-3) return "boki są współliniowe";
-  const t = chamfer ? v : v * Math.tan(th / 2);
-  if (t > Math.hypot(V[0] - P[0], V[1] - P[1]) + 1e-6 || t > Math.hypot(N[0] - V[0], N[1] - V[1]) + 1e-6) return chamfer ? "faza dłuższa niż bok" : "promień za duży dla tych boków";
-  const T1: P2 = [q(V[0] - d1[0] * t), q(V[1] - d1[1] * t)], T2: P2 = [q(V[0] + d2[0] * t), q(V[1] + d2[1] * t)];
+  const legs = chamfer ? chamferLegs(v, Math.PI - th, ch) : ([v * Math.tan(th / 2), v * Math.tan(th / 2)] as [number, number]);
+  if (typeof legs === "string") return legs;
+  let [t1, t2] = legs;
+  if (chamfer && near && segD(near, V, N) < segD(near, P, V)) [t1, t2] = [t2, t1];
+  if (t1 > Math.hypot(V[0] - P[0], V[1] - P[1]) + 1e-6 || t2 > Math.hypot(N[0] - V[0], N[1] - V[1]) + 1e-6) return chamfer ? "faza dłuższa niż bok" : "promień za duży dla tych boków";
+  const T1: P2 = [q(V[0] - d1[0] * t1), q(V[1] - d1[1] * t1)], T2: P2 = [q(V[0] + d2[0] * t2), q(V[1] + d2[1] * t2)];
   const cr = d1[0] * d2[1] - d1[1] * d2[0], bulge = chamfer ? 0 : Math.round(Math.sign(cr) * Math.tan(th / 4) * 1e4) / 1e4;
   const b = pl.b ? [...pl.b] : pl.pts.map(() => 0);
   const pts = [...pl.pts.slice(0, i), T1, T2, ...pl.pts.slice(i + 1)];
@@ -322,7 +343,7 @@ export function cornerVertex(it: Item, i: number, v: number, chamfer: boolean): 
   Zaokrąglenie/faza między dwiema liniami (zostają kawałki po stronie kliknięć, jak w CAD).
   r = 0 — ostry narożnik (obie linie do punktu przecięcia).
 */
-export function cornerLines(l1: LineItem, c1: P2, l2: LineItem, c2: P2, v: number, chamfer: boolean): { l1: LineItem; l2: LineItem; extra: Item | null } | string {
+export function cornerLines(l1: LineItem, c1: P2, l2: LineItem, c2: P2, v: number, chamfer: boolean, ch?: ChamferSpec): { l1: LineItem; l2: LineItem; extra: Item | null } | string {
   const den = (l1.x2 - l1.x1) * (l2.y2 - l2.y1) - (l1.y2 - l1.y1) * (l2.x2 - l2.x1);
   if (Math.abs(den) < 1e-9) return "linie są równoległe";
   // przecięcie prostych (oba parametry dowolne)
@@ -338,9 +359,11 @@ export function cornerLines(l1: LineItem, c1: P2, l2: LineItem, c2: P2, v: numbe
   const k1 = keep(l1, c1), k2 = keep(l2, c2);
   const u1 = unit(X, k1.far), u2 = unit(X, k2.far), cos = Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1])), al = Math.acos(cos);
   if (al < 1e-3 || al > Math.PI - 1e-3) return "linie są współliniowe";
-  const t = chamfer ? v : v / Math.tan(al / 2);
-  if (t > Math.hypot(k1.far[0] - X[0], k1.far[1] - X[1]) + 1e-6 || t > Math.hypot(k2.far[0] - X[0], k2.far[1] - X[1]) + 1e-6) return chamfer ? "faza dłuższa niż linia" : "promień za duży dla tych linii";
-  const T1: P2 = [q(X[0] + u1[0] * t), q(X[1] + u1[1] * t)], T2: P2 = [q(X[0] + u2[0] * t), q(X[1] + u2[1] * t)];
+  const legs = chamfer ? chamferLegs(v, al, ch) : ([v / Math.tan(al / 2), v / Math.tan(al / 2)] as [number, number]);
+  if (typeof legs === "string") return legs;
+  const [t1, t2] = legs;
+  if (t1 > Math.hypot(k1.far[0] - X[0], k1.far[1] - X[1]) + 1e-6 || t2 > Math.hypot(k2.far[0] - X[0], k2.far[1] - X[1]) + 1e-6) return chamfer ? "faza dłuższa niż linia" : "promień za duży dla tych linii";
+  const T1: P2 = [q(X[0] + u1[0] * t1), q(X[1] + u1[1] * t1)], T2: P2 = [q(X[0] + u2[0] * t2), q(X[1] + u2[1] * t2)];
   const set = (l: LineItem, k: { end: "1" | "2" }, T: P2): LineItem => (k.end === "1" ? { ...l, x1: T[0], y1: T[1] } : { ...l, x2: T[0], y2: T[1] });
   let extra: Item | null = null;
   if (v > 0 && chamfer) extra = { id: newId(), ...keep2(l1), t: "line", k: l1.k, sw: l1.sw, arrow: "none", x1: T1[0], y1: T1[1], x2: T2[0], y2: T2[1] };

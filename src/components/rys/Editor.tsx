@@ -49,20 +49,19 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "axes", label: "Osie", key: "X", hint: "Przeciągnij od początku układu współrzędnych do końców osi X i Y. Nazwy osi (X/Y albo Z/X) i opisy wartości ustawisz w panelu." },
   { id: "trim", label: "Utnij", key: "U", hint: "Najedź na kawałek linii, łuku, okręgu albo boku figury między przecięciami — podświetli się na czerwono; kliknięcie go usuwa. Shift+klik — wydłuż." },
   { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
-  { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik." },
-  { id: "chamfer", label: "Fazuj", key: "K", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie fazę o długości z paska (na każdym boku). Dla dwóch linii: kliknij pierwszą, potem drugą." },
+  { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Naroże — zaokrąglenie: kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik. Faza — przełącz na pasku (albo K)." },
+  { id: "chamfer", label: "Fazuj", key: "K", hint: "Naroże — faza: równa, dwie długości albo długość × kąt (ustaw na pasku). Kliknij narożnik — pierwsza długość idzie na bok bliżej kursora; dla dwóch linii kliknij pierwszą (dostaje pierwszą długość, od niej liczy się kąt), potem drugą." },
   { id: "region", label: "Obszary", key: "B", hint: "Najedź na obszar wyznaczony przez nachodzące figury i linie — podświetli się. Kliknięcie zaznacza (Shift albo Ctrl dodaje kolejne). Potem „Wypełnij” albo „Utwórz figurę” na pasku." },
   { id: "array", label: "Szyk", key: "Y", hint: "Zaznacz elementy, wybierz Szyk i ustaw go na pasku pod wstążką (prostokątny, kołowy wokół punktu, wzdłuż linii) — podgląd od razu; Enter albo „Utwórz” wstawia kopie." },
   { id: "mirror", label: "Lustro", key: "M", hint: "Zaznacz elementy, wybierz Lustro i kliknij dwa punkty osi odbicia — powstanie odbita kopia. Shift przy drugim kliknięciu — bez oryginału." },
   { id: "offset", label: "Odsuń", key: "W", hint: "Kliknij linię, okrąg, łuk, polilinię albo prostokąt, potem stronę — powstanie kopia odsunięta o odstęp z paska." },
 ];
 /** narzędzia edycji geometrii — osobna grupa na pasku */
-const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror", "array", "region"]);
 /** narzędzia, które działają na zaznaczeniu (wybór narzędzia nie czyści zaznaczenia) */
 const KEEP_SEL = new Set<Tool>(["mirror", "array"]);
-type Tab = "draw" | "edit" | "layers" | "view";
-const TABS: [Tab, string][] = [["draw", "Rysuj"], ["edit", "Zmień"], ["layers", "Warstwy"], ["view", "Widok"]];
-const NOTE_TOOLS = new Set<Tool>(["dim", "text", "pt", "step"]);
+type Tab = "home" | "view";
+const TABS: [Tab, string][] = [["home", "Narzędzia główne"], ["view", "Widok"]];
+type ChamferMode = "eq" | "two" | "ang";
 type ArrKind = "rect" | "polar" | "line";
 type DragTool = "line" | "rect" | "circle" | "grid" | "dim" | "axes";
 const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid", "axes"]);
@@ -252,7 +251,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [regSel, setRegSel] = useState<{ items: Item[]; ids: number[] } | null>(null);
   const [regHover, setRegHover] = useState<number | null>(null);
   const [regFill, setRegFill] = useState<Fill>("hatch");
-  const [tab, setTab] = useState<Tab>("draw");
+  const [tab, setTab] = useState<Tab>("home");
+  const [corner, setCorner] = useState<"fillet" | "chamfer">("fillet"); // ostatni rodzaj naroża
+  const [chm, setChm] = useState<{ mode: ChamferMode; d2: number; ang: number }>({ mode: "eq", d2: 2, ang: 45 }); // faza: równa / dwie długości (mm) / długość × kąt (°)
   const [arr, setArr] = useState({ kind: "rect" as ArrKind, cols: 3, rows: 1, dx: 10, dy: 10, gap: true, n: 6, ang: 360, step: 10, even: false });
   const [arrC, setArrC] = useState<P2 | null>(null); // środek szyku kołowego (brak — punkt obrotu zaznaczenia)
   const [arrL, setArrL] = useState<{ a: P2; b: P2 | null } | null>(null); // kierunek szyku wzdłuż linii
@@ -391,7 +392,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   };
   const pickTool = (t: Tool) => {
     setTool(t); setDraft(null); setMark(null); setHoverEdit(null);
-    if (t !== "select") setTab(EDIT_TOOLS.has(t) ? "edit" : "draw");
+    if (t !== "select") setTab("home");
+    if (t === "fillet" || t === "chamfer") setCorner(t);
     if (t === "mirror") setInfo(sel.length ? "lustro: kliknij pierwszy punkt osi odbicia" : "lustro: najpierw zaznacz elementy (Zaznacz), potem Lustro");
     else if (t === "array") setInfo(sel.length ? "szyk: ustaw go na pasku pod wstążką; Enter — utwórz" : "szyk: najpierw zaznacz elementy (Zaznacz), potem Szyk");
     else if (t !== "select") dispatch({ type: "sel", sel: [] });
@@ -474,16 +476,17 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   /** Zaokrąglenie / faza pod kursorem: wierzchołek polilinii/prostokąta albo druga linia po wybraniu pierwszej. */
   function cornerAt(p: P2): { patch: Record<string, Item>; add: Item[] } | string | null {
     if (tool !== "fillet" && tool !== "chamfer") return null;
-    const v = (tool === "fillet" ? vals.fillet : vals.chamfer) * (doc.k || 1), ch = tool === "chamfer", items = doc.items.filter(pickable);
+    const k = doc.k || 1, v = (tool === "fillet" ? vals.fillet : vals.chamfer) * k, ch = tool === "chamfer", items = doc.items.filter(pickable);
+    const spec = !ch || chm.mode === "eq" ? undefined : chm.mode === "two" ? { d2: chm.d2 * k } : { ang: chm.ang };
     if (draft?.t === "corner1") {
       const l1 = doc.items.find((it) => it.id === draft.id), tgt = pickCurve(items, p, 9 * u);
       if (l1?.t !== "line" || tgt?.t !== "line" || tgt.id === l1.id) return null;
-      const r = cornerLines(l1, draft.click, tgt, p, v, ch);
+      const r = cornerLines(l1, draft.click, tgt, p, v, ch, spec);
       return typeof r === "string" ? r : { patch: { [l1.id]: r.l1, [tgt.id]: r.l2 }, add: r.extra ? [onLayer(r.extra)] : [] };
     }
     const vx = vertexAt(items, p, 9 * u);
     if (!vx) return null;
-    const r = cornerVertex(vx.it, vx.i, v, ch);
+    const r = cornerVertex(vx.it, vx.i, v, ch, spec, p);
     return typeof r === "string" ? r : { patch: { [vx.it.id]: r }, add: [] };
   }
   /** Odcinek pod kursorem (do wymiaru kątowego). */
@@ -886,6 +889,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v)) setArr((o) => ({ ...o, [key]: min !== undefined && max !== undefined ? Math.round(Math.max(min, Math.min(max, v))) : v })); }} />
     </label>
   );
+  const T = (id: Tool) => TOOLS.find((t) => t.id === id)!;
+  const toolSm = (id: Tool) => {
+    const t = T(id);
+    return <button key={id} type="button" className="rys-sbtn" aria-pressed={tool === id} title={`${t.label} (${t.key})`} onClick={() => pickTool(id)}>{icons[id as IconName]}<span>{t.label}</span></button>;
+  };
+  const actSm = (label: string, icon: ReactNode, onClick: () => void, disabled: boolean, title: string) => (
+    <button key={label} type="button" className="rys-sbtn" disabled={disabled} onClick={onClick} title={title}>{icon}<span>{label}</span></button>
+  );
   const toolBtn = (t: (typeof TOOLS)[number]) => (
     <button key={t.id} type="button" className="rys-tool" aria-pressed={tool === t.id} title={`${t.label} (${t.key})`} onClick={() => pickTool(t.id)}>
       {icons[t.id as IconName]}<span>{t.label}</span>
@@ -1051,38 +1062,49 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
           {actions && <div className="rys-actions">{actions}</div>}
         </div>
         <div className="rys-rpanel" role="tabpanel">
-          {tab === "draw" && (
+          {tab === "home" && (
             <>
-              <RGroup title="Rysuj">{TOOLS.filter((t) => !EDIT_TOOLS.has(t.id) && !NOTE_TOOLS.has(t.id)).map(toolBtn)}</RGroup>
-              <RGroup title="Opisz">{TOOLS.filter((t) => NOTE_TOOLS.has(t.id)).map(toolBtn)}</RGroup>
-            </>
-          )}
-          {tab === "edit" && (
-            <>
-              <RGroup title="Zmień">{TOOLS.filter((t) => EDIT_TOOLS.has(t.id) && t.id !== "region").map(toolBtn)}</RGroup>
+              <RGroup title="Rysuj">
+                {(["select", "line", "poly", "rect", "circle", "arc"] as Tool[]).map((id) => toolBtn(T(id)))}
+                <div className="rys-rcol">{(["arcc", "grid", "axes"] as Tool[]).map(toolSm)}</div>
+              </RGroup>
+              <RGroup title="Opisz">
+                {toolBtn(T("dim"))}
+                <div className="rys-rcol">{(["text", "pt", "step"] as Tool[]).map(toolSm)}</div>
+              </RGroup>
+              <RGroup title="Zmień">
+                <div className="rys-rgrid">
+                  {toolSm("trim")}{toolSm("extend")}
+                  <button type="button" className="rys-sbtn" aria-pressed={tool === "fillet" || tool === "chamfer"} onClick={() => pickTool(corner)}
+                    title="Naroże: zaokrąglenie promieniem albo faza — rodzaj i wymiar na pasku pod wstążką (F — zaokrąglenie, K — faza)">{icons[corner]}<span>Naroże</span></button>
+                  {toolSm("offset")}{toolSm("mirror")}{toolSm("array")}
+                  {actSm("Rozbij", icons.explode, () => act("explode"), !selItems.some((it) => it.t === "rect" || it.t === "poly"), "Prostokąt i polilinia → osobne odcinki i łuki")}
+                  {actSm("Złącz", icons.join, () => act("join"), !(selItems.length > 1 && selItems.every((it) => it.t === "line" || it.t === "arc" || (it.t === "poly" && !it.closed))), "Odcinki i łuki stykające się końcami → jedna polilinia")}
+                  {actSm("Duplikuj", icons.copy, () => act("dup"), !sel.length, "Ctrl+D")}
+                </div>
+              </RGroup>
               <RGroup title="Figury">
-                {toolBtn(TOOLS.find((t) => t.id === "region")!)}
-                {actBtn("Połącz", icons.union, () => act("union"), !boolOk, "Jedna figura z obrysu zaznaczonych (zaznacz 2+ zamknięte figury)")}
-                {actBtn("Odejmij", icons.subtract, () => act("subtract"), !boolOk, "Pierwsza zaznaczona figura minus pozostałe")}
-                {actBtn("Wspólna", icons.intersect, () => act("intersect"), !boolOk, "Tylko część wspólna zaznaczonych figur")}
-                {actBtn("Poza wspólną", icons.xor, () => act("xor"), !boolOk, "Wszystko poza częścią wspólną")}
-                {actBtn("Rozbij", icons.explode, () => act("explode"), !selItems.some((it) => it.t === "rect" || it.t === "poly"), "Prostokąt i polilinia → osobne odcinki i łuki")}
-                {actBtn("Złącz", icons.join, () => act("join"), !(selItems.length > 1 && selItems.every((it) => it.t === "line" || it.t === "arc" || (it.t === "poly" && !it.closed))), "Odcinki i łuki stykające się końcami → jedna polilinia")}
+                <div className="rys-rgrid">
+                  {toolSm("region")}
+                  {actSm("Połącz", icons.union, () => act("union"), !boolOk, "Jedna figura z obrysu zaznaczonych (zaznacz 2+ zamknięte figury)")}
+                  {actSm("Odejmij", icons.subtract, () => act("subtract"), !boolOk, "Pierwsza zaznaczona figura minus pozostałe")}
+                  {actSm("Wspólna", icons.intersect, () => act("intersect"), !boolOk, "Tylko część wspólna zaznaczonych figur")}
+                  {actSm("Poza wspólną", icons.xor, () => act("xor"), !boolOk, "Wszystko poza częścią wspólną")}
+                </div>
               </RGroup>
               <RGroup title="Układ">
-                {actBtn("Grupuj", icons.group, () => act("group"), sel.length < 2, "Ctrl+G")}
-                {actBtn("Rozgrupuj", icons.ungroup, () => act("ungroup"), !selItems.some((it) => it.g), "Ctrl+Shift+G")}
-                {actBtn("Duplikuj", icons.copy, () => act("dup"), !sel.length, "Ctrl+D")}
-                {actBtn("Usuń", icons.trash, () => act("del"), !sel.length, "Delete")}
+                <div className="rys-rgrid">
+                  {actSm("Grupuj", icons.group, () => act("group"), sel.length < 2, "Ctrl+G")}
+                  {actSm("Rozgrupuj", icons.ungroup, () => act("ungroup"), !selItems.some((it) => it.g), "Ctrl+Shift+G")}
+                  {actSm("Usuń", icons.trash, () => act("del"), !sel.length, "Delete")}
+                </div>
+              </RGroup>
+              <RGroup title="Warstwy">
+                <LayerBar doc={doc} active={activeL} sel={sel} onActive={setActive}
+                  onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
+                  onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} />
               </RGroup>
             </>
-          )}
-          {tab === "layers" && (
-            <RGroup title="Warstwy">
-              <LayerBar doc={doc} active={activeL} sel={sel} onActive={setActive}
-                onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
-                onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} />
-            </RGroup>
           )}
           {tab === "view" && (
             <>
@@ -1125,11 +1147,32 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("shape")} title="Nowa figura z obrysem (styl z panelu) i wypełnieniem">Utwórz figurę</button>
           </div>
         )}
+        {(tool === "fillet" || tool === "chamfer") && (
+          <div className="rys-seg" role="radiogroup" aria-label="Rodzaj naroża">
+            {([["fillet", "Zaokrąglenie"], ["chamfer", "Faza"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={tool === v} onClick={() => pickTool(v)}>{l}</button>)}
+          </div>
+        )}
+        {tool === "chamfer" && (
+          <div className="rys-seg" role="radiogroup" aria-label="Rodzaj fazy">
+            {([["eq", "Równa"], ["two", "Dwie długości"], ["ang", "Długość × kąt"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={chm.mode === v} onClick={() => setChm((o) => ({ ...o, mode: v }))}>{l}</button>)}
+          </div>
+        )}
         {(tool === "fillet" || tool === "chamfer" || tool === "offset") && (
-          <label className="rys-step rys-val">{tool === "fillet" ? "Promień R" : tool === "chamfer" ? "Faza" : "Odstęp"}
+          <label className="rys-step rys-val">{tool === "fillet" ? "Promień R" : tool === "chamfer" ? (chm.mode === "eq" ? "Długość" : "Długość 1") : "Odstęp"}
             <input type="number" min={0} step={0.5} value={vals[tool]} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) setVals((o) => ({ ...o, [tool]: v })); }} /> mm
           </label>
         )}
+        {tool === "chamfer" && chm.mode === "two" && (
+          <label className="rys-step rys-val">Długość 2
+            <input type="number" min={0} step={0.5} value={chm.d2} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) setChm((o) => ({ ...o, d2: v })); }} /> mm
+          </label>
+        )}
+        {tool === "chamfer" && chm.mode === "ang" && (
+          <label className="rys-step rys-val">Kąt
+            <input type="number" min={1} max={89} step={1} value={chm.ang} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0 && v < 180) setChm((o) => ({ ...o, ang: v })); }} /> °
+          </label>
+        )}
+        {tool === "chamfer" && chm.mode !== "eq" && <span className="rys-arr-tip">długość 1 — na boku bliżej kursora (przy dwóch liniach: na pierwszej klikniętej){chm.mode === "ang" ? ", kąt liczony od tego boku" : ""}</span>}
         {tool === "line" && (
           <div className="rys-seg rys-dimtypes" role="radiogroup" aria-label="Rodzaj linii">
             {([["free", "Zwykła"], ["tan", "Styczna do okręgu / dwóch okręgów"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={lineMode === v} onClick={() => { setLineMode(v); setDraft(null); setInfo(v === "tan" ? "styczna: kliknij okrąg albo łuk" : ""); }}>{l}</button>)}
