@@ -117,3 +117,18 @@ describe("śledzenie jak w CAD", () => {
     expect(t?.p).toEqual([50, 50]);
   });
 });
+
+describe("opis wymiaru poza liniami pomocniczymi", () => {
+  it("tp: zapis, uchwyt „t” przesuwa opis wzdłuż linii, powrót na środek kasuje pole", async () => {
+    const { parseDoc, storeDoc, moveHandle, handles } = await import("@/lib/rys/model");
+    const d = parseDoc({ h: 100, k: 1, items: [{ t: "dim", o: "h", x1: 0, y1: 0, x2: 10, y2: 0, off: -10, tp: 14 }] });
+    const dim = d.items[0];
+    expect(dim.t === "dim" && dim.tp).toBe(14);
+    expect(storeDoc(d).items[0].tp).toBe(14);
+    expect(handles(dim).map((h) => h.key)).toContain("t");
+    const moved = moveHandle(dim, "t", 30, -10);
+    expect(moved.t === "dim" && moved.tp).toBe(25);
+    const back = moveHandle(dim, "t", 5, -10);
+    expect(back.t === "dim" && "tp" in back).toBe(false);
+  });
+});

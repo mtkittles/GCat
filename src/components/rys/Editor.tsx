@@ -1097,7 +1097,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                   {canRot && <g data-g="rot" className="rys-rot"><title>Obrót (Shift — co 15°)</title><circle cx={fp(1, -1, 18 * u)[0]} cy={fp(1, -1, 18 * u)[1]} r={hr * 1.6} /><path d={`M ${fp(1, -1, 18 * u)[0] - hr * 0.8} ${fp(1, -1, 18 * u)[1]} a ${hr * 0.8} ${hr * 0.8} 0 1 1 ${hr * 0.8} ${hr * 0.8}`} /></g>}
                 </g>
               )}
-              {tool === "select" && one && handles(one).map((h) => <circle key={h.key} data-h={h.key} cx={h.x} cy={h.y} r={hr * 0.8} className={`rys-handle${h.key === "off" || h.key === "c" || h.key === "m" ? " is-alt" : ""}`} />)}
+              {tool === "select" && one && handles(one).map((h) => <circle key={h.key} data-h={h.key} cx={h.x} cy={h.y} r={hr * 0.8} className={`rys-handle${h.key === "off" || h.key === "c" || h.key === "m" || h.key === "t" ? " is-alt" : ""}`} />)}
               {guides.map((g, i) => <line key={i} x1={g.a[0]} y1={g.a[1]} x2={g.b[0]} y2={g.b[1]} className={g.ref ? "rys-guide is-ref" : "rys-guide"} pointerEvents="none" />)}
               {marquee && <rect x={marquee[0]} y={marquee[1]} width={marquee[2] - marquee[0]} height={marquee[3] - marquee[1]} className="rys-marquee" pointerEvents="none" />}
               {mark && <SnapMark {...mark} u={u} />}
