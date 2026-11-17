@@ -24,3 +24,6 @@ export function isEditing(t: EventTarget | null) {
   if (!el || !el.closest) return false;
   return el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || !!el.closest(".cm-editor, .ProseMirror, [contenteditable='true']");
 }
+
+/** Pełnoekranowe narzędzia redakcji (rysownik, edytor treści, panel Keystatic) mają własne skróty — powłoka się nie wtrąca. */
+export const fullscreenTool = () => !!document.querySelector(".rys-shell, .ed-shell, .ks-panel");

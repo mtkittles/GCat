@@ -39,6 +39,7 @@ import { buildGeo, drawEnt, drawMeas, measOf, pickEnt, placeLin, radOf, type Ent
 export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
+import { carveRange } from "./carveRange";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -130,6 +131,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [split, setSplit] = useState(false);
   const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
+  const layerRef = useRef<HTMLCanvasElement | null>(null);
+  const layerState = useRef<{ key: string; segs: Segment[]; setup: Setup; program: ReturnType<typeof parseProgram>; progress: number } | null>(null);
+  const ghostRef = useRef<{ key: string; segs: Segment[]; canvas: HTMLCanvasElement } | null>(null);
   const holdRef = useRef(0);
   const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
   const [gotoN, setGotoN] = useState("");
@@ -222,7 +226,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [playing, setPlaying] = useState(!!autoplay && !showcase && autoStartOk(autoplay));
   // Po pierwszym ręcznym sterowaniu (start, pauza, krok, suwak) pokaz nie wznawia się sam.
   const manual = useRef(false);
-  const userPlay = (v: boolean | ((p: boolean) => boolean)) => { manual.current = true; setPlaying(v); };
+  const userPlay = useCallback((v: boolean | ((p: boolean) => boolean)) => { manual.current = true; setPlaying(v); }, []);
   // Kliknięcie w link (logo, menu, karta) zatrzymuje animację — inaczej ciągłe klatki
   // odkładały przejście na inną stronę aż do pauzy. Ukrycie karty przeglądarki też pauzuje.
   useEffect(() => {
@@ -319,6 +323,28 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
+  // Listy bloków zmieniają się przy zmianie bloku, nie w każdej klatce animacji. Bez memo cała lista
+  // (setki <li>, kolorowanie składni) renderowała się przy każdej klatce odtwarzania.
+  const showcaseItems = useMemo(() => program.lines.filter((l) => l.raw.trim()).map((l) => (
+    <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
+      <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
+      <code>{highlight(l.raw.trim())}</code>
+    </li>
+  )), [program, activeLine]);
+  const simLineItems = useMemo(() => program.lines.map((l) => (
+    <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
+      onClick={() => {
+        if (!l.segments.length) return;
+        let acc = 0;
+        for (let i = 0; i < segments.length; i++) {
+          if (segments[i].line === l.index) { userPlay(false); setProgress(acc + 1e-3); return; }
+          acc += lengths[i];
+        }
+      }}>
+      <code>{l.raw || " "}</code>
+      <span>{l.errors.length ? l.errors.join(" ") : l.description}</span>
+    </li>
+  )), [program, activeLine, segments, lengths, userPlay]);
   /** Zero aktywnego układu programu w maszynie (G54–G59/G54.1 + G52 + G92 + TRANS); null, gdy pokrywa się z początkiem kanwy. */
   const zeroMark = useMemo<Vec3 | null>(() => {
     const s0 = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
@@ -387,7 +413,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
     if (W < 8 || H < 8) return;   // kontener jeszcze bez wymiarów
-    cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+    // Nowy rozmiar bufora tylko przy zmianie wymiarów; w kolejnych klatkach reset stanu i czyszczenie
+    // bez ponownej alokacji (przypisanie width w każdej klatce tworzyło bufor od nowa).
+    const reset = (ctx as CanvasRenderingContext2D & { reset?: () => void }).reset;
+    if (cv.width !== Math.floor(W * dpr) || cv.height !== Math.floor(H * dpr) || typeof reset !== "function") { cv.width = W * dpr; cv.height = H * dpr; }
+    else reset.call(ctx);
+    ctx.scale(dpr, dpr);
 
     // Walec na 4. osi: zamiast rzutu z góry — rozwinięcie płaszcza (X × kąt detalu).
     if (isCyl(setup, mode)) {
@@ -430,14 +461,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (minor * scale > 4) {
       ctx.save();
       ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
+      // jedna ścieżka na całą podziałkę zamiast stroke() na każdą linię; jedyna różnica: przecięcia nie ciemnieją (krycie 0,09)
+      ctx.beginPath();
       for (let v = Math.floor(vis.h0 / minor) * minor; v <= vis.h1 + minor; v += minor) {
         const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        ctx.moveTo(x, 0); ctx.lineTo(x, H);
       }
       for (let v = Math.floor(vis.v0 / minor) * minor; v <= vis.v1 + minor; v += minor) {
         const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        ctx.moveTo(0, y); ctx.lineTo(W, y);
       }
+      ctx.stroke();
       ctx.restore();
     }
     ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
@@ -556,32 +590,45 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode) && !multi) {
       const boxes = stockBoxes(program, segments, setup);
       if (boxes.length) {
-        const layer = document.createElement("canvas");
-        layer.width = cv.width; layer.height = cv.height;
+        // Warstwa materiału: jedna kanwa na komponent, wycinana przyrostowo. W kolejnej klatce odtwarzania
+        // dochodzi tylko ślad od poprzedniego postępu do bieżącego (wycięcie jest nieodwracalne i powtórne
+        // wycięcie tego samego miejsca nic nie zmienia). Od zera — przy zmianie programu, ustawień, kadru,
+        // rozmiaru albo cofnięciu postępu. Wcześniej: nowa kanwa i cały ślad od początku w każdej klatce.
+        const layer = layerRef.current ?? (layerRef.current = document.createElement("canvas"));
         const lx = layer.getContext("2d");
         if (lx) {
-          lx.scale(dpr, dpr);
           const rects = boxes.map((box) => { const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 }); const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 }); return [Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0)] as const; });
-          lx.fillStyle = "rgba(148,163,184,0.20)";
-          for (const r of rects) lx.fillRect(...r);
+          const lkey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${mode}|${rects.map((r) => r.join(",")).join(";")}`;
+          const prev = layerState.current;
+          const fresh = !prev || prev.key !== lkey || prev.segs !== segments || prev.setup !== setup || prev.program !== program || progress < prev.progress
+            || layer.width !== cv.width || layer.height !== cv.height;
+          const from = fresh ? 0 : prev.progress;
+          if (fresh) {
+            if (layer.width !== cv.width || layer.height !== cv.height) { layer.width = cv.width; layer.height = cv.height; }
+            else { lx.setTransform(1, 0, 0, 1, 0, 0); lx.globalCompositeOperation = "source-over"; lx.clearRect(0, 0, layer.width, layer.height); }
+            lx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            lx.globalCompositeOperation = "source-over";
+            lx.fillStyle = "rgba(148,163,184,0.20)";
+            for (const r of rects) lx.fillRect(...r);
+          }
 
-          // wycięcie śladu narzędzia
+          // wycięcie śladu narzędzia (od `from` do `progress`)
+          lx.setTransform(dpr, 0, 0, dpr, 0, 0);
           lx.globalCompositeOperation = "destination-out";
           lx.lineCap = "round"; lx.lineJoin = "round"; lx.strokeStyle = "#000";
-          let accS = 0;
-          segments.forEach((sg, i) => {
-            const len = lengths[i];
-            const done = Math.min(1, Math.max(0, (progress - accS) / (len || 1)));
-            accS += len;
-            if (sg.kind === "rapid" || done <= 0) return;
+          for (const { i, d0, d1 } of carveRange(lengths, from, progress)) {
+            const sg = segments[i];
+            if (sg.kind === "rapid") continue;
             const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
             lx.lineWidth = Math.max(1.5, cuttingRadius(tl) * 2 * scale);
             lx.beginPath();
-            const n = sg.kind === "arc" ? 40 : 1;
-            const [sx, sy] = P(sg.from); lx.moveTo(sx, sy);
-            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, (k / n) * done)); lx.lineTo(x, y); }
+            // od początku odcinka — jak dotąd (40 kroków na łuk); dokładany kawałek — proporcjonalnie mniej
+            const n = sg.kind === "arc" ? (d0 === 0 ? 40 : Math.max(1, Math.ceil(40 * (d1 - d0)))) : 1;
+            const [sx, sy] = d0 === 0 ? P(sg.from) : P(pointAt(sg, d0)); lx.moveTo(sx, sy);
+            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, d0 + (k / n) * (d1 - d0))); lx.lineTo(x, y); }
             lx.stroke();
-          });
+          }
+          layerState.current = { key: lkey, segs: segments, setup, program, progress };
 
           ctx.drawImage(layer, 0, 0, W, H);
 
@@ -686,14 +733,32 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // gęsty program (z CAM): tor przygaszony, żeby było widać materiał
     const dense = segments.length > 2500;
     let acc = 0;
-    if (showPath) segments.forEach((sg, i) => {
-      const len = lengths[i];
-      const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
-      if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-      drawSeg(ctx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
-      if (done > 0) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
-      acc += len;
-    });
+    if (showPath) {
+      // Przygaszony cały tor nie zmienia się w trakcie odtwarzania: rysujemy go raz na osobną kanwę
+      // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru.
+      // (Wcześniej przygaszony i przebyty odcinek rysowały się na przemian, odcinek po odcinku — teraz
+      // przebyte idą nad całym torem; różnica tylko na skrzyżowaniach toru.)
+      const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}`;
+      let g = ghostRef.current;
+      if (!g || g.key !== ghostKey || g.segs !== segments) {
+        const c = g?.canvas ?? document.createElement("canvas");
+        c.width = cv.width; c.height = cv.height;
+        const gx = c.getContext("2d");
+        if (gx) {
+          gx.scale(dpr, dpr);
+          for (const sg of segments) if (sg.kind !== "dwell") drawSeg(gx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
+        }
+        g = ghostRef.current = { key: ghostKey, segs: segments, canvas: c };
+      }
+      ctx.drawImage(g.canvas, 0, 0, W, H);
+      segments.forEach((sg, i) => {
+        const len = lengths[i];
+        const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
+        if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
+        if (done > 0) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
+        acc += len;
+      });
+    }
 
     // zakres obróbki (bounding box ruchów roboczych)
     if (cut.length && !bare) {
@@ -1140,12 +1205,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <div className="showcase-code">
           <div className="codecard-head"><span className="codecard-dot" />Symulacja programu</div>
           <ol className="showcase-lines" ref={linesRef} tabIndex={0} aria-label="Program">
-            {program.lines.filter((l) => l.raw.trim()).map((l) => (
-              <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
-                <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
-                <code>{highlight(l.raw.trim())}</code>
-              </li>
-            ))}
+            {showcaseItems}
           </ol>
           <div className="showcase-state">
             <span>X {fmt(currentPos.x)}</span><span>Y {fmt(currentPos.y)}</span><span>Z {fmt(currentPos.z)}</span>
@@ -1160,20 +1220,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   const simLines = (
           <ol tabIndex={0} aria-label="Opis bloków programu" className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
-            {program.lines.map((l) => (
-              <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
-                onClick={() => {
-                  if (!l.segments.length) return;
-                  let acc = 0;
-                  for (let i = 0; i < segments.length; i++) {
-                    if (segments[i].line === l.index) { userPlay(false); setProgress(acc + 1e-3); return; }
-                    acc += lengths[i];
-                  }
-                }}>
-                <code>{l.raw || " "}</code>
-                <span>{l.errors.length ? l.errors.join(" ") : l.description}</span>
-              </li>
-            ))}
+            {simLineItems}
           </ol>
   );
   const viewExtras = (

@@ -9,7 +9,7 @@ import LearnMeter, { type MeterLesson } from "./LearnMeter";
 import ShellKeys from "./ShellKeys";
 import Tip, { TipProvider } from "./Tip";
 import { NAV_MAIN, NAV_SHOP, isActive, type NavItem } from "./nav";
-import { isEditing, openPalette, useModKey } from "@/lib/ui/palette";
+import { fullscreenTool, isEditing, openPalette, useModKey } from "@/lib/ui/palette";
 import { toggleSidebar, useSidebarCollapsed } from "@/lib/ui/prefs";
 
 /*
@@ -40,7 +40,7 @@ export default function AppSidebar({ lessons }: { lessons: MeterLesson[] }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "b" && !isEditing(e.target)) {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "b" && !isEditing(e.target) && !fullscreenTool()) {
         e.preventDefault();
         toggleSidebar();
       }

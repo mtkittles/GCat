@@ -814,3 +814,7 @@ body:has(.lsh-btn) main > :last-child { padding-bottom: 3.5rem; }
 .term-syn > span { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: .5rem; align-items: baseline; }
 .term-syn small { font: 600 10px/1.4 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .term-syn code { font: 500 12.5px/1.5 var(--font-mono); color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* narzędzia redakcji na cały ekran (rysownik, edytor treści): elementy powłoki pod spodem znikają, strona pod nimi nie przewija się */
+body:has(:is(.rys-shell, .ed-shell)) :is(.sb, .bottom-nav, .lsh-btn, .edit-bar) { display: none; }
+body:has(:is(.rys-shell, .ed-shell)) { overflow: hidden; }

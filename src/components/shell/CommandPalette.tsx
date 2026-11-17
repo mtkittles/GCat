@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Command } from "cmdk";
 import { ArrowRight, CornerDownLeft, Search } from "lucide-react";
 import { NAV_ALL } from "./nav";
-import { isEditing, setPaletteOpen, usePaletteOpen } from "@/lib/ui/palette";
+import { fullscreenTool, isEditing, setPaletteOpen, usePaletteOpen } from "@/lib/ui/palette";
 
 /*
   Paleta poleceń Ctrl+K / ⌘K (cmdk). Indeks: karty kodów, lekcje, zadania i hasła słownika
@@ -45,6 +45,7 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (fullscreenTool()) return;
       if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "k") {
         if (isEditing(e.target) && !(e.target as HTMLElement).hasAttribute("cmdk-input")) return;
         e.preventDefault();

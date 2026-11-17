@@ -3832,7 +3832,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
    Tryb edycji (paczka RA): pasek „Edytuj”, ołówek przy wpisie, pulpit /edycja
    ========================================================================== */
 .edit-bar { position: fixed; z-index: 60; right: max(1rem, env(safe-area-inset-right)); bottom: calc(1rem + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: .15rem; padding: .3rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface); box-shadow: var(--shadow); font-size: 14px; }
-@media (max-width: 767px) { .edit-bar { bottom: calc(4.6rem + env(safe-area-inset-bottom)); left: 1rem; right: 1rem; justify-content: space-between; } .edit-bar .edit-bar-desk { display: none; } }
+@media (max-width: 767px) { .edit-bar { bottom: calc(var(--dock-space, 4.6rem) + .5rem); left: 1rem; right: 1rem; justify-content: space-between; } .edit-bar .edit-bar-desk { display: none; } }
 .edit-bar-on { padding: 0 .6rem 0 .7rem; font: 700 var(--fs-label)/1 var(--font-display); color: var(--accent-ink); white-space: nowrap; }
 .edit-bar a, .edit-bar button { display: inline-flex; align-items: center; gap: .35rem; padding: .45rem .75rem; border: 0; border-radius: 999px; background: none; color: var(--ink); font: inherit; text-decoration: none; cursor: pointer; white-space: nowrap; }
 .edit-bar a:hover, .edit-bar button:hover { background: var(--surface-2); }
