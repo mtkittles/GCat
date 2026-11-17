@@ -37,7 +37,7 @@ function ToolRow({ n, tool, mode, active, onChange, onRemove }: { n: number; too
     <div className={`tool-row ${active ? "is-active" : ""}`}>
       <div className="tool-head">
         <span className="tool-id">T{String(n).padStart(2, "0")}</span>
-        <select value={tool.kind} onChange={(e) => { const k = e.target.value as ToolKind; onChange({ ...makeTool(k), tiltA: tool.tiltA, tiltB: tool.tiltB }); }}>
+        <select aria-label={`Rodzaj narzędzia T${String(n).padStart(2, "0")}`} value={tool.kind} onChange={(e) => { const k = e.target.value as ToolKind; onChange({ ...makeTool(k), tiltA: tool.tiltA, tiltB: tool.tiltB }); }}>
           {kinds.map((k) => <option key={k} value={k}>{TOOL_LABEL[k]}</option>)}
         </select>
         {active && <span className="tool-badge">w użyciu</span>}

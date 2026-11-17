@@ -818,3 +818,57 @@ body:has(.lsh-btn) main > :last-child { padding-bottom: 3.5rem; }
 /* narzędzia redakcji na cały ekran (rysownik, edytor treści): elementy powłoki pod spodem znikają, strona pod nimi nie przewija się */
 body:has(:is(.rys-shell, .ed-shell)) :is(.sb, .bottom-nav, .lsh-btn, .edit-bar) { display: none; }
 body:has(:is(.rys-shell, .ed-shell)) { overflow: hidden; }
+
+/* ==========================================================================
+   10. Symulator — warstwa interfejsu (Etap 5); silnik, parser i rysowanie bez zmian
+   ========================================================================== */
+.speed-seg { display: none; }
+@media (min-width: 1100px) {
+  .workbench.is-app .sim-controls .speed-chip { display: none; }
+  .workbench.is-app .sim-controls .speed-seg { display: inline-flex; flex: none; }
+  /* kolumna programu: szerokość z uchwytu (--code-w), bez niej — jak dotąd */
+  .workbench.is-app { position: relative; }
+  .workbench.is-app[style*="--code-w"] { grid-template-columns: var(--code-w) minmax(0, 1fr); }
+  .workbench.is-app > .wb-main { position: relative; }
+  .split-h {
+    position: absolute; z-index: 6; top: 0; bottom: 0; left: -14px; width: 12px; cursor: col-resize; touch-action: none;
+    display: grid; place-items: center; border-radius: 6px;
+  }
+  .split-h::after { content: ""; width: 3px; height: 44px; border-radius: 2px; background: var(--line-strong); transition: background-color .15s ease, height .15s ease; }
+  .split-h:hover::after, .split-h:focus-visible::after, .workbench.is-resizing .split-h::after { background: var(--accent); height: 72px; }
+  .workbench.is-resizing { user-select: none; cursor: col-resize; }
+}
+.split-h { display: none; }
+@media (min-width: 1100px) { .workbench.is-app .split-h { display: grid; } }
+
+/* przełączniki warstw z diodą (G00 bursztynowa jak kolor ruchu szybkiego) */
+.vb-layer { gap: .45rem; }
+.vb-layer::before {
+  content: ""; width: 6px; height: 6px; flex: none; border-radius: 50%; background: var(--line-strong);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .35);
+}
+.vb-layer[aria-pressed="true"]::before { background: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, #000), 0 0 6px color-mix(in srgb, var(--accent) 65%, transparent); }
+.vb-layer.is-g00[aria-pressed="true"]::before { background: var(--amber); box-shadow: 0 0 0 1px color-mix(in srgb, var(--amber) 40%, #000), 0 0 6px color-mix(in srgb, var(--amber) 65%, transparent); }
+.vb-layer b { font-family: var(--font-mono); color: var(--amber-ink); font-weight: 700; }
+
+/* DRO w tabelce podglądu i lampki stanów modalnych */
+.view-hud .dro-n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.vh-mod span { display: inline-flex; align-items: center; gap: .3rem; }
+.vh-mod span::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: #22C55E; box-shadow: 0 0 5px rgba(34, 197, 94, .7); }
+
+/* pasek symulatora: akcje */
+.sim-acts { display: inline-flex; gap: .35rem; }
+.sim-acts .cd-copy { height: 30px; white-space: nowrap; }
+.view-seg .lbl-short { display: none; }
+@media (max-width: 640px) { .view-seg .lbl-long { display: none; } .view-seg .lbl-short { display: inline; } }
+/* telefon: widok przełącza przycisk „3D” na podglądzie (jak dotąd), przełącznik pulpitu tylko od 768 px */
+@media (max-width: 767px) { .is-app .viewbar .view-seg { display: none; } }
+.vb-layer { display: inline-flex; align-items: center; }
+@media (min-width: 768px) {
+  .workbench.is-app .viewbar > .vb-layer { padding: .3rem .6rem; font-size: 12.5px; min-height: 34px; }
+  .workbench.is-app .viewbar > .vb-layer[aria-pressed="true"] { border-color: var(--line-strong); color: var(--ink); background: var(--surface); }
+}
+@media (min-width: 768px) {
+  .workbench.is-app .viewbar { flex-wrap: wrap; row-gap: .4rem; }
+  .workbench.is-app .viewbar > button, .workbench.is-app .viewbar > details > summary { white-space: nowrap; }
+}

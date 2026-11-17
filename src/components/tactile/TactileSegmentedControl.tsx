@@ -1,5 +1,5 @@
 "use client";
-import { useId, useRef, type KeyboardEvent, type ReactNode } from "react";
+import { memo, useId, useRef, type KeyboardEvent, type ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import StatusLed from "./StatusLed";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
@@ -10,7 +10,7 @@ import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
 */
 export interface Segment<T extends string> { value: T; label: ReactNode; title?: string; led?: boolean }
 
-export default function TactileSegmentedControl<T extends string>({ value, onChange, options, label, size = "md", full, className }: {
+function TactileSegmentedControl<T extends string>({ value, onChange, options, label, size = "md", full, className }: {
   value: T;
   onChange: (v: T) => void;
   options: Segment<T>[];
@@ -71,3 +71,20 @@ export default function TactileSegmentedControl<T extends string>({ value, onCha
     </div>
   );
 }
+
+/*
+  Bez ponownego renderu, gdy nic widocznego się nie zmieniło. Ważne w symulatorze: komponent nadrzędny
+  renderuje się w każdej klatce odtwarzania, a kapsuła z layoutId mierzy układ przy każdym renderze.
+  onChange pomijamy w porównaniu — rodzice przekazują funkcje o tym samym działaniu w każdym renderze.
+*/
+type Props = Parameters<typeof TactileSegmentedControl>[0];
+const sameOpts = (a: Props["options"], b: Props["options"]) =>
+  a.length === b.length && a.every((o, i) => {
+    const p = b[i];
+    if (o.value !== p.value || o.title !== p.title || o.led !== p.led) return false;
+    return typeof o.label === "string" || typeof p.label === "string" ? o.label === p.label : typeof o.label === typeof p.label;
+  });
+
+export default memo(TactileSegmentedControl, (a, b) =>
+  a.value === b.value && a.label === b.label && a.size === b.size && a.full === b.full && a.className === b.className && sameOpts(a.options, b.options),
+) as typeof TactileSegmentedControl;

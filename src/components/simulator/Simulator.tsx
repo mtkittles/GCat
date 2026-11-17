@@ -40,6 +40,10 @@ export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
 import { carveRange } from "./carveRange";
+import SplitHandle from "./SplitHandle";
+import SimDro from "./SimDro";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
+import { useMedia } from "@/lib/ui/prefs";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -84,7 +88,7 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
   { id: "tools", label: "Narzędzia", d: "M14 4l6 6-9 9H5v-6zM12 6l6 6" },
   { id: "set", label: "Ustawienia", d: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" },
 ];
-const SPEEDS = [0.5, 1, 2, 4];
+const SPEEDS = [0.5, 1, 2, 5];
 /** Widok 2D bez powiększenia: punkt ekranu = punkt kadru · k + (tx, ty). */
 const Z0 = { k: 1, tx: 0, ty: 0 };
 const ZMIN = 0.5, ZMAX = 80;
@@ -124,6 +128,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [showStock, setShowStock] = useState(true);
   // tor narzędzia na podglądzie — przy gęstych programach z CAM zasłania powierzchnię detalu
   const [showPath, setShowPath] = useState(true);
+  // „2D + 3D” tylko tam, gdzie mieszczą się dwa podglądy obok siebie (jak dotąd .only-split od 1100 px)
+  const wideDesk = useMedia("(min-width: 1100px)");
+  // warstwy podglądu 2D (Etap 5): ruchy szybkie G00 i siatka współrzędnych
+  const [showRapid, setShowRapid] = useState(true);
+  const [showGrid, setShowGrid] = useState(true);
   // poza stroną symulatora (lekcje): opcja „klik w linię” bez zapisu w przeglądarce
   const [jumpLocal, setJumpLocal] = useState(false);
   const [fs, setFs] = useState(false);
@@ -458,7 +467,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const vis = { h0: -ox / scale, h1: (W - ox) / scale, v0: (oy - H) / scale, v1: oy / scale };
     const step = niceStep(Math.max(spanH, spanV) / zv.k / 8);
     const minor = step / 5;
-    if (minor * scale > 4) {
+    if (showGrid && minor * scale > 4) {
       ctx.save();
       ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
       // jedna ścieżka na całą podziałkę zamiast stroke() na każdą linię; jedyna różnica: przecięcia nie ciemnieją (krycie 0,09)
@@ -475,12 +484,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
     ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
-    for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
+    if (showGrid) for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
       const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), x + 2, H - 4);
     }
-    for (let v = Math.floor(vis.v0 / step) * step; v <= vis.v1 + step; v += step) {
+    if (showGrid) for (let v = Math.floor(vis.v0 / step) * step; v <= vis.v1 + step; v += step) {
       const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), 4, y - 2);
@@ -738,7 +747,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru.
       // (Wcześniej przygaszony i przebyty odcinek rysowały się na przemian, odcinek po odcinku — teraz
       // przebyte idą nad całym torem; różnica tylko na skrzyżowaniach toru.)
-      const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}`;
+      const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}|${showRapid}`;
       let g = ghostRef.current;
       if (!g || g.key !== ghostKey || g.segs !== segments) {
         const c = g?.canvas ?? document.createElement("canvas");
@@ -746,7 +755,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const gx = c.getContext("2d");
         if (gx) {
           gx.scale(dpr, dpr);
-          for (const sg of segments) if (sg.kind !== "dwell") drawSeg(gx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
+          for (const sg of segments) if (sg.kind !== "dwell" && (showRapid || sg.kind !== "rapid")) drawSeg(gx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
         }
         g = ghostRef.current = { key: ghostKey, segs: segments, canvas: c };
       }
@@ -755,7 +764,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const len = lengths[i];
         const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
         if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-        if (done > 0) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
+        if (done > 0 && (showRapid || sg.kind !== "rapid")) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
         acc += len;
       });
     }
@@ -902,7 +911,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, zoom, meas, picks, placing, pending, hover, measure, mTool]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -1079,11 +1088,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // szerokości po lewej, konsola programu jedną trzecią po prawej.
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
-    <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? <><span className="lbl-long">Rozwinięcie</span><span className="lbl-short">XA</span></> : "XY"}</button>
-      <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
-      {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
-    </div>
+    <TactileSegmentedControl<SimView> label="Widok" size="sm" className="view-seg" value={view} onChange={setView}
+      options={[
+        { value: "2d", label: mode === "lathe" ? "ZX" : isCyl(setup, mode) ? <><span className="lbl-long">Rozwinięcie</span><span className="lbl-short">XA</span></> : "XY", title: isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : "Widok 2D" },
+        { value: "3d", label: "3D", title: "Widok 3D" },
+        ...(appLayout && wideDesk ? [{ value: "split" as const, label: "2D + 3D", title: "Podgląd 2D i 3D obok siebie" }] : []),
+      ]} />
   );
   // Menu układu (komputer): co pokazywać na stanowisku symulatora.
   const layoutMenu = appLayout && (
@@ -1127,8 +1137,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </button>
       <button type="button" className="speed-chip" aria-label="Prędkość symulacji"
         onClick={() => setSpeed((v) => SPEEDS[(SPEEDS.indexOf(v) + 1) % SPEEDS.length] ?? 1)}>
-        {Math.round(speed * 100)}%
+        {String(speed).replace(".", ",")}×
       </button>
+      {/* komputer: prędkość jako przełącznik pulpitu (0,5× · 1× · 2× · 5×) */}
+      <TactileSegmentedControl<string> label="Prędkość symulacji" size="sm" className="speed-seg" value={String(speed)} onChange={(v) => setSpeed(Number(v))}
+        options={SPEEDS.map((v) => ({ value: String(v), label: `${String(v).replace(".", ",")}×`, led: false }))} />
       <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
         onChange={(e) => { userPlay(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
     </div>
@@ -1140,7 +1153,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       <div className="vh-line"><b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b><code>{activeLineText?.raw.trim() || "koniec programu"}</code></div>
       <table>
         <tbody>
-          <tr><th>X</th><td>{fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td>{fmt(currentPos.y)}</td></>}<th>Z</th><td>{fmt(currentPos.z)}</td></tr>
+          <tr><th>X</th><td><SimDro v={mode === "lathe" ? currentPos.x * 2 : currentPos.x} live={playing} />{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td><SimDro v={currentPos.y} live={playing} /></td></>}<th>Z</th><td><SimDro v={currentPos.z} live={playing} /></td></tr>
           <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
           {st?.rotary && <tr>{(["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <Fragment key={k}><th>{k.toUpperCase()}</th><td>{fmt(st.rotary![k]!)}°</td></Fragment>)}</tr>}
           {offsetActive && <tr className="vh-prog"><th title="Współrzędne w układzie programu (wiersz wyżej: maszyna)">prog</th><td>{fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}</td>{mode === "mill" && <><th /><td>{fmt(progPos.y)}</td></>}<th /><td>{fmt(progPos.z)}</td></tr>}
@@ -1226,7 +1239,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const viewExtras = (
     <>
               {layoutMenu}
-              <button className="vb-desk" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
+              <button className="vb-desk vb-layer is-g00" aria-pressed={showRapid} onClick={() => setShowRapid((v) => !v)} title="Ruchy szybkie G00 na podglądzie 2D" aria-label="Ruchy szybkie G00">
+                <span className="vb-tx"><b>G00</b></span>
+              </button>
+              <button className="vb-desk vb-layer" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Siatka współrzędnych na podglądzie 2D" aria-label="Siatka">
+                <span className="vb-tx">Siatka</span>
+              </button>
+              <button className="vb-desk vb-layer" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
               </button>
               <label className="units">
@@ -1359,6 +1378,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
       )}
       <div className="flex flex-col gap-2 wb-main">
+        {appLayout && !compact && <SplitHandle />}
         {!compact && allow3d && (
             <div className="viewbar m-sim">
               {viewSwitch}
@@ -1395,7 +1415,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {transportBar}
         <label className="speed">
           Prędkość
-          <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
+          <input type="range" min={0.25} max={5} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
         {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && (
@@ -1453,7 +1473,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <div className="m-set-row">
               <span>Prędkość symulacji</span>
               <div className="segmented m-seg" role="tablist" aria-label="Prędkość symulacji">
-                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{v * 100}%</button>)}
+                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{String(v).replace(".", ",")}×</button>)}
               </div>
             </div>
             <div className="m-set-row m-set-exp">
