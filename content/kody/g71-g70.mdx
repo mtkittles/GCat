@@ -24,10 +24,12 @@ syntax:
     N10 ...kontur...
     N20 ...
     G70 P10 Q20
-  sinumerik: CYCLE95("KONTUR", 2, 0.5, 0.1, ...)
+  sinumerik: CYCLE95("KONTUR", 2, 0.1, 0.25, ...)
 sinumerik: >-
-  Odpowiednikiem jest CYCLE95 z konturem w podprogramie. G71 w Sinumeriku
-  oznacza milimetry.
+  Odpowiednikiem jest CYCLE95 z konturem w podprogramie. Kolejność parametrów to
+  NPP, MID, FALZ, FALX: naddatek w Z stoi przed naddatkiem w X, odwrotnie niż U
+  i W. Czy FALX podaje się w promieniu, czy w średnicy, zależy od wersji cyklu
+  (w składni powyżej: promień, U0.5 → 0,25). G71 w Sinumeriku oznacza milimetry.
 params:
   - key: U (1. blok)
     desc: Głębokość jednego przejścia

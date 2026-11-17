@@ -74,6 +74,7 @@ export const t6_2: LessonDoc = {
       checks: [
         { t: "cut", reference: `${head}\n${cyc}\n${tail}`, tolerance: 0.05 },
         { t: "require", codes: ["G74"] },
+        { t: "state", inLine: "G74", css: false, label: "Wiercenie G74 przy stałych obrotach (G97)" },
       ],
       hints: ["G74 R0.5", "G74 Z-15. Q3000 F0.08"],
       solution: starter.replace("(DOPISZ CYKL G74: WYCOFANIE 0.5, WIERCENIE DO Z-15,\n WEJSCIA PO 3 MM, POSUW 0.08)\n", `${cyc}\n`),

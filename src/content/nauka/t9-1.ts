@@ -72,7 +72,7 @@ export const t9_1: LessonDoc = {
     { t: "note", kind: "info", x: "Wzór −2·rε dotyczy noża z kierunkiem ostrza 3 i programowania bez korekcji. Przy innym położeniu noża i innym kierunku ostrza sprawdź geometrię na rysunku narzędzia." },
 
     { t: "h", x: "Kontur dla G71", id: "kontur" },
-    { t: "p", x: "Kontur między N10 i N20 zaczyna się w punkcie startu cyklu, tu Z2. Dlatego faza przy czole jest przedłużona do Z2. Faza 1,5 × 45° na Ø26 kończy się w Z−1,5. Na każdy 1 mm w Z średnica zmienia się o 2 mm, więc w Z2 wypada X19 (lekcja T0.2). Kontur jest monotoniczny: X tylko rośnie, Z tylko maleje. Tego wymaga G71 typu I (lekcja T5.1)." },
+    { t: "p", x: "Kontur między N10 i N20 zaczyna się w punkcie startu cyklu, tu Z2. Dlatego faza przy czole jest przedłużona do Z2. Faza 1,5 × 45° na Ø26 kończy się w Z−1,5. Na każdy 1 mm w Z średnica zmienia się o 2 mm, więc w Z2 wypada X19 (lekcja T0.2). Kontur jest monotoniczny: X nie maleje, Z nie rośnie. Tego wymaga G71 typu I (lekcja T5.1)." },
     { t: "diagram", id: "t91-contour" },
 
     { t: "h", x: "Plan programu", id: "plan" },
@@ -118,6 +118,8 @@ export const t9_1: LessonDoc = {
       checks: [
         { t: "cut", reference: solution, tolerance: 0.05 },
         { t: "require", codes: ["G50", "G96", "G71", "G70", "G42", "G40"] },
+        { t: "order", first: "G50", then: "G96", label: "Limit G50 przed G96" },
+        { t: "state", nRange: [10, 20], comp: 42, label: "Korekcja G42 aktywna w wykańczaniu G70" },
         { t: "coolant", label: "Chłodziwo na ruchach roboczych", offBeforeStop: true },
       ],
       hints: [
@@ -131,7 +133,7 @@ export const t9_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Stare liczby z poprzedniego wałka", x: "Program przerobiony z wałka z kursu: zostało `X-1.6` w planowaniu albo `G00 X42.` przed cyklem przy pręcie Ø50. Przy X42 punkt startu cyklu leży w materiale — patrz niżej. Pisząc od nowa, bierz każdą liczbę z nowego rysunku i nowej karty narzędzi." },
+    { title: "Stare liczby z poprzedniego wałka", x: "Program przerobiony z wałka z kursu: zostało `X-1.6` w planowaniu albo `G00 X42.` przed cyklem przy pręcie Ø50. Przy X42 start cyklu leży poniżej średnicy pręta — patrz niżej. Pisząc od nowa, bierz każdą liczbę z nowego rysunku i nowej karty narzędzi." },
     { title: "Start cyklu poniżej średnicy pręta", danger: true, x: "Cykl liczy przejścia od punktu startu, jakby tam kończyła się surówka. Przy pręcie Ø50 i starcie w X42 pierwsze przejście schodzi do X39, czyli bierze 5,5 mm na stronę zamiast 1,5. Start w X52 leży 1 mm nad prętem." },
     { title: "Kontur niemonotoniczny w G71 typu I", x: "Podcięcie albo rowek wpisane między N10 i N20. G71 typu I wymaga, żeby X tylko rósł, a Z tylko malał — inaczej sterowanie zgłasza alarm albo, zależnie od wersji, wymaga typu II. Rowki toczy się osobną operacją (lekcja T6.1)." },
   ],

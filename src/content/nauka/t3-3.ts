@@ -89,7 +89,7 @@ export const t3_3: LessonDoc = {
 
   pitfalls: [
     { title: "Kierunek z widoku przez szybę", x: "Operator przy głowicy przedniej widzi łuk „odwrotnie” i poprawia G02 na G03. Promień wychodzi wypukły zamiast wklęsłego — nóż wcina się w stopień." },
-    { title: "Średnica w R", x: "Promień R1 wpisany jako `R2.` przez analogię do X. Łuk o promieniu 2 między punktami odległymi o 1,4 mm — alarm albo inny kształt." },
+    { title: "Średnica w R", x: "Promień R1 wpisany jako `R2.` przez analogię do X. Łuk o promieniu 2 między punktami odległymi o 1,4 mm istnieje, więc sterowanie go wykona — wyjdzie inny kształt niż na rysunku." },
     { title: "Modalne G03", x: "Po zaokrągleniu blok `Z-55.` bez G01. Sterowanie traktuje go jak łuk — alarm braku promienia albo nieoczekiwany tor." },
     { title: "J zamiast K", x: "Środek łuku zapisany `I… J…` jak na frezarce. W G18 składowa Z to K. Sterowanie zignoruje J albo zgłosi alarm." },
   ],

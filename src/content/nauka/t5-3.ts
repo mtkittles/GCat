@@ -21,7 +21,7 @@ export const t5_3: LessonDoc = {
       ["VARI", "rodzaj obróbki (1–12): zgrubnie / na gotowo / całość, wzdłużnie / poprzecznie, zewnętrznie / wewnętrznie", "wybór G71, G72 albo G70"],
       ["DT, DAM", "postój i długość drogi do łamania wióra", "—"],
       ["_VRT", "odsunięcie od konturu przy obróbce zgrubnej", "`R` w pierwszym bloku"],
-    ], caption: "Starsza składnia według SINUMERIK 840D/810D Programming Guide Cycles, wydanie 04/2000, rozdz. 4, podrozdział o CYCLE95:(NPP, MID, FALZ, FALX, FAL, FF1, FF2, FF3, VARI, DT, DAM, _VRT). Nowsze wydania dla 840D sl dodają parametry _GMODE i _DMODE. Pełny zestaw i kolejność sprawdź w instrukcji cykli swojej wersji." },
+    ], caption: "Starsza składnia CYCLE95: (NPP, MID, FALZ, FALX, FAL, FF1, FF2, FF3, VARI, DT, DAM, _VRT) — źródło w spisie na końcu lekcji. Nowsze wydania dla 840D sl dodają parametry _GMODE i _DMODE. Pełny zestaw i kolejność sprawdź w instrukcji cykli swojej wersji." },
     { t: "note", kind: "warn", x: "U w drugim bloku G71 jest w średnicy. Czy FALX podaje się w promieniu, czy w średnicy, zależy od wersji i ustawień cyklu — sprawdź w instrukcji cykli swojego sterowania. W przykładach tej lekcji przyjmujemy promień: naddatek 0,2 mm na stronę to `U0.4` na Fanucu i FALX = 0,2 na Sinumeriku." },
 
     { t: "h", x: "Kontur jako podprogram", id: "kontur" },

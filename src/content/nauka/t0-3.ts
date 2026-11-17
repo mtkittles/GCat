@@ -35,10 +35,10 @@ export const t0_3: LessonDoc = {
     steps: [
       { x: "Nóż planuje czoło, zbierając około 0,5 mm — powierzchnia staje się płaska i czysta.", code: "planowanie" },
       { x: "Bez odjazdu w Z ostrze stoi na czystym czole. Ekran pokazuje pozycję maszynową, np. Z−312,4.", code: "Z masz. −312,4" },
-      { x: "Operator zapisuje tę pozycję jako Z0 dla G54.", code: "G54 Z = −312,4" },
+      { x: "Operator zapisuje tę pozycję jako Z0 dla G54. Założenie przykładu: mierzy nożem wzorcowym, którego korekcja geometrii Z wynosi 0.", code: "G54 Z = −312,4" },
       { x: "Od teraz Z w programie liczy się od czoła: Z0 to czoło, Z ujemne — w stronę uchwytu.", code: "Z0 = czoło" },
     ],
-    result: "Każdy blok programu dostaje Z liczone od czystego czoła. Po przełożeniu pręta z innym wysięgiem pomiar trzeba powtórzyć — stare przesunięcie opisuje poprzednie położenie czoła.",
+    result: "Każdy blok programu dostaje Z liczone od czystego czoła. Gdy nóż ma własną korekcję Z, odsunięcia nie wpisuje się drugi raz: albo G54 Z ustawia się nożem wzorcowym, a pozostałe noże mają korekcje względem niego, albo Z0 trafia do tabeli korekcji noża, a G54 Z = 0 — metodę ustala się dla maszyny. Po przełożeniu pręta z innym wysięgiem pomiar trzeba powtórzyć — stare przesunięcie opisuje poprzednie położenie czoła.",
   },
 
   practice: [

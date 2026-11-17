@@ -27,7 +27,7 @@ export const t1_3: LessonDoc = {
     { t: "p", x: "Stan modalny przechodzi z programu na program, więc każdy program tokarski zaczyna od ustawienia trybów i skasowania tego, co mogło zostać. Typowy [[blok bezpiecznego startu]] na tokarce Fanuc:" },
     { t: "table", head: ["Kod", "Co robi", "Przed czym chroni"], rows: [
       ["`G18`", "płaszczyzna ZX", "łukami i korekcją w złej płaszczyźnie"],
-      ["`G21`", "milimetry", "programem calowym czytanym jako metryczny"],
+      ["`G21`", "milimetry", "odczytem wymiarów jako calowych, gdy po poprzednim programie zostało G20"],
       ["`G40`", "wyłącza korekcję promienia ostrza", "przesuniętym torem z poprzedniego programu"],
       ["`G80`", "kasuje cykl wiercenia", "wierceniem przy pierwszym ruchu"],
       ["`G99`", "posuw w mm/obr", "posuwem minutowym, 0,2 mm/min zamiast 0,2 mm/obr"],
@@ -67,7 +67,9 @@ export const t1_3: LessonDoc = {
       starter,
       checks: [
         { t: "cut", reference: `G18 G21 G40 G80 G99\nG54\n${motion}`, tolerance: 0.05 },
-        { t: "require", codes: ["G18", "G21", "G40", "G80", "G99", "G54", "G28", "M30"] },
+        { t: "require", codes: ["G18", "G21", "G40", "G80", "G99", "G54"], before: "move" },
+        { t: "require", codes: ["G28", "M30"] },
+        { t: "order", first: "G28 U", then: "G28 W", label: "Odjazd najpierw w X (G28 U), potem w Z (G28 W)" },
       ],
       hints: ["Start: G18 G21 G40 G80 G99, potem G54.", "Koniec: G28 U0., G28 W0., M30."],
       solution: starter

@@ -67,7 +67,7 @@ export const t5_1: LessonDoc = {
       ["**U**", "drugi", "naddatek na wykończenie w X — w średnicy"],
       ["**W**", "drugi", "naddatek na wykończenie w Z"],
       ["**F**", "drugi", "posuw obróbki zgrubnej"],
-    ], caption: "Ta sama litera U znaczy w dwóch blokach co innego: w pierwszym głębokość (promień), w drugim naddatek (średnica). Ten zapis dwublokowy to wariant z instrukcji Fanuc dla tokarek w systemie A. Część starszych sterowań Fanuc i tokarki Haas używają zapisu jednoblokowego z głębokością w adresie D — składni z kursu nie przenosi się na nie wprost." },
+    ], caption: "Ta sama litera U znaczy w dwóch blokach co innego: w pierwszym głębokość (promień), w drugim naddatek (średnica). Ten zapis dwublokowy to wariant z instrukcji Fanuc dla tokarek w systemie A. Część starszych sterowań Fanuc używa zapisu jednoblokowego z głębokością w adresie D — składni z kursu nie przenosi się na nie wprost." },
 
     { t: "h", x: "Wymagania dla konturu", id: "kontur" },
     { t: "ul", items: [
@@ -92,7 +92,7 @@ export const t5_1: LessonDoc = {
       { x: "Kontur N10–N20, naddatki, posuw zgrubny. Ostatnie przejście cyklu idzie po konturze z naddatkiem.", code: "G71 P10 Q20 U0.4 W0.1 F0.3" },
       { x: "Po zmianie noża: dojazd z G42 i wykończenie na wymiar z rysunku.", code: "G70 P10 Q20" },
     ],
-    result: "Program skrócił się o ponad 20 bloków. Zmiana naddatku albo głębokości to teraz jedna liczba, a nie przeliczanie pięciu przejść.",
+    result: "Program skrócił się o 17 bloków: 20 bloków pięciu przejść zastąpiły trzy bloki cyklu (dwa G71 i G70). Zmiana naddatku albo głębokości to teraz jedna liczba, a nie przeliczanie pięciu przejść.",
   },
 
   practice: [
@@ -104,6 +104,7 @@ export const t5_1: LessonDoc = {
       checks: [
         { t: "cut", reference: `${head}\nG71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.3\n${profile}\n${finish}\nG70 P10 Q20\n${tail}`, tolerance: 0.05 },
         { t: "require", codes: ["G71", "G70"] },
+        { t: "state", nRange: [10, 20], tool: 202, label: "Wykańczanie G70 nożem T0202" },
       ],
       hints: ["G71 U2. R0.5, a pod nim G71 P10 Q20 U0.4 W0.1 F0.3.", "Wykończenie: G70 P10 Q20."],
       solution: starter
@@ -125,7 +126,7 @@ export const t5_1: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Punkt startowy w materiale", danger: true, x: "Cykl wywołany z X38 Z2 przy pręcie Ø40. Pierwsza warstwa zaczyna się ruchem szybkim w X na średnicę mniejszą niż pręt, a start leży w materiale — cykl nie ma skąd bezpiecznie ruszyć." },
+    { title: "Start cyklu poniżej średnicy pręta — przeciążona pierwsza warstwa", danger: true, x: "Cykl wywołany z X38 Z2 przy pręcie Ø40. Cykl liczy przejścia od punktu startu, jakby tam kończyła się surówka, więc pierwsza warstwa schodzi do X34 i bierze 3 mm na stronę zamiast 2. Start nad prętem, np. X42, daje pierwszą warstwę o zadanej głębokości." },
     { title: "Pomylone znaczenia U", x: "`G71 U0.4 R0.5` — w pierwszym bloku U to głębokość. Cykl robi przejścia po 0,4 mm i trwa pięć razy dłużej." },
     { title: "Kontur z podcięciem", x: "Rowek pod gwint wpisany do konturu G71 typu I. X nie może tam maleć — cykl zgłosi alarm. Rowek robi się osobnym nożem (moduł T6)." },
     { title: "Brak N w konturze", x: "`P10 Q20`, a w programie nie ma bloku N20 — alarm. Numery N w konturze to jedyne, po czym cykl go znajduje." },

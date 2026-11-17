@@ -67,7 +67,7 @@ export const t0_1: LessonDoc = {
       ["Płaszczyzna pracy", "`G18` (ZX), domyślna na tokarce", "`G18`, domyślna na tokarce"],
       ["Oś C i Y", "opcja tokarek z narzędziami napędzanymi", "opcja tokarek z narzędziami napędzanymi"],
     ],
-    note: "Na obu sterowaniach tokarka pracuje w płaszczyźnie ZX, a X jest domyślnie programowane średnicowo.",
+    note: "Na obu sterowaniach tokarka pracuje w płaszczyźnie ZX. Na Fanucu X programuje się zwykle średnicowo (ustawia to parametr); na Sinumeriku stan po włączeniu zależy od konfiguracji maszyny, a tryb średnicowy włącza się w programie (DIAMON).",
   },
 
   quiz: [

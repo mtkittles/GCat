@@ -22,7 +22,7 @@ G00 W57.`;
 export const t1_2: LessonDoc = {
   id: "T1.2",
   slug: "t1-2-g90-g91-u-w",
-  title: "G90, G91 oraz U i W",
+  title: "Wymiary absolutne i przyrostowe: X Z oraz U W",
   minutes: 14,
   goal: "Zapiszesz ruch tokarski absolutnie i przyrostowo i nie pomylisz G90 z tokarki Fanuc z G90 z frezarki.",
 
@@ -90,9 +90,9 @@ export const t1_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "G90 przeniesione z frezarki", danger: true, x: "Programista pisze na początku programu tokarskiego `G90` „dla pewności”. W systemie A sterowanie odczyta to jako cykl toczenia z bieżącymi wartościami albo zgłosi alarm." },
+    { title: "G90 przeniesione z frezarki", danger: true, x: "Programista pisze na początku programu tokarskiego `G90` „dla pewności”. W systemie A G90 to cykl toczenia, a nie wymiary absolutne. Co sterowanie zrobi z takim blokiem, zależy od sterowania — sprawdź w jego instrukcji." },
     { title: "U w promieniu", x: "`U-4.` z myślą o zejściu 4 mm na stronę. U jest w średnicy — nóż zejdzie 2 mm. Na 4 mm na stronę potrzeba `U-8.`." },
-    { title: "Program z innego systemu kodów", danger: true, x: "Program z tokarki w systemie B (z G90/G91) uruchomiony na maszynie w systemie A. Bloki z G90 staną się cyklami, a współrzędne po G91 — absolutnymi." },
+    { title: "Program z innego systemu kodów", danger: true, x: "Program z tokarki w systemie B (z G90/G91) uruchomiony na maszynie w systemie A. Bloki z G90 sterowanie potraktuje jako cykle, a G91 w systemie A nie włącza wymiarów przyrostowych. Skutek zależy od sterowania." },
   ],
 
   controllers: {

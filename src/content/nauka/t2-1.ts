@@ -10,7 +10,7 @@ export const t2_1: LessonDoc = {
   theory: [
     { t: "h", x: "Słowo T na tokarce", id: "t" },
     { t: "p", x: "Na tokarce Fanuc słowo T ma cztery cyfry: dwie pierwsze wybierają **pozycję w głowicy**, dwie ostatnie — **numer rejestru korekcji**. `T0101` to nóż z pozycji 1 z korekcją 1. Nie ma M06: [[głowica rewolwerowa|głowica]] obraca się od razu po odczytaniu bloku." },
-    { t: "note", kind: "info", x: "Format czterocyfrowy to profil przyjęty w kursie i najczęstszy na tokarkach Fanuc. Liczbę cyfr i podział na pozycję i korekcję ustawia parametr sterowania — na innej maszynie sprawdź go w jej dokumentacji." },
+    { t: "note", kind: "info", x: "Format czterocyfrowy to profil przyjęty w kursie. Liczbę cyfr i podział na pozycję i korekcję ustawia parametr sterowania — na innej maszynie sprawdź go w jej dokumentacji." },
     { t: "diagram", id: "t21-turret" },
     { t: "note", kind: "warn", x: "Głowica obraca się tam, gdzie akurat stoi. Przed każdym T nóż musi być w bezpiecznym miejscu — w punkcie referencyjnym albo w punkcie wymiany, daleko od detalu i konika. Inaczej inny nóż w głowicy może uderzyć w detal podczas obrotu." },
 
@@ -55,7 +55,7 @@ export const t2_1: LessonDoc = {
       intro: "Po toczeniu nożem T0101 program ma przejść na nóż wykańczający T0202. Dopisz zmianę noża z odjazdem i nowymi obrotami.",
       brief: ["Odjazd do punktu referencyjnego: G28 U0., potem G28 W0.", "Nóż T0202, G96 S250 M03.", "Dojazd G00 X44. Z2."],
       starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\n(TU ZMIANA NOZA)\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
-      checks: [{"t":"require","codes":["T0202","G96","S250","M03"]},{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05}],
+      checks: [{"t":"require","codes":["T0202","G96","S250","M03"]},{"t":"retract","label":"Przed zmianą noża odjazd G28 U, potem G28 W"},{"t":"state","label":"Nóż T0202 skrawa przy G96","forTool":202,"css":true},{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05}],
       hints: ["Najpierw odjazd: `G28 U0.` (X), potem `G28 W0.` (Z) — osobno, żeby nóż nie zahaczył o detal.","`T0202`, potem obroty od nowa `G96 S250 M03` i dojazd `G00 X44. Z2.`."],
       solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG28 U0.\nG28 W0.\nT0202 (NOZ WYKANCZAJACY)\nG96 S250 M03\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
     },

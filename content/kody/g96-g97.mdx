@@ -149,4 +149,4 @@ Prędkość skrawania, czyli prędkość materiału względem ostrza, zależy od
 * **Brak G50 / LIMS** przed G96.
 * **Pozostawione G96 przed wierceniem w osi.** Alarm albo maksymalne obroty.
 * **Wpisane obroty zamiast vc.** `G96 S1500` każe utrzymać 1500 m/min. Przy typowych średnicach to obroty na limicie G50 albo maszyny.
-* **Brak powrotu do G97** przed odjazdem i zatrzymaniem. Kolejna operacja startuje w nieoczekiwanym trybie.
+* **G96 przy ruchu w stronę osi.** Odjazd albo dojazd na małą średnicę przy G96 podnosi obroty aż do limitu G50. Przed takim ruchem i przed następną operacją w G97 (np. wierceniem) przełącz na G97.
