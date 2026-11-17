@@ -17,16 +17,18 @@ const hasXY = (s: Segment) => (s.kind === "linear" || s.kind === "arc") && (!nea
 const codeRe = (code: string) => new RegExp(`(^|[^0-9A-Z])${code[0]}0*${code.slice(1)}([^0-9]|$)`, "m");
 const bare = (raw: string) => raw.toUpperCase().replace(/\([^)]*\)/g, "").replace(/;.*$/, "");
 const hasWord = (l: ParsedLine, letter: string, value?: number) => l.words.some((w) => w.letter === letter && (value === undefined || Math.abs(w.value - value) < 1e-6));
+/** Słowo bloku zapisane jak w programie: "G28" (litera + wartość) albo samo "U" (litera z dowolną wartością). */
+const lineHas = (l: ParsedLine, word: string) => { const m = word.toUpperCase().match(/^([A-Z])(-?[\d.]+)?$/); return !!m && hasWord(l, m[1], m[2] === undefined ? undefined : Number(m[2])); };
 
 /**
  * Stan wykonania, którego parser nie trzyma: narzędzie we wrzecionie (T wybiera, M06 wymienia)
  * i rejestr H aktywnej korekcji długości (G43 H…, G49 kasuje). Wartość po wykonaniu linii i.
  */
-function execContext(lines: ParsedLine[]) {
+function execContext(lines: ParsedLine[], lathe = false) {
   let selected: number | null = null, inSpindle: number | null = null, h: number | null = null;
   return lines.map((l) => {
     const t = l.words.find((w) => w.letter === "T");
-    if (t) selected = t.value;
+    if (t) { selected = t.value; if (lathe) inSpindle = t.value; } // głowica rewolwerowa: T od razu ustawia nóż
     if (hasWord(l, "M", 6)) inSpindle = selected;
     if (hasWord(l, "G", 49)) h = null;
     if (hasWord(l, "G", 43)) { const hw = l.words.find((w) => w.letter === "H"); h = hw ? hw.value : h; }
@@ -43,7 +45,8 @@ export function runTaskChecks(src: string, checks: TaskCheck[], mode: "mill" | "
   const moves = prog.segments.filter((s) => s.kind !== "dwell");
   const last = moves.length ? moves[moves.length - 1].to : null;
   const end = last && lathe ? { ...last, x: last.x * 2 } : last;
-  const ctx = execContext(prog.lines);
+  const ctx = execContext(prog.lines, lathe);
+  const tName = (n: number) => (lathe ? `T${String(n).padStart(4, "0")}` : `T${n}`);
   for (const c of checks) {
     if (c.t === "end") {
       const ok = !!end && (c.x === undefined || near(end.x, c.x)) && (c.y === undefined || near(end.y, c.y)) && (c.z === undefined || near(end.z, c.z));
@@ -117,10 +120,20 @@ export function runTaskChecks(src: string, checks: TaskCheck[], mode: "mill" | "
         out.push({ ok: c.t === "require" ? has : !has, label: c.t === "require" ? `Użyto ${code}` : `Nie użyto ${code}` });
       }
     } else if (c.t === "state") {
-      const hits = prog.lines.flatMap((l, i) => l.segments.filter((s) => isFeedMove(s) && (c.on !== "xy" || hasXY(s)) && (!c.at || (near(s.to.x, c.at.x) && near(s.to.y, c.at.y)))).map(() => ({ l, x: ctx[i] })));
+      const words = c.inLine ? c.inLine.split(/\s+/) : [];
+      // tokarka: narzędzie ze stanu parsera (bloki konturu wykonane przez G70 mają stan z chwili G70)
+      const toolAt = (l: ParsedLine, i: number) => (lathe ? l.state.tool : ctx[i].tool);
+      const nIdx = (n: number) => prog.lines.findIndex((l) => hasWord(l, "N", n));
+      const [n0, n1] = c.nRange ? [nIdx(c.nRange[0]), nIdx(c.nRange[1])] : [0, prog.lines.length - 1];
+      const hits = prog.lines.flatMap((l, i) => (i >= n0 && n0 >= 0 && i <= n1 && words.every((w) => lineHas(l, w)) && (c.forTool === undefined || toolAt(l, i) === c.forTool)
+        ? l.segments.filter((s) => isFeedMove(s) && (c.on !== "xy" || hasXY(s)) && (!c.at || (near(s.to.x, c.at.x) && near(s.to.y, c.at.y)))).map(() => ({ l, x: ctx[i] }))
+        : []));
       const why = (h: (typeof hits)[number]) => {
         const st = h.l.state;
-        if (c.tool !== undefined && h.x.tool !== c.tool) return `we wrzecionie ${h.x.tool === null ? "brak narzędzia" : `T${h.x.tool}`} zamiast T${c.tool}`;
+        const tool = lathe ? st.tool : h.x.tool;
+        if (c.tool !== undefined && tool !== c.tool) return `${lathe ? "nóż" : "we wrzecionie"} ${tool === null ? "brak narzędzia" : tName(tool)} zamiast ${tName(c.tool)}`;
+        if (c.css !== undefined && !!st.css !== c.css) return st.css ? `aktywne G96 S${st.css}` : "aktywne G97 (stałe obroty)";
+        if (c.comp !== undefined && st.comp !== c.comp) return st.comp === 40 ? "korekcja promienia wyłączona (G40)" : `aktywne G${st.comp}`;
         if (c.h !== undefined && h.x.h !== c.h) return `aktywna korekcja ${h.x.h === null ? "wyłączona" : `H${h.x.h}`} zamiast H${c.h}`;
         if (c.s !== undefined && (st.spindle === null || Math.abs(st.spindle - c.s) > 0.5)) return `S${st.spindle ?? "—"} zamiast S${c.s}`;
         if (c.dir !== undefined && st.spindleOn !== c.dir) return st.spindleOn === "off" ? "wrzeciono stoi" : `obroty ${st.spindleOn === "cw" ? "w prawo" : "w lewo"}`;
@@ -130,6 +143,26 @@ export function runTaskChecks(src: string, checks: TaskCheck[], mode: "mill" | "
       const bad = hits.find((h) => why(h) !== null);
       const ok = hits.length > 0 && !bad;
       out.push({ ok, label: c.label, detail: ok ? undefined : bad ? `linia ${bad.l.index + 1}: ${why(bad)}` : "brak takiego ruchu roboczego" });
+    } else if (c.t === "order") {
+      const at = (spec: string) => { const ws = spec.split(/\s+/); return prog.lines.findIndex((l) => ws.every((w) => lineHas(l, w))); };
+      const a = at(c.first), b = at(c.then);
+      const ok = a >= 0 && b >= 0 && a < b;
+      out.push({ ok, label: c.label, detail: ok ? undefined : a < 0 ? `brak ${c.first}` : b < 0 ? `brak ${c.then}` : `linia ${b + 1}: ${c.then} przed ${c.first} (linia ${a + 1})` });
+    } else if (c.t === "retract") {
+      // Zmiana noża po skrawaniu: między ostatnim ruchem roboczym a T — najpierw G28 U (X), potem G28 W (Z).
+      let lastCut = -1, bad: string | null = null, changes = 0;
+      prog.lines.forEach((l, i) => {
+        if (bad) return;
+        if (l.words.some((w) => w.letter === "T") && lastCut >= 0) {
+          changes++;
+          const between = prog.lines.slice(lastCut + 1, i);
+          const u = between.findIndex((x) => lineHas(x, "G28") && lineHas(x, "U")), w = between.findIndex((x) => lineHas(x, "G28") && lineHas(x, "W"));
+          if (u < 0 || w < 0) bad = `linia ${i + 1}: zmiana noża bez odjazdu G28 U i G28 W`;
+          else if (w < u) bad = `linia ${lastCut + 2 + w}: odjazd najpierw w Z, potem w X`;
+        }
+        if (l.segments.some(isFeedMove)) lastCut = i;
+      });
+      out.push({ ok: !bad && changes > 0, label: c.label, detail: bad ?? (changes ? undefined : "brak zmiany noża po skrawaniu") });
     } else if (c.t === "stopBeforeChange") {
       const bad = prog.lines.find((l, i) => hasWord(l, "M", 6) && i > 0 && prog.lines[i - 1].state.spindleOn !== "off");
       out.push({ ok: !bad, label: c.label, detail: bad ? `linia ${bad.index + 1}: M06 przy obracającym się wrzecionie` : undefined });

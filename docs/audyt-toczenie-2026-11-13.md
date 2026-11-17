@@ -212,6 +212,8 @@ Jedna paczka = gałąź `sprint-27/paczka-tX` + draft PR. Kolejność jak w T–
 | **TF** | Telefon i typografia lekcji: skala 5 ról w `.ls`, uchwyt spisu treści, „Program detalu” zwinięty, `.bug-code` jako lista, kontrast aktywnej linii, etykieta edytora i fokus `.cm-scroller` (komponent symulatora — z testem), tabela narzędzi na telefonie | §6, §7 | decyzje 5, 7, 8 |
 | **TG** | Źródła: lokalizacje Sinumerik (21) i Sandvik (10) w T0–T9, wyciąg Fanuc B-64604EN dla M7, M8, M12, `,C/,R`, G96→G97 | §2.5 | dokumenty (decyzja 10) |
 
+**Stan 2026-11-17:** TA i TB w PR z gałęzi `sprint-41/toczenie-ta-tb` (decyzje przyjęte: 1 — losowanie z ziarnem, 3 — w karcie G96, 4 — tak, 9 — nowy tytuł T1.2). M7, M8, M12 zostają bez zmian (wymagają instrukcji Fanuc), TG porzucona decyzją z 2026-11-15. Pozostają TC–TF.
+
 TA i TB można robić równolegle (różne pliki poza T1.3/T2.2 — przy kolizji TB po TA). TE niezależna. TD po TA (te same zdania).
 
 ## 9. Decyzje do podjęcia

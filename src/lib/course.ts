@@ -152,7 +152,7 @@ export const tracks: Record<Track, TrackDef> = {
       ] },
       { id: "T1", title: "Struktura programu", skill: "Napiszesz blok startowy tokarki i użyjesz przyrostów U i W.", lessons: [
         L("T1.1", "Blok, adres i modalność", t1_1),
-        L("T1.2", "G90, G91 oraz U i W", t1_2),
+        L("T1.2", "Wymiary absolutne i przyrostowe: X Z oraz U W", t1_2),
         L("T1.3", "Blok startowy tokarki", t1_3),
       ] },
       { id: "T2", title: "Wrzeciono i narzędzie", skill: "Wywołasz nóż z korekcją, ustawisz G96 z limitem obrotów albo G97 i posuw na obrót.", lessons: [

@@ -36,7 +36,7 @@ export const t3_1: LessonDoc = {
     { t: "h", x: "Punkt startowy i punkt wymiany", id: "punkty" },
     { t: "p", x: "Najazd z punktu referencyjnego albo wymiany narzędzia może iść w X i Z naraz, jeśli z tamtej strony nic nie wystaje. Przy detalu obowiązuje reguła z T1.3: odjazd najpierw w X, potem w Z. Punkt nad czołem, np. X44 Z2, to bezpieczne miejsce, z którego zaczyna się każde przejście." },
     { t: "p", x: "Prześwit liczy się od tego, co naprawdę stoi na drodze: od surowego pręta i od szczęk uchwytu, a nie od gotowego konturu. Surowy pręt ma odchyłki średnicy i bicie, więc w kursie powrót nad surówką idzie 1 mm na stronę nad nią — dla pręta Ø40 w X42. Koniec toczenia w Z porównuje się z wysięgiem pręta ze szczęk." },
-    { t: "note", kind: "warn", x: "Konik, szczęki uchwytu i długie wiertło w głowicy to typowe przeszkody na drodze ruchu szybkiego. Przy pierwszym uruchomieniu programu ustaw korektor ruchu szybkiego na 25% i pracuj blok po bloku." },
+    { t: "note", kind: "warn", x: "Konik, szczęki uchwytu i długie wiertło w głowicy to typowe przeszkody na drodze ruchu szybkiego. Przy pierwszym uruchomieniu programu ustaw [[potencjometr korekty]] ruchu szybkiego na 25% i pracuj blok po bloku." },
   ],
 
   worked: {
@@ -94,7 +94,7 @@ export const t3_1: LessonDoc = {
     { kind: "choice", review: "T2.3", q: "Dlaczego planowanie kończy się na X ujemnym?", options: ["żeby naroże zebrało materiał w środku czoła", "bo X0 jest zabronione", "bo tak wymaga G96", "bez powodu"], answer: 0, why: "Wierzchołek teoretyczny i naroże to nie ten sam punkt." },
     { kind: "choice", q: "Którym ruchem nóż wchodzi na średnicę przejścia przed czołem?", options: ["G00", "G01", "G02", "G04"], answer: 0, why: "Nóż stoi przed czołem, w powietrzu." },
     { kind: "choice", q: "Którym ruchem nóż wychodzi z materiału przy stopniu?", options: ["G01", "G00", "G28", "dowolnym"], answer: 0, why: "Ostrze styka się jeszcze z czołem stopnia." },
-    { kind: "choice", q: "Czy F wpływa na G00?", options: ["nie", "tak", "tylko przy G99", "tylko przy G96"], answer: 0, why: "Prędkość ruchu szybkiego ustawiają parametry i korektor." },
+    { kind: "choice", q: "Czy F wpływa na G00?", options: ["nie", "tak", "tylko przy G99", "tylko przy G96"], answer: 0, why: "Prędkość ruchu szybkiego ustawiają parametry i potencjometr korekty." },
     { kind: "token", q: "Wskaż blok, który **wraca nad czoło**.", block: "G00 X36.4 | G01 Z-54.8 F0.3 | X42. | G00 Z2.", answer: 3, why: "G00 Z2. — po wyjściu w X." },
   ],
 
@@ -102,7 +102,7 @@ export const t3_1: LessonDoc = {
     "Przejście: G00 w X przed czołem, G01 w Z, G01 wyjście w X, G00 powrót w Z.",
     "Z materiału wychodzi się posuwem, ruch szybki tylko w powietrzu.",
     "Przy detalu ruch szybki w jednej osi naraz.",
-    "Pierwsze uruchomienie: korektor ruchu szybkiego 25%, praca blok po bloku.",
+    "Pierwsze uruchomienie: potencjometr korekty ruchu szybkiego 25%, praca blok po bloku.",
   ],
 
   sources: [

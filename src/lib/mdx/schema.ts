@@ -155,8 +155,12 @@ const taskCheck = z.discriminatedUnion("t", [
   z.strictObject({ t: z.literal("rapidAbove"), x0: z.number(), x1: z.number(), z: z.number(), label: text }),
   z.strictObject({
     t: z.literal("state"), label: text, at: z.strictObject({ x: z.number(), y: z.number() }).optional(), on: z.enum(["cut", "xy"]).optional(),
+    inLine: text.optional(), nRange: z.tuple([z.number().int(), z.number().int()]).optional(), forTool: z.number().int().optional(),
     tool: z.number().int().optional(), h: z.number().int().optional(), s: z.number().positive().optional(), dir: z.enum(["cw", "ccw"]).optional(), abs: z.boolean().optional(),
+    css: z.boolean().optional(), comp: z.union([z.literal(40), z.literal(41), z.literal(42)]).optional(),
   }),
+  z.strictObject({ t: z.literal("order"), first: text, then: text, label: text }),
+  z.strictObject({ t: z.literal("retract"), label: text }),
   z.strictObject({ t: z.literal("stopBeforeChange"), label: text }),
   z.strictObject({ t: z.literal("dwell"), x: z.number(), y: z.number(), z: z.number(), min: z.number().positive(), label: text }),
   z.strictObject({ t: z.literal("arcFormat"), fmt: z.enum(["R", "IJ"]), label: text }),

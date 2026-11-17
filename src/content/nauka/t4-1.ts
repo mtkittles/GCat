@@ -15,6 +15,7 @@ X42.`;
 const demo = (comp: boolean) => `G18 G21 G40 G80 G99
 G54
 T0101 (NOZ R0.8, KIERUNEK OSTRZA 3)
+G50 S3000
 G96 S200 M03
 ${comp ? "G42 " : ""}G00 X14. Z2.
 G01 X20. Z-1. F0.1
@@ -24,6 +25,7 @@ G01 X26.
 G03 X28. Z-8. R1.
 G01 Z-12.
 ${comp ? "G40 " : ""}G00 X32.
+M05
 M30`;
 
 const starter = `${T3_FIN_HEAD}
@@ -67,7 +69,7 @@ export const t4_1: LessonDoc = {
     { t: "h", x: "Włączanie i wyłączanie", id: "wlaczanie" },
     { t: "ul", items: [
       "korekcję włącza i wyłącza ruch liniowy (G00 albo G01), nigdy łuk,",
-      "ruch włączający musi być dłuższy niż rε i zaczynać się z dala od detalu — najlepiej dojazd do punktu startowego konturu,",
+      "ruch włączający zaczyna się z dala od detalu, najlepiej jako dojazd do punktu startowego konturu; zalecenie kursu: niech będzie dłuższy niż rε (warunki startu korekcji opisuje instrukcja sterowania),",
       "wyłączenie na odjeździe od detalu, gdy nóż jest już w powietrzu,",
       "sterowanie potrzebuje w tabeli korekcji promienia naroża R i kierunku ostrza T (lekcja T4.2).",
     ] },
@@ -95,6 +97,7 @@ export const t4_1: LessonDoc = {
       checks: [
         { t: "cut", reference: `${T3_FIN_HEAD}\nG00 X14. Z2.\n${contour}\nG00 Z2.`, tolerance: 0.05 },
         { t: "require", codes: ["G42", "G40"] },
+        { t: "state", comp: 42, label: "Korekcja G42 aktywna na ruchach konturu" },
       ],
       hints: ["Dojazd: G42 G00 X14. Z2.", "Odjazd: G40 G00 Z2."],
       solution: starter

@@ -40,7 +40,7 @@ export const t7_1: LessonDoc = {
     { t: "h", x: "Cykl G76 — dwa bloki", id: "g76" },
     { t: "code", x: "G76 P010060 Q50 R0.05\nG76 X18.16 Z-17. P920 Q300 F1.5" },
     { t: "table", head: ["Adres", "Blok", "Znaczenie"], rows: [
-      ["**P**`01 00 60`", "pierwszy", "liczba przejść wykańczających (01), wyjście skośne (00 — brak), kąt noża (60)"],
+      ["**P**`01 00 60`", "pierwszy", "liczba przejść wykańczających (01), wybieg w dziesiątych skoku (00 — bez wybiegu), kąt zarysu (60)"],
       ["**Q**", "pierwszy", "najmniejsze wejście, µm"],
       ["**R**", "pierwszy", "naddatek na przejście wykańczające, mm"],
       ["**X**", "drugi", "średnica rdzenia"],
@@ -58,7 +58,7 @@ export const t7_1: LessonDoc = {
       "**Koniec w Z** w podcięciu z lekcji T6.1: gwint kończy się w Z−17, a podcięcie zaczyna w Z−16. Nóż wychodzi z materiału, zanim cofnie się w X.",
       "**Obroty stałe** — G97. Przy G96 obroty zmieniałyby się między przejściami i nóż nie trafiałby w ten sam zwój.",
     ] },
-    { t: "note", kind: "warn", x: "Na wielu sterowaniach podczas przejścia gwintu korektor posuwu nie działa, a STOP posuwu zadziała dopiero po zakończeniu przejścia — zatrzymanie w połowie zniszczyłoby zwój. Dokładne zachowanie zależy od sterowania i jego parametrów." },
+    { t: "note", kind: "warn", x: "Na wielu sterowaniach podczas przejścia gwintu potencjometr korekty posuwu nie działa, a STOP posuwu zadziała dopiero po zakończeniu przejścia — zatrzymanie w połowie zniszczyłoby zwój. Dokładne zachowanie zależy od sterowania i jego parametrów." },
   ],
 
   worked: {
@@ -83,6 +83,7 @@ export const t7_1: LessonDoc = {
       checks: [
         { t: "cut", reference: `${head}\n${cyc}\n${tail}`, tolerance: 0.05 },
         { t: "require", codes: ["G76"] },
+        { t: "state", inLine: "G76", css: false, label: "Gwint G76 przy stałych obrotach (G97)" },
       ],
       hints: ["Pierwszy blok: G76 P010060 Q50 R0.05.", "Drugi: G76 X18.16 Z-17. P920 Q300 F1.5."],
       solution: starter.replace("(DOPISZ CYKL G76: 1 PRZEJSCIE WYKANCZAJACE, KAT 60, MIN. WEJSCIE 0.05, NADDATEK 0.05;\n RDZEN FI18.16, KONIEC Z-17, WYSOKOSC ZWOJU 0.92, PIERWSZE WEJSCIE 0.3, SKOK 1.5)\n", `${cyc}\n`),
@@ -104,7 +105,7 @@ export const t7_1: LessonDoc = {
     { title: "Start za blisko czoła", x: "`G00 X22. Z1.` przy skoku 1,5. Oś Z nie zdąży się rozpędzić — pierwszy zwój wychodzi z innym skokiem niż reszta i sprawdzian nie wchodzi." },
     { title: "Koniec gwintu na stopniu", danger: true, x: "Z−20 zamiast Z−17: nóż dochodzi do stopnia z pełną prędkością posuwu i uderza w czoło. Koniec gwintu kładzie się w podcięciu albo przed stopniem, z zapasem." },
     { title: "Wysokość zwoju w milimetrach", x: "`P0.92` zamiast `P920`. Zależnie od parametru — alarm albo gwint głęboki na 0,00092 mm." },
-    { title: "Zmiana S między przejściami", x: "Operator zmienia korektor obrotów w trakcie gwintowania. Kolejne przejście trafia obok zwoju — gwint do wyrzucenia." },
+    { title: "Zmiana S między przejściami", x: "Operator zmienia potencjometrem korektę obrotów w trakcie toczenia gwintu. Kolejne przejście trafia obok zwoju — gwint do wyrzucenia." },
   ],
 
   controllers: {

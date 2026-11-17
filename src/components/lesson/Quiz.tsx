@@ -4,6 +4,7 @@ import { recordQuiz } from "@/lib/progress";
 import type { Question } from "@/lib/lesson";
 import { rich } from "@/components/Rich";
 import { PointGrid } from "./PointGrid";
+import { optionOrder } from "@/lib/quizOrder";
 
 /*
   Test na koniec lekcji: jedno pytanie na ekranie, ocena od razu z wyjaśnieniem,
@@ -110,12 +111,13 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
 
       {q.kind === "choice" && (
         <div className="quiz-opts" role="radiogroup">
-          {q.options.map((o, i) => {
+          {optionOrder(q.q, q.options).map((i, pos) => {
+            const o = q.options[i];
             const state = checked ? (i === q.answer ? "is-ok" : i === ans ? "is-bad" : "") : ans === i ? "is-sel" : "";
             return (
               <button key={i} type="button" role="radio" aria-checked={ans === i} disabled={checked}
                 className={`quiz-opt ${state}`} onClick={() => setAns(i)}>
-                <span className="quiz-letter">{"ABCD"[i]}</span><span>{rich(o)}</span>
+                <span className="quiz-letter">{"ABCDEF"[pos]}</span><span>{rich(o)}</span>
               </button>
             );
           })}

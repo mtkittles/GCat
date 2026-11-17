@@ -108,7 +108,7 @@ export const t6_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T5.3", q: "W czym podawany jest FALX w CYCLE95?", options: ["w promieniu", "w średnicy", "w µm", "w obrotach"], answer: 0, why: "Inaczej niż U w G71." },
+    { kind: "choice", review: "T5.3", q: "Skąd wiesz, czy FALX w CYCLE95 podaje się w promieniu, czy w średnicy?", options: ["z instrukcji cykli dla tej wersji sterowania", "zawsze w promieniu", "zawsze w średnicy", "z U w drugim bloku G71"], answer: 0, why: "To zależy od wersji i ustawień cyklu. U w drugim bloku G71 jest w średnicy." },
     { kind: "choice", q: "Co oznacza X w drugim bloku G75?", options: ["średnicę dna rowka", "przyrost X", "szerokość rowka", "wycofanie"], answer: 0, why: "Cel wcinania." },
     { kind: "choice", q: "Po co wycofanie R w G75?", options: ["żeby złamać wiór", "żeby zmierzyć rowek", "żeby zmienić nóż", "bez powodu"], answer: 0, why: "Wiór nie zapcha rowka." },
     { kind: "gap", q: "Start Ø30, dno Ø24, P1000. Ile wejść w jednym wcięciu?", template: "{0}", answers: [["3"]], why: "(30 − 24) / 2 = 3 mm na stronę, po 1 mm." },
@@ -119,7 +119,7 @@ export const t6_1: LessonDoc = {
   summary: [
     "Nóż do rowków mierzy się na jednym narożu — Z w programie to ta krawędź.",
     "G75 R / G75 X(dno) Z(ostatnie wcięcie) P(wejście) Q(przesunięcie) F.",
-    "P i Q w mikrometrach, bez kropki.",
+    "P i Q w mikrometrach (przy systemie wejściowym 0,001 mm), bez kropki.",
     "Mały posuw i odjazd z rowka najpierw w X.",
   ],
 

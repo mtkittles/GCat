@@ -51,7 +51,24 @@ export type TaskCheck =
    * aktywnej korekcji G43, obroty, kierunek, tryb wymiarów. `at` — tylko ruchy kończące się nad
    * punktem X Y; `on: "xy"` — tylko ruchy ze zmianą X/Y.
    */
-  | { t: "state"; label: string; at?: { x: number; y: number }; on?: "cut" | "xy"; tool?: number; h?: number; s?: number; dir?: "cw" | "ccw"; abs?: boolean }
+  | {
+      t: "state"; label: string; at?: { x: number; y: number }; on?: "cut" | "xy";
+      /**
+       * Filtry: `inLine` — tylko ruchy z bloków zawierających te słowa (np. "G74", "G76"); `nRange` — tylko bloki konturu N od–do
+       * (cykle G70/G71 wykonują je ponownie, stan bloku to stan z ostatniego wykonania, np. z G70); `forTool` — tylko ruchy danego
+       * narzędzia (tokarka: T0202 → 202).
+       */
+      inLine?: string; nRange?: [number, number]; forTool?: number;
+      tool?: number; h?: number; s?: number; dir?: "cw" | "ccw"; abs?: boolean;
+      /** Tokarka: true — aktywne G96 (stała prędkość skrawania), false — G97 (stałe obroty). */
+      css?: boolean;
+      /** Aktywna korekcja promienia: 40, 41 albo 42. */
+      comp?: 40 | 41 | 42;
+    }
+  /** Kolejność: pierwszy blok ze słowami `first` (np. "G50", "G28 U") stoi przed pierwszym blokiem ze słowami `then`. */
+  | { t: "order"; first: string; then: string; label: string }
+  /** Tokarka: przed każdą zmianą noża po skrawaniu odjazd G28 U… (X), potem G28 W… (Z). */
+  | { t: "retract"; label: string }
   /** Każda wymiana M06 przy zatrzymanym wrzecionie (M05 wcześniej). */
   | { t: "stopBeforeChange"; label: string }
   /** Postój G04 w punkcie (x, y, z) trwający co najmniej `min` sekund. */

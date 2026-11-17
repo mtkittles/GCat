@@ -56,7 +56,7 @@ export const t5_2: LessonDoc = {
       ["głębokość warstwy", "U w pierwszym bloku", "W w pierwszym bloku"],
     ] },
     { t: "p", x: "O wyborze decyduje kierunek, w którym zdejmuje się naddatek. G71 zbiera warstwy równoległe do osi: każde przejście biegnie wzdłuż Z, a cykl schodzi w X. G72 zbiera warstwy równoległe do czoła: przejście biegnie w X, a cykl schodzi w Z. Materiał długi i płytki zbiera się więc wzdłużnie, krótki i głęboki — poprzecznie." },
-    { t: "p", x: "Liczba przejść jest skutkiem tego wyboru. Kołnierz z przykładu to przypadek graniczny: 15 mm materiału na stronę na długości 15 mm, więc oba cykle zrobią po osiem warstw. Tarcza Ø120 z piastą Ø40 grubości 20: G71 robi 20 warstw po ok. 20 mm długości, G72 — 10 warstw po ok. 40 mm, na całą wysokość tarczy." },
+    { t: "p", x: "Liczba przejść jest skutkiem tego wyboru. Kołnierz z przykładu to przypadek graniczny: 15 mm materiału na stronę na długości 15 mm, więc oba cykle zrobią ok. 8–9 warstw (zależnie od prześwitu punktu startu). Tarcza Ø120 z piastą Ø40 grubości 20: G71 robi 20 warstw po ok. 20 mm długości, G72 — 10 warstw po ok. 40 mm, na całą wysokość tarczy." },
     { t: "demo", mode: "lathe", title: "Kołnierz cyklem G72 i G70", src: program, caption: "Zielone — przejścia poprzeczne, na końcu przejście po konturze z naddatkiem i wykończenie G70." },
 
     { t: "h", x: "Kontur dla G72", id: "kontur" },
