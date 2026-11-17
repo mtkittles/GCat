@@ -3520,7 +3520,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-stage.is-pan, .rys-stage.is-pan .rys-svg { cursor: grab !important; }
 .rys-stage.is-panning, .rys-stage.is-panning .rys-svg { cursor: grabbing !important; }
 .fig.rys-sheet { display: block; max-width: none; margin: 0; padding: 0; gap: 0; border: 0; border-radius: 6px; background: none; box-shadow: 0 0 0 1px var(--line-strong), var(--shadow); flex: none; }
-.fig.rys-sheet svg { width: 100%; height: 100%; border-radius: 6px; touch-action: none; user-select: none; cursor: crosshair; }
+.fig.rys-sheet svg { width: 100%; height: 100%; border-radius: 6px; touch-action: none; user-select: none; cursor: default; }
 .fig.rys-sheet svg.tool-select { cursor: default; }
 .rys-svg:not(.tool-select) .rys-item { pointer-events: none; }
 .rys-svg.tool-select .rys-item { cursor: move; }
@@ -3532,11 +3532,12 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .fig .rys-draft { opacity: .75; }
 .fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
-.fig .rys-handle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.5; cursor: grab; vector-effect: non-scaling-stroke; }
-.fig .rys-handle.is-alt { fill: var(--accent); }
+.fig .rys-handle { fill: var(--accent); stroke: var(--panel); stroke-width: 1.2; cursor: grab; vector-effect: non-scaling-stroke; }
+.fig .rys-handle:hover, .fig .rys-ghandle:hover { stroke: var(--ink); stroke-width: 1.6; }
+.fig .rys-handle.is-alt { fill: var(--panel); stroke: var(--accent); }
 /* ramka grupy, uchwyty skali (narożniki), obrót i punkt obrotu */
 .fig .rys-gframe { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: .7; vector-effect: non-scaling-stroke; }
-.fig .rys-ghandle { fill: var(--panel); stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.fig .rys-ghandle { fill: color-mix(in srgb, var(--accent) 70%, var(--panel)); stroke: var(--panel); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .fig .rys-ghandle.is-d0 { cursor: ew-resize; } .fig .rys-ghandle.is-d1 { cursor: nwse-resize; }
 .fig .rys-ghandle.is-d2 { cursor: ns-resize; } .fig .rys-ghandle.is-d3 { cursor: nesw-resize; }
 .fig .rys-rotline { stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
