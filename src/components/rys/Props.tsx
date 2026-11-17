@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   ANCHORS, ARROWS, ARROW_LABEL, isDim, measure, layersOf, DIM_ORIENT, DIM_ORIENT_LABEL, FILLS, FILL_LABEL, fmt, FONTS, FONT_LABEL, FONT_SIZES, H_MAX, H_MIN, ITEM_LABEL, KIND_LABEL, LINE_KINDS,
-  MEASURE, POSITIONS, PT_COLORS, strokeOf, TEXT_COLORS, TEXT_COLOR_LABEL, WIDTHS, WIDTH_LABEL,
+  MEASURE, POSITIONS, PT_COLORS, strokeOf, TEXT_COLORS, TEXT_COLOR_LABEL, WIDTHS, WIDTH_LABEL, GDT_SYMS, GDT_LABEL, GDT_MODS, GDT_MOD_LABEL, ROUGH_KINDS, ROUGH_LABEL,
   type Arrow, type Fill, type Font, type Item, type LineKind, type RysDoc, type TextColor, type Width,
 } from "@/lib/rys/model";
 import { icons } from "./icons";
@@ -13,7 +13,7 @@ import { LINE_CLASS } from "./render";
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
 export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join" | "union" | "subtract" | "intersect" | "xor";
-export type PanelTool = "select" | "pencil" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region" | "array";
+export type PanelTool = "select" | "pencil" | "sym" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region" | "array";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -134,6 +134,9 @@ function describe(it: Item): string {
   if (isDim(it)) return it.label.replace(MEASURE, "").replace(/^[⌀R]?°?$/, "") ? `„${it.label}”` : "";
   if (it.t === "pt") return it.label ? `„${it.label}”` : "";
   if (it.t === "step") return String(it.n);
+  if (it.t === "gdt") return `${GDT_LABEL[it.sym].toLowerCase()} ${it.dia ? "⌀" : ""}${it.tol}`.trim();
+  if (it.t === "datum") return it.s;
+  if (it.t === "rough") return it.s;
   if ("k" in it) return KIND_LABEL[it.k].toLowerCase();
   return "";
 }
@@ -171,9 +174,10 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
   const arrowish = styled ? has(items, "arrow") : ARROW_TOOLS.has(tool);
   const fillish = styled ? has(items, "fill") : FILL_TOOLS.has(tool);
   const texty = styled ? items.every((it) => it.t === "text") : tool === "text";
-  const dimmy = styled ? items.every(isDim) : tool === "dim";
+  const isSym = (it: Item) => it.t === "gdt" || it.t === "datum" || it.t === "rough";
+  const dimmy = styled ? items.every((it) => isDim(it) || isSym(it)) : tool === "dim" || tool === "sym";
 
-  const title = styled ? (one ? ITEM_LABEL[one.t] : `Zaznaczono: ${items.length}`) : tool === "dim" ? "Nowy wymiar" : tool === "text" ? "Nowy tekst" : LINE_TOOLS.has(tool) ? "Styl nowego elementu" : "Rysunek";
+  const title = styled ? (one ? ITEM_LABEL[one.t] : `Zaznaczono: ${items.length}`) : tool === "dim" ? "Nowy wymiar" : tool === "sym" ? "Nowy symbol" : tool === "text" ? "Nowy tekst" : LINE_TOOLS.has(tool) ? "Styl nowego elementu" : "Rysunek";
   const measured = one && isDim(one) ? fmt(measure(one, doc.k || 1)) + (one.t === "dima" ? "°" : "") : "";
 
   return (
@@ -220,7 +224,36 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
                 <button type="button" className="rys-btn" onClick={() => edit((it) => (it.t === "dim" ? { ...it, side: it.side === 1 ? -1 : 1 } : it))}>{icons.flip} Opis na drugą stronę</button>
               </div>
             )}
-            {!styled && <p className="rys-tip">Rodzaj wymiaru wybierasz na pasku nad rysunkiem. W trybie „Auto” kliknięcie w okrąg daje średnicę, w łuk — promień, a dwa punkty — wymiar poziomy albo pionowy zależnie od położenia kursora, jak w CAD.</p>}
+            {!styled && tool === "dim" && <p className="rys-tip">Rodzaj wymiaru wybierasz na pasku nad rysunkiem. W trybie „Auto” kliknięcie w okrąg daje średnicę, w łuk — promień, a dwa punkty — wymiar poziomy albo pionowy zależnie od położenia kursora, jak w CAD.</p>}
+          </>
+        )}
+
+        {one?.t === "gdt" && (
+          <>
+            <Row label="Cecha"><select value={one.sym} onChange={(e) => edit(set("sym", e.target.value))}>{GDT_SYMS.map((v) => <option key={v} value={v}>{GDT_LABEL[v]}</option>)}</select></Row>
+            <Row label="Tolerancja"><input ref={first} type="text" value={one.tol} maxLength={16} placeholder="0,05" onBlur={settle} onChange={(e) => edit(set("tol", e.target.value), "live")} /></Row>
+            <Row label="Modyfikator"><select value={one.mod} onChange={(e) => edit(set("mod", e.target.value))}>{GDT_MODS.map((v) => <option key={v} value={v}>{GDT_MOD_LABEL[v]}</option>)}</select></Row>
+            <Row label="Bazy"><input type="text" value={one.dat} maxLength={24} placeholder="A|B|C" onBlur={settle} onChange={(e) => edit(set("dat", e.target.value), "live")} /></Row>
+            <div className="rys-checks">
+              <label><input type="checkbox" checked={one.dia} onChange={(e) => edit(set("dia", e.target.checked))} /> ⌀ — pole tolerancji walcowe</label>
+              <label><input type="checkbox" checked={one.lx !== undefined} onChange={(e) => edit((it) => { if (it.t !== "gdt") return it; const o = { ...it }; if (e.target.checked) { o.lx = it.x - 15; o.ly = it.y + 15; } else { delete o.lx; delete o.ly; } return o; })} /> Linia odniesienia ze strzałką</label>
+            </div>
+            <p className="rys-tip">Do trzech baz rozdzielonych „|”, np. <code>A|B|C</code>; baza wspólna: <code>A-B</code>. Symbole wg ISO 1101; uchwyt na końcu strzałki wskazuje element.</p>
+          </>
+        )}
+        {one?.t === "datum" && (
+          <>
+            <Row label="Litera"><input ref={first} type="text" value={one.s} maxLength={3} onBlur={settle} onChange={(e) => edit(set("s", e.target.value.toUpperCase() || "A"), "live")} /></Row>
+            <div className="rys-checks"><label><input type="checkbox" checked={one.solid} onChange={(e) => edit(set("solid", e.target.checked))} /> Trójkąt zaczerniony</label></div>
+            <p className="rys-tip">Symbol bazy wg ISO 5459: trójkąt na elemencie bazowym, litera w ramce. Uchwyty: trójkąt i ramka.</p>
+          </>
+        )}
+        {one?.t === "rough" && (
+          <>
+            <Row label="Rodzaj"><select value={one.kind} onChange={(e) => edit(set("kind", e.target.value))}>{ROUGH_KINDS.map((v) => <option key={v} value={v}>{ROUGH_LABEL[v]}</option>)}</select></Row>
+            <Row label="Wymaganie"><input ref={first} type="text" value={one.s} maxLength={24} placeholder="Ra 1,6" onBlur={settle} onChange={(e) => edit(set("s", e.target.value), "live")} /></Row>
+            <div className="rys-nums">{num("Obrót °", "a", { step: 15, min: -180, max: 180 })}</div>
+            <p className="rys-tip">Znak wg ISO 21920-1 (dawniej ISO 1302): kreska — wymagane usunięcie materiału, okrąg — bez usuwania materiału.</p>
           </>
         )}
 

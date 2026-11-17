@@ -6,6 +6,8 @@
   Ten plik nie zna Reacta ani DOM — geometria, przyciąganie, normalizacja i zapis; testy: tests/rys.test.ts.
 */
 
+import { datumBox, gdtBox, roughBox } from "./symbols";
+
 export const RYS_W = 360;
 export const H_MIN = 80, H_MAX = 480, H_DEFAULT = 240;
 
@@ -96,10 +98,31 @@ export type AxesItem = Base & { t: "axes"; x: number; y: number; xn: number; xp:
 export type DimRItem = Base & { t: "dimr"; d: boolean; cx: number; cy: number; r: number; a: number; ext: number; label: string; size: number; font: Font };
 /** Wymiar kątowy: wierzchołek (cx, cy), ramiona pod kątami a1 → a2 (zgodnie z ruchem wskazówek na ekranie), łuk wymiarowy o promieniu r. */
 export type DimAItem = Base & { t: "dima"; cx: number; cy: number; a1: number; a2: number; r: number; label: string; size: number; font: Font };
-export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | DimRItem | DimAItem | PtItem | StepItem | GridItem | AxesItem;
+/* Symbole rysunku technicznego (RB6a) — geometria i źródła w lib/rys/symbols.ts. */
+export const GDT_SYMS = ["str", "flat", "circ", "cyl", "pline", "psurf", "par", "perp", "ang", "pos", "coax", "sym", "run", "trun"] as const;
+export type GdtSym = (typeof GDT_SYMS)[number];
+export const GDT_LABEL: Record<GdtSym, string> = {
+  str: "Prostoliniowość", flat: "Płaskość", circ: "Okrągłość", cyl: "Walcowość", pline: "Profil linii", psurf: "Profil powierzchni",
+  par: "Równoległość", perp: "Prostopadłość", ang: "Nachylenie", pos: "Pozycja", coax: "Współosiowość / współśrodkowość", sym: "Symetria", run: "Bicie", trun: "Bicie całkowite",
+};
+/** Modyfikatory tolerancji w ramce (ISO 1101 / ISO 2692): M — maksimum materiału, L — minimum materiału, P — rzutowane pole, F — stan swobodny. */
+export const GDT_MODS = ["", "M", "L", "P", "F"] as const;
+export type GdtMod = (typeof GDT_MODS)[number];
+export const GDT_MOD_LABEL: Record<GdtMod, string> = { "": "brak", M: "Ⓜ maksimum materiału", L: "Ⓛ minimum materiału", P: "Ⓟ rzutowane pole tolerancji", F: "Ⓕ stan swobodny" };
+/** Ramka tolerancji geometrycznej: (x, y) — środek lewego boku ramki; `dat` — bazy rozdzielone „|” (do 3, np. „A|B|C” albo „A-B”); (lx, ly) — koniec linii odniesienia ze strzałką. */
+export type GdtItem = Base & { t: "gdt"; x: number; y: number; sym: GdtSym; tol: string; dia: boolean; mod: GdtMod; dat: string; size: number; font: Font; lx?: number; ly?: number };
+/** Symbol bazy: trójkąt na elemencie bazowym w (x, y), litera w kwadracie o środku (bx, by); `solid` — trójkąt zaczerniony (ISO 5459 dopuszcza pełny i pusty). */
+export type DatumItem = Base & { t: "datum"; x: number; y: number; bx: number; by: number; s: string; solid: boolean; size: number; font: Font };
+export const ROUGH_KINDS = ["any", "mrr", "nmr"] as const;
+export type RoughKind = (typeof ROUGH_KINDS)[number];
+export const ROUGH_LABEL: Record<RoughKind, string> = { any: "Dowolny sposób wykonania", mrr: "Z usunięciem materiału", nmr: "Bez usuwania materiału" };
+/** Znak chropowatości: wierzchołek na powierzchni w (x, y), obrót `a` (stopnie), wymaganie `s` (np. „Ra 1,6”) nad dłuższym ramieniem. */
+export type RoughItem = Base & { t: "rough"; x: number; y: number; a: number; kind: RoughKind; s: string; size: number; font: Font };
+export type Item = LineItem | PolyItem | RectItem | CircleItem | ArcItem | TextItem | DimItem | DimRItem | DimAItem | PtItem | StepItem | GridItem | AxesItem | GdtItem | DatumItem | RoughItem;
 export type ItemType = Item["t"];
 export const ITEM_LABEL: Record<ItemType, string> = {
   line: "Linia", poly: "Polilinia", rect: "Prostokąt", circle: "Okrąg", arc: "Łuk", text: "Tekst", dim: "Wymiar", dimr: "Wymiar ⌀ / R", dima: "Wymiar kątowy", pt: "Punkt", step: "Numer kroku", grid: "Siatka", axes: "Układ współrzędnych",
+  gdt: "Tolerancja geometryczna", datum: "Baza", rough: "Chropowatość",
 };
 export const isDim = (it: Item): it is DimItem | DimRItem | DimAItem => it.t === "dim" || it.t === "dimr" || it.t === "dima";
 
@@ -246,6 +269,12 @@ function parseItemCore(raw: unknown): Item | null {
     case "step": return { id, t: "step", x: num(v.x, 0), y: num(v.y, 0), n: Math.round(num(v.n, 1, 1, 99)) };
     case "grid": return { id, t: "grid", x: num(v.x, 0), y: num(v.y, 0), w: num(v.w, 100, 5), h: num(v.h, 100, 5), minor: num(v.minor, 5, 2.5, 50), major: num(v.major, 10, 5, 100) };
     case "axes": return { id, t: "axes", x: num(v.x, 0), y: num(v.y, 0), xn: num(v.xn, 0, 0, 800), xp: num(v.xp, 100, 5, 800), yn: num(v.yn, 0, 0, 800), yp: num(v.yp, 100, 5, 800), xl: str(v.xl, 8) || "X", yl: str(v.yl, 8) || "Y", ts: num(v.ts, 0, 0, 200), tv: num(v.tv, 10, -1000, 1000) };
+    case "gdt": {
+      const lead = typeof v.lx === "number" && typeof v.ly === "number" && Number.isFinite(v.lx) && Number.isFinite(v.ly) ? { lx: num(v.lx, 0), ly: num(v.ly, 0) } : {};
+      return { id, t: "gdt", x: num(v.x, 0), y: num(v.y, 0), sym: oneOf(v.sym, GDT_SYMS, "pos"), tol: str(v.tol, 16), dia: bool(v.dia), mod: oneOf(v.mod, GDT_MODS, ""), dat: str(v.dat, 24), size: size(v.size, 10.5), font: font("sans"), ...lead };
+    }
+    case "datum": return { id, t: "datum", x: num(v.x, 0), y: num(v.y, 0), bx: num(v.bx, 0), by: num(v.by, -20), s: str(v.s, 3) || "A", solid: bool(v.solid, true), size: size(v.size, 10.5), font: font("sans") };
+    case "rough": return { id, t: "rough", x: num(v.x, 0), y: num(v.y, 0), a: num(v.a, 0, -720, 720), kind: oneOf(v.kind, ROUGH_KINDS, "mrr"), s: str(v.s, 24), size: size(v.size, 10.5), font: font("sans") };
     default: return null;
   }
 }
@@ -283,6 +312,9 @@ function storeItemCore(it: Item): StoredItem {
     case "step": return { t: it.t, x: it.x, y: it.y, n: it.n };
     case "grid": return { t: it.t, x: it.x, y: it.y, w: it.w, h: it.h, minor: it.minor, major: it.major };
     case "axes": return { t: it.t, x: it.x, y: it.y, xn: it.xn, xp: it.xp, yn: it.yn, yp: it.yp, xl: it.xl, yl: it.yl, ts: it.ts, tv: it.tv };
+    case "gdt": return { t: it.t, x: it.x, y: it.y, sym: it.sym, tol: it.tol, dia: it.dia, mod: it.mod, dat: it.dat, size: it.size, font: it.font, ...(it.lx !== undefined && it.ly !== undefined ? { lx: it.lx, ly: it.ly } : {}) };
+    case "datum": return { t: it.t, x: it.x, y: it.y, bx: it.bx, by: it.by, s: it.s, solid: it.solid, size: it.size, font: it.font };
+    case "rough": return { t: it.t, x: it.x, y: it.y, a: it.a, kind: it.kind, s: it.s, size: it.size, font: it.font };
   }
 }
 
@@ -441,6 +473,9 @@ export function bbox(it: Item): [number, number, number, number] {
     case "dima": { const xs = [it.cx], ys = [it.cy]; for (const a of [it.a1, it.a2, it.a1 + arcSweep(it.a1, it.a2) / 2]) { const p = arcPoint(it.cx, it.cy, it.r + 4, a); xs.push(p[0]); ys.push(p[1]); } return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
     case "pt": return [it.x - 4, it.y - 4, it.x + 4, it.y + 4];
     case "step": return [it.x - 8, it.y - 8, it.x + 8, it.y + 8];
+    case "gdt": return gdtBox(it);
+    case "datum": return datumBox(it);
+    case "rough": return roughBox(it);
   }
 }
 
@@ -449,6 +484,8 @@ export function translate<T extends Item>(it: T, dx: number, dy: number): T {
     case "line": case "dim": return { ...it, x1: q(it.x1 + dx), y1: q(it.y1 + dy), x2: q(it.x2 + dx), y2: q(it.y2 + dy) };
     case "poly": return { ...it, pts: it.pts.map(([x, y]): P2 => [q(x + dx), q(y + dy)]) };
     case "circle": case "arc": case "dimr": case "dima": return { ...it, cx: q(it.cx + dx), cy: q(it.cy + dy) };
+    case "gdt": return { ...it, x: q(it.x + dx), y: q(it.y + dy), ...(it.lx !== undefined && it.ly !== undefined ? { lx: q(it.lx + dx), ly: q(it.ly + dy) } : {}) };
+    case "datum": return { ...it, x: q(it.x + dx), y: q(it.y + dy), bx: q(it.bx + dx), by: q(it.by + dy) };
     default: return { ...it, x: q(it.x + dx), y: q(it.y + dy) };
   }
 }
@@ -487,6 +524,10 @@ export function rotateItem(it: Item, c: P2, deg: number): Item {
     case "dimr": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1], a: q(norm360(it.a + deg)) }; }
     case "dima": { const p = rotP([it.cx, it.cy], c, deg); return { ...it, cx: p[0], cy: p[1], a1: q(norm360(it.a1 + deg)), a2: q(norm360(it.a2 + deg)) }; }
     case "grid": { const p = rotP([it.x + it.w / 2, it.y + it.h / 2], c, deg); const sw = right && Math.abs(n % 180) > 1e-9; const w = sw ? it.h : it.w, h = sw ? it.w : it.h; return { ...it, x: q(p[0] - w / 2), y: q(p[1] - h / 2), w, h }; }
+    // ramka i litera bazy zostają poziomo (czytelne), obracają się położenia; znak chropowatości obraca się cały
+    case "gdt": { const p = rotP([it.x, it.y], c, deg), l = it.lx !== undefined && it.ly !== undefined ? rotP([it.lx, it.ly], c, deg) : null; return { ...it, x: p[0], y: p[1], ...(l ? { lx: l[0], ly: l[1] } : {}) }; }
+    case "datum": { const p = rotP([it.x, it.y], c, deg), b = rotP([it.bx, it.by], c, deg); return { ...it, x: p[0], y: p[1], bx: b[0], by: b[1] }; }
+    case "rough": { const p = rotP([it.x, it.y], c, deg); return { ...it, x: p[0], y: p[1], a: q(((it.a + deg + 180) % 360 + 360) % 360 - 180) }; }
     default: { const p = rotP([it.x, it.y], c, deg); return { ...it, x: p[0], y: p[1] }; }
   }
 }
@@ -506,6 +547,8 @@ export function scaleItem(it: Item, c: P2, k: number): Item {
     case "dimr": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(0.01, L(it.r)), ext: L(it.ext) }; }
     case "dima": { const p = scP([it.cx, it.cy], c, k); return { ...it, cx: p[0], cy: p[1], r: Math.max(1, L(it.r)) }; }
     case "text": { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1], size: nearestSize(it.size * k) }; }
+    case "gdt": { const p = scP([it.x, it.y], c, k), l = it.lx !== undefined && it.ly !== undefined ? scP([it.lx, it.ly], c, k) : null; return { ...it, x: p[0], y: p[1], ...(l ? { lx: l[0], ly: l[1] } : {}) }; }
+    case "datum": { const p = scP([it.x, it.y], c, k), b = scP([it.bx, it.by], c, k); return { ...it, x: p[0], y: p[1], bx: b[0], by: b[1] }; }
     default: { const p = scP([it.x, it.y], c, k); return { ...it, x: p[0], y: p[1] }; }
   }
 }
@@ -580,6 +623,8 @@ export function stretchItem(it: Item, c: P2, a: number, kx: number, ky: number):
       return { ...it, x: o[0], y: o[1], xp: Math.max(5, q(it.xp * fx)), xn: q(it.xn * fx), yp: Math.max(5, q(it.yp * fy)), yn: q(it.yn * fy), ts: q(it.ts * fx) };
     }
     case "circle": case "arc": case "dimr": case "dima": { const m = M([it.cx, it.cy]); return { ...scaleItem(it, [it.cx, it.cy], km), cx: m[0], cy: m[1] } as Item; }
+    case "gdt": { const m = M([it.x, it.y]), l = it.lx !== undefined && it.ly !== undefined ? M([it.lx, it.ly]) : null; return { ...it, x: m[0], y: m[1], ...(l ? { lx: l[0], ly: l[1] } : {}) }; }
+    case "datum": { const m = M([it.x, it.y]), b = M([it.bx, it.by]); return { ...it, x: m[0], y: m[1], bx: b[0], by: b[1] }; }
     default: { const m = M([it.x, it.y]); return { ...scaleItem(it, [it.x, it.y], km), x: m[0], y: m[1] } as Item; }
   }
 }
@@ -602,6 +647,8 @@ export function handles(it: Item): Handle[] {
     case "dimr": { const g = dimrGeom(it); return [{ key: "a", x: g.E[0], y: g.E[1] }]; }
     case "dima": { const p = arcPoint(it.cx, it.cy, it.r, it.a1 + arcSweep(it.a1, it.a2) / 2); return [{ key: "r", x: p[0], y: p[1] }]; }
     case "arc": { const [s, m, e] = arcEnds(it); return [{ key: "c", x: it.cx, y: it.cy }, { key: "s", x: s[0], y: s[1] }, { key: "m", x: m[0], y: m[1] }, { key: "e", x: e[0], y: e[1] }]; }
+    case "gdt": return it.lx !== undefined && it.ly !== undefined ? [{ key: "l", x: it.lx, y: it.ly }] : [];
+    case "datum": return [{ key: "p", x: it.x, y: it.y }, { key: "b", x: it.bx, y: it.by }];
     default: return [];
   }
 }
@@ -616,6 +663,8 @@ export function refAngle(it: Item): number | null {
 /** Przeciągnięcie uchwytu `key` do punktu (x, y). */
 export function moveHandle(it: Item, key: string, x: number, y: number): Item {
   switch (it.t) {
+    case "gdt": return key === "l" ? { ...it, lx: x, ly: y } : it;
+    case "datum": return key === "p" ? { ...it, x, y } : key === "b" ? { ...it, bx: x, by: y } : it;
     case "line": {
       if (key === "m") { const dx = x - (it.x1 + it.x2) / 2, dy = y - (it.y1 + it.y2) / 2; return { ...it, x1: q(it.x1 + dx), y1: q(it.y1 + dy), x2: q(it.x2 + dx), y2: q(it.y2 + dy) }; }
       return key === "p1" ? { ...it, x1: x, y1: y } : { ...it, x2: x, y2: y };

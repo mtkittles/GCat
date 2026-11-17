@@ -1,3 +1,4 @@
+import { gdtLayout } from "./symbols";
 import {
   arcSweep, bulgeArc, dimGeom, dimOffsetAt, newId, polySegs, q, type ArcItem, type Item, type LineItem, type P2, type PolyItem,
 } from "./model";
@@ -534,6 +535,16 @@ export function mirrorItem(it: Item, a: P2, b: P2): Item {
   switch (it.t) {
     case "line": { const [p1, p2] = [M([it.x1, it.y1]), M([it.x2, it.y2])]; return { ...it, id, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1] }; }
     case "poly": return { ...it, id, pts: it.pts.map(M), ...(it.b ? { b: it.b.map((x) => (x ? -x : 0)) } : {}) };
+    case "gdt": { // ramka zostaje pozioma: odbija się jej środek, linia odniesienia — swoim końcem
+      const w = gdtLayout(it).w, c = M([it.x + w / 2, it.y]), l = it.lx !== undefined && it.ly !== undefined ? M([it.lx, it.ly]) : null;
+      return { ...it, id, x: q(c[0] - w / 2), y: c[1], ...(l ? { lx: l[0], ly: l[1] } : {}) };
+    }
+    case "datum": { const p = M([it.x, it.y]), bb = M([it.bx, it.by]); return { ...it, id, x: p[0], y: p[1], bx: bb[0], by: bb[1] }; }
+    case "rough": { // kierunek „w górę” znaku odbity względem osi
+      const r = it.a * RAD, u: P2 = [Math.sin(r), -Math.cos(r)], k = u[0] * d[0] + u[1] * d[1], m: P2 = [2 * k * d[0] - u[0], 2 * k * d[1] - u[1]];
+      const p = M([it.x, it.y]);
+      return { ...it, id, x: p[0], y: p[1], a: q(Math.atan2(m[0], -m[1]) / RAD) };
+    }
     case "rect": case "grid": {
       if (right) { const p1 = M([it.x, it.y]), p2 = M([it.x + it.w, it.y + it.h]); return { ...it, id, x: Math.min(p1[0], p2[0]), y: Math.min(p1[1], p2[1]) }; }
       if (it.t === "grid") { const m = M([it.x + it.w / 2, it.y + it.h / 2]); return { ...it, id, x: q(m[0] - it.w / 2), y: q(m[1] - it.h / 2) }; }

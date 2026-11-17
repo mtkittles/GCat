@@ -7,8 +7,9 @@ import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
   snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
   layersOf, layerOf, parseDoc, storeDoc, drop, FILLS, FILL_LABEL, opacityOf, SNAP_KINDS, tangentPts, commonTangents, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
-  type DimOrient, type Fill, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
+  type DatumItem, type DimOrient, type Fill, type GdtItem, type Item, type Layer, type P2, type RoughItem, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
+import { nextDatum, placeGdt } from "@/lib/rys/symbols";
 import { parse as parseYaml } from "yaml";
 import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
 import { StandardDialog } from "./Standard";
@@ -44,6 +45,7 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "arc", label: "Łuk", key: "A", hint: "Łuk z cięciwy: kliknij początek, koniec, potem wyciągnij łuk myszą i kliknij." },
   { id: "arcc", label: "Łuk ze środka", key: "S", hint: "Kliknij środek, początek i koniec łuku. Łuk biegnie zgodnie z ruchem wskazówek zegara — kierunek odwrócisz w panelu." },
   { id: "dim", label: "Wymiar", key: "D", hint: "Rodzaj wymiaru wybierasz na pasku. Auto: kliknięcie w okrąg — średnica, w łuk — promień; dwa punkty — wymiar liniowy (kursor nad/pod — poziomy, z boku — pionowy). Kątowy: kliknij dwie linie (albo wierzchołek i dwa punkty), potem położenie łuku." },
+  { id: "sym", label: "Symbol", key: "J", hint: "Rodzaj symbolu na pasku pod wstążką. Tolerancja geometryczna: kliknij element (grot strzałki), potem miejsce ramki. Baza: kliknij element bazowy (trójkąt), potem miejsce litery. Chropowatość: kliknij powierzchnię — znak stanie prostopadle do klikniętej linii. Wartości zmienisz w panelu." },
   { id: "text", label: "Tekst", key: "T", hint: "Kliknij miejsce tekstu i wpisz treść w panelu." },
   { id: "pt", label: "Punkt", key: "O", hint: "Kliknij położenie punktu, opis wpisz w panelu." },
   { id: "step", label: "Krok", key: "N", hint: "Kliknij — kolejne numery kroków nadają się same." },
@@ -85,7 +87,8 @@ type Draft =
   | { t: "corner1"; id: string; click: P2 }
   | { t: "off1"; id: string }
   | { t: "mir1"; a: P2; cur: P2 }
-  | { t: "pencil"; pts: P2[] };
+  | { t: "pencil"; pts: P2[] }
+  | { t: "sym1"; tpl: GdtItem | DatumItem; p: P2; cur: P2 };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
@@ -122,6 +125,7 @@ const dimItem = (p1: P2, p2: P2, o: DimOrient, off: number, st: Style, id = newI
   ({ id, t: "dim", o, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], off, label: MEASURE, side: -1, size: st.dimSize, font: st.dimFont, hz: false });
 
 function draftItem(d: Draft, st: Style): Item | null {
+  if (d.t === "sym1") return d.tpl.t === "gdt" ? placeGdt(d.tpl, d.p, d.cur) : { ...d.tpl, x: d.p[0], y: d.p[1], bx: d.cur[0], by: d.cur[1] };
   if (d.t === "pencil") return d.pts.length > 1 ? { id: "draft", t: "poly", k: st.k, sw: st.sw, arrow: "none", fill: "none", closed: false, pts: d.pts } : null;
   if (d.t === "drag") return d.tool === "dim" ? { id: "draft", t: "line", k: "cons", sw: "auto", arrow: "none", x1: d.a[0], y1: d.a[1], x2: d.b[0], y2: d.b[1] } : fromDrag(d.tool, d.a, d.b, st);
   if (d.t === "dimoff") return dimItem(d.p1, d.p2, d.o, d.off, st, "draft");
@@ -159,7 +163,7 @@ function hit(it: Item): ReactNode {
     case "axes": return <path d={`M ${it.x - it.xn} ${it.y} H ${it.x + it.xp} M ${it.x} ${it.y + it.yn} V ${it.y - it.yp}`} className={cn} />;
     case "circle": return <circle cx={it.cx} cy={it.cy} r={it.r} className={cn} />;
     case "pt": case "step": return <circle cx={it.x} cy={it.y} r={8} className="rys-hit is-fill" />;
-    case "text": { const b = bbox(it); return <rect x={b[0] - 2} y={b[1] - 2} width={b[2] - b[0] + 4} height={b[3] - b[1] + 4} className="rys-hit is-fill" />; }
+    case "gdt": case "datum": case "rough": case "text": { const b = bbox(it); return <rect x={b[0] - 2} y={b[1] - 2} width={b[2] - b[0] + 4} height={b[3] - b[1] + 4} className="rys-hit is-fill" />; }
     default: return null; // poly i arc: kształt z renderera powtarzany niżej
   }
 }
@@ -258,6 +262,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [tab, setTab] = useState<Tab>("home");
   const [corner, setCorner] = useState<"fillet" | "chamfer">("fillet"); // ostatni rodzaj naroża
   const [smooth, setSmooth] = useState<Smooth>(2); // ołówek: stopień wygładzenia
+  const [symKind, setSymKind] = useState<"gdt" | "datum" | "rough">("gdt"); // narzędzie Symbol
   const [chm, setChm] = useState<{ mode: ChamferMode; d2: number; ang: number }>({ mode: "eq", d2: 2, ang: 45 }); // faza: równa / dwie długości (mm) / długość × kąt (°)
   const [arr, setArr] = useState({ kind: "rect" as ArrKind, cols: 3, rows: 1, dx: 10, dy: 10, gap: true, n: 6, ang: 360, step: 10, even: false });
   const [arrC, setArrC] = useState<P2 | null>(null); // środek szyku kołowego (brak — punkt obrotu zaznaczenia)
@@ -394,6 +399,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     }
     set(addItems(base, [onLayer(it)]), [it.id]);
     if (focus) setFocusKey((k) => k + 1);
+  };
+  /** Szablon nowej ramki tolerancji (jak ostatnia na rysunku) albo bazy (następna wolna litera). */
+  const symTemplate = (kind: "gdt" | "datum"): GdtItem | DatumItem => {
+    const font = style.dimFont, size = style.dimSize;
+    if (kind === "datum") return { id: "draft", t: "datum", x: 0, y: 0, bx: 0, by: 0, s: nextDatum(doc.items.flatMap((it) => (it.t === "datum" ? [it.s] : []))), solid: true, size, font };
+    const last = [...doc.items].reverse().find((x): x is GdtItem => x.t === "gdt");
+    return { id: "draft", t: "gdt", x: 0, y: 0, sym: last?.sym ?? "pos", tol: last?.tol ?? "0,1", dia: last?.dia ?? true, mod: last?.mod ?? "", dat: last?.dat ?? "A|B", size, font };
   };
   const pickTool = (t: Tool) => {
     setTool(t); setDraft(null); setMark(null); setHoverEdit(null);
@@ -692,6 +704,32 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       if (cv) { setDraft({ t: "dimr", d: dimType === "d" || (dimType === "auto" && cv.t === "circle"), cx: cv.cx, cy: cv.cy, r: cv.r, cur: p }); return; }
       if (dimType !== "auto") { setInfo("kliknij okrąg albo łuk"); return; }
     }
+    if (tool === "sym") {
+      const sp = snapAt(p, e, draft?.t === "sym1" ? draft.p : null);
+      if (draft?.t === "sym1") {
+        const it = draftItem({ ...draft, cur: sp }, style);
+        setDraft(null); setInfo("");
+        if (it) add({ ...it, id: newId() });
+        return;
+      }
+      if (symKind === "rough") {
+        // znak prostopadle do odcinka pod kursorem: nad linią (albo z prawej), a na boku zamkniętej figury — na zewnątrz
+        const seg = segAt(p), host = pickCurve(doc.items.filter(pickable), p, 9 * u);
+        let a = seg ? (Math.atan2(seg[1][1] - seg[0][1], seg[1][0] - seg[0][0]) * 180) / Math.PI : 0;
+        if (a > 90) a -= 180; else if (a <= -90) a += 180;
+        const closed = host && (host.t === "rect" || host.t === "circle" || (host.t === "poly" && host.closed));
+        if (seg && closed) {
+          const hb = bbox(host), c: P2 = [(hb[0] + hb[2]) / 2, (hb[1] + hb[3]) / 2], r = (a * Math.PI) / 180;
+          if (Math.sin(r) * (sp[0] - c[0]) - Math.cos(r) * (sp[1] - c[1]) < 0) a = a > 0 ? a - 180 : a + 180;
+        }
+        const last = [...doc.items].reverse().find((x): x is RoughItem => x.t === "rough");
+        add({ id: newId(), t: "rough", x: sp[0], y: sp[1], a: q(a), kind: last?.kind ?? "mrr", s: last?.s ?? "Ra 1,6", size: style.dimSize, font: style.dimFont });
+        return;
+      }
+      setDraft({ t: "sym1", tpl: symTemplate(symKind), p: sp, cur: sp });
+      setInfo(symKind === "gdt" ? "tolerancja: kliknij miejsce ramki" : "baza: kliknij miejsce litery");
+      return;
+    }
     if (tool === "pencil") { e.currentTarget.setPointerCapture(e.pointerId); setDraft({ t: "pencil", pts: [[p[0], p[1]]] }); return; } // odręcznie: bez dociągania do siatki
     if (draft?.t === "drag" && draft.click) { finishDrag(draft, snapAt(p, e, draft.a), true); return; }
     const sp = snapAt(p, e, draft?.t === "poly" ? draft.pts[draft.pts.length - 1] : null);
@@ -766,6 +804,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       setInfo(kx === ky && (d.uni || e.shiftKey) ? `skala × ${fmtN(kx)}` : `${mmv(2 * d.f.hw * kx)} × ${mmv(2 * d.f.hh * ky)} mm`);
       dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => stretchItem(it, d.anchor, d.a, kx, ky)) });
     } else if (d?.kind === "marquee") setMarquee([Math.min(d.start[0], p[0]), Math.min(d.start[1], p[1]), Math.max(d.start[0], p[0]), Math.max(d.start[1], p[1])]);
+    else if (draft?.t === "sym1") setDraft({ ...draft, cur: snapAt(p, e, draft.p) });
     else if (draft?.t === "pencil") {
       const l = draft.pts[draft.pts.length - 1];
       if (Math.hypot(p[0] - l[0], p[1] - l[1]) > 0.75 * u) setDraft({ ...draft, pts: [...draft.pts, [p[0], p[1]]] });
@@ -1096,7 +1135,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                 <div className="rys-rcol">{(["arcc", "grid", "axes"] as Tool[]).map(toolSm)}</div>
               </RGroup>
               <RGroup title="Opisz">
-                {toolBtn(T("dim"))}
+                {toolBtn(T("dim"))}{toolBtn(T("sym"))}
                 <div className="rys-rcol">{(["text", "pt", "step"] as Tool[]).map(toolSm)}</div>
               </RGroup>
               <RGroup title="Zmień">
@@ -1148,7 +1187,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             </>
           )}
         </div>
-        {(tool === "array" || tool === "region" || tool === "pencil" || tool === "fillet" || tool === "chamfer" || tool === "offset" || tool === "line" || tool === "dim") && (
+        {(tool === "array" || tool === "region" || tool === "pencil" || tool === "sym" || tool === "fillet" || tool === "chamfer" || tool === "offset" || tool === "line" || tool === "dim") && (
           <div className="rys-opts">
             {tool === "array" && (
               <div className="rys-arr">
@@ -1172,6 +1211,11 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             </label>
             <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("fill")} title="Samo wypełnienie pod rysunkiem — linie zostają bez zmian">Wypełnij</button>
             <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("shape")} title="Nowa figura z obrysem (styl z panelu) i wypełnieniem">Utwórz figurę</button>
+          </div>
+        )}
+        {tool === "sym" && (
+          <div className="rys-seg" role="radiogroup" aria-label="Rodzaj symbolu">
+            {([["gdt", "Tolerancja geometryczna"], ["datum", "Baza"], ["rough", "Chropowatość"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={symKind === v} onClick={() => { setSymKind(v); setDraft(null); setInfo(""); }}>{l}</button>)}
           </div>
         )}
         {tool === "pencil" && (

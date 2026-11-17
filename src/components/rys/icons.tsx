@@ -12,6 +12,7 @@ export const icons = {
   rect: <I><rect x="3.5" y="5" width="13" height="10" rx="1" /></I>,
   circle: <I><circle cx="10" cy="10" r="6.5" /></I>,
   arc: <I><path d="M4 15A11 11 0 0 1 15 4" /><circle cx="15" cy="15" r="1.2" fill="currentColor" /></I>,
+  sym: <I><rect x="2.5" y="6.5" width="15" height="7" rx="0.5" /><path d="M8 6.5v7M12.5 6.5v7" /><circle cx="5.25" cy="10" r="1.6" /><path d="M3.3 10h3.9M5.25 8v4" /></I>,
   pencil: <I><path d="M3 16c2-1 2.5-4 4.5-4s1.5 3 3.5 3 2-2.5 2.5-3.5" /><path d="M12.5 8.5l4-4 1.5 1.5-4 4-2 .5z" /></I>,
   arcc: <I><path d="M4 15A11 11 0 0 1 15 4" /><path d="M15 15L4 15M15 15L15 4" strokeDasharray="1.6 1.8" /><circle cx="15" cy="15" r="1.4" fill="currentColor" /></I>,
   text: <I><path d="M5 5h10M10 5v10M8 15h4" /></I>,

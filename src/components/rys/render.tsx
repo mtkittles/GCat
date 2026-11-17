@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import { Pt, Step, T, type Ctx } from "@/components/fig";
+import { DatumView, GdtView, RoughView } from "./symbols";
 import {
   arcPoint, arcSweep, dimGeom, dimrGeom, dimText, FONT_CSS, measureText, polyPath, r6, strokeOf, type Arrow, type DimAItem, type DimItem, type DimRItem, type Fill, type Item, type LineKind, type P2, type PtColor, type TextItem,
 } from "@/lib/rys/model";
@@ -194,6 +195,9 @@ export function renderItem(it: Item, c: Ctx, k = 1): ReactNode {
     case "dima": return <DimAView d={it} />;
     case "pt": return <Pt x={it.x} y={it.y} label={it.label || undefined} pos={it.pos} dot={PT_CLASS[it.color]} />;
     case "step": return <Step x={it.x} y={it.y} n={it.n} />;
+    case "gdt": return <GdtView it={it} />;
+    case "datum": return <DatumView it={it} />;
+    case "rough": return <RoughView it={it} />;
     case "axes": {
       // jak Grid z fig.tsx: osie ze strzałką i nazwą, opisy wartości co `ts`
       // bez opisu tuż przy grocie i nazwie osi (jak Grid w fig.tsx)
