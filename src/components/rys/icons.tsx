@@ -48,5 +48,16 @@ export const icons = {
   offset: <I><path d="M3 15l6-10h8" /><path d="M5.5 16.5l6-9.5h6" strokeDasharray="1.6 1.6" /></I>,
   mirror: <I><path d="M10 3v14" strokeDasharray="1.6 1.6" /><path d="M8 6L3 14h5zM12 6l5 8h-5z" /></I>,
   region: <I><rect x="3" y="4" width="9" height="8" rx="1" /><rect x="8" y="8" width="9" height="8" rx="1" /><path d="M8 8h4v4H8z" fill="currentColor" fillOpacity=".55" stroke="none" /></I>,
+  array: <I><rect x="3" y="3" width="4" height="4" rx=".6" /><rect x="10" y="3" width="4" height="4" rx=".6" opacity=".6" /><rect x="3" y="10" width="4" height="4" rx=".6" opacity=".6" /><rect x="10" y="10" width="4" height="4" rx=".6" opacity=".35" /><path d="M16.5 8.5v8h-8" opacity=".5" /></I>,
+  layers: <I><path d="M10 3l7 3.5-7 3.5-7-3.5z" /><path d="M3 10l7 3.5 7-3.5" /><path d="M3 13.5l7 3.5 7-3.5" /></I>,
+  ruler: <I><rect x="2.5" y="7" width="15" height="6" rx="1" /><path d="M5.5 7v2.5M8.5 7v3.5M11.5 7v2.5M14.5 7v3.5" /></I>,
+  explode: <I><path d="M3 9V3h6M17 11v6h-6" /><path d="M11 3h6v6M9 17H3v-6" opacity=".55" /></I>,
+  join: <I><path d="M3 15l5-8h6l3 8" /><circle cx="8" cy="7" r="1.3" fill="currentColor" /><circle cx="14" cy="7" r="1.3" fill="currentColor" /></I>,
+  group: <I><rect x="2.5" y="2.5" width="15" height="15" rx="1.5" strokeDasharray="2 2" /><rect x="5" y="5" width="5" height="5" rx=".6" /><circle cx="12.5" cy="12.5" r="2.6" /></I>,
+  ungroup: <I><rect x="3" y="3" width="6" height="6" rx=".6" /><circle cx="13.5" cy="13.5" r="3" /><path d="M11 5h6M5 11v6" strokeDasharray="1.5 1.5" opacity=".6" /></I>,
+  union: <I><path d="M3 4h8v4h6v8H9v-4H3z" fill="currentColor" fillOpacity=".3" /></I>,
+  subtract: <I><path d="M3 4h8v4H9v4H3z" fill="currentColor" fillOpacity=".3" /><path d="M9 8h8v8H9z" strokeDasharray="1.6 1.6" /></I>,
+  intersect: <I><rect x="3" y="4" width="8" height="8" strokeDasharray="1.6 1.6" /><rect x="9" y="8" width="8" height="8" strokeDasharray="1.6 1.6" /><rect x="9" y="8" width="2" height="4" fill="currentColor" stroke="none" /></I>,
+  xor: <I><path d="M3 4h8v4H9v4H3zM11 8h6v8H9v-4h2z" fill="currentColor" fillOpacity=".3" /></I>,
 };
 export type IconName = keyof typeof icons;

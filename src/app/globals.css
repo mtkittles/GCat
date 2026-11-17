@@ -3489,14 +3489,65 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
    Powłoka .rys-shell zajmuje cały ekran (strona /rysownik i okno w panelu treści).
    ========================================================================== */
 .rys-shell { position: fixed; inset: 0; z-index: 1100; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--ink); font-family: var(--font-sans, Inter, system-ui, sans-serif); }
-.rys-top { display: flex; align-items: center; gap: .75rem 1rem; flex-wrap: wrap; padding: .55rem .9rem; background: var(--surface); border-bottom: 1px solid var(--line); }
-.rys-top h1 { font: 700 1.05rem/1.2 var(--font-display); margin: 0; }
+.rys-top { display: flex; align-items: center; gap: .4rem .8rem; flex-wrap: wrap; padding: .2rem .7rem; background: var(--surface); border-bottom: 1px solid var(--line); }
+.rys-top h1 { font: 700 .92rem/1.2 var(--font-display); margin: 0; }
 .rys-top .rys-sub { color: var(--muted); font-size: var(--fs-aux); }
 .rys-top .rys-top-actions { margin-left: auto; display: flex; gap: .4rem; flex-wrap: wrap; align-items: center; }
-.rys-top .btn { padding: .45rem .9rem; font-size: 14px; }
+.rys-top .btn { padding: .2rem .6rem; font-size: 12.5px; min-height: 0; border-radius: 6px; }
 .rys-saved { font-size: var(--fs-label); color: var(--muted); }
 
 .rys-ed { display: grid; grid-template-columns: minmax(0, 1fr) 19.5rem; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; min-height: 0; outline: none; }
+/* wstążka jak w CAD: karty, grupy z podpisem, wiersz opcji narzędzia */
+.rys-ribbon { grid-column: 1 / -1; background: var(--card); border-bottom: 1px solid var(--line); }
+.rys-rtabs { display: flex; align-items: center; gap: .15rem; padding: .2rem .5rem 0; border-bottom: 1px solid var(--line); }
+.rys-rtabs .rys-menu > .rys-tool { display: flex; flex-direction: row; gap: .3rem; min-width: 0; padding: .25rem .55rem; font-size: 12.5px; }
+.rys-rtabs .rys-menu > .rys-tool svg { width: 15px; height: 15px; }
+.rys-rtab { padding: .3rem .8rem .35rem; border: 0; border-bottom: 2px solid transparent; background: none; color: var(--ink-2); font: 600 12.5px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.rys-rtab:hover { color: var(--ink); }
+.rys-rtab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.rys-rtabs-sp { flex: 1; }
+.rys-ib { display: grid; place-items: center; width: 28px; height: 26px; padding: 0; border: 0; border-radius: 6px; background: none; color: var(--ink-2); cursor: pointer; }
+.rys-ib:hover:not(:disabled) { background: var(--surface-2); color: var(--ink); }
+.rys-ib:disabled { opacity: .35; cursor: default; }
+.rys-ib[aria-pressed="true"] { color: var(--accent); }
+.rys-ib svg { width: 16px; height: 16px; }
+.rys-rpanel { display: flex; flex-wrap: wrap; align-items: stretch; gap: .35rem; padding: .3rem .5rem .2rem; }
+.rys-rgroup { display: grid; grid-template-rows: 1fr auto; gap: .1rem; padding: 0 .35rem; border-right: 1px solid var(--line); }
+.rys-rgroup:last-child { border-right: 0; }
+.rys-rgroup-b { display: flex; flex-wrap: wrap; align-items: center; gap: 1px; }
+.rys-rgroup-t { text-align: center; font-size: 10.5px; color: var(--muted); letter-spacing: .02em; }
+.rys-rpanel .rys-tool { min-width: 2.9rem; padding: .22rem .3rem .18rem; font-size: 10.5px; }
+.rys-opts [role="radio"] { white-space: nowrap; }
+.rys-opts { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; padding: .3rem .7rem; border-top: 1px solid var(--line); background: var(--surface-2); font-size: 12.5px; }
+.rys-opts .rys-dimtypes { flex-basis: auto; }
+.rys-arr { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .7rem; }
+.rys-arr-tip { color: var(--muted); font-size: 12px; }
+.rys-chk { display: flex; align-items: center; gap: .3rem; color: var(--ink-2); font-size: 12.5px; cursor: pointer; }
+.rys-chk input { accent-color: var(--accent); }
+/* pasek stanu: przełączniki jak w CAD */
+.rys-sbar { display: flex; align-items: center; gap: 2px; flex: none; }
+.rys-sbt { padding: .12rem .45rem; border: 1px solid transparent; border-radius: 5px; background: none; color: var(--muted); font: 600 11.5px/1.3 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
+.rys-sbt:hover { color: var(--ink); border-color: var(--line-strong); }
+.rys-sbt[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+.rys-sbt-n { padding: .12rem .15rem; display: grid; place-items: center; }
+.rys-sbt-n svg { width: 12px; height: 12px; }
+.rys-ssel { padding: .05rem .2rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink-2); font: 11.5px var(--font-sans, Inter, system-ui, sans-serif); }
+.rys-menu-list.is-up { top: auto; bottom: calc(100% + 4px); }
+.rys-lbar { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .5rem; padding: .1rem 0; font-size: 12.5px; }
+.rys-lbar select, .rys-lbar .rys-menu > button, .rys-lbar > button { padding: .2rem .45rem; font-size: 12.5px; min-height: 0; }
+.rys-rpanel { min-height: 4rem; }
+.rys-lpop { min-width: 22rem; left: auto; right: 0; padding: .5rem; }
+/* standard rysunków */
+.rys-dialog.rys-std { width: min(70rem, 96vw); max-height: 90vh; overflow: auto; display: none; gap: .7rem; }
+.rys-dialog.rys-std[open] { display: grid; }
+.rys-std-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 1rem 1.5rem; }
+.rys-std h3 { margin: .4rem 0 .3rem; font: 600 var(--fs-label)/1.2 var(--font-display); color: var(--muted); }
+.rys-std ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .25rem; }
+.rys-std li { display: flex; align-items: center; gap: .7rem; font-size: 13px; }
+.rys-std li b { font-weight: 600; color: var(--ink); }
+.rys-std li small { display: block; color: var(--muted); font-size: 11.5px; }
+.fig.rys-std-s { flex: none; margin: 0; padding: 0; border: 0; background: none; }
+.fig.rys-std-s svg { display: block; background: var(--panel); border-radius: 5px; }
 .rys-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .45rem .75rem; background: var(--card); border-bottom: 1px solid var(--line); }
 .rys-tools { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); align-items: stretch; }
 .rys-tool { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 3.25rem; padding: .3rem .4rem .25rem; border-radius: 7px; border: 0; background: none; color: var(--ink-2); font: 500 11px/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
@@ -3608,7 +3659,8 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-layers button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 3px 0 0 var(--accent); }
 .rys-layers b { font-weight: 600; color: var(--ink); white-space: nowrap; }
 .rys-layers span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.rys-status { grid-column: 1 / -1; display: flex; gap: 1rem; align-items: baseline; white-space: nowrap; overflow: hidden; padding: .4rem .8rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.rys-status { grid-column: 1 / -1; display: flex; gap: .8rem; align-items: center; white-space: nowrap; padding: .2rem .6rem; background: var(--card); border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); position: relative; z-index: 5; }
+.rys-status .rys-hint { overflow: hidden; text-overflow: ellipsis; min-width: 0; flex: 1; }
 .rys-coords { font-family: var(--font-mono); color: var(--ink-2); min-width: 9.5rem; }
 .rys-snapname { color: #22D3EE; font-weight: 600; min-width: 6.5rem; flex-shrink: 0; }
 .rys-measure { font-family: var(--font-mono); color: var(--ink); min-width: 7rem; }

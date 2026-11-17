@@ -11,7 +11,8 @@ import {
 } from "@/lib/rys/model";
 import { parse as parseYaml } from "yaml";
 import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
-import { ArrayPanel, DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, type ArrayParams, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
+import { StandardDialog } from "./Standard";
+import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayerBar, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
 import { WDimInput, workDims, WorkDims } from "./workdims";
@@ -51,11 +52,18 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik." },
   { id: "chamfer", label: "Fazuj", key: "K", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie fazę o długości z paska (na każdym boku). Dla dwóch linii: kliknij pierwszą, potem drugą." },
   { id: "region", label: "Obszary", key: "B", hint: "Najedź na obszar wyznaczony przez nachodzące figury i linie — podświetli się. Kliknięcie zaznacza (Shift albo Ctrl dodaje kolejne). Potem „Wypełnij” albo „Utwórz figurę” na pasku." },
+  { id: "array", label: "Szyk", key: "Y", hint: "Zaznacz elementy, wybierz Szyk i ustaw go na pasku pod wstążką (prostokątny, kołowy wokół punktu, wzdłuż linii) — podgląd od razu; Enter albo „Utwórz” wstawia kopie." },
   { id: "mirror", label: "Lustro", key: "M", hint: "Zaznacz elementy, wybierz Lustro i kliknij dwa punkty osi odbicia — powstanie odbita kopia. Shift przy drugim kliknięciu — bez oryginału." },
   { id: "offset", label: "Odsuń", key: "W", hint: "Kliknij linię, okrąg, łuk, polilinię albo prostokąt, potem stronę — powstanie kopia odsunięta o odstęp z paska." },
 ];
 /** narzędzia edycji geometrii — osobna grupa na pasku */
-const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror", "region"]);
+const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror", "array", "region"]);
+/** narzędzia, które działają na zaznaczeniu (wybór narzędzia nie czyści zaznaczenia) */
+const KEEP_SEL = new Set<Tool>(["mirror", "array"]);
+type Tab = "draw" | "edit" | "layers" | "view";
+const TABS: [Tab, string][] = [["draw", "Rysuj"], ["edit", "Zmień"], ["layers", "Warstwy"], ["view", "Widok"]];
+const NOTE_TOOLS = new Set<Tool>(["dim", "text", "pt", "step"]);
+type ArrKind = "rect" | "polar" | "line";
 type DragTool = "line" | "rect" | "circle" | "grid" | "dim" | "axes";
 const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid", "axes"]);
 /** Po pierwszym punkcie wpisanie liczby otwiera pole wartości przy kursorze. */
@@ -169,6 +177,11 @@ function selShape(it: Item, pad: number, cn = "rys-selbox"): ReactNode {
   }
 }
 
+/** Grupa przycisków na wstążce z podpisem pod spodem (jak panel w CAD). */
+function RGroup({ title, children }: { title: string; children: ReactNode }) {
+  return <div className="rys-rgroup"><div className="rys-rgroup-b">{children}</div><span className="rys-rgroup-t">{title}</span></div>;
+}
+
 /** Znacznik przyciągania jak w CAD (rozmiar w pikselach ekranu: u = 1 px w jednostkach rysunku). */
 function SnapMark({ x, y, kind, u }: { x: number; y: number; kind: SnapKind; u: number }) {
   const s = 6 * u;
@@ -239,6 +252,11 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [regSel, setRegSel] = useState<{ items: Item[]; ids: number[] } | null>(null);
   const [regHover, setRegHover] = useState<number | null>(null);
   const [regFill, setRegFill] = useState<Fill>("hatch");
+  const [tab, setTab] = useState<Tab>("draw");
+  const [arr, setArr] = useState({ kind: "rect" as ArrKind, cols: 3, rows: 1, dx: 10, dy: 10, gap: true, n: 6, ang: 360, step: 10, even: false });
+  const [arrC, setArrC] = useState<P2 | null>(null); // środek szyku kołowego (brak — punkt obrotu zaznaczenia)
+  const [arrL, setArrL] = useState<{ a: P2; b: P2 | null } | null>(null); // kierunek szyku wzdłuż linii
+  const [stdOpen, setStdOpen] = useState(false); // podgląd standardu rysunków
   const [wedit, setWEdit] = useState<{ key: string; at: [number, number]; v: string } | null>(null); // edycja wymiaru roboczego
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
@@ -373,7 +391,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   };
   const pickTool = (t: Tool) => {
     setTool(t); setDraft(null); setMark(null); setHoverEdit(null);
+    if (t !== "select") setTab(EDIT_TOOLS.has(t) ? "edit" : "draw");
     if (t === "mirror") setInfo(sel.length ? "lustro: kliknij pierwszy punkt osi odbicia" : "lustro: najpierw zaznacz elementy (Zaznacz), potem Lustro");
+    else if (t === "array") setInfo(sel.length ? "szyk: ustaw go na pasku pod wstążką; Enter — utwórz" : "szyk: najpierw zaznacz elementy (Zaznacz), potem Szyk");
     else if (t !== "select") dispatch({ type: "sel", sel: [] });
   };
 
@@ -577,6 +597,19 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       const tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
       if (tgt?.t === "line" && draft?.t !== "corner1") { setDraft({ t: "corner1", id: tgt.id, click: p }); setInfo("kliknij drugą linię (po stronie, która ma zostać)"); }
       else setInfo("kliknij narożnik polilinii albo prostokąta, albo dwie linie");
+      return;
+    }
+    if (tool === "array") {
+      if (!sel.length) { setInfo("szyk: najpierw zaznacz elementy (Zaznacz), potem Szyk"); return; }
+      if (arr.kind === "polar") { setArrC(snapAt(p, e)); setInfo("szyk kołowy: środek ustawiony — Enter albo „Utwórz”"); return; }
+      if (arr.kind === "line") {
+        const tgt = !arrL || arrL.b ? pickCurve(doc.items.filter((it) => pickable(it) && !sel.includes(it.id)), p, 9 * u) : null;
+        if (tgt?.t === "line") { setArrL({ a: [tgt.x1, tgt.y1], b: [tgt.x2, tgt.y2] }); setInfo("szyk wzdłuż linii: kierunek z linii — Enter albo „Utwórz”"); return; }
+        const sp = snapAt(p, e, arrL && !arrL.b ? arrL.a : null);
+        if (!arrL || arrL.b) { setArrL({ a: sp, b: null }); setInfo("szyk wzdłuż linii: kliknij drugi punkt kierunku"); }
+        else setArrL({ a: arrL.a, b: sp });
+        return;
+      }
       return;
     }
     if (tool === "mirror") {
@@ -786,6 +819,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       done(); setDyn({ kind: dk, a: e.key, b: "", at: lastXY.current }); return;
     }
     if (mod && k === "s") { done(); saveCopy(); return; }
+    if (tool === "array" && e.key === "Enter") { done(); makeArray(); return; }
     if (mod && k === "o") { done(); fileIn.current?.click(); return; }
     if (mod && k === "g") { done(); if (e.shiftKey) act("ungroup"); else if (sel.length > 1) act("group"); return; }
     if (mod && k === "z") { done(); dispatch({ type: e.shiftKey ? "redo" : "undo" }); }
@@ -843,6 +877,15 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   let gs = grid > 0 ? grid : 10;
   while (gs * S < 6) gs *= gs === 1 ? 5 : 2;
   const gM = gs * (gs === 1 ? 10 : 5); // linie grubsze co 10 (skok 1) albo co 5 kroków
+  const actBtn = (label: string, icon: ReactNode, onClick: () => void, disabled: boolean, title: string) => (
+    <button key={label} type="button" className="rys-tool" disabled={disabled} onClick={onClick} title={title}>{icon}<span>{label}</span></button>
+  );
+  const arrNum = (label: string, key: "cols" | "rows" | "dx" | "dy" | "n" | "ang" | "step", min?: number, max?: number) => (
+    <label className="rys-step rys-val">{label}
+      <input type="number" value={arr[key]} min={min} max={max} step={key === "ang" ? 15 : key === "dx" || key === "dy" || key === "step" ? 0.5 : 1}
+        onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v)) setArr((o) => ({ ...o, [key]: min !== undefined && max !== undefined ? Math.round(Math.max(min, Math.min(max, v))) : v })); }} />
+    </label>
+  );
   const toolBtn = (t: (typeof TOOLS)[number]) => (
     <button key={t.id} type="button" className="rys-tool" aria-pressed={tool === t.id} title={`${t.label} (${t.key})`} onClick={() => pickTool(t.id)}>
       {icons[t.id as IconName]}<span>{t.label}</span>
@@ -866,19 +909,36 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else { const fresh = regroup(r.items).map((it) => onLayer(drop(it, "l"))); set(addItems(doc, fresh), fresh.map((it) => it.id)); }
   };
 
-  /** Szyk prostokątny (odstępy w mm, Y w górę jak w CAD) albo kołowy wokół punktu obrotu zaznaczenia. */
-  const makeArray = (pa: ArrayParams) => {
-    const src = doc.items.filter((it) => sel.includes(it.id)), kk = doc.k || 1, out: Item[] = [];
-    if (pa.kind === "rect") {
-      for (let r = 0; r < pa.rows; r++) for (let cc = 0; cc < pa.cols; cc++) if (r || cc) out.push(...regroup(src).map((it) => translate(it, q(cc * pa.dx * kk), q(-r * pa.dy * kk))));
-    } else {
-      const c0 = pivotOf(sel);
-      if (!c0) return;
-      const step = Math.abs(Math.abs(pa.ang) - 360) < 1e-9 ? pa.ang / pa.n : pa.ang / (pa.n - 1);
-      for (let i = 1; i < pa.n; i++) out.push(...regroup(src).map((it) => rotateItem(it, c0, -step * i)));
+  /**
+    Szyk (ARRAY): prostokątny (rozstaw albo przerwa między elementami, Y w górę jak w CAD), kołowy wokół punktu
+    (klik na rysunku; domyślnie punkt obrotu zaznaczenia) albo wzdłuż linii (klik w linię albo dwa punkty kierunku).
+  */
+  function arrayCopies(src: Item[]): Item[][] {
+    if (!src.length) return [];
+    const kk = doc.k || 1, out: Item[][] = [];
+    if (arr.kind === "rect") {
+      const f = frameOf(src, 0)!, sx = arr.gap ? 2 * f.hw + arr.dx * kk : arr.dx * kk, sy = arr.gap ? 2 * f.hh + arr.dy * kk : arr.dy * kk;
+      for (let r = 0; r < arr.rows; r++) for (let cc = 0; cc < arr.cols; cc++) if (r || cc) out.push(src.map((it) => translate(it, q(cc * sx), q(-r * sy))));
+    } else if (arr.kind === "polar") {
+      const c0 = arrC ?? pivotOf(sel);
+      if (!c0) return [];
+      const st = Math.abs(Math.abs(arr.ang) - 360) < 1e-9 ? arr.ang / arr.n : arr.ang / Math.max(1, arr.n - 1);
+      for (let i = 1; i < arr.n; i++) out.push(src.map((it) => rotateItem(it, c0, -st * i)));
+    } else if (arrL?.b) {
+      const L = Math.hypot(arrL.b[0] - arrL.a[0], arrL.b[1] - arrL.a[1]);
+      if (L < 1e-6) return [];
+      const ux = (arrL.b[0] - arrL.a[0]) / L, uy = (arrL.b[1] - arrL.a[1]) / L;
+      const ext = (() => { const f = frameOf(src, (Math.atan2(uy, ux) * 180) / Math.PI)!; return 2 * f.hw; })();
+      const st = arr.even ? L / Math.max(1, arr.n - 1) : arr.gap ? ext + arr.step * kk : arr.step * kk;
+      for (let i = 1; i < arr.n; i++) out.push(src.map((it) => translate(it, q(ux * st * i), q(uy * st * i))));
     }
-    set(addItems(doc, out.map(onLayer)), [...sel, ...out.map((x) => x.id)]);
-    setInfo(`szyk: ${out.length / Math.max(1, src.length) + 1} szt.`);
+    return out.slice(0, 400);
+  }
+  const makeArray = () => {
+    const src = doc.items.filter((it) => sel.includes(it.id)), copies = arrayCopies(src).flatMap((g) => regroup(g)).map(onLayer);
+    if (!copies.length) { setInfo(arr.kind === "line" ? "szyk wzdłuż linii: kliknij linię albo dwa punkty kierunku" : "szyk: zaznacz elementy"); return; }
+    set(addItems(doc, copies), [...sel, ...copies.map((x) => x.id)]);
+    setInfo(`szyk: ${copies.length / Math.max(1, src.length) + 1} szt.`); setTool("select");
   };
 
   /* ───────────── plik, kalka, wartości z klawiatury ───────────── */
@@ -967,6 +1027,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const edgeH = selItems.some((it) => STRETCH.has(it.t));
   // obrót ma sens dla grupy albo elementu z kierunkiem — sam okrąg nie dostaje ramki ani uchwytu obrotu
   const canRot = sel.length > 1 || (!!one && one.t !== "circle");
+  const boolOk = selItems.length > 1 && selItems.every((it) => it.t === "rect" || it.t === "circle" || (it.t === "poly" && it.closed));
   // wymiary robocze: zaznaczenie (klikalne) albo rysowany element (tylko podgląd)
   const wdims = tool === "select" && selItems.length ? workDims(selItems, doc.k, u) : [];
   const applyWDim = (key: string, v: string) => {
@@ -980,36 +1041,80 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
 
   return (
     <div ref={root} className="rys-ed" tabIndex={0} onKeyDown={onKey} onKeyUp={onKeyUp} onBlur={() => setPanKey(false)} onCopy={onCopy} onCut={onCopy} onPaste={onPaste}>
-      <div className="rys-bar" role="toolbar" aria-label="Narzędzia rysownika">
-        <div className="rys-tools"><FileMenu items={menuItems} icon={icons.file} /></div>
-        <div className="rys-tools">{TOOLS.filter((t) => !EDIT_TOOLS.has(t.id)).map(toolBtn)}</div>
-        <div className="rys-tools" aria-label="Edycja geometrii">{TOOLS.filter((t) => EDIT_TOOLS.has(t.id)).map(toolBtn)}</div>
-        <div className="rys-tools">
-          <button type="button" className="rys-tool" disabled={!st.past.length} onClick={() => dispatch({ type: "undo" })} title="Cofnij (Ctrl+Z)">{icons.undo}<span>Cofnij</span></button>
-          <button type="button" className="rys-tool" disabled={!st.future.length} onClick={() => dispatch({ type: "redo" })} title="Ponów (Ctrl+Shift+Z)">{icons.redo}<span>Ponów</span></button>
+      <div className="rys-ribbon" role="toolbar" aria-label="Narzędzia rysownika">
+        <div className="rys-rtabs" role="tablist" aria-label="Wstążka">
+          <FileMenu items={menuItems} icon={icons.file} />
+          {TABS.map(([id, label]) => <button key={id} type="button" role="tab" aria-selected={tab === id} className="rys-rtab" onClick={() => setTab(id)}>{label}</button>)}
+          <span className="rys-rtabs-sp" />
+          <button type="button" className="rys-ib" disabled={!st.past.length} onClick={() => dispatch({ type: "undo" })} title="Cofnij (Ctrl+Z)" aria-label="Cofnij">{icons.undo}</button>
+          <button type="button" className="rys-ib" disabled={!st.future.length} onClick={() => dispatch({ type: "redo" })} title="Ponów (Ctrl+Shift+Z)" aria-label="Ponów">{icons.redo}</button>
+          {actions && <div className="rys-actions">{actions}</div>}
         </div>
-        <div className="rys-tools">
-          <button type="button" className="rys-tool" aria-pressed={snapOn} onClick={() => setSnapOn((v) => !v)} title="Przyciąganie do końców, środków, przecięć i linii (Alt wyłącza na chwilę)">{icons.magnet}<span>Punkty</span></button>
-          <SnapMenu kinds={snapKinds} onChange={setSnapKinds} />
-          <button type="button" className="rys-tool" aria-pressed={xray} onClick={() => setXray((v) => !v)} title="Kontury pod wypełnieniami: cienki podgląd krawędzi zakrytych przez wypełnienie (tylko w edytorze)">{icons.xray}<span>Kontury</span></button>
-          <button type="button" className="rys-tool" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Pokaż siatkę roboczą (nie trafia na rysunek)">{icons.dots}<span>Siatka</span></button>
-          <label className="rys-step" title="Skok przyciągania do siatki, w jednostkach rysunku (brak — bez dociągania do siatki)">Skok
-            <select value={grid} onChange={(e) => setGrid(+e.target.value)}>{GRID_STEPS.map((g) => <option key={g} value={g}>{g === 0 ? "brak" : fmt(g)}</option>)}</select>
-          </label>
+        <div className="rys-rpanel" role="tabpanel">
+          {tab === "draw" && (
+            <>
+              <RGroup title="Rysuj">{TOOLS.filter((t) => !EDIT_TOOLS.has(t.id) && !NOTE_TOOLS.has(t.id)).map(toolBtn)}</RGroup>
+              <RGroup title="Opisz">{TOOLS.filter((t) => NOTE_TOOLS.has(t.id)).map(toolBtn)}</RGroup>
+            </>
+          )}
+          {tab === "edit" && (
+            <>
+              <RGroup title="Zmień">{TOOLS.filter((t) => EDIT_TOOLS.has(t.id) && t.id !== "region").map(toolBtn)}</RGroup>
+              <RGroup title="Figury">
+                {toolBtn(TOOLS.find((t) => t.id === "region")!)}
+                {actBtn("Połącz", icons.union, () => act("union"), !boolOk, "Jedna figura z obrysu zaznaczonych (zaznacz 2+ zamknięte figury)")}
+                {actBtn("Odejmij", icons.subtract, () => act("subtract"), !boolOk, "Pierwsza zaznaczona figura minus pozostałe")}
+                {actBtn("Wspólna", icons.intersect, () => act("intersect"), !boolOk, "Tylko część wspólna zaznaczonych figur")}
+                {actBtn("Poza wspólną", icons.xor, () => act("xor"), !boolOk, "Wszystko poza częścią wspólną")}
+                {actBtn("Rozbij", icons.explode, () => act("explode"), !selItems.some((it) => it.t === "rect" || it.t === "poly"), "Prostokąt i polilinia → osobne odcinki i łuki")}
+                {actBtn("Złącz", icons.join, () => act("join"), !(selItems.length > 1 && selItems.every((it) => it.t === "line" || it.t === "arc" || (it.t === "poly" && !it.closed))), "Odcinki i łuki stykające się końcami → jedna polilinia")}
+              </RGroup>
+              <RGroup title="Układ">
+                {actBtn("Grupuj", icons.group, () => act("group"), sel.length < 2, "Ctrl+G")}
+                {actBtn("Rozgrupuj", icons.ungroup, () => act("ungroup"), !selItems.some((it) => it.g), "Ctrl+Shift+G")}
+                {actBtn("Duplikuj", icons.copy, () => act("dup"), !sel.length, "Ctrl+D")}
+                {actBtn("Usuń", icons.trash, () => act("del"), !sel.length, "Delete")}
+              </RGroup>
+            </>
+          )}
+          {tab === "layers" && (
+            <RGroup title="Warstwy">
+              <LayerBar doc={doc} active={activeL} sel={sel} onActive={setActive}
+                onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
+                onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} />
+            </RGroup>
+          )}
+          {tab === "view" && (
+            <>
+              <RGroup title="Widok">
+                <button type="button" className="rys-tool" onClick={() => zoomTo(zoom / 1.25)} title="Pomniejsz (−, kółko myszy)">{icons.zout}<span>Pomniejsz</span></button>
+                <button type="button" className="rys-tool rys-zoom" onClick={() => zoomTo(1)} title="Dopasuj do okna (0)">{icons.fit}<span>{Math.round(zoom * 100)}%</span></button>
+                <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
+                <button type="button" className="rys-tool" aria-pressed={xray} onClick={() => setXray((v) => !v)} title="Kontury pod wypełnieniami: cienki podgląd krawędzi zakrytych przez wypełnienie (tylko w edytorze)">{icons.xray}<span>Kontury</span></button>
+              </RGroup>
+              <RGroup title="Pomoc">
+                {actBtn("Standard", icons.ruler, () => setStdOpen(true), false, "Jak wyglądają rodzaje linii, grubości, kolory, wypełnienia, teksty i wymiary w rysunkach serwisu")}
+                <button type="button" className="rys-tool" onClick={() => kalkaIn.current?.click()} title="Obraz pod rysunkiem do odrysowania (nie trafia na stronę); ustawienia w panelu po prawej">{icons.import}<span>{kalka ? "Wymień kalkę" : "Kalka"}</span></button>
+              </RGroup>
+            </>
+          )}
         </div>
-        <div className="rys-tools">
-          <button type="button" className="rys-tool" aria-pressed={polar} onClick={() => setPolar((v) => !v)} title="Kąty: przy rysowaniu kierunek dociąga do wielokrotności wybranego kąta (jak POLAR w CAD)">{icons.polar}<span>Kąty</span></button>
-          <label className="rys-step" title="Krok kąta">
-            <select value={polarStep} onChange={(e) => { setPolarStep(+e.target.value); setPolar(true); }}>{POLAR_STEPS.map((a) => <option key={a} value={a}>{a}°</option>)}</select>
-          </label>
-          <button type="button" className="rys-tool" aria-pressed={trackOn} onClick={() => setTrackOn((v) => !v)} title="Śledzenie: równolegle i prostopadle do innych linii, wyrównanie z końcami, środkami i osiami symetrii (jak OTRACK w CAD)">{icons.track}<span>Śledzenie</span></button>
-        </div>
-        <div className="rys-tools">
-          <button type="button" className="rys-tool" onClick={() => zoomTo(zoom / 1.25)} title="Pomniejsz (−, kółko myszy)">{icons.zout}<span>Pomniejsz</span></button>
-          <button type="button" className="rys-tool rys-zoom" onClick={() => zoomTo(1)} title="Dopasuj do okna (0)">{icons.fit}<span>{Math.round(zoom * 100)}%</span></button>
-          <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
-        </div>
-        {actions && <div className="rys-actions">{actions}</div>}
+        {(tool === "array" || tool === "region" || tool === "fillet" || tool === "chamfer" || tool === "offset" || tool === "line" || tool === "dim") && (
+          <div className="rys-opts">
+            {tool === "array" && (
+              <div className="rys-arr">
+                <div className="rys-seg" role="radiogroup" aria-label="Rodzaj szyku">
+                  {([["rect", "Prostokątny"], ["polar", "Kołowy wokół punktu"], ["line", "Wzdłuż linii"]] as const).map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={arr.kind === v} onClick={() => setArr((o) => ({ ...o, kind: v }))}>{l}</button>)}
+                </div>
+                {arr.kind === "rect" && <>{arrNum("Kolumny", "cols", 1, 50)}{arrNum("Wiersze", "rows", 1, 50)}{arrNum(arr.gap ? "Przerwa X, mm" : "Rozstaw X, mm", "dx")}{arrNum(arr.gap ? "Przerwa Y, mm" : "Rozstaw Y (w górę), mm", "dy")}</>}
+                {arr.kind === "polar" && <>{arrNum("Liczba", "n", 2, 72)}{arrNum("Kąt całkowity °", "ang", -360, 360)}<span className="rys-arr-tip">{arrC ? "środek: wskazany" : "środek: punkt obrotu — kliknij na rysunku, żeby wskazać inny"}</span></>}
+                {arr.kind === "line" && <>{arrNum("Liczba", "n", 2, 200)}{!arr.even && arrNum(arr.gap ? "Przerwa, mm" : "Rozstaw, mm", "step")}
+                  <label className="rys-chk"><input type="checkbox" checked={arr.even} onChange={(e) => setArr((o) => ({ ...o, even: e.target.checked }))} /> równo na długości linii</label>
+                  <span className="rys-arr-tip">{arrL?.b ? "kierunek: wskazany" : "kliknij linię albo dwa punkty kierunku"}</span></>}
+                {arr.kind !== "polar" && !(arr.kind === "line" && arr.even) && <label className="rys-chk" title="Rozstaw — od elementu do elementu; przerwa — wolne miejsce między kolejnymi kopiami"><input type="checkbox" checked={arr.gap} onChange={(e) => setArr((o) => ({ ...o, gap: e.target.checked }))} /> odstęp jako przerwa</label>}
+                <button type="button" className="rys-btn" disabled={!sel.length} onClick={makeArray}>Utwórz (Enter)</button>
+              </div>
+            )}
         {tool === "region" && (
           <div className="rys-regbar">
             <span>{regIds.length ? `Zaznaczone obszary: ${regIds.length}` : "Kliknij obszar"}</span>
@@ -1035,8 +1140,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             {DIM_TYPES.map(([v, l]) => <button key={v} type="button" role="radio" aria-checked={dimType === v} onClick={() => { setDimType(v); setDraft(null); setInfo(""); }}>{l}</button>)}
           </div>
         )}
+          </div>
+        )}
       </div>
-
       <div ref={stage} className={`rys-stage${panKey || panning ? " is-pan" : ""}${panning ? " is-panning" : ""}`}
         onPointerDownCapture={onStageDown} onPointerMove={onStageMove} onPointerUp={onStageUp} onPointerCancel={onStageUp}
         onMouseDown={(e) => { if (e.button === 1) e.preventDefault(); /* bez autoprzewijania środkowym przyciskiem */ }}>
@@ -1079,6 +1185,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               )}
               {hoverEdit?.cut && <path d={curvesPath(hoverEdit.cut)} className="rys-cutprev" pointerEvents="none" />}
               {hoverEdit?.ext && <g className="rys-draft" pointerEvents="none">{renderItem(hoverEdit.ext, c, doc.k)}</g>}
+              {tool === "array" && sel.length > 0 && (
+                <g pointerEvents="none">
+                  <g className="rys-draft">{arrayCopies(doc.items.filter((it) => sel.includes(it.id))).flat().map((it, i) => <g key={i}>{renderItem(it, c, doc.k)}</g>)}</g>
+                  {arr.kind === "polar" && (() => { const c0 = arrC ?? pivotOf(sel); return c0 ? <g className="rys-pivot"><circle cx={c0[0]} cy={c0[1]} r={hr * 1.3} /><path d={`M ${c0[0] - hr * 2.2} ${c0[1]} h ${hr * 4.4} M ${c0[0]} ${c0[1] - hr * 2.2} v ${hr * 4.4}`} /></g> : null; })()}
+                  {arr.kind === "line" && arrL && <line x1={arrL.a[0]} y1={arrL.a[1]} x2={(arrL.b ?? cursor ?? arrL.a)[0]} y2={(arrL.b ?? cursor ?? arrL.a)[1]} className="rys-guide" />}
+                </g>
+              )}
               {draft?.t === "mir1" && Math.hypot(draft.cur[0] - draft.a[0], draft.cur[1] - draft.a[1]) > 0.5 && (
                 <g pointerEvents="none">
                   <line x1={draft.a[0] - (draft.cur[0] - draft.a[0]) * 20} y1={draft.a[1] - (draft.cur[1] - draft.a[1]) * 20} x2={draft.a[0] + (draft.cur[0] - draft.a[0]) * 20} y2={draft.a[1] + (draft.cur[1] - draft.a[1]) * 20} className="rys-guide" />
@@ -1096,7 +1209,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               {preview && <g className="rys-draft" pointerEvents="none">{renderItem(preview, c, doc.k)}</g>}
               {draft?.t === "poly" && <circle cx={draft.pts[0][0]} cy={draft.pts[0][1]} r={hr} className="rys-close" pointerEvents="none" />}
               {draft?.t === "arc3" && draft.e && <line x1={draft.s[0]} y1={draft.s[1]} x2={draft.e[0]} y2={draft.e[1]} className="rys-chord" pointerEvents="none" />}
-              {(tool === "select" || tool === "mirror") && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
+              {(tool === "select" || KEEP_SEL.has(tool)) && doc.items.filter((it) => sel.includes(it.id)).map((it) => <g key={it.id} pointerEvents="none">{selShape(it, 3 * u)}</g>)}
               {tool === "select" && gbox && (
                 <g>
                   {sel.length > 1 && <polygon points={[fp(-1, -1, 5 * u), fp(1, -1, 5 * u), fp(1, 1, 5 * u), fp(-1, 1, 5 * u)].map((p) => p.join(",")).join(" ")} className="rys-gframe" pointerEvents="none" />}
@@ -1128,13 +1241,18 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         sections={[
           ...(kalka ? [{ title: "Kalka", body: <KalkaPanel kalka={kalka} mode={kalkaMode} k={doc.k} onChange={(pp) => saveKalka({ ...kalka, ...pp })} onRemove={() => { saveKalka(null); setKalkaMode(null); setCalPts([]); }}
             onMode={(m) => { setKalkaMode(m); setCalPts([]); setInfo(m === "move" ? "przeciągnij kalkę myszą, Esc kończy" : m === "cal" ? "kliknij pierwszy punkt o znanej odległości" : ""); if (m) { pickTool("select"); dispatch({ type: "sel", sel: [] }); } root.current?.focus({ preventScroll: true }); }} /> }] : []),
-          ...(sel.length && tool === "select" ? [{ title: "Szyk", body: <ArrayPanel onMake={makeArray} /> }] : []),
-          { title: "Warstwy", body: <LayersPanel doc={doc} active={activeL} sel={sel} onActive={setActive}
-            onLayers={(ls, removed) => set({ ...doc, layers: ls, items: removed ? doc.items.map((it) => (it.l === removed ? drop(it, "l") : it)) : doc.items })}
-            onMove={(l) => set(patchItems(doc, sel, (it) => (l === "0" ? drop(it, "l") : { ...it, l })))} /> },
         ]} />
 
       <div className="rys-status">
+        <div className="rys-sbar" role="group" aria-label="Przyciąganie i siatka">
+          <button type="button" className="rys-sbt" aria-pressed={snapOn} onClick={() => setSnapOn((v) => !v)} title="Przyciąganie do końców, środków, przecięć i linii (Alt wyłącza na chwilę)">Punkty</button>
+          <SnapMenu kinds={snapKinds} onChange={setSnapKinds} up />
+          <button type="button" className="rys-sbt" aria-pressed={polar} onClick={() => setPolar((v) => !v)} title="Kąty: kierunek dociąga do wielokrotności kąta (jak POLAR w CAD)">Kąty</button>
+          <select className="rys-ssel" value={polarStep} onChange={(e) => { setPolarStep(+e.target.value); setPolar(true); }} aria-label="Krok kąta">{POLAR_STEPS.map((a) => <option key={a} value={a}>{a}°</option>)}</select>
+          <button type="button" className="rys-sbt" aria-pressed={trackOn} onClick={() => setTrackOn((v) => !v)} title="Śledzenie: równolegle i prostopadle do innych linii, wyrównanie z końcami i osiami symetrii (jak OTRACK w CAD)">Śledzenie</button>
+          <button type="button" className="rys-sbt" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Siatka robocza (nie trafia na rysunek)">Siatka</button>
+          <select className="rys-ssel" value={grid} onChange={(e) => setGrid(+e.target.value)} aria-label="Skok przyciągania do siatki" title="Skok przyciągania do siatki (brak — bez dociągania)">{GRID_STEPS.map((g) => <option key={g} value={g}>{g === 0 ? "skok: brak" : `skok ${fmt(g)}`}</option>)}</select>
+        </div>
         <span className="rys-coords">{cursor ? `X ${fmt(cursor[0])} · Y ${fmt(cursor[1])}` : `360 × ${doc.h}`}</span>
         {mark && <span className="rys-snapname">{SNAP_LABEL[mark.kind]}</span>}
         {info && <span className="rys-snapname">{info}</span>}
@@ -1143,6 +1261,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       </div>
       {dyn && <DynInput dyn={dyn} onChange={setDyn} onApply={applyDyn} onClose={() => { setDyn(null); if (dyn.kind === "cal") { setCalPts([]); setKalkaMode(null); } root.current?.focus({ preventScroll: true }); }} />}
       {wedit && <WDimInput at={wedit.at} value={wedit.v} onApply={(v) => applyWDim(wedit.key, v)} onClose={() => setWEdit(null)} />}
+      {stdOpen && <StandardDialog onClose={() => { setStdOpen(false); root.current?.focus({ preventScroll: true }); }} />}
       {exporting && <ExportDialog doc={doc} format={exporting} onClose={() => { setExporting(null); root.current?.focus({ preventScroll: true }); }} />}
       <input ref={fileIn} type="file" hidden accept=".json,.yaml,.yml,.svg,application/json,image/svg+xml" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void openFile(f); }} />
       <input ref={kalkaIn} type="file" hidden accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void loadKalka(f); }} />

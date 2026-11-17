@@ -72,7 +72,7 @@ export function FileMenu({ items, icon }: { items: MenuItem[]; icon: ReactNode }
 }
 
 /* ───────────── rodzaje przyciągania (jak ustawienia OSNAP) ───────────── */
-export function SnapMenu({ kinds, onChange }: { kinds: ReadonlySet<SnapKind>; onChange: (k: ReadonlySet<SnapKind>) => void }) {
+export function SnapMenu({ kinds, onChange, up }: { kinds: ReadonlySet<SnapKind>; onChange: (k: ReadonlySet<SnapKind>) => void; up?: boolean }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -84,9 +84,9 @@ export function SnapMenu({ kinds, onChange }: { kinds: ReadonlySet<SnapKind>; on
   const toggle = (k: SnapKind) => { const n = new Set(kinds); if (n.has(k)) n.delete(k); else n.add(k); onChange(n); };
   return (
     <div ref={box} className="rys-menu">
-      <button type="button" className="rys-tool rys-tool-narrow" aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((v) => !v)} title="Rodzaje przyciągania" aria-label="Rodzaje przyciągania">{icons.chevron}</button>
+      <button type="button" className={up ? "rys-sbt rys-sbt-n" : "rys-tool rys-tool-narrow"} aria-haspopup="true" aria-expanded={open} onClick={() => setOpen((v) => !v)} title="Rodzaje przyciągania" aria-label="Rodzaje przyciągania">{icons.chevron}</button>
       {open && (
-        <div className="rys-menu-list rys-snapkinds" role="group" aria-label="Rodzaje przyciągania">
+        <div className={`rys-menu-list rys-snapkinds${up ? " is-up" : ""}`} role="group" aria-label="Rodzaje przyciągania">
           {SNAP_KINDS.map((k) => <label key={k}><input type="checkbox" checked={kinds.has(k)} onChange={() => toggle(k)} /> {SNAP_LABEL[k]}</label>)}
           <hr />
           <div className="rys-snapkinds-all">
@@ -95,34 +95,6 @@ export function SnapMenu({ kinds, onChange }: { kinds: ReadonlySet<SnapKind>; on
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ───────────── szyk (ARRAY) ───────────── */
-export type ArrayParams = { kind: "rect"; cols: number; rows: number; dx: number; dy: number } | { kind: "polar"; n: number; ang: number };
-export function ArrayPanel({ onMake }: { onMake: (p: ArrayParams) => void }) {
-  const [kind, setKind] = useState<"rect" | "polar">("rect");
-  const [v, setV] = useState({ cols: 3, rows: 1, dx: 20, dy: 20, n: 6, ang: 360 });
-  const f = (label: string, key: keyof typeof v, o: { min?: number; max?: number; step?: number } = {}) => (
-    <label className="rys-num"><span>{label}</span>
-      <input type="number" value={v[key]} min={o.min} max={o.max} step={o.step ?? 1} onChange={(e) => { const x = Number(e.target.value); if (Number.isFinite(x)) setV((s) => ({ ...s, [key]: x })); }} />
-    </label>
-  );
-  const count = kind === "rect" ? Math.max(1, Math.round(v.cols)) * Math.max(1, Math.round(v.rows)) : Math.max(2, Math.round(v.n));
-  return (
-    <div className="rys-kalka">
-      <div className="rys-seg" role="radiogroup" aria-label="Rodzaj szyku">
-        <button type="button" role="radio" aria-checked={kind === "rect"} onClick={() => setKind("rect")}>Prostokątny</button>
-        <button type="button" role="radio" aria-checked={kind === "polar"} onClick={() => setKind("polar")}>Kołowy</button>
-      </div>
-      {kind === "rect"
-        ? <div className="rys-nums">{f("Kolumny", "cols", { min: 1, max: 50 })}{f("Wiersze", "rows", { min: 1, max: 50 })}{f("Odstęp X, mm", "dx", { step: 0.5 })}{f("Odstęp Y (w górę), mm", "dy", { step: 0.5 })}</div>
-        : <div className="rys-nums">{f("Liczba", "n", { min: 2, max: 72 })}{f("Kąt całkowity °", "ang", { min: -360, max: 360, step: 15 })}</div>}
-      {kind === "polar" && <p className="rys-tip">Wokół punktu obrotu zaznaczenia (krzyżyk — można go przesunąć). 360° — kopie rozłożone równo na całym obwodzie.</p>}
-      <button type="button" className="rys-btn" disabled={count > 200} onClick={() => onMake(kind === "rect" ? { kind, cols: Math.max(1, Math.round(v.cols)), rows: Math.max(1, Math.round(v.rows)), dx: v.dx, dy: v.dy } : { kind, n: Math.max(2, Math.round(v.n)), ang: v.ang })}>
-        Utwórz szyk ({count} szt.)
-      </button>
     </div>
   );
 }
@@ -259,4 +231,48 @@ export async function readKalka(file: Blob, h: number): Promise<Kalka> {
   const ar = img.naturalHeight / img.naturalWidth || 1;
   const w = Math.min(RYS_W, h / ar);
   return { src, x: Math.round((RYS_W - w) / 2), y: 0, w: Math.round(w * 100) / 100, ar, op: 0.45, vis: true };
+}
+
+/* ───────────── warstwy na wstążce ───────────── */
+export function LayerBar(props: { doc: RysDoc; active: string; sel: string[]; onActive: (id: string) => void; onLayers: (layers: Layer[], moveTo0?: string) => void; onMove: (layer: string) => void }) {
+  const { doc, active, sel, onActive, onLayers, onMove } = props;
+  const layers = layersOf(doc), cur = layers.find((l) => l.id === active) ?? layers[0];
+  const patch = (p: Partial<Layer>) => onLayers(layers.map((l) => (l.id === cur.id ? { ...l, ...p } : l)));
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const off = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("pointerdown", off);
+    return () => document.removeEventListener("pointerdown", off);
+  }, [open]);
+  return (
+    <div className="rys-lbar">
+      <label className="rys-step">Warstwa
+        <select value={cur.id} onChange={(e) => onActive(e.target.value)} title="Nowe elementy trafiają na tę warstwę">
+          {layers.map((l) => <option key={l.id} value={l.id}>{l.name}{!l.vis ? " (ukryta)" : ""}{l.lock ? " (zablokowana)" : ""}</option>)}
+        </select>
+      </label>
+      <button type="button" className="rys-ib" aria-pressed={cur.vis} onClick={() => patch({ vis: !cur.vis })} title={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"} aria-label={cur.vis ? "Ukryj warstwę" : "Pokaż warstwę"}>{cur.vis ? icons.eye : icons.eyeOff}</button>
+      <button type="button" className="rys-ib" aria-pressed={cur.lock} onClick={() => patch({ lock: !cur.lock })} title={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"} aria-label={cur.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"}>{cur.lock ? icons.lock : icons.unlock}</button>
+      <label className="rys-step">Krycie
+        <select value={Math.round((cur.op ?? 1) * 100)} onChange={(e) => { const v = +e.target.value / 100; patch(v >= 1 ? { op: undefined } : { op: v }); }}>
+          {[100, 75, 50, 25].map((x) => <option key={x} value={x}>{x}%</option>)}
+        </select>
+      </label>
+      {layers.length < 20 && <button type="button" className="rys-btn" onClick={() => { const id = newId(); onLayers([...layers, { id, name: `Warstwa ${layers.length + 1}`, vis: true, lock: false }]); onActive(id); }}>+ Nowa warstwa</button>}
+      {sel.length > 0 && layers.length > 1 && (
+        <label className="rys-step">Zaznaczone na
+          <select value="" onChange={(e) => { if (e.target.value) onMove(e.target.value); }}>
+            <option value="">— wybierz —</option>
+            {layers.map((l) => <option key={l.id} value={l.id}>{l.name}</option>)}
+          </select>
+        </label>
+      )}
+      <div ref={box} className="rys-menu">
+        <button type="button" className="rys-btn" aria-expanded={open} onClick={() => setOpen((v) => !v)}>Wszystkie warstwy {icons.chevron}</button>
+        {open && <div className="rys-menu-list rys-lpop"><LayersPanel {...props} /></div>}
+      </div>
+    </div>
+  );
 }
