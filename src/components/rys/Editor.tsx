@@ -1,19 +1,20 @@
 "use client";
 import {
-  useEffect, useEffectEvent, useLayoutEffect, useReducer, useRef, useState, type ClipboardEvent, type KeyboardEvent, type PointerEvent, type ReactNode,
+  useEffect, useEffectEvent, useLayoutEffect, useMemo, useReducer, useRef, useState, type ClipboardEvent, type KeyboardEvent, type PointerEvent, type ReactNode,
 } from "react";
 import { FigDefs, figCtx } from "@/components/fig";
 import {
   angleOf, arcFrom3, bbox, constrain, dimGeom, dimOffsetAt, autoOrient, fmt, handles, intersects, length, MEASURE, moveHandle, newId, parseItem, q, RYS_W,
   snap, snapCache, SNAP_LABEL, storeItem, translate, rotateItem, scaleItem, angleSector, onArc, dimrGeom, arcPath, polyPath, refAngle, fmt as fmtN,
-  layersOf, layerOf, parseDoc, storeDoc, drop, SNAP_KINDS, tangentPts, commonTangents, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
-  type DimOrient, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
+  layersOf, layerOf, parseDoc, storeDoc, drop, FILLS, FILL_LABEL, opacityOf, SNAP_KINDS, tangentPts, commonTangents, frameAngle, frameOf, framePt, toLocal, stretchItem, type Frame,
+  type DimOrient, type Fill, type Item, type Layer, type P2, type RysDoc, type SnapCache, type SnapKind,
 } from "@/lib/rys/model";
 import { parse as parseYaml } from "yaml";
 import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
 import { ArrayPanel, DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, type ArrayParams, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
+import { boolShapes, boundary, buildRegions, faceAt, facePath, shapesFrom, type BoolOp } from "@/lib/rys/regions";
 import { cornerLines, cornerVertex, curvesPath, explode, extend, join, mirrorItem, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
@@ -47,11 +48,12 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
   { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik." },
   { id: "chamfer", label: "Fazuj", key: "K", hint: "Kliknij narożnik polilinii albo prostokąta — dostanie fazę o długości z paska (na każdym boku). Dla dwóch linii: kliknij pierwszą, potem drugą." },
+  { id: "region", label: "Obszary", key: "B", hint: "Najedź na obszar wyznaczony przez nachodzące figury i linie — podświetli się. Kliknięcie zaznacza (Shift albo Ctrl dodaje kolejne). Potem „Wypełnij” albo „Utwórz figurę” na pasku." },
   { id: "mirror", label: "Lustro", key: "M", hint: "Zaznacz elementy, wybierz Lustro i kliknij dwa punkty osi odbicia — powstanie odbita kopia. Shift przy drugim kliknięciu — bez oryginału." },
   { id: "offset", label: "Odsuń", key: "W", hint: "Kliknij linię, okrąg, łuk, polilinię albo prostokąt, potem stronę — powstanie kopia odsunięta o odstęp z paska." },
 ];
 /** narzędzia edycji geometrii — osobna grupa na pasku */
-const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror"]);
+const EDIT_TOOLS = new Set<Tool>(["trim", "extend", "fillet", "chamfer", "offset", "mirror", "region"]);
 type DragTool = "line" | "rect" | "circle" | "grid" | "dim" | "axes";
 const DRAG_TOOLS = new Set<Tool>(["line", "rect", "circle", "dim", "grid", "axes"]);
 /** Po pierwszym punkcie wpisanie liczby otwiera pole wartości przy kursorze. */
@@ -231,6 +233,10 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [xray, setXray] = useState(true); // kontury pod wypełnieniami widoczne w edytorze
   const [hoverEdit, setHoverEdit] = useState<{ cut?: Curve[]; ext?: Item; prev?: Item[] } | null>(null); // podgląd utnij / wydłuż / narożnik / odsunięcie
   const [vals, setVals] = useState({ fillet: 5, chamfer: 3, offset: 5 }); // mm
+  // obszary: wybór ważny dla tego stanu rysunku (po zmianie rysunku ściany liczą się od nowa)
+  const [regSel, setRegSel] = useState<{ items: Item[]; ids: number[] } | null>(null);
+  const [regHover, setRegHover] = useState<number | null>(null);
+  const [regFill, setRegFill] = useState<Fill>("hatch");
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
   const [calPts, setCalPts] = useState<P2[]>([]);
@@ -322,6 +328,22 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const shown = hiddenL.size ? doc.items.filter((it) => !hiddenL.has(layerOf(it))) : doc.items;
   const pickable = (it: Item) => !hiddenL.has(layerOf(it)) && !lockedL.has(layerOf(it));
   const onLayer = (it: Item): Item => (activeL === "0" ? it : { ...it, l: activeL });
+  const regions = useMemo(() => {
+    if (tool !== "region") return null;
+    const ls = layersOf(doc), off = new Set(ls.filter((l) => !l.vis || l.lock).map((l) => l.id));
+    return buildRegions(doc.items.filter((it) => !off.has(layerOf(it))));
+  }, [tool, doc]);
+  const regIds = regSel && regSel.items === doc.items ? regSel.ids : [];
+  const regionAction = (as: "fill" | "shape") => {
+    if (!regions || !regIds.length) return;
+    const b = boundary(regions, new Set(regIds));
+    const src: Item = { id: "src", t: "line", k: "con", sw: "auto", arrow: "none", x1: 0, y1: 0, x2: 0, y2: 0 };
+    const made = shapesFrom(b, { k: as === "fill" ? "none" : style.k, sw: style.sw, fill: regFill }, src).map(onLayer);
+    // samo wypełnienie idzie pod spód (linie zostają widoczne), figura na wierzch
+    set({ ...doc, items: as === "fill" ? [...made, ...doc.items] : [...doc.items, ...made] }, as === "shape" ? made.map((x) => x.id) : []);
+    setRegSel(null); root.current?.focus({ preventScroll: true }); // przycisk staje się nieaktywny — skróty mają dalej działać
+    setInfo(as === "fill" ? `wypełniono: ${made.length} ${made.length === 1 ? "figura" : "figury"} pod rysunkiem` : "utworzono figurę z obszaru");
+  };
 
   /* ───────────── zmiany ───────────── */
   const set = (next: RysDoc, nextSel?: string[]) => dispatch({ type: "set", doc: next, sel: nextSel });
@@ -360,7 +382,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (a === "group") set(group(doc, sel));
     else if (a === "ungroup") set(ungroup(doc, sel));
     else if (a === "flip") edit((it) => (it.t === "arc" ? { ...it, a0: it.a1, a1: it.a0 } : it.t === "line" ? { ...it, x1: it.x2, y1: it.y2, x2: it.x1, y2: it.y1 } : it));
-    else if (a === "explode") {
+    else if (a === "union" || a === "subtract" || a === "intersect" || a === "xor") {
+      const shapes = sel.map((id) => doc.items.find((it) => it.id === id)).filter((x): x is Item => !!x);
+      const res = boolShapes(shapes, a as BoolOp);
+      if (typeof res === "string") { setInfo(res); return; }
+      const idx = doc.items.findIndex((it) => sel.includes(it.id)), rest = doc.items.filter((it) => !sel.includes(it.id));
+      set({ ...doc, items: [...rest.slice(0, idx), ...res.map(onLayer), ...rest.slice(idx)] }, res.map((x) => x.id));
+    } else if (a === "explode") {
       const out: Item[] = [], ids: string[] = [];
       for (const it of doc.items) { const ex = sel.includes(it.id) ? explode(it) : null; if (ex) { out.push(...ex); ids.push(...ex.map((x) => x.id)); } else out.push(it); }
       set({ ...doc, items: out }, ids);
@@ -532,6 +560,13 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       }
       return;
     }
+    if (tool === "region") {
+      const f = regions ? faceAt(regions, p) : null, multi = e.shiftKey || e.ctrlKey || e.metaKey;
+      if (!f) { if (!multi) setRegSel(null); return; }
+      const ids = multi ? (regIds.includes(f.id) ? regIds.filter((x) => x !== f.id) : [...regIds, f.id]) : [f.id];
+      setRegSel({ items: doc.items, ids });
+      return;
+    }
     if (tool === "fillet" || tool === "chamfer") {
       const r = cornerAt(p);
       if (r && typeof r !== "string") { set({ ...doc, items: [...doc.items.map((it) => r.patch[it.id] ?? it), ...r.add] }, []); setDraft(null); setHoverEdit(null); setInfo(""); return; }
@@ -694,6 +729,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     else if (draft?.t === "dimr" || draft?.t === "dima") setDraft({ ...draft, cur: [q(p[0]), q(p[1])] });
     else if (draft?.t === "tan1") setDraft({ ...draft, cur: snapAt(p, e) });
     else if (draft?.t === "mir1") setDraft({ ...draft, cur: snapAt(p, e, draft.a) });
+    else if (tool === "region") { const f = regions ? faceAt(regions, p) : null; setRegHover(f ? f.id : null); }
     else if (tool === "fillet" || tool === "chamfer") {
       const r = cornerAt(p);
       setHoverEdit(r && typeof r !== "string" ? { prev: [...Object.values(r.patch), ...r.add] } : null);
@@ -957,6 +993,16 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
           <button type="button" className="rys-tool" onClick={() => zoomTo(zoom * 1.25)} title="Powiększ (+, kółko myszy)">{icons.zin}<span>Powiększ</span></button>
         </div>
         {actions && <div className="rys-actions">{actions}</div>}
+        {tool === "region" && (
+          <div className="rys-regbar">
+            <span>{regIds.length ? `Zaznaczone obszary: ${regIds.length}` : "Kliknij obszar"}</span>
+            <label className="rys-step">Wypełnienie
+              <select value={regFill} onChange={(e) => setRegFill(e.target.value as Fill)}>{FILLS.filter((f) => f !== "none").map((f) => <option key={f} value={f}>{FILL_LABEL[f]}</option>)}</select>
+            </label>
+            <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("fill")} title="Samo wypełnienie pod rysunkiem — linie zostają bez zmian">Wypełnij</button>
+            <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("shape")} title="Nowa figura z obrysem (styl z panelu) i wypełnieniem">Utwórz figurę</button>
+          </div>
+        )}
         {(tool === "fillet" || tool === "chamfer" || tool === "offset") && (
           <label className="rys-step rys-val">{tool === "fillet" ? "Promień R" : tool === "chamfer" ? "Faza" : "Odstęp"}
             <input type="number" min={0} step={0.5} value={vals[tool]} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v >= 0) setVals((o) => ({ ...o, [tool]: v })); }} /> mm
@@ -982,7 +1028,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             <svg ref={svg} viewBox={`0 0 ${RYS_W} ${doc.h}`} className={`rys-svg tool-${tool}${kalkaMode ? ` is-kalka-${kalkaMode}` : ""}`} role="application" aria-label="Płótno rysunku"
               onMouseDown={(e) => e.preventDefault() /* fokus ustawia onDown; domyślny zabrałby go polu w panelu */}
               onContextMenu={(e) => e.preventDefault()}
-              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { setCursor(null); setHoverEdit(null); if (!draft && !drag.current) setMark(null); }}
+              onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onUp} onPointerLeave={() => { setCursor(null); setHoverEdit(null); setRegHover(null); if (!draft && !drag.current) setMark(null); }}
               onDoubleClick={(e) => {
                 if (draft?.t === "poly") { finishPoly(draft.pts, false); return; }
                 if (tool !== "select") return;
@@ -998,8 +1044,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
               </defs>
               {showGrid && <g pointerEvents="none">{gs * S >= 6 && <rect width={RYS_W} height={doc.h} fill={`url(#${ED}-g)`} />}<rect width={RYS_W} height={doc.h} fill={`url(#${ED}-G)`} /></g>}
               {kalka?.vis && <image href={kalka.src} x={kalka.x} y={kalka.y} width={kalka.w} height={kalka.w * kalka.ar} opacity={kalka.op} preserveAspectRatio="none" pointerEvents="none" className="rys-kalka-img" />}
-              {shown.map((it) => lockedL.has(layerOf(it)) ? <g key={it.id} className="rys-item is-locked" pointerEvents="none">{renderItem(it, c, doc.k)}</g> : (
-                <g key={it.id} data-id={it.id} className="rys-item">
+              {shown.map((it) => lockedL.has(layerOf(it)) ? <g key={it.id} className="rys-item is-locked" pointerEvents="none" opacity={opacityOf(doc, it) < 1 ? opacityOf(doc, it) : undefined}>{renderItem(it, c, doc.k)}</g> : (
+                <g key={it.id} data-id={it.id} className="rys-item" opacity={opacityOf(doc, it) < 1 ? opacityOf(doc, it) : undefined}>
                   {renderItem(it, c, doc.k)}
                   {it.t === "poly" || it.t === "arc" ? <g className={`rys-hitwrap${it.t === "poly" && it.fill !== "none" ? " is-fill" : ""}`}>{renderItem({ ...it, arrow: "none" } as Item, c)}</g> : hit(it)}
                 </g>
@@ -1008,6 +1054,12 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                 <g className="rys-xr" pointerEvents="none">{shown.filter((it) => it.t !== "text" && it.t !== "pt" && it.t !== "step").map((it) => <g key={it.id}>{selShape(it, 0, "rys-xr-l")}</g>)}</g>
               )}
               {draft?.t === "tan1" && <g pointerEvents="none">{selShape(draft.c, 0, "rys-tanc")}</g>}
+              {regions && (
+                <g pointerEvents="none">
+                  {regions.faces.filter((f) => regIds.includes(f.id)).map((f) => <path key={f.id} d={facePath(f)} className="rys-reg is-sel" fillRule="evenodd" />)}
+                  {regHover !== null && regions.faces[regHover] && <path d={facePath(regions.faces[regHover])} className="rys-reg" fillRule="evenodd" />}
+                </g>
+              )}
               {hoverEdit?.cut && <path d={curvesPath(hoverEdit.cut)} className="rys-cutprev" pointerEvents="none" />}
               {hoverEdit?.ext && <g className="rys-draft" pointerEvents="none">{renderItem(hoverEdit.ext, c, doc.k)}</g>}
               {draft?.t === "mir1" && Math.hypot(draft.cur[0] - draft.a[0], draft.cur[1] - draft.a[1]) > 0.5 && (

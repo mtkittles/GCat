@@ -47,5 +47,6 @@ export const icons = {
   chamfer: <I><path d="M4 16V9l5-5h7" /><path d="M4 4h3M4 4v3" opacity=".5" /></I>,
   offset: <I><path d="M3 15l6-10h8" /><path d="M5.5 16.5l6-9.5h6" strokeDasharray="1.6 1.6" /></I>,
   mirror: <I><path d="M10 3v14" strokeDasharray="1.6 1.6" /><path d="M8 6L3 14h5zM12 6l5 8h-5z" /></I>,
+  region: <I><rect x="3" y="4" width="9" height="8" rx="1" /><rect x="8" y="8" width="9" height="8" rx="1" /><path d="M8 8h4v4H8z" fill="currentColor" fillOpacity=".55" stroke="none" /></I>,
 };
 export type IconName = keyof typeof icons;

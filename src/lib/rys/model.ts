@@ -26,10 +26,10 @@ export const WIDTH_LABEL: Record<Width, string> = { auto: "Wg rodzaju", xs: "0,6
 export const KIND_WIDTH: Record<LineKind, number> = { con: 1.6, cons: 0.9, dim: 0.9, axis: 1, faint: 0.7, cut: 2, rap: 1.8, arc: 2, acc: 1.6, bad: 1.6, stock: 1, tool: 1, none: 0 };
 export const strokeOf = (k: LineKind, sw: Width) => (k === "none" ? 0 : sw === "auto" ? KIND_WIDTH[k] : WIDTH_PX[sw]);
 
-export const FILLS = ["none", "hatch", "hole", "acc", "cut", "bad"] as const;
+export const FILLS = ["none", "hatch", "hole", "acc", "cut", "arc", "rap", "mut", "bad"] as const;
 export type Fill = (typeof FILLS)[number];
 export const FILL_LABEL: Record<Fill, string> = {
-  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór — zakrywa to, co pod spodem", acc: "Akcent", cut: "Strefa skrawania", bad: "Błąd",
+  none: "Bez wypełnienia", hatch: "Materiał (kreskowanie)", hole: "Otwór — zakrywa to, co pod spodem", acc: "Akcent (pomarańczowe)", cut: "Strefa skrawania (zielone)", arc: "Niebieskie (jak G02/G03)", rap: "Bursztynowe (jak G00)", mut: "Szare (tło części)", bad: "Błąd (czerwone)",
 };
 
 export const ARROWS = ["none", "end", "start", "both"] as const;
@@ -60,8 +60,8 @@ export const DIM_ORIENT_LABEL: Record<DimOrient, string> = { a: "Wyrównany", h:
 export const MEASURE = "<>";
 
 export type P2 = [number, number];
-/** g — grupa (elementy zaznaczają się i przesuwają razem), l — warstwa (brak = warstwa podstawowa „0”). */
-interface Base { id: string; g?: string; l?: string }
+/** g — grupa (elementy zaznaczają się i przesuwają razem), l — warstwa (brak = warstwa podstawowa „0”), op — krycie 0,1–1 (brak = 1). */
+interface Base { id: string; g?: string; l?: string; op?: number }
 interface Stroke { k: LineKind; sw: Width }
 export type LineItem = Base & Stroke & { t: "line"; arrow: Arrow; x1: number; y1: number; x2: number; y2: number };
 /**
@@ -103,7 +103,7 @@ export const ITEM_LABEL: Record<ItemType, string> = {
 export const isDim = (it: Item): it is DimItem | DimRItem | DimAItem => it.t === "dim" || it.t === "dimr" || it.t === "dima";
 
 /** Warstwa: ukryta nie pojawia się na stronie ani w eksporcie, zablokowana nie daje się zaznaczyć. */
-export interface Layer { id: string; name: string; vis: boolean; lock: boolean }
+export interface Layer { id: string; name: string; vis: boolean; lock: boolean; op?: number }
 export const LAYER0: Layer = { id: "0", name: "Rysunek", vis: true, lock: false };
 /** k — skala: ile jednostek rysunku to 1 mm (wymiar „<>” pokazuje długość / k). layers — brak = tylko warstwa „0”. */
 export interface RysDoc { h: number; k: number; items: Item[]; layers?: Layer[] }
@@ -166,10 +166,17 @@ export function parseDoc(raw: unknown): RysDoc {
     items.push(item);
   }
   const doc: RysDoc = { h: num(o.h, H_DEFAULT, H_MIN, H_MAX), k: num(o.k, 1, 0.05, 50), items };
-  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock) doc.layers = layers;
+  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock || layers[0].op) doc.layers = layers;
   return doc;
 }
 const ID_RE = /^[\w-]{1,24}$/;
+/** krycie w krokach co 5%, od 10% do 100% */
+const opacity = (v: unknown) => (typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0.1, Math.round(v * 20) / 20)) : 1);
+/** Krycie elementu razem z kryciem jego warstwy. */
+export function opacityOf(doc: Pick<RysDoc, "layers">, it: Item): number {
+  const l = it.l ? doc.layers?.find((x) => x.id === it.l) : doc.layers?.[0];
+  return Math.round((it.op ?? 1) * (l?.op ?? 1) * 100) / 100;
+}
 function parseLayers(raw: unknown): Layer[] {
   const out: Layer[] = [];
   for (const v of Array.isArray(raw) ? raw.slice(0, 20) : []) {
@@ -177,7 +184,8 @@ function parseLayers(raw: unknown): Layer[] {
     const o = v as Record<string, unknown>;
     const id = typeof o.id === "string" && ID_RE.test(o.id) ? o.id : null;
     if (!id || out.some((l) => l.id === id)) continue;
-    out.push({ id, name: str(o.name, 40).trim() || (id === "0" ? LAYER0.name : `Warstwa ${out.length + 1}`), vis: bool(o.vis, true), lock: bool(o.lock) });
+    const op = opacity(o.op);
+    out.push({ id, name: str(o.name, 40).trim() || (id === "0" ? LAYER0.name : `Warstwa ${out.length + 1}`), vis: bool(o.vis, true), lock: bool(o.lock), ...(op < 1 ? { op } : {}) });
   }
   const zero = out.find((l) => l.id === "0") ?? LAYER0;
   return [zero, ...out.filter((l) => l.id !== "0")];
@@ -189,6 +197,8 @@ export function parseItem(raw: unknown): Item | null {
   const v = raw as Record<string, unknown>;
   if (typeof v.g === "string" && ID_RE.test(v.g)) it.g = v.g;
   if (typeof v.l === "string" && ID_RE.test(v.l) && v.l !== "0") it.l = v.l;
+  const op = opacity(v.op);
+  if (op < 1) it.op = op;
   return it;
 }
 function parseItemCore(raw: unknown): Item | null {
@@ -242,13 +252,14 @@ function parseItemCore(raw: unknown): Item | null {
 export function storeDoc(doc: RysDoc): StoredDoc {
   const out: StoredDoc = { h: doc.h, k: doc.k, items: doc.items.map(storeItem) };
   const layers = layersOf(doc);
-  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock) out.layers = layers.map((l) => ({ id: l.id, name: l.name, vis: l.vis, lock: l.lock }));
+  if (layers.length > 1 || layers[0].name !== LAYER0.name || !layers[0].vis || layers[0].lock || (layers[0].op ?? 1) < 1) out.layers = layers.map((l) => ({ id: l.id, name: l.name, vis: l.vis, lock: l.lock, ...((l.op ?? 1) < 1 ? { op: l.op } : {}) }));
   return out;
 }
 export function storeItem(it: Item): StoredItem {
   const s = storeItemCore(it);
   if (it.g) s.g = it.g;
   if (it.l && it.l !== "0") s.l = it.l;
+  if (it.op !== undefined && it.op < 1) s.op = it.op;
   return s;
 }
 function storeItemCore(it: Item): StoredItem {
@@ -300,7 +311,8 @@ export function bulgeArc(p: P2, qq: P2, b: number): { cx: number; cy: number; r:
 export function polySegs(it: Pick<PolyItem, "pts" | "closed" | "b">): [P2, P2, number][] {
   const n = it.pts.length, out: [P2, P2, number][] = [];
   for (let i = 0; i < n - 1; i++) out.push([it.pts[i], it.pts[i + 1], it.b?.[i] ?? 0]);
-  if (it.closed && n > 2) out.push([it.pts[n - 1], it.pts[0], it.b?.[n - 1] ?? 0]);
+  // zamknięcie: od 3 punktów albo łukiem (dwa punkty + dwa łuki = okrąg)
+  if (it.closed && (n > 2 || (n === 2 && it.b?.[1]))) out.push([it.pts[n - 1], it.pts[0], it.b?.[n - 1] ?? 0]);
   return out;
 }
 export const polyPath = (pts: P2[], closed: boolean, b?: number[]) => {

@@ -198,6 +198,9 @@ export function LayersPanel({ doc, active, sel, onActive, onLayers, onMove }: {
             <input type="radio" name="rys-ly" checked={l.id === active} onChange={() => onActive(l.id)} aria-label={`Rysuj na warstwie ${l.name}`} title="Nowe elementy trafiają na tę warstwę" />
             <input type="text" value={l.name} maxLength={40} onChange={(e) => patch(l.id, { name: e.target.value })} aria-label="Nazwa warstwy" />
             <span className="rys-lys-n" title="Liczba elementów">{count(l.id)}</span>
+            <select className="rys-lys-op" value={Math.round((l.op ?? 1) * 100)} onChange={(e) => { const v = +e.target.value / 100; patch(l.id, v >= 1 ? { op: undefined } : { op: v }); }} title="Krycie warstwy (także na stronie)" aria-label="Krycie warstwy">
+              {[100, 75, 50, 25].map((x) => <option key={x} value={x}>{x}%</option>)}
+            </select>
             <button type="button" aria-pressed={l.vis} onClick={() => patch(l.id, { vis: !l.vis })} title={l.vis ? "Ukryj (ukryta warstwa nie pojawia się na stronie ani w eksporcie)" : "Pokaż"} aria-label={l.vis ? "Ukryj warstwę" : "Pokaż warstwę"}>{l.vis ? icons.eye : icons.eyeOff}</button>
             <button type="button" aria-pressed={l.lock} onClick={() => patch(l.id, { lock: !l.lock })} title={l.lock ? "Odblokuj" : "Zablokuj (elementów nie da się zaznaczyć, ale przyciągają)"} aria-label={l.lock ? "Odblokuj warstwę" : "Zablokuj warstwę"}>{l.lock ? icons.lock : icons.unlock}</button>
             {l.id !== LAYER0.id && <button type="button" onClick={() => { if (!count(l.id) || window.confirm(`Usunąć warstwę „${l.name}”? Jej elementy przejdą na warstwę „${layers[0].name}”.`)) onLayers(layers.filter((x) => x.id !== l.id), l.id); }} title="Usuń warstwę" aria-label="Usuń warstwę">{icons.trash}</button>}
