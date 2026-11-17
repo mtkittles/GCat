@@ -79,7 +79,8 @@ export type TextItem = Base & { t: "text"; x: number; y: number; s: string; anch
   (a: wzdłuż normalnej do p1→p2; h: w pionie od środka; v: w poziomie od środka).
   `label` — tekst opisu, „<>” zastępuje zmierzona wartość (w mm wg skali rysunku).
 */
-export type DimItem = Base & { t: "dim"; o: DimOrient; x1: number; y1: number; x2: number; y2: number; off: number; label: string; side: 1 | -1; size: number; font: Font; hz: boolean };
+/** tp — przesunięcie opisu wzdłuż linii wymiarowej od środka (brak = na środku, a gdy się nie mieści — za linią pomocniczą). */
+export type DimItem = Base & { t: "dim"; o: DimOrient; x1: number; y1: number; x2: number; y2: number; off: number; label: string; side: 1 | -1; size: number; font: Font; hz: boolean; tp?: number };
 export type PtItem = Base & { t: "pt"; x: number; y: number; label: string; pos: Pos; color: PtColor };
 export type StepItem = Base & { t: "step"; x: number; y: number; n: number };
 export type GridItem = Base & { t: "grid"; x: number; y: number; w: number; h: number; minor: number; major: number };
@@ -230,6 +231,7 @@ function parseItemCore(raw: unknown): Item | null {
     case "dim": return {
       id, t: "dim", o: oneOf(v.o, DIM_ORIENT, "a"), x1: num(v.x1, 0), y1: num(v.y1, 0), x2: num(v.x2, 0), y2: num(v.y2, 0), off: num(v.off, 0, -400, 400),
       label: typeof v.label === "string" ? str(v.label, 40) : MEASURE, side: v.side === 1 ? 1 : -1, size: size(v.size, 10.5), font: font("mono"), hz: bool(v.hz),
+      ...(typeof v.tp === "number" && Number.isFinite(v.tp) && Math.abs(v.tp) >= 0.5 ? { tp: Math.max(-400, Math.min(400, Math.round(v.tp * 100) / 100)) } : {}),
     };
     case "dimr": {
       const d = bool(v.d);
@@ -274,7 +276,7 @@ function storeItemCore(it: Item): StoredItem {
     case "circle": return { t: it.t, k: it.k, sw: it.sw, fill: it.fill, cx: it.cx, cy: it.cy, r: it.r };
     case "arc": return { t: it.t, k: it.k, sw: it.sw, arrow: it.arrow, cx: it.cx, cy: it.cy, r: it.r, a0: it.a0, a1: it.a1 };
     case "text": return { t: it.t, x: it.x, y: it.y, s: it.s, anchor: it.anchor, size: it.size, font: it.font, bold: it.bold, color: it.color };
-    case "dim": return { t: it.t, o: it.o, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, off: it.off, label: it.label, side: it.side, size: it.size, font: it.font, hz: it.hz };
+    case "dim": return { t: it.t, o: it.o, x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, off: it.off, label: it.label, side: it.side, size: it.size, font: it.font, hz: it.hz, ...(it.tp ? { tp: it.tp } : {}) };
     case "dimr": return { t: it.t, d: it.d, cx: it.cx, cy: it.cy, r: it.r, a: it.a, ext: it.ext, label: it.label, size: it.size, font: it.font };
     case "dima": return { t: it.t, cx: it.cx, cy: it.cy, a1: it.a1, a2: it.a2, r: it.r, label: it.label, size: it.size, font: it.font };
     case "pt": return { t: it.t, x: it.x, y: it.y, label: it.label, pos: it.pos, color: it.color };
@@ -589,7 +591,9 @@ export function handles(it: Item): Handle[] {
     case "line": return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }, { key: "m", x: (it.x1 + it.x2) / 2, y: (it.y1 + it.y2) / 2 }];
     case "dim": {
       const g = dimGeom(it);
-      return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }, { key: "off", x: (g.A[0] + g.B[0]) / 2, y: (g.A[1] + g.B[1]) / 2 }];
+      const mx = (g.A[0] + g.B[0]) / 2, my = (g.A[1] + g.B[1]) / 2;
+      return [{ key: "p1", x: it.x1, y: it.y1 }, { key: "p2", x: it.x2, y: it.y2 }, { key: "off", x: mx, y: my },
+        { key: "t", x: mx + g.u[0] * (it.tp ?? 0) + g.n[0] * 7, y: my + g.u[1] * (it.tp ?? 0) + g.n[1] * 7 }];
     }
     case "poly": return it.pts.map(([x, y], i) => ({ key: `v${i}`, x, y }));
     case "rect": case "grid": return [{ key: "nw", x: it.x, y: it.y }, { key: "ne", x: it.x + it.w, y: it.y }, { key: "se", x: it.x + it.w, y: it.y + it.h }, { key: "sw", x: it.x, y: it.y + it.h }];
@@ -619,6 +623,12 @@ export function moveHandle(it: Item, key: string, x: number, y: number): Item {
     case "dim": {
       if (key === "p1") return { ...it, x1: x, y1: y };
       if (key === "p2") return { ...it, x2: x, y2: y };
+      if (key === "t") { // opis wzdłuż linii wymiarowej (także za linię pomocniczą, gdy wymiar jest wąski)
+        const g = dimGeom(it), t = q((x - (g.A[0] + g.B[0]) / 2) * g.u[0] + (y - (g.A[1] + g.B[1]) / 2) * g.u[1]);
+        const o = { ...it };
+        if (Math.abs(t) < 1) delete o.tp; else o.tp = Math.max(-400, Math.min(400, t));
+        return o;
+      }
       return { ...it, off: dimOffsetAt(it, [x, y]) };
     }
     case "poly": { const i = +key.slice(1); return { ...it, pts: it.pts.map((p, j): P2 => (j === i ? [x, y] : p)) }; }

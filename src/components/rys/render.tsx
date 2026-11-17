@@ -96,10 +96,16 @@ export function DimView({ d, k }: { d: DimItem; k: number }) {
   // opis: kąt linii sprowadzony do (−90°, 90°], żeby tekst czytać od lewej albo od dołu
   let ang = (Math.atan2(u[1], u[0]) * 180) / Math.PI;
   if (ang >= 90) ang -= 180; else if (ang < -90) ang += 180; // ISO 129: opis czytelny od dołu albo od prawej (pionowy wymiar czytany od dołu do góry)
-  const mx = (A[0] + B[0]) / 2, my = (A[1] + B[1]) / 2, gap = 2.5;
-  const vertical = Math.abs(u[1]) > Math.abs(u[0]);
   const label = dimText(d, g, k);
+  // opis przesunięty wzdłuż linii (tp); gdy się nie mieści między liniami pomocniczymi — za linią po stronie B
+  const tw = label.length * d.size * 0.6, fits = L >= tw + 2 * AL + 4;
+  const tp = d.tp ?? (fits || L < 0.01 ? 0 : L / 2 + AL + tw / 2 + 2);
+  const mx = (A[0] + B[0]) / 2 + u[0] * tp, my = (A[1] + B[1]) / 2 + u[1] * tp, gap = 2.5;
+  const vertical = Math.abs(u[1]) > Math.abs(u[0]);
   const style = textStyle(d.size, d.font);
+  // linia wymiarowa przedłużona pod opis, który wyszedł poza linie pomocnicze
+  const outside = Math.abs(tp) > L / 2 - tw / 2 - 1;
+  const lead: [P2, P2] | null = outside && L > 0.01 ? (tp > 0 ? [B, [B[0] + u[0] * (tp - L / 2 + tw / 2), B[1] + u[1] * (tp - L / 2 + tw / 2)]] : [A, [A[0] + u[0] * (tp + L / 2 - tw / 2), A[1] + u[1] * (tp + L / 2 - tw / 2)]]) : null;
   const text = d.hz
     ? (vertical
       ? <text x={r6(mx + (d.side === -1 ? -4 : 4))} y={r6(my + d.size * 0.35)} textAnchor={d.side === -1 ? "end" : "start"} className="t-dim" style={style}>{label}</text>
@@ -110,6 +116,7 @@ export function DimView({ d, k }: { d: DimItem; k: number }) {
       {g.e1 && <line x1={r6(g.e1[0][0])} y1={r6(g.e1[0][1])} x2={r6(g.e1[1][0])} y2={r6(g.e1[1][1])} className="p-ext" />}
       {g.e2 && <line x1={r6(g.e2[0][0])} y1={r6(g.e2[0][1])} x2={r6(g.e2[1][0])} y2={r6(g.e2[1][1])} className="p-ext" />}
       <line x1={r6(a[0])} y1={r6(a[1])} x2={r6(b[0])} y2={r6(b[1])} className="p-dim" />
+      {lead && <line x1={r6(lead[0][0])} y1={r6(lead[0][1])} x2={r6(lead[1][0])} y2={r6(lead[1][1])} className="p-dim" />}
       {heads}
       {text}
     </g>

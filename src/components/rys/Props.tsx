@@ -13,7 +13,7 @@ import { LINE_CLASS } from "./render";
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
 export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join" | "union" | "subtract" | "intersect" | "xor";
-export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region";
+export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region" | "array";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -54,31 +54,52 @@ function Num({ label, value, onLive, settle, step = 5, min, max }: { label: stri
   );
 }
 
-function KindPicker({ value, onPick }: { value: LineKind | null; onPick: (k: LineKind) => void }) {
+/** Rozwijana lista z próbką (rodzaj linii, grubość) — zajmuje jeden wiersz panelu zamiast całej listy. */
+function DropPick<T extends string>({ label, value, options, render, onPick }: { label: string; value: T | null; options: readonly T[]; render: (v: T) => ReactNode; onPick: (v: T) => void }) {
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const off = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") { e.stopPropagation(); setOpen(false); } };
+    document.addEventListener("pointerdown", off);
+    document.addEventListener("keydown", esc, true);
+    return () => { document.removeEventListener("pointerdown", off); document.removeEventListener("keydown", esc, true); };
+  }, [open]);
   return (
-    <div className="rys-kinds" role="radiogroup" aria-label="Rodzaj linii">
-      {LINE_KINDS.map((k) => (
-        <button key={k} type="button" role="radio" aria-checked={value === k} className="rys-kind" onClick={() => onPick(k)}>
-          <span className="fig rys-sw"><svg viewBox="0 0 30 10" aria-hidden>{k === "none" ? <rect x="2" y="2" width="26" height="6" className="rys-sw-fill" /> : <line x1="2" y1="5" x2="28" y2="5" className={LINE_CLASS[k]} />}</svg></span>
-          {KIND_LABEL[k]}
-        </button>
-      ))}
+    <div ref={box} className="rys-drop">
+      <span className="rys-drop-l">{label}</span>
+      <button type="button" className="rys-drop-b" aria-haspopup="listbox" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        {value === null ? <span className="rys-drop-mixed">różne</span> : render(value)}{icons.chevron}
+      </button>
+      {open && (
+        <div className="rys-drop-list" role="listbox" aria-label={label}>
+          {options.map((o) => <button key={o} type="button" role="option" aria-selected={value === o} onClick={() => { onPick(o); setOpen(false); }}>{render(o)}</button>)}
+        </div>
+      )}
     </div>
   );
 }
 
+const kindSample = (k: LineKind) => (
+  <span className="rys-drop-o">
+    <span className="fig rys-sw"><svg viewBox="0 0 30 10" aria-hidden>{k === "none" ? <rect x="2" y="2" width="26" height="6" className="rys-sw-fill" /> : <line x1="2" y1="5" x2="28" y2="5" className={LINE_CLASS[k]} />}</svg></span>
+    {KIND_LABEL[k]}
+  </span>
+);
+function KindPicker({ value, onPick }: { value: LineKind | null; onPick: (k: LineKind) => void }) {
+  return <DropPick label="Linia" value={value} options={LINE_KINDS} render={kindSample} onPick={onPick} />;
+}
+
 /** Grubość: próbka linii o rzeczywistej grubości (dla „wg rodzaju” — grubość rodzaju). */
 function WidthPicker({ value, kind, onPick }: { value: Width | null; kind: LineKind; onPick: (w: Width) => void }) {
-  return (
-    <div className="rys-widths" role="radiogroup" aria-label="Grubość linii">
-      {WIDTHS.map((w) => (
-        <button key={w} type="button" role="radio" aria-checked={value === w} title={w === "auto" ? "Grubość wg rodzaju linii" : `Grubość ${WIDTH_LABEL[w]}`} onClick={() => onPick(w)}>
-          <svg viewBox="0 0 30 12" aria-hidden><line x1="3" y1="6" x2="27" y2="6" style={{ strokeWidth: strokeOf(kind === "none" ? "con" : kind, w) * 1.4 }} /></svg>
-          <span>{WIDTH_LABEL[w]}</span>
-        </button>
-      ))}
-    </div>
+  const sample = (w: Width) => (
+    <span className="rys-drop-o">
+      <svg className="rys-drop-w" viewBox="0 0 30 12" aria-hidden><line x1="3" y1="6" x2="27" y2="6" style={{ strokeWidth: strokeOf(kind === "none" ? "con" : kind, w) * 1.4 }} /></svg>
+      {w === "auto" ? "wg rodzaju" : WIDTH_LABEL[w]}
+    </span>
   );
+  return <DropPick label="Grubość" value={value} options={WIDTHS} render={sample} onPick={onPick} />;
 }
 
 function Seg<T extends string>({ label, options, value, onPick, text }: { label: string; options: readonly T[]; value: T | null; onPick: (v: T) => void; text: (v: T) => string }) {
@@ -226,7 +247,6 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
         {lineish && (
           <>
             <KindPicker value={val("k")} onPick={(k) => pick("k", k)} />
-            <div className="rys-sub-h">Grubość</div>
             <WidthPicker value={val("sw")} kind={(val("k") as LineKind | null) ?? "con"} onPick={(w) => pick("sw", w)} />
             {arrowish && <Row label="Groty"><select value={val("arrow") ?? ""} onChange={(e) => pick("arrow", e.target.value as Arrow)}>{val("arrow") === null && <option value="">—</option>}{ARROWS.map((a) => <option key={a} value={a}>{ARROW_LABEL[a]}</option>)}</select></Row>}
             {fillish && <Row label="Wypełnienie"><select value={val("fill") ?? ""} onChange={(e) => pick("fill", e.target.value as Fill)}>{val("fill") === null && <option value="">—</option>}{FILLS.map((f) => <option key={f} value={f}>{FILL_LABEL[f]}</option>)}</select></Row>}
@@ -245,21 +265,16 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
         })()}
       </Group>
 
-      {one && one.t !== "poly" && (
-        <Group title="Położenie i wymiary">
+      {one && ["rect", "axes", "dimr", "dima", "step", "grid", "dim"].includes(one.t) && (
+        <Group title="Szczegóły">
           <div className="rys-nums">
-            {num("X1", "x1")}{num("Y1", "y1")}{num("X2", "x2")}{num("Y2", "y2")}
-            {num("X", "x")}{num("Y", "y")}{num("X śr.", "cx")}{num("Y śr.", "cy")}
-            {(one.t === "grid" || one.t === "rect") && <>{num("Szer.", "w", { min: 0.01 })}{num("Wys.", "h", { min: 0.01 })}</>}
             {one.t === "rect" && num("Naroże R", "r", { step: 1, min: 0, max: 100 })}
-            {(one.t === "circle" || one.t === "arc") && num("Promień", "r", { min: 0.01 })}
-            {one.t === "arc" && <>{num("Kąt od", "a0", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a1", { step: 15, min: -720, max: 720 })}</>}
             {one.t === "axes" && <>{num("Oś X +", "xp", { min: 5, max: 800 })}{num("Oś X −", "xn", { min: 0, max: 800 })}{num("Oś Y +", "yp", { min: 5, max: 800 })}{num("Oś Y −", "yn", { min: 0, max: 800 })}{num("Opis co (jedn.)", "ts", { step: 5, min: 0, max: 200 })}{num("Wartość co", "tv", { step: 1, min: -1000, max: 1000 })}</>}
             {one.t === "dimr" && <>{num("Promień", "r", { min: 0.01 })}{num("Kierunek °", "a", { step: 15, min: -720, max: 720 })}{num("Wysięg opisu", "ext", { min: -800, max: 400 })}</>}
             {one.t === "dima" && <>{num("Kąt od", "a1", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a2", { step: 15, min: -720, max: 720 })}{num("Promień łuku", "r", { min: 1, max: 800 })}</>}
-            {num("Odsunięcie", "off", { min: -400, max: 400 })}
-            {num("Numer", "n", { step: 1, min: 1, max: 99 })}
-            {num("Drobna", "minor", { step: 2.5, min: 2.5, max: 50 })}{num("Gruba", "major", { step: 5, min: 5, max: 100 })}
+            {one.t === "dim" && num("Odsunięcie", "off", { min: -400, max: 400 })}
+            {one.t === "step" && num("Numer", "n", { step: 1, min: 1, max: 99 })}
+            {one.t === "grid" && <>{num("Drobna", "minor", { step: 2.5, min: 2.5, max: 50 })}{num("Gruba", "major", { step: 5, min: 5, max: 100 })}</>}
           </div>
         </Group>
       )}
@@ -298,7 +313,8 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
 
       {sections.map((x) => <Group key={x.title} title={x.title}>{x.body}</Group>)}
 
-      <Group title={`Elementy (${doc.items.length})`}>
+      <details className="rys-group rys-elems">
+        <summary><h3>{`Elementy (${doc.items.length})`}</h3></summary>
         {doc.items.length === 0 ? <p className="rys-tip">Pusty rysunek. Zacznij od konturu (Prostokąt albo Polilinia) albo zaimportuj rysunek ze strony.</p> : (
           <ol className="rys-layers">
             {[...doc.items].reverse().slice(0, 300).map((it) => {
@@ -314,7 +330,7 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
             })}
           </ol>
         )}
-      </Group>
+      </details>
     </aside>
   );
 }
