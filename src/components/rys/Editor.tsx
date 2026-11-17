@@ -14,6 +14,8 @@ import { idbDel, idbGet, idbSet } from "@/lib/rys/idb";
 import { ArrayPanel, DynInput, ExportDialog, FileMenu, KalkaPanel, LayersPanel, SnapMenu, type ArrayParams, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
+import { WDimInput, workDims, WorkDims } from "./workdims";
+import { parseNum as parseMm } from "./Extras";
 import { boolShapes, boundary, buildRegions, faceAt, facePath, shapesFrom, type BoolOp } from "@/lib/rys/regions";
 import { cornerLines, cornerVertex, curvesPath, explode, extend, join, mirrorItem, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
@@ -237,6 +239,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [regSel, setRegSel] = useState<{ items: Item[]; ids: number[] } | null>(null);
   const [regHover, setRegHover] = useState<number | null>(null);
   const [regFill, setRegFill] = useState<Fill>("hatch");
+  const [wedit, setWEdit] = useState<{ key: string; at: [number, number]; v: string } | null>(null); // edycja wymiaru roboczego
   const [kalka, setKalka] = useState<Kalka | null>(null);
   const [kalkaMode, setKalkaMode] = useState<KalkaMode>(null);
   const [calPts, setCalPts] = useState<P2[]>([]);
@@ -963,7 +966,16 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const selItems = doc.items.filter((it) => sel.includes(it.id));
   const edgeH = selItems.some((it) => STRETCH.has(it.t));
   // obrót ma sens dla grupy albo elementu z kierunkiem — sam okrąg nie dostaje ramki ani uchwytu obrotu
-  const canRot = sel.length > 1 || (!!one && one.t !== "circle"); // uchwyty na bokach tylko, gdy da się rozciągać osobno
+  const canRot = sel.length > 1 || (!!one && one.t !== "circle");
+  // wymiary robocze: zaznaczenie (klikalne) albo rysowany element (tylko podgląd)
+  const wdims = tool === "select" && selItems.length ? workDims(selItems, doc.k, u) : [];
+  const applyWDim = (key: string, v: string) => {
+    const d = workDims(selItems, doc.k, u).find((x) => x.key === key), mm = parseMm(v), res = d?.apply && mm !== null ? d.apply(mm) : null;
+    setWEdit(null); root.current?.focus({ preventScroll: true });
+    if (!res) { if (mm !== null) setInfo("tej wartości nie da się ustawić"); return; }
+    const by = new Map(res.map((it) => [it.id, it]));
+    set({ ...doc, items: doc.items.map((it) => by.get(it.id) ?? it) }, sel);
+  }; // uchwyty na bokach tylko, gdy da się rozciągać osobno
   const fp = (sx: number, sy: number, pad: number) => (gbox ? framePt(gbox, sx, sy, pad) : ([0, 0] as P2));
 
   return (
@@ -1098,6 +1110,8 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
                 </g>
               )}
               {tool === "select" && one && handles(one).map((h) => <circle key={h.key} data-h={h.key} cx={h.x} cy={h.y} r={hr * 0.8} className={`rys-handle${h.key === "off" || h.key === "c" || h.key === "m" || h.key === "t" ? " is-alt" : ""}`} />)}
+              {wdims.length > 0 && <WorkDims dims={wdims} u={u} onEdit={(d, at) => setWEdit({ key: d.key, at, v: String(Math.round(d.val * 100) / 100).replace(".", ",") })} />}
+              {preview && tool !== "select" && !dyn && <g pointerEvents="none"><WorkDims dims={workDims([preview], doc.k, u)} u={u} /></g>}
               {guides.map((g, i) => <line key={i} x1={g.a[0]} y1={g.a[1]} x2={g.b[0]} y2={g.b[1]} className={g.ref ? "rys-guide is-ref" : "rys-guide"} pointerEvents="none" />)}
               {marquee && <rect x={marquee[0]} y={marquee[1]} width={marquee[2] - marquee[0]} height={marquee[3] - marquee[1]} className="rys-marquee" pointerEvents="none" />}
               {mark && <SnapMark {...mark} u={u} />}
@@ -1128,6 +1142,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         <span className="rys-hint">{hint} Kółko myszy — powiększenie, środkowy przycisk albo spacja — przesuwanie widoku.</span>
       </div>
       {dyn && <DynInput dyn={dyn} onChange={setDyn} onApply={applyDyn} onClose={() => { setDyn(null); if (dyn.kind === "cal") { setCalPts([]); setKalkaMode(null); } root.current?.focus({ preventScroll: true }); }} />}
+      {wedit && <WDimInput at={wedit.at} value={wedit.v} onApply={(v) => applyWDim(wedit.key, v)} onClose={() => setWEdit(null)} />}
       {exporting && <ExportDialog doc={doc} format={exporting} onClose={() => { setExporting(null); root.current?.focus({ preventScroll: true }); }} />}
       <input ref={fileIn} type="file" hidden accept=".json,.yaml,.yml,.svg,application/json,image/svg+xml" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void openFile(f); }} />
       <input ref={kalkaIn} type="file" hidden accept="image/*" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void loadKalka(f); }} />

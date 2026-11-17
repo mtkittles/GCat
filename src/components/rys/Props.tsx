@@ -245,21 +245,16 @@ export default function PropsPanel({ doc, sel, tool, style, focusKey, edit, sett
         })()}
       </Group>
 
-      {one && one.t !== "poly" && (
-        <Group title="Położenie i wymiary">
+      {one && ["rect", "axes", "dimr", "dima", "step", "grid", "dim"].includes(one.t) && (
+        <Group title="Szczegóły">
           <div className="rys-nums">
-            {num("X1", "x1")}{num("Y1", "y1")}{num("X2", "x2")}{num("Y2", "y2")}
-            {num("X", "x")}{num("Y", "y")}{num("X śr.", "cx")}{num("Y śr.", "cy")}
-            {(one.t === "grid" || one.t === "rect") && <>{num("Szer.", "w", { min: 0.01 })}{num("Wys.", "h", { min: 0.01 })}</>}
             {one.t === "rect" && num("Naroże R", "r", { step: 1, min: 0, max: 100 })}
-            {(one.t === "circle" || one.t === "arc") && num("Promień", "r", { min: 0.01 })}
-            {one.t === "arc" && <>{num("Kąt od", "a0", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a1", { step: 15, min: -720, max: 720 })}</>}
             {one.t === "axes" && <>{num("Oś X +", "xp", { min: 5, max: 800 })}{num("Oś X −", "xn", { min: 0, max: 800 })}{num("Oś Y +", "yp", { min: 5, max: 800 })}{num("Oś Y −", "yn", { min: 0, max: 800 })}{num("Opis co (jedn.)", "ts", { step: 5, min: 0, max: 200 })}{num("Wartość co", "tv", { step: 1, min: -1000, max: 1000 })}</>}
             {one.t === "dimr" && <>{num("Promień", "r", { min: 0.01 })}{num("Kierunek °", "a", { step: 15, min: -720, max: 720 })}{num("Wysięg opisu", "ext", { min: -800, max: 400 })}</>}
             {one.t === "dima" && <>{num("Kąt od", "a1", { step: 15, min: -720, max: 720 })}{num("Kąt do", "a2", { step: 15, min: -720, max: 720 })}{num("Promień łuku", "r", { min: 1, max: 800 })}</>}
-            {num("Odsunięcie", "off", { min: -400, max: 400 })}
-            {num("Numer", "n", { step: 1, min: 1, max: 99 })}
-            {num("Drobna", "minor", { step: 2.5, min: 2.5, max: 50 })}{num("Gruba", "major", { step: 5, min: 5, max: 100 })}
+            {one.t === "dim" && num("Odsunięcie", "off", { min: -400, max: 400 })}
+            {one.t === "step" && num("Numer", "n", { step: 1, min: 1, max: 99 })}
+            {one.t === "grid" && <>{num("Drobna", "minor", { step: 2.5, min: 2.5, max: 50 })}{num("Gruba", "major", { step: 5, min: 5, max: 100 })}</>}
           </div>
         </Group>
       )}

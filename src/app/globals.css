@@ -3683,6 +3683,14 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .fig .rys-reg.is-sel { fill: color-mix(in srgb, var(--accent) 38%, transparent); stroke-dasharray: none; }
 .rys-regbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-size: 13px; color: var(--ink-2); }
 .rys-bool { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: .35rem; }
+/* wymiary robocze (tylko w edytorze) */
+.fig .rys-wdim-l, .fig .rys-wdim-ext { stroke: #22D3EE; stroke-width: .9; fill: none; vector-effect: non-scaling-stroke; }
+.fig .rys-wdim-ext { opacity: .55; stroke-dasharray: 2 2; }
+.fig .rys-wdim-dot { fill: #22D3EE; }
+.fig .rys-wdim-t rect { fill: var(--panel); stroke: #22D3EE; stroke-width: .9; vector-effect: non-scaling-stroke; }
+.fig .rys-wdim-t text { fill: #67E8F9; font-family: var(--font-mono); font-weight: 600; stroke: none; paint-order: normal; }
+.fig .rys-wdim-t.is-edit { cursor: text; }
+.fig .rys-wdim-t.is-edit:hover rect { fill: color-mix(in srgb, #22D3EE 22%, var(--panel)); }
 .fig .rys-tanc { fill: none; stroke: #22D3EE; stroke-width: 2; opacity: .8; vector-effect: non-scaling-stroke; }
 .rys-svg.is-kalka-move { cursor: move; }
 .rys-svg.is-kalka-cal { cursor: crosshair; }
