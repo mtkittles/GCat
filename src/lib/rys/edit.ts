@@ -377,6 +377,88 @@ export function cornerLines(l1: LineItem, c1: P2, l2: LineItem, c2: P2, v: numbe
 }
 const keep2 = (src: Item) => ({ ...(src.g ? { g: src.g } : {}), ...(src.l ? { l: src.l } : {}) });
 
+/* ───────────── łuk styczny do dwóch krzywych (FILLET z okręgiem albo łukiem) ───────────── */
+type Locus = { t: "L"; p: P2; d: P2 } | { t: "C"; c: P2; r: number };
+function ccInt(c1: P2, r1: number, c2: P2, r2: number): P2[] {
+  const dx = c2[0] - c1[0], dy = c2[1] - c1[1], d = Math.hypot(dx, dy);
+  if (d < 1e-9 || d > r1 + r2 + 1e-9 || d < Math.abs(r1 - r2) - 1e-9) return [];
+  const a = (r1 * r1 - r2 * r2 + d * d) / (2 * d), h = Math.sqrt(Math.max(0, r1 * r1 - a * a)), mx = c1[0] + (a * dx) / d, my = c1[1] + (a * dy) / d;
+  return h < 1e-9 ? [[mx, my]] : [[mx + (h * dy) / d, my - (h * dx) / d], [mx - (h * dy) / d, my + (h * dx) / d]];
+}
+function lcInt(p: P2, d: P2, c: P2, r: number): P2[] {
+  const fx = p[0] - c[0], fy = p[1] - c[1], b = fx * d[0] + fy * d[1], disc = b * b - (fx * fx + fy * fy - r * r);
+  if (disc < -1e-9) return [];
+  const s = Math.sqrt(Math.max(0, disc));
+  return [[p[0] + d[0] * (-b + s), p[1] + d[1] * (-b + s)], [p[0] + d[0] * (-b - s), p[1] + d[1] * (-b - s)]];
+}
+type Bendable = LineItem | ArcItem | Extract<Item, { t: "circle" }>;
+/** Miejsca środków łuku o promieniu R stycznego do krzywej i punkt styczności dla danego środka. */
+function lociOf(it: Bendable, R: number): { loci: Locus[]; touch: (P: P2) => P2 } {
+  if (it.t === "line") {
+    const p1: P2 = [it.x1, it.y1], d = unit(p1, [it.x2, it.y2]), n: P2 = [-d[1], d[0]];
+    return {
+      loci: [{ t: "L", p: [p1[0] + n[0] * R, p1[1] + n[1] * R], d }, { t: "L", p: [p1[0] - n[0] * R, p1[1] - n[1] * R], d }],
+      touch: (P) => { const s = (P[0] - p1[0]) * d[0] + (P[1] - p1[1]) * d[1]; return [p1[0] + d[0] * s, p1[1] + d[1] * s]; },
+    };
+  }
+  const c: P2 = [it.cx, it.cy], loci: Locus[] = [{ t: "C", c, r: it.r + R }];
+  if (Math.abs(it.r - R) > 1e-6) loci.push({ t: "C", c, r: Math.abs(it.r - R) });
+  return {
+    loci,
+    touch: (P) => {
+      const u = unit(c, P), a: P2 = [c[0] + u[0] * it.r, c[1] + u[1] * it.r], b: P2 = [c[0] - u[0] * it.r, c[1] - u[1] * it.r];
+      return Math.abs(Math.hypot(a[0] - P[0], a[1] - P[1]) - R) <= Math.abs(Math.hypot(b[0] - P[0], b[1] - P[1]) - R) ? a : b;
+    },
+  };
+}
+function lociInt(a: Locus, b: Locus): P2[] {
+  if (a.t === "C" && b.t === "C") return ccInt(a.c, a.r, b.c, b.r);
+  if (a.t === "L" && b.t === "C") return lcInt(a.p, a.d, b.c, b.r);
+  if (a.t === "C" && b.t === "L") return lcInt(b.p, b.d, a.c, a.r);
+  if (a.t === "L" && b.t === "L") {
+    const den = a.d[0] * b.d[1] - a.d[1] * b.d[0];
+    if (Math.abs(den) < 1e-9) return [];
+    const t = ((b.p[0] - a.p[0]) * b.d[1] - (b.p[1] - a.p[1]) * b.d[0]) / den;
+    return [[a.p[0] + a.d[0] * t, a.p[1] + a.d[1] * t]];
+  }
+  return [];
+}
+/** Linia skrócona albo wydłużona do punktu T; zostaje koniec po stronie kliknięcia. */
+function lineTo(l: LineItem, T: P2, c: P2): LineItem {
+  const d = unit([l.x1, l.y1], [l.x2, l.y2]), pr = (p: P2) => (p[0] - T[0]) * d[0] + (p[1] - T[1]) * d[1];
+  const s1 = pr([l.x1, l.y1]), s2 = pr([l.x2, l.y2]), sc = pr(c);
+  const keep1 = Math.sign(s1) !== Math.sign(s2) ? Math.sign(s1) === Math.sign(sc) : Math.abs(s1) > Math.abs(s2);
+  return keep1 ? { ...l, x2: q(T[0]), y2: q(T[1]) } : { ...l, x1: q(T[0]), y1: q(T[1]) };
+}
+/** Łuk skrócony albo wydłużony do punktu T; zostaje część z kliknięciem. */
+function arcTo(a: ArcItem, T: P2, c: P2): ArcItem {
+  const aT = n360(Math.atan2(T[1] - a.cy, T[0] - a.cx) / RAD), aC = n360(Math.atan2(c[1] - a.cy, c[0] - a.cx) / RAD);
+  const sw = arcSweep(a.a0, a.a1), pos = (x: number) => n360(x - a.a0), pT = pos(aT);
+  if (pT <= sw + 1e-6) return pos(aC) <= pT ? { ...a, a1: q(aT) } : { ...a, a0: q(aT) };
+  return pT - sw < 360 - pT ? { ...a, a1: q(aT) } : { ...a, a0: q(aT) };
+}
+/**
+  Łuk o promieniu R styczny do dwóch krzywych (linia, łuk, okrąg), jak FILLET w CAD: rozwiązanie wybierają miejsca kliknięć c1, c2,
+  linie i łuki są docinane do punktów styczności, okręgi zostają całe. Zwraca zmienione elementy i nowy łuk (≤ 180°).
+*/
+export function filletCurves(a: Item, c1: P2, b: Item, c2: P2, R: number): { patch: Item[]; arc: ArcItem } | string {
+  const ok = (it: Item): it is Bendable => it.t === "line" || it.t === "arc" || it.t === "circle";
+  if (!ok(a) || !ok(b)) return "zaokrąglenie: linie, łuki i okręgi";
+  if (R <= 0) return "podaj promień większy od zera";
+  const A = lociOf(a, R), B = lociOf(b, R);
+  let best: { P: P2; T1: P2; T2: P2; s: number } | null = null;
+  for (const la of A.loci) for (const lb of B.loci) for (const P of lociInt(la, lb)) {
+    const T1 = A.touch(P), T2 = B.touch(P), s = Math.hypot(T1[0] - c1[0], T1[1] - c1[1]) + Math.hypot(T2[0] - c2[0], T2[1] - c2[1]);
+    if (Math.hypot(T1[0] - T2[0], T1[1] - T2[1]) > 1e-6 && (!best || s < best.s)) best = { P, T1, T2, s };
+  }
+  if (!best) return "promień nie pasuje do tych elementów";
+  const { P, T1, T2 } = best, A1 = Math.atan2(T1[1] - P[1], T1[0] - P[0]) / RAD, A2 = Math.atan2(T2[1] - P[1], T2[0] - P[0]) / RAD;
+  const [a0, a1] = arcSweep(A1, A2) <= 180 ? [A1, A2] : [A2, A1];
+  const arc: ArcItem = { id: newId(), ...keep2(a), t: "arc", k: a.k, sw: a.sw, arrow: "none", cx: q(P[0]), cy: q(P[1]), r: q(R), a0: q(n360(a0)), a1: q(n360(a1)) };
+  const fit = (it: Bendable, T: P2, c: P2): Item | null => (it.t === "line" ? lineTo(it, T, c) : it.t === "arc" ? arcTo(it, T, c) : null);
+  return { patch: [fit(a, T1, c1), fit(b, T2, c2)].filter((x): x is Item => !!x), arc };
+}
+
 /* ───────────── odsunięcie (OFFSET) ───────────── */
 function inside(pts: P2[], p: P2): boolean {
   let r = false;

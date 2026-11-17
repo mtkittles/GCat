@@ -15,10 +15,11 @@ import { StandardDialog } from "./Standard";
 import { DynInput, ExportDialog, FileMenu, KalkaPanel, LayerBar, SnapMenu, parseNum, readKalka, type Dyn, type ExportFormat, type Kalka, type KalkaMode, type MenuItem } from "./Extras";
 import { download } from "./exportRys";
 import { sanitizeSvg, svgToDoc } from "./importSvg";
-import { WDimInput, workDims, WorkDims } from "./workdims";
+import { wdimItem, WDimInput, workDims, WorkDims } from "./workdims";
 import { parseNum as parseMm } from "./Extras";
 import { boolShapes, boundary, buildRegions, faceAt, facePath, shapesFrom, type BoolOp } from "@/lib/rys/regions";
-import { cornerLines, cornerVertex, curvesPath, explode, extend, join, mirrorItem, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
+import { smoothStroke, SMOOTH_LABEL, type Smooth } from "@/lib/rys/sketch";
+import { cornerLines, cornerVertex, filletCurves, curvesPath, explode, extend, join, mirrorItem, offsetItem, pickCurve, trim, vertexAt, type Curve } from "@/lib/rys/edit";
 import { icons, type IconName } from "./icons";
 import ImportDialog from "./ImportDialog";
 import PropsPanel, { DEFAULT_STYLE, type PanelAction, type PanelTool, type Style } from "./Props";
@@ -37,6 +38,7 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "select", label: "Zaznacz", key: "V", hint: "Kliknij element, żeby go zaznaczyć; przeciągnij, żeby przesunąć. Ctrl albo Shift dodaje do zaznaczenia, przeciągnięcie po pustym polu zaznacza obszar. Kółko nad ramką obraca, narożniki skalują (Shift — obrót co 15°)." },
   { id: "line", label: "Linia", key: "L", hint: "Klikaj kolejne punkty — linie łączą się w łańcuch; Esc albo prawy przycisk kończy. Można też przeciągnąć. Shift — kierunek co 45°, Alt — bez przyciągania." },
   { id: "poly", label: "Polilinia", key: "P", hint: "Klikaj kolejne punkty. Enter, prawy przycisk albo podwójne kliknięcie kończy; kliknięcie w pierwszy punkt zamyka kontur." },
+  { id: "pencil", label: "Ołówek", key: "Q", hint: "Rysuj, trzymając przycisk myszy — ślad wygładza się po puszczeniu (stopień wygładzenia na pasku). Koniec przy początku zamyka kontur." },
   { id: "rect", label: "Prostokąt", key: "R", hint: "Kliknij dwa przeciwległe rogi albo przeciągnij. Shift — kwadrat." },
   { id: "circle", label: "Okrąg", key: "C", hint: "Kliknij środek, potem punkt na okręgu (albo przeciągnij)." },
   { id: "arc", label: "Łuk", key: "A", hint: "Łuk z cięciwy: kliknij początek, koniec, potem wyciągnij łuk myszą i kliknij." },
@@ -49,7 +51,7 @@ const TOOLS: { id: Tool; label: string; key: string; hint: string }[] = [
   { id: "axes", label: "Osie", key: "X", hint: "Przeciągnij od początku układu współrzędnych do końców osi X i Y. Nazwy osi (X/Y albo Z/X) i opisy wartości ustawisz w panelu." },
   { id: "trim", label: "Utnij", key: "U", hint: "Najedź na kawałek linii, łuku, okręgu albo boku figury między przecięciami — podświetli się na czerwono; kliknięcie go usuwa. Shift+klik — wydłuż." },
   { id: "extend", label: "Wydłuż", key: "E", hint: "Kliknij blisko końca linii, łuku albo otwartej polilinii — wydłuży się do najbliższej krawędzi. Shift+klik — utnij." },
-  { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Naroże — zaokrąglenie: kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dla dwóch linii: kliknij pierwszą, potem drugą (zostają części po stronie kliknięć). R = 0 — ostry narożnik. Faza — przełącz na pasku (albo K)." },
+  { id: "fillet", label: "Zaokrąglij", key: "F", hint: "Naroże — zaokrąglenie: kliknij narożnik polilinii albo prostokąta — dostanie łuk o promieniu z paska. Dwie linie, łuki albo okręgi: kliknij pierwszy, potem drugi — powstanie łuk styczny R (zostają części po stronie kliknięć, okręgi całe). R = 0 — ostry narożnik linii. Faza — przełącz na pasku (albo K)." },
   { id: "chamfer", label: "Fazuj", key: "K", hint: "Naroże — faza: równa, dwie długości albo długość × kąt (ustaw na pasku). Kliknij narożnik — pierwsza długość idzie na bok bliżej kursora; dla dwóch linii kliknij pierwszą (dostaje pierwszą długość, od niej liczy się kąt), potem drugą." },
   { id: "region", label: "Obszary", key: "B", hint: "Najedź na obszar wyznaczony przez nachodzące figury i linie — podświetli się. Kliknięcie zaznacza (Shift albo Ctrl dodaje kolejne). Potem „Wypełnij” albo „Utwórz figurę” na pasku." },
   { id: "array", label: "Szyk", key: "Y", hint: "Zaznacz elementy, wybierz Szyk i ustaw go na pasku pod wstążką (prostokątny, kołowy wokół punktu, wzdłuż linii) — podgląd od razu; Enter albo „Utwórz” wstawia kopie." },
@@ -82,7 +84,8 @@ type Draft =
   | { t: "tan1"; c: Extract<Item, { t: "circle" | "arc" }>; click: P2; cur: P2 }
   | { t: "corner1"; id: string; click: P2 }
   | { t: "off1"; id: string }
-  | { t: "mir1"; a: P2; cur: P2 };
+  | { t: "mir1"; a: P2; cur: P2 }
+  | { t: "pencil"; pts: P2[] };
 type Drag =
   | { kind: "move"; base: P2; from: RysDoc; ids: string[] }
   | { kind: "handle"; id: string; key: string; from: RysDoc }
@@ -119,6 +122,7 @@ const dimItem = (p1: P2, p2: P2, o: DimOrient, off: number, st: Style, id = newI
   ({ id, t: "dim", o, x1: p1[0], y1: p1[1], x2: p2[0], y2: p2[1], off, label: MEASURE, side: -1, size: st.dimSize, font: st.dimFont, hz: false });
 
 function draftItem(d: Draft, st: Style): Item | null {
+  if (d.t === "pencil") return d.pts.length > 1 ? { id: "draft", t: "poly", k: st.k, sw: st.sw, arrow: "none", fill: "none", closed: false, pts: d.pts } : null;
   if (d.t === "drag") return d.tool === "dim" ? { id: "draft", t: "line", k: "cons", sw: "auto", arrow: "none", x1: d.a[0], y1: d.a[1], x2: d.b[0], y2: d.b[1] } : fromDrag(d.tool, d.a, d.b, st);
   if (d.t === "dimoff") return dimItem(d.p1, d.p2, d.o, d.off, st, "draft");
   if (d.t === "dimr") { const dist = Math.hypot(d.cur[0] - d.cx, d.cur[1] - d.cy); return { id: "draft", t: "dimr", d: d.d, cx: d.cx, cy: d.cy, r: d.r, a: angleOf(d.cx, d.cy, d.cur[0], d.cur[1]), ext: q(Math.max(-d.r + 2, dist - d.r)), label: d.d ? `⌀${MEASURE}` : `R${MEASURE}`, size: st.dimSize, font: st.dimFont }; }
@@ -253,6 +257,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const [regFill, setRegFill] = useState<Fill>("hatch");
   const [tab, setTab] = useState<Tab>("home");
   const [corner, setCorner] = useState<"fillet" | "chamfer">("fillet"); // ostatni rodzaj naroża
+  const [smooth, setSmooth] = useState<Smooth>(2); // ołówek: stopień wygładzenia
   const [chm, setChm] = useState<{ mode: ChamferMode; d2: number; ang: number }>({ mode: "eq", d2: 2, ang: 45 }); // faza: równa / dwie długości (mm) / długość × kąt (°)
   const [arr, setArr] = useState({ kind: "rect" as ArrKind, cols: 3, rows: 1, dx: 10, dy: 10, gap: true, n: 6, ang: 360, step: 10, even: false });
   const [arrC, setArrC] = useState<P2 | null>(null); // środek szyku kołowego (brak — punkt obrotu zaznaczenia)
@@ -480,9 +485,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
     const spec = !ch || chm.mode === "eq" ? undefined : chm.mode === "two" ? { d2: chm.d2 * k } : { ang: chm.ang };
     if (draft?.t === "corner1") {
       const l1 = doc.items.find((it) => it.id === draft.id), tgt = pickCurve(items, p, 9 * u);
-      if (l1?.t !== "line" || tgt?.t !== "line" || tgt.id === l1.id) return null;
-      const r = cornerLines(l1, draft.click, tgt, p, v, ch, spec);
-      return typeof r === "string" ? r : { patch: { [l1.id]: r.l1, [tgt.id]: r.l2 }, add: r.extra ? [onLayer(r.extra)] : [] };
+      if (!l1 || !tgt || tgt.id === l1.id) return null;
+      if (l1.t === "line" && tgt.t === "line") {
+        const r = cornerLines(l1, draft.click, tgt, p, v, ch, spec);
+        return typeof r === "string" ? r : { patch: { [l1.id]: r.l1, [tgt.id]: r.l2 }, add: r.extra ? [onLayer(r.extra)] : [] };
+      }
+      if (ch) return "faza: dwie linie albo narożnik polilinii";
+      const r = filletCurves(l1, draft.click, tgt, p, v);
+      return typeof r === "string" ? r : { patch: Object.fromEntries(r.patch.map((it) => [it.id, it])), add: [onLayer(r.arc)] };
     }
     const vx = vertexAt(items, p, 9 * u);
     if (!vx) return null;
@@ -598,8 +608,9 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       if (r && typeof r !== "string") { set({ ...doc, items: [...doc.items.map((it) => r.patch[it.id] ?? it), ...r.add] }, []); setDraft(null); setHoverEdit(null); setInfo(""); return; }
       if (typeof r === "string") { setInfo(r); return; }
       const tgt = pickCurve(doc.items.filter(pickable), p, 9 * u);
-      if (tgt?.t === "line" && draft?.t !== "corner1") { setDraft({ t: "corner1", id: tgt.id, click: p }); setInfo("kliknij drugą linię (po stronie, która ma zostać)"); }
-      else setInfo("kliknij narożnik polilinii albo prostokąta, albo dwie linie");
+      const curve = tgt?.t === "line" || (tool === "fillet" && (tgt?.t === "arc" || tgt?.t === "circle"));
+      if (tgt && curve && draft?.t !== "corner1") { setDraft({ t: "corner1", id: tgt.id, click: p }); setInfo(tool === "fillet" ? "kliknij drugi element (linię, łuk albo okrąg) po stronie, która ma zostać" : "kliknij drugą linię (po stronie, która ma zostać)"); }
+      else setInfo(tool === "fillet" ? "kliknij narożnik polilinii albo prostokąta, albo dwa elementy: linie, łuki, okręgi" : "kliknij narożnik polilinii albo prostokąta, albo dwie linie");
       return;
     }
     if (tool === "array") {
@@ -681,6 +692,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       if (cv) { setDraft({ t: "dimr", d: dimType === "d" || (dimType === "auto" && cv.t === "circle"), cx: cv.cx, cy: cv.cy, r: cv.r, cur: p }); return; }
       if (dimType !== "auto") { setInfo("kliknij okrąg albo łuk"); return; }
     }
+    if (tool === "pencil") { e.currentTarget.setPointerCapture(e.pointerId); setDraft({ t: "pencil", pts: [[p[0], p[1]]] }); return; } // odręcznie: bez dociągania do siatki
     if (draft?.t === "drag" && draft.click) { finishDrag(draft, snapAt(p, e, draft.a), true); return; }
     const sp = snapAt(p, e, draft?.t === "poly" ? draft.pts[draft.pts.length - 1] : null);
     if (DRAG_TOOLS.has(tool)) { e.currentTarget.setPointerCapture(e.pointerId); setDraft({ t: "drag", tool: tool as DragTool, a: sp, b: sp, click: false }); return; }
@@ -754,7 +766,10 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
       setInfo(kx === ky && (d.uni || e.shiftKey) ? `skala × ${fmtN(kx)}` : `${mmv(2 * d.f.hw * kx)} × ${mmv(2 * d.f.hh * ky)} mm`);
       dispatch({ type: "live", doc: patchItems(d.from, d.ids, (it) => stretchItem(it, d.anchor, d.a, kx, ky)) });
     } else if (d?.kind === "marquee") setMarquee([Math.min(d.start[0], p[0]), Math.min(d.start[1], p[1]), Math.max(d.start[0], p[0]), Math.max(d.start[1], p[1])]);
-    else if (draft?.t === "drag") {
+    else if (draft?.t === "pencil") {
+      const l = draft.pts[draft.pts.length - 1];
+      if (Math.hypot(p[0] - l[0], p[1] - l[1]) > 0.75 * u) setDraft({ ...draft, pts: [...draft.pts, [p[0], p[1]]] });
+    } else if (draft?.t === "drag") {
       let b = snapAt(p, e, draft.tool === "line" || draft.tool === "dim" ? draft.a : null);
       if (e.shiftKey && draft.tool === "rect") { const s = Math.max(Math.abs(b[0] - draft.a[0]), Math.abs(b[1] - draft.a[1])); b = [draft.a[0] + Math.sign(b[0] - draft.a[0] || 1) * s, draft.a[1] + Math.sign(b[1] - draft.a[1] || 1) * s]; }
       setDraft({ ...draft, b });
@@ -800,6 +815,10 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         dispatch({ type: "sel", sel: [...new Set([...d.add, ...inside])] });
       }
       setMarquee(null);
+    } else if (draft?.t === "pencil") {
+      const r = smoothStroke(draft.pts, u, smooth);
+      setDraft(null);
+      if (r) add({ id: newId(), t: "poly", k: style.k, sw: style.sw, arrow: "none", fill: r.closed ? style.fill : "none", closed: r.closed, pts: r.pts });
     } else if (draft?.t === "drag" && !draft.click) {
       // przeciągnięcie → gotowy element; samo kliknięcie → tryb klik‑klik (czeka na drugi punkt)
       if (Math.hypot(draft.b[0] - draft.a[0], draft.b[1] - draft.a[1]) >= 0.5) finishDrag(draft, draft.b, false);
@@ -1041,6 +1060,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
   const boolOk = selItems.length > 1 && selItems.every((it) => it.t === "rect" || it.t === "circle" || (it.t === "poly" && it.closed));
   // wymiary robocze: zaznaczenie (klikalne) albo rysowany element (tylko podgląd)
   const wdims = tool === "select" && selItems.length ? workDims(selItems, doc.k, u) : [];
+  /** Wymiar roboczy → zwykły wymiar rysunku (na aktywnej warstwie); zaznaczenie zostaje. */
+  const pinWDim = (key: string) => {
+    const d = wdims.find((w) => w.key === key), it = d ? wdimItem(d, style) : null;
+    setWEdit(null);
+    if (!it) return;
+    set(addItems(doc, [onLayer(it)]), sel);
+    setInfo("wymiar wstawiony na rysunek");
+  };
   const applyWDim = (key: string, v: string) => {
     const d = workDims(selItems, doc.k, u).find((x) => x.key === key), mm = parseMm(v), res = d?.apply && mm !== null ? d.apply(mm) : null;
     setWEdit(null); root.current?.focus({ preventScroll: true });
@@ -1065,7 +1092,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
           {tab === "home" && (
             <>
               <RGroup title="Rysuj">
-                {(["select", "line", "poly", "rect", "circle", "arc"] as Tool[]).map((id) => toolBtn(T(id)))}
+                {(["select", "line", "poly", "pencil", "rect", "circle", "arc"] as Tool[]).map((id) => toolBtn(T(id)))}
                 <div className="rys-rcol">{(["arcc", "grid", "axes"] as Tool[]).map(toolSm)}</div>
               </RGroup>
               <RGroup title="Opisz">
@@ -1121,7 +1148,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             </>
           )}
         </div>
-        {(tool === "array" || tool === "region" || tool === "fillet" || tool === "chamfer" || tool === "offset" || tool === "line" || tool === "dim") && (
+        {(tool === "array" || tool === "region" || tool === "pencil" || tool === "fillet" || tool === "chamfer" || tool === "offset" || tool === "line" || tool === "dim") && (
           <div className="rys-opts">
             {tool === "array" && (
               <div className="rys-arr">
@@ -1146,6 +1173,14 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
             <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("fill")} title="Samo wypełnienie pod rysunkiem — linie zostają bez zmian">Wypełnij</button>
             <button type="button" className="rys-btn" disabled={!regIds.length} onClick={() => regionAction("shape")} title="Nowa figura z obrysem (styl z panelu) i wypełnieniem">Utwórz figurę</button>
           </div>
+        )}
+        {tool === "pencil" && (
+          <>
+            <span className="rys-arr-tip">Wygładzanie</span>
+            <div className="rys-seg" role="radiogroup" aria-label="Wygładzanie śladu ołówka">
+              {([0, 1, 2, 3] as Smooth[]).map((v) => <button key={v} type="button" role="radio" aria-checked={smooth === v} onClick={() => setSmooth(v)}>{SMOOTH_LABEL[v]}</button>)}
+            </div>
+          </>
         )}
         {(tool === "fillet" || tool === "chamfer") && (
           <div className="rys-seg" role="radiogroup" aria-label="Rodzaj naroża">
@@ -1303,7 +1338,7 @@ export default function Editor({ initial, onChange, actions, menu, kalkaKey }: E
         <span className="rys-hint">{hint} Kółko myszy — powiększenie, środkowy przycisk albo spacja — przesuwanie widoku.</span>
       </div>
       {dyn && <DynInput dyn={dyn} onChange={setDyn} onApply={applyDyn} onClose={() => { setDyn(null); if (dyn.kind === "cal") { setCalPts([]); setKalkaMode(null); } root.current?.focus({ preventScroll: true }); }} />}
-      {wedit && <WDimInput at={wedit.at} value={wedit.v} onApply={(v) => applyWDim(wedit.key, v)} onClose={() => setWEdit(null)} />}
+      {wedit && <WDimInput at={wedit.at} value={wedit.v} onApply={(v) => applyWDim(wedit.key, v)} onClose={() => setWEdit(null)} onPin={() => pinWDim(wedit.key)} />}
       {stdOpen && <StandardDialog onClose={() => { setStdOpen(false); root.current?.focus({ preventScroll: true }); }} />}
       {exporting && <ExportDialog doc={doc} format={exporting} onClose={() => { setExporting(null); root.current?.focus({ preventScroll: true }); }} />}
       <input ref={fileIn} type="file" hidden accept=".json,.yaml,.yml,.svg,application/json,image/svg+xml" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void openFile(f); }} />

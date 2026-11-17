@@ -13,7 +13,7 @@ import { LINE_CLASS } from "./render";
 export interface Style { k: LineKind; sw: Width; arrow: Arrow; fill: Fill; size: number; font: Font; bold: boolean; color: TextColor; dimSize: number; dimFont: Font }
 export const DEFAULT_STYLE: Style = { k: "con", sw: "auto", arrow: "none", fill: "none", size: 11, font: "sans", bold: false, color: "ink", dimSize: 10.5, dimFont: "mono" };
 export type PanelAction = "dup" | "del" | "up" | "down" | "top" | "bottom" | "flip" | "left" | "cx" | "right" | "atop" | "cy" | "abottom" | "group" | "ungroup" | "explode" | "join" | "union" | "subtract" | "intersect" | "xor";
-export type PanelTool = "select" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region" | "array";
+export type PanelTool = "select" | "pencil" | "line" | "poly" | "rect" | "circle" | "arc" | "arcc" | "text" | "dim" | "pt" | "step" | "grid" | "axes" | "trim" | "extend" | "fillet" | "chamfer" | "offset" | "mirror" | "region" | "array";
 
 interface Props {
   doc: RysDoc; sel: string[]; tool: PanelTool; style: Style; focusKey: number;
@@ -33,9 +33,9 @@ interface Props {
 const ANCHOR_LABEL = { start: "od lewej", middle: "środek", end: "do prawej" } as const;
 const POS_LABEL = { n: "↑", ne: "↗", e: "→", se: "↘", s: "↓", sw: "↙", w: "←", nw: "↖" } as const;
 const PT_LABEL = { ink: "Biały", cut: "G01", rap: "G00", arc: "G02/G03" } as const;
-const LINE_TOOLS = new Set<PanelTool>(["line", "poly", "rect", "circle", "arc", "arcc"]);
+const LINE_TOOLS = new Set<PanelTool>(["line", "poly", "pencil", "rect", "circle", "arc", "arcc"]);
 const ARROW_TOOLS = new Set<PanelTool>(["line", "poly", "arc", "arcc"]);
-const FILL_TOOLS = new Set<PanelTool>(["poly", "rect", "circle"]);
+const FILL_TOOLS = new Set<PanelTool>(["poly", "pencil", "rect", "circle"]);
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return <section className="rys-group"><h3>{title}</h3>{children}</section>;

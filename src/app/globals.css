@@ -3512,16 +3512,16 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-ib[aria-pressed="true"] { color: var(--accent); }
 .rys-ib svg { width: 16px; height: 16px; }
 .rys-rpanel { display: flex; flex-wrap: wrap; align-items: stretch; gap: .2rem; padding: .3rem .4rem .2rem; }
-.rys-rgroup { display: grid; grid-template-rows: 1fr auto; gap: .1rem; padding: 0 .3rem; border-right: 1px solid var(--line); }
+.rys-rgroup { display: grid; grid-template-rows: 1fr auto; gap: .1rem; padding: 0 .25rem; border-right: 1px solid var(--line); }
 .rys-rgroup:last-child { border-right: 0; }
 .rys-rgroup-b { display: flex; flex-wrap: wrap; align-items: center; gap: 1px; }
 .rys-rgroup-t { text-align: center; font-size: 10.5px; color: var(--muted); letter-spacing: .02em; }
-.rys-rpanel .rys-tool { min-width: 2.5rem; padding: .22rem .2rem .18rem; font-size: 10.5px; }
+.rys-rpanel .rys-tool { min-width: 2.3rem; padding: .22rem .18rem .18rem; font-size: 10.5px; }
 .rys-rpanel .rys-tool svg { width: 20px; height: 20px; }
 /* małe przyciski w wierszach jak w panelach CAD: ikona + podpis obok */
 .rys-rcol { display: grid; grid-template-rows: repeat(3, 1.45rem); align-content: center; gap: 1px; margin-left: .15rem; }
 .rys-rgrid { display: grid; grid-template-rows: repeat(3, 1.45rem); grid-auto-flow: column; align-content: center; gap: 1px .15rem; }
-.rys-sbtn { display: flex; align-items: center; gap: .3rem; height: 1.45rem; padding: 0 .4rem 0 .3rem; border: 0; border-radius: 5px; background: none; color: var(--ink-2); font: 500 11.5px/1 var(--font-sans, Inter, system-ui, sans-serif); white-space: nowrap; cursor: pointer; }
+.rys-sbtn { display: flex; align-items: center; gap: .28rem; height: 1.45rem; padding: 0 .3rem 0 .25rem; border: 0; border-radius: 5px; background: none; color: var(--ink-2); font: 500 11.5px/1 var(--font-sans, Inter, system-ui, sans-serif); white-space: nowrap; cursor: pointer; }
 .rys-sbtn svg { width: 15px; height: 15px; flex: none; }
 .rys-sbtn:hover:not(:disabled) { background: var(--surface-3); color: var(--ink); }
 .rys-sbtn[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
@@ -3546,7 +3546,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-lbar { display: grid; grid-template-rows: repeat(3, 1.45rem); align-content: center; gap: 1px; font-size: 11.5px; }
 .rys-lrow { display: flex; align-items: center; gap: .3rem; }
 .rys-lbar select { height: 1.35rem; padding: 0 .3rem; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); color: var(--ink); font: 11.5px var(--font-sans, Inter, system-ui, sans-serif); }
-.rys-lsel { width: 8rem; }
+.rys-lsel { width: 7rem; }
 .rys-lfield { display: flex; align-items: center; gap: .3rem; color: var(--muted); }
 .rys-lbar .rys-ib { width: 22px; height: 22px; }
 .rys-lbar .rys-ib svg { width: 14px; height: 14px; }

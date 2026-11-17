@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { workDims } from "@/components/rys/workdims";
+import { wdimItem, workDims } from "@/components/rys/workdims";
 import type { Item } from "@/lib/rys/model";
 
 /* Rysownik RB5a: wymiary robocze na rysunku — wartości w mm (skala k) i zmiana wymiaru wpisaną liczbą. */
@@ -38,5 +38,16 @@ describe("wymiary robocze", () => {
     const out = w.apply!(80) as Extract<Item, { t: "line" }>[];
     const xs = out.flatMap((l) => [l.x1, l.x2]);
     close(Math.max(...xs) - Math.min(...xs), 80);
+  });
+
+  it("wstaw jako wymiar: liniowy po stronie wymiaru roboczego, okrąg → ⌀", () => {
+    const st = { dimSize: 11, dimFont: "sans" as const };
+    const r: Item = { id: "r", t: "rect", k: "con", sw: "auto", fill: "none", x: 0, y: 0, w: 80, h: 50, r: 0 };
+    const [w] = workDims([r], 1, 1);
+    const d = wdimItem(w, st) as Extract<Item, { t: "dim" }>;
+    expect(d).toMatchObject({ t: "dim", o: "a", x1: 0, y1: 0, x2: 80, y2: 0, label: "<>" });
+    expect(d.off * (d.x2 - d.x1)).toBeLessThan(0); // nad górną krawędzią, jak wymiar roboczy
+    const c: Item = { id: "c", t: "circle", k: "con", sw: "auto", fill: "none", cx: 5, cy: 6, r: 14 };
+    expect(wdimItem(workDims([c], 1, 1)[0], st)).toMatchObject({ t: "dimr", d: true, cx: 5, cy: 6, r: 14 });
   });
 });
