@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { arcSweep, fmt, frameAngle, frameOf, framePt, q, stretchItem, type Item, type P2 } from "@/lib/rys/model";
+import { arcSweep, fmt, frameAngle, frameOf, framePt, MEASURE, newId, q, stretchItem, type Font, type Item, type P2 } from "@/lib/rys/model";
 
 /*
   Wymiary robocze (paczka RB5a): pomoc przy rysowaniu, jak w szkicowniku CAD — widać je tylko w edytorze,
@@ -97,8 +97,25 @@ export function WorkDims({ dims, u, onEdit }: { dims: WDim[]; u: number; onEdit?
   );
 }
 
-/** Pole wartości wymiaru roboczego przy kursorze (Enter — zastosuj, Esc — anuluj). */
-export function WDimInput({ at, value, onApply, onClose }: { at: [number, number]; value: string; onApply: (v: string) => void; onClose: () => void }) {
+/**
+  „Utrwal”: wymiar roboczy → wymiar rysunku. Liniowy → wymiar wyrównany po tej samej stronie (odsunięcie 10 jednostek),
+  średnica i promień → wymiar ⌀ / R z linią odniesienia pod kątem −45° (promień — w stronę środka łuku).
+*/
+export function wdimItem(d: WDim, st: { dimSize: number; dimFont: Font }): Item | null {
+  if (d.key === "d" || d.key === "r") {
+    const dia = d.key === "d", cx = dia ? (d.a[0] + d.b[0]) / 2 : d.a[0], cy = dia ? (d.a[1] + d.b[1]) / 2 : d.a[1];
+    const r = dia ? Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]) / 2 : Math.hypot(d.b[0] - d.a[0], d.b[1] - d.a[1]);
+    const a = dia ? -45 : q((Math.atan2(d.b[1] - cy, d.b[0] - cx) * 180) / Math.PI);
+    return { id: newId(), t: "dimr", d: dia, cx: q(cx), cy: q(cy), r: q(r), a, ext: 10, label: `${dia ? "⌀" : "R"}${MEASURE}`, size: st.dimSize, font: st.dimFont };
+  }
+  const dx = d.b[0] - d.a[0], dy = d.b[1] - d.a[1], L = Math.hypot(dx, dy);
+  if (L < 1e-6) return null;
+  const side = Math.sign(d.n[0] * (-dy / L) + d.n[1] * (dx / L)) || 1; // normalna wymiaru rysunku: [-dy, dx] / L
+  return { id: newId(), t: "dim", o: "a", x1: q(d.a[0]), y1: q(d.a[1]), x2: q(d.b[0]), y2: q(d.b[1]), off: 10 * side, label: MEASURE, side: -1, size: st.dimSize, font: st.dimFont, hz: false };
+}
+
+/** Pole wartości wymiaru roboczego przy kursorze (Enter — zastosuj, Esc — anuluj); „Wstaw” utrwala go jako wymiar rysunku. */
+export function WDimInput({ at, value, onApply, onClose, onPin }: { at: [number, number]; value: string; onApply: (v: string) => void; onClose: () => void; onPin?: () => void }) {
   const [v, setV] = useState(value);
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => { ref.current?.focus(); ref.current?.select(); }, []);
@@ -108,6 +125,7 @@ export function WDimInput({ at, value, onApply, onClose }: { at: [number, number
         onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter") { e.preventDefault(); onApply(v); } else if (e.key === "Escape") { e.preventDefault(); onClose(); } }}
         onBlur={onClose} /><span>mm</span></label>
       <small>Enter — zmień kształt, Esc — anuluj</small>
+      {onPin && <button type="button" className="rys-btn" onMouseDown={(e) => e.preventDefault()} onClick={onPin} title="Wstaw ten wymiar na rysunek jako zwykły wymiar (widoczny na stronie)">Wstaw jako wymiar</button>}
     </div>
   );
 }

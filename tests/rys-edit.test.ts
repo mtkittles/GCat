@@ -76,7 +76,7 @@ describe("łuki w polilinii, rozbij, złącz", () => {
   });
 });
 
-import { cornerLines, cornerVertex, offsetItem } from "@/lib/rys/edit";
+import { cornerLines, cornerVertex, filletCurves, offsetItem } from "@/lib/rys/edit";
 describe("zaokrąglenie, faza, odsunięcie", () => {
   const sq: Item = { id: "r", t: "rect", k: "con", sw: "auto", fill: "hatch", x: 0, y: 0, w: 40, h: 20, r: 0 };
   it("narożnik prostokąta R5 → polilinia z łukiem 90°", () => {
@@ -104,6 +104,23 @@ describe("zaokrąglenie, faza, odsunięcie", () => {
     expect(cornerVertex(sq, 1, 6, true, { ang: 90 })).toBe("kąt fazy za duży dla tego narożnika");
     const r = cornerLines(L(0, 0, 100, 0, "a") as never, [80, 0], L(50, -50, 50, 50, "b") as never, [50, 40], 2, true, { ang: 45 });
     expect(typeof r !== "string" && r.extra).toMatchObject({ t: "line", x1: 52, y1: 0, x2: 50, y2: 2 });
+  });
+  it("łuk styczny do dwóch okręgów i do okręgu z linią (jak FILLET w CAD)", () => {
+    const c = (cx: number, cy: number, r: number, id: string): Item => ({ id, t: "circle", k: "con", sw: "auto", fill: "none", cx, cy, r });
+    const r = filletCurves(c(0, 0, 10, "a"), [0, -10], c(40, 0, 10, "b"), [40, -10], 15);
+    expect(typeof r).not.toBe("string");
+    if (typeof r !== "string") {
+      expect(r.patch).toEqual([]); // okręgi zostają całe
+      expect(r.arc).toMatchObject({ cx: 20, cy: -15, r: 15 });
+      expect(r.arc.a0).toBeCloseTo(36.87, 1); expect(r.arc.a1).toBeCloseTo(143.13, 1); // łuk od strony okręgów
+    }
+    const lr = filletCurves(c(0, 0, 10, "a"), [10, 0], L(-50, 20, 50, 20, "l") as never, [20, 20], 8);
+    expect(typeof lr).not.toBe("string");
+    if (typeof lr !== "string") {
+      expect(lr.arc).toMatchObject({ cx: 13.42, cy: 12, r: 8 });
+      expect(lr.patch[0]).toMatchObject({ id: "l", x1: 13.42, y1: 20, x2: 50 });
+    }
+    expect(filletCurves(c(0, 0, 10, "a"), [0, -10], c(100, 0, 10, "b"), [100, -10], 5)).toBe("promień nie pasuje do tych elementów");
   });
   it("dwie linie: łuk styczny R10 i linie skrócone do punktów styczności", () => {
     const r = cornerLines(L(0, 0, 100, 0, "a") as never, [80, 0], L(50, -50, 50, 50, "b") as never, [50, 40], 10, false);
