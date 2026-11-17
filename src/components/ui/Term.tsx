@@ -10,7 +10,7 @@ import { gcodes } from "@/lib/gcodes";
   w słowniku albo do karty kodu.
 */
 
-interface Found { title: string; text: string; href: string; kind: "pojęcie" | "kod" }
+interface Found { title: string; text: string; href: string; kind: "pojęcie" | "kod"; syntax?: { fanuc: string; sinumerik: string } }
 
 function lookup(key: string): Found | null {
   const k = key.trim().toLowerCase();
@@ -19,7 +19,7 @@ function lookup(key: string): Found | null {
     g.code.toLowerCase() === k ||
     g.code.toLowerCase().split(/[\s/]+/).includes(k) ||
     g.slug === k.replace(/\s+/g, "-"));
-  if (code) return { title: `${code.code} — ${code.name}`, text: code.short, href: `/kody/${code.slug}`, kind: "kod" };
+  if (code) return { title: `${code.code} — ${code.name}`, text: code.short, href: `/kody/${code.slug}`, kind: "kod", syntax: code.syntax };
 
   const term = glossary.find((g) =>
     g.term.toLowerCase() === k ||
@@ -28,6 +28,9 @@ function lookup(key: string): Found | null {
   if (term) return { title: term.term, text: term.def, href: `/slownik#${term.anchor}`, kind: "pojęcie" };
   return null;
 }
+
+/** Dwie pierwsze linie składni — w dymku wystarczy wzór bloku, pełny zapis jest w karcie. */
+const first = (s: string) => s.split("\n").slice(0, 2).join("\n");
 
 export default function Term({ k, children }: { k: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -56,6 +59,13 @@ export default function Term({ k, children }: { k: string; children: React.React
           <span className="term-kind">{found.kind}</span>
           <strong>{found.title}</strong>
           <span className="term-def">{found.text}</span>
+          {/* „Code Peek”: skrócona składnia obu sterowań bez opuszczania lekcji (pierwsze linie z karty kodu) */}
+          {found.syntax && (
+            <span className="term-syn">
+              <span><small>Fanuc</small><code>{first(found.syntax.fanuc)}</code></span>
+              <span><small>Sinumerik</small><code>{first(found.syntax.sinumerik)}</code></span>
+            </span>
+          )}
           <Link href={found.href} className="term-link" onClick={() => setOpen(false)}>
             {found.kind === "kod" ? "Otwórz kartę kodu" : "Otwórz w słowniku"} ›
           </Link>

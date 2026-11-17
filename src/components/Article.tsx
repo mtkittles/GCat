@@ -6,6 +6,8 @@ import ArcCalc from "@/components/ArcCalc";
 import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
 import { tableClass } from "@/lib/tableKind";
+import CodeBlock from "@/components/CodeBlock";
+import { isProgram } from "@/lib/codeBlock";
 export { rich };
 
 export const slugify = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-|-$/g, "");
@@ -27,7 +29,8 @@ export function Toc({ blocks, sticky = false }: { blocks: Block[]; sticky?: bool
   );
 }
 
-export default function Article({ blocks }: { blocks: Block[] }) {
+/** `mode` / `dialect` — kontekst lekcji: blok programu dostaje numery linii, kopiowanie i przycisk symulatora. */
+export default function Article({ blocks, mode, dialect = "fanuc" }: { blocks: Block[]; mode?: "mill" | "lathe"; dialect?: "fanuc" | "sinumerik" }) {
   return (
     <div className="article grid gap-4">
       {blocks.map((b, i) => {
@@ -37,7 +40,12 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           case "ul": return <ul key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ul>;
           case "ol": return <ol key={i}>{b.items.map((x, j) => <li key={j}>{rich(x)}</li>)}</ol>;
           case "note": return <div key={i} role="note" className={`note note-${b.kind}`}>{rich(b.x)}</div>;
-          case "code": return <figure key={i} className="grid gap-1"><pre tabIndex={0} className="syntax">{b.x}</pre>{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}</figure>;
+          case "code": return (
+            <figure key={i} className="grid gap-1">
+              {mode && isProgram(b.x) ? <CodeBlock src={b.x} mode={mode} dialect={dialect} /> : <pre tabIndex={0} className="syntax">{b.x}</pre>}
+              {b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}
+            </figure>
+          );
           case "sim": return <figure key={i} className="grid gap-2">{b.caption && <figcaption className="cap">{rich(b.caption)}</figcaption>}<SimClient initial={b.src} mode={b.mode ?? "mill"} /></figure>;
           case "demo": return (
             <figure key={i} className="grid gap-2 demo-fig">
@@ -57,7 +65,7 @@ export default function Article({ blocks }: { blocks: Block[] }) {
           case "more": return (
             <details key={i} className="more">
               <summary>{rich(b.title)}</summary>
-              <Article blocks={b.blocks} />
+              <Article blocks={b.blocks} mode={mode} dialect={dialect} />
             </details>
           );
         }

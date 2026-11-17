@@ -716,3 +716,101 @@ a.rp-card:hover .rp-meta svg { transform: translateX(3px); color: var(--accent-i
 .cd-foot svg { width: 15px; height: 15px; }
 .vd-bottom.cd { max-height: 90dvh; padding: .45rem 0 0; gap: 0; }
 .vd-bottom.cd .cd-head { padding-top: .5rem; }
+
+/* ==========================================================================
+   9. Nauka: plan ścieżki, nagłówek lekcji, spis na telefonie, bloki G-kodu, Code Peek
+   ========================================================================== */
+.tl { display: grid; gap: 1rem; }
+.tl-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; padding: .85rem 1rem;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--surface);
+}
+.tl-n { font: 500 11px/1 var(--font-mono); color: var(--muted); }
+.tsc-btn.is-on .tl-n { color: var(--ink-2); }
+.tl-prog { flex: 1 1 260px; min-width: 0; display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; column-gap: .9rem; row-gap: .35rem; align-items: center; }
+.tl-prog-v { grid-row: span 2; font: 600 1.6rem/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink); letter-spacing: -.02em; }
+.tl-prog-v small { font-size: .85rem; color: var(--muted); font-weight: 500; }
+.tl-prog .lm-bar { height: 9px; }
+.tl-prog-k { font: 500 11px/1 var(--font-mono); letter-spacing: .06em; color: var(--muted); }
+.tl-go code { font: 600 13px/1 var(--font-mono); }
+.tl-go svg { width: 16px; height: 16px; }
+.tl-done { display: inline-flex; align-items: center; gap: .5rem; font: 600 12px/1 var(--font-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--green-ink); }
+.tl-profile { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.tl-body { display: grid; gap: 1.25rem; }
+@media (min-width: 1100px) { .tl-body { grid-template-columns: minmax(0, 1fr) 340px; align-items: start; gap: 2rem; } .tl-side { position: sticky; top: 4.5rem; } }
+.tl-mods { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1rem; }
+.tl-mod { display: grid; gap: .45rem; }
+.tl-mod-h { display: flex; align-items: center; gap: .65rem; padding: 0 .15rem; }
+.tl-mod-h h2 { margin: 0; font-size: 1rem; font-weight: 650; letter-spacing: -.015em; }
+.tl-mid { min-width: 2.1rem; padding: .28rem .4rem; border: 1px solid var(--line-strong); border-radius: 6px; text-align: center; font: 600 11.5px/1 var(--font-mono); color: var(--accent-ink); }
+.tl-mod-n { margin-left: auto; font: 500 12px/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--muted); }
+.tl-skill { margin: 0 .15rem; font-size: 13px; line-height: 1.5; color: var(--muted); max-width: 80ch; }
+.tl-rows { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--card); overflow: hidden; }
+.tl-rows > li + li { border-top: 1px solid var(--line); }
+.tl-row {
+  display: grid; grid-template-columns: 8px 3.1rem minmax(0, 1fr) auto auto; align-items: center; gap: .8rem;
+  min-height: 46px; padding: .5rem .9rem; color: var(--ink-2); text-decoration: none;
+}
+a.tl-row:hover { background: var(--surface-2); color: var(--ink); }
+.tl-row.is-next { background: color-mix(in srgb, var(--accent) 7%, var(--card)); color: var(--ink); box-shadow: inset 2px 0 0 var(--accent); }
+.tl-row.is-planned { opacity: .55; }
+.tl-row .led.is-dim { opacity: .45; }
+.tl-id { font: 600 12.5px/1 var(--font-mono); color: var(--accent-ink); }
+.tl-t { font: 500 14.5px/1.35 var(--font-sans); color: inherit; }
+.tl-tags { display: flex; gap: .3rem; }
+.tl-tag { padding: .2rem .38rem; border: 1px solid var(--line); border-radius: 5px; font: 500 10.5px/1 var(--font-mono); letter-spacing: .04em; color: var(--muted); }
+.tl-meta { min-width: 7.5rem; text-align: right; font: 500 12px/1.2 var(--font-mono); color: var(--muted); }
+.tl-row.is-next .tl-meta { color: var(--accent-ink); }
+@media (max-width: 640px) {
+  .tl-row { grid-template-columns: 8px 2.6rem minmax(0, 1fr) auto; gap: .6rem; padding-inline: .7rem; }
+  .tl-tags { display: none; }
+  .tl-meta { min-width: 0; font-size: 11px; }
+  .tl-head { padding: .75rem; }
+  .tl-head .tsc { width: 100%; }
+  .tl-head .tsc-btn { flex: 1; }
+  .tl-go { width: 100%; }
+}
+.tl-side { display: grid; gap: .8rem; align-content: start; }
+.tl-card { display: grid; gap: .55rem; padding: .95rem 1rem; border: 1px solid var(--line); border-radius: 14px; background: var(--card); }
+.tl-card p { margin: 0; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.tl-card .fig { max-width: none; padding: 0; background: transparent; border: none; }
+
+/* nagłówek lekcji bez zdjęcia */
+.lh { padding-top: .25rem; }
+.lh .ph-k b { color: var(--accent-ink); font-weight: 700; }
+.lh .ph-title { font-size: clamp(1.6rem, 3vw, 2.3rem); }
+
+/* spis lekcji na telefonie: przycisk nad dokiem + arkusz */
+.lsh-btn {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--dock-space, 0px) + .5rem); z-index: 44;
+  display: inline-flex; align-items: center; gap: .55rem; max-width: calc(100vw - 2rem); height: 40px; padding: 0 .9rem;
+  border: 1px solid var(--line-strong); border-radius: 999px; background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+  color: var(--ink); font: 500 13.5px/1 var(--font-sans); cursor: pointer;
+}
+.lsh-btn:active { transform: translateX(-50%) scale(.98); }
+.lsh-btn svg { width: 16px; height: 16px; color: var(--muted); flex: none; }
+.lsh-k { font: 600 12px/1 var(--font-mono); color: var(--accent-ink); }
+.lsh-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lsh-n { font: 500 11.5px/1 var(--font-mono); color: var(--muted); }
+@media (min-width: 768px) { .lsh-btn { bottom: 1.25rem; } }
+.lsh-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 0 .2rem .4rem; }
+.lsh .ls-nav-h:first-child { margin-top: 0; }
+.lsh .ls-nav-toc a, .lsh .ls-nav-mod a, .lsh .ls-nav-self { min-height: 44px; display: flex; align-items: center; }
+.lsh .ls-nav-mod a, .lsh .ls-nav-self { display: grid; align-content: center; }
+/* przy otwartym arkuszu przycisk nie przykrywa listy; na stronie lekcji ostatnia treść ma zapas nad przyciskiem */
+body:has(.lsh-btn) main > :last-child { padding-bottom: 3.5rem; }
+@media (min-width: 1100px) { body:has(.lsh-btn) main > :last-child { padding-bottom: 0; } }
+
+/* blok G-kodu w lekcji */
+.cb { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); overflow: hidden; }
+.cb-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem .6rem; padding: .35rem .4rem .35rem .75rem; border-bottom: 1px solid var(--line); background: var(--surface); font: 600 10.5px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.cb-acts { display: inline-flex; gap: .35rem; }
+.cb-acts a.cd-copy { text-decoration: none; }
+.cb-lines { max-height: 26rem; }
+
+/* Code Peek w dymku pojęcia/kodu */
+.term-syn { display: grid; gap: .3rem; margin: .15rem 0 .1rem; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.term-syn > span { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr); gap: .5rem; align-items: baseline; }
+.term-syn small { font: 600 10px/1.4 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.term-syn code { font: 500 12.5px/1.5 var(--font-mono); color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }

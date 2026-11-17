@@ -13,7 +13,7 @@ import { isPassed, isRead, markVisited, progressKey, setRead, useProgress } from
 export type TocItem = { id: string; label: string };
 export type SideLesson = { id: string; title: string; href: string | null };
 
-function useActiveSection(ids: string[]) {
+export function useActiveSection(ids: string[]) {
   const [active, setActive] = useState(-1);
   useEffect(() => {
     let raf = 0;
