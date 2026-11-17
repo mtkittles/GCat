@@ -119,7 +119,7 @@ export default function CncPanelClient({ segs, box, code, simHref }: {
         <div className={`cp-col cp-code${tab === "kod" ? " is-tab" : ""}`}>
           <div className="cp-ed" aria-label={`Kod operacji ${o.key} — ${dialectName}`}>
             <div className="cp-ed-bar"><span>{o.key} · {o.name}</span><span>{dialectName}</span></div>
-            <ol className="cp-lines">
+            <ol className="cp-lines" tabIndex={0} aria-label={`Bloki operacji ${o.key}`}>
               {code[dialect][op].map((l) => (
                 <li key={l.n}><span className="cp-ln">{String(l.n).padStart(2, "0")}</span><code><GcodeLine raw={l.raw} /></code></li>
               ))}

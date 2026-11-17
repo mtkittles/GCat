@@ -49,3 +49,12 @@ export function setTheme(t: Theme) {
 
 /** Skrypt w <head>: motyw, panel boczny (domyślnie zwinięty poniżej 1440 px) i dźwięk — przed pierwszym malowaniem. */
 export const PREFS_SCRIPT = `try{var d=document.documentElement,s=localStorage,t=s.getItem("theme");if(t==="light"||t==="dark")d.dataset.theme=t;var b=s.getItem("gcat:sb");d.dataset.sb=b==="c"||b==="e"?b:(innerWidth<1440?"c":"e");d.dataset.sound=s.getItem("gcat:sound")==="1"?"1":"0"}catch(e){}`;
+
+/** Zapytanie media (np. "(min-width: 768px)"); na serwerze i przy hydratacji — `fallback`. */
+export function useMedia(query: string, fallback = false): boolean {
+  return useSyncExternalStore(
+    (cb) => { const m = window.matchMedia(query); m.addEventListener("change", cb); return () => m.removeEventListener("change", cb); },
+    () => window.matchMedia(query).matches,
+    () => fallback,
+  );
+}

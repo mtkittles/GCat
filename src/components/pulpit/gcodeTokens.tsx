@@ -1,8 +1,9 @@
 /*
   Kolorowanie bloku G-kodu w widżetach pulpitu (Fanuc i Sinumerik): kolory ruchu jak w symulatorze
   (G00 bursztyn, G01 zieleń, G02/G03 błękit), reszta wg zmiennych --cm-* edytora.
+  Słowa kluczowe Sinumerika (MCALL, CYCLE81(…), LIMS, WALIMON, $AA_…) — jeden token, nie litery adresów.
 */
-const PATTERN = /(MCALL|CYCLE\d+(?:\s*\([^)]*\))?)|(\([^)]*\)|;.*$)|([A-Z]{1,2})(=?)(-?\d*\.?\d*)|(\s+)|(.)/g;
+const PATTERN = /([A-Z_$]{3,}[A-Z0-9_$]*(?:\s*\([^)]*\))?)|(\([^)]*\)|;.*$)|([A-Z]{1,2})(=?)(-?\d*\.?\d*)|(\s+)|(.)/g;
 
 function cls(letter: string, num: string): string {
   if (letter === "G") {

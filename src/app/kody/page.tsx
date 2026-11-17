@@ -1,5 +1,4 @@
-import PageBanner from "@/components/ui/PageBanner";
-import CodeTable from "./CodeTable";
+import CodeCatalog from "./CodeCatalog";
 import { gcodes } from "@/lib/gcodes";
 
 export const metadata = {
@@ -10,9 +9,12 @@ export const metadata = {
 export default function KodyPage() {
   return (
     <div className="grid gap-5">
-      <PageBanner src="/img/banner-kody.jpg" kicker="Referencja" title="Kody G i M"
-        subtitle="Składnia Fanuc i Sinumerik i przykład dla każdego kodu; animacja tam, gdzie symulator ją odtwarza." priority />
-      <CodeTable items={gcodes} />
+      <header className="ph">
+        <span className="ph-k">Referencja · {gcodes.length} kart</span>
+        <h1 className="ph-title">Katalog kodów G i M</h1>
+        <p className="ph-lead">Składnia Fanuc i Sinumerik, przykład dla każdego kodu i animacja tam, gdzie symulator ją odtwarza. Kliknij kartę, żeby zobaczyć szczegóły bez wychodzenia z listy.</p>
+      </header>
+      <CodeCatalog items={gcodes} />
     </div>
   );
 }
