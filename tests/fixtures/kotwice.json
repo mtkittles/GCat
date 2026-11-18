@@ -133,7 +133,12 @@
    "sinumerik"
   ],
   "g72": [],
-  "g73": [],
+  "g73": [
+   "co-robi-sterowanie",
+   "g73-czy-g83",
+   "fanuc-i-sinumerik",
+   "typowe-błędy"
+  ],
   "g74": [],
   "g75": [],
   "g76-g89": [],
@@ -153,7 +158,13 @@
    "sinumerik-cykle-parametryczne",
    "typowe-błędy"
   ],
-  "g82": [],
+  "g82": [
+   "co-robi-sterowanie",
+   "ile-czekać",
+   "nawiercanie-i-fazka",
+   "fanuc-i-sinumerik",
+   "typowe-błędy"
+  ],
   "g84": [
    "warunek-podstawowy-posuw-musi-wynikać-ze-skoku",
    "gwintowanie-sztywne-kontra-z-kompensacją",
@@ -197,7 +208,13 @@
    "dobór-prędkości-skrawania",
    "typowe-błędy"
   ],
-  "g98-g99": [],
+  "g98-g99": [
+   "frezarka-dwa-poziomy-powrotu",
+   "gdzie-wstawić-g98",
+   "tokarka-jednostka-posuwu",
+   "fanuc-i-sinumerik",
+   "typowe-błędy"
+  ],
   "m00-m01": [],
   "m03-m05": [
    "który-kierunek",

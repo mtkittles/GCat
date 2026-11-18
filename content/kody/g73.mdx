@@ -8,7 +8,7 @@ level: 3
 modal: true
 machines:
   - frezowanie
-star: false
+star: true
 related:
   - g81-g83
   - g82
@@ -17,34 +17,37 @@ short: >-
   Cykl wiercenia krokami Q. Po każdym kroku wiertło cofa się tylko o małą
   wartość d, żeby złamać wiór.
 desc: >-
-  Wiertło schodzi krokami **Q**, a po każdym cofa się o **d** (parametr
-  sterowania, zwykle 0,1–1 mm). Wiór się łamie, ale narzędzie nie wychodzi z
-  otworu.
+  Wiertło schodzi krokami **Q**, a po każdym cofa się o **d**: wartość z
+  parametru sterowania, nie z programu. Wiór się łamie, ale narzędzie nie
+  wychodzi z otworu.
 
 
   To szybsze niż **G83**, gdzie wiertło po każdym kroku wraca do płaszczyzny R i
-  wyrzuca wiór. G73 sprawdza się w materiałach dających długi wiór i w otworach
-  do ok. 3–4 średnic; głębsze zwykle wierci się G83. Granicę podaje producent
-  wiertła.
+  wyrzuca wiór. G73 sprawdza się w materiałach dających długi wiór, w otworach,
+  z których połamany wiór wychodzi rowkami wiertła. Głębsze wierci się G83;
+  granicę podaje producent wiertła.
 
 
   Na tokarce Fanuc G73 to inny cykl: toczenie równoległe do konturu (dla odlewów
   i odkuwek).
 syntax:
   fanuc: G98/G99 G73 X_ Y_ Z_ R_ Q_ F_
-  sinumerik: CYCLE83(…, VARI=0)   ; łamanie wióra
+  sinumerik: |-
+    CYCLE83(RTP, RFP, SDIS, DP, DPR, FDEP,
+      FDPR, DAM, DTB, DTS, FRF, VARI)
+    ; VARI = 0: łamanie wióra
 sinumerik: >-
-  **CYCLE83** z parametrem VARI = 0 łamie wiór, z VARI = 1 wycofuje wiertło do
-  usunięcia wióra (jak G83).
+  **CYCLE83** z parametrem VARI = 0 łamie wiór (cofnięcie _VRT, 0 = 1 mm), z
+  VARI = 1 wycofuje wiertło do usunięcia wióra (jak G83).
 params:
   - key: X Y
-    desc: pozycja otworu
+    desc: pozycja otworu [mm]
   - key: Z
-    desc: dno otworu
+    desc: dno otworu [mm]
   - key: R
-    desc: płaszczyzna, od której zaczyna się posuw
+    desc: płaszczyzna, od której zaczyna się posuw [mm]
   - key: Q
-    desc: głębokość kroku, bez znaku
+    desc: głębokość kroku [mm], bez znaku, z kropką (Q4.)
   - key: F
     desc: posuw [mm/min]
 pitfalls:
@@ -60,6 +63,13 @@ sources:
     loc: >-
       rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89 (wspólny schemat cykli);
       parametr 5114 — rozdz. 7.2.22, s. 238; alarm 0045 — rozdz. 8.1.1, s. 351
+  - id: haas
+    where: 'G73: krok Q albo I, J, K; cofnięcie z ustawienia 22 (Haas)'
+    url: >-
+      https://www.haascnc.com/service/codes-settings.type=gcode.machine=mill.value=G73.html
+  - id: sinumerik-cycles
+    where: CYCLE83 z VARI = 0 — łamanie wióra, cofnięcie _VRT
+    loc: rozdz. 2.1.4, s. 2-57–2-64
 example:
   src: |-
     G21 G90 G94 G17
@@ -83,3 +93,48 @@ example:
   stock:
     discriminant: false
 ---
+**G73** wierci krokami Q jak \[\[G83]], ale po każdym kroku cofa wiertło tylko o niewielką wartość d. Wiertło zostaje w otworze, a wiór łamie się na krótkie kawałki.
+
+## Co robi sterowanie \{#co-robi-sterowanie}
+
+1. Ruch szybki nad otwór (X, Y), potem w dół do płaszczyzny R.
+2. Posuw w głąb o Q.
+3. Cofnięcie ruchem szybkim o d. Wartość d ustawia parametr sterowania (Fanuc 0i: 5114), a nie program.
+4. Posuw do dna o Q głębszego niż poprzednie. Wiertło przechodzi najpierw z powrotem przez odcinek d.
+5. Kroki 3 i 4 powtarzają się aż do dna Z.
+6. Powrót ruchem szybkim do R (\[\[G99]]) albo do poziomu początkowego (\[\[G98]]).
+
+<Diagram id="g73" />
+
+## G73 czy G83 \{#g73-czy-g83}
+
+<Table caption="Ruch szybki w osi Z dla przykładu z tej karty, przy cofnięciu d i odstępie nad dnem równych 1 mm (tak liczy symulator GCat).">
+  | Cecha                          | G73                              | G83                               |
+  | ------------------------------ | -------------------------------- | --------------------------------- |
+  | Cofnięcie po kroku             | o d, wiertło zostaje w otworze   | do płaszczyzny R                  |
+  | Wiór                           | łamany, wychodzi rowkami wiertła | wychodzi z otworu po każdym kroku |
+  | Ruch szybki w Z między krokami | 6 mm                             | 162 mm                            |
+</Table>
+
+Przykład z tej karty wierci do Z−24 z R2 krokami Q4: siedem kroków z dnami w Z−2, −6, −10, −14, −18, −22 i −24. G83 po każdym z sześciu pierwszych kroków wyjeżdża do R2 i wraca 1 mm nad poprzednie dno. Daje to 162 mm ruchu szybkiego w osi Z na jeden otwór. G73 cofa się sześć razy o 1 mm.
+
+Oszczędność czasu ma sens, dopóki połamany wiór wychodzi rowkami wiertła. Jeśli się w nich zakleszcza, otwór wierci się G83. Głębokość, od której potrzebne są pełne wycofania, podaje producent wiertła.
+
+## Fanuc i Sinumerik \{#fanuc-i-sinumerik}
+
+<Table caption="Fanuc wg serii 0i-F, Sinumerik wg instrukcji cykli 840D (wydanie 04.00), Haas wg opisu G73 producenta.">
+  | Sterowanie | Krok                                                           | Cofnięcie          |
+  | ---------- | -------------------------------------------------------------- | ------------------ |
+  | Fanuc      | Q, stały                                                       | d z parametru 5114 |
+  | Haas       | Q albo I, J, K (pierwszy krok, zmniejszenie, najmniejszy krok) | ustawienie 22      |
+  | Sinumerik  | `CYCLE83` z VARI = 0: FDEP pierwszy krok, DAM zmniejszanie     | \_VRT, 0 = 1 mm    |
+</Table>
+
+Na tokarce Fanuc G73 to inny cykl: toczenie wzdłuż konturu powtarzanego z przesunięciem, dla odlewów i odkuwek. Wiercenie krokami w osi Z robi tam \[\[G74]].
+
+## Typowe błędy \{#typowe-błędy}
+
+* **G73 w głębokim otworze.** Wiór nie wychodzi i zakleszcza się w rowkach, rosną opory skrawania. Wtedy G83.
+* **Q bez kropki.** Przy wprowadzaniu bez kropki dziesiętnej Fanuc czyta `Q4` jako 0,004 mm. Zapis `Q4.` jest jednoznaczny.
+* **Q ze znakiem.** Q to wartość bez znaku. `Q-4.` da alarm albo zostanie odczytane inaczej, zależnie od sterowania.
+* **Kod tokarki na frezarce i odwrotnie.** Program z G73 przeniesiony między frezarką a tokarką Fanuc wywoła inny cykl.

@@ -262,17 +262,17 @@ export function Polar() {
 
 /* ================= G83 kontra G73 ================= */
 export function Peck() {
-  const z = (v: number) => 56 - v * 8.4;           // R = +2, dno = −18
+  const z = (v: number) => 56 - v * 8.4;           // R = +2, Q = 6 liczone od R, dno = −16
   type Mv = { k: "cut" | "rap"; a: number; b: number };
-  const g83: Mv[] = [{ k: "cut", a: 2, b: -6 }, { k: "rap", a: -6, b: 2 }, { k: "rap", a: 2, b: -5 }, { k: "cut", a: -5, b: -12 }, { k: "rap", a: -12, b: 2 }, { k: "rap", a: 2, b: -11 }, { k: "cut", a: -11, b: -18 }, { k: "rap", a: -18, b: 2 }];
-  const g73: Mv[] = [{ k: "cut", a: 2, b: -6 }, { k: "rap", a: -6, b: -5 }, { k: "cut", a: -5, b: -12 }, { k: "rap", a: -12, b: -11 }, { k: "cut", a: -11, b: -18 }, { k: "rap", a: -18, b: 2 }];
+  const g83: Mv[] = [{ k: "cut", a: 2, b: -4 }, { k: "rap", a: -4, b: 2 }, { k: "rap", a: 2, b: -3 }, { k: "cut", a: -3, b: -10 }, { k: "rap", a: -10, b: 2 }, { k: "rap", a: 2, b: -9 }, { k: "cut", a: -9, b: -16 }, { k: "rap", a: -16, b: 2 }];
+  const g73: Mv[] = [{ k: "cut", a: 2, b: -4 }, { k: "rap", a: -4, b: -3 }, { k: "cut", a: -3, b: -10 }, { k: "rap", a: -10, b: -9 }, { k: "cut", a: -9, b: -16 }, { k: "rap", a: -16, b: 2 }];
   const col = (x0: number, mv: Mv[], title: string, c: { a: (k: "cut" | "rap") => string }) => {
     const step = 34 / (mv.length - 1);
     return (
       <g>
         <T x={x0} y={18} anchor="middle" cls="t-mono t-b t-big">{title}</T>
         <rect x={x0 - 44} y={z(0)} width={88} height={z(-22) - z(0)} className="solid-hatch" />
-        <rect x={x0 - 24} y={z(0)} width={48} height={z(-18) - z(0)} className="hole" />
+        <rect x={x0 - 24} y={z(0)} width={48} height={z(-16) - z(0)} className="hole" />
         {mv.map((m, i) => {
           const x = x0 - 17 + i * step;
           return <g key={i}>
@@ -285,7 +285,7 @@ export function Peck() {
   };
   return (
     <Fig id="peck" code="G83 G73" title="Wiercenie krokami: wyrzut wióra albo łamanie" h={262} legend={["cut", "rap", "acc"]}
-      caption={<><b>G83</b> po każdym kroku <b>Q</b> wycofuje wiertło do płaszczyzny R — wiór wylatuje z otworu. <b>G73</b> cofa tylko o <b>d</b> (parametr sterowania) — wiór się łamie, a cykl jest szybszy.</>}>
+      caption={<>Krok <b>Q</b> liczy się od płaszczyzny R. <b>G83</b> po każdym kroku wycofuje wiertło do R, więc wiór wychodzi z otworu. <b>G73</b> cofa tylko o <b>d</b> (parametr sterowania): wiór się łamie, a cykl jest krótszy.</>}>
       {(c) => (
         <g>
           <line x1={14} y1={z(2)} x2={346} y2={z(2)} className="p-cons" />
@@ -293,10 +293,10 @@ export function Peck() {
           <T x={346} y={z(0) + 13} anchor="end" cls="t-mono t-mut">Z0</T>
           {col(100, g83, "G83", c)}
           {col(262, g73, "G73", c)}
-          <Dim x1={42} y1={z(0)} x2={42} y2={z(-6)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
-          <Dim x1={42} y1={z(-6)} x2={42} y2={z(-12)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
-          <Dim x1={42} y1={z(-12)} x2={42} y2={z(-18)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
-          <T x={292} y={z(-5.5) + 4} cls="t-mono t-acc t-b">d</T>
+          <Dim x1={42} y1={z(2)} x2={42} y2={z(-4)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
+          <Dim x1={42} y1={z(-4)} x2={42} y2={z(-10)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
+          <Dim x1={42} y1={z(-10)} x2={42} y2={z(-16)} label="Q" c={c} lside={-1} cls="t-mono t-acc t-b" />
+          <T x={292} y={z(-3.5) + 4} cls="t-mono t-acc t-b">d</T>
           <T x={100} y={z(-22) + 15} anchor="middle" cls="t-mono t-mut">dno (Z)</T>
           <T x={262} y={z(-22) + 15} anchor="middle" cls="t-mono t-mut">dno (Z)</T>
         </g>

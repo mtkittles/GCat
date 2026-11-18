@@ -32,7 +32,7 @@ describe("karty i słownik z content/", () => {
     const c = await load();
     expect(gcodes).toEqual(c.kody.map((k) => kodToGcode(k.data, k.meta.headings.length > 0 || k.meta.text.trim() !== "")));
     expect(glossary).toEqual(c.slownik.map((x) => hasloToEntry(x.data)));
-    expect(gcodes.filter((g) => g.star).map((g) => g.slug)).toEqual(["g00", "g01", "g02", "g04", "g17-g19", "g20-g21", "g40-g42", "g43-g49", "g54-g59", "g81-g83", "g90-g91", "g94-g95"]);
+    expect(gcodes.filter((g) => g.star).map((g) => g.slug)).toEqual(["g00", "g01", "g02", "g04", "g17-g19", "g20-g21", "g40-g42", "g43-g49", "g54-g59", "g73", "g81-g83", "g82", "g90-g91", "g94-g95", "g98-g99"]);
   });
 
   it("kotwice nagłówków kart = migawka (jawne {#…} w plikach)", async () => {
@@ -45,7 +45,7 @@ describe("karty i słownik z content/", () => {
       const all = [...src.matchAll(/^#{2,6} /gm)].length;
       expect(explicit.length, k.file).toBe(all);
     }
-    expect(Object.values(now).flat().length).toBe(146);
+    expect(Object.values(now).flat().length).toBe(160); // +14: artykuły G73, G82, G98/G99 (grupa Wiercenie)
   });
 
   it("kotwice słownika = migawka; plik = <kotwica>.yaml", async () => {
@@ -75,6 +75,6 @@ describe("karty i słownik z content/", () => {
       expect(html, g.slug).not.toMatch(/\[\[|\]\]|\{#/);
       n++;
     }
-    expect(n).toBe(26);
+    expect(n).toBe(29);
   });
 });
