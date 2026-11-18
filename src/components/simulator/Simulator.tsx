@@ -46,7 +46,7 @@ import SimDro from "./SimDro";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import OverrideKnob from "@/components/tactile/OverrideKnob";
 import StatusCapsule, { claimCapsule } from "./StatusCapsule";
-import { advance, BASE_RATE, blockEnd, cumulative, cumulativeSeconds, MODE_LABEL, MODE_TITLE, MODES, secondsAt, stepFeed, type RunMode } from "./transport";
+import { advance, BASE_RATE, blockStops, cumulative, cumulativeSeconds, MODE_LABEL, MODE_TITLE, MODES, secondsAt, stepFeed, stopIndexAt, type RunMode } from "./transport";
 import { segSeconds } from "@/lib/parser/stats";
 import { useMedia } from "@/lib/ui/prefs";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
@@ -244,6 +244,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const latheCache = useRef<LatheCache | null>(null);
   const fsCanvasRef = useRef<HTMLCanvasElement>(null);
   const [progress, setProgress] = useState(0); // mm przebyte
+  // SINGLE BLOCK: ostatni wykonany blok (indeks w `stops`) i droga, przy której go wykonano
+  const [sbk, setSbk] = useState<{ idx: number; p: number } | null>(null);
   // Pokaz (showcase) startuje dopiero, gdy jest widoczny — decyduje o tym obserwator niżej.
   const [playing, setPlaying] = useState(!!autoplay && !showcase && autoStartOk(autoplay));
   // Po pierwszym ręcznym sterowaniu (start, pauza, krok, suwak) pokaz nie wznawia się sam.
@@ -268,7 +270,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [runMode, setRunMode] = useState<RunMode>("auto");
   const capId = useId();
   const [prevSource, setPrevSource] = useState(source);
-  if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(!!autoplay && autoStartOk(autoplay)); }
+  if (prevSource !== source) { setPrevSource(source); setProgress(0); setSbk(null); setPlaying(!!autoplay && autoStartOk(autoplay)); }
 
   const [showComp, setShowComp] = useState(true);
   const [localLearn, setLocalLearn] = useState(false);
@@ -303,14 +305,28 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const marks = useMemo(() => cumulative(lengths), [lengths]);
   const total = marks[marks.length - 1];
 
-  // SINGLE BLOCK: odtwarzanie staje na końcu bieżącego bloku. Granica liczona przy starcie
-  // (CYCLE START) i przy zmianie trybu w trakcie ruchu.
+  // SINGLE BLOCK — jak na maszynie: stop po każdym bloku, także bez ruchu (M05, T1 M06, G54…).
+  // `sbk` pamięta ostatni wykonany blok, dopóki droga się nie zmieni (blok bez ruchu nie przesuwa drogi);
+  // po przewinięciu, kroku albo resecie ostatni blok wynika z samej drogi (stopIndexAt).
+  const stops = useMemo(() => blockStops(program.lines, segments, marks), [program, segments, marks]);
+  const sbkIdx = sbk && sbk.p === progress && sbk.idx < stops.length ? sbk.idx : stopIndexAt(stops, progress);
   const progressRef = useRef(0);
-  useEffect(() => { progressRef.current = progress; }, [progress]);
+  // W ruchu drogę prowadzi pętla animacji (ref przed stanem); poza ruchem ref idzie za stanem
+  // (suwak, krok, klik w linię, reset). Nowy program zaczyna od zera także w trakcie pokazu.
+  useEffect(() => { if (!playing) progressRef.current = progress; }, [progress, playing]);
+  useEffect(() => { progressRef.current = 0; }, [source]);
   const stopAtRef = useRef(Infinity);
+  const sbkTarget = useRef<number | null>(null);
   useEffect(() => {
-    stopAtRef.current = playing && runMode === "single" ? blockEnd(progressRef.current, segments, lengths, marks) : Infinity;
-  }, [playing, runMode, segments, lengths, marks]);
+    if (!playing || runMode !== "single") { stopAtRef.current = Infinity; sbkTarget.current = null; return; }
+    // przełączenie na SINGLE BLOCK w trakcie ruchu: stop na końcu bloku, który właśnie się wykonuje
+    if (sbkTarget.current === null) {
+      const p = progressRef.current;
+      const i = stops.findIndex((st) => st.at > p + 1e-6);
+      sbkTarget.current = i < 0 ? stops.length - 1 : i;
+    }
+    stopAtRef.current = stops[sbkTarget.current]?.at ?? Infinity;
+  }, [playing, runMode, stops]);
 
   // pętla animacji
   useEffect(() => {
@@ -322,18 +338,25 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const tick = (now: number) => {
       // po powrocie do karty albo zacięciu klatki — bez skoku o kilka sekund
       const dt = Math.min(0.1, (now - last) / 1000); last = now;
-      setProgress((p) => {
-        if (showcase && p >= total) {
-          // pauza na gotowym torze, dopiero potem start od nowa
-          if (holdRef.current === 0) { holdRef.current = performance.now(); return total; }
-          if (performance.now() - holdRef.current < 1600) return total;
-          holdRef.current = 0;
-          return 0;
-        }
-        const r = advance(p, dt, { segments, lengths, marks, feed, mode: runMode, stopAt: stopAtRef.current, base });
-        if (r.stop && !(showcase && r.p >= total)) setPlaying(false);
-        return r.p;
-      });
+      // Krok liczony poza funkcją aktualizującą stan: zatrzymanie (SINGLE BLOCK, koniec programu)
+      // zmienia inne stany, a funkcje aktualizujące React może wywołać później albo dwa razy.
+      const p = progressRef.current;
+      if (showcase && p >= total) {
+        // pauza na gotowym torze, dopiero potem start od nowa
+        if (holdRef.current === 0) holdRef.current = performance.now();
+        else if (performance.now() - holdRef.current >= 1600) { holdRef.current = 0; progressRef.current = 0; setProgress(0); }
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const r = advance(p, dt, { segments, lengths, marks, feed, mode: runMode, stopAt: stopAtRef.current, base });
+      progressRef.current = r.p;
+      setProgress(r.p);
+      if (r.stop && !(showcase && r.p >= total)) {
+        const idx = sbkTarget.current;
+        if (idx !== null) setSbk({ idx, p: r.p });
+        setPlaying(false);
+        return;
+      }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -341,20 +364,31 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   }, [playing, feed, runMode, total, lengths, marks, segments, showcase]);
 
   // pulpit: CYCLE START / FEED HOLD
-  const atEnd = progress >= total - 1e-6;
-  const held = !playing && progress > 1e-6 && !atEnd;
+  const single = runMode === "single";
+  // koniec programu: w SINGLE BLOCK dopiero po ostatnim bloku (np. M30 po ostatnim ruchu)
+  const atEnd = progress >= total - 1e-6 && (!single || sbkIdx >= stops.length - 1);
+  const held = !playing && !atEnd && (progress > 1e-6 || (single && sbkIdx >= 0));
   const cycleStart = () => {
-    if (atEnd) { setProgress(0); progressRef.current = 0; }
     claimCapsule(capId);
+    let p = progress, done = sbkIdx;
+    if (atEnd) { p = 0; done = -1; setProgress(0); progressRef.current = 0; }
+    if (single) {
+      const next = done + 1;
+      if (next >= stops.length) return;
+      // blok bez ruchu: wykonany od razu, narzędzie stoi
+      if (stops[next].at <= p + 1e-6) { userPlay(false); setSbk({ idx: next, p }); return; }
+      sbkTarget.current = next;
+    }
     userPlay(true);
   };
+  const resetProgram = () => { userPlay(false); setProgress(0); setSbk(null); };
   const feedHold = () => userPlay(false);
   const togglePlay = () => (playing ? feedHold() : cycleStart());
   // czas programu (przy zaprogramowanym F) pod bieżącym punktem — do kapsuły statusu
   const cumSecs = useMemo(() => cumulativeSeconds(segments, (sg) => segSeconds(sg, program)), [segments, program]);
 
   // aktualna linia i pozycja narzędzia
-  const { activeLine, currentPos } = useMemo(() => {
+  const { activeLine: motionLine, currentPos } = useMemo(() => {
     let acc = 0; let pos: Vec3 = { x: 0, y: 0, z: 0 }; let active: number | null = null;
     segments.forEach((sg, i) => {
       const len = lengths[i];
@@ -367,6 +401,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
+  // SINGLE BLOCK na bloku bez ruchu: podświetlona ta linia, nie ostatni ruch
+  const activeLine = single && !playing && sbk && sbk.p === progress && stops[sbk.idx] ? stops[sbk.idx].line : motionLine;
   // Listy bloków zmieniają się przy zmianie bloku, nie w każdej klatce animacji. Bez memo cała lista
   // (setki <li>, kolorowanie składni) renderowała się przy każdej klatce odtwarzania.
   const showcaseItems = useMemo(() => program.lines.filter((l) => l.raw.trim()).map((l) => (
@@ -1244,7 +1280,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <button type="button" className="pb pb-ico" onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny ruch" title="Następny ruch (→)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
         </button>
-        <button type="button" className="pb pb-ico" onClick={() => { userPlay(false); setProgress(0); }} aria-label="Reset" title="Reset — początek programu (Home)">
+        <button type="button" className="pb pb-ico" onClick={resetProgram} aria-label="Reset" title="Reset — początek programu (Home)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
         </button>
       </div>
@@ -1447,7 +1483,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         else if (e.key === "-" && !compact) { e.preventDefault(); setFeed((v) => stepFeed(v, -1)); }
         else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
         else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
-        else if (e.key === "Home") { e.preventDefault(); userPlay(false); setProgress(0); }
+        else if (e.key === "Home") { e.preventDefault(); resetProgram(); }
       }}
       className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}

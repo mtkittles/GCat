@@ -57,20 +57,48 @@ export function cumulative(lengths: number[]): number[] {
 
 const EPS = 1e-6;
 
+/** Blok programu w trybie SINGLE BLOCK: linia i droga, na której blok się kończy. */
+export interface BlockStop { line: number; at: number }
+
+/** Linia jest blokiem do wykonania: ma słowo inne niż N i O (sam komentarz, `%` i numer programu — nie). */
+export const isExecutable = (l: { words: { letter: string }[] }) => l.words.some((w) => w.letter !== "N" && w.letter !== "O");
+
 /**
- * Koniec bloku, w którym jest (albo do którego zaraz wejdzie) punkt `p`.
- * Blok = kolejne odcinki z tej samej linii programu (np. cykl wiercenia, łuk z korekcją).
- * Stojąc dokładnie na granicy bloków, zwraca koniec NASTĘPNEGO bloku — tak działa
- * kolejne naciśnięcie CYCLE START w trybie SINGLE BLOCK.
+ * Kolejne zatrzymania SINGLE BLOCK — jak na maszynie, po każdym bloku, także bez ruchu
+ * (M05, T1 M06, G54…). Blok z ruchem kończy się po swoim ostatnim odcinku (cykl G81 to jeden blok),
+ * blok bez ruchu ma długość zero: stoi w miejscu, w którym skończył się poprzedni ruch.
+ * Kolejność wg wykonania: odcinki prowadzą, linie bez ruchu między nimi wchodzą w kolejności programu.
+ * Po skoku wstecz (pętla, podprogram) linie bez ruchu z przeskoczonego fragmentu nie są powtarzane.
  */
-export function blockEnd(p: number, segments: Pick<Segment, "line">[], lengths: number[], marks = cumulative(lengths)): number {
-  if (!segments.length) return 0;
+export function blockStops(lines: { words: { letter: string }[] }[], segments: Pick<Segment, "line">[], marks: number[]): BlockStop[] {
+  const out: BlockStop[] = [];
+  let next = 0; // pierwsza linia programu jeszcze nie odwiedzona
+  const still = (upTo: number, at: number) => {
+    for (; next < upTo; next++) if (isExecutable(lines[next])) out.push({ line: next, at });
+  };
+  for (let i = 0; i < segments.length; i++) {
+    const line = segments[i].line;
+    if (line >= next) still(line, marks[i]);
+    const last = i + 1 >= segments.length || segments[i + 1].line !== line;
+    if (last) {
+      out.push({ line, at: marks[i + 1] });
+      if (line >= next) next = line + 1;
+    }
+  }
+  still(lines.length, marks[marks.length - 1] ?? 0);
+  return out;
+}
+
+/**
+ * Ostatni wykonany blok przy drodze `p` (−1 — nic jeszcze nie wykonano). Stojąc na końcu ruchu,
+ * za wykonany uznaje ten blok z ruchem, a bloki bez ruchu za nim — jako następne do wykonania.
+ */
+export function stopIndexAt(stops: BlockStop[], p: number): number {
+  if (p <= EPS || !stops.length) return -1;
   let i = 0;
-  while (i < segments.length && marks[i + 1] <= p + EPS) i++;
-  if (i >= segments.length) return marks[segments.length];
-  const line = segments[i].line;
-  while (i + 1 < segments.length && segments[i + 1].line === line) i++;
-  return marks[i + 1];
+  while (i < stops.length && stops[i].at < p - EPS) i++;
+  if (i >= stops.length) return stops.length - 1;
+  return stops[i].at <= p + EPS ? i : i - 1;
 }
 
 /**
@@ -143,7 +171,7 @@ export function fmtClock(s: number): string {
 export const MODE_LABEL: Record<RunMode, string> = { auto: "AUTO", single: "SINGLE BLOCK", dry: "DRY RUN" };
 export const MODE_TITLE: Record<RunMode, string> = {
   auto: "Praca automatyczna — program idzie do końca",
-  single: "Pojedynczy blok — zatrzymanie po każdym bloku, dalej przyciskiem CYCLE START",
+  single: "Pojedynczy blok — zatrzymanie po każdym bloku (także bez ruchu), dalej przyciskiem CYCLE START",
   dry: "Próba na sucho — wszystkie ruchy jednym, szybszym tempem zamiast F z programu",
 };
 export const MODES: RunMode[] = ["auto", "single", "dry"];
