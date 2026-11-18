@@ -2,17 +2,17 @@
    Etap 1: plik NIE jest importowany; globals.css bez zmian. Wartości = obecne wartości globals.css. */
 
 :root {
-  --bg: #F8FAFC;
+  --bg: #FAFAF9;
   --surface: #FFFFFF;
-  --surface-2: #F1F5F9;
-  --surface-3: #E9EEF5;
+  --surface-2: #F5F5F4;
+  --surface-3: #ECEAE7;
   --card: #FFFFFF;
-  --panel: #0F172A;
-  --panel-ink: #F8FAFC;
-  --ink: #0F172A;
-  --ink-2: #475569;
-  --muted: #5B6577;
-  --brand-ink: #0F172A;
+  --panel: #141518;
+  --panel-ink: #F5F5F4;
+  --ink: #1C1917;
+  --ink-2: #44403C;
+  --muted: #6B645E;
+  --brand-ink: #1C1917;
   --brand-accent: #F97316;
   --accent: #F97316;
   --accent-hover: #EA580C;
@@ -28,19 +28,19 @@
   --red: #EF4444;
   --blue: #38BDF8;
   --warn-bg: #FFF7ED;
-  --line: #E2E8F0;
-  --line-strong: #CBD5E1;
+  --line: #E7E5E4;
+  --line-strong: #D6D3D1;
   --path-g00: #F59E0B;
   --path-g01: #22C55E;
   --path-g02: #38BDF8;
-  --cm-comment: #5B6577;
+  --cm-comment: #6B645E;
   --cm-g: #B45309;
   --cm-m: #7C3AED;
-  --cm-n: #5B6577;
+  --cm-n: #6B645E;
   --cm-g00: #B45309;
   --cm-g01: #15803D;
   --cm-g02: #0369A1;
-  --cm-axis: #0F172A;
+  --cm-axis: #1C1917;
   --cm-ijk: #0E7490;
   --cm-fs: #15803D;
   --cm-t: #BE185D;
@@ -111,8 +111,8 @@
   --radius: 10px;
   --radius-lg: 14px;
   --radius-pill: 999px;
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, .06);
-  --shadow: 0 6px 20px rgba(15, 23, 42, .08);
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, .06);
+  --shadow: 0 6px 20px rgba(28, 25, 23, .08);
   --space-1: .25rem;
   --space-2: .3rem;
   --space-3: .4rem;
@@ -132,12 +132,12 @@
   --panel-ink: #F5F5F4;
   --ink: #F5F5F4;
   --ink-2: #C8C9CC;
-  --muted: #8B8D93;
+  --muted: #9A9CA3;
   --brand-ink: #F5F5F4;
   --accent: #F97316;
   --accent-hover: #FB923C;
   --accent-soft: #2B1C12;
-  --accent-ink: #F97316;
+  --accent-ink: #FB923C;
   --on-accent: #111214;
   --red-ink: #F87171;
   --green-ink: #22C55E;

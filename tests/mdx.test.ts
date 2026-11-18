@@ -85,7 +85,7 @@ describe("loader: fixture content/", () => {
   it("pola karty: auto-linki gołych kodów G/M (G02, G41 → Term; G17 bieżącej karty — tylko wyróżniony)", async () => {
     const c = await loadContent(FIX, { sources: liveSources });
     const out = await html(c.kody[0].fields.desc);
-    expect(out).toContain('<code class="inline-code is-link">G02</code>');
+    expect(out).toContain('<code class="inline-code is-link is-g02">G02</code>'); // słowo ruchu dostaje kolor (lib/motionClass)
     expect(out).toContain('<code class="inline-code is-link">G41</code>');
     expect(out).toContain('<code class="inline-code">G17</code>');
     expect(out).not.toContain('is-link">G17');

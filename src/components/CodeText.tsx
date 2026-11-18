@@ -1,4 +1,5 @@
 import Term from "./ui/Term";
+import { motionClass } from "@/lib/motionClass";
 import { gcodes } from "@/lib/gcodes";
 
 /*
@@ -19,8 +20,8 @@ function codes(s: string, self: Set<string>, key: { k: number }) {
   while ((m = re.exec(s))) {
     if (m.index > last) out.push(s.slice(last, m.index));
     const c = norm(m[1]);
-    if (self.has(c) || !KNOWN.has(c)) out.push(<code key={key.k++} className="inline-code">{m[1]}</code>);
-    else out.push(<Term key={key.k++} k={c}><code className="inline-code is-link">{m[1]}</code></Term>);
+    if (self.has(c) || !KNOWN.has(c)) out.push(<code key={key.k++} className={`inline-code${motionClass(m[1])}`}>{m[1]}</code>);
+    else out.push(<Term key={key.k++} k={c}><code className={`inline-code is-link${motionClass(m[1])}`}>{m[1]}</code></Term>);
     last = m.index + m[0].length;
   }
   if (last < s.length) out.push(s.slice(last));
@@ -36,7 +37,7 @@ export default function CodeText({ text, self = [] }: { text: string; self?: str
   while ((m = re.exec(text))) {
     if (m.index > last) out.push(...codes(text.slice(last, m.index), selfSet, key));
     if (m[1]) out.push(<strong key={key.k++}>{codes(m[1], selfSet, key)}</strong>);
-    else if (m[2]) out.push(<code key={key.k++} className="inline-code">{m[2]}</code>);
+    else if (m[2]) out.push(<code key={key.k++} className={`inline-code${motionClass(m[2])}`}>{m[2]}</code>);
     else out.push(<Term key={key.k++} k={m[3]}>{m[4] ?? m[3]}</Term>);
     last = m.index + m[0].length;
   }

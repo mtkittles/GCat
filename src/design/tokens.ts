@@ -40,28 +40,28 @@ const rule = (sel: string, prop: string): Src => ({ kind: "rule", sel, prop });
 
 export const colors: Group[] = [
   { id: "tlo", title: "Tło", tokens: [
-    { name: "--bg", value: "#F8FAFC", dark: "#111214", use: "tło strony (html), pola formularzy w symulatorze", src: V },
+    { name: "--bg", value: "#FAFAF9", dark: "#111214", use: "tło strony (html), pola formularzy w symulatorze", src: V },
   ] },
   { id: "powierzchnie", title: "Powierzchnie", tokens: [
     { name: "--surface", value: "#FFFFFF", dark: "#17181B", use: "paski, panele boczne", src: V },
-    { name: "--surface-2", value: "#F1F5F9", dark: "#202125", use: "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)", src: V },
-    { name: "--surface-3", value: "#E9EEF5", dark: "#292A2F", use: "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)", src: V },
+    { name: "--surface-2", value: "#F5F5F4", dark: "#202125", use: "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)", src: V },
+    { name: "--surface-3", value: "#ECEAE7", dark: "#292A2F", use: "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)", src: V },
     { name: "--card", value: "#FFFFFF", dark: "#1A1B1F", use: "karty, ramka rysunku (.fig), kod inline", src: V },
-    { name: "--panel", value: "#0F172A", dark: "#141518", use: "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach", src: V },
-    { name: "--panel-ink", value: "#F8FAFC", dark: "#F5F5F4", use: "tekst na panelu", src: V },
+    { name: "--panel", value: "#141518", dark: "#141518", use: "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach", src: V },
+    { name: "--panel-ink", value: "#F5F5F4", dark: "#F5F5F4", use: "tekst na panelu", src: V },
   ] },
   { id: "tekst", title: "Tekst", tokens: [
-    { name: "--ink", value: "#0F172A", dark: "#F5F5F4", use: "tekst główny; kontur detalu w rysunkach (.p-con)", src: V },
-    { name: "--ink-2", value: "#475569", dark: "#C8C9CC", use: "tekst drugorzędny, nawigacja; linie wymiarowe (.p-dim, .p-ext), napisy w rysunkach", src: V },
-    { name: "--muted", value: "#5B6577", dark: "#8B8D93", use: "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)", src: V },
-    { name: "--brand-ink", value: "#0F172A", dark: "#F5F5F4", use: "kolor znaku marki (logo, wordmark)", src: V },
+    { name: "--ink", value: "#1C1917", dark: "#F5F5F4", use: "tekst główny; kontur detalu w rysunkach (.p-con)", src: V },
+    { name: "--ink-2", value: "#44403C", dark: "#C8C9CC", use: "tekst drugorzędny, nawigacja; linie wymiarowe (.p-dim, .p-ext), napisy w rysunkach", src: V },
+    { name: "--muted", value: "#6B645E", dark: "#9A9CA3", use: "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)", src: V },
+    { name: "--brand-ink", value: "#1C1917", dark: "#F5F5F4", use: "kolor znaku marki (logo, wordmark)", src: V },
   ] },
   { id: "akcent", title: "Akcent", tokens: [
     { name: "--brand-accent", value: "#F97316", use: "pomarańcz marki", src: V },
     { name: "--accent", value: "#F97316", dark: "#F97316", use: "przyciski główne, aktywna zakładka, kod inline, parametr w rysunkach (.p-acc)", src: V },
     { name: "--accent-hover", value: "#EA580C", dark: "#FB923C", use: "akcent po najechaniu", src: V },
     { name: "--accent-soft", value: "#FFF7ED", dark: "#2B1C12", use: "tło etykiet akcentu (.fig-code, nazwa pliku)", src: V },
-    { name: "--accent-ink", value: "#C2410C", dark: "#F97316", use: "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #F97316", src: V },
+    { name: "--accent-ink", value: "#C2410C", dark: "#FB923C", use: "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #FB923C", src: V },
     { name: "--on-accent", value: "#111214", dark: "#111214", use: "tekst i ikony na tle akcentu (przyciski główne) — kontrast 6,7:1", src: V },
     { name: "--red-ink", value: "#B91C1C", dark: "#F87171", use: "czerwony jako kolor tekstu (błąd, kolizja)", src: V },
     { name: "--green-ink", value: "#15803D", dark: "#22C55E", use: "zielony jako kolor tekstu (G01, poprawnie)", src: V },
@@ -76,8 +76,8 @@ export const colors: Group[] = [
     { name: "--warn-bg", value: "#FFF7ED", dark: "#2A1A10", use: "tło ostrzeżeń", src: V },
   ] },
   { id: "linie", title: "Linie pomocnicze", tokens: [
-    { name: "--line", value: "#E2E8F0", dark: "#2A2B30", use: "obramowania, separatory; drobna siatka rysunków (.gr-min)", src: V },
-    { name: "--line-strong", value: "#CBD5E1", dark: "#3A3B41", use: "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)", src: V },
+    { name: "--line", value: "#E7E5E4", dark: "#2A2B30", use: "obramowania, separatory; drobna siatka rysunków (.gr-min)", src: V },
+    { name: "--line-strong", value: "#D6D3D1", dark: "#3A3B41", use: "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)", src: V },
   ] },
   { id: "tor", title: "Tor narzędzia (G00 / G01 / G02)", tokens: [
     { name: "--path-g00", value: "#F59E0B", use: "G00 — ruch szybki, linia przerywana (rysunki, legenda; w symulatorze osobno — patrz docs/tokeny.md)", src: { kind: "same", as: "--amber" } },
@@ -85,14 +85,14 @@ export const colors: Group[] = [
     { name: "--path-g02", value: "#38BDF8", use: "G02/G03 — łuk", src: { kind: "same", as: "--blue" } },
   ] },
   { id: "skladnia", title: "Składnia G-kodu (edytor)", tokens: [
-    { name: "--cm-comment", value: "#5B6577", dark: "#8B98AB", use: "komentarz ( … )", src: V },
+    { name: "--cm-comment", value: "#6B645E", dark: "#8B98AB", use: "komentarz ( … )", src: V },
     { name: "--cm-g", value: "#B45309", dark: "#FBBF24", use: "słowa G", src: V },
     { name: "--cm-m", value: "#7C3AED", dark: "#C4B5FD", use: "słowa M", src: V },
-    { name: "--cm-n", value: "#5B6577", dark: "#8B98AB", use: "numery bloków N", src: V },
+    { name: "--cm-n", value: "#6B645E", dark: "#8B98AB", use: "numery bloków N", src: V },
     { name: "--cm-g00", value: "#B45309", dark: "#F59E0B", use: "G00 w edytorze", src: V },
     { name: "--cm-g01", value: "#15803D", dark: "#4ADE80", use: "G01 w edytorze", src: V },
     { name: "--cm-g02", value: "#0369A1", dark: "#38BDF8", use: "G02/G03 w edytorze", src: V },
-    { name: "--cm-axis", value: "#0F172A", dark: "#E2E8F0", use: "adresy osi X Y Z", src: V },
+    { name: "--cm-axis", value: "#1C1917", dark: "#E2E8F0", use: "adresy osi X Y Z", src: V },
     { name: "--cm-ijk", value: "#0E7490", dark: "#67E8F9", use: "I J K R", src: V },
     { name: "--cm-fs", value: "#15803D", dark: "#86EFAC", use: "F i S", src: V },
     { name: "--cm-t", value: "#BE185D", dark: "#F9A8D4", use: "T, H, D", src: V },
@@ -204,8 +204,8 @@ export const shape: Group[] = [
     { name: "--radius-pill", value: "999px", use: "chipy, pigułki (używany wprost w regułach)", src: { kind: "usage", prop: "border-radius", min: 10 } },
   ] },
   { id: "cienie", title: "Cienie", tokens: [
-    { name: "--shadow-sm", value: "0 1px 2px rgba(15, 23, 42, .06)", dark: "0 1px 2px rgba(0, 0, 0, .5)", use: "lekkie uniesienie", src: V },
-    { name: "--shadow", value: "0 6px 20px rgba(15, 23, 42, .08)", dark: "0 10px 30px rgba(0, 0, 0, .55)", use: "karty pływające, menu", src: V },
+    { name: "--shadow-sm", value: "0 1px 2px rgba(28, 25, 23, .06)", dark: "0 1px 2px rgba(0, 0, 0, .5)", use: "lekkie uniesienie", src: V },
+    { name: "--shadow", value: "0 6px 20px rgba(28, 25, 23, .08)", dark: "0 10px 30px rgba(0, 0, 0, .55)", use: "karty pływające, menu", src: V },
   ] },
   { id: "odstepy", title: "Odstępy (najczęstsze wartości gap/padding w globals.css)", tokens: [
     { name: "--space-1", value: ".25rem", use: "gap ikon, drobne odstępy", src: { kind: "usage", prop: "gap", min: 10 } },

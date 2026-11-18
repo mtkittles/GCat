@@ -3,7 +3,7 @@
     "tlo": {
       "bg": {
         "$type": "color",
-        "$value": "#F8FAFC",
+        "$value": "#FAFAF9",
         "$extensions": {
           "gcat.dark": "#111214"
         },
@@ -21,7 +21,7 @@
       },
       "surface-2": {
         "$type": "color",
-        "$value": "#F1F5F9",
+        "$value": "#F5F5F4",
         "$extensions": {
           "gcat.dark": "#202125"
         },
@@ -29,7 +29,7 @@
       },
       "surface-3": {
         "$type": "color",
-        "$value": "#E9EEF5",
+        "$value": "#ECEAE7",
         "$extensions": {
           "gcat.dark": "#292A2F"
         },
@@ -45,7 +45,7 @@
       },
       "panel": {
         "$type": "color",
-        "$value": "#0F172A",
+        "$value": "#141518",
         "$extensions": {
           "gcat.dark": "#141518"
         },
@@ -53,7 +53,7 @@
       },
       "panel-ink": {
         "$type": "color",
-        "$value": "#F8FAFC",
+        "$value": "#F5F5F4",
         "$extensions": {
           "gcat.dark": "#F5F5F4"
         },
@@ -63,7 +63,7 @@
     "tekst": {
       "ink": {
         "$type": "color",
-        "$value": "#0F172A",
+        "$value": "#1C1917",
         "$extensions": {
           "gcat.dark": "#F5F5F4"
         },
@@ -71,7 +71,7 @@
       },
       "ink-2": {
         "$type": "color",
-        "$value": "#475569",
+        "$value": "#44403C",
         "$extensions": {
           "gcat.dark": "#C8C9CC"
         },
@@ -79,15 +79,15 @@
       },
       "muted": {
         "$type": "color",
-        "$value": "#5B6577",
+        "$value": "#6B645E",
         "$extensions": {
-          "gcat.dark": "#8B8D93"
+          "gcat.dark": "#9A9CA3"
         },
         "$description": "podpisy, legenda; osie i linie pomocnicze rysunków (.ax, .p-cons)"
       },
       "brand-ink": {
         "$type": "color",
-        "$value": "#0F172A",
+        "$value": "#1C1917",
         "$extensions": {
           "gcat.dark": "#F5F5F4"
         },
@@ -128,9 +128,9 @@
         "$type": "color",
         "$value": "#C2410C",
         "$extensions": {
-          "gcat.dark": "#F97316"
+          "gcat.dark": "#FB923C"
         },
-        "$description": "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #F97316"
+        "$description": "tekst w kolorze akcentu na jasnym tle (kontrast ≥ 4,5:1); na ciemnych panelach #FB923C"
       },
       "on-accent": {
         "$type": "color",
@@ -206,7 +206,7 @@
     "linie": {
       "line": {
         "$type": "color",
-        "$value": "#E2E8F0",
+        "$value": "#E7E5E4",
         "$extensions": {
           "gcat.dark": "#2A2B30"
         },
@@ -214,7 +214,7 @@
       },
       "line-strong": {
         "$type": "color",
-        "$value": "#CBD5E1",
+        "$value": "#D6D3D1",
         "$extensions": {
           "gcat.dark": "#3A3B41"
         },
@@ -241,7 +241,7 @@
     "skladnia": {
       "cm-comment": {
         "$type": "color",
-        "$value": "#5B6577",
+        "$value": "#6B645E",
         "$extensions": {
           "gcat.dark": "#8B98AB"
         },
@@ -265,7 +265,7 @@
       },
       "cm-n": {
         "$type": "color",
-        "$value": "#5B6577",
+        "$value": "#6B645E",
         "$extensions": {
           "gcat.dark": "#8B98AB"
         },
@@ -297,7 +297,7 @@
       },
       "cm-axis": {
         "$type": "color",
-        "$value": "#0F172A",
+        "$value": "#1C1917",
         "$extensions": {
           "gcat.dark": "#E2E8F0"
         },
@@ -692,7 +692,7 @@
     "cienie": {
       "shadow-sm": {
         "$type": "other",
-        "$value": "0 1px 2px rgba(15, 23, 42, .06)",
+        "$value": "0 1px 2px rgba(28, 25, 23, .06)",
         "$extensions": {
           "gcat.dark": "0 1px 2px rgba(0, 0, 0, .5)"
         },
@@ -700,7 +700,7 @@
       },
       "shadow": {
         "$type": "other",
-        "$value": "0 6px 20px rgba(15, 23, 42, .08)",
+        "$value": "0 6px 20px rgba(28, 25, 23, .08)",
         "$extensions": {
           "gcat.dark": "0 10px 30px rgba(0, 0, 0, .55)"
         },
