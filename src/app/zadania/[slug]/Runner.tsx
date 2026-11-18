@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import Simulator from "@/components/simulator/Simulator";
+import SplitHandle from "@/components/simulator/SplitHandle";
+import StatusLed from "@/components/tactile/StatusLed";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { checkExercise, type CheckResult } from "@/lib/checker";
 import type { Exercise } from "@/lib/content";
 import { exerciseTools } from "@/lib/programLibrary";
@@ -17,6 +20,8 @@ export default function Runner({ ex, children }: { ex: Exercise; children?: Reac
   const [res, setRes] = useState<CheckResult | null>(null);
   const [showRef, setShowRef] = useState(false);
   const [hintsShown, setHintsShown] = useState(0);
+  // telefon i tablet: zakładki Zadanie | Program (na komputerze obie kolumny naraz)
+  const [tab, setTab] = useState<"brief" | "shop">("brief");
 
   // wynik, podpowiedź i rozwiązanie pojawiają się pod przyciskami — przewijamy do nich kolumnę z treścią
   const tail = useRef<HTMLDivElement>(null);
@@ -28,14 +33,19 @@ export default function Runner({ ex, children }: { ex: Exercise; children?: Reac
     const r = checkExercise(src, { mode: ex.mode, reference: ex.reference, tolerance: ex.tolerance, requireCodes: ex.requireCodes, forbidCodes: ex.forbidCodes, maxCutLength: ex.maxCutLength });
     setRes(r);
     if (r.passed) markExerciseDone(ex.slug);
+    setTab("brief");
   };
 
   return (
-    <div className="task-grid">
+    <div className={`task-grid is-tab-${tab}`}>
+      <div className="task-tabs">
+        <TactileSegmentedControl<"brief" | "shop"> label="Widok zadania" value={tab} onChange={setTab} full size="sm"
+          options={[{ value: "brief", label: "Zadanie" }, { value: "shop", label: "Program i symulacja" }]} />
+      </div>
       <aside className="task-brief" aria-label="Treść zadania">
         {children}
         <div className="task-actions">
-          <button className="btn" onClick={run}>Sprawdź rozwiązanie</button>
+          <button className="btn" onClick={run}>Sprawdź program</button>
           {hintsShown < ex.hints.length && <button onClick={() => setHintsShown((n) => n + 1)}>Podpowiedź {hintsShown + 1}/{ex.hints.length}</button>}
           <button onClick={() => setShowRef((v) => !v)}>{showRef ? "Ukryj rozwiązanie" : "Rozwiązanie"}</button>
           <button onClick={() => { setSrc(ex.starter); setRes(null); }}>Od nowa</button>
@@ -44,7 +54,7 @@ export default function Runner({ ex, children }: { ex: Exercise; children?: Reac
         <div ref={tail} className="task-tail">
         {res && (
           <div className={`result ${res.passed ? "ok" : "bad"}`} role="status">
-            <div className="result-head">{res.passed ? "Zaliczone" : `Jeszcze nie — ${res.score}%`}</div>
+            <div className="result-head"><StatusLed state={res.passed ? "ready" : "warning"} pulse={false} />{res.passed ? "Zaliczone" : `Jeszcze nie — ${res.score}%`}</div>
             <ul>
               {res.checks.map((c, i) => (
                 <li key={i} className={c.ok ? "ok" : "bad"}>
@@ -70,6 +80,9 @@ export default function Runner({ ex, children }: { ex: Exercise; children?: Reac
         </div>
       </aside>
       <div className="task-shop">
+        {/* telefon / tablet: sprawdzenie bez przechodzenia do zakładki z treścią */}
+        <div className="task-shop-check"><button className="btn" onClick={run}>Sprawdź program</button>{res && <span className={`zx-state${res.passed ? " is-ok" : ""}`}><StatusLed state={res.passed ? "ready" : "warning"} pulse={false} />{res.passed ? "Zaliczone" : `${res.score}%`}</span>}</div>
+        <SplitHandle scope=".task-grid" first=":scope > .task-brief" cssVar="--brief-w" storageKey="gcat:task:briefw" min={260} maxFrac={0.5} label="Szerokość kolumny z treścią zadania" />
         <Simulator lesson source={src} onSourceChange={(v) => { setSrc(v); setRes(null); }} mode={ex.mode} stock={ex.stock} tools={tools} reference={ex.reference} />
       </div>
     </div>
