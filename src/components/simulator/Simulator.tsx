@@ -39,6 +39,11 @@ import { buildGeo, drawEnt, drawMeas, measOf, pickEnt, placeLin, radOf, type Ent
 export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
+import { carveRange } from "./carveRange";
+import SplitHandle from "./SplitHandle";
+import SimDro from "./SimDro";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
+import { useMedia } from "@/lib/ui/prefs";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -83,7 +88,7 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
   { id: "tools", label: "Narzędzia", d: "M14 4l6 6-9 9H5v-6zM12 6l6 6" },
   { id: "set", label: "Ustawienia", d: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" },
 ];
-const SPEEDS = [0.5, 1, 2, 4];
+const SPEEDS = [0.5, 1, 2, 5];
 /** Widok 2D bez powiększenia: punkt ekranu = punkt kadru · k + (tx, ty). */
 const Z0 = { k: 1, tx: 0, ty: 0 };
 const ZMIN = 0.5, ZMAX = 80;
@@ -123,6 +128,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [showStock, setShowStock] = useState(true);
   // tor narzędzia na podglądzie — przy gęstych programach z CAM zasłania powierzchnię detalu
   const [showPath, setShowPath] = useState(true);
+  // „2D + 3D” tylko tam, gdzie mieszczą się dwa podglądy obok siebie (jak dotąd .only-split od 1100 px)
+  const wideDesk = useMedia("(min-width: 1100px)");
+  // warstwy podglądu 2D (Etap 5): ruchy szybkie G00 i siatka współrzędnych
+  const [showRapid, setShowRapid] = useState(true);
+  const [showGrid, setShowGrid] = useState(true);
   // poza stroną symulatora (lekcje): opcja „klik w linię” bez zapisu w przeglądarce
   const [jumpLocal, setJumpLocal] = useState(false);
   const [fs, setFs] = useState(false);
@@ -130,6 +140,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [split, setSplit] = useState(false);
   const [sheet, setSheet] = useState(false);
   const linesRef = useRef<HTMLOListElement>(null);
+  const layerRef = useRef<HTMLCanvasElement | null>(null);
+  const layerState = useRef<{ key: string; segs: Segment[]; setup: Setup; program: ReturnType<typeof parseProgram>; progress: number } | null>(null);
+  const ghostRef = useRef<{ key: string; segs: Segment[]; canvas: HTMLCanvasElement } | null>(null);
   const holdRef = useRef(0);
   const editorRef = useRef<{ insert: (t: string) => void; goToLine: (n: number) => void } | null>(null);
   const [gotoN, setGotoN] = useState("");
@@ -222,7 +235,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [playing, setPlaying] = useState(!!autoplay && !showcase && autoStartOk(autoplay));
   // Po pierwszym ręcznym sterowaniu (start, pauza, krok, suwak) pokaz nie wznawia się sam.
   const manual = useRef(false);
-  const userPlay = (v: boolean | ((p: boolean) => boolean)) => { manual.current = true; setPlaying(v); };
+  const userPlay = useCallback((v: boolean | ((p: boolean) => boolean)) => { manual.current = true; setPlaying(v); }, []);
   // Kliknięcie w link (logo, menu, karta) zatrzymuje animację — inaczej ciągłe klatki
   // odkładały przejście na inną stronę aż do pauzy. Ukrycie karty przeglądarki też pauzuje.
   useEffect(() => {
@@ -319,6 +332,28 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (progress === 0 && segments.length) { pos = segments[0].from; active = segments[0].line; }
     return { activeLine: active as number | null, currentPos: pos };
   }, [segments, progress, lengths, total]);
+  // Listy bloków zmieniają się przy zmianie bloku, nie w każdej klatce animacji. Bez memo cała lista
+  // (setki <li>, kolorowanie składni) renderowała się przy każdej klatce odtwarzania.
+  const showcaseItems = useMemo(() => program.lines.filter((l) => l.raw.trim()).map((l) => (
+    <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
+      <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
+      <code>{highlight(l.raw.trim())}</code>
+    </li>
+  )), [program, activeLine]);
+  const simLineItems = useMemo(() => program.lines.map((l) => (
+    <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
+      onClick={() => {
+        if (!l.segments.length) return;
+        let acc = 0;
+        for (let i = 0; i < segments.length; i++) {
+          if (segments[i].line === l.index) { userPlay(false); setProgress(acc + 1e-3); return; }
+          acc += lengths[i];
+        }
+      }}>
+      <code>{l.raw || " "}</code>
+      <span>{l.errors.length ? l.errors.join(" ") : l.description}</span>
+    </li>
+  )), [program, activeLine, segments, lengths, userPlay]);
   /** Zero aktywnego układu programu w maszynie (G54–G59/G54.1 + G52 + G92 + TRANS); null, gdy pokrywa się z początkiem kanwy. */
   const zeroMark = useMemo<Vec3 | null>(() => {
     const s0 = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
@@ -387,7 +422,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
     if (W < 8 || H < 8) return;   // kontener jeszcze bez wymiarów
-    cv.width = W * dpr; cv.height = H * dpr; ctx.scale(dpr, dpr);
+    // Nowy rozmiar bufora tylko przy zmianie wymiarów; w kolejnych klatkach reset stanu i czyszczenie
+    // bez ponownej alokacji (przypisanie width w każdej klatce tworzyło bufor od nowa).
+    const reset = (ctx as CanvasRenderingContext2D & { reset?: () => void }).reset;
+    if (cv.width !== Math.floor(W * dpr) || cv.height !== Math.floor(H * dpr) || typeof reset !== "function") { cv.width = W * dpr; cv.height = H * dpr; }
+    else reset.call(ctx);
+    ctx.scale(dpr, dpr);
 
     // Walec na 4. osi: zamiast rzutu z góry — rozwinięcie płaszcza (X × kąt detalu).
     if (isCyl(setup, mode)) {
@@ -427,26 +467,29 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const vis = { h0: -ox / scale, h1: (W - ox) / scale, v0: (oy - H) / scale, v1: oy / scale };
     const step = niceStep(Math.max(spanH, spanV) / zv.k / 8);
     const minor = step / 5;
-    if (minor * scale > 4) {
+    if (showGrid && minor * scale > 4) {
       ctx.save();
       ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
+      // jedna ścieżka na całą podziałkę zamiast stroke() na każdą linię; jedyna różnica: przecięcia nie ciemnieją (krycie 0,09)
+      ctx.beginPath();
       for (let v = Math.floor(vis.h0 / minor) * minor; v <= vis.h1 + minor; v += minor) {
         const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        ctx.moveTo(x, 0); ctx.lineTo(x, H);
       }
       for (let v = Math.floor(vis.v0 / minor) * minor; v <= vis.v1 + minor; v += minor) {
         const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        ctx.moveTo(0, y); ctx.lineTo(W, y);
       }
+      ctx.stroke();
       ctx.restore();
     }
     ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
-    for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
+    if (showGrid) for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
       const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), x + 2, H - 4);
     }
-    for (let v = Math.floor(vis.v0 / step) * step; v <= vis.v1 + step; v += step) {
+    if (showGrid) for (let v = Math.floor(vis.v0 / step) * step; v <= vis.v1 + step; v += step) {
       const [, y] = P({ x: 0, y: 0, z: 0, [va]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
       if (!compact) ctx.fillText(String(round(v)), 4, y - 2);
@@ -556,32 +599,45 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (showStock && mode === "mill" && !isLatheTool(activeTool.kind) && !compact && !isCyl(setup, mode) && !multi) {
       const boxes = stockBoxes(program, segments, setup);
       if (boxes.length) {
-        const layer = document.createElement("canvas");
-        layer.width = cv.width; layer.height = cv.height;
+        // Warstwa materiału: jedna kanwa na komponent, wycinana przyrostowo. W kolejnej klatce odtwarzania
+        // dochodzi tylko ślad od poprzedniego postępu do bieżącego (wycięcie jest nieodwracalne i powtórne
+        // wycięcie tego samego miejsca nic nie zmienia). Od zera — przy zmianie programu, ustawień, kadru,
+        // rozmiaru albo cofnięciu postępu. Wcześniej: nowa kanwa i cały ślad od początku w każdej klatce.
+        const layer = layerRef.current ?? (layerRef.current = document.createElement("canvas"));
         const lx = layer.getContext("2d");
         if (lx) {
-          lx.scale(dpr, dpr);
           const rects = boxes.map((box) => { const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 }); const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 }); return [Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0)] as const; });
-          lx.fillStyle = "rgba(148,163,184,0.20)";
-          for (const r of rects) lx.fillRect(...r);
+          const lkey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${mode}|${rects.map((r) => r.join(",")).join(";")}`;
+          const prev = layerState.current;
+          const fresh = !prev || prev.key !== lkey || prev.segs !== segments || prev.setup !== setup || prev.program !== program || progress < prev.progress
+            || layer.width !== cv.width || layer.height !== cv.height;
+          const from = fresh ? 0 : prev.progress;
+          if (fresh) {
+            if (layer.width !== cv.width || layer.height !== cv.height) { layer.width = cv.width; layer.height = cv.height; }
+            else { lx.setTransform(1, 0, 0, 1, 0, 0); lx.globalCompositeOperation = "source-over"; lx.clearRect(0, 0, layer.width, layer.height); }
+            lx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            lx.globalCompositeOperation = "source-over";
+            lx.fillStyle = "rgba(148,163,184,0.20)";
+            for (const r of rects) lx.fillRect(...r);
+          }
 
-          // wycięcie śladu narzędzia
+          // wycięcie śladu narzędzia (od `from` do `progress`)
+          lx.setTransform(dpr, 0, 0, dpr, 0, 0);
           lx.globalCompositeOperation = "destination-out";
           lx.lineCap = "round"; lx.lineJoin = "round"; lx.strokeStyle = "#000";
-          let accS = 0;
-          segments.forEach((sg, i) => {
-            const len = lengths[i];
-            const done = Math.min(1, Math.max(0, (progress - accS) / (len || 1)));
-            accS += len;
-            if (sg.kind === "rapid" || done <= 0) return;
+          for (const { i, d0, d1 } of carveRange(lengths, from, progress)) {
+            const sg = segments[i];
+            if (sg.kind === "rapid") continue;
             const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
             lx.lineWidth = Math.max(1.5, cuttingRadius(tl) * 2 * scale);
             lx.beginPath();
-            const n = sg.kind === "arc" ? 40 : 1;
-            const [sx, sy] = P(sg.from); lx.moveTo(sx, sy);
-            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, (k / n) * done)); lx.lineTo(x, y); }
+            // od początku odcinka — jak dotąd (40 kroków na łuk); dokładany kawałek — proporcjonalnie mniej
+            const n = sg.kind === "arc" ? (d0 === 0 ? 40 : Math.max(1, Math.ceil(40 * (d1 - d0)))) : 1;
+            const [sx, sy] = d0 === 0 ? P(sg.from) : P(pointAt(sg, d0)); lx.moveTo(sx, sy);
+            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, d0 + (k / n) * (d1 - d0))); lx.lineTo(x, y); }
             lx.stroke();
-          });
+          }
+          layerState.current = { key: lkey, segs: segments, setup, program, progress };
 
           ctx.drawImage(layer, 0, 0, W, H);
 
@@ -686,14 +742,32 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // gęsty program (z CAM): tor przygaszony, żeby było widać materiał
     const dense = segments.length > 2500;
     let acc = 0;
-    if (showPath) segments.forEach((sg, i) => {
-      const len = lengths[i];
-      const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
-      if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-      drawSeg(ctx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
-      if (done > 0) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
-      acc += len;
-    });
+    if (showPath) {
+      // Przygaszony cały tor nie zmienia się w trakcie odtwarzania: rysujemy go raz na osobną kanwę
+      // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru.
+      // (Wcześniej przygaszony i przebyty odcinek rysowały się na przemian, odcinek po odcinku — teraz
+      // przebyte idą nad całym torem; różnica tylko na skrzyżowaniach toru.)
+      const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}|${showRapid}`;
+      let g = ghostRef.current;
+      if (!g || g.key !== ghostKey || g.segs !== segments) {
+        const c = g?.canvas ?? document.createElement("canvas");
+        c.width = cv.width; c.height = cv.height;
+        const gx = c.getContext("2d");
+        if (gx) {
+          gx.scale(dpr, dpr);
+          for (const sg of segments) if (sg.kind !== "dwell" && (showRapid || sg.kind !== "rapid")) drawSeg(gx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
+        }
+        g = ghostRef.current = { key: ghostKey, segs: segments, canvas: c };
+      }
+      ctx.drawImage(g.canvas, 0, 0, W, H);
+      segments.forEach((sg, i) => {
+        const len = lengths[i];
+        const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
+        if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
+        if (done > 0 && (showRapid || sg.kind !== "rapid")) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
+        acc += len;
+      });
+    }
 
     // zakres obróbki (bounding box ruchów roboczych)
     if (cut.length && !bare) {
@@ -837,7 +911,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, zoom, meas, picks, placing, pending, hover, measure, mTool]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -1014,11 +1088,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // szerokości po lewej, konsola programu jedną trzecią po prawej.
   // Fragmenty współdzielone przez układ zwykły i pełnoekranowy.
   const viewSwitch = (
-    <div className="segmented" role="tablist" aria-label="Widok">
-      <button role="tab" aria-selected={view === "2d"} onClick={() => setView("2d")} title={isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : undefined}>{mode === "lathe" ? "ZX" : isCyl(setup, mode) ? <><span className="lbl-long">Rozwinięcie</span><span className="lbl-short">XA</span></> : "XY"}</button>
-      <button role="tab" aria-selected={view === "3d"} onClick={() => setView("3d")}>3D</button>
-      {appLayout && <button role="tab" className="only-split" aria-selected={view === "split"} onClick={() => setView("split")} title="Podgląd 2D i 3D obok siebie">2D + 3D</button>}
-    </div>
+    <TactileSegmentedControl<SimView> label="Widok" size="sm" className="view-seg" value={view} onChange={setView}
+      options={[
+        { value: "2d", label: mode === "lathe" ? "ZX" : isCyl(setup, mode) ? <><span className="lbl-long">Rozwinięcie</span><span className="lbl-short">XA</span></> : "XY", title: isCyl(setup, mode) ? "Rozwinięcie płaszcza walca: X × kąt detalu" : "Widok 2D" },
+        { value: "3d", label: "3D", title: "Widok 3D" },
+        ...(appLayout && wideDesk ? [{ value: "split" as const, label: "2D + 3D", title: "Podgląd 2D i 3D obok siebie" }] : []),
+      ]} />
   );
   // Menu układu (komputer): co pokazywać na stanowisku symulatora.
   const layoutMenu = appLayout && (
@@ -1062,8 +1137,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </button>
       <button type="button" className="speed-chip" aria-label="Prędkość symulacji"
         onClick={() => setSpeed((v) => SPEEDS[(SPEEDS.indexOf(v) + 1) % SPEEDS.length] ?? 1)}>
-        {Math.round(speed * 100)}%
+        {String(speed).replace(".", ",")}×
       </button>
+      {/* komputer: prędkość jako przełącznik pulpitu (0,5× · 1× · 2× · 5×) */}
+      <TactileSegmentedControl<string> label="Prędkość symulacji" size="sm" className="speed-seg" value={String(speed)} onChange={(v) => setSpeed(Number(v))}
+        options={SPEEDS.map((v) => ({ value: String(v), label: `${String(v).replace(".", ",")}×`, led: false }))} />
       <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
         onChange={(e) => { userPlay(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
     </div>
@@ -1075,7 +1153,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       <div className="vh-line"><b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b><code>{activeLineText?.raw.trim() || "koniec programu"}</code></div>
       <table>
         <tbody>
-          <tr><th>X</th><td>{fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td>{fmt(currentPos.y)}</td></>}<th>Z</th><td>{fmt(currentPos.z)}</td></tr>
+          <tr><th>X</th><td><SimDro v={mode === "lathe" ? currentPos.x * 2 : currentPos.x} live={playing} />{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td><SimDro v={currentPos.y} live={playing} /></td></>}<th>Z</th><td><SimDro v={currentPos.z} live={playing} /></td></tr>
           <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
           {st?.rotary && <tr>{(["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <Fragment key={k}><th>{k.toUpperCase()}</th><td>{fmt(st.rotary![k]!)}°</td></Fragment>)}</tr>}
           {offsetActive && <tr className="vh-prog"><th title="Współrzędne w układzie programu (wiersz wyżej: maszyna)">prog</th><td>{fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}</td>{mode === "mill" && <><th /><td>{fmt(progPos.y)}</td></>}<th /><td>{fmt(progPos.z)}</td></tr>}
@@ -1140,12 +1218,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <div className="showcase-code">
           <div className="codecard-head"><span className="codecard-dot" />Symulacja programu</div>
           <ol className="showcase-lines" ref={linesRef} tabIndex={0} aria-label="Program">
-            {program.lines.filter((l) => l.raw.trim()).map((l) => (
-              <li key={l.index} className={l.index === activeLine ? "is-active" : ""}>
-                <span className="ln">{String(l.index + 1).padStart(2, "0")}</span>
-                <code>{highlight(l.raw.trim())}</code>
-              </li>
-            ))}
+            {showcaseItems}
           </ol>
           <div className="showcase-state">
             <span>X {fmt(currentPos.x)}</span><span>Y {fmt(currentPos.y)}</span><span>Z {fmt(currentPos.z)}</span>
@@ -1160,26 +1233,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   const simLines = (
           <ol tabIndex={0} aria-label="Opis bloków programu" className={`sim-lines${appLayout && !layout.lines ? " is-desk-hidden" : ""}`}>
-            {program.lines.map((l) => (
-              <li key={l.index} className={`${l.index === activeLine ? "is-active" : ""} ${l.errors.length ? "has-error" : ""} ${l.segments.length ? "is-clickable" : ""}`}
-                onClick={() => {
-                  if (!l.segments.length) return;
-                  let acc = 0;
-                  for (let i = 0; i < segments.length; i++) {
-                    if (segments[i].line === l.index) { userPlay(false); setProgress(acc + 1e-3); return; }
-                    acc += lengths[i];
-                  }
-                }}>
-                <code>{l.raw || " "}</code>
-                <span>{l.errors.length ? l.errors.join(" ") : l.description}</span>
-              </li>
-            ))}
+            {simLineItems}
           </ol>
   );
   const viewExtras = (
     <>
               {layoutMenu}
-              <button className="vb-desk" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
+              <button className="vb-desk vb-layer is-g00" aria-pressed={showRapid} onClick={() => setShowRapid((v) => !v)} title="Ruchy szybkie G00 na podglądzie 2D" aria-label="Ruchy szybkie G00">
+                <span className="vb-tx"><b>G00</b></span>
+              </button>
+              <button className="vb-desk vb-layer" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Siatka współrzędnych na podglądzie 2D" aria-label="Siatka">
+                <span className="vb-tx">Siatka</span>
+              </button>
+              <button className="vb-desk vb-layer" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
               </button>
               <label className="units">
@@ -1312,6 +1378,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
       )}
       <div className="flex flex-col gap-2 wb-main">
+        {appLayout && !compact && <SplitHandle />}
         {!compact && allow3d && (
             <div className="viewbar m-sim">
               {viewSwitch}
@@ -1348,7 +1415,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         {transportBar}
         <label className="speed">
           Prędkość
-          <input type="range" min={0.25} max={4} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
+          <input type="range" min={0.25} max={5} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
         </label>
         {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && (
@@ -1406,7 +1473,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <div className="m-set-row">
               <span>Prędkość symulacji</span>
               <div className="segmented m-seg" role="tablist" aria-label="Prędkość symulacji">
-                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{v * 100}%</button>)}
+                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{String(v).replace(".", ",")}×</button>)}
               </div>
             </div>
             <div className="m-set-row m-set-exp">

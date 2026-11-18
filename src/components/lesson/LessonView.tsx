@@ -4,10 +4,7 @@ import Article from "@/components/Article";
 import { rich } from "@/components/Rich";
 import { diagrams } from "@/components/diagrams";
 import LessonPager from "@/components/LessonPager";
-import TocDrawer from "@/components/TocDrawer";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
-import Chip from "@/components/ui/Chip";
-import PageBanner from "@/components/ui/PageBanner";
 import { buildup } from "@/content/nauka/buildup";
 import { flat, lessonDoc, lessonHref, orderOf, tracks, type Track } from "@/lib/course";
 import Buildup, { type ShownLine } from "./Buildup";
@@ -22,6 +19,7 @@ import CssWidget from "./CssWidget";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 import { LessonNav, LessonRail, LessonStatus } from "./LessonSide";
+import LessonSheet from "./LessonSheet";
 
 function Sec({ id, n, title, children }: { id: string; n?: number; title: string; children: ReactNode }) {
   return (
@@ -85,8 +83,10 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
   return (
     <article className="ls">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { href: `/nauka/${track}`, label: T.title }, { label: doc.id }]} />
-      <PageBanner src={T.banner} kicker={`${doc.id}  ·  ${plan.module.id} ${plan.module.title}`} title={doc.title}
-        meta={<><Chip>{doc.minutes} min</Chip><Chip tone="info">{T.title.toLowerCase()}</Chip></>} size="slim" priority />
+      <header className="ph lh">
+        <span className="ph-k"><b>{doc.id}</b> · {plan.module.id} {plan.module.title} · {T.title} · {doc.minutes} min</span>
+        <h1 className="ph-title">{doc.title}</h1>
+      </header>
 
       <div className="ls-layout">
       <aside className="ls-left">
@@ -102,7 +102,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
           : T.profile}</p>
       </section>
 
-      <Sec id="teoria" n={++n} title="Teoria"><Article blocks={doc.theory} /></Sec>
+      <Sec id="teoria" n={++n} title="Teoria"><Article blocks={doc.theory} mode={T.mode} dialect={native ? "sinumerik" : "fanuc"} /></Sec>
 
       <Sec id="przyklad" n={++n} title="Przykład">
         <h3 className="ls-sub">{doc.worked.title}</h3>
@@ -202,7 +202,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
           prev={prevLink} next={nextLink} />
       </div>
       </div>
-      <div className="ls-drawer"><TocDrawer items={toc} title={doc.id} /></div>
+      <div className="ls-drawer"><LessonSheet toc={toc} track={track} moduleLabel={`${plan.module.id} ${plan.module.title}`} lessons={modLessons} currentId={doc.id} /></div>
     </article>
   );
 }

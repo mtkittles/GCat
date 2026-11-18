@@ -7,7 +7,15 @@ import Simulator, { type Dialect, type SimMode } from "@/components/simulator/Si
 import { PROGRAMS, programBySlug } from "@/content/programy";
 import { simTools, type LibProgram } from "@/lib/programLibrary";
 import type { Tool } from "@/components/simulator/setup";
-import { readSimLink } from "@/lib/simLink";
+import { readSimLink, simHref, SIM_LINK_MAX } from "@/lib/simLink";
+import { toast } from "sonner";
+import { Copy, Link2 } from "lucide-react";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
+
+async function copyText(text: string, ok: string) {
+  try { await navigator.clipboard.writeText(text); toast.success(ok); }
+  catch { toast.error("Przeglądarka nie pozwoliła skopiować — zaznacz tekst ręcznie."); }
+}
 
 /** znacznik czasu zapisu zakładki — poza komponentem, wywoływany tylko w obsłudze kliknięcia */
 function stamp() { return Date.now(); }
@@ -163,6 +171,14 @@ export default function SimPage() {
       <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
     </>
   );
+  // link z programem w adresie — ten sam zapis co „Otwórz w symulatorze” z kart (src/lib/simLink.ts)
+  const share = () => {
+    if (src.length > SIM_LINK_MAX) { toast.error("Program jest za długi na link — skopiuj kod."); return; }
+    const full = stock && (["x", "y", "z", "ox", "oy", "oz"] as const).every((k) => typeof stock[k] === "number")
+      ? (stock as { x: number; y: number; z: number; ox: number; oy: number; oz: number }) : undefined;
+    copyText(window.location.origin + simHref({ src, mode, stock: full, dialect, name }), "Skopiowano link do programu");
+  };
+
   return (
     <div className="grid gap-4 sim-page">
       <PageBanner src="/img/banner-simulator.jpg" kicker="Narzędzie" title="Symulator"
@@ -177,13 +193,13 @@ export default function SimPage() {
       <div className="sim-bar">
         <span className="sim-bar-title">Symulator</span>
         <label className="sim-bar-prog">{progSelect}</label>
-        <div className="seg2" role="group" aria-label="Maszyna">
-          <button aria-pressed={mode === "mill"} onClick={() => setMode("mill")}>Frezarka</button>
-          <button aria-pressed={mode === "lathe"} onClick={() => setMode("lathe")}>Tokarka</button>
-        </div>
-        <div className="seg2" role="group" aria-label="Sterownik">
-          <button aria-pressed={dialect === "fanuc"} onClick={() => setDialect("fanuc")}>Fanuc</button>
-          <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
+        <TactileSegmentedControl<SimMode> label="Maszyna" size="sm" value={mode} onChange={setMode}
+          options={[{ value: "mill", label: "Frezowanie (XYZ)" }, { value: "lathe", label: "Toczenie (XZ)" }]} />
+        <TactileSegmentedControl<Dialect> label="Sterownik walidatora" size="sm" value={dialect} onChange={setDialect}
+          options={[{ value: "fanuc", label: "Fanuc" }, { value: "sinumerik", label: "Sinumerik" }]} />
+        <div className="sim-acts">
+          <button type="button" className="cd-copy" onClick={() => copyText(src, "Skopiowano kod programu")}><Copy aria-hidden /> Kopiuj kod</button>
+          <button type="button" className="cd-copy" onClick={share} title="Link z programem w adresie (?kod=…)"><Link2 aria-hidden /> Udostępnij link</button>
         </div>
         <div className="sim-bar-tabs">{programTabs}</div>
         {cur && <span className="sim-bar-meta">{cur.level} · {Object.keys(cur.tools).length} narz.{cur.lesson ? <> · <Link href={cur.lesson.href}>{cur.lesson.label}</Link></> : null}</span>}
@@ -195,6 +211,10 @@ export default function SimPage() {
         settingsExtra={<>
           <div className="m-set-row"><span>Obróbka</span><div className="filters">{modeButtons}</div></div>
           <div className="m-set-row"><span>Sterownik</span><div className="filters">{dialectButtons}</div></div>
+          <div className="m-set-row"><span>Program</span><div className="sim-acts">
+            <button type="button" className="cd-copy" onClick={() => copyText(src, "Skopiowano kod programu")}><Copy aria-hidden /> Kopiuj kod</button>
+            <button type="button" className="cd-copy" onClick={share}><Link2 aria-hidden /> Udostępnij link</button>
+          </div></div>
         </>} />
       <div className="legend sim-legend"><span><i style={{ background: "var(--amber)" }} />G00</span><span><i style={{ background: "var(--green)" }} />G01</span><span><i style={{ background: "var(--blue)" }} />G02/G03</span></div>
     </div>

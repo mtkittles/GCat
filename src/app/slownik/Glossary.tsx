@@ -10,6 +10,9 @@ import { rysBySlug } from "@/components/rys/registry";
 import type { RysFigure } from "@/lib/rys/model";
 import { sources } from "@/content/nauka/sources";
 import { DIGITS, groupOf, hasla } from "@/lib/glossaryIndex";
+import Term from "@/components/ui/Term";
+import NumberFlow from "@number-flow/react";
+import { Search, X } from "lucide-react";
 
 export type LessonLink = { id: string; title: string; href: string };
 
@@ -78,7 +81,8 @@ export function Card({ e, lessons, edit, figure = rysBySlug }: { e: GlossaryEntr
               <div><dt>W lekcjach</dt><dd>{lessons.map((l) => <Link key={l.href} href={l.href} title={l.title} className="gl-chip">{l.id}</Link>)}</dd></div>
             )}
             {codes.length > 0 && (
-              <div><dt>Karty kodów</dt><dd>{codes.map((g) => <Link key={g.slug} href={`/kody/${g.slug}`} className="gl-chip is-code">{g.code}</Link>)}</dd></div>
+              // „Code Peek”: kliknięcie pokazuje skróconą składnię Fanuc i Sinumerik, w dymku link do pełnej karty
+              <div><dt>Karty kodów</dt><dd>{codes.map((g) => <span key={g.slug} className="gl-peek"><Term k={g.slug}>{g.code}</Term></span>)}</dd></div>
             )}
             {e.sources?.length ? (
               <div><dt>Źródło</dt><dd className="gl-src">{e.sources.map((r, i) => {
@@ -152,17 +156,23 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
   return (
     <div className="gl-page">
-      <header className="gl-top">
-        <div>
-          <h1>Słownik</h1>
-          <p>Pojęcia z lekcji i z hali, wyjaśnione krótko.</p>
-        </div>
-        <div className="gl-search">
+      <header className="ph">
+        <span className="ph-k">Słownik CNC · {hasla(SORTED.length)}</span>
+        <h1 className="ph-title">Słownik</h1>
+        <p className="ph-lead">Pojęcia z lekcji i z hali, wyjaśnione krótko — ze wzorami, rysunkami i odnośnikami do kart kodów.</p>
+      </header>
+
+      {/* wyszukiwarka i indeks liter przyklejone razem pod paskiem strony */}
+      <div className="gl-sticky">
+      <div className="gl-bar">
+        <label className="kc-search">
+          <Search aria-hidden />
           <input type="text" inputMode="search" aria-label="Szukaj w słowniku" placeholder="Szukaj: pocienianie, naddatek, ap…" value={q}
             onChange={(e) => { setQ(e.target.value); if (letter) writeHash(""); /* szukanie obejmuje cały słownik; literą można potem zawęzić wyniki */ }} />
-          {q && <button type="button" aria-label="Wyczyść wyszukiwanie" onClick={() => setQ("")}>×</button>}
-        </div>
-      </header>
+          {q && <button type="button" className="kc-clear" aria-label="Wyczyść wyszukiwanie" onClick={() => setQ("")}><X aria-hidden /></button>}
+        </label>
+        <span className="kc-count" aria-hidden><NumberFlow value={shown.length} /><small>/{SORTED.length}</small></span>
+      </div>
 
       <nav className="gl-letters" aria-label="Filtr liter" ref={navRef}>
         <button type="button" className="gl-all" aria-pressed={!letter} onClick={() => pick("")}>Wszystkie</button>
@@ -170,6 +180,7 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
           <button key={L} type="button" aria-pressed={letter === L} disabled={!counts[L]} title={counts[L] ? hasla(counts[L]) : "Brak haseł w wynikach"} onClick={() => pick(letter === L ? "" : L)}>{L}</button>
         ))}
       </nav>
+      </div>
 
       <div className="gl-list" ref={listRef}>
         {/* przy samym filtrze litery liczbę haseł pokazuje nagłówek litery; komunikat zostaje dla czytników ekranu */}

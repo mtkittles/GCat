@@ -141,6 +141,8 @@ export default function GcodeEditor({ value, onChange, activeLine, follow = fals
               if (!u.docChanged && u.transactions.some((t) => t.isUserEvent("select.pointer"))) lineClick.current?.(line.number - 1);
             }
           }),
+          // etykieta pola dla czytników ekranu (axe: aria-input-field-name, znane od audytu kart cz. 2)
+          EditorView.contentAttributes.of({ "aria-label": "Program G-kodu" }),
           EditorView.theme({ "&": { fontSize: "13px" }, ".cm-content": { fontFamily: "var(--font-mono)" }, ".cm-gutters": { background: "transparent", border: "none" } }),
         ],
       }),

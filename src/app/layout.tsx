@@ -2,12 +2,21 @@ import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
-import AppHeader from "@/components/AppHeader";
-import BottomNav from "@/components/BottomNav";
+import AppToaster from "@/components/shell/AppToaster";
+import SmoothScroll from "@/components/shell/SmoothScroll";
+import AppSidebar from "@/components/shell/AppSidebar";
+import AppTopbar from "@/components/shell/AppTopbar";
+import MobileDock from "@/components/shell/MobileDock";
+import CommandPalette, { type PaletteProgram } from "@/components/shell/CommandPalette";
+import type { MeterLesson } from "@/components/shell/LearnMeter";
+import { flat } from "@/lib/course";
+import { PROGRAMS } from "@/content/programy";
+import { PREFS_SCRIPT } from "@/lib/ui/prefs";
 import { AdminFooterLink } from "@/components/edycja/AdminGate";
 import { EditBar } from "@/components/edycja/EditMode";
 import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
+import "./tactile.css";
 
 // Czcionki z repozytorium (src/app/fonts, licencja OFL): build nie pobiera nic z Google Fonts.
 // Pliki zmienne (oś wght), podzbiór latin + latin-ext; zakres wag jak w nazwach poniżej. Nazwy zmiennych jak w globals.css.
@@ -30,35 +39,51 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+/* Dane powłoki liczone przy budowie: lista lekcji do wskaźnika postępu i programy do palety Ctrl+K. */
+const METER: MeterLesson[] = (["frezowanie", "toczenie"] as const).flatMap((t) => flat(t).filter((l) => l.doc).map((l) => ({ track: t, id: l.id })));
+const PALETTE_PROGRAMS: PaletteProgram[] = PROGRAMS.map((p) => ({
+  title: p.title, href: `/programy/${p.slug}`,
+  sub: `${p.mode === "mill" ? "frezowanie" : "toczenie"} · ${p.category}`,
+  keys: [p.category, ...p.features].join(" "),
+}));
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
-      <body className="min-h-screen flex flex-col">
-        {/* Zapisany motyw ustawiamy przed malowaniem treści, żeby jasny motyw nie migał na ciemno. Domyślnie ciemny. */}
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t}catch(e){}` }} />
-        <AppHeader />
+    <html lang="pl" data-theme="dark" data-scroll-behavior="smooth" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
+      <body className="min-h-screen">
+        {/* Motyw, panel boczny i dźwięk pulpitu ustawiamy przed malowaniem treści (src/lib/ui/prefs.ts). Domyślnie ciemny. */}
+        <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
+        <AppSidebar lessons={METER} />
 
-        <main className="wrap flex-1 py-7 w-full">{children}</main>
+        <div className="app-main">
+          <div className="app-inset">
+            <AppTopbar />
+            <main className="wrap flex-1 py-7 w-full">{children}</main>
 
-        <footer className="site-footer">
-          <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-            <BrandLogo height={56} variant="lockup" />
-            <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
-            <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
+            <footer className="site-footer">
+              <div className="wrap py-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <BrandLogo height={44} variant="lockup" />
+                <span className="footer-tag ml-auto">CNC · Edukacja · Symulacja · Praktyka</span>
+                <span className="footer-ver" title="Wersja strony (commit)">v {(process.env.VERCEL_GIT_COMMIT_SHA ?? "dev").slice(0, 7)}</span>
+              </div>
+              <nav className="wrap pb-3 text-sm flex flex-wrap gap-x-5 gap-y-2" aria-label="Informacje prawne">
+                <Link href="/regulamin" className="text-muted">Regulamin</Link>
+                <Link href="/polityka-prywatnosci" className="text-muted">Polityka prywatności</Link>
+                <Link href="/konto" className="text-muted">Konto</Link>
+                <AdminFooterLink />
+              </nav>
+              <div className="wrap pb-6 text-sm text-muted max-w-prose">
+                Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.
+              </div>
+            </footer>
           </div>
-          <nav className="wrap pb-3 text-sm flex flex-wrap gap-x-5 gap-y-2" aria-label="Informacje prawne">
-            <Link href="/regulamin" className="text-muted">Regulamin</Link>
-            <Link href="/polityka-prywatnosci" className="text-muted">Polityka prywatności</Link>
-            <Link href="/konto" className="text-muted">Konto</Link>
-            <AdminFooterLink />
-          </nav>
-          <div className="wrap pb-6 text-sm text-muted max-w-prose">
-            Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.
-          </div>
-        </footer>
+        </div>
 
-        <BottomNav />
+        <MobileDock />
         <EditBar />
+        <CommandPalette programs={PALETTE_PROGRAMS} />
+        <AppToaster />
+        <SmoothScroll />
       </body>
     </html>
   );

@@ -29,16 +29,16 @@ function lessonLinks(ids: string[] = []) {
 }
 
 const num = (n: number) => String(n).replace(".", ",");
-/** Dane zadania z pól `stock` i `tools` — to samo, co dostaje symulator. */
-function taskData(e: Exercise): [string, string][] {
-  const rows: [string, string][] = [];
+/** Półfabrykat z pola `stock` — to samo, co dostaje symulator. */
+function stockText(e: Exercise): string | null {
   const s = e.stock;
-  if (s?.d != null && s.len != null) rows.push(["Półfabrykat", `pręt ⌀${num(s.d)} × ${num(s.len)} mm`]);
-  else if (s?.x != null && s.y != null && s.z != null) rows.push(["Półfabrykat", `${num(s.x)} × ${num(s.y)} × ${num(s.z)} mm`]);
-  // numer jak w programie: frezarka T1, tokarka T0101 (klucz 101 = numer narzędzia i korekcji)
-  for (const [no, t] of Object.entries(e.tools ?? {})) rows.push([`T${e.mode === "lathe" ? no.padStart(4, "0") : no}`, t.name]);
-  rows.push(["Zapis", PROFILE[e.mode]]);
-  return rows;
+  if (s?.d != null && s.len != null) return `pręt ⌀${num(s.d)} × ${num(s.len)} mm`;
+  if (s?.x != null && s.y != null && s.z != null) return `${num(s.x)} × ${num(s.y)} × ${num(s.z)} mm`;
+  return null;
+}
+/** Narzędzia z pola `tools`; numer jak w programie: frezarka T01, tokarka T0101 (klucz 101 = numer narzędzia i korekcji). */
+function toolRows(e: Exercise): [string, string][] {
+  return Object.entries(e.tools ?? {}).map(([no, t]) => [`T${no.padStart(e.mode === "lathe" ? 4 : 2, "0")}`, t.name]);
 }
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
@@ -56,6 +56,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           <div className="task-chips">
             <Chip tone={e.level === 1 ? "success" : e.level === 2 ? "warning" : "danger"}>{LEVEL[e.level]}</Chip>
             <Chip tone="info">{e.mode === "mill" ? "frezowanie" : "toczenie"}</Chip>
+            {e.requireCodes?.map((c) => <code key={c} className="task-code">{c}</code>)}
           </div>
         </header>
         {e.steps?.length ? (
@@ -70,7 +71,17 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         ) : <p className="task-goal">{e.brief}</p>}
         <section aria-labelledby="task-data-h">
           <h2 id="task-data-h" className="task-h">Dane</h2>
-          <dl className="task-data">{taskData(e).map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+          <dl className="task-data">
+            {stockText(e) && <div><dt>Półfabrykat</dt><dd>{stockText(e)}</dd></div>}
+            <div><dt>Zapis</dt><dd>{PROFILE[e.mode]}</dd></div>
+          </dl>
+          {toolRows(e).length > 0 && (
+            <table className="task-tools">
+              <caption className="sr-only">Narzędzia zadania</caption>
+              <thead><tr><th scope="col">T</th><th scope="col">Narzędzie</th></tr></thead>
+              <tbody>{toolRows(e).map(([t, n]) => <tr key={t}><th scope="row"><code>{t}</code></th><td>{n}</td></tr>)}</tbody>
+            </table>
+          )}
         </section>
         {links.length > 0 && (
           <section aria-labelledby="task-rev-h">
