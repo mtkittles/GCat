@@ -2,20 +2,20 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { PanelLeftClose, PanelLeftOpen, Search } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import BrandLogo from "@/components/BrandLogo";
 import StatusLed from "@/components/tactile/StatusLed";
 import LearnMeter, { type MeterLesson } from "./LearnMeter";
-import ShellKeys from "./ShellKeys";
 import Tip, { TipProvider } from "./Tip";
 import { NAV_MAIN, NAV_SHOP, isActive, type NavItem } from "./nav";
-import { fullscreenTool, isEditing, openPalette, useModKey } from "@/lib/ui/palette";
+import { fullscreenTool, isEditing, useModKey } from "@/lib/ui/palette";
 import { toggleSidebar, useSidebarCollapsed } from "@/lib/ui/prefs";
 
 /*
   Panel boczny (komputer, ≥ 768 px): 248 px ↔ 68 px, przycisk w nagłówku panelu i Ctrl+B.
   Szerokość to zmienna --sb-w z atrybutu <html data-sb>; po zwinięciu etykiety chowa CSS,
   a ikony dostają dymki. Na telefonie panelu nie ma — nawigację przejmuje dok (MobileDock).
+  Szukanie i klawisze motyw / dźwięk / konto są w górnym pasku (AppTopbar) — jedno miejsce zamiast dwóch.
 */
 function Item({ n, path, collapsed }: { n: NavItem; path: string; collapsed: boolean }) {
   const on = isActive(path, n.href);
@@ -64,14 +64,6 @@ export default function AppSidebar({ lessons }: { lessons: MeterLesson[] }) {
           </Tip>
         </div>
 
-        <Tip label={<>Szukaj <kbd>{mod} K</kbd></>} off={!collapsed}>
-          <button type="button" className="sb-search" onClick={openPalette} aria-label="Szukaj w serwisie" aria-keyshortcuts="Control+K Meta+K">
-            <Search aria-hidden className="sb-ico" />
-            <span className="sb-txt">Szukaj…</span>
-            <kbd className="sb-kbd">{mod} K</kbd>
-          </button>
-        </Tip>
-
         <nav className="sb-nav" aria-label="Nawigacja główna">
           <p className="sb-label"><span>Główne</span></p>
           <ul>{NAV_MAIN.map((n) => <Item key={n.href} n={n} path={path} collapsed={collapsed} />)}</ul>
@@ -83,7 +75,6 @@ export default function AppSidebar({ lessons }: { lessons: MeterLesson[] }) {
           <Tip label="Postęp nauki" off={!collapsed}>
             <Link href="/nauka" className="sb-meter"><LearnMeter lessons={lessons} /></Link>
           </Tip>
-          <ShellKeys tipSide={collapsed ? "right" : "top"} />
         </div>
       </aside>
     </TipProvider>

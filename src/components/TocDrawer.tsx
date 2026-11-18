@@ -1,12 +1,13 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { useTopbarSlot } from "@/lib/ui/topbarSlot";
 
 export type TocItem = { id: string; label: string };
 
 /*
   Spis treści wysuwany z prawej krawędzi (mobile/tablet).
-  Uchwyt przy krawędzi pokazuje numer bieżącej sekcji; panel zamyka się
+  Przycisk w górnym pasku (portal do #topbar-slot, V2) pokazuje numer bieżącej sekcji; bez paska — uchwyt przy krawędzi. Panel zamyka się
   po wyborze sekcji, tapnięciu w tło, przesunięciu w prawo lub Escape.
   Z a (audyt kart cz. 2 §4.5): uchwyt chowa się przy przewijaniu w dół, żeby nie zasłaniał
   końców wierszy, i wraca przy przewijaniu w górę; panel jest modalny — fokus przechodzi
@@ -20,6 +21,7 @@ export default function TocDrawer({ items, title = "Spis treści" }: { items: To
   const handle = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLElement>(null);
   const wasOpen = useRef(false);
+  const slot = useTopbarSlot();
 
   // Scroll-spy: aktywna jest ostatnia sekcja, której nagłówek minął górną część ekranu;
   // na samym dole strony — ostatnia. Obliczenia w rAF, setState tylko przy zmianie.
@@ -88,12 +90,16 @@ export default function TocDrawer({ items, title = "Spis treści" }: { items: To
     if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); history.replaceState(null, "", `#${id}`); }
   };
 
+  const handleBtn = (
+    <button ref={handle} type="button" className={`toc-handle${away && !open && !slot ? " is-away" : ""}`} aria-label="Pokaż spis treści" aria-expanded={open} onClick={() => setOpen(true)}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /></svg>
+      <span>{active >= 0 ? `${active + 1}/${items.length}` : items.length}</span>
+    </button>
+  );
+
   return (
     <>
-      <button ref={handle} type="button" className={`toc-handle${away && !open ? " is-away" : ""}`} aria-label="Pokaż spis treści" aria-expanded={open} onClick={() => setOpen(true)}>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 6h11M9 12h11M9 18h11M4 6h.01M4 12h.01M4 18h.01" /></svg>
-        <span>{active >= 0 ? `${active + 1}/${items.length}` : items.length}</span>
-      </button>
+      {slot ? createPortal(handleBtn, slot) : handleBtn}
 
       {open && createPortal(
         <div className="toc-drawer-root">

@@ -8,8 +8,8 @@ import { setHapticOn, setSoundOn, useHapticOn, useSoundOn, useTheme } from "@/li
 import { switchTheme } from "@/lib/ui/themeSwitch";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
 
-/* Klawisze pulpitu w stopce panelu: motyw, dźwięk pulpitu, (telefon) wibracje, konto. Przełączniki z diodą stanu. */
-export default function ShellKeys({ tipSide = "top", labels }: { tipSide?: "top" | "right"; labels?: boolean }) {
+/* Klawisze pulpitu: motyw, dźwięk pulpitu, (telefon) wibracje, konto. Komputer — w górnym pasku, telefon — w arkuszu „Więcej”. Przełączniki z diodą stanu. */
+export default function ShellKeys({ tipSide = "top", labels }: { tipSide?: "top" | "right" | "bottom"; labels?: boolean }) {
   const theme = useTheme();
   const sound = useSoundOn();
   const haptic = useHapticOn();

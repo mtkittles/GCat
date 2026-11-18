@@ -74,7 +74,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <AdminFooterLink />
               </nav>
               <div className="wrap pb-6 text-sm text-muted max-w-prose">
-                Materiał edukacyjny. Zawsze weryfikuj program na swoim sterowniku — składnia różni się między Fanuc, Sinumerik i Heidenhain.
+                Materiał edukacyjny. Program zawsze sprawdź na swoim sterowaniu — Fanuc i Sinumerik różnią się w szczegółach.
               </div>
             </footer>
           </div>
