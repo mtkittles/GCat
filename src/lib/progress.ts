@@ -93,9 +93,14 @@ export function recordQuiz(key: string, score: number, total: number) {
   });
 }
 
-export function resetTrack(track: string) {
+/** Zeruje postęp ścieżki; zwraca stan sprzed zmiany (do „Cofnij” — {@link restoreProgress}). */
+export function resetTrack(track: string): ProgressStore {
   const cur = load();
   const next: ProgressStore = {};
   for (const [k, v] of Object.entries(cur)) if (!k.startsWith(`${track}/`)) next[k] = v;
   commit(next);
+  return cur;
 }
+
+/** Przywraca zapisany wcześniej stan (cofnięcie wyzerowania). */
+export function restoreProgress(prev: ProgressStore) { commit({ ...prev }); }

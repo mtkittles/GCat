@@ -4,7 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Command } from "cmdk";
 import { ArrowRight, CornerDownLeft, Search } from "lucide-react";
 import { NAV_ALL } from "./nav";
+import StatusLed from "@/components/tactile/StatusLed";
+import GcodeLine from "@/components/pulpit/gcodeTokens";
+import { useMedia } from "@/lib/ui/prefs";
 import { fullscreenTool, isEditing, setPaletteOpen, usePaletteOpen } from "@/lib/ui/palette";
+import EmptyState from "@/components/ui/EmptyState";
 
 /*
   Paleta poleceń Ctrl+K / ⌘K (cmdk). Indeks: karty kodów, lekcje, zadania i hasła słownika
@@ -38,6 +42,9 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
   const router = useRouter();
   const [q, setQ] = useState("");
   const [index, setIndex] = useState<Index | null>(null);
+  // zaznaczona pozycja (strzałki / kursor) — podgląd w prawej kolumnie na szerokim ekranie
+  const [sel, setSel] = useState("");
+  const wide = useMedia("(min-width: 960px)");
 
   useEffect(() => {
     if (open && !index) import("@/lib/searchIndex").then(setIndex).catch(() => {});
@@ -68,6 +75,17 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
     return [...hits, ...progs];
   }, [q, index, programs]);
 
+  const items = useMemo(() => {
+    const m = new Map<string, { href: string; title: string; sub: string }>();
+    if (results === null) {
+      for (const n of NAV_ALL) m.set(`nav ${n.href}`, { href: n.href, title: n.label, sub: "" });
+      for (const c of QUICK) m.set(`quick ${c.href}`, { href: c.href, title: `${c.code} — ${c.name}`, sub: "" });
+    } else for (const r of results) m.set(r.href + r.title, { href: r.href, title: r.title, sub: r.sub });
+    return m;
+  }, [results]);
+  const cur = items.get(sel) ?? null;
+  const pk = cur && index ? index.peek(cur.href) : null;
+
   const go = (href: string) => {
     setPaletteOpen(false);
     setQ("");
@@ -81,8 +99,10 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
       label="Szukaj w GCat"
       shouldFilter={false}
       loop
+      value={sel}
+      onValueChange={setSel}
       overlayClassName="pal-overlay"
-      contentClassName="pal"
+      contentClassName={`pal${wide ? " has-peek" : ""}`}
     >
       <div className="pal-field">
         <Search aria-hidden />
@@ -90,6 +110,7 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
         <kbd className="pal-esc" onClick={() => setPaletteOpen(false)}>Esc</kbd>
       </div>
 
+      <div className="pal-body">
       <Command.List className="pal-list">
         {results === null && (
           <>
@@ -117,8 +138,8 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
           </>
         )}
 
-        {results !== null && !index && <Command.Loading className="pal-empty">Wczytuję indeks…</Command.Loading>}
-        {results !== null && index && results.length === 0 && <div className="pal-empty">Brak wyników dla „{q.trim()}”.</div>}
+        {results !== null && !index && <Command.Loading className="pal-loading"><span className="skel skel-row" /><span className="skel skel-row" /><span className="skel skel-row is-short" /></Command.Loading>}
+        {results !== null && index && results.length === 0 && <EmptyState compact title={`Brak wyników dla „${q.trim()}”.`}>Spróbuj kodu (G83), nazwy (łuk) albo hasła ze słownika.</EmptyState>}
 
         {results !== null && GROUPS.map((g) => {
           const items = results.filter((r) => r.kind === g.kind);
@@ -146,6 +167,35 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
           </Command.Group>
         )}
       </Command.List>
+      {wide && (
+        <aside className="pal-peek" aria-live="polite" aria-label="Podgląd">
+          {pk ? (
+            <>
+              <span className="pal-peek-k"><StatusLed state={pk.kind === "kod" ? (pk.modal ? "ready" : "idle") : "on"} pulse={false} />{pk.sub}</span>
+              {pk.code && <code className="pal-peek-code">{pk.code}</code>}
+              <b className="pal-peek-t">{pk.title}</b>
+              {pk.text && <p className="pal-peek-x">{pk.text}</p>}
+              {pk.syntax && (
+                <div className="pal-peek-syn">
+                  {(["fanuc", "sinumerik"] as const).map((c) => (
+                    <div key={c}><small>{c === "fanuc" ? "Fanuc" : "Sinumerik"}</small><pre>{pk.syntax![c].split("\n").map((l, i) => <code key={i}><GcodeLine raw={l} /></code>)}</pre></div>
+                  ))}
+                </div>
+              )}
+              <span className="pal-peek-go"><kbd><CornerDownLeft aria-hidden /></kbd> otwórz {pk.kind === "kod" ? "kartę" : pk.kind === "pojęcie" ? "hasło" : pk.kind}</span>
+            </>
+          ) : cur ? (
+            <>
+              <span className="pal-peek-k">{cur.sub || "przejdź do"}</span>
+              <b className="pal-peek-t">{cur.title}</b>
+              <span className="pal-peek-go"><kbd><CornerDownLeft aria-hidden /></kbd> otwórz</span>
+            </>
+          ) : (
+            <span className="pal-peek-k">Wybierz pozycję strzałkami, żeby zobaczyć podgląd</span>
+          )}
+        </aside>
+      )}
+      </div>
 
       <div className="pal-foot" aria-hidden>
         <span><kbd>↑</kbd><kbd>↓</kbd> wybór</span>

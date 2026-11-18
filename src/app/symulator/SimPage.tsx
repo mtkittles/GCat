@@ -95,12 +95,25 @@ export default function SimPage() {
   };
 
   const closeTab = (id: string) => {
+    const at = tabs.findIndex((t) => t.id === id);
+    const gone = tabs[at];
+    const wasActive = active === id;
     const next = tabs.filter((t) => t.id !== id);
     setTabs(next); savePrograms(next);
-    if (active === id) {
+    if (wasActive) {
       if (next.length) openTab(next[next.length - 1]);
       else openLib(first);
     }
+    // Zamknięcie zakładki usuwa zapisany program — w powiadomieniu można go przywrócić na to samo miejsce.
+    if (gone) toast(`Zamknięto „${gone.name}”`, {
+      duration: 8000,
+      action: { label: "Cofnij", onClick: () => {
+        const cur = loadPrograms().filter((t) => t.id !== gone.id);
+        const back = [...cur.slice(0, at), gone, ...cur.slice(at)];
+        setTabs(back); savePrograms(back);
+        if (wasActive) openTab(gone);
+      } },
+    });
   };
 
   // zmiana nazwy w miejscu: dwuklik otwiera pole, Enter/utrata fokusu zapisuje, Escape cofa

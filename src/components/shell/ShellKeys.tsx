@@ -1,16 +1,17 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Moon, Sun, User, Volume2, VolumeX } from "lucide-react";
+import { Moon, Sun, User, Vibrate, VibrateOff, Volume2, VolumeX } from "lucide-react";
 import StatusLed from "@/components/tactile/StatusLed";
 import Tip, { TipProvider } from "./Tip";
-import { setSoundOn, setTheme, useSoundOn, useTheme } from "@/lib/ui/prefs";
+import { setHapticOn, setSoundOn, setTheme, useHapticOn, useSoundOn, useTheme } from "@/lib/ui/prefs";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
 
-/* Klawisze pulpitu w stopce panelu: motyw, dźwięk pulpitu, konto. Każdy z diodą stanu. */
+/* Klawisze pulpitu w stopce panelu: motyw, dźwięk pulpitu, (telefon) wibracje, konto. Przełączniki z diodą stanu. */
 export default function ShellKeys({ tipSide = "top", labels }: { tipSide?: "top" | "right"; labels?: boolean }) {
   const theme = useTheme();
   const sound = useSoundOn();
+  const haptic = useHapticOn();
   const feedback = useTactileFeedback();
   const path = usePathname();
   const acct = path === "/konto" || path.startsWith("/konto/");
@@ -34,6 +35,15 @@ export default function ShellKeys({ tipSide = "top", labels }: { tipSide?: "top"
           <StatusLed state={sound ? "on" : "idle"} pulse={false} className="key-led" />
         </button>
       </Tip>
+      {labels && (
+        // wibracje — tylko w arkuszu „Więcej” na telefonie (na komputerze nie działają)
+        <button type="button" className="key" role="switch" aria-checked={haptic} aria-label="Wibracje przycisków"
+          onClick={() => { setHapticOn(!haptic); if (!haptic) requestAnimationFrame(() => feedback()); }}>
+          {haptic ? <Vibrate aria-hidden /> : <VibrateOff aria-hidden />}
+          <span>Wibracje</span>
+          <StatusLed state={haptic ? "on" : "idle"} pulse={false} className="key-led" />
+        </button>
+      )}
       <Tip side={tipSide} label="Konto">
         <Link href="/konto" className="key" aria-label="Konto" aria-current={acct ? "page" : undefined}>
           <User aria-hidden />
