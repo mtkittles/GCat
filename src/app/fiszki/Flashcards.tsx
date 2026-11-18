@@ -1,6 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "motion/react";
+import NumberFlow from "@number-flow/react";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
+import StatusLed from "@/components/tactile/StatusLed";
+import { useMedia } from "@/lib/ui/prefs";
 import { rich } from "@/components/Rich";
 import { useAccount } from "@/lib/auth";
 import { can } from "@/lib/entitlements";
@@ -49,6 +54,14 @@ export default function Flashcards() {
   const [size, setSize] = useState<(typeof SIZES)[number]>(10);
   const [run, setRun] = useState<Run | null>(null);
   const deck = useDeck();
+  const reduce = useReducedMotion();
+  // telefon: odwróconą kartę przesuwa się w prawo (opanowane) albo w lewo (do powtórki)
+  const touch = useMedia("(pointer: coarse)");
+  const x = useMotionValue(0);
+  const tilt = useTransform(x, [-220, 0, 220], [-7, 0, 7]);
+  const yesO = useTransform(x, [20, 110], [0, 1]);
+  const noO = useTransform(x, [-110, -20], [1, 0]);
+  const dragged = useRef(0);
 
   const cards = useMemo(() => {
     const base = pro ? FLASHCARDS : freeCards();
@@ -63,7 +76,12 @@ export default function Flashcards() {
     const queue = practice ? shuffle(ids).slice(0, size || ids.length) : buildSession(deck, ids, { size: size || undefined });
     setRun({ queue, total: queue.length, flipped: false, known: 0, missed: new Set(), practice });
   };
-  const flip = () => setRun((r) => (r && r.queue.length ? { ...r, flipped: !r.flipped } : r));
+  const flip = (e?: { timeStamp: number }) => { if (e && e.timeStamp - dragged.current < 250) return; setRun((r) => (r && r.queue.length ? { ...r, flipped: !r.flipped } : r)); };
+  const onSwipe = (e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+    dragged.current = e.timeStamp;
+    if (info.offset.x > 90 || info.velocity.x > 600) answer(true);
+    else if (info.offset.x < -90 || info.velocity.x < -600) answer(false);
+  };
   const answer = (known: boolean) => {
     if (!run?.queue.length || !run.flipped) return;
     const id = run.queue[0];
@@ -99,9 +117,10 @@ export default function Flashcards() {
 
   return (
     <div className="fc-page">
-      <header className="fc-head">
-        <h1>Fiszki</h1>
-        <p>Pytanie z przodu, odpowiedź z tyłu. Co umiesz, wraca rzadziej.</p>
+      <header className="ph">
+        <span className="ph-k">Powtórki · {karty((pro ? FLASHCARDS : freeCards()).length)}</span>
+        <h1 className="ph-title">Fiszki</h1>
+        <p className="ph-lead">Pytanie z przodu, odpowiedź z tyłu. Co umiesz, wraca rzadziej.</p>
       </header>
 
       {!run ? (
@@ -112,18 +131,13 @@ export default function Flashcards() {
           <section className="fc-setup" aria-label="Ustawienia powtórki">
             <div className="fc-row">
               <span className="fc-label" id="fc-scope">Talia</span>
-              <div className="fc-opts" role="group" aria-labelledby="fc-scope">
-                {scopes.map(([s, l]) => {
-                  const n = countOf(s);
-                  return <button key={s} type="button" aria-pressed={scope === s} disabled={!n} onClick={() => setScope(s)}>{l}<small>{n ? n : "Pro"}</small></button>;
-                })}
-              </div>
+              <TactileSegmentedControl<Scope> label="Talia" size="sm" value={scope} onChange={setScope} className="fc-tsc"
+                options={scopes.map(([s, l]) => { const n = countOf(s); return { value: s, label: <>{l} <small className="tl-n">{n ? n : "Pro"}</small></>, disabled: !n }; })} />
             </div>
             <div className="fc-row">
               <span className="fc-label" id="fc-size">Kart w turze</span>
-              <div className="fc-opts" role="group" aria-labelledby="fc-size">
-                {SIZES.map((n) => <button key={n} type="button" aria-pressed={size === n} onClick={() => setSize(n)}>{n || "Wszystkie"}</button>)}
-              </div>
+              <TactileSegmentedControl<string> label="Kart w turze" size="sm" value={String(size)} onChange={(v) => setSize(Number(v) as (typeof SIZES)[number])} className="fc-tsc"
+                options={SIZES.map((n) => ({ value: String(n), label: n ? String(n) : "Wszystkie", led: false }))} />
             </div>
             <div className="fc-go">
               <button type="button" className="btn" disabled={!waiting} onClick={() => begin(false)}>{waiting ? "Zacznij powtórkę" : "Na dziś wszystko powtórzone"}</button>
@@ -138,7 +152,7 @@ export default function Flashcards() {
               {stats.boxes.map((n, i) => (
                 <li key={i} className={n ? undefined : "is-empty"}>
                   <b>{n}</b>
-                  <span>{i === 0 ? "nowe" : `pudełko ${i}`}</span>
+                  <span><StatusLed state={!n ? "idle" : i === 0 ? "warning" : i >= stats.boxes.length - 1 ? "ready" : "on"} pulse={false} />{i === 0 ? "nowe" : `pudełko ${i}`}</span>
                   <small>{i === 0 ? "jeszcze nie pytane" : `wraca po: ${BOX_LABEL[i]}`}</small>
                 </li>
               ))}
@@ -168,28 +182,48 @@ export default function Flashcards() {
             <div className="fc-progress" role="progressbar" aria-label="Postęp tury" aria-valuemin={0} aria-valuemax={run.total} aria-valuenow={run.known}>
               <i style={{ width: `${(run.known / run.total) * 100}%` }} />
             </div>
-            <span>{run.known} / {run.total}</span>
+            <span className="fcx-count"><NumberFlow value={run.known} /> / {run.total}</span>
             <button type="button" className="link-btn" onClick={() => setRun(null)}>Zakończ</button>
           </div>
 
-          <button type="button" data-fc="flip" className={`fc-card${run.flipped ? " is-back" : ""}`} onClick={flip}
-            aria-label={run.flipped ? "Odpowiedź — kliknij, aby wrócić do pytania" : "Pytanie — kliknij, aby zobaczyć odpowiedź"}>
-            <span className="fc-kind">{DECKS[cur.deck]}{run.practice ? " · trening" : deck[cur.id] ? ` · pudełko ${deck[cur.id].box}` : " · nowa"}</span>
-            <span className="fc-face" key={`${cur.id}:${run.flipped}`}>
-              <span className="fc-ask">{run.flipped ? cur.front : cur.ask}</span>
-              <Face c={cur} back={run.flipped} />
-            </span>
-          </button>
+          <motion.div className="fcx-drag" style={{ x, rotate: tilt }}
+            drag={touch && run.flipped ? "x" : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} dragSnapToOrigin onDragEnd={onSwipe}>
+            {touch && run.flipped && (
+              <>
+                <motion.span className="fcx-swipe is-no" style={{ opacity: noO }} aria-hidden><StatusLed state="warning" pulse={false} />Do powtórki</motion.span>
+                <motion.span className="fcx-swipe is-yes" style={{ opacity: yesO }} aria-hidden><StatusLed state="ready" pulse={false} />Opanowane</motion.span>
+              </>
+            )}
+            <button type="button" data-fc="flip" className="fcx-card" onClick={flip} aria-pressed={run.flipped}
+              aria-label={run.flipped ? "Odpowiedź — kliknij, aby wrócić do pytania" : "Pytanie — kliknij, aby zobaczyć odpowiedź"}>
+              {/* obie strony karty w jednym miejscu siatki, obrót 3D wokół osi pionowej; nowa karta zaczyna od pytania bez animacji */}
+              <motion.span key={cur.id} className="fcx-in" initial={false} animate={{ rotateY: run.flipped ? 180 : 0 }}
+                transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 240, damping: 26 }}>
+                <span className="fcx-face fcx-q" aria-hidden={run.flipped}>
+                  <span className="fc-kind">{DECKS[cur.deck]}{run.practice ? " · trening" : deck[cur.id] ? ` · pudełko ${deck[cur.id].box}` : " · nowa"}</span>
+                  <span className="fc-ask">{cur.ask}</span>
+                  <Face c={cur} back={false} />
+                </span>
+                <span className="fcx-face fcx-a" aria-hidden={!run.flipped}>
+                  <span className="fc-kind">{DECKS[cur.deck]} · odpowiedź</span>
+                  <span className="fc-ask">{cur.front}</span>
+                  <Face c={cur} back />
+                </span>
+              </motion.span>
+            </button>
+          </motion.div>
 
           {run.flipped ? (
             <div className="fc-actions">
-              <button type="button" data-fc="no" className="btn ghost" onClick={() => answer(false)}>Nie wiem <kbd>1</kbd></button>
-              <button type="button" data-fc="yes" className="btn" onClick={() => answer(true)}>Wiem <kbd>2</kbd></button>
+              <button type="button" data-fc="no" className="btn ghost" onClick={() => answer(false)}><StatusLed state="warning" pulse={false} /> Do powtórki <kbd>1</kbd></button>
+              <button type="button" data-fc="yes" className="btn" onClick={() => answer(true)}><StatusLed state="ready" pulse={false} /> Opanowane <kbd>2</kbd></button>
             </div>
           ) : (
             <div className="fc-actions"><button type="button" className="btn" onClick={flip}>Pokaż odpowiedź <kbd>spacja</kbd></button></div>
           )}
-          <p className="fc-meta">{run.flipped ? <Link href={cur.href} className="underline">Otwórz w serwisie</Link> : "Najpierw odpowiedz w myślach, potem odwróć kartę."}</p>
+          <p className="fc-meta">{run.flipped
+            ? <>{touch ? "Przesuń kartę w prawo — opanowane, w lewo — do powtórki. " : "Strzałki: ← do powtórki, → opanowane. "}<Link href={cur.href} className="underline">Otwórz w serwisie</Link></>
+            : touch ? "Odpowiedz w myślach i dotknij karty, żeby ją odwrócić." : "Odpowiedz w myślach i odwróć kartę: klik albo spacja."}</p>
         </section>
       )}
     </div>

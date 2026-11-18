@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, useLayoutEffect } from "react";
 import { glossary } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 
@@ -35,6 +35,7 @@ const first = (s: string) => s.split("\n").slice(0, 2).join("\n");
 export default function Term({ k, children }: { k: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLSpanElement>(null);
+  const pop = useRef<HTMLSpanElement>(null);
   const id = useId();
   const found = lookup(k);
 
@@ -47,6 +48,16 @@ export default function Term({ k, children }: { k: string; children: React.React
     return () => { document.removeEventListener("mousedown", onDoc); document.removeEventListener("keydown", onKey); };
   }, [open]);
 
+  // dymek nie wychodzi poza ekran: przy prawej krawędzi przesuwa się w lewo
+  useLayoutEffect(() => {
+    const el = pop.current;
+    if (!open || !el) return;
+    el.style.removeProperty("left");
+    const r = el.getBoundingClientRect();
+    const over = r.right - (document.documentElement.clientWidth - 8);
+    if (over > 0) el.style.left = `${-Math.min(over, r.left - 8)}px`;
+  }, [open]);
+
   if (!found) return <>{children}</>;
 
   return (
@@ -55,7 +66,7 @@ export default function Term({ k, children }: { k: string; children: React.React
         {children}
       </button>
       {open && (
-        <span className="term-pop" id={id} role="tooltip">
+        <span className="term-pop" id={id} role="tooltip" ref={pop}>
           <span className="term-kind">{found.kind}</span>
           <strong>{found.title}</strong>
           <span className="term-def">{found.text}</span>

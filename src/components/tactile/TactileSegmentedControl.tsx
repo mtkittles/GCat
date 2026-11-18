@@ -8,7 +8,7 @@ import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
   Przełącznik trybów pulpitu: zagłębiona szyna, kapsuła przesuwana sprężyną (motion, layoutId)
   i dioda w aktywnym przycisku. Semantyka radiogroup, strzałki zmieniają wybór.
 */
-export interface Segment<T extends string> { value: T; label: ReactNode; title?: string; led?: boolean }
+export interface Segment<T extends string> { value: T; label: ReactNode; title?: string; led?: boolean; disabled?: boolean }
 
 function TactileSegmentedControl<T extends string>({ value, onChange, options, label, size = "md", full, className }: {
   value: T;
@@ -31,7 +31,8 @@ function TactileSegmentedControl<T extends string>({ value, onChange, options, l
     const d = e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : 0;
     if (!d) return;
     e.preventDefault();
-    const n = (i + d + options.length) % options.length;
+    let n = i;
+    for (let k = 0; k < options.length; k++) { n = (n + d + options.length) % options.length; if (!options[n].disabled) break; }
     pick(options[n].value);
     refs.current[n]?.focus();
   };
@@ -49,6 +50,7 @@ function TactileSegmentedControl<T extends string>({ value, onChange, options, l
             aria-checked={on}
             tabIndex={on ? 0 : -1}
             title={o.title}
+            disabled={o.disabled}
             className={`tsc-btn${on ? " is-on" : ""}`}
             onClick={() => pick(o.value)}
             onKeyDown={(e) => onKey(e, i)}
@@ -81,7 +83,7 @@ type Props = Parameters<typeof TactileSegmentedControl>[0];
 const sameOpts = (a: Props["options"], b: Props["options"]) =>
   a.length === b.length && a.every((o, i) => {
     const p = b[i];
-    if (o.value !== p.value || o.title !== p.title || o.led !== p.led) return false;
+    if (o.value !== p.value || o.title !== p.title || o.led !== p.led || o.disabled !== p.disabled) return false;
     return typeof o.label === "string" || typeof p.label === "string" ? o.label === p.label : typeof o.label === typeof p.label;
   });
 

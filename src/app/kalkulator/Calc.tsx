@@ -1,7 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import NumberFlow from "@number-flow/react";
+import { toast } from "sonner";
+import { Copy } from "lucide-react";
 import CalcFig from "./CalcFig";
+import GcodeLine from "@/components/pulpit/gcodeTokens";
+import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
 
 type Tab = "mill" | "turn" | "drill" | "thread";
@@ -95,22 +100,35 @@ function Field({ id, label, unit, value, onChange, rule, preset, onValid, table 
   );
 }
 
+/* Wynik jak wyświetlacz DRO: cyfry stałej szerokości, zmiana wartości animowana (NumberFlow), przecinek dziesiętny. */
+const NF = { useGrouping: false, maximumFractionDigits: 3 } as const;
 function Out({ label, value, unit, big, stale }: { label: string; value: string | number; unit: string; big?: boolean; stale?: boolean }) {
-  return <div className={`calc-out ${big ? "big" : ""}${stale ? " is-stale" : ""}`}><div className="calc-out-l">{label}</div><div className="calc-out-v">{stale ? "—" : value} <span>{unit}</span></div></div>;
+  return (
+    <div className={`calc-out ${big ? "big" : ""}${stale ? " is-stale" : ""}`}>
+      <div className="calc-out-l">{label}</div>
+      <div className="calc-out-v">{stale ? "—" : typeof value === "number" ? <NumberFlow value={value} format={NF} locales="pl-PL" /> : value} <span>{unit}</span></div>
+    </div>
+  );
 }
 function Formula({ children }: { children: React.ReactNode }) {
   return <p className="calc-formula">{children}</p>;
 }
 
-/** Gotowy fragment G-kodu z przyciskiem kopiowania. */
+/** Gotowy fragment G-kodu z kolorami ruchu i przyciskiem kopiowania (toast). */
 function CodeOut({ text, stale }: { text: string; stale?: boolean }) {
-  const [copied, setCopied] = useState(false);
+  const copy = async () => {
+    if (stale) return;
+    try { await navigator.clipboard.writeText(text); toast.success("Skopiowano blok G-kodu"); }
+    catch { toast.error("Przeglądarka nie pozwoliła skopiować — zaznacz tekst ręcznie."); }
+  };
   return (
-    <div className={`codeout${stale ? " is-stale" : ""}`}>
-      <pre tabIndex={0} className="syntax">{stale ? "Popraw zaznaczone pola — wynik nie jest aktualny." : text}</pre>
-      <button disabled={stale} aria-disabled={stale} onClick={() => { if (stale) return; navigator.clipboard?.writeText(text); setCopied(true); setTimeout(() => setCopied(false), 1600); }}>
-        {copied ? "Skopiowano" : "Kopiuj"}
-      </button>
+    <div className={`codeout cb${stale ? " is-stale" : ""}`}>
+      <div className="cb-bar"><span>Blok G-kodu · Fanuc</span>
+        <button type="button" className="cd-copy" disabled={stale} aria-disabled={stale} onClick={copy}><Copy aria-hidden /> Kopiuj blok G-kodu</button>
+      </div>
+      {stale
+        ? <pre tabIndex={0} className="calc-code">Popraw zaznaczone pola — wynik nie jest aktualny.</pre>
+        : <pre tabIndex={0} className="calc-code">{text.split("\n").map((l, i) => <code key={i}><GcodeLine raw={l} /></code>)}</pre>}
     </div>
   );
 }
@@ -207,15 +225,13 @@ export default function Calc() {
   return (
     <div className="grid gap-5 calc-page">
       <header className="calc-head">
-        <div>
-          <h1><span className="calc-kicker">Kalkulator</span> {BANNERS[tab].title}</h1>
-          <p>{BANNERS[tab].sub}</p>
+        <div className="ph">
+          <span className="ph-k">Kalkulator · parametry skrawania</span>
+          <h1 className="ph-title">{BANNERS[tab].title}</h1>
+          <p className="ph-lead">{BANNERS[tab].sub}</p>
         </div>
-        <div className="segmented" role="tablist" aria-label="Rodzaj obróbki">
-          {([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([k, l]) => (
-            <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>{l}</button>
-          ))}
-        </div>
+        <TactileSegmentedControl<Tab> label="Rodzaj obróbki" value={tab} onChange={setTab} className="calc-tabs"
+          options={([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([value, label]) => ({ value, label }))} />
       </header>
 
       {tab === "mill" && (
