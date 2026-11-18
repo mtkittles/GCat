@@ -22,8 +22,8 @@ const OPS: { key: string; name: string; tool: string; text: string[]; fanuc: str
     text: [
       "Bez korekcji promienia (G40) zaprogramowany kontur 80 × 50 jest torem środka freza. Frez ⌀10 zbiera po 5 mm z obu stron toru, więc płytka po obróbce ma 70 × 40, a naroża R5.",
     ],
-    fanuc: "Naroża: G03 z promieniem w adresie R10.",
-    sinumerik: "Naroża: G3 z promieniem w adresie CR=10.",
+    fanuc: "naroża łukiem G03 z promieniem w adresie R10.",
+    sinumerik: "naroża łukiem G3 z promieniem w adresie CR=10.",
     warn: "G40 — wymiar detalu = tor − średnica freza",
   },
   {
@@ -32,8 +32,8 @@ const OPS: { key: string; name: string; tool: string; text: string[]; fanuc: str
       "Wejście w środku X40 Y25, potem dwa pełne okręgi zgodnie z ruchem wskazówek zegara. I, J to wektor od punktu startu łuku do środka: I6 daje promień toru 6, I10 — promień 10.",
       "Średnica kieszeni = 2 · (10 + 5) = 30 mm: promień toru plus promień freza.",
     ],
-    fanuc: "Pełny okrąg: G02 z samym środkiem (I6 J0) — punkt końcowy = punkt startu.",
-    sinumerik: "Pełny okrąg: G2 z punktem końcowym równym punktowi startu (X34 Y25 I6 J0).",
+    fanuc: "pełny okrąg to G02 z samym środkiem (I6 J0) — punkt końcowy = punkt startu.",
+    sinumerik: "pełny okrąg to G2 z punktem końcowym równym punktowi startu (X34 Y25 I6 J0).",
   },
   {
     key: "03", name: "Rowki", tool: "T01 · frez ⌀10 · Z−2",
@@ -41,16 +41,16 @@ const OPS: { key: string; name: string; tool: string; text: string[]; fanuc: str
       "Tor środka X8 → X18 i X62 → X72 na Y25. Szerokość rowka = średnica freza = 10 mm; po konturze z operacji 01 oba rowki wychodzą na krawędź płytki.",
       "Między rowkami G00 na Z5 — przejazd szybki ponad materiałem.",
     ],
-    fanuc: "Ruchy: G00 / G01, posuw F350 w bloku skrawania.",
-    sinumerik: "Ruchy: G0 / G1 — zwykle bez zera wiodącego; zapis G00 i G01 też jest poprawny.",
+    fanuc: "ruchy G00 / G01, posuw F350 w bloku skrawania.",
+    sinumerik: "ruchy G0 / G1 — zwykle bez zera wiodącego; zapis G00 i G01 też jest poprawny.",
   },
   {
     key: "04", name: "Otwory G81", tool: "T02 · wiertło ⌀6 · Z−14",
     text: [
       "Cztery otwory w rozstawie 56 × 30 (X12 / X68, Y10 / Y40). Z−14 to położenie wierzchołka wiertła na dnie otworu.",
     ],
-    fanuc: "G99 G81 … R2: po każdym otworze powrót na płaszczyznę R (Z2). Kolejne bloki podają tylko zmienioną współrzędną, G80 kasuje cykl.",
-    sinumerik: "MCALL CYCLE81(RTP, RFP, SDIS, DP) = (2, 0, 2, −14): wywołanie modalne wierci w każdym następnym punkcie, puste MCALL je kasuje.",
+    fanuc: "G99 G81 … R2 — po każdym otworze powrót na płaszczyznę R (Z2). Kolejne bloki podają tylko zmienioną współrzędną, G80 kasuje cykl.",
+    sinumerik: "MCALL CYCLE81(RTP, RFP, SDIS, DP) = (2, 0, 2, −14) — wywołanie modalne wierci w każdym następnym punkcie, puste MCALL je kasuje.",
   },
 ];
 
@@ -79,7 +79,7 @@ export default function CncPanelClient({ segs, box, code, simHref }: {
       <header className="cp-bar">
         <span className="cp-tag">Pulpit</span>
         <h2 id="cp-title" className="cp-title">Płytka mocująca 80 × 50 — jeden program, cztery operacje</h2>
-        <span className="cp-status"><StatusLed state="ready" />{dialect === "fanuc" ? "FANUC" : "SINUMERIK"} READY</span>
+        <span className="cp-status"><StatusLed state="ready" />{dialectName} · gotowy</span>
       </header>
 
       <div className="cp-tabs">
@@ -139,7 +139,8 @@ export default function CncPanelClient({ segs, box, code, simHref }: {
             <svg viewBox={vb} role="img" aria-label={`Tor narzędzia w XY, operacja ${o.key}: ${o.name}`}>
               <rect x="-5" y="-55" width="90" height="60" rx="1" className="cp-stock" />
               {op === 0 && <rect x="5" y="-45" width="70" height="40" rx="5" className="cp-part" />}
-              {segs.map((s, i) => s.d && s.ch !== op && (s.kind !== "rapid" || rapids) && <path key={`g${i}`} d={s.d} className="cp-ghost" />)}
+              {/* inne operacje: tylko skrawanie, bez przejazdów G00 — ukośne przejazdy przecinały detal (V3) */}
+              {segs.map((s, i) => s.d && s.ch !== op && s.kind !== "rapid" && <path key={`g${i}`} d={s.d} className="cp-ghost" />)}
               <g key={`${op}-${rapids}`} className="cp-live">
                 {op < 3 && <path d={segs.filter((s) => s.d && s.ch === op && s.kind !== "rapid").map((s) => s.d).join("")} className="cp-swath" />}
                 {segs.map((s, i) => s.d && s.ch === op && (s.kind !== "rapid" || rapids) && <path key={i} d={s.d} pathLength={1} className={`cp-path ${KIND[s.kind]}`} />)}
@@ -150,7 +151,7 @@ export default function CncPanelClient({ segs, box, code, simHref }: {
           </div>
           <div className="cp-view-foot">
             <ul className="cp-legend">
-              <li className="is-rap">G00</li><li className="is-cut">G01</li><li className="is-arc">G02/G03</li><li className="is-sw">ślad ⌀10</li>
+              <li className="is-rap">G00</li><li className="is-cut">G01</li><li className="is-arc">G02/G03</li><li className="is-sw">ślad freza ⌀10</li>{op === 0 && <li className="is-part">detal 70 × 40</li>}
             </ul>
             <Link href={simHref} className="btn cp-sim">Otwórz w symulatorze <ArrowRight aria-hidden /></Link>
           </div>
