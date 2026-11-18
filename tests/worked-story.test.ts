@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { flat } from "@/lib/course";
 import { parseProgram } from "@/lib/parser";
 import { validate } from "@/lib/parser/validate";
-import { focusLines, motionClass, plane, stepLines, storyGeometry } from "@/lib/workedStory";
+import { applyEdits, fmtWord, focusLines, motionClass, plane, scrubWord, stepLines, storyGeometry, tokens } from "@/lib/workedStory";
 
 const storiesOf = (t: "frezowanie" | "toczenie") => flat(t).flatMap((l) => (l.doc?.worked.story ? [{ id: l.id, w: l.doc.worked, story: l.doc.worked.story, mode: (t === "toczenie" ? "lathe" : "mill") as "mill" | "lathe" }] : []));
 const stories = [...storiesOf("frezowanie"), ...storiesOf("toczenie")];
@@ -120,5 +120,39 @@ describe("krok → linia", () => {
     expect(motionClass("G1")).toBe("g01");
     expect(motionClass("G03")).toBe("g23");
     expect(motionClass("G41")).toBeNull();
+  });
+});
+
+describe("liczby do przeciągania (Etap 12b)", () => {
+  it("słowa geometrii z krokiem wg zapisu; inne adresy nie", () => {
+    expect(scrubWord("R15.")).toEqual({ letter: "R", value: 15, step: 1 });
+    expect(scrubWord("X36.4")).toEqual({ letter: "X", value: 36.4, step: 0.1 });
+    expect(scrubWord("R0.05")).toEqual({ letter: "R", value: 0.05, step: 0.01 });
+    expect(scrubWord("Z-5.")).toMatchObject({ value: -5 });
+    for (const w of ["F400", "S2500", "G01", "N10", "T0101", "(X5)"]) expect(scrubWord(w)).toBeNull();
+  });
+  it("zapis liczby jak w kursie", () => {
+    expect(fmtWord(20)).toBe("20.");
+    expect(fmtWord(-5)).toBe("-5.");
+    expect(fmtWord(12.5)).toBe("12.5");
+    expect(fmtWord(0.1 + 0.2)).toBe("0.3");
+    expect(fmtWord(-0)).toBe("0.");
+  });
+  it("zmiana podmienia tylko wskazane słowo; reszta programu bez zmian", () => {
+    const src = "G01 Y40. F400 (BOK)\nG02 X10. Y55. R15.";
+    expect(applyEdits(src, {})).toBe(src);
+    expect(applyEdits(src, { "1:3": 20 })).toBe("G01 Y40. F400 (BOK)\nG02 X10. Y55. R20.");
+    // komentarz ani słowo spoza geometrii nie są zmieniane nawet przy kluczu
+    expect(applyEdits(src, { "0:3": 9, "0:2": 1 })).toBe(src);
+  });
+  it("F3.3: R na narożu zmienia łuk na żywo; za małe R — błąd parsera jak w symulatorze", () => {
+    const story = stories.find((s) => s.id === "F3.3")!.story;
+    const line = story.program.split("\n").findIndex((r) => r === "G02 X10. Y55. R15.");
+    const ri = tokens(story.program.split("\n")[line]).findIndex((t) => t.text === "R15.");
+    const big = parseProgram(applyEdits(story.program, { [`${line}:${ri}`]: 20 }), {});
+    const arc = big.segments.find((s) => s.line === line && s.kind === "arc")!;
+    expect(arc.kind === "arc" && Math.hypot(arc.from.x - arc.center.x, arc.from.y - arc.center.y)).toBeCloseTo(20, 6);
+    const small = parseProgram(applyEdits(story.program, { [`${line}:${ri}`]: 5 }), {});
+    expect(small.lines[line].errors.join(" ")).toMatch(/za mały/);
   });
 });

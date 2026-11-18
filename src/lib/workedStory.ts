@@ -163,3 +163,58 @@ export function motionClass(word: string): "g00" | "g01" | "g23" | null {
   if (!m) return null;
   return m[1] === "0" ? "g00" : m[1] === "1" ? "g01" : "g23";
 }
+
+/*
+  Etap 12b — liczby do przeciągania: w bieżącej linii przykładu współrzędne (X Y Z U W), parametry łuku
+  (I J K R) są „pokrętłami”. Program z nowymi wartościami przechodzi przez parser i walidator na żywo.
+*/
+
+/** Litery adresów, których wartości można przeciągać — geometria toru. */
+export const SCRUB_LETTERS = "XYZUWIJKR";
+
+/** Słowo `X-5.` jako liczba do przeciągania: litera, wartość, krok (1 albo dokładność zapisu, np. 0.1, 0.05). */
+export interface ScrubWord { letter: string; value: number; step: number }
+
+/** Podział linii na tokeny jak w podświetlaniu kodu: komentarz w nawiasie albo słowo bez spacji. */
+export function tokens(line: string): { text: string; comment: boolean; start: number }[] {
+  const out: { text: string; comment: boolean; start: number }[] = [];
+  const re = /(\([^)]*\))|(\S+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(line))) out.push({ text: m[0], comment: !!m[1], start: m.index });
+  return out;
+}
+
+export function scrubWord(text: string): ScrubWord | null {
+  const m = /^([A-Z])(-?(?:\d+\.?\d*|\.\d+))$/.exec(text);
+  if (!m || !SCRUB_LETTERS.includes(m[1])) return null;
+  const frac = m[2].includes(".") ? m[2].split(".")[1].length : 0;
+  return { letter: m[1], value: Number(m[2]), step: frac === 0 ? 1 : Math.max(0.01, 10 ** -frac) };
+}
+
+/** Liczba w zapisie kursu: całkowite z kropką (`15.`), ułamki bez zbędnych zer (`12.5`, `-0.05`). */
+export function fmtWord(v: number): string {
+  const r = Math.round(v * 1000) / 1000;
+  if (Object.is(r, -0) || r === 0) return "0.";
+  return Number.isInteger(r) ? `${r}.` : String(r);
+}
+
+/** Klucz zmiany: `linia:indeks tokenu` (oba od 0). */
+export type Edits = Record<string, number>;
+
+/** Program z podmienionymi wartościami; reszta linii bajt w bajt bez zmian. */
+export function applyEdits(program: string, edits: Edits): string {
+  if (!Object.keys(edits).length) return program;
+  return program.split("\n").map((row, li) => {
+    const toks = tokens(row);
+    let out = "", last = 0;
+    toks.forEach((t, ti) => {
+      const v = edits[`${li}:${ti}`];
+      if (v === undefined || t.comment) return;
+      const w = scrubWord(t.text);
+      if (!w) return;
+      out += row.slice(last, t.start) + w.letter + fmtWord(v);
+      last = t.start + t.text.length;
+    });
+    return out + row.slice(last);
+  }).join("\n");
+}
