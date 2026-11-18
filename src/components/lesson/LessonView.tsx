@@ -20,6 +20,7 @@ import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
 import { LessonNav, LessonRail, LessonStatus } from "./LessonSide";
 import LessonSheet from "./LessonSheet";
+import Shared, { vtName } from "@/components/ui/Shared";
 
 function Sec({ id, n, title, children }: { id: string; n?: number; title: string; children: ReactNode }) {
   return (
@@ -84,7 +85,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
     <article className="ls">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { href: `/nauka/${track}`, label: T.title }, { label: doc.id }]} />
       <header className="ph lh">
-        <span className="ph-k"><b>{doc.id}</b> · {plan.module.id} {plan.module.title} · {T.title} · {doc.minutes} min</span>
+        <span className="ph-k"><Shared name={vtName("lek", doc.id)}><b className="vt-inline">{doc.id}</b></Shared> · {plan.module.id} {plan.module.title} · {T.title} · {doc.minutes} min</span>
         <h1 className="ph-title">{doc.title}</h1>
       </header>
 

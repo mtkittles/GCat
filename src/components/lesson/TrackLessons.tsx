@@ -8,6 +8,7 @@ import StatusLed from "@/components/tactile/StatusLed";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { isFinished, isPassed, isRead, progressKey, resetTrack, restoreProgress, useProgress } from "@/lib/progress";
 import { toast } from "sonner";
+import Shared, { vtName } from "@/components/ui/Shared";
 
 /*
   Plan ścieżki jako lista: przełącznik Frezowanie ↔ Toczenie, postęp z zapisu nauki (NumberFlow + linijka
@@ -74,7 +75,7 @@ export default function TrackLessons({ tracks, initial, nav = false, aside }: {
                     const body = (
                       <>
                         <StatusLed state={isPassed(p) ? "ready" : isRead(p) ? "ready" : isNext ? "on" : "idle"} pulse={isNext} className={isRead(p) ? "is-dim" : undefined} />
-                        <code className="tl-id">{l.id}</code>
+                        <Shared name={vtName("lek", l.id)}><code className="tl-id">{l.id}</code></Shared>
                         <span className="tl-t">{l.title}</span>
                         <span className="tl-tags">
                           {l.test && <span className="tl-tag">Test</span>}

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
 import AppToaster from "@/components/shell/AppToaster";
 import SmoothScroll from "@/components/shell/SmoothScroll";
+import ShortcutsHelp from "@/components/shell/ShortcutsHelp";
 import AppSidebar from "@/components/shell/AppSidebar";
 import AppTopbar from "@/components/shell/AppTopbar";
 import MobileDock from "@/components/shell/MobileDock";
@@ -84,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <CommandPalette programs={PALETTE_PROGRAMS} />
         <AppToaster />
         <SmoothScroll />
+        <ShortcutsHelp />
       </body>
     </html>
   );

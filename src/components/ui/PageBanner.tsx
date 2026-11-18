@@ -1,6 +1,8 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import Shared from "@/components/ui/Shared";
+import Decode from "@/components/ui/Decode";
 
 /*
   Baner sekcji: zdjęcie (wersja bez wtopionego napisu z /img/clean/), tytuł strony,
@@ -20,6 +22,8 @@ export interface BannerProps {
   /** Treść dymka pod przyciskiem „?”. */
   info?: ReactNode;
   mono?: boolean;
+  /** nazwa wspólnego elementu (B1) — tytuł „przylatuje” z listy albo panelu */
+  vtName?: string;
   size?: "default" | "compact" | "slim";
   priority?: boolean;
   /** Baner bez zdjęcia: tło panelu, ciemny tekst w jasnym motywie. */
@@ -28,7 +32,7 @@ export interface BannerProps {
 
 const clean = (s: string) => (s.startsWith("/img/banner-") ? s.replace("/img/banner-", "/img/clean/banner-") : s);
 
-export default function PageBanner({ src, title, subtitle, kicker, meta, info, mono, size = "default", priority, plain }: BannerProps) {
+export default function PageBanner({ src, title, subtitle, kicker, meta, info, mono, size = "default", priority, plain, vtName: vt }: BannerProps) {
   const noPhoto = plain || !src;
   const photo = noPhoto ? "" : clean(src!);
   const [layers, setLayers] = useState<{ src: string; key: number }[]>([{ src: photo, key: 0 }]);
@@ -76,7 +80,7 @@ export default function PageBanner({ src, title, subtitle, kicker, meta, info, m
         {!noPhoto && <div className="banner-scrim" />}
         <div className="banner-inner">
           {kicker && <span className="banner-kicker">{kicker}</span>}
-          <h1 className={`banner-title${mono ? " is-mono" : ""}`}>{title}</h1>
+          <h1 className={`banner-title${mono ? " is-mono" : ""}`}>{vt ? <Shared name={vt}><span className="vt-inline">{mono ? <Decode text={title} /> : title}</span></Shared> : mono ? <Decode text={title} /> : title}</h1>
           {subtitle && <p className="banner-sub">{subtitle}</p>}
           {meta && <div className="banner-meta">{meta}</div>}
         </div>

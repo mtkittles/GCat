@@ -1214,3 +1214,71 @@ p, li, .ph-lead { text-wrap: pretty; }
 .kc-grid > li { grid-template-columns: minmax(0, 1fr); min-width: 0; }
 .kc-card, .kc-syn, .kc-pair > * { min-width: 0; }
 .kc, .kc > * { min-width: 0; }
+
+/* ==========================================================================
+   17. Etap 10 — ruch: wspólne elementy (B1), motyw kołem (6), ściąga skrótów (5),
+       natywne rozwijanie i wejścia w CSS (8), przegląd animacji (9)
+   ========================================================================== */
+:root {
+  /* krzywe jak w zasadach Emila Kowalskiego: szybki start, miękkie wyhamowanie; bez sprężynowania w UI */
+  --ease-out: cubic-bezier(.23, 1, .32, 1);
+  --ease-in-out: cubic-bezier(.77, 0, .175, 1);
+  --ease-drawer: cubic-bezier(.32, .72, 0, 1);
+  interpolate-size: allow-keywords;
+}
+
+/* B1: element „przelatuje” z listy na stronę (kod, tytuł programu i zadania, numer lekcji) */
+.vt-inline { display: inline-block; }
+::view-transition-group(.vt-morph) { animation-duration: 340ms; animation-timing-function: var(--ease-out); }
+::view-transition-old(.vt-morph), ::view-transition-new(.vt-morph) { height: 100%; animation-duration: 340ms; }
+
+/* 6: motyw — koło od przycisku (animacja w lib/ui/themeSwitch.ts); stara warstwa stoi, nowa się odsłania */
+.vt-theme::view-transition-old(root), .vt-theme::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+
+/* 5: ściąga skrótów — natywny <dialog> z wejściem przez @starting-style */
+.kbd-help {
+  width: min(560px, calc(100vw - 2rem)); max-height: min(78vh, 640px); margin: auto; inset: 0; padding: 0; overflow: auto;
+  border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow);
+  opacity: 1; scale: 1;
+  transition: opacity .18s var(--ease-out), scale .18s var(--ease-out), display .18s allow-discrete, overlay .18s allow-discrete;
+}
+.kbd-help::backdrop { background: rgba(0, 0, 0, .5); transition: opacity .18s var(--ease-out), display .18s allow-discrete, overlay .18s allow-discrete; }
+.kbd-help:not([open]) { opacity: 0; scale: .97; }
+@starting-style { .kbd-help[open] { opacity: 0; scale: .97; } .kbd-help[open]::backdrop { opacity: 0; } }
+.kbd-help-in { display: grid; gap: 1rem; padding: 1rem 1.15rem 1.2rem; }
+.kbd-help-head { display: flex; align-items: center; justify-content: space-between; }
+.kbd-help-x { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--ink-2); cursor: pointer; }
+.kbd-help-x svg { width: 15px; height: 15px; }
+.kbd-help-g h2 { margin: 0 0 .45rem; font: 600 13px/1.2 var(--font-display); color: var(--ink); }
+.kbd-help-g dl { margin: 0; display: grid; gap: .1rem; }
+.kbd-help-g dl > div { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: .75rem; align-items: center; padding: .35rem 0; border-top: 1px solid var(--line-soft); }
+.kbd-help-g dt { display: flex; gap: .25rem; flex-wrap: wrap; }
+.kbd-help-g dd { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.kbd-help kbd, .pal-kbd { display: inline-grid; place-items: center; min-width: 1.6rem; height: 1.5rem; padding: 0 .4rem; border: 1px solid var(--line-strong); border-bottom-width: 2px; border-radius: 6px; background: var(--surface-2); font: 600 11.5px/1 var(--font-mono); color: var(--ink); }
+.pal-kbd { margin-left: auto; }
+
+/* 8: natywne rozwijanie sekcji (wysokość do auto bez JS); menu-dymki w <details> — bez animacji wysokości */
+details:not(.lay-menu):not(.view3d-menu):not(.pv-menu):not(.m-code):not(.rys-group)::details-content {
+  block-size: 0; overflow-y: clip;
+  transition: block-size .28s var(--ease-out), content-visibility .28s allow-discrete;
+}
+details:not(.lay-menu):not(.view3d-menu):not(.pv-menu):not(.m-code):not(.rys-group)[open]::details-content { block-size: auto; }
+/* menu rozwijane i dymki: krótkie wejście od strony przycisku */
+.lay-pop, .view3d-pop { transform-origin: top left; transition: opacity .16s var(--ease-out), scale .16s var(--ease-out); }
+@starting-style { .lay-pop, .view3d-pop { opacity: 0; scale: .97; } }
+
+/* 9: przegląd animacji — dymek pojęcia rośnie od miejsca kliknięcia zamiast wjeżdżać z dołu;
+   paleta wchodzi z lekkiej skali; nacisk przycisku płynny, nie skokowy */
+.term-pop { transform-origin: top left; animation: pop-in .16s var(--ease-out) both; }
+.pal { transform-origin: 50% 0; transition: opacity .16s var(--ease-out), scale .16s var(--ease-out); }
+@starting-style { .pal { opacity: 0; scale: .98; } .pal-overlay { opacity: 0; } }
+.pal-overlay { transition: opacity .16s var(--ease-out); }
+button, .btn, .key { transition-property: transform, background-color, border-color, color, box-shadow, opacity; transition-duration: .12s; transition-timing-function: var(--ease-out); }
+@media (prefers-reduced-motion: reduce) {
+  details::details-content { transition: none !important; }
+  .kbd-help, .kbd-help::backdrop, .lay-pop, .view3d-pop, .pal, .pal-overlay { transition: none !important; }
+  .term-pop { animation: none; }
+}
+/* ikona aktywnej zakładki doku bez „sprężyny” (przestrzał 1,4 męczył przy każdym przejściu) — wystarcza dioda i tło klawisza */
+.bottom-nav.dock a[aria-current="page"] svg, .bottom-nav.dock button.is-active svg { animation: none; }
+.vt-theme::view-transition-group(*) { animation-duration: 0s; }

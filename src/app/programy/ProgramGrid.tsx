@@ -8,6 +8,7 @@ import SpotlightCard from "@/components/tactile/SpotlightCard";
 import GcodeLine from "@/components/pulpit/gcodeTokens";
 import { useMedia } from "@/lib/ui/prefs";
 import { snapProps, useSheetSnap } from "@/lib/ui/sheetSnap";
+import Shared, { vtName } from "@/components/ui/Shared";
 
 /*
   Siatka gotowych programów: karta z miniaturą detalu na siatce współrzędnych, plakietkami narzędzi
@@ -47,7 +48,7 @@ export default function ProgramGrid({ groups, previews }: { groups: GridGroup[];
                       <Link href={`/programy/${p.slug}`} className="pgx-fig bg-cnc-grid" tabIndex={-1} aria-hidden>{previews[p.slug]}</Link>
                       <div className="pgx-body">
                         <span className="pgx-meta">{p.category} · {p.level}</span>
-                        <h4 id={`pgx-${p.slug}`} className="pgx-title"><Link href={`/programy/${p.slug}`}>{p.title}</Link></h4>
+                        <h4 id={`pgx-${p.slug}`} className="pgx-title"><Link href={`/programy/${p.slug}`}><Shared name={vtName("prog", p.slug)}><span className="vt-inline">{p.title}</span></Shared></Link></h4>
                         <p className="pgx-sum">{p.summary}</p>
                         <span className="pgx-tools" aria-label="Narzędzia">
                           {p.tools.map((t) => <code key={t.t} title={t.name}>{t.t}</code>)}
