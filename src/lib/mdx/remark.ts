@@ -4,6 +4,7 @@ import { visit } from "unist-util-visit";
 import { tableClass } from "@/lib/tableKind";
 import { resolveKey, type TermSources } from "./resolve";
 import { anchorRe } from "./schema";
+import { motionClass } from "@/lib/motionClass";
 
 /*
   Plugin remark dla treści GCat (MDX):
@@ -113,7 +114,7 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       if (m.index > last) out.push({ type: "text", value: s.slice(last, m.index) });
       const c = normCode(m[1]);
       if (self.has(c) || !known.has(c)) out.push(inlineCode(m[1]));
-      else out.push(termEl(c, [{ type: "mdxJsxTextElement", name: "code", attributes: [attr("className", "inline-code is-link")], children: [{ type: "text", value: m[1] }] }]));
+      else out.push(termEl(c, [{ type: "mdxJsxTextElement", name: "code", attributes: [attr("className", `inline-code is-link${motionClass(m[1])}`)], children: [{ type: "text", value: m[1] }] }]));
       last = m.index + m[0].length;
     }
     if (last < s.length) out.push({ type: "text", value: s.slice(last) });
@@ -264,9 +265,9 @@ export function remarkGcat(opts: GcatRemarkOptions) {
       return index + out.length;
     });
 
-    // 4. `kod` jak w rich(): klasa inline-code.
+    // 4. `kod` jak w rich(): klasa inline-code (+ kolor słowa ruchu, lib/motionClass).
     visit(tree, "inlineCode", (c: InlineCode) => {
-      c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), className: ["inline-code"] } };
+      c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), className: `inline-code${motionClass(c.value)}`.split(" ") } };
     });
 
     if (issues.length) throw new ContentError(file.path ?? "(treść)", issues);
