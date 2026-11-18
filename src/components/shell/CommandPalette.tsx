@@ -2,13 +2,15 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Command } from "cmdk";
-import { ArrowRight, CornerDownLeft, Search } from "lucide-react";
+import { ArrowRight, CornerDownLeft, Keyboard, Search } from "lucide-react";
+import { openShortcuts } from "./ShortcutsHelp";
 import { NAV_ALL } from "./nav";
 import StatusLed from "@/components/tactile/StatusLed";
 import GcodeLine from "@/components/pulpit/gcodeTokens";
 import { useMedia } from "@/lib/ui/prefs";
 import { fullscreenTool, isEditing, setPaletteOpen, usePaletteOpen } from "@/lib/ui/palette";
 import EmptyState from "@/components/ui/EmptyState";
+import Decode from "@/components/ui/Decode";
 
 /*
   Paleta poleceń Ctrl+K / ⌘K (cmdk). Indeks: karty kodów, lekcje, zadania i hasła słownika
@@ -80,6 +82,7 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
     if (results === null) {
       for (const n of NAV_ALL) m.set(`nav ${n.href}`, { href: n.href, title: n.label, sub: "" });
       for (const c of QUICK) m.set(`quick ${c.href}`, { href: c.href, title: `${c.code} — ${c.name}`, sub: "" });
+      m.set("help shortcuts", { href: "", title: "Skróty klawiszowe", sub: "pomoc · klawisz ?" });
     } else for (const r of results) m.set(r.href + r.title, { href: r.href, title: r.title, sub: r.sub });
     return m;
   }, [results]);
@@ -125,6 +128,13 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
                   </Command.Item>
                 );
               })}
+            </Command.Group>
+            <Command.Group heading="Pomoc" className="pal-group">
+              <Command.Item value="help shortcuts" onSelect={() => { setPaletteOpen(false); setQ(""); window.setTimeout(openShortcuts, 60); }} className="pal-item">
+                <Keyboard aria-hidden className="pal-ico" />
+                <span className="pal-title">Skróty klawiszowe</span>
+                <kbd className="pal-kbd">?</kbd>
+              </Command.Item>
             </Command.Group>
             <Command.Group heading="Często otwierane karty" className="pal-group">
               {QUICK.map((c) => (
@@ -172,7 +182,7 @@ export default function CommandPalette({ programs }: { programs: PaletteProgram[
           {pk ? (
             <>
               <span className="pal-peek-k"><StatusLed state={pk.kind === "kod" ? (pk.modal ? "ready" : "idle") : "on"} pulse={false} />{pk.sub}</span>
-              {pk.code && <code className="pal-peek-code">{pk.code}</code>}
+              {pk.code && <code className="pal-peek-code"><Decode text={pk.code} ms={260} /></code>}
               <b className="pal-peek-t">{pk.title}</b>
               {pk.text && <p className="pal-peek-x">{pk.text}</p>}
               {pk.syntax && (

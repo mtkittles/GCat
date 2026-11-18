@@ -15,6 +15,7 @@ import { bySlug, gcodes, levelName, type GCode } from "@/lib/gcodes";
 import { cardCodes, lessonsForCodes } from "@/lib/lessonRefs";
 import { OpenInSim } from "@/lib/mdx/components";
 import { readOnlyCaption } from "@/lib/simGaps";
+import { vtName } from "@/components/ui/Shared";
 
 /*
   Widok karty kodu — wspólny dla strony /kody/[slug] (render przy buildzie) i edytora treści (/edytor):
@@ -176,7 +177,7 @@ export default function CardView({ g, article, edit = (_k, v) => v, emptyArticle
     <>
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/kody", label: "Kody" }, { label: g.code }]} />
       {edit("head", (
-        <PageBanner plain kicker={g.group} title={g.code} subtitle={g.name} mono
+        <PageBanner plain kicker={g.group} title={g.code} subtitle={g.name} mono vtName={vtName("kod", g.slug)}
           meta={<>
             <Chip tone={g.level === 1 ? "success" : g.level === 2 ? "warning" : "danger"}>{levelName(g.level)}</Chip>
             <Chip>{g.modal ? "modalny" : "jednorazowy"}</Chip>

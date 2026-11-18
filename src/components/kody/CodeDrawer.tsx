@@ -10,6 +10,8 @@ import { levelName, type GCode } from "@/lib/gcodes";
 import { simHref } from "@/lib/simLink";
 import { useMedia } from "@/lib/ui/prefs";
 import { snapProps, useSheetSnap } from "@/lib/ui/sheetSnap";
+import Shared, { vtName } from "@/components/ui/Shared";
+import Decode from "@/components/ui/Decode";
 
 /*
   Szczegóły kodu bez opuszczania katalogu: panel Vaul z prawej (komputer) albo dolny arkusz
@@ -56,7 +58,7 @@ export default function CodeDrawer({ g, open, onClose }: { g: GCode | null; open
             <>
               <header className="cd-head">
                 <div className="cd-head-top">
-                  <code className="cd-code">{g.code}</code>
+                  <Shared name={vtName("kod", g.slug)}><code className="cd-code"><Decode text={g.code} /></code></Shared>
                   <span className="cd-modal"><StatusLed state={g.modal ? "ready" : "idle"} pulse={false} />{g.modal ? "Modalny" : "Niemodalny"}</span>
                   <Drawer.Close className="cd-x" aria-label="Zamknij"><X aria-hidden /></Drawer.Close>
                 </div>
