@@ -16,6 +16,12 @@ export function mergeLesson(a: LessonProgress = {}, b: LessonProgress = {}): Les
   const qa = a.quiz, qb = b.quiz;
   if (qa && qb) out.quiz = ratio(qa) > ratio(qb) ? qa : ratio(qb) > ratio(qa) ? qb : (qa.at >= qb.at ? qa : qb);
   else if (qa || qb) out.quiz = (qa ?? qb)!;
+  // dziennik dni: suma bitów z obu stron
+  if (a.log || b.log) {
+    const log: Record<string, number> = { ...(a.log ?? {}) };
+    for (const [d, bits] of Object.entries(b.log ?? {})) log[d] = (log[d] ?? 0) | bits;
+    out.log = log;
+  }
   return out;
 }
 

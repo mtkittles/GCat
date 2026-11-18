@@ -5,6 +5,7 @@ import SpotlightCard from "@/components/tactile/SpotlightCard";
 import StatusLed from "@/components/tactile/StatusLed";
 import CncPanel from "@/components/pulpit/CncPanel";
 import ResumePanel, { type ResumeLesson } from "@/components/pulpit/ResumePanel";
+import LearnMap from "@/components/pulpit/LearnMap";
 import TrackCards from "@/components/pulpit/TrackCards";
 import CodeWidget, { type CodeCard } from "@/components/pulpit/CodeWidget";
 import RpmWidget from "@/components/pulpit/RpmWidget";
@@ -71,7 +72,16 @@ export default function Home() {
         }))} />
       </section>
 
-      {/* 4: warsztat i baza */}
+      {/* 4: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
+      <section className="pz" aria-labelledby="pz-map">
+        <header className="pz-head">
+          <h2 id="pz-map" className="pz-title">Mapa nauki</h2>
+          <Link href="/nauka" className="bw-link">Plan kursu <ArrowRight aria-hidden /></Link>
+        </header>
+        <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} />
+      </section>
+
+      {/* 5: warsztat i baza */}
       <section className="pz" aria-labelledby="pz-tools">
         <header className="pz-head">
           <h2 id="pz-tools" className="pz-title">Warsztat i baza wiedzy</h2>
