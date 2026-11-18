@@ -13,6 +13,7 @@ import { DIGITS, groupOf, hasla } from "@/lib/glossaryIndex";
 import Term from "@/components/ui/Term";
 import NumberFlow from "@number-flow/react";
 import { Search, X } from "lucide-react";
+import EmptyState from "@/components/ui/EmptyState";
 
 export type LessonLink = { id: string; title: string; href: string };
 
@@ -195,7 +196,10 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
           );
         })}
         {shown.length === 0 && (
-          <p className="gl-empty">Brak haseł pasujących do „{q.trim()}”. Sprawdź pisownię albo <button type="button" className="link-btn" onClick={() => setQ("")}>wyczyść wyszukiwanie</button>.</p>
+          <EmptyState title={`Brak haseł pasujących do „${q.trim()}”.`}
+            action={<button type="button" className="key empty-btn" onClick={() => setQ("")}>Wyczyść wyszukiwanie</button>}>
+            Sprawdź pisownię albo wpisz krótszy fragment — szukanie obejmuje też nazwy zamienne haseł.
+          </EmptyState>
         )}
       </div>
     </div>

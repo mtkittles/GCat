@@ -1127,3 +1127,90 @@ html.lenis { scroll-behavior: auto !important; }
 .pv-pop label.is-off { opacity: .5; cursor: default; }
 .pv-acts { display: flex; gap: .4rem; padding-top: .45rem; border-top: 1px solid var(--line); }
 .pv-acts .key { flex: 1; height: 32px; padding: 0 .6rem; font: 600 12.5px/1 var(--font-sans); }
+
+/* ==========================================================================
+   16. Etap 9 — „ciszej i równiej”: rytm strony, łagodniejsze krawędzie, puste stany, szkielety
+   ========================================================================== */
+/* Odstęp treści od paska strony. Klasa py-7 na <main> nie działała: niewarstwowe .wrap { padding: 0 … }
+   z globals.css wygrywa z warstwą utilities Tailwinda. Narzędzia pełnoekranowe (symulator, rysownik) bez odstępu. */
+main.wrap { padding-top: clamp(1.25rem, 2.4vw, 2rem); padding-bottom: clamp(2rem, 4vw, 3.5rem); }
+main.wrap:has(.workbench.is-app), main.wrap:has(.rys-shell), main.wrap:has(.ed-shell) { padding-top: 0; padding-bottom: 0; }
+
+/* typografia: nagłówki wyważone, akapity bez sierot */
+h1, h2, h3, .ph-title { text-wrap: balance; }
+p, li, .ph-lead { text-wrap: pretty; }
+
+/* krawędź łagodniejsza dla elementów zagnieżdżonych w kartach (pudełko w pudełku) */
+:root { --line-soft: color-mix(in srgb, var(--line) 55%, transparent); }
+.kc-syn pre, .cd-syn { border-color: var(--line-soft); }
+.kc-syn pre { background: color-mix(in srgb, var(--bg) 70%, var(--surface)); }
+
+/* pusty stan */
+.empty { display: grid; justify-items: start; gap: .45rem; padding: 1.4rem 1.5rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg, 14px); background: color-mix(in srgb, var(--surface) 55%, transparent); }
+.empty.is-compact { margin: .6rem .4rem; padding: 1rem 1.1rem; }
+.empty-k { display: inline-flex; align-items: center; gap: .45rem; font: 600 10.5px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.empty-t { margin: 0; font: 650 1rem/1.35 var(--font-display); color: var(--ink); }
+.empty-h { margin: 0; max-width: 62ch; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
+.empty-a { padding-top: .35rem; }
+.empty-btn { flex: none; display: inline-flex; width: auto; height: 34px; padding: 0 .85rem; font: 600 13px/1 var(--font-sans); }
+
+/* szkielety ładowania: ciche pulsowanie zamiast pustego pola */
+.skel { position: relative; overflow: hidden; background: var(--surface-2); border-radius: 10px; }
+.skel::after { content: ""; position: absolute; inset: 0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--ink) 6%, transparent), transparent); animation: skel 1.4s ease-in-out infinite; }
+@keyframes skel { to { transform: translateX(100%); } }
+.skel-code { background-color: var(--surface); background-image: repeating-linear-gradient(180deg, transparent 0 10px, var(--surface-2) 10px 18px, transparent 18px 24px); background-size: 70% 100%; background-repeat: no-repeat; background-position: 3rem 12px; }
+.pal-loading { display: grid; gap: .5rem; padding: .8rem .6rem; }
+.skel-row { display: block; height: 38px; border-radius: 9px; }
+.skel-row.is-short { width: 60%; }
+@media (prefers-reduced-motion: reduce) { .skel::after { animation: none; } }
+
+/* arkusz z punktami zatrzymania (Vaul): pełna wysokość, przesuwany do połowy; treść przewija się dopiero po rozwinięciu */
+.vd-bottom.is-snap, .vd-bottom.cd.is-snap { height: 94dvh; max-height: 94dvh; }
+.vd-bottom.is-snap:not(.is-full) .cd-body { overflow: hidden; }
+
+/* powiadomienie z „Cofnij” */
+[data-sonner-toaster] [data-sonner-toast].toast [data-button] {
+  height: 28px; padding: 0 .7rem; border-radius: 7px; background: var(--accent); color: var(--on-accent, #111); font: 600 12.5px/1 var(--font-sans);
+}
+
+/* paleta Ctrl+K z podglądem (≥ 960 px): lista po lewej, karta wybranej pozycji po prawej */
+.pal-body { flex: 1; min-height: 0; display: flex; }
+.pal-body .pal-list { flex: 1; min-width: 0; }
+.pal.has-peek { width: min(920px, calc(100vw - 2rem)); max-height: min(600px, 78vh); }
+.pal-peek {
+  flex: none; width: 340px; display: flex; flex-direction: column; gap: .55rem; padding: 1rem 1.05rem;
+  border-left: 1px solid var(--line); background: color-mix(in srgb, var(--bg) 60%, var(--surface)); overflow-y: auto; overscroll-behavior: contain;
+}
+.pal-peek-k { display: inline-flex; align-items: center; gap: .45rem; font: 600 10.5px/1.3 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pal-peek-code { font: 700 1.6rem/1.1 var(--font-mono); color: var(--accent-ink); letter-spacing: -.01em; }
+.pal-peek-t { font: 650 1rem/1.35 var(--font-display); color: var(--ink); }
+.pal-peek-x { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.pal-peek-syn { display: grid; gap: .45rem; }
+.pal-peek-syn small { display: block; margin-bottom: .2rem; font: 600 10px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.pal-peek-syn pre { margin: 0; display: grid; padding: .45rem .6rem; border: 1px solid var(--line-soft); border-radius: 8px; background: var(--bg); font: 400 12px/1.6 var(--font-mono); overflow-x: auto; }
+.pal-peek-syn pre code { white-space: pre; }
+.pal-peek-go { margin-top: auto; display: inline-flex; align-items: center; gap: .4rem; padding-top: .6rem; font-size: 12px; color: var(--muted); }
+.pal-peek-go svg { width: 11px; height: 11px; }
+
+/* Faktura „obudowy maszyny” (B7): drobne ziarno na elementach pulpitu — panel boczny, pasek strony, dok, arkusze,
+   paleta i panel sterowania na pulpicie. Krycie 2–6%, kafelek 180 px z SVG (bez plików, bez JS). Wyłączone przy
+   prefers-contrast: more i w druku. Zmiana tylko wyglądu: kolory tła bez zmian. */
+:root {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 .1 0 0 0 -.035'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+[data-theme="light"] {
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .08 0 0 0 -.025'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.sb, .topbar, .bottom-nav.dock, .vd, .pal, .pw, .tsc, .key {
+  background-image: var(--grain);
+  background-size: 180px 180px;
+}
+@media (prefers-contrast: more) { .sb, .topbar, .bottom-nav.dock, .vd, .pal, .pw, .tsc, .key { background-image: none; } }
+@media print { .sb, .topbar, .bottom-nav.dock, .vd, .pal, .pw, .tsc, .key { background-image: none; } }
+/* cmdk opakowuje treść w [cmdk-root]: kolumna z przewijaną listą, stopka zawsze widoczna */
+.pal > [cmdk-root] { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.pal-body { min-height: 0; }
+/* telefon: długie linie składni nie rozpychają kart (siatka elementu li bez min-width: 0 poszerzała stronę do ~540 px) */
+.kc-grid > li { grid-template-columns: minmax(0, 1fr); min-width: 0; }
+.kc-card, .kc-syn, .kc-pair > * { min-width: 0; }
+.kc, .kc > * { min-width: 0; }

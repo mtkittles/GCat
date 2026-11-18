@@ -9,6 +9,7 @@ import StatusLed from "@/components/tactile/StatusLed";
 import { levelName, type GCode } from "@/lib/gcodes";
 import { simHref } from "@/lib/simLink";
 import { useMedia } from "@/lib/ui/prefs";
+import { snapProps, useSheetSnap } from "@/lib/ui/sheetSnap";
 
 /*
   Szczegóły kodu bez opuszczania katalogu: panel Vaul z prawej (komputer) albo dolny arkusz
@@ -42,12 +43,14 @@ export default function CodeDrawer({ g, open, onClose }: { g: GCode | null; open
   const wide = useMedia("(min-width: 768px)", true);
   const self = g ? g.code.toUpperCase().split(/[\s/–-]+/).filter((c) => /^[GM]\d/.test(c)) : [];
   const mode = g ? g.exampleMode ?? (g.turning && !g.milling ? "lathe" : "mill") : "mill";
+  const sheet = useSheetSnap(open && !!g);
 
   return (
-    <Drawer.Root open={open && !!g} onOpenChange={(v) => { if (!v) onClose(); }} direction={wide ? "right" : "bottom"}>
+    <Drawer.Root open={open && !!g} onOpenChange={(v) => { if (!v) onClose(); }} direction={wide ? "right" : "bottom"}
+      {...snapProps(!wide, sheet)}>
       <Drawer.Portal>
         <Drawer.Overlay className="vd-overlay" />
-        <Drawer.Content className={`vd ${wide ? "vd-right" : "vd-bottom"} cd`} aria-describedby={undefined}>
+        <Drawer.Content className={`vd ${wide ? "vd-right" : `vd-bottom is-snap${sheet.full ? " is-full" : ""}`} cd`} aria-describedby={undefined}>
           {!wide && <div className="vd-handle" aria-hidden />}
           {g && (
             <>

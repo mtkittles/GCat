@@ -6,7 +6,8 @@ import NumberFlow from "@number-flow/react";
 import { ArrowRight } from "lucide-react";
 import StatusLed from "@/components/tactile/StatusLed";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
-import { isFinished, isPassed, isRead, progressKey, resetTrack, useProgress } from "@/lib/progress";
+import { isFinished, isPassed, isRead, progressKey, resetTrack, restoreProgress, useProgress } from "@/lib/progress";
+import { toast } from "sonner";
 
 /*
   Plan ścieżki jako lista: przełącznik Frezowanie ↔ Toczenie, postęp z zapisu nauki (NumberFlow + linijka
@@ -103,7 +104,11 @@ export default function TrackLessons({ tracks, initial, nav = false, aside }: {
             {T.partFig}
           </div>
           {aside}
-          {started && <button type="button" className="tp-reset" onClick={() => { if (window.confirm(`Wyzerować postęp ścieżki ${T.title.toLowerCase()}?`)) resetTrack(track); }}>Wyzeruj postęp ścieżki</button>}
+          {started && <button type="button" className="tp-reset" onClick={() => {
+            // bez okna potwierdzenia: zerowanie od razu, z możliwością cofnięcia w powiadomieniu
+            const prev = resetTrack(track);
+            toast(`Wyzerowano postęp: ${T.title.toLowerCase()}`, { action: { label: "Cofnij", onClick: () => restoreProgress(prev) }, duration: 8000 });
+          }}>Wyzeruj postęp ścieżki</button>}
         </aside>
       </div>
     </div>

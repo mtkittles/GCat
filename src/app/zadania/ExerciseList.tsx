@@ -6,6 +6,7 @@ import StatusLed from "@/components/tactile/StatusLed";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { exercises } from "@/lib/content";
 import { useDone } from "@/lib/exercisesDone";
+import EmptyState from "@/components/ui/EmptyState";
 
 /*
   Lista zadań: nagłówek z postępem (zaliczone z zapisu w przeglądarce / koncie), przełączniki maszyny
@@ -72,6 +73,10 @@ export default function ExerciseList({ previews = {} }: { previews?: Record<stri
           );
         })}
       </ol>
+      {shown.length === 0 && (
+        <EmptyState title="Brak zadań dla tej maszyny na wybranym poziomie."
+          action={<button type="button" className="key empty-btn" onClick={() => { setMode("all"); setLvl("0"); }}>Pokaż wszystkie zadania</button>} />
+      )}
     </div>
   );
 }

@@ -9,6 +9,7 @@ import GcodeLine from "@/components/pulpit/gcodeTokens";
 import CodeDrawer from "@/components/kody/CodeDrawer";
 import { levelName, type GCode } from "@/lib/gcodes";
 import { codeParts, groupId } from "@/lib/codeRange";
+import EmptyState from "@/components/ui/EmptyState";
 
 /*
   Katalog /kody: przyklejony pasek (szukanie, licznik, język sterowania: Fanuc / Sinumerik / porównanie 1:1),
@@ -157,7 +158,10 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
       ))}
 
       {list.length === 0 && (
-        <p className="text-muted" role="status">Nic nie pasuje do wybranych filtrów{q.trim() ? ` i frazy „${q.trim()}”` : ""}. <button type="button" className="link-btn" onClick={clear}>Wyczyść filtry</button></p>
+        <EmptyState title={`Żadna karta nie pasuje do filtrów${q.trim() ? ` i frazy „${q.trim()}”` : ""}.`}
+          action={<button type="button" className="key empty-btn" onClick={clear}>Wyczyść filtry</button>}>
+          Szukaj po kodzie (G83), nazwie (łuk) albo słowie z opisu (chłodziwo).
+        </EmptyState>
       )}
 
       <CodeDrawer g={sel} open={open} onClose={() => setOpen(false)} />

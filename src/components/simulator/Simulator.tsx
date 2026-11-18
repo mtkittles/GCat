@@ -45,11 +45,11 @@ import SplitHandle from "./SplitHandle";
 import SimDro from "./SimDro";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { useMedia } from "@/lib/ui/prefs";
-const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor" style={{ minHeight: 200 }} /> });
+const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
 const FullscreenSim = dynamic(() => import("./FullscreenSim"), { ssr: false });
-const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas" style={{ height: 360 }} /> });
+const Sim3D = dynamic(() => import("./Sim3D"), { ssr: false, loading: () => <div className="sim-canvas skel" style={{ height: 360 }} aria-busy="true" aria-label="Wczytywanie podglądu 3D" /> });
 
 interface Props {
   source: string;

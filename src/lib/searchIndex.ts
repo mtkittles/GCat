@@ -69,3 +69,32 @@ export function search(query: string, limit = 25): Hit[] {
   }
   return hits.sort((a, b) => b.score - a.score).slice(0, limit);
 }
+
+/** Podgląd pozycji w palecie Ctrl+K (prawa kolumna): krótki opis, a dla kodu — składnia obu sterowań. */
+export interface Peek {
+  kind: SearchDoc["kind"]; title: string; sub: string; text: string; href: string;
+  code?: string; syntax?: { fanuc: string; sinumerik: string }; modal?: boolean;
+}
+const clean = (s: string) => s.replace(/\*\*|`|\[\[([^\]|]+)\|?([^\]]*)\]\]/g, (_m, a, b) => (a ? (b || a) : "")).replace(/\s+/g, " ").trim();
+const firstLines = (s: string, n = 2) => s.split("\n").slice(0, n).join("\n");
+
+export function peek(href: string): Peek | null {
+  const path = href.split("#")[0];
+  const code = gcodes.find((g) => `/kody/${g.slug}` === path);
+  if (code) return {
+    kind: "kod", title: code.name, sub: `${code.group} · ${code.modal ? "modalny" : "niemodalny"}`, text: clean(code.short), href,
+    code: code.code, modal: code.modal, syntax: code.syntax ? { fanuc: firstLines(code.syntax.fanuc), sinumerik: firstLines(code.syntax.sinumerik) } : undefined,
+  };
+  if (path === "/slownik") {
+    const g = glossary.find((x) => `/slownik#${x.anchor}` === href);
+    if (g) return { kind: "pojęcie", title: g.term, sub: g.aliases.length ? `także: ${g.aliases.slice(0, 3).join(", ")}` : "słownik", text: clean(g.def), href };
+  }
+  const ex = exercises.find((e) => `/zadania/${e.slug}` === path);
+  if (ex) return { kind: "zadanie", title: ex.title, sub: ex.mode === "mill" ? "zadanie · frezowanie" : "zadanie · toczenie", text: clean(ex.brief), href };
+  const doc = searchDocs.find((d) => d.kind === "lekcja" && d.href === path);
+  if (doc) {
+    const l = (["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((x) => ({ x, href: lessonHref(t, x.slug!) }))).find((o) => o.href === path);
+    return { kind: "lekcja", title: doc.title, sub: doc.subtitle, text: clean(l?.x.doc?.goal ?? ""), href };
+  }
+  return null;
+}

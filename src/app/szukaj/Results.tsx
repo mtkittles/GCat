@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { search } from "@/lib/searchIndex";
+import EmptyState from "@/components/ui/EmptyState";
 
 const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie"] as const;
 
@@ -34,7 +35,7 @@ export default function Results() {
           </Link>
         ))}
       </div>
-      {q.length >= 2 && shown.length === 0 && <p className="text-muted">Nic nie znaleziono. Spróbuj krótszej frazy, na przykład „łuk” albo „G83”.</p>}
+      {q.length >= 2 && shown.length === 0 && <EmptyState title={`Nic nie znaleziono dla „${q}”.`}>Spróbuj krótszej frazy, na przykład „łuk” albo „G83”.</EmptyState>}
     </div>
   );
 }

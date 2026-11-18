@@ -7,6 +7,7 @@ import { ArrowRight, Code2, Copy, Play, X } from "lucide-react";
 import SpotlightCard from "@/components/tactile/SpotlightCard";
 import GcodeLine from "@/components/pulpit/gcodeTokens";
 import { useMedia } from "@/lib/ui/prefs";
+import { snapProps, useSheetSnap } from "@/lib/ui/sheetSnap";
 
 /*
   Siatka gotowych programów: karta z miniaturą detalu na siatce współrzędnych, plakietkami narzędzi
@@ -28,6 +29,7 @@ async function copy(text: string) {
 export default function ProgramGrid({ groups, previews }: { groups: GridGroup[]; previews: Record<string, ReactNode> }) {
   const [sel, setSel] = useState<GridProgram | null>(null);
   const [open, setOpen] = useState(false);
+  const sheet = useSheetSnap(open && !!sel);
   const wide = useMedia("(min-width: 768px)", true);
 
   return (
@@ -65,10 +67,11 @@ export default function ProgramGrid({ groups, previews }: { groups: GridGroup[];
         </section>
       ))}
 
-      <Drawer.Root open={open && !!sel} onOpenChange={(v) => { if (!v) setOpen(false); }} direction={wide ? "right" : "bottom"}>
+      <Drawer.Root open={open && !!sel} onOpenChange={(v) => { if (!v) setOpen(false); }} direction={wide ? "right" : "bottom"}
+        {...snapProps(!wide, sheet)}>
         <Drawer.Portal>
           <Drawer.Overlay className="vd-overlay" />
-          <Drawer.Content className={`vd ${wide ? "vd-right" : "vd-bottom"} cd`} aria-describedby={undefined}>
+          <Drawer.Content className={`vd ${wide ? "vd-right" : `vd-bottom is-snap${sheet.full ? " is-full" : ""}`} cd`} aria-describedby={undefined}>
             {!wide && <div className="vd-handle" aria-hidden />}
             {sel && (
               <>

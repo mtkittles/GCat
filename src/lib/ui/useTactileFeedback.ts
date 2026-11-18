@@ -2,9 +2,9 @@
 import { useCallback } from "react";
 
 /*
-  Sprzężenie zwrotne przycisku membranowego: krótki klik z Web Audio API (bez plików)
-  i mikro-wibracja 8 ms na telefonie. Działa tylko po włączeniu „Dźwięk pulpitu”
-  (data-sound="1", zapis w localStorage — src/lib/ui/prefs.ts).
+  Sprzężenie zwrotne przycisku membranowego: krótki klik z Web Audio API (bez plików, po włączeniu
+  „Dźwięk pulpitu”, data-sound="1") i mikro-wibracja na telefonie (domyślnie, wyłączana: data-haptic="0").
+  Zapis w localStorage — src/lib/ui/prefs.ts.
 */
 
 let ctx: AudioContext | null = null;
@@ -47,11 +47,18 @@ function click(strength = 1) {
   thump.start(t); thump.stop(t + 0.05);
 }
 
-/** Zwraca funkcję wywoływaną przy przełączeniu trybu / kroku. Bez włączonego dźwięku nic nie robi. */
+/**
+ * Zwraca funkcję wywoływaną przy przełączeniu trybu / kroku. Dźwięk — tylko po włączeniu „Dźwięk pulpitu”;
+ * wibracja (ekran dotykowy, przeglądarki z Vibration API, np. Chrome na Androidzie) — domyślnie włączona,
+ * wyłączana przełącznikiem „Wibracje” (data-haptic="0"). Siła przekłada się na długość impulsu (5–10 ms).
+ */
 export function useTactileFeedback() {
   return useCallback((strength = 1) => {
-    if (typeof document === "undefined" || document.documentElement.dataset.sound !== "1") return;
-    try { click(strength); } catch { /* przeglądarka bez Web Audio */ }
-    if (window.matchMedia("(pointer: coarse)").matches) navigator.vibrate?.(8);
+    if (typeof document === "undefined") return;
+    const d = document.documentElement.dataset;
+    if (d.sound === "1") { try { click(strength); } catch { /* przeglądarka bez Web Audio */ } }
+    if (d.haptic !== "0" && window.matchMedia("(pointer: coarse)").matches) {
+      try { navigator.vibrate?.(Math.round(5 + 5 * Math.min(1, strength))); } catch { /* bez Vibration API */ }
+    }
   }, []);
 }
