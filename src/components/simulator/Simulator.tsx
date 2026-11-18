@@ -40,6 +40,7 @@ export type SimMode = "mill" | "lathe";
 export type Dialect = "fanuc" | "sinumerik";
 
 import { carveRange } from "./carveRange";
+import { DEPTH_DEEP, DEPTH_TOP, deepestCut, depthShade, pathWindow, PATH_MODES, segPart, toolColor, toolSpanAt, VIEW_BACKPLOT, VIEW_CLEAN, VIEW_LESSON, VIEW_MATERIAL, type PathMode, type PathView, type Span } from "./pathView";
 import SplitHandle from "./SplitHandle";
 import SimDro from "./SimDro";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
@@ -125,13 +126,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
   const [full, setFull] = useState(false);
   const [tall, setTall] = useState(false);
-  const [showStock, setShowStock] = useState(true);
+  // Warstwy podglądu jak w CAM: tryb „Tor” (bez materiału) albo „Materiał” (ubytek, tor jako ślad za narzędziem).
+  // Na stronie symulatora zapamiętane w przeglądarce, w lekcjach i zadaniach — lokalnie (materiał i cały tor).
+  const [pvLocal, setPvLocal] = useState<PathView>(VIEW_LESSON);
+  const pv: PathView = appLayout ? layout.pv : pvLocal;
+  const setPv = (patch: Partial<PathView>) => (appLayout ? setLayout({ pv: { ...layout.pv, ...patch } }) : setPvLocal((v) => ({ ...v, ...patch })));
+  const showStock = pv.stock;
   // tor narzędzia na podglądzie — przy gęstych programach z CAM zasłania powierzchnię detalu
-  const [showPath, setShowPath] = useState(true);
+  const showPath = pv.path !== "none";
+  const togglePath = () => setPv({ path: pv.path === "none" ? (pv.stock ? "tail" : "all") : "none" });
   // „2D + 3D” tylko tam, gdzie mieszczą się dwa podglądy obok siebie (jak dotąd .only-split od 1100 px)
   const wideDesk = useMedia("(min-width: 1100px)");
-  // warstwy podglądu 2D (Etap 5): ruchy szybkie G00 i siatka współrzędnych
-  const [showRapid, setShowRapid] = useState(true);
+  // warstwy podglądu 2D: ruchy szybkie G00 i siatka współrzędnych
+  const showRapid = pv.rapid;
   const [showGrid, setShowGrid] = useState(true);
   // poza stroną symulatora (lekcje): opcja „klik w linię” bez zapisu w przeglądarce
   const [jumpLocal, setJumpLocal] = useState(false);
@@ -196,6 +203,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     if (mode !== "mill" || setup.stock.auto || isCyl(setup, mode) || multi) return undefined;
     return stockBoxes(program, program.segments, setup).map((b) => ({ minX: b.x0, maxX: b.x1, minY: b.y0, maxY: b.y1, top: b.top, bottom: b.bottom }));
   }, [mode, setup, program, multi]);
+  // wysokości ruchów roboczych — skala cieniowania głębokości w 2D
+  const cutZs = useMemo(() => { const z: number[] = []; for (const sg of program.segments) if (sg.kind !== "rapid" && sg.kind !== "dwell") z.push(sg.from.z, sg.to.z); return z; }, [program]);
   // promień narzędzia aktywnego w bloku z G41/G42 (dojazd sprawdzany względem właściwego freza)
   const compR = useMemo(() => (tool: number | null) => cuttingRadius(toolOf(setup, tool, mode)), [setup, mode]);
   const issues = useMemo(() => {
@@ -507,7 +516,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
       const [, ay] = P({ x: 0, y: 0, z: 0 });
       ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(W, ay); ctx.stroke(); ctx.restore();
-      const cut = segments.filter((s) => s.kind !== "rapid");
+      // lustrzany tor tylko przy całym torze (w trybie „Materiał” ze śladem — dolna połowa bez linii)
+      const cut = showcase || pv.path === "all" ? segments.filter((s) => s.kind !== "rapid") : [];
       ctx.save(); ctx.globalAlpha = 0.25;
       for (const sg of cut) {
         ctx.strokeStyle = COLORS[sg.kind]; ctx.lineWidth = 2; ctx.beginPath();
@@ -607,7 +617,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const lx = layer.getContext("2d");
         if (lx) {
           const rects = boxes.map((box) => { const [mx0, my0] = P({ x: box.x0, y: box.y0, z: 0 }); const [mx1, my1] = P({ x: box.x1, y: box.y1, z: 0 }); return [Math.min(mx0, mx1), Math.min(my0, my1), Math.abs(mx1 - mx0), Math.abs(my1 - my0)] as const; });
-          const lkey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${mode}|${rects.map((r) => r.join(",")).join(";")}`;
+          const depth = pv.depth;
+          const lkey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${mode}|${depth}|${rects.map((r) => r.join(",")).join(";")}`;
           const prev = layerState.current;
           const fresh = !prev || prev.key !== lkey || prev.segs !== segments || prev.setup !== setup || prev.program !== program || progress < prev.progress
             || layer.width !== cv.width || layer.height !== cv.height;
@@ -617,35 +628,86 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             else { lx.setTransform(1, 0, 0, 1, 0, 0); lx.globalCompositeOperation = "source-over"; lx.clearRect(0, 0, layer.width, layer.height); }
             lx.setTransform(dpr, 0, 0, dpr, 0, 0);
             lx.globalCompositeOperation = "source-over";
-            lx.fillStyle = "rgba(148,163,184,0.20)";
+            // cieniowanie głębokości: nieprzezroczysta powierzchnia (krycie przy nakładaniu na podgląd); bez — półprzezroczysty prostokąt
+            lx.fillStyle = depth ? `rgb(${DEPTH_TOP.join(",")})` : "rgba(148,163,184,0.20)";
             for (const r of rects) lx.fillRect(...r);
           }
 
-          // wycięcie śladu narzędzia (od `from` do `progress`)
+          // Wycięcie śladu narzędzia (od `from` do `progress`). Ruch nad materiałem nic nie zbiera.
+          // Cieniowanie: ślad w barwie głębokości dna (koniec narzędzia), nakładany trybem „darken” —
+          // zostaje najgłębsze przejście; na wylot — wycięcie do tła. Bez cieniowania — zdjęty materiał znika.
+          // Uproszczenie: płaskie dno o szerokości średnicy skrawającej (frez kulisty i fazowy — jak walcowy).
           lx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          lx.globalCompositeOperation = "destination-out";
-          lx.lineCap = "round"; lx.lineJoin = "round"; lx.strokeStyle = "#000";
-          for (const { i, d0, d1 } of carveRange(lengths, from, progress)) {
-            const sg = segments[i];
-            if (sg.kind === "rapid") continue;
-            const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
-            lx.lineWidth = Math.max(1.5, cuttingRadius(tl) * 2 * scale);
-            lx.beginPath();
+          lx.lineCap = "round"; lx.lineJoin = "round";
+          const pieces = (sg: Segment, d0: number, d1: number, box: { top: number; bottom: number }, deep: number) => {
+            // podział wzdłuż Z tylko tam, gdzie zmienia się barwa głębokości (program z CAM: krótkie odcinki, 1 kawałek)
+            const za = pointAt(sg, d0).z, zb = pointAt(sg, d1).z, dz = Math.abs(zb - za);
+            const zSteps = depth && dz > 1e-6 && depthShade(za, box.top, box.bottom, deep) !== depthShade(zb, box.top, box.bottom, deep)
+              ? Math.min(32, Math.max(2, Math.ceil(dz / 0.5))) : 1;
             // od początku odcinka — jak dotąd (40 kroków na łuk); dokładany kawałek — proporcjonalnie mniej
-            const n = sg.kind === "arc" ? (d0 === 0 ? 40 : Math.max(1, Math.ceil(40 * (d1 - d0)))) : 1;
-            const [sx, sy] = d0 === 0 ? P(sg.from) : P(pointAt(sg, d0)); lx.moveTo(sx, sy);
-            for (let k = 1; k <= n; k++) { const [x, y] = P(pointAt(sg, d0 + (k / n) * (d1 - d0))); lx.lineTo(x, y); }
-            lx.stroke();
-          }
+            const arcSteps = sg.kind === "arc" ? (d0 === 0 ? 40 : Math.max(1, Math.ceil(40 * (d1 - d0)))) : 1;
+            return Math.max(zSteps, arcSteps);
+          };
+          const deeps = boxes.map((box) => deepestCut(cutZs, box.top, box.bottom));
+          boxes.forEach((box, bi) => {
+            const r = rects[bi];
+            lx.save();
+            lx.beginPath(); lx.rect(...r); lx.clip();
+            for (const { i, d0, d1 } of carveRange(lengths, from, progress)) {
+              const sg = segments[i];
+              if (sg.kind === "rapid") continue;
+              const tl = toolOf(setup, program.lines[sg.line]?.state.tool ?? null, mode);
+              lx.lineWidth = Math.max(1.5, cuttingRadius(tl) * 2 * scale);
+              const n = pieces(sg, d0, d1, box, deeps[bi]);
+              // kolejne kawałki o tej samej barwie — jedna ścieżka (jak dotąd: jedna na odcinek)
+              let style: string | null = null;
+              const flush = () => { if (style !== null) lx.stroke(); style = null; };
+              for (let k = 0; k < n; k++) {
+                const a = pointAt(sg, d0 + (k / n) * (d1 - d0)), b = pointAt(sg, d0 + ((k + 1) / n) * (d1 - d0));
+                const shade = depthShade(Math.min(a.z, b.z), box.top, box.bottom, deeps[bi]);
+                if (shade === null) { flush(); continue; }
+                const st = !depth || shade === "through" ? "out" : shade;
+                const [sx, sy] = P(a), [ex, ey] = P(b);
+                if (st !== style) {
+                  flush();
+                  if (st === "out") { lx.globalCompositeOperation = "destination-out"; lx.strokeStyle = "#000"; }
+                  else { lx.globalCompositeOperation = "darken"; lx.strokeStyle = st; }
+                  style = st; lx.beginPath(); lx.moveTo(sx, sy);
+                }
+                lx.lineTo(ex, ey);
+              }
+              flush();
+            }
+            lx.restore();
+          });
           layerState.current = { key: lkey, segs: segments, setup, program, progress };
 
+          ctx.save();
+          if (pv.depth) ctx.globalAlpha = 0.6;
           ctx.drawImage(layer, 0, 0, W, H);
+          ctx.restore();
 
           // obrys półfabrykatu — granica materiału pozostaje czytelna
           ctx.save();
           ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1.2;
           for (const r of rects) ctx.strokeRect(...r);
           ctx.restore();
+
+          // skala głębokości (prawy górny róg): góra półfabrykatu → dół
+          if (depth) {
+            const b0 = boxes[0], lw = 96, lh = 6, lxp = W < 600 && hudHtml ? 14 : W - lw - 14, lyp = 22; // telefon: z lewej (z prawej przyciski widoku), chyba że tam tabelka
+            ctx.save();
+            ctx.globalAlpha = 0.85;
+            const gr = ctx.createLinearGradient(lxp, 0, lxp + lw, 0);
+            gr.addColorStop(0, `rgb(${DEPTH_TOP.join(",")})`); gr.addColorStop(1, `rgb(${DEPTH_DEEP.join(",")})`);
+            ctx.fillStyle = gr; ctx.fillRect(lxp, lyp, lw, lh);
+            ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1; ctx.strokeRect(lxp + 0.5, lyp + 0.5, lw - 1, lh - 1);
+            ctx.globalAlpha = 1; ctx.fillStyle = COLORS.axis; ctx.font = "10px ui-monospace, monospace";
+            ctx.fillText("GŁĘBOKOŚĆ", lxp, lyp - 5);
+            ctx.fillText(`Z${round(b0.top)}`, lxp, lyp + lh + 12);
+            const zb = `Z${round(deeps[0])}`; ctx.fillText(zb, lxp + lw - ctx.measureText(zb).width, lyp + lh + 12);
+            ctx.restore();
+          }
         }
       }
     }
@@ -685,12 +747,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // tokarka: ślad naroża płytki — obwiednia promienia rε wokół toru środka naroża.
     // Jej krawędź od strony materiału to kontur, który nóż naprawdę zostawia.
-    if (mode === "lathe" && !compact) {
+    // Tylko przy całym torze (tryb „Tor”, lekcje); przy śladzie i czystym widoku to, co nóż zostawia, pokazuje przekrój pręta.
+    if (mode === "lathe" && !compact && (showcase || pv.path === "all")) {
       // Jedna ścieżka dla ciągłych odcinków — półprzezroczysty pas nie ciemnieje na złączeniach.
       let accN = 0, open = false, lastR = 0, last: Vec3 | null = null;
       ctx.save();
       ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(249,115,22,0.2)";
+      ctx.strokeStyle = "rgba(249,115,22,0.12)";
       const flush = () => { if (open) ctx.stroke(); open = false; };
       segments.forEach((sg, i) => {
         const len = lengths[i];
@@ -719,7 +782,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // przy podglądzie korekcji: kontur z programu jako cienka linia przerywana
-    if (showComp && comp.active && !compact && !multi) {
+    // (w trybie „Materiał” tylko przy całym torze — przy śladzie i czystym widoku kontur programu by zaśmiecał)
+    if (showComp && comp.active && !compact && !multi && (!pv.stock || pv.path === "all")) {
       ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "rgba(248,250,252,0.5)"; ctx.lineWidth = 1.2;
       program.segments.forEach((sg) => {
         if (sg.kind === "rapid" || sg.kind === "dwell") return;
@@ -741,36 +805,53 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const bare = compact || showcase;
     // gęsty program (z CAM): tor przygaszony, żeby było widać materiał
     const dense = segments.length > 2500;
-    let acc = 0;
-    if (showPath) {
-      // Przygaszony cały tor nie zmienia się w trakcie odtwarzania: rysujemy go raz na osobną kanwę
-      // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru.
-      // (Wcześniej przygaszony i przebyty odcinek rysowały się na przemian, odcinek po odcinku — teraz
-      // przebyte idą nad całym torem; różnica tylko na skrzyżowaniach toru.)
-      const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}|${showRapid}`;
-      let g = ghostRef.current;
-      if (!g || g.key !== ghostKey || g.segs !== segments) {
-        const c = g?.canvas ?? document.createElement("canvas");
-        c.width = cv.width; c.height = cv.height;
-        const gx = c.getContext("2d");
-        if (gx) {
-          gx.scale(dpr, dpr);
-          for (const sg of segments) if (sg.kind !== "dwell" && (showRapid || sg.kind !== "rapid")) drawSeg(gx, sg, P, 1, showcase ? 0.32 : dense ? 0.1 : 0.34, showcase);
+    // Tor wg ustawień warstw: cały / wykonany / ślad za narzędziem / bieżące narzędzie / brak.
+    // Widok pokazowy i miniatury — zawsze cały tor w kolorach ruchów.
+    const pmode: PathMode = bare ? "all" : pv.path;
+    const byTool = !bare && pv.color === "tool";
+    if (pmode !== "none") {
+      const toolAt = (i: number) => program.lines[segments[i]?.line]?.state.tool ?? null;
+      const span: Span | null = pmode === "tool" ? toolSpanAt(lengths, toolAt, progress) : null;
+      const win = pathWindow(pmode, progress, total, span);
+      const colorOf = (i: number) => (byTool && segments[i].kind !== "rapid" ? toolColor(toolAt(i)) : undefined);
+      const visible = (sg: Segment) => sg.kind !== "dwell" && (showRapid || sg.kind !== "rapid");
+      // Przygaszony tor nie zmienia się w trakcie odtwarzania: rysujemy go raz na osobną kanwę
+      // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru, ustawień.
+      if (win.ghost) {
+        const ghostKey = `${cv.width}x${cv.height}|${dpr}|${scale}|${ox}|${oy}|${showcase}|${dense}|${showRapid}|${byTool}|${win.ghost.join(",")}`;
+        let g = ghostRef.current;
+        if (!g || g.key !== ghostKey || g.segs !== segments) {
+          const c = g?.canvas ?? document.createElement("canvas");
+          c.width = cv.width; c.height = cv.height;
+          const gx = c.getContext("2d");
+          if (gx) {
+            gx.scale(dpr, dpr);
+            let s0 = 0;
+            segments.forEach((sg, i) => {
+              const part = segPart(s0, lengths[i], win.ghost!); s0 += lengths[i];
+              if (part && visible(sg)) drawSegPart(gx, sg, P, part[0], part[1], showcase ? 0.32 : dense ? 0.1 : 0.34, showcase, colorOf(i));
+            });
+          }
+          g = ghostRef.current = { key: ghostKey, segs: segments, canvas: c };
         }
-        g = ghostRef.current = { key: ghostKey, segs: segments, canvas: c };
+        ctx.drawImage(g.canvas, 0, 0, W, H);
       }
-      ctx.drawImage(g.canvas, 0, 0, W, H);
+      let s0 = 0;
       segments.forEach((sg, i) => {
         const len = lengths[i];
-        const done = Math.min(1, Math.max(0, (progress - acc) / (len || 1)));
-        if (sg.kind === "dwell") { drawDwell(ctx, sg, P, done, bare, W, H); acc += len; return; }
-        if (done > 0 && (showRapid || sg.kind !== "rapid")) drawSeg(ctx, sg, P, done, dense ? 0.4 : 1, showcase);
-        acc += len;
+        if (sg.kind === "dwell") { if (pmode === "all") drawDwell(ctx, sg, P, Math.min(1, Math.max(0, (progress - s0) / (len || 1))), bare, W, H); s0 += len; return; }
+        const part = win.done ? segPart(s0, len, win.done) : null;
+        const end = s0 + (part ? part[1] : 0) * len;
+        s0 += len;
+        if (!part || !visible(sg) || !win.done) return;
+        // ślad za narzędziem wygasa ku tyłowi: starsza część — słabiej
+        const fade = pmode === "tail" ? 0.3 + 0.7 * Math.min(1, Math.max(0, (end - win.done[0]) / Math.max(1e-6, win.done[1] - win.done[0]))) : 1;
+        drawSegPart(ctx, sg, P, part[0], part[1], (dense ? 0.4 : 1) * fade, showcase, colorOf(i));
       });
     }
 
     // zakres obróbki (bounding box ruchów roboczych)
-    if (cut.length && !bare) {
+    if (cut.length && !bare && pv.path === "all") {
       const bb = boundsOf(cut, ha, va);
       const [bx1, by1] = P({ x: 0, y: 0, z: 0, [ha]: bb.minH, [va]: bb.minV } as Vec3);
       const [bx2, by2] = P({ x: 0, y: 0, z: 0, [ha]: bb.maxH, [va]: bb.maxV } as Vec3);
@@ -911,7 +992,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, zoom, meas, picks, placing, pending, hover, measure, mTool]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, pv, cutZs, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -1104,8 +1185,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
         ))}
         <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
-        <label><input type="checkbox" checked={showPath} onChange={(e) => setShowPath(e.target.checked)} />Tor narzędzia na podglądzie</label>
-        <label><input type="checkbox" checked={layout.jump} onChange={(e) => setLayout({ jump: e.target.checked })} />Klik w linię programu ustawia narzędzie</label>
+                <label><input type="checkbox" checked={layout.jump} onChange={(e) => setLayout({ jump: e.target.checked })} />Klik w linię programu ustawia narzędzie</label>
         <label className="lay-units"><span>Jednostki</span>
           <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
             <option value="auto">auto (G20/G21)</option><option value="mm">milimetry</option><option value="inch">cale</option>
@@ -1236,17 +1316,43 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             {simLineItems}
           </ol>
   );
+  // Tryb podglądu i warstwy toru (jak w CAM): przełączenie trybu ustawia jego domyślne warstwy, kolor zostaje.
+  const pvMode = pv.stock ? "stock" : "path";
+  const setPvMode = (m: "stock" | "path") => setPv({ ...(m === "stock" ? VIEW_MATERIAL : VIEW_BACKPLOT), color: pv.color, depth: pv.depth });
+  const pathLabel = PATH_MODES.find((m) => m.value === pv.path)?.label ?? "";
+  const pvSwitch = (
+    <TactileSegmentedControl<"path" | "stock"> label="Tryb podglądu" size="sm" value={pvMode} onChange={setPvMode} className="pv-seg"
+      options={[{ value: "path", label: "Tor", title: "Sam tor narzędzia, bez materiału" }, { value: "stock", label: "Materiał", title: "Ubytek materiału; tor jako ślad za narzędziem" }]} />
+  );
+  const pvMenu = (
+    <details className="lay-menu pv-menu">
+      <summary title="Zakres toru, ruchy G00, kolory, cieniowanie głębokości">Tor: {pathLabel} ▾</summary>
+      <div className="lay-pop pv-pop">
+        <fieldset className="pv-modes">
+          <legend>Tor narzędzia</legend>
+          {PATH_MODES.map((m) => (
+            <label key={m.value} title={m.hint}><input type="radio" name="pv-path" checked={pv.path === m.value} onChange={() => setPv({ path: m.value })} /><span>{m.label}<small>{m.hint}</small></span></label>
+          ))}
+        </fieldset>
+        <label><input type="checkbox" checked={pv.rapid} onChange={(e) => setPv({ rapid: e.target.checked })} />Ruchy szybkie G00</label>
+        <label><input type="checkbox" checked={pv.color === "tool"} onChange={(e) => setPv({ color: e.target.checked ? "tool" : "move" })} />Kolor toru wg narzędzia</label>
+        <label className={pv.stock ? undefined : "is-off"}><input type="checkbox" checked={pv.depth} disabled={!pv.stock} onChange={(e) => setPv({ depth: e.target.checked })} />Cieniowanie głębokości (2D)</label>
+        <div className="pv-acts">
+          <button type="button" className="key" onClick={() => setPv({ ...VIEW_CLEAN, color: pv.color, depth: pv.depth })}>Czysty widok</button>
+          <button type="button" className="key" onClick={() => setPv(pv.stock ? VIEW_MATERIAL : VIEW_BACKPLOT)}>Domyślne</button>
+        </div>
+      </div>
+    </details>
+  );
   const viewExtras = (
     <>
               {layoutMenu}
-              <button className="vb-desk vb-layer is-g00" aria-pressed={showRapid} onClick={() => setShowRapid((v) => !v)} title="Ruchy szybkie G00 na podglądzie 2D" aria-label="Ruchy szybkie G00">
+              <span className="vb-desk pv-group">{pvSwitch}{pvMenu}</span>
+              <button className="vb-desk vb-layer is-g00" aria-pressed={showRapid} onClick={() => setPv({ rapid: !showRapid })} title="Ruchy szybkie G00 na podglądzie 2D" aria-label="Ruchy szybkie G00">
                 <span className="vb-tx"><b>G00</b></span>
               </button>
               <button className="vb-desk vb-layer" aria-pressed={showGrid} onClick={() => setShowGrid((v) => !v)} title="Siatka współrzędnych na podglądzie 2D" aria-label="Siatka">
                 <span className="vb-tx">Siatka</span>
-              </button>
-              <button className="vb-desk vb-layer" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)} title="Warstwa materiału z wyciętym śladem narzędzia" aria-label="Materiał">
-                <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3 2 8l10 5 10-5-10-5z" /><path d="m2 16 10 5 10-5" /><path d="m2 12 10 5 10-5" /></svg></span><span className="vb-tx">Materiał</span>
               </button>
               <label className="units">
                 <span>Jednostki</span>
@@ -1408,7 +1514,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <canvas ref={canvasRef} className={`sim-canvas sim-canvas-2d${measure ? " is-measure" : ""}`} style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }} {...canvasEvents} />
             {view !== "3d" && zoomTools}
           </div>
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary></div>}
           {viewHud}
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
@@ -1440,20 +1546,39 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <div className="m-settings m-set m-only">
             <div className="m-set-row">
               <span>Jednostki</span>
-              <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
+              <select aria-label="Jednostki" value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
                 <option value="auto">auto (G20/G21)</option>
                 <option value="mm">milimetry</option>
                 <option value="inch">cale</option>
               </select>
             </div>
             <div className="m-set-row">
-              <span>Warstwa materiału</span>
-              <button type="button" className="m-toggle" aria-label="Warstwa materiału" aria-pressed={showStock} onClick={() => setShowStock((v) => !v)}><i /></button>
+              <span>Tryb podglądu</span>
+              <div className="segmented m-seg" role="tablist" aria-label="Tryb podglądu">
+                <button type="button" role="tab" aria-selected={!pv.stock} onClick={() => setPvMode("path")}>Tor</button>
+                <button type="button" role="tab" aria-selected={pv.stock} onClick={() => setPvMode("stock")}>Materiał</button>
+              </div>
             </div>
             <div className="m-set-row">
               <span>Tor narzędzia</span>
-              <button type="button" className="m-toggle" aria-label="Tor narzędzia" aria-pressed={showPath} onClick={() => setShowPath((v) => !v)}><i /></button>
+              <select aria-label="Tor narzędzia" value={pv.path} onChange={(e) => setPv({ path: e.target.value as PathMode })}>
+                {PATH_MODES.map((m) => <option key={m.value} value={m.value}>{m.label}</option>)}
+              </select>
             </div>
+            <div className="m-set-row">
+              <span>Ruchy szybkie G00</span>
+              <button type="button" className="m-toggle" aria-label="Ruchy szybkie G00" aria-pressed={pv.rapid} onClick={() => setPv({ rapid: !pv.rapid })}><i /></button>
+            </div>
+            <div className="m-set-row">
+              <span>Kolor toru wg narzędzia</span>
+              <button type="button" className="m-toggle" aria-label="Kolor toru wg narzędzia" aria-pressed={pv.color === "tool"} onClick={() => setPv({ color: pv.color === "tool" ? "move" : "tool" })}><i /></button>
+            </div>
+            {pv.stock && (
+              <div className="m-set-row">
+                <span>Cieniowanie głębokości</span>
+                <button type="button" className="m-toggle" aria-label="Cieniowanie głębokości" aria-pressed={pv.depth} onClick={() => setPv({ depth: !pv.depth })}><i /></button>
+              </div>
+            )}
             <div className="m-set-row">
               <span>Klik w linię programu ustawia narzędzie</span>
               <button type="button" className="m-toggle" aria-label="Klik w linię programu ustawia narzędzie" aria-pressed={jumpOn} onClick={() => setJump(!jumpOn)}><i /></button>
@@ -1491,7 +1616,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
             toolbar={viewSwitch}
             view={show3d
-              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={() => setShowPath((v) => !v)} /></Sim3DBoundary>
+              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary>
               : <div className="c2d c2d-fs"><canvas ref={fsCanvasRef} className={`fs-canvas${measure ? " is-measure" : ""}`} style={{ touchAction: "none" }} {...canvasEvents} />{zoomTools}</div>}
             status={statusStrip}
             transport={transportBar}
@@ -1581,6 +1706,18 @@ function drawDwell(ctx: CanvasRenderingContext2D, sg: Extract<Segment, { kind: "
     ctx.beginPath(); ctx.arc(dx, dy, 2.6, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
   }
+}
+
+/** Część odcinka od ułamka t0 do t1; `color` — kolor narzędzia zamiast koloru ruchu. */
+function drawSegPart(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t0: number, t1: number, alpha: number, bold = false, color?: string) {
+  ctx.globalAlpha = alpha; ctx.lineWidth = sg.kind === "rapid" ? (bold ? 1.4 : 1) : (bold ? 2.6 : 1.8);
+  ctx.setLineDash(sg.kind === "rapid" ? [5, 4] : []);
+  ctx.strokeStyle = color ?? COLORS[sg.kind];
+  ctx.beginPath();
+  const n = sg.kind === "arc" ? Math.max(1, Math.ceil(48 * (t1 - t0))) : 1;
+  const [x0, y0] = P(t0 === 0 ? sg.from : pointAt(sg, t0)); ctx.moveTo(x0, y0);
+  for (let i = 1; i <= n; i++) { const [x, y] = P(pointAt(sg, t0 + (i / n) * (t1 - t0))); ctx.lineTo(x, y); }
+  ctx.stroke(); ctx.setLineDash([]); ctx.globalAlpha = 1;
 }
 
 function drawSeg(ctx: CanvasRenderingContext2D, sg: Segment, P: (p: Vec3) => readonly [number, number], t: number, alpha: number, bold = false) {

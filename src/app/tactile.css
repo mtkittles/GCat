@@ -1109,3 +1109,21 @@ html.lenis { scroll-behavior: auto !important; }
 .calc-side .codeout .calc-code { padding: .6rem .75rem; white-space: normal; }
 .calc-side .codeout .calc-code code { white-space: pre-wrap; overflow-wrap: anywhere; }
 .calc-side .codeout.cb::before { content: none; }
+
+/* ==========================================================================
+   15. Symulator: tryb Tor / Materiał i warstwy toru (Etap 8)
+   ========================================================================== */
+.pv-group { display: inline-flex; align-items: center; gap: .4rem; }
+.pv-seg .tsc-btn { font-size: 12.5px; }
+.pv-menu > summary { font-variant-numeric: tabular-nums; }
+.pv-pop { min-width: 300px; gap: .55rem; }
+.pv-modes { display: grid; gap: .15rem; margin: 0 0 .25rem; padding: 0 0 .55rem; border: 0; border-bottom: 1px solid var(--line); }
+.pv-modes legend { margin-bottom: .35rem; padding: 0; font: 600 10.5px/1 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.pv-modes label { align-items: flex-start; padding: .3rem .35rem; border-radius: 8px; }
+.pv-modes label:hover { background: var(--surface-3); }
+.pv-modes input { margin-top: .1rem; }
+.pv-modes span { display: grid; gap: .1rem; font-weight: 600; }
+.pv-modes small { font-weight: 400; font-size: 12px; color: var(--ink-2); }
+.pv-pop label.is-off { opacity: .5; cursor: default; }
+.pv-acts { display: flex; gap: .4rem; padding-top: .45rem; border-top: 1px solid var(--line); }
+.pv-acts .key { flex: 1; height: 32px; padding: 0 .6rem; font: 600 12.5px/1 var(--font-sans); }
