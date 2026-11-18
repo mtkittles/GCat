@@ -799,8 +799,6 @@ a.tl-row:hover { background: var(--surface-2); color: var(--ink); }
 .lsh .ls-nav-toc a, .lsh .ls-nav-mod a, .lsh .ls-nav-self { min-height: 44px; display: flex; align-items: center; }
 .lsh .ls-nav-mod a, .lsh .ls-nav-self { display: grid; align-content: center; }
 /* przy otwartym arkuszu przycisk nie przykrywa listy; na stronie lekcji ostatnia treść ma zapas nad przyciskiem */
-body:has(.lsh-btn) main > :last-child { padding-bottom: 3.5rem; }
-@media (min-width: 1100px) { body:has(.lsh-btn) main > :last-child { padding-bottom: 0; } }
 
 /* blok G-kodu w lekcji */
 .cb { border: 1px solid var(--line); border-radius: 10px; background: var(--bg); overflow: hidden; }
@@ -1616,3 +1614,34 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 }
 /* Nowe linie „Programu detalu”: słabsze tło, żeby pomarańczowy tusz miał kontrast AA na jasnym tle. */
 :root:not([data-theme="dark"]) .bu-line.is-new > button { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+/* ==========================================================================
+   23. V2 — powłoka: jedno szukanie, klawisze w górnym pasku, spis w pasku
+   Szukanie (Ctrl+K) i klawisze motyw / dźwięk / konto są tylko w górnym pasku (AppTopbar).
+   #topbar-slot przyjmuje przycisk spisu lekcji (LessonSheet) i spisu karty (TocDrawer) —
+   zamiast pigułki nad dokiem i uchwytu przy prawej krawędzi, które zasłaniały tekst.
+   ========================================================================== */
+.topbar-slot { display: flex; align-items: center; gap: .5rem; margin-left: auto; min-width: 0; }
+.topbar-slot:empty { display: none; }
+.topbar-slot:not(:empty) + .topbar-search { margin-left: 0; }
+.topbar-keys { display: none; }
+@media (min-width: 768px) {
+  .topbar-keys { display: block; flex: none; }
+  .topbar-keys .keys { gap: .35rem; }
+  .topbar-keys .key { flex: none; width: 34px; height: 34px; }
+}
+.topbar-slot :is(.lsh-btn, .toc-handle) {
+  position: static; transform: none; animation: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  display: inline-flex; flex-direction: row; align-items: center; gap: .45rem; height: 44px; max-width: 100%; padding: 0 .75rem;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: 500 13.5px/1 var(--font-sans); cursor: pointer;
+}
+.topbar-slot :is(.lsh-btn, .toc-handle):hover { border-color: var(--line-strong); }
+.topbar-slot :is(.lsh-btn, .toc-handle):active { transform: translateY(1px); }
+.topbar-slot .toc-handle span { font: 600 12.5px/1 var(--font-mono); color: var(--ink-2); }
+.topbar-slot .lsh-t { display: none; }
+@media (min-width: 768px) {
+  .topbar-slot :is(.lsh-btn, .toc-handle) { height: 34px; border-radius: 9px; }
+  .topbar-slot .lsh-t { display: block; max-width: 24ch; }
+}
+@media (min-width: 1100px) { .topbar-slot .lsh-btn { display: none; } }
+@media (min-width: 1180px) { .topbar-slot .toc-handle { display: none; } }

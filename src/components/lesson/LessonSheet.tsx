@@ -1,12 +1,15 @@
 "use client";
 import { useState, type MouseEvent } from "react";
+import { createPortal } from "react-dom";
 import { Drawer } from "vaul";
 import { ListOrdered } from "lucide-react";
 import { LessonNav, useActiveSection, type SideLesson, type TocItem } from "./LessonSide";
+import { useTopbarSlot } from "@/lib/ui/topbarSlot";
 
 /*
-  Spis lekcji na telefonie i tablecie (< 1100 px, gdzie nie ma lewego panelu): przycisk nad dokiem
-  z nazwą bieżącej sekcji otwiera dolny arkusz Vaul ze spisem sekcji i lekcjami modułu.
+  Spis lekcji na telefonie i tablecie (< 1100 px, gdzie nie ma lewego panelu): przycisk w górnym pasku
+  (portal do #topbar-slot — nie zasłania tekstu nad dokiem) z numerem lekcji i bieżącą sekcją
+  otwiera dolny arkusz Vaul ze spisem sekcji i lekcjami modułu.
   Wybór sekcji zamyka arkusz i przewija do niej (po zamknięciu — Vaul blokuje przewijanie strony, gdy jest otwarty).
 */
 export default function LessonSheet({ toc, track, moduleLabel, lessons, currentId }: {
@@ -16,6 +19,7 @@ export default function LessonSheet({ toc, track, moduleLabel, lessons, currentI
   const [ids] = useState(() => toc.map((t) => t.id));
   const active = useActiveSection(ids);
   const cur = active >= 0 ? toc[active] : undefined;
+  const slot = useTopbarSlot();
 
   const onPick = (e: MouseEvent<HTMLDivElement>) => {
     const a = (e.target as HTMLElement).closest("a");
@@ -31,12 +35,15 @@ export default function LessonSheet({ toc, track, moduleLabel, lessons, currentI
 
   return (
     <Drawer.Root open={open} onOpenChange={setOpen}>
-      <Drawer.Trigger className="lsh-btn" aria-label={`Spis lekcji${cur ? `, bieżąca sekcja: ${cur.label}` : ""}`}>
-        <ListOrdered aria-hidden />
-        <span className="lsh-k">{currentId}</span>
-        <span className="lsh-t">{cur ? cur.label : "Spis lekcji"}</span>
-        {active >= 0 && <span className="lsh-n">{active + 1}/{toc.length}</span>}
-      </Drawer.Trigger>
+      {slot && createPortal(
+        <Drawer.Trigger className="lsh-btn" aria-label={`Spis lekcji${cur ? `, bieżąca sekcja: ${cur.label}` : ""}`}>
+          <ListOrdered aria-hidden />
+          <span className="lsh-k">{currentId}</span>
+          <span className="lsh-t">{cur ? cur.label : "Spis lekcji"}</span>
+          {active >= 0 && <span className="lsh-n">{active + 1}/{toc.length}</span>}
+        </Drawer.Trigger>,
+        slot,
+      )}
       <Drawer.Portal>
         <Drawer.Overlay className="vd-overlay" />
         <Drawer.Content className="vd vd-bottom lsh" aria-describedby={undefined}>
