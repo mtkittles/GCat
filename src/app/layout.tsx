@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/site";
 import AppToaster from "@/components/shell/AppToaster";
+import SmoothScroll from "@/components/shell/SmoothScroll";
 import AppSidebar from "@/components/shell/AppSidebar";
 import AppTopbar from "@/components/shell/AppTopbar";
 import MobileDock from "@/components/shell/MobileDock";
@@ -48,7 +49,7 @@ const PALETTE_PROGRAMS: PaletteProgram[] = PROGRAMS.map((p) => ({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pl" data-theme="dark" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="pl" data-theme="dark" data-scroll-behavior="smooth" className={`${inter.variable} ${sora.variable} ${mono.variable}`} suppressHydrationWarning>
       <body className="min-h-screen">
         {/* Motyw, panel boczny i dźwięk pulpitu ustawiamy przed malowaniem treści (src/lib/ui/prefs.ts). Domyślnie ciemny. */}
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <EditBar />
         <CommandPalette programs={PALETTE_PROGRAMS} />
         <AppToaster />
+        <SmoothScroll />
       </body>
     </html>
   );

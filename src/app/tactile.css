@@ -872,3 +872,32 @@ body:has(:is(.rys-shell, .ed-shell)) { overflow: hidden; }
   .workbench.is-app .viewbar { flex-wrap: wrap; row-gap: .4rem; }
   .workbench.is-app .viewbar > button, .workbench.is-app .viewbar > details > summary { white-space: nowrap; }
 }
+
+/* ==========================================================================
+   11. Płynność: przejścia między stronami (View Transitions) i przewijanie (Lenis)
+   ========================================================================== */
+/* Animuje się tylko obszar treści; reszta (root: panel, pasek, dok) bez przenikania. */
+::view-transition { pointer-events: none; }
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-old(.page-out) { animation: 110ms cubic-bezier(.4, 0, 1, 1) both vt-fade-out; }
+::view-transition-new(.page-in) { animation: 220ms cubic-bezier(.2, .8, .2, 1) 50ms both vt-fade-in; }
+::view-transition-group(*) { animation-duration: 220ms; }
+@keyframes vt-fade-out { to { opacity: 0; } }
+@keyframes vt-fade-in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*), ::view-transition-new(*), ::view-transition-group(*) { animation-duration: 0s !important; animation-delay: 0s !important; }
+}
+
+/* Lenis: przewijanie liczy biblioteka, więc wygładzanie CSS musi być wyłączone */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto !important; }
+.lenis:not(.lenis-autoToggle).lenis-stopped { overflow: clip; }
+.lenis [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* Lżejsze malowanie przy przewijaniu: paski przyklejone bez rozmycia tła (rozmycie liczy się w każdej klatce) */
+.site-header.topbar { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 96%, transparent); }
+.kc-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 97%, transparent); }
+
+/* Długie listy: sekcje poza ekranem nie są układane ani malowane, dopóki nie podjadą (rozmiar zapamiętany) */
+.kc-group, .tl-mod { content-visibility: auto; contain-intrinsic-size: auto 520px; }
