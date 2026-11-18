@@ -8,7 +8,7 @@ level: 3
 modal: true
 machines:
   - frezowanie
-star: false
+star: true
 related:
   - g73
   - g82
@@ -27,20 +27,30 @@ syntax:
     G99 G83 X_ Y_ Z_ R_ Q_ F_
     G80
   sinumerik: |-
-    CYCLE81(RTP, RFP, SDIS, DP)
-    CYCLE83(...)
+    CYCLE81(RTP, RFP, SDIS, DP, DPR)
+    CYCLE83(RTP, RFP, SDIS, DP, DPR, FDEP,
+      FDPR, DAM, DTB, DTS, FRF, VARI)
+    MCALL CYCLE81(…) / MCALL
 sinumerik: >-
-  Zamiast G81/G83 są cykle CYCLE81, CYCLE83 z parametrami w nawiasie i MCALL do
-  powtarzania w kolejnych punktach.
+  Zamiast G81/G83 są cykle CYCLE81 i CYCLE83 z parametrami w nawiasie. Głębokość
+  podaje DP (absolutnie) albo DPR (od płaszczyzny odniesienia RFP, bez znaku). W
+  kolejnych punktach cykl powtarza się po MCALL; samo MCALL wyłącza wywołanie
+  modalne.
 params:
+  - key: X Y
+    desc: Położenie otworu [mm]
   - key: Z
-    desc: Dno otworu
+    desc: Dno otworu [mm]; w G90 współrzędna w układzie detalu
   - key: R
-    desc: 'Płaszczyzna R: początek posuwu'
+    desc: 'Płaszczyzna R: początek posuwu [mm]'
   - key: Q
-    desc: Głębokość jednego zagłębienia (G83)
+    desc: Krok w G83 [mm], bez znaku, z kropką (Q6.)
   - key: F
-    desc: Posuw
+    desc: Posuw wiercenia [mm/min] w G94
+  - key: K
+    desc: >-
+      Liczba powtórzeń (Fanuc 0i; na części maszyn L); z G91 kolejne otwory w
+      równych odstępach
 pitfalls:
   - >-
     Zapomniane G80 → następny blok z X Y zapisany bez G00/G01 też wywierci
@@ -50,7 +60,9 @@ pitfalls:
     zacisk. Wtedy G98.
 sources:
   - id: haas
-    where: Q, płaszczyzna R i wycofanie w G83 (Haas)
+    where: >-
+      Q, płaszczyzna R i wycofanie w G83; malejący krok I, J, K i ustawienia 22
+      i 52 (Haas)
     url: >-
       https://www.haascnc.com/service/codes-settings.type%3Dgcode.machine%3Dmill.value%3DG83.html
   - id: fanuc
@@ -61,6 +73,11 @@ sources:
       rozdz. 8.1.1, s. 351
   - id: sinumerik-iso-m
     where: cykle G81–G89 w trybie ISO na frezarce
+  - id: sinumerik-cycles
+    where: CYCLE81, CYCLE83 (VARI, DAM, _VRT, _DIS1), wywołanie modalne MCALL
+    loc: >-
+      rozdz. 2.1.2, s. 2-52–2-54; rozdz. 2.1.4, s. 2-57–2-64; rozdz. 2.2, s.
+      2-89–2-91
 example:
   src: |-
     G21 G90 G94 G17
@@ -100,10 +117,10 @@ example:
 
 | Kod     | Cykl                                            | Kiedy stosować                                        |
 | ------- | ----------------------------------------------- | ----------------------------------------------------- |
-| **G81** | Wiercenie proste: w dół i z powrotem            | Otwory płytkie, do 3× średnicy                        |
+| **G81** | Wiercenie proste: w dół i z powrotem            | Otwory płytkie, z których wiór wychodzi sam           |
 | **G82** | Wiercenie z postojem na dnie (adres P)          | Nawiercanie, pogłębianie czołowe; postój wygładza dno |
-| **G83** | Wiercenie głębokie z **pełnym wycofaniem** co Q | Otwory powyżej 3× średnicy, materiały z długim wiórem |
-| **G73** | Wiercenie głębokie z **krótkim wycofaniem**     | Szybsze niż G83, ale gorzej usuwa wiór                |
+| **G83** | Wiercenie głębokie z **pełnym wycofaniem** co Q | Otwory głębokie, materiały z długim wiórem            |
+| **G73** | Wiercenie głębokie z **krótkim wycofaniem**     | Szybsze niż G83, ale wiór zostaje w otworze           |
 | **G84** | Gwintowanie gwintownikiem                       | Posuw sprzężony z obrotami                            |
 | **G85** | Wytaczanie z wyjściem na posuwie                | Otwory dokładne; bez śladu przy wyjściu               |
 | **G80** | Anulowanie cyklu                                | Po ostatnim otworze i w bloku startowym               |
@@ -122,15 +139,15 @@ example:
   ```
 </Code>
 
-| Adres   | Znaczenie                                                    |
-| ------- | ------------------------------------------------------------ |
-| X, Y    | Położenie otworu                                             |
-| Z       | Współrzędna dna otworu (wartość ujemna względem zera detalu) |
-| R       | Płaszczyzna początku posuwu roboczego                        |
-| Q       | Głębokość jednego zagłębienia w G83 i G73                    |
-| P       | Czas postoju na dnie w milisekundach (G82, G89)              |
-| F       | Posuw wiercenia                                              |
-| K lub L | Liczba powtórzeń; używane głównie z G91                      |
+| Adres   | Znaczenie                                                  |
+| ------- | ---------------------------------------------------------- |
+| X, Y    | Położenie otworu, mm                                       |
+| Z       | Dno otworu, mm; w G90 współrzędna w układzie detalu        |
+| R       | Płaszczyzna początku posuwu roboczego, mm                  |
+| Q       | Krok w G83 i G73, mm, bez znaku                            |
+| P       | Postój na dnie, ms (G82, G89)                              |
+| F       | Posuw wiercenia, mm/min w G94                              |
+| K lub L | Liczba powtórzeń; z G91 kolejne otwory w równych odstępach |
 
 ## G98 kontra G99 \{#g98-kontra-g99}
 
@@ -139,12 +156,12 @@ Te dwie funkcje decydują, dokąd narzędzie wraca po każdym otworze. **G99** w
 <Diagram id="g98-g99" />
 
 <Note kind="tip">
-  Pracuj w G99, a przed otworem za przeszkodą wstaw pojedynczy blok z G98. Tryb jest modalny, więc dla kolejnych otworów wróć do G99.
+  Pracuj w G99, a G98 wstaw w bloku ostatniego otworu przed przeszkodą: po nim wiertło wraca na poziom początkowy i na tej wysokości przejeżdża nad przeszkodą. Tryb jest modalny, więc w bloku następnego otworu wróć do G99.
 </Note>
 
 ## Wiercenie głębokie \{#wiercenie-głębokie}
 
-Powyżej trzech średnic wiór przestaje sam wychodzić z otworu: zakleszcza się, rosną opory i temperatura. **G83** wycofuje wiertło **całkowicie do płaszczyzny R** po każdym zagłębieniu o Q. Wiór się łamie i wychodzi, a chłodziwo dociera do dna, ale cykl trwa dłużej. **G73** wycofuje tylko o niewielką wartość d z parametru sterowania. Jest szybszy, ale wiór zostaje w otworze.
+W głębokim otworze wiór przestaje sam wychodzić: zakleszcza się, rosną opory i temperatura. Głębokość, od której potrzebne są wycofania, podaje producent wiertła. **G83** wycofuje wiertło **całkowicie do płaszczyzny R** po każdym zagłębieniu o Q. Wiór się łamie i wychodzi, a chłodziwo dociera do dna, ale cykl trwa dłużej. **G73** wycofuje tylko o niewielką wartość d z parametru sterowania. Jest szybszy, ale wiór zostaje w otworze.
 
 <Sim mode="mill" caption="Dwa otwory cyklem G83 z Q6. Krok liczy się od płaszczyzny R, więc głębokości to Z−4, Z−10, Z−16 i Z−18. Po każdym kroku wiertło wraca do R, a potem zjeżdża ruchem szybkim tuż nad poprzednią głębokość. Odstęp ustawia parametr sterowania.">
   ```
@@ -166,9 +183,22 @@ Powyżej trzech średnic wiór przestaje sam wychodzić z otworu: zakleszcza si�
   ```
 </Sim>
 
-## Sinumerik: cykle parametryczne \{#sinumerik-cykle-parametryczne}
+## Fanuc i Sinumerik \{#sinumerik-cykle-parametryczne}
 
-W języku natywnym Sinumerika zamiast G81–G89 są wywołania z listą parametrów: `CYCLE81`, `CYCLE82`, `CYCLE83`, `CYCLE84` (gwintowanie), `CYCLE85`. W trybie ISO sterowanie rozumie także zapis G81–G89; zakres zależy od wersji. Powtarzanie w kolejnych punktach realizuje modalne wywołanie `MCALL`:
+W języku natywnym Sinumerika zamiast G81–G89 są wywołania z listą parametrów: `CYCLE81`, `CYCLE82`, `CYCLE83`, `CYCLE84` (gwintowanie), `CYCLE85`. W trybie ISO sterowanie rozumie także zapis G81–G89; zakres zależy od wersji.
+
+<Table caption="Te same pojęcia w obu zapisach. Fanuc wg serii 0i-F, Sinumerik wg instrukcji cykli 840D (wydanie 04.00).">
+  | Cecha             | Fanuc                                                         | Sinumerik                                                                    |
+  | ----------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+  | Wywołanie         | G81, G83 w bloku z Z i R; kolejne bloki z X Y powtarzają cykl | `CYCLE81(…)` raz; `MCALL CYCLE81(…)` powtarza cykl po każdym ruchu           |
+  | Koniec            | G80 albo kod ruchu z grupy 01                                 | samo `MCALL`                                                                 |
+  | Dno otworu        | Z                                                             | DP absolutnie albo DPR od RFP, bez znaku; przy obu wartościach liczy się DPR |
+  | Początek posuwu   | R                                                             | RFP + SDIS (odstęp bezpieczeństwa)                                           |
+  | Powrót po otworze | G98: poziom początkowy, G99: R                                | RTP, płaszczyzna wycofania                                                   |
+  | Krok wiercenia    | Q, stały                                                      | FDEP: pierwszy krok, DAM: zmniejszanie kolejnych (wartość albo współczynnik) |
+  | Łamanie wióra     | G73, cofnięcie z parametru 5114                               | `CYCLE83` z VARI = 0, cofnięcie \_VRT (0 = 1 mm)                             |
+  | Usuwanie wióra    | G83, odstęp nad poprzednim dnem z parametru 5115              | `CYCLE83` z VARI = 1, odstęp \_DIS1 (0 = obliczany przez cykl)               |
+</Table>
 
 <Code caption="Odpowiednik cyklu G81 z czterema otworami w składni Sinumerik.">
   ```
@@ -181,10 +211,23 @@ W języku natywnym Sinumerika zamiast G81–G89 są wywołania z listą parametr
   ```
 </Code>
 
+<Code caption="Wiercenie głębokie z usuwaniem wióra (VARI = 1). Pierwszy krok do −8, każdy następny krótszy o 2 mm (DAM). Puste miejsca to pominięte DPR i FDPR.">
+  ```
+  ; RTP, RFP, SDIS, DP, DPR, FDEP, FDPR,
+  ; DAM, DTB, DTS, FRF, VARI
+  MCALL CYCLE83(10,0,2,-24,,-8,,2,0,0,1,1)
+  X20 Y20
+  X50 Y20
+  MCALL
+  ```
+</Code>
+
+Na maszynach Haas G83 przyjmuje zamiast Q trzy adresy: I (pierwszy krok), J (o ile zmniejszać kolejne) i K (najmniejszy krok). Wycofanie w G73 i odstęp w G83 ustawiają tam ustawienia 22 i 52, a nie parametry Fanuca.
+
 ## Typowe błędy \{#typowe-błędy}
 
 * **Brak G80 na końcu.** Kolejny blok z X Y zapisany bez kodu ruchu wykona jeszcze jeden otwór. Jawne G00 albo G01 kasuje cykl na Fanucu 0i-F, ale program nie powinien na tym polegać. G80 stoi po ostatnim otworze i w bloku startowym.
 * **Płaszczyzna R poniżej powierzchni materiału.** Wiertło wjeżdża wtedy w detal ruchem szybkim.
 * **G99 przy zaciskach między otworami.** Narzędzie wraca tylko 2 mm nad materiał i uderza w zacisk.
-* **Q większe od pozostałej głębokości** w ostatnim zagłębieniu. Na części sterowań powoduje to przekroczenie zadanego Z.
-* **Cykl w trybie G91 pisany jak w G90.** Z i R liczą się wtedy przyrostowo i głębokości wychodzą inne.
+* **Q bez kropki.** Przy wprowadzaniu bez kropki dziesiętnej Fanuc czyta `Q6` w najmniejszej jednostce, czyli 0,006 mm, i wierci tysiącami krótkich kroków. Zależy to od parametru wprowadzania; zapis `Q6.` jest jednoznaczny.
+* **Cykl w trybie G91 pisany jak w G90.** W G91 R to odległość od poziomu początkowego do płaszczyzny R, a Z to odległość od R do dna. `R2. Z-15.` przepisane z G90 daje inne głębokości.
