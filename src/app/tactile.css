@@ -901,3 +901,56 @@ html.lenis { scroll-behavior: auto !important; }
 
 /* Długie listy: sekcje poza ekranem nie są układane ani malowane, dopóki nie podjadą (rozmiar zapamiętany) */
 .kc-group, .tl-mod { content-visibility: auto; contain-intrinsic-size: auto 520px; }
+
+/* ==========================================================================
+   12. Rysownik i edytor treści — klawisze i diody pulpitu (tylko wygląd; układ jak w CAD bez zmian)
+   Szyna zagłębiona, wybrany klawisz to wypukła nakładka z diodą — jak TactileSegmentedControl.
+   ========================================================================== */
+.rys-tools, .rys-seg {
+  background: var(--bg); border-color: var(--line);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3);
+}
+[data-theme="light"] :is(.rys-tools, .rys-seg) { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(15, 23, 42, .08); }
+
+.rys-tool, .rys-sbtn { position: relative; }
+:is(.rys-tool, .rys-sbtn)[aria-pressed="true"],
+:is(.rys-tool, .rys-sbtn)[aria-pressed="true"]:hover:not(:disabled),
+.rys-seg button[aria-checked="true"],
+.ed-tabs button[aria-selected="true"] {
+  background: var(--surface-3); color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .45), 0 0 0 1px var(--line-strong);
+}
+[data-theme="light"] :is(:is(.rys-tool, .rys-sbtn)[aria-pressed="true"], .rys-seg button[aria-checked="true"], .ed-tabs button[aria-selected="true"]) {
+  background: var(--surface); box-shadow: 0 1px 2px rgba(15, 23, 42, .14), 0 0 0 1px var(--line-strong);
+}
+:is(.rys-tool, .rys-sbtn)[aria-pressed="true"] svg { color: var(--accent-ink); }
+
+/* dioda w prawym górnym rogu wybranego narzędzia */
+:is(.rys-tool, .rys-sbtn)[aria-pressed="true"]::after {
+  content: ""; position: absolute; top: 4px; right: 4px; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, #000), 0 0 5px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+.rys-sbtn[aria-pressed="true"]::after { top: 3px; right: 3px; width: 4px; height: 4px; }
+
+/* przełączniki z diodą: segmenty (Edycja / Podgląd, urządzenia) i zakładki panelu edytora */
+.rys-seg button, .ed-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; }
+.rys-seg button::before, .ed-tabs button::before {
+  content: ""; width: 5px; height: 5px; flex: none; border-radius: 50%; background: var(--line-strong);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .35);
+}
+.rys-seg button[aria-checked="true"]::before, .ed-tabs button[aria-selected="true"]::before {
+  background: var(--accent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 40%, #000), 0 0 5px color-mix(in srgb, var(--accent) 65%, transparent);
+}
+
+/* podpisy grup wstążki jak opisy na pulpicie */
+.rys-rgroup-t { font: 600 9.5px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+
+/* pasek stanu: Punkty / Kąty / Śledzenie / Siatka jako klawisze z diodą */
+.rys-sbt:not(.rys-sbt-n) { display: inline-flex; align-items: center; gap: .38rem; border-color: var(--line); }
+.rys-sbt:not(.rys-sbt-n)::before {
+  content: ""; width: 5px; height: 5px; flex: none; border-radius: 50%; background: var(--line-strong);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .35);
+}
+.rys-sbt[aria-pressed="true"] { color: var(--ink); background: var(--surface-2); border-color: var(--line-strong); }
+.rys-sbt[aria-pressed="true"]::before { background: #22C55E; box-shadow: 0 0 0 1px rgba(21, 128, 61, .6), 0 0 5px rgba(34, 197, 94, .7); }
+.rys-status { font-variant-numeric: tabular-nums; }
