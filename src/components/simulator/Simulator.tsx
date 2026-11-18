@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
@@ -44,6 +44,10 @@ import { DEPTH_DEEP, DEPTH_TOP, deepestCut, depthShade, pathWindow, PATH_MODES, 
 import SplitHandle from "./SplitHandle";
 import SimDro from "./SimDro";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
+import OverrideKnob from "@/components/tactile/OverrideKnob";
+import StatusCapsule, { claimCapsule } from "./StatusCapsule";
+import { advance, BASE_RATE, blockEnd, cumulative, cumulativeSeconds, MODE_LABEL, MODE_TITLE, MODES, secondsAt, stepFeed, type RunMode } from "./transport";
+import { segSeconds } from "@/lib/parser/stats";
 import { useMedia } from "@/lib/ui/prefs";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
@@ -89,7 +93,6 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
   { id: "tools", label: "Narzędzia", d: "M14 4l6 6-9 9H5v-6zM12 6l6 6" },
   { id: "set", label: "Ustawienia", d: "M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0M14 4v4M8 10v4M16 16v4" },
 ];
-const SPEEDS = [0.5, 1, 2, 5];
 /** Widok 2D bez powiększenia: punkt ekranu = punkt kadru · k + (tx, ty). */
 const Z0 = { k: 1, tx: 0, ty: 0 };
 const ZMIN = 0.5, ZMAX = 80;
@@ -121,6 +124,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const show3d = view !== "2d";
   const [mTab, setMTab] = useState<MTab>("sim");
   const rootRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [caret, setCaret] = useState<{ line: number; col: number } | null>(null);
@@ -259,7 +263,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     document.addEventListener("visibilitychange", onVis);
     return () => { document.removeEventListener("click", onClick, true); document.removeEventListener("visibilitychange", onVis); };
   }, [playing]);
-  const [speed, setSpeed] = useState(1);
+  // pulpit (Etap 11): override posuwu 0–150% i tryb pracy zamiast mnożnika prędkości
+  const [feed, setFeed] = useState(100);
+  const [runMode, setRunMode] = useState<RunMode>("auto");
+  const capId = useId();
   const [prevSource, setPrevSource] = useState(source);
   if (prevSource !== source) { setPrevSource(source); setProgress(0); setPlaying(!!autoplay && autoStartOk(autoplay)); }
 
@@ -293,39 +300,58 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const ch = latheChuck(pr, segments, setup.stock.auto);
     return { R0: ch.jawR, z0: ch.zFace - ch.jawLen, z1: pr.z1 };
   }, [mode, program, segments, setup]);
-  const total = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
+  const marks = useMemo(() => cumulative(lengths), [lengths]);
+  const total = marks[marks.length - 1];
+
+  // SINGLE BLOCK: odtwarzanie staje na końcu bieżącego bloku. Granica liczona przy starcie
+  // (CYCLE START) i przy zmianie trybu w trakcie ruchu.
+  const progressRef = useRef(0);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
+  const stopAtRef = useRef(Infinity);
+  useEffect(() => {
+    stopAtRef.current = playing && runMode === "single" ? blockEnd(progressRef.current, segments, lengths, marks) : Infinity;
+  }, [playing, runMode, segments, lengths, marks]);
 
   // pętla animacji
   useEffect(() => {
     if (!playing) return;
     let raf = 0; let last = performance.now();
+    // W pokazie tempo dobieramy do długości programu — krótkie przykłady
+    // przy stałej prędkości tylko migały.
+    const base = showcase ? Math.min(BASE_RATE, Math.max(5, total / 14)) : BASE_RATE;
     const tick = (now: number) => {
-      const dt = (now - last) / 1000; last = now;
+      // po powrocie do karty albo zacięciu klatki — bez skoku o kilka sekund
+      const dt = Math.min(0.1, (now - last) / 1000); last = now;
       setProgress((p) => {
-        // szybki dojazd 3x szybciej niż posuw
-        const idx = segIndexAt(p, lengths);
-        const mult = segments[idx]?.kind === "rapid" ? 3 : 1;
-        // W pokazie tempo dobieramy do długości programu — krótkie przykłady
-        // przy stałej prędkości tylko migały.
-        const rate = showcase ? Math.min(40, Math.max(5, total / 14)) : 40;
-        const np = p + dt * rate * speed * mult;
-        if (np >= total) {
-          if (showcase) {
-            // pauza na gotowym torze, dopiero potem start od nowa
-            if (holdRef.current === 0) { holdRef.current = performance.now(); return total; }
-            if (performance.now() - holdRef.current < 1600) return total;
-            holdRef.current = 0;
-            return 0;
-          }
-          setPlaying(false); return total;
+        if (showcase && p >= total) {
+          // pauza na gotowym torze, dopiero potem start od nowa
+          if (holdRef.current === 0) { holdRef.current = performance.now(); return total; }
+          if (performance.now() - holdRef.current < 1600) return total;
+          holdRef.current = 0;
+          return 0;
         }
-        return np;
+        const r = advance(p, dt, { segments, lengths, marks, feed, mode: runMode, stopAt: stopAtRef.current, base });
+        if (r.stop && !(showcase && r.p >= total)) setPlaying(false);
+        return r.p;
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, speed, total, lengths, segments, showcase]);
+  }, [playing, feed, runMode, total, lengths, marks, segments, showcase]);
+
+  // pulpit: CYCLE START / FEED HOLD
+  const atEnd = progress >= total - 1e-6;
+  const held = !playing && progress > 1e-6 && !atEnd;
+  const cycleStart = () => {
+    if (atEnd) { setProgress(0); progressRef.current = 0; }
+    claimCapsule(capId);
+    userPlay(true);
+  };
+  const feedHold = () => userPlay(false);
+  const togglePlay = () => (playing ? feedHold() : cycleStart());
+  // czas programu (przy zaprogramowanym F) pod bieżącym punktem — do kapsuły statusu
+  const cumSecs = useMemo(() => cumulativeSeconds(segments, (sg) => segSeconds(sg, program)), [segments, program]);
 
   // aktualna linia i pozycja narzędzia
   const { activeLine, currentPos } = useMemo(() => {
@@ -1195,39 +1221,58 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     </details>
   );
 
+  const modeSeg = (
+    <TactileSegmentedControl<RunMode> label="Tryb pracy" size="sm" className="mode-seg" value={runMode} onChange={setRunMode}
+      options={MODES.map((m) => ({ value: m, label: MODE_LABEL[m], title: MODE_TITLE[m], led: true }))} />
+  );
   const transportBar = (
-    <div className="sim-controls">
-      <button onClick={() => { if (progress >= total) setProgress(0); userPlay((p) => !p); }} aria-label={playing ? "Pauza" : "Start"}>
-        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-          {playing ? <path d="M7 5h4v14H7zM13 5h4v14h-4z" /> : <path d="M7 4l13 8-13 8z" />}
-        </svg>
-        <span className="ctrl-label">{playing ? "Pauza" : "Start"}</span>
-      </button>
-      <button onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni blok">
-        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
-        <span className="ctrl-label">‹ Krok</span>
-      </button>
-      <button onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny blok">
-        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
-        <span className="ctrl-label">Krok ›</span>
-      </button>
-      <button onClick={() => { userPlay(false); setProgress(0); }} aria-label="Reset">
-        <svg className="ctrl-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
-        <span className="ctrl-label">Reset</span>
-      </button>
-      <button type="button" className="speed-chip" aria-label="Prędkość symulacji"
-        onClick={() => setSpeed((v) => SPEEDS[(SPEEDS.indexOf(v) + 1) % SPEEDS.length] ?? 1)}>
-        {String(speed).replace(".", ",")}×
-      </button>
-      {/* komputer: prędkość jako przełącznik pulpitu (0,5× · 1× · 2× · 5×) */}
-      <TactileSegmentedControl<string> label="Prędkość symulacji" size="sm" className="speed-seg" value={String(speed)} onChange={(v) => setSpeed(Number(v))}
-        options={SPEEDS.map((v) => ({ value: String(v), label: `${String(v).replace(".", ",")}×`, led: false }))} />
+    <div className={`sim-controls sim-panel${showcase ? " is-showcase" : ""}${lesson ? " is-lesson" : ""}`}>
+      <div className="sp-cycle">
+        <button type="button" className={`pb pb-start${playing ? " is-lit" : ""}`} onClick={cycleStart} aria-pressed={playing}
+          aria-label="Start cyklu (CYCLE START)" title={runMode === "single" ? "CYCLE START — wykonaj następny blok" : "CYCLE START — start programu (Spacja)"}>
+          <i className="pb-led" aria-hidden /><span className="pb-t">CYCLE<br />START</span>
+        </button>
+        <button type="button" className={`pb pb-hold${held ? " is-lit" : ""}`} onClick={feedHold} aria-pressed={held}
+          aria-label="Wstrzymanie posuwu (FEED HOLD)" title="FEED HOLD — zatrzymaj ruch, dalej przyciskiem CYCLE START (Spacja)">
+          <i className="pb-led" aria-hidden /><span className="pb-t">FEED<br />HOLD</span>
+        </button>
+      </div>
+      <div className="sp-step">
+        <button type="button" className="pb pb-ico" onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }} aria-label="Poprzedni ruch" title="Poprzedni ruch (←)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M17 4L7 12l10 8zM6 4h2v16H6z" /></svg>
+        </button>
+        <button type="button" className="pb pb-ico" onClick={() => { userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }} aria-label="Następny ruch" title="Następny ruch (→)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M7 4l10 8L7 20zM16 4h2v16h-2z" /></svg>
+        </button>
+        <button type="button" className="pb pb-ico" onClick={() => { userPlay(false); setProgress(0); }} aria-label="Reset" title="Reset — początek programu (Home)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5" /></svg>
+        </button>
+      </div>
+      {!showcase && !lesson && (
+        <>
+          {/* telefon: tryb jako przycisk przełączany po kolei; komputer: przełącznik z diodami */}
+          <button type="button" className="pb mode-chip" aria-label={`Tryb pracy: ${MODE_LABEL[runMode]} — zmień`} title={MODE_TITLE[runMode]}
+            onClick={() => setRunMode((m) => MODES[(MODES.indexOf(m) + 1) % MODES.length])}>
+            {runMode === "auto" ? "AUTO" : runMode === "single" ? "SBK" : "DRY"}
+          </button>
+          {modeSeg}
+        </>
+      )}
+      <div className="sp-feed">
+        <OverrideKnob value={feed} onChange={setFeed} label="Override posuwu (FEED)" size={showcase ? 40 : 46} />
+        <span className="sp-feed-cap" aria-hidden><b>FEED</b><span>%</span></span>
+      </div>
       <input type="range" className="sim-scrub" min={0} max={total || 1} step={0.1} value={progress}
         onChange={(e) => { userPlay(false); setProgress(Number(e.target.value)); }} aria-label="Postęp programu" />
     </div>
   );
 
   const activeLineText = activeLine !== null ? program.lines[activeLine] : null;
+  const blockLabel = (() => {
+    if (!activeLineText) return "—";
+    const n = activeLineText.words.find((w) => w.letter === "N");
+    return n ? `N${n.value}` : `L${activeLineText.index + 1}`;
+  })();
   const viewHud = appLayout && layout.hud && !compact && (
     <div className="view-hud" aria-live="off">
       <div className="vh-line"><b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b><code>{activeLineText?.raw.trim() || "koniec programu"}</code></div>
@@ -1397,7 +1442,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       onKeyDown={(e) => {
         const el = e.target as HTMLElement;
         if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
-        if (e.key === " ") { e.preventDefault(); if (progress >= total) setProgress(0); userPlay((p) => !p); }
+        if (e.key === " ") { e.preventDefault(); togglePlay(); }
+        else if ((e.key === "+" || e.key === "=") && !compact) { e.preventDefault(); setFeed((v) => stepFeed(v, 1)); }
+        else if (e.key === "-" && !compact) { e.preventDefault(); setFeed((v) => stepFeed(v, -1)); }
         else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
         else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
         else if (e.key === "Home") { e.preventDefault(); userPlay(false); setProgress(0); }
@@ -1509,7 +1556,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               )}
             </div>
         )}
-        <div className={`stage-view m-sim v-${compact || !allow3d ? "2d" : view}`}>
+        <div ref={stageRef} className={`stage-view m-sim v-${compact || !allow3d ? "2d" : view}`}>
           <div className="c2d m-sim">
             <canvas ref={canvasRef} className={`sim-canvas sim-canvas-2d${measure ? " is-measure" : ""}`} style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }} {...canvasEvents} />
             {view !== "3d" && zoomTools}
@@ -1519,10 +1566,6 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </div>
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
         {transportBar}
-        <label className="speed">
-          Prędkość
-          <input type="range" min={0.25} max={5} step={0.25} value={speed} onChange={(e) => setSpeed(Number(e.target.value))} />
-        </label>
         {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && (
           <div className="sim-state m-sim" aria-label="Stan maszyny">
@@ -1595,11 +1638,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 <button type="button" className="m-toggle" aria-label="Tor wzorcowy" aria-pressed={showRef} onClick={() => setShowRef((v) => !v)}><i /></button>
               </div>
             )}
-            <div className="m-set-row">
-              <span>Prędkość symulacji</span>
-              <div className="segmented m-seg" role="tablist" aria-label="Prędkość symulacji">
-                {SPEEDS.map((v) => <button key={v} type="button" role="tab" aria-selected={speed === v} onClick={() => setSpeed(v)}>{String(v).replace(".", ",")}×</button>)}
-              </div>
+            <div className="m-set-row m-set-mode">
+              <span>Tryb pracy</span>
+              {modeSeg}
             </div>
             <div className="m-set-row m-set-exp">
               <span>Eksport</span>
@@ -1661,6 +1702,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             </button>
           ))}
         </nav>
+      )}
+      {!compact && !showcase && (
+        <StatusCapsule id={capId} target={stageRef} active={playing || held} playing={playing} held={held}
+          block={blockLabel} elapsed={secondsAt(progress, lengths, cumSecs)} total={cumSecs[cumSecs.length - 1] ?? 0}
+          tool={`T${String(activeToolNo ?? 0).padStart(2, "0")}`} mode={runMode} feed={feed} onToggle={togglePlay}
+          onBack={appLayout ? () => setMTab("sim") : undefined} />
       )}
     </div>
   );
@@ -1766,11 +1813,6 @@ function stripNumbers(src: string) {
 
 /** Obrys półfabrykatu dobieranego automatycznie: zakres ruchów roboczych
     powiększony o promień największego narzędzia. */
-function segIndexAt(p: number, lengths: number[]) {
-  let acc = 0;
-  for (let i = 0; i < lengths.length; i++) { acc += lengths[i]; if (p < acc) return i; }
-  return lengths.length - 1;
-}
 
 function stepTo(p: number, lengths: number[], dir: 1 | -1) {
   let acc = 0; const marks = [0];

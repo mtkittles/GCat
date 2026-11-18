@@ -200,8 +200,6 @@ button:active { transform: scale(.985); }
 .sim-lines li.is-clickable:hover { background: var(--accent-soft); }
 
 .sim-controls { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; font-size: 13px; }
-.sim-controls button { padding: .42rem .85rem; border: 1px solid var(--line-strong); border-radius: 999px; background: var(--card); font-weight: 600; color: var(--ink); }
-.sim-controls button:first-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
 .sim-controls label { display: inline-flex; gap: .4rem; align-items: center; color: var(--muted); }
 .sim-controls .sim-scrub { flex-basis: 100%; accent-color: var(--accent); height: 30px; }
 input[type="range"] { height: 26px; accent-color: var(--accent); }
@@ -431,7 +429,7 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 
 /* ---------- ergonomia mobilna ---------- */
 @media (max-width: 640px) {
-  .sim-controls button, .filters button { min-height: 40px; }
+  .filters button { min-height: 40px; }
   .setup-field input[type="number"], .calc-field input, .calc-field select { min-height: 38px; font-size: 16px; }
   .code-table td, .code-table th { padding: .6rem .3rem; }
   .hero { padding: 1.5rem 1.1rem; }
@@ -883,14 +881,6 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .only-narrow { display: inline-grid; }
 @media (min-width: 1100px) { .only-narrow { display: none; } }
 
-/* sterowanie odtwarzaniem */
-.sim-controls button { display: inline-flex; align-items: center; gap: .4rem; }
-.ctrl-ico { flex: none; }
-@media (max-width: 560px) {
-  .ctrl-label { display: none; }
-  .sim-controls button { width: 46px; height: 44px; justify-content: center; padding: 0; }
-  .sim-controls label { font-size: 12px; }
-}
 
 /* ---------- podsumowanie programu ---------- */
 .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
@@ -962,8 +952,6 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 
 .fs-transport { padding: .5rem .7rem .7rem; border-top: 1px solid rgba(148,163,184,.18); display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
 .fs-transport .sim-controls { flex: 1; gap: .4rem; }
-.fs-transport .sim-controls button { background: rgba(148,163,184,.1); border-color: rgba(148,163,184,.25); color: #F8FAFC; }
-.fs-transport .sim-controls button:first-child { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .fs-sheet-btn { display: inline-flex; align-items: center; gap: .35rem; padding: 0 .85rem; height: 44px; border-radius: var(--radius-sm); border: 1px solid rgba(148,163,184,.25); background: rgba(148,163,184,.1); color: #F8FAFC; font-weight: 600; font-size: 13px; }
 .fs-sheet-btn.is-open { background: var(--accent); border-color: var(--accent); }
 
@@ -986,8 +974,6 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 
 @media (min-width: 1100px) { .fs-open { display: none; } }
 
-.speed { display: inline-flex; gap: .45rem; align-items: center; font-size: 12.5px; color: var(--muted); }
-.speed input { width: 8rem; }
 
 .units { display: inline-flex; align-items: center; gap: .4rem; font-size: 12.5px; color: var(--muted); }
 .units select { padding: .35rem .5rem; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--card); font-size: 13px; color: var(--ink); min-height: 38px; }
@@ -1328,7 +1314,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 
 
 /* ================= v4: symulator na telefonie (układ jak w aplikacji) ================= */
-.m-simtabs, .m-only, .sim-controls .speed-chip { display: none; }
+.m-simtabs, .m-only { display: none; }
 .workbench.is-full > .wb-main { order: 1; }
 
 @media (max-width: 767px) {
@@ -1343,7 +1329,6 @@ h2[id], section[id] { scroll-margin-top: 84px; }
   .workbench[data-mtab]:not([data-mtab="tools"]) > .wb-main > .m-tools,
   .workbench[data-mtab]:not([data-mtab="set"]) > .wb-main > .m-set { display: none; }
   .workbench[data-mtab="code"] > .wb-main { display: none; }
-  .is-app > .wb-main > .speed { display: none; }
   .is-app .stage-view.v-split { display: grid; gap: .5rem; }
   .is-app .viewbar .units, .is-app .viewbar .comp-note { display: none; }
   .is-app .sim3d-wrap .text-xs { display: none; }
@@ -1393,22 +1378,6 @@ h2[id], section[id] { scroll-margin-top: 84px; }
     display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .6rem;
     border-radius: 16px; background: var(--card); border: 1px solid var(--line);
   }
-  .is-app > .wb-main > .sim-controls button {
-    width: 44px; height: 44px; min-height: 0; padding: 0; display: grid; place-items: center;
-    border-radius: 12px; background: var(--surface-2); border: 1px solid var(--line-strong); color: var(--ink);
-    transition: transform .12s ease, background-color .15s ease;
-  }
-  .is-app > .wb-main > .sim-controls button:first-child {
-    width: 52px; height: 48px; background: var(--accent); border-color: var(--accent); color: var(--on-accent);
-    box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 40%, transparent);
-  }
-  .is-app > .wb-main > .sim-controls button:active { transform: scale(.93); }
-  .is-app > .wb-main > .sim-controls .ctrl-ico { width: 18px; height: 18px; }
-  .is-app > .wb-main > .sim-controls .speed-chip {
-    display: grid; width: auto; margin-left: auto; padding: 0 .8rem;
-    font: 600 13px/1 var(--font-mono); color: var(--accent-ink); background: transparent; border-color: var(--line-strong);
-  }
-  .is-app > .wb-main > .sim-controls .sim-scrub { flex-basis: 100%; height: 26px; margin: .1rem .2rem 0; }
 
   /* stan maszyny: jeden przewijany rząd */
   .is-app > .wb-main > .sim-state { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
@@ -2254,8 +2223,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .workbench.is-app .stage-view > .sim3d-wrap { height: 100%; min-height: 0; }
   .workbench.is-app .stage-view > .sim3d-wrap > div, .workbench.is-app .stage-view .view3d { height: 100%; }
   .workbench.is-app .stage-view .sim-canvas-3d { height: 100% !important; }
-  .workbench.is-app > .wb-main > .speed { display: none; }
-  .workbench.is-app .sim-controls .speed-chip { display: inline-flex; }
   .workbench.is-app .viewbar .segmented button { min-height: 34px; padding: .32rem .8rem; }
   .workbench.is-app .viewbar > button, .workbench.is-app .viewbar .units select, .workbench.is-app .lay-menu > summary { min-height: 34px; }
   .workbench.is-app .viewbar .comp-note { font-size: 12px; }
@@ -2516,8 +2483,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 @media (min-width: 1100px) {
   /* komputer: tabelka na podglądzie pokazuje stan maszyny — rząd z tymi samymi danymi pod odtwarzaczem znika */
   .workbench.is-app:has(.view-hud) .sim-state { display: none; }
-  .workbench.is-app .sim-controls { flex-wrap: nowrap; align-items: center; }
-  .workbench.is-app .sim-controls .sim-scrub { flex: 1 1 auto; min-width: 120px; margin: 0 .3rem; }
   .workbench.is-app { --stage-h: max(360px, calc(100vh - 252px)); }
 }
 
@@ -2806,10 +2771,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
   /* odtwarzacz niższy */
   .is-app > .wb-main > .sim-controls { padding: .45rem .5rem .3rem; gap: .4rem; }
-  .is-app > .wb-main > .sim-controls button { width: 42px; height: 40px; }
-  .is-app > .wb-main > .sim-controls button:first-child { width: 50px; height: 42px; }
-  .is-app > .wb-main > .sim-controls .speed-chip { width: auto; }
-  .is-app > .wb-main > .sim-controls .sim-scrub { height: 22px; margin: 0 .2rem; }
 
   /* pasek sekcji niżej i smuklejszy */
   .is-app .m-simtabs { bottom: calc(env(safe-area-inset-bottom, 0px) + .2rem); margin-top: .3rem; padding: 3px; border-radius: 14px; }
@@ -2899,7 +2860,6 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
   .ls .ls-main .article p, .ls .ls-main .article ul, .ls .ls-main .article ol, .ls .ls-main .ls-p { font-size: 17px; max-width: 72ch; }
 }
 /* Pasek sterowania pokazu w lekcji — ciemne tło pokazu w obu motywach */
-.showcase-ctrl .sim-controls button:not(:first-child), .showcase-ctrl .speed-chip { background: rgba(148,163,184,.12); border-color: rgba(148,163,184,.28); color: #E2E8F0; }
 /* Demonstracje w treści: jedna kolumna (rysunek → sterowanie → kod). Kolumna treści ma ok. 700 px,
    a dwie kolumny ściskały płótno i legendę poza kartę. */
 .demo-fig .showcase { grid-template-columns: minmax(0, 1fr); }

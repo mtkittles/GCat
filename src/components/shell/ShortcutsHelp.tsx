@@ -38,8 +38,9 @@ export default function ShortcutsHelp() {
       [["Esc"], "Zamknij okno, panel, wyszukiwanie"],
     ]],
     ["Symulator", [
-      [["Spacja"], "Start / pauza"],
-      [["←", "→"], "Poprzedni / następny blok"],
+      [["Spacja"], "CYCLE START / FEED HOLD"],
+      [["←", "→"], "Poprzedni / następny ruch"],
+      [["+", "−"], "Override posuwu ±10%"],
       [["Home"], "Początek programu"],
       [[mod, "F"], "Szukaj w kodzie (w edytorze)"],
     ]],
