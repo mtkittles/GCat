@@ -1600,3 +1600,19 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 :root:not([data-theme="dark"]) .chip-success { color: color-mix(in srgb, var(--green-ink) 82%, #000); }
 /* katalog: składnia na karcie listy się nie przewija (cała karta jest odnośnikiem, pełna składnia na stronie kodu) */
 .kc-syn pre { overflow: hidden; }
+
+/* ==========================================================================
+   22. Jasny motyw — bloki programu jak w katalogu i na kartach (Etap 13b)
+   ========================================================================== */
+/* Listingi programu i ćwiczenia na kodzie (teoria lekcji, „Program detalu”, stan sterowania, test, galeria programów,
+   zadania): w jasnym motywie jasne tło strony z linią, tusz i kolory składni z motywu — bez „ciemnej wyspy”. */
+:root:not([data-theme="dark"]) :is(.syntax, .bu-code, .se-code, .pg-code pre, .ls-rail-prog pre, .gap-line, .tok-line, .bug-code, .ord-seq) {
+  --accent-ink: inherit; --red-ink: inherit; --green-ink: inherit; --amber-ink: inherit; --blue-ink: inherit;
+  --ink: inherit; --ink-2: inherit; --muted: inherit; --line: inherit; --line-strong: inherit;
+  --surface: inherit; --surface-2: inherit; --surface-3: inherit; --card: inherit; --accent-soft: inherit; --warn-bg: inherit;
+  --cm-comment: inherit; --cm-g: inherit; --cm-m: inherit; --cm-n: inherit; --cm-g00: inherit; --cm-g01: inherit; --cm-g02: inherit;
+  --cm-axis: inherit; --cm-ijk: inherit; --cm-fs: inherit; --cm-t: inherit;
+  background: var(--bg); color: var(--ink); border: 1px solid var(--line);
+}
+/* Nowe linie „Programu detalu”: słabsze tło, żeby pomarańczowy tusz miał kontrast AA na jasnym tle. */
+:root:not([data-theme="dark"]) .bu-line.is-new > button { background: color-mix(in srgb, var(--accent) 6%, transparent); }

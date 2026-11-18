@@ -126,7 +126,7 @@ export const f5_1: LessonDoc = {
     { kind: "order", q: "Ułóż ruchy cyklu G81.", items: ["posuw do Z", "ruch szybki nad otwór", "ruch szybki w górę", "ruch szybki do R"], answer: [1, 3, 0, 2], why: "XY, R, dno, powrót." },
     { kind: "choice", q: "Po `G81 X10. Y10. Z-10. R2. F120` stoi blok `X40.`. Co się stanie?", options: ["kolejny otwór w X40 Y10", "ruch szybki bez wiercenia", "alarm", "ruch G01"], answer: 0, why: "Cykl jest modalny." },
     { kind: "gap", q: "Nawiertak 90°, fazka Ø10. Na jakie Z ma zejść czubek nawiertaka?", template: "Z{0}", answers: [["-5"]], why: "Przy kącie 90° wysokość stożka równa się promieniowi fazki: 10 / 2 = 5, więc Z−5." },
-    { kind: "token", q: "Wskaż słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 6, why: "P300 — 0,3 s." },
+    { kind: "token", q: "Wskaż słowo, które podaje **postój na dnie**.", block: "G82 X10. Y10. Z-3. R2. P300 F150", answer: 5, why: "P300 — 0,3 s." },
     { kind: "choice", q: "Po co nawiercać przed wierceniem?", options: ["wiertło nie ucieka i otwór ma właściwe położenie", "żeby otwór był głębszy", "bo wymaga tego G81", "żeby ominąć G80"], answer: 0, why: "Stożek prowadzi wiertło przy wejściu." },
   ],
 
