@@ -7,6 +7,7 @@ import TactileSegmentedControl from "@/components/tactile/TactileSegmentedContro
 import { exercises } from "@/lib/content";
 import { useDone } from "@/lib/exercisesDone";
 import EmptyState from "@/components/ui/EmptyState";
+import Shared, { vtName } from "@/components/ui/Shared";
 
 /*
   Lista zadań: nagłówek z postępem (zaliczone z zapisu w przeglądarce / koncie), przełączniki maszyny
@@ -60,7 +61,7 @@ export default function ExerciseList({ previews = {} }: { previews?: Record<stri
                     <span className="zx-meta">{LEVEL[e.level]} · {e.mode === "mill" ? "frezowanie" : "toczenie"}</span>
                     <span className={`zx-state${ok ? " is-ok" : ""}`}><StatusLed state={ok ? "ready" : "idle"} pulse={false} />{ok ? "Zaliczone" : "Do zrobienia"}</span>
                   </span>
-                  <span className="zx-title">{e.title}</span>
+                  <Shared name={vtName("zad", e.slug)}><span className="zx-title">{e.title}</span></Shared>
                   <span className="zx-brief">{e.brief}</span>
                   {e.requireCodes && e.requireCodes.length > 0 && (
                     <span className="zx-codes" aria-label="Wymagane kody">

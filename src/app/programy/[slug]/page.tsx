@@ -6,6 +6,7 @@ import ProgramPreview from "@/components/ProgramPreview";
 import { PROGRAMS, programBySlug } from "@/content/programy";
 import { parseProgram } from "@/lib/parser";
 import { TOOL_LABEL } from "@/components/simulator/setup";
+import Shared, { vtName } from "@/components/ui/Shared";
 
 export function generateStaticParams() { return PROGRAMS.map((p) => ({ slug: p.slug })); }
 
@@ -36,7 +37,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         <div className="pg-hero-prev"><ProgramPreview p={p} id="pv-main" /></div>
         <div className="pg-hero-txt">
           <div className="pg-meta"><span>{p.mode === "mill" ? "Frezowanie" : "Toczenie"}</span><span>{p.category}</span><span>{p.level}</span></div>
-          <h1>{p.title}</h1>
+          <h1><Shared name={vtName("prog", p.slug)}><span className="vt-inline">{p.title}</span></Shared></h1>
           <p>{p.summary}</p>
           <p className="tp-profile">{profile(p)}</p>
           <div className="pg-chips">{p.features.map((f) => <Chip key={f}>{f}</Chip>)}</div>
