@@ -15,9 +15,10 @@ import { carve, millMeta, type MillMeta } from "./heightmap";
 import { angleAt, carveCyl, cylInit, cylMesh, cylMeta, cylUpdate, fixtureOf, isCyl, type CylMeta } from "./cylinder";
 import type { SimMode } from "./Simulator";
 import { cuttingRadius, toolOf, type Setup, type Tool } from "./setup";
+import { pathWindow, toolColor, toolSpanAt, type ColorBy, type PathMode } from "./pathView";
 
 export interface Sim3DApi { exportStl: () => Blob | null }
-interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean; /** Kinematyka stołu 4/5 osi — do widoku ruchu stołu. */ kin?: Kin; /** Tor narzędzia widoczny. */ showPath?: boolean; onTogglePath?: () => void }
+interface Props { source: string; mode: SimMode; progress: number; setup: Setup; segments?: Segment[]; fill?: boolean; ticks?: boolean; /** Zero aktywnego układu programu w maszynie — mały układ osi z etykietą; null = brak. */ zeroMark?: Vec3 | null; onApi?: (api: Sim3DApi | null) => void; /** Półfabrykat widoczny (false = sam tor i narzędzie). */ showStock?: boolean; /** Kinematyka stołu 4/5 osi — do widoku ruchu stołu. */ kin?: Kin; /** Tor narzędzia widoczny. */ showPath?: boolean; onTogglePath?: () => void; /** Zakres toru, G00, kolor (warstwy jak w 2D); domyślnie cały tor. */ pathMode?: PathMode; rapid?: boolean; colorBy?: ColorBy }
 
 
 /**
@@ -36,7 +37,7 @@ function gridMax() {
   return 400;
 } // rozdzielczość mapy wysokości (frezowanie) / profilu (toczenie)
 
-export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true, kin = "AC", showPath = true, onTogglePath }: Props) {
+export default function Sim3D({ source, mode, progress, setup, segments: segs, fill, ticks = false, zeroMark = null, onApi, showStock = true, kin = "AC", showPath = true, onTogglePath, pathMode = "all", rapid = true, colorBy = "move" }: Props) {
   const mountRef = useRef<HTMLDivElement>(null);
   const showStockRef = useRef(showStock);
   const showPathRef = useRef(showPath);
@@ -298,31 +299,65 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     } catch { /* wadliwa geometria nie może gasić podglądu */ }
   }, [tool, mode, failed]);
 
-  // Przebudowa toru narzędzia po zmianie programu.
+  // Przebudowa toru narzędzia po zmianie programu, G00 albo kolorów. Każdy kawałek toru zna swoje
+  // położenie na drodze programu (pathAt) — zakres widoczny (wykonany, ślad, narzędzie) to zakres rysowania.
+  const pathAt = useRef<{ s: Float32Array; e: Float32Array } | null>(null);
   useEffect(() => {
     const st = sceneRef.current; if (!st || failed) return;
     if (st.path) { st.part.remove(st.path); st.path.geometry.dispose(); st.path = null; }
-    const pts: THREE.Vector3[] = []; const cols: number[] = [];
+    pathAt.current = null;
+    const pts: THREE.Vector3[] = []; const cols: number[] = []; const ps: number[] = []; const pe: number[] = [];
     const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
-    for (const sg of program.segments) {
-      if (sg.kind === "dwell") continue;   // bez ruchu — nic do narysowania na torze 3D
-      const n = sg.kind === "arc" ? 32 : 1;
+    const tc = new Map<string, THREE.Color>();
+    let acc = 0;
+    program.segments.forEach((sg, si) => {
+      const len = lengths[si] ?? 0, s0 = acc; acc += len;
+      if (sg.kind === "dwell") return;   // bez ruchu — nic do narysowania na torze 3D
+      if (sg.kind === "rapid" && !rapid) return;
+      let col = c[sg.kind];
+      if (colorBy === "tool" && sg.kind !== "rapid") {
+        const hex = toolColor(program.lines[sg.line]?.state.tool ?? null);
+        col = tc.get(hex) ?? (tc.set(hex, new THREE.Color(hex)), tc.get(hex)!);
+      }
+      // proste dzielone co ~2 mm drogi — żeby wykonana część kończyła się tam, gdzie narzędzie
+      const n = sg.kind === "arc" ? 32 : Math.min(64, Math.max(1, Math.ceil(len / 2)));
       for (let i = 0; i < n; i++) {
         const a = pointAt(sg, i / n), b = pointAt(sg, (i + 1) / n);
         pts.push(toW(a, mode), toW(b, mode));
-        cols.push(...c[sg.kind].toArray(), ...c[sg.kind].toArray());
+        cols.push(...col.toArray(), ...col.toArray());
+        ps.push(s0 + (len * i) / n); pe.push(s0 + (len * (i + 1)) / n);
       }
-    }
+    });
     if (!pts.length) return;
     const lg = new THREE.BufferGeometry().setFromPoints(pts);
     lg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
     // gęsty program z CAM: tor przygaszony, żeby było widać powierzchnię detalu
     const line = new THREE.LineSegments(lg, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: program.segments.length > 2500 ? 0.22 : 0.6 }));
     line.visible = showPathRef.current;
+    pathAt.current = { s: Float32Array.from(ps), e: Float32Array.from(pe) };
     st.path = line;
     st.part.add(line);
     st.render();
-  }, [program, mode, failed]);
+  }, [program, mode, failed, lengths, rapid, colorBy]);
+
+  // Widoczny zakres toru (cały / wykonany / ślad / bieżące narzędzie) — tylko zakres rysowania, bez przebudowy.
+  // Efekt stoi po przebudowie toru i ma jej zależności: po nowym torze zakres liczy się w tej samej klatce.
+  const total3d = useMemo(() => lengths.reduce((a, b) => a + b, 0), [lengths]);
+  const toolSpan = useMemo(() => (pathMode === "tool" ? toolSpanAt(lengths, (i) => program.lines[program.segments[i]?.line]?.state.tool ?? null, progress) : null), [pathMode, lengths, program, progress]);
+  useEffect(() => {
+    const st = sceneRef.current, at = pathAt.current; if (!st || !st.path || !at) return;
+    const w = pathWindow(pathMode, progress, total3d, toolSpan);
+    const r = w.ghost ?? w.done;
+    const n = at.s.length;
+    let a = 0, b = -1;
+    if (r) {
+      while (a < n && at.e[a] <= r[0]) a++;
+      b = a - 1;
+      while (b + 1 < n && at.s[b + 1] < r[1]) b++;
+    }
+    st.path.geometry.setDrawRange(2 * a, Math.max(0, 2 * (b - a + 1)));
+    st.render();
+  }, [pathMode, progress, total3d, toolSpan, program, mode, failed, lengths, rapid, colorBy]);
 
   // ubytek materiału + pozycja narzędzia
   useEffect(() => {
