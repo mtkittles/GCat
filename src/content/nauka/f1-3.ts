@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG91\nG01 X20. F400\nY30.\nX30.\nY-30.\nG90\nG00 Z50.\nM09\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f1_3: LessonDoc = {
   id: "F1.3",
   slug: "f1-3-g90-g91",
@@ -48,12 +53,13 @@ export const f1_3: LessonDoc = {
     ],
     fig: "f13-run",
     steps: [
-      { x: "Odcinek 1: cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian. Kontrola: X0 + 20 = X20.", code: "X20." },
-      { x: "Odcinek 2: cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30. Kontrola: Y0 + 30 = Y30.", code: "Y30." },
-      { x: "Odcinek 3: cel X50 Y30. Przyrost X: 50 − 20 = 30. Kontrola: X20 + 30 = X50.", code: "X30." },
-      { x: "Odcinek 4: cel X50 Y0. Przyrost Y: 0 − 30 = −30. Kontrola: Y30 + (−30) = Y0.", code: "Y-30." },
+      { x: "Odcinek 1: cel X20 Y0. Przyrost X: 20 − 0 = 20, Y bez zmian. Kontrola: X0 + 20 = X20.", code: "X20.", line: 13 },
+      { x: "Odcinek 2: cel X20 Y30. X bez zmian, przyrost Y: 30 − 0 = 30. Kontrola: Y0 + 30 = Y30.", code: "Y30.", line: 14 },
+      { x: "Odcinek 3: cel X50 Y30. Przyrost X: 50 − 20 = 30. Kontrola: X20 + 30 = X50.", code: "X30.", line: 15 },
+      { x: "Odcinek 4: cel X50 Y0. Przyrost Y: 0 − 30 = −30. Kontrola: Y30 + (−30) = Y0.", code: "Y-30.", line: 16 },
     ],
     result: "W G91: `X20.` → `Y30.` → `X30.` → `Y-30.`. Kontrola: suma przyrostów w X (20 + 30 = 50) daje końcowe X50, a w Y (30 − 30 = 0) końcowe Y0.",
+    story: { program: story, from: 11, tool: 10 },
   },
 
   practice: [
@@ -64,7 +70,7 @@ export const f1_3: LessonDoc = {
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\n(TU TOR W G91)\nG90\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"cut","reference":"G90\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG01 X20. F400\nY30.\nX50.\nY0.\nG00 Z50.","tolerance":0.05},{"t":"state","on":"xy","abs":false,"label":"Ruchy konturu wykonane przy aktywnym G91"},{"t":"end","x":50,"y":0,"z":50,"label":"Koniec w X50 Y0 Z50 — przyrosty sumują się do celu"}],
       hints: ["Po `G91` każda wartość to przyrost od bieżącej pozycji: X20. znaczy „20 mm dalej w X”.","Kolejno: `G01 X20. F400`, `Y30.`, `X30.`, `Y-30.`. Blok `G90` już stoi za komentarzem — wraca do wymiarów absolutnych przed odjazdem."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X0. Y0.\nG00 Z5.\nG01 Z-3. F150\nG91\nG01 X20. F400\nY30.\nX30.\nY-30.\nG90\nG00 Z50.\nM09\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

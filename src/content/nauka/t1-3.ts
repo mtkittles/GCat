@@ -15,6 +15,13 @@ ${motion}
 (DOPISZ ODJAZD: NAJPIERW X, POTEM Z, I KONIEC PROGRAMU)
 `;
 
+const solution = starter
+        .replace("(DOPISZ BLOK STARTOWY I ZERO DETALU)\n", "G18 G21 G40 G80 G99\nG54\n")
+        .replace("(DOPISZ ODJAZD: NAJPIERW X, POTEM Z, I KONIEC PROGRAMU)\n", "G28 U0.\nG28 W0.\nM30\n");
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t1_3: LessonDoc = {
   id: "T1.3",
   slug: "t1-3-blok-startowy-tokarki",
@@ -51,12 +58,13 @@ export const t1_3: LessonDoc = {
     intro: "Sytuacja: program wałka ma już komentarze z zerem i surówką, obroty i jedno przejście na Ø36. Brakuje trybów na starcie, zera detalu i zakończenia. Numery na rysunku to numery kroków — kroki 1 i 2 nie ruszają osiami, więc na rysunku są tylko 3 i 4.",
     fig: "t13-exit",
     steps: [
-      { x: "Tryby: płaszczyzna, jednostki, kasowanie korekcji i cykli, posuw na obrót.", code: "G18 G21 G40 G80 G99" },
-      { x: "Zero detalu.", code: "G54" },
-      { x: "Na końcu: odjazd w X, potem w Z.", code: "G28 U0. → G28 W0." },
-      { x: "Koniec z przewinięciem. `M05` stoi już w programie przed odjazdem, więc wrzeciono jest zatrzymane.", code: "M30" },
+      { x: "Tryby: płaszczyzna, jednostki, kasowanie korekcji i cykli, posuw na obrót.", code: "G18 G21 G40 G80 G99", line: 2 },
+      { x: "Zero detalu.", code: "G54", line: 3 },
+      { x: "Na końcu: odjazd w X, potem w Z.", code: "G28 U0. → G28 W0.", line: 12, lineTo: 13 },
+      { x: "Koniec z przewinięciem. `M05` stoi już w programie przed odjazdem, więc wrzeciono jest zatrzymane.", code: "M30", line: 14 },
     ],
     result: "Program wałka ma komplet początku i końca. Moduł T2 doda wybór narzędzia, obroty zależne od średnicy i posuw.",
+    story: { program: story, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -72,9 +80,7 @@ export const t1_3: LessonDoc = {
         { t: "order", first: "G28 U", then: "G28 W", label: "Odjazd najpierw w X (G28 U), potem w Z (G28 W)" },
       ],
       hints: ["Start: G18 G21 G40 G80 G99, potem G54.", "Koniec: G28 U0., G28 W0., M30."],
-      solution: starter
-        .replace("(DOPISZ BLOK STARTOWY I ZERO DETALU)\n", "G18 G21 G40 G80 G99\nG54\n")
-        .replace("(DOPISZ ODJAZD: NAJPIERW X, POTEM Z, I KONIEC PROGRAMU)\n", "G28 U0.\nG28 W0.\nM30\n"),
+      solution,
     },
     {
       kind: "drill",

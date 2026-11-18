@@ -45,6 +45,9 @@ const starter = `O3000 (PLYTKA 60X40 - ZADANIE KONCOWE)
 (ZEJSCIE, NAJAZD, KONTUR, ODJAZD, KONIEC)
 M30`;
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f8_1: LessonDoc = {
   id: "F8.1",
   slug: "f8-1-zadanie-koncowe-plytka",
@@ -85,13 +88,14 @@ export const f8_1: LessonDoc = {
     intro: "Sytuacja: frez Ø12 ma zejść obok płytki w X−46 Y−8, wejść na środek lewej krawędzi łukiem R8 i obejść kontur zgodnie z zegarem. Policz punkty najazdu i pierwszego naroża. Numery na rysunku to numery kroków.",
     fig: "f81-path",
     steps: [
-      { x: "Zejście obok detalu: X−46 leży 16 mm od krawędzi X−30, czyli 10 mm poza zasięgiem freza o promieniu 6.", code: "G00 X-46. Y-8.  G00 Z5.  G01 Z-4. F150" },
-      { x: "Odcinek w powietrzu z włączeniem korekcji. Łuk R8 kończy się w X−30 Y0, więc jego środek leży 8 mm na lewo od krawędzi, w X−38 Y0. Łuk zaczyna się 8 mm pod środkiem — w X−38 Y−8.", code: "G41 D1 G01 X-38. F400" },
-      { x: "Łuk styczny do lewej krawędzi — na jej środku frez porusza się już w kierunku +Y.", code: "G03 X-30. Y0. R8." },
-      { x: "Lewa krawędź do początku naroża i naroże R6 do górnej krawędzi.", code: "G01 Y14.  G02 X-24. Y20. R6." },
-      { x: "Po obiegu powrót do Y0, odjazd lustrzanym łukiem i wyłączenie korekcji w powietrzu.", code: "G03 X-38. Y8. R8.  G40 G01 X-46." },
+      { x: "Zejście obok detalu: X−46 leży 16 mm od krawędzi X−30, czyli 10 mm poza zasięgiem freza o promieniu 6.", code: "G00 X-46. Y-8.  G00 Z5.  G01 Z-4. F150", line: 10, lineTo: 12 },
+      { x: "Odcinek w powietrzu z włączeniem korekcji. Łuk R8 kończy się w X−30 Y0, więc jego środek leży 8 mm na lewo od krawędzi, w X−38 Y0. Łuk zaczyna się 8 mm pod środkiem — w X−38 Y−8.", code: "G41 D1 G01 X-38. F400", line: 13 },
+      { x: "Łuk styczny do lewej krawędzi — na jej środku frez porusza się już w kierunku +Y.", code: "G03 X-30. Y0. R8.", line: 14 },
+      { x: "Lewa krawędź do początku naroża i naroże R6 do górnej krawędzi.", code: "G01 Y14.  G02 X-24. Y20. R6.", line: 15, lineTo: 16 },
+      { x: "Po obiegu powrót do Y0, odjazd lustrzanym łukiem i wyłączenie korekcji w powietrzu.", code: "G03 X-38. Y8. R8.  G40 G01 X-46.", line: 24, lineTo: 25 },
     ],
     result: "Pozostałe naroża liczy się tak samo: odcinek kończy się 6 mm przed narożnikiem, łuk G02 R6 dochodzi do kolejnej krawędzi. Każda liczba w programie jest wymiarem z rysunku albo różnicą dwóch wymiarów.",
+    story: { program: story, from: 9, part: { x: [-30, 30], y: [-20, 20], r: 6 }, tool: 12 },
   },
 
   practice: [

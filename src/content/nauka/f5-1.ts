@@ -21,6 +21,11 @@ Y40.
 X10.
 G80`;
 
+const solution = starter.replace("(DOPISZ: G82 DLA CZTERECH OTWOROW Z RYSUNKU,\n Z-3. R2. P200 F150, NA KONIEC G80)\n", cycle);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f5_1: LessonDoc = {
   id: "F5.1",
   slug: "f5-1-g81-g82",
@@ -63,12 +68,13 @@ export const f5_1: LessonDoc = {
     intro: "Sytuacja: w płytce trzeba nawiercić cztery otwory pod gwint M6 w środkach naroży R10: X10 Y10, X70 Y10, X70 Y40, X10 Y40. Nawiertak Ø10 90° ma zostawić fazkę Ø6. Z0 na górnej powierzchni. Numery na rysunku to kolejność otworów.",
     fig: "f51-holes",
     steps: [
-      { x: "Głębokość: przy 90° ile w głąb, tyle w bok — połowa średnicy fazki, 6 / 2 = 3.", code: "Z-3." },
-      { x: "Płaszczyzna R 2 mm nad materiałem, postój 0,2 s, posuw 150 mm/min.", code: "R2. P200 F150" },
-      { x: "Otwór 1 w bloku cyklu, kolejne — tylko zmieniona współrzędna, w kolejności 2, 3, 4.", code: "X70. → Y40. → X10." },
-      { x: "Skasowanie cyklu.", code: "G80" },
+      { x: "Głębokość: przy 90° ile w głąb, tyle w bok — połowa średnicy fazki, 6 / 2 = 3.", code: "Z-3.", line: 9 },
+      { x: "Płaszczyzna R 2 mm nad materiałem, postój 0,2 s, posuw 150 mm/min.", code: "R2. P200 F150", line: 9 },
+      { x: "Otwór 1 w bloku cyklu, kolejne — tylko zmieniona współrzędna, w kolejności 2, 3, 4.", code: "X70. → Y40. → X10.", line: 10, lineTo: 12 },
+      { x: "Skasowanie cyklu.", code: "G80", line: 13 },
     ],
     result: "`G82 X10. Y10. Z-3. R2. P200 F150`, potem `X70.`, `Y40.`, `X10.` i `G80`. Pięć krótkich bloków zamiast szesnastu.",
+    story: { program: story, from: 8, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 10 },
   },
 
   practice: [
@@ -81,7 +87,7 @@ export const f5_1: LessonDoc = {
         { t: "require", codes: ["G82", "G80"] },
       ],
       hints: ["Pierwszy blok: G82 X10. Y10. Z-3. R2. P200 F150.", "Dalej X70., Y40., X10. i G80."],
-      solution: starter.replace("(DOPISZ: G82 DLA CZTERECH OTWOROW Z RYSUNKU,\n Z-3. R2. P200 F150, NA KONIEC G80)\n", cycle),
+      solution,
     },
     {
       kind: "drill",

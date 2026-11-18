@@ -199,14 +199,18 @@ export const practiceSchema = z.discriminatedUnion("kind", [
 export const cwiczeniaSchema = z.strictObject({
   worked: z.strictObject({
     title: text, intro: text, data: z.array(z.tuple([text, text])).optional(), fig: z.string().optional(),
-    steps: z.array(z.strictObject({ x: text, code: z.string().optional(), line: z.number().int().min(1).optional() })).min(1),
+    steps: z.array(z.strictObject({ x: text, code: z.string().optional(), line: z.number().int().min(1).optional(), lineTo: z.number().int().min(1).optional() })).min(1),
     result: text,
     // przykład sterowany przewijaniem (Etap 12, B3) — src/lib/lesson.ts WorkedStory
     story: z.strictObject({
       program: z.string().min(1),
       from: z.number().int().min(0).optional(),
       stock: z.tuple([z.number(), z.number(), z.number(), z.number()]).optional(),
-      part: z.strictObject({ x: z.tuple([z.number(), z.number()]), y: z.tuple([z.number(), z.number()]), r: z.number().min(0).optional() }).optional(),
+      part: z.union([
+        z.strictObject({ x: z.tuple([z.number(), z.number()]), y: z.tuple([z.number(), z.number()]), r: z.number().min(0).optional() }),
+        z.strictObject({ cx: z.number(), cy: z.number(), d: z.number().positive() }),
+      ]).optional(),
+      bar: z.strictObject({ d: z.number().positive(), z: z.tuple([z.number(), z.number()]) }).optional(),
       tool: z.number().positive().optional(),
     }).optional(),
   }),

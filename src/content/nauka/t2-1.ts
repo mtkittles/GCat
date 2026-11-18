@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG28 U0.\nG28 W0.\nT0202 (NOZ WYKANCZAJACY)\nG96 S250 M03\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t2_1: LessonDoc = {
   id: "T2.1",
   slug: "t2-1-narzedzie-t0101",
@@ -41,12 +46,13 @@ export const t2_1: LessonDoc = {
     intro: "Sytuacja: nóż zgrubny T0101 skończył przejście i stoi w X42 Z2, tuż przy detalu. Dalej ma pracować nóż wykańczający T0202. Numery na rysunku to numery kroków.",
     fig: "t21-change",
     steps: [
-      { x: "Odjazd do punktu referencyjnego: najpierw X, potem Z. Głowica ma się obrócić daleko od detalu i konika.", code: "G28 U0. → G28 W0." },
-      { x: "Obrót głowicy na pozycję 2 i wczytanie rejestru korekcji 2.", code: "T0202" },
-      { x: "Obroty dla nowego noża — po zmianie narzędzia ustawia się je od nowa, bo nóż wykańczający pracuje z inną prędkością.", code: "G96 S250 M03" },
-      { x: "Dojazd ruchem szybkim przed czoło, nad pręt.", code: "G00 X44. Z2." },
+      { x: "Odjazd do punktu referencyjnego: najpierw X, potem Z. Głowica ma się obrócić daleko od detalu i konika.", code: "G28 U0. → G28 W0.", line: 13, lineTo: 14 },
+      { x: "Obrót głowicy na pozycję 2 i wczytanie rejestru korekcji 2.", code: "T0202", line: 15 },
+      { x: "Obroty dla nowego noża — po zmianie narzędzia ustawia się je od nowa, bo nóż wykańczający pracuje z inną prędkością.", code: "G96 S250 M03", line: 16 },
+      { x: "Dojazd ruchem szybkim przed czoło, nad pręt.", code: "G00 X44. Z2.", line: 17 },
     ],
     result: "Numer korekcji równy numerowi pozycji (T0202, T0303) od razu pokazuje, czy korekcja pasuje do noża. Limit `G50 S3000` z początku programu dalej obowiązuje, bo jest modalny.",
+    story: { program: story, from: 12, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -57,7 +63,7 @@ export const t2_1: LessonDoc = {
       starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\n(TU ZMIANA NOZA)\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
       checks: [{"t":"require","codes":["T0202","G96","S250","M03"]},{"t":"retract","label":"Przed zmianą noża odjazd G28 U, potem G28 W"},{"t":"state","label":"Nóż T0202 skrawa przy G96","forTool":202,"css":true},{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05}],
       hints: ["Najpierw odjazd: `G28 U0.` (X), potem `G28 W0.` (Z) — osobno, żeby nóż nie zahaczył o detal.","`T0202`, potem obroty od nowa `G96 S250 M03` i dojazd `G00 X44. Z2.`."],
-      solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36.4 F0.3\nZ-54.8\nX42.\nG00 Z2.\nG28 U0.\nG28 W0.\nT0202 (NOZ WYKANCZAJACY)\nG96 S250 M03\nG00 X44. Z2.\nG01 X36. F0.15\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

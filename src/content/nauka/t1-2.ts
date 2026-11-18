@@ -19,6 +19,11 @@ W-57.
 U4.
 G00 W57.`;
 
+const solution = starter.replace("(DOPISZ PRZEJSCIE TYLKO ADRESAMI U I W:\n NA FI36, WZDLUZ DO Z-55, WYJSCIE NA FI40,\n POWROT RUCHEM SZYBKIM NAD CZOLO)\n", pass);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t1_2: LessonDoc = {
   id: "T1.2",
   slug: "t1-2-g90-g91-u-w",
@@ -54,12 +59,13 @@ export const t1_2: LessonDoc = {
     intro: "Sytuacja: nóż stoi w X44 Z2. Ma przetoczyć Ø36 do Z−55, wyjść na Ø40 i wrócić nad czoło — zapisane samymi przyrostami U i W. Numery na rysunku to numery kroków.",
     fig: "t12-run",
     steps: [
-      { x: "Z Ø44 na Ø36: przyrost średnicy 36 − 44.", code: "G01 U-8. F0.2" },
-      { x: "Z Z2 do Z−55: przyrost −55 − 2.", code: "W-57." },
-      { x: "Wyjście z Ø36 na Ø40: przyrost 40 − 36.", code: "U4." },
-      { x: "Powrót ruchem szybkim nad czoło: z Z−55 do Z2.", code: "G00 W57." },
+      { x: "Z Ø44 na Ø36: przyrost średnicy 36 − 44.", code: "G01 U-8. F0.2", line: 6 },
+      { x: "Z Z2 do Z−55: przyrost −55 − 2.", code: "W-57.", line: 7 },
+      { x: "Wyjście z Ø36 na Ø40: przyrost 40 − 36.", code: "U4.", line: 8 },
+      { x: "Powrót ruchem szybkim nad czoło: z Z−55 do Z2.", code: "G00 W57.", line: 9 },
     ],
     result: "Absolutnie ten sam tor to `G01 X36. F0.2` → `Z-55.` → `X40.` → `G00 Z2.`. Kontrola: suma przyrostów W (−57 + 57 = 0) wraca do punktu startu w Z.",
+    story: { program: story, from: 5, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -73,7 +79,7 @@ export const t1_2: LessonDoc = {
         { t: "require", codes: ["U", "W"] },
       ],
       hints: ["Z Ø44 na Ø36 to U-8.", "Potem W-57., U4. i G00 W57."],
-      solution: starter.replace("(DOPISZ PRZEJSCIE TYLKO ADRESAMI U I W:\n NA FI36, WZDLUZ DO Z-55, WYJSCIE NA FI40,\n POWROT RUCHEM SZYBKIM NAD CZOLO)\n", pass),
+      solution,
     },
     {
       kind: "drill",

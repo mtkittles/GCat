@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nT2 M06 (NAWIERTAK)\nG00 G43 H2 Z50.\nS1800 M03\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution.replace("T1 M06 (FREZ FI10)\n", "T1 M06 (FREZ FI10)\nT2\n");
+
 export const f2_1: LessonDoc = {
   id: "F2.1",
   slug: "f2-1-wymiana-narzedzia",
@@ -39,12 +44,13 @@ export const f2_1: LessonDoc = {
     ],
     fig: "f21-time",
     steps: [
-      { x: "Krok 1: wymiana na frez.", code: "T1 M06" },
-      { x: "Krok 2: zaraz po niej przygotowanie nawiertaka — magazyn obraca się, a frez w tym czasie skrawa.", code: "T2" },
-      { x: "Krok 3: obróbka frezem, odjazd w Z, stop wrzeciona.", code: "… M05" },
-      { x: "Krok 4: wymiana na przygotowane T2 i ponowne włączenie obrotów.", code: "M06 → S… M03" },
+      { x: "Krok 1: wymiana na frez.", code: "T1 M06", line: 5 },
+      { x: "Krok 2: zaraz po niej przygotowanie nawiertaka — magazyn obraca się, a frez w tym czasie skrawa.", code: "T2", line: 6 },
+      { x: "Krok 3: obróbka frezem, odjazd w Z, stop wrzeciona.", code: "… M05", line: 10, lineTo: 17 },
+      { x: "Krok 4: wymiana na przygotowane T2 i ponowne włączenie obrotów.", code: "M06 → S… M03", line: 18, lineTo: 20 },
     ],
     result: "Zapis `M06` bez T wymienia na ostatnio przygotowane narzędzie. Wiele osób woli jednak pisać `T2 M06` przy każdej wymianie — program jest wtedy czytelny od razu. Czy T przygotowuje narzędzie z wyprzedzeniem, zależy od budowy magazynu — sprawdź instrukcję maszyny.",
+    story: { program: story, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50] }, tool: 10 },
   },
 
   practice: [
@@ -55,7 +61,7 @@ export const f2_1: LessonDoc = {
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\n(TU WYMIANA NA T2)\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
       checks: [{"t":"state","at":{"x":12,"y":10},"tool":2,"h":2,"s":1800,"dir":"cw","label":"Nawiercanie w X12 Y10 wykonuje T2 po wymianie, z korekcją H2 i S1800 w prawo"},{"t":"stopBeforeChange","label":"Wymiana narzędzia przy zatrzymanym wrzecionie (M05 przed M06)"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.","tolerance":0.05}],
       hints: ["Kolejność: `M05` (wrzeciono stoi przy wymianie), `T2 M06`, `G00 G43 H2 Z50.`, `S1800 M03`.","W kursie przyjęto, że numer H jest równy numerowi narzędzia — tu H2 dla T2. G43 użyje tego rejestru, który wskażesz."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nT2 M06 (NAWIERTAK)\nG00 G43 H2 Z50.\nS1800 M03\nG00 X12. Y10.\nG00 Z2.\nG01 Z-3. F100\nG00 Z50.\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

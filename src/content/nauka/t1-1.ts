@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36. F0.2\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t1_1: LessonDoc = {
   id: "T1.1",
   slug: "t1-1-blok-adres-modalnosc",
@@ -38,13 +43,14 @@ export const t1_1: LessonDoc = {
     intro: "Sytuacja: nóż ma przetoczyć pręt Ø40 na Ø36 do Z−55 i wrócić nad czoło. Fragment programu: (1) `G00 X44. Z2.`, (2) `G01 X36. F0.2`, (3) `Z-55.`, (4) `X42.`, (5) `G00 Z2.`. Jakim ruchem i z jakim posuwem wykona się każda linia? Numery na rysunku to numery linii.",
     fig: "t11-run",
     steps: [
-      { x: "Linia 1: G00 — szybki najazd 2 mm nad powierzchnię pręta, 2 mm przed czoło.", code: "G00 X44 Z2" },
-      { x: "Linia 2: G01 zastępuje G00, F0.2 ustawia posuw 0,2 mm na obrót. Nóż schodzi na Ø36.", code: "G01 F0.2" },
-      { x: "Linia 3 nie ma G ani F — dziedziczy G01 i F0.2. Nóż toczy wzdłuż osi do Z−55.", code: "X36 Z-55" },
-      { x: "Linia 4: nadal G01 i F0.2 — wyjście promieniowe z materiału na Ø42.", code: "X42" },
-      { x: "Linia 5: G00 zmienia ruch na szybki — powrót nad czoło.", code: "G00 Z2." },
+      { x: "Linia 1: G00 — szybki najazd 2 mm nad powierzchnię pręta, 2 mm przed czoło.", code: "G00 X44 Z2", line: 8 },
+      { x: "Linia 2: G01 zastępuje G00, F0.2 ustawia posuw 0,2 mm na obrót. Nóż schodzi na Ø36.", code: "G01 F0.2", line: 9 },
+      { x: "Linia 3 nie ma G ani F — dziedziczy G01 i F0.2. Nóż toczy wzdłuż osi do Z−55.", code: "X36 Z-55", line: 10 },
+      { x: "Linia 4: nadal G01 i F0.2 — wyjście promieniowe z materiału na Ø42.", code: "X42", line: 11 },
+      { x: "Linia 5: G00 zmienia ruch na szybki — powrót nad czoło.", code: "G00 Z2.", line: 12 },
     ],
     result: "Pięć bloków ruchu i tylko trzy kody G. Kody modalne padają raz i obowiązują, aż zastąpi je kod z tej samej grupy.",
+    story: { program: story, from: 7, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -55,7 +61,7 @@ export const t1_1: LessonDoc = {
       starter: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\n(TU PRZEJSCIE)\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
       checks: [{"t":"cut","reference":"G18 G99\nG00 X44. Z2.\nG01 X36. F0.2\nZ-55.\nX42.\nG00 Z2.","tolerance":0.05},{"t":"require","codes":["G01"]},{"t":"end","x":100,"z":100,"label":"Koniec w X100 Z100"}],
       hints: ["`G01 X36. F0.2` — wejście na średnicę z posuwem.","`Z-55.` i `X42.` bez G01 i F: oba słowa dziedziczą z poprzedniego bloku."],
-      solution: "O2001 (WALEK)\nG18 G21 G40 G80 G99\nG54\nT0101 (NOZ ZEWN. CNMG R0.8)\nG50 S3000\nG96 S200 M03\nM08\nG00 X44. Z2.\nG01 X36. F0.2\nZ-55.\nX42.\nG00 Z2.\nG00 X100. Z100.\nM09\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

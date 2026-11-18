@@ -23,6 +23,11 @@ G28 U0.
 G28 W0.
 M30`;
 
+const solution = starter.replace("(DOPISZ KONTUR WYKANCZAJACY Z FAZAMI, F0.1:\n FAZA DO X20 Z-1, CZOP FI20 DO Z-20, FAZA NA FI30,\n FI30 DO Z-40, STOPIEN NA FI36, FI36 DO Z-55, WYJSCIE NA X42)\n", `${contour}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t3_2: LessonDoc = {
   id: "T3.2",
   slug: "t3-2-g01-fazy-promienie",
@@ -60,12 +65,13 @@ export const t3_2: LessonDoc = {
     intro: "Sytuacja: zgrubnie zostało 0,2 mm na stronę. Nóż wykańczający T0202 R0,4 stoi w X14 Z2 i ma przejść kontur z rysunku z fazami 1 × 45° — od czoła do Ø36 i wyjście ponad pręt. Numery na rysunku to numery kroków.",
     fig: "t32-contour",
     steps: [
-      { x: "Faza na czopie Ø20 — z X14 Z2 po linii 45°, w której przedłużeniu leży faza.", code: "G01 X20. Z-1. F0.1" },
-      { x: "Czop Ø20 do długości 20 i czoło stopnia do początku fazy: 30 − 2 · 1.", code: "Z-20. → X28." },
-      { x: "Faza 1 × 45° na Ø30: 1 mm w Z, 2 mm na średnicy.", code: "X30. Z-21." },
-      { x: "Ø30 do Z−40, stopień na Ø36, Ø36 do Z−55 i wyjście ponad pręt.", code: "Z-40. → X36. → Z-55. → X42." },
+      { x: "Faza na czopie Ø20 — z X14 Z2 po linii 45°, w której przedłużeniu leży faza.", code: "G01 X20. Z-1. F0.1", line: 9 },
+      { x: "Czop Ø20 do długości 20 i czoło stopnia do początku fazy: 30 − 2 · 1.", code: "Z-20. → X28.", line: 10, lineTo: 11 },
+      { x: "Faza 1 × 45° na Ø30: 1 mm w Z, 2 mm na średnicy.", code: "X30. Z-21.", line: 12 },
+      { x: "Ø30 do Z−40, stopień na Ø36, Ø36 do Z−55 i wyjście ponad pręt.", code: "Z-40. → X36. → Z-55. → X42.", line: 13, lineTo: 16 },
     ],
     result: "Wszystkie liczby da się odczytać z rysunku — dlatego kontur wykańczający pisze się absolutnie (T1.2).",
+    story: { program: story, from: 8, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -78,7 +84,7 @@ export const t3_2: LessonDoc = {
         { t: "cut", reference: `${T3_FIN_HEAD}\nG00 X14. Z2.\n${contour}\nG00 Z2.`, tolerance: 0.05 },
       ],
       hints: ["Pierwszy blok: G01 X20. Z-1. F0.1.", "Dalej Z-20., X28., X30. Z-21., Z-40., X36., Z-55., X42."],
-      solution: starter.replace("(DOPISZ KONTUR WYKANCZAJACY Z FAZAMI, F0.1:\n FAZA DO X20 Z-1, CZOP FI20 DO Z-20, FAZA NA FI30,\n FI30 DO Z-40, STOPIEN NA FI36, FI36 DO Z-55, WYJSCIE NA X42)\n", `${contour}\n`),
+      solution,
     },
     {
       kind: "drill",

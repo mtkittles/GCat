@@ -47,6 +47,13 @@ ${finish}
 
 ${tail}`;
 
+const solution = starter
+        .replace("(DOPISZ DWA BLOKI G71: GLEBOKOSC 2, WYCOFANIE 0.5,\n KONTUR N10-N20, NADDATEK 0.4 NA SREDNICY I 0.1 W Z, F0.3)\n", "G71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.3\n")
+        .replace("(DOPISZ G70 DLA KONTURU N10-N20)\n", "G70 P10 Q20\n");
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t5_1: LessonDoc = {
   id: "T5.1",
   slug: "t5-1-g71-g70",
@@ -87,12 +94,13 @@ export const t5_1: LessonDoc = {
     intro: "Sytuacja: kontur wałka z T3.3, pręt Ø40, nóż zgrubny T0101 i wykańczający T0202. Zamiast pięciu ręcznych przejść z T3.2 — jeden cykl. Naddatek jak w wersji ręcznej: 0,4 na średnicy, 0,1 w Z. Numery na rysunku to numery kroków.",
     fig: "t51-g71",
     steps: [
-      { x: "Punkt startowy A ponad prętem, przed czołem — z niego cykl rusza i do niego wraca.", code: "G00 X42. Z2." },
-      { x: "Głębokość 2 mm na stronę, wycofanie 0,5. Pierwsza warstwa: 42 − 2 · 2 = Ø38.", code: "G71 U2. R0.5" },
-      { x: "Kontur N10–N20, naddatki, posuw zgrubny. Ostatnie przejście cyklu idzie po konturze z naddatkiem.", code: "G71 P10 Q20 U0.4 W0.1 F0.3" },
-      { x: "Po zmianie noża: dojazd z G42 i wykończenie na wymiar z rysunku.", code: "G70 P10 Q20" },
+      { x: "Punkt startowy A ponad prętem, przed czołem — z niego cykl rusza i do niego wraca.", code: "G00 X42. Z2.", line: 11 },
+      { x: "Głębokość 2 mm na stronę, wycofanie 0,5. Pierwsza warstwa: 42 − 2 · 2 = Ø38.", code: "G71 U2. R0.5", line: 12 },
+      { x: "Kontur N10–N20, naddatki, posuw zgrubny. Ostatnie przejście cyklu idzie po konturze z naddatkiem.", code: "G71 P10 Q20 U0.4 W0.1 F0.3", line: 13 },
+      { x: "Po zmianie noża: dojazd z G42 i wykończenie na wymiar z rysunku.", code: "G70 P10 Q20", line: 31 },
     ],
     result: "Program skrócił się o 17 bloków: 20 bloków pięciu przejść zastąpiły trzy bloki cyklu (dwa G71 i G70). Zmiana naddatku albo głębokości to teraz jedna liczba, a nie przeliczanie pięciu przejść.",
+    story: { program: story, from: 10, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -107,9 +115,7 @@ export const t5_1: LessonDoc = {
         { t: "state", nRange: [10, 20], tool: 202, label: "Wykańczanie G70 nożem T0202" },
       ],
       hints: ["G71 U2. R0.5, a pod nim G71 P10 Q20 U0.4 W0.1 F0.3.", "Wykończenie: G70 P10 Q20."],
-      solution: starter
-        .replace("(DOPISZ DWA BLOKI G71: GLEBOKOSC 2, WYCOFANIE 0.5,\n KONTUR N10-N20, NADDATEK 0.4 NA SREDNICY I 0.1 W Z, F0.3)\n", "G71 U2. R0.5\nG71 P10 Q20 U0.4 W0.1 F0.3\n")
-        .replace("(DOPISZ G70 DLA KONTURU N10-N20)\n", "G70 P10 Q20\n"),
+      solution,
     },
     {
       kind: "drill",

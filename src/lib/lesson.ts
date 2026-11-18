@@ -108,6 +108,8 @@ export interface WorkedStep {
   x: string; code?: string;
   /** Lekcja przewijana (`worked.story`): linia programu przykładu (od 1), którą krok opisuje. Bez `line` — krok bez ruchu (np. rachunek), podgląd zostaje na poprzedniej linii. */
   line?: number;
+  /** Krok obejmuje linie `line`…`lineTo` (np. trzy otwory cyklu, koniec programu) — podświetlone wszystkie, podgląd do `lineTo`. */
+  lineTo?: number;
 }
 
 /**
@@ -120,9 +122,11 @@ export interface WorkedStory {
   from?: number;
   /** Półfabrykat w XY: [x0, y0, x1, y1]. */
   stock?: [number, number, number, number];
-  /** Kontur gotowy w XY: prostokąt z promieniem naroży. */
-  part?: { x: [number, number]; y: [number, number]; r?: number };
-  /** Średnica narzędzia — okrąg na końcu bieżącej linii. */
+  /** Kontur gotowy w XY: prostokąt z promieniem naroży albo okrąg (kieszeń okrągła). */
+  part?: { x: [number, number]; y: [number, number]; r?: number } | { cx: number; cy: number; d: number };
+  /** Toczenie: pręt Ø`d` od Z `z[0]` do `z[1]` — widok Z w prawo, X w górę (górna połowa). */
+  bar?: { d: number; z: [number, number] };
+  /** Średnica freza — okrąg na końcu bieżącej linii (frezowanie). */
   tool?: number;
 }
 

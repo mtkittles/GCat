@@ -17,6 +17,33 @@ M09
 M05
 M30`;
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = `O1000 (PLYTKA)
+G21 G90 G94 G17
+G40 G49 G80
+G54
+T1 M06 (FREZ FI10)
+G00 G43 H1 Z50.
+S2500 M03
+M08
+G00 X40. Y25.
+G00 X-20. Y10.
+G00 Z5.
+G01 Z-5. F150
+G01 X-5. F400
+G01 Y40.
+G02 X10. Y55. I15. J0.
+G01 X70.
+G02 X85. Y40. I0. J-15.
+G01 Y10.
+G02 X70. Y-5. I-15. J0.
+G01 X10.
+G02 X-5. Y10. I0. J15.
+G00 Z5.
+M09
+M05
+M30`;
+
 export const f3_4: LessonDoc = {
   id: "F3.4",
   slug: "f3-4-luki-i-j",
@@ -52,12 +79,13 @@ export const f3_4: LessonDoc = {
     ],
     fig: "f34-ij",
     steps: [
-      { x: "Krok 1, I: X środka − X startu = 10 − (−5).", code: "I15." },
-      { x: "Krok 2, J: Y środka − Y startu = 40 − 40.", code: "J0." },
-      { x: "Krok 3: kierunek bez zmian, zgodnie z zegarem.", code: "G02" },
-      { x: "Krok 4: punkt końcowy i blok kompletny.", code: "G02 X10. Y55. I15. J0." },
+      { x: "Krok 1, I: X środka − X startu = 10 − (−5).", code: "I15.", line: 15 },
+      { x: "Krok 2, J: Y środka − Y startu = 40 − 40.", code: "J0.", line: 15 },
+      { x: "Krok 3: kierunek bez zmian, zgodnie z zegarem.", code: "G02", line: 15 },
+      { x: "Krok 4: punkt końcowy i blok kompletny.", code: "G02 X10. Y55. I15. J0.", line: 15 },
     ],
     result: "Ten sam tor co `G02 X10. Y55. R15.`. Zapis `J0.` można pominąć — oś bez przesunięcia ma wartość 0.",
+    story: { program: story, from: 14, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 10 },
   },
 
   practice: [

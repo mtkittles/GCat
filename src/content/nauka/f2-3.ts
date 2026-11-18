@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f2_3: LessonDoc = {
   id: "F2.3",
   slug: "f2-3-posuw-f-g94",
@@ -40,11 +45,12 @@ export const f2_3: LessonDoc = {
     fig: "f23-feeds",
     steps: [
       { x: "Posuw konturowy z przyjętego fz: vf = fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },
-      { x: "Krok 1 na rysunku: zejście w X−20, obok półfabrykatu — frez nie skrawa. W kursie zejście idzie z ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "G01 Z-5. F150" },
-      { x: "Krok 2: dojazd do X−5. Półfabrykat zaczyna się na X−2, więc na ostatnich 2 mm drogi krawędź freza wchodzi w naddatek i staje na konturze gotowym X0. Ten ruch już skrawa — dlatego F400 pada w tym bloku.", code: "G01 X-5. F400" },
-      { x: "Krok 3: ruch wzdłuż boku zbiera obwodem pas naddatku szerokości 2 mm na głębokość 5 mm. F jest modalne, więc dalsze bloki nie muszą go powtarzać.", code: "G01 Y55." },
+      { x: "Krok 1 na rysunku: zejście w X−20, obok półfabrykatu — frez nie skrawa. W kursie zejście idzie z ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "G01 Z-5. F150", line: 12 },
+      { x: "Krok 2: dojazd do X−5. Półfabrykat zaczyna się na X−2, więc na ostatnich 2 mm drogi krawędź freza wchodzi w naddatek i staje na konturze gotowym X0. Ten ruch już skrawa — dlatego F400 pada w tym bloku.", code: "G01 X-5. F400", line: 13 },
+      { x: "Krok 3: ruch wzdłuż boku zbiera obwodem pas naddatku szerokości 2 mm na głębokość 5 mm. F jest modalne, więc dalsze bloki nie muszą go powtarzać.", code: "G01 Y55.", line: 14 },
     ],
     result: "Te same wartości stoją w programie płytki. Bez naddatku tor X−5 byłby tylko styczny do gotowej krawędzi i niczego by nie zebrał. Przy zmianie narzędzia liczysz je od nowa — zmienia się n, z i fz. Gdyby frez miał wejść pionowo w materiał zamiast obok płytki, posuw wgłębny bierzesz z katalogu freza.",
+    story: { program: story, from: 10, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50] }, tool: 10 },
   },
 
   practice: [
@@ -55,7 +61,7 @@ export const f2_3: LessonDoc = {
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. (DOPISZ POSUW ZEJSCIA)\nG01 X-5. (DOPISZ POSUW KONTUROWY)\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"feed","on":"plunge","f":150,"label":"Zejście w Z z aktywnym F150"},{"t":"feed","on":"xy","f":400,"label":"Kontur z aktywnym F400"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["Posuw konturowy: fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.","Zejście w Z: ok. 40 % z 400, zaokrąglone — `F150` w bloku `G01 Z-5.`; `F400` w pierwszym bloku konturu."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\n(FZ = 0,04 MM, 4 OSTRZA, S2500: ZEJSCIE OK. 40% POSUWU KONTUROWEGO, ZAOKRAGLONE DO F150)\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

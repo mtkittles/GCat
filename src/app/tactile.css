@@ -1435,12 +1435,14 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 .ws-stock { fill: color-mix(in srgb, var(--ink) 5%, transparent); stroke: color-mix(in srgb, var(--ink) 18%, transparent); stroke-width: .3; stroke-dasharray: 1.2 1; }
 .ws-part { fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke: var(--ink-2); }
 .ws-zero path { stroke: var(--muted); fill: none; }
+.ws-axis { stroke: var(--muted); fill: none; }
 .ws-seg { fill: none; stroke-linecap: round; stroke-linejoin: round; transition: opacity .2s ease, stroke-width .2s ease; }
 .ws-rapid { stroke: #F59E0B; }
 .ws-linear { stroke: #22C55E; }
 .ws-arc { stroke: #38BDF8; }
 .ws-seg.is-done { opacity: .75; }
 .ws-seg.is-next { opacity: .12; }
+.ws-hole { fill: color-mix(in srgb, var(--bg) 70%, transparent); stroke: var(--ink-2); }
 .ws-center { fill: none; stroke: var(--ink-2); opacity: .7; }
 .ws-tool circle:first-child { fill: color-mix(in srgb, var(--accent) 10%, transparent); stroke: var(--ink); }
 .ws-tool-c { fill: var(--accent); stroke: none; }
@@ -1482,7 +1484,6 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 .ws-x { display: grid; gap: .55rem; justify-items: start; font-size: 15.5px; line-height: 1.6; }
 .ws-x p { margin: 0; }
 .ws-chip { font: 700 14px/1.35 var(--font-mono); color: var(--accent-ink); background: var(--accent-soft); padding: .35rem .55rem; border-radius: 7px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.ws-l { font: 600 11px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 @media (prefers-reduced-motion: reduce) { .ws-seg, .ws-steps > li, .ws-code li, .ws-tool { transition: none; } }
 
 /* komputer: panel przyklejony z prawej, kroki z lewej */

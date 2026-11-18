@@ -22,6 +22,11 @@ Y40.
 X10.
 G80`;
 
+const solution = starter.replace("(DOPISZ: M29 S500, CYKL G84 DLA CZTERECH OTWOROW,\n Z-15. R5. F500, NA KONIEC G80)\n", cycle);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f5_3: LessonDoc = {
   id: "F5.3",
   slug: "f5-3-g84-gwintowanie",
@@ -60,15 +65,16 @@ export const f5_3: LessonDoc = {
     intro: "Sytuacja: w płytce są cztery otwory Ø5 z lekcji F5.2 — czubek wiertła w Z−18, pełna średnica do Z−17,1. Rysunek wymaga gwintu M6×1 na 12 mm pełnego zarysu. We wrzecionie gwintownik maszynowy z nakrojem 3 zwojów (założenie przykładu), S500. Numery kroków odpowiadają numerom na rysunku.",
     fig: "f53-run",
     steps: [
-      { x: "Krok 1: na Fanucu tryb sztywny włącza się przed cyklem — kod ustawia parametr maszyny, najczęściej M29.", code: "M29 S500" },
-      { x: "Krok 2: płaszczyzna R5. Od niej obroty i oś Z ruszają razem, a 5 mm nad materiałem daje im odcinek na zsynchronizowany rozbieg.", code: "R5." },
-      { x: "Krok 3: wejście. Na jeden obrót gwintownik wchodzi o skok 1 mm, więc posuw wynika z obrotów: 500 · 1.", code: "F500" },
-      { x: "Krok 4: koniec gwintownika o nakrój poniżej pełnego gwintu: 12 + 3.", code: "Z-15." },
+      { x: "Krok 1: na Fanucu tryb sztywny włącza się przed cyklem — kod ustawia parametr maszyny, najczęściej M29.", code: "M29 S500", line: 8 },
+      { x: "Krok 2: płaszczyzna R5. Od niej obroty i oś Z ruszają razem, a 5 mm nad materiałem daje im odcinek na zsynchronizowany rozbieg.", code: "R5.", line: 10 },
+      { x: "Krok 3: wejście. Na jeden obrót gwintownik wchodzi o skok 1 mm, więc posuw wynika z obrotów: 500 · 1.", code: "F500", line: 10 },
+      { x: "Krok 4: koniec gwintownika o nakrój poniżej pełnego gwintu: 12 + 3.", code: "Z-15.", line: 10 },
       { x: "Krok 5: kontrola otworu. Pełna Ø5 kończy się w Z−17,1, czyli pod końcem gwintownika zostaje zapas na wióry.", code: "17,1 − 15 = 2,1" },
-      { x: "Krok 6: na dnie cykl odwraca obroty i wykręca gwintownik tym samym torem do R5. Kroki 2–6 robi jeden blok:", code: "G84 X10. Y10. Z-15. R5. F500" },
-      { x: "Pozostałe otwory to same współrzędne — cykl jest modalny. Na koniec skasowanie cyklu.", code: "X70. → Y40. → X10. → G80" },
+      { x: "Krok 6: na dnie cykl odwraca obroty i wykręca gwintownik tym samym torem do R5. Kroki 2–6 robi jeden blok:", code: "G84 X10. Y10. Z-15. R5. F500", line: 10 },
+      { x: "Pozostałe otwory to same współrzędne — cykl jest modalny. Na koniec skasowanie cyklu.", code: "X70. → Y40. → X10. → G80", line: 11, lineTo: 14 },
     ],
     result: "Pełny gwint sięga Z−12, koniec gwintownika Z−15, pełna średnica otworu Z−17,1, czubek wiertła Z−18. Przy innym gwintowniku zmienia się tylko długość nakroju — przelicz Z i sprawdź zapas otworu.",
+    story: { program: story, from: 7, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 6 },
   },
 
   practice: [
@@ -82,7 +88,7 @@ export const f5_3: LessonDoc = {
         { t: "tapFeed", pitch: 1, label: "Posuw w cyklu G84 zgodny ze skokiem M6×1 (G94: F = S · P)" },
       ],
       hints: ["Z = −(12 + 3). M29 S500, potem G84 X10. Y10. Z-15. R5. F500.", "Pozostałe otwory: X70., Y40., X10. Na koniec G80."],
-      solution: starter.replace("(DOPISZ: M29 S500, CYKL G84 DLA CZTERECH OTWOROW,\n Z-15. R5. F500, NA KONIEC G80)\n", cycle),
+      solution,
     },
     {
       kind: "drill",
