@@ -31,6 +31,9 @@ G01 X10.
 G02 X0. Y10. R10.
 G40 G01 X-20.`;
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = starter.replace("(DOPISZ: G41 D1 NA DOJEZDZIE DO X0,\n KONTUR 80X50 Z NAROZAMI R10 WYMIARAMI Z RYSUNKU,\n G40 NA ODJEZDZIE DO X-20)\n", contour);
+
 export const f4_2: LessonDoc = {
   id: "F4.2",
   slug: "f4-2-g41-g42-korekcja-promienia",
@@ -68,13 +71,14 @@ export const f4_2: LessonDoc = {
     intro: "Sytuacja: kontur płytki z F3.3 zapisujemy wymiarami z rysunku: X0…X80, Y0…Y50, naroża R10. Przesunięcie o promień freza liczy sterowanie z rejestru D1. Frez stoi na Z−5 w X−20 Y10. Numery odpowiadają rysunkowi: zielony kontur to program, przerywany — tor środka.",
     fig: "f42-comp",
     steps: [
-      { x: "Krok 1: włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400" },
-      { x: "Krok 2: lewa krawędź w górę do początku naroża. Bez tego odcinka łuk z X0 Y10 do X10 Y50 nie istnieje: cięciwa ma ok. 41,2 mm, a łuk R10 mieści najwyżej 20 mm.", code: "G01 Y40." },
-      { x: "Krok 3: naroża z rysunku — R10 zamiast R15, punkty końcowe na konturze.", code: "G02 X10. Y50. R10." },
-      { x: "Krok 4: pozostałe naroża tak samo: X80 Y40, X70 Y0, X0 Y10.", code: "R10." },
-      { x: "Wyłączenie korekcji na odjeździe od konturu.", code: "G40 G01 X-20." },
+      { x: "Krok 1: włączenie korekcji na dojeździe do lewej krawędzi. 20 mm drogi — więcej niż promień 5.", code: "G41 D1 G01 X0. F400", line: 12 },
+      { x: "Krok 2: lewa krawędź w górę do początku naroża. Bez tego odcinka łuk z X0 Y10 do X10 Y50 nie istnieje: cięciwa ma ok. 41,2 mm, a łuk R10 mieści najwyżej 20 mm.", code: "G01 Y40.", line: 13 },
+      { x: "Krok 3: naroża z rysunku — R10 zamiast R15, punkty końcowe na konturze.", code: "G02 X10. Y50. R10.", line: 14 },
+      { x: "Krok 4: pozostałe naroża tak samo: X80 Y40, X70 Y0, X0 Y10.", code: "R10.", line: 20 },
+      { x: "Wyłączenie korekcji na odjeździe od konturu.", code: "G40 G01 X-20.", line: 21 },
     ],
     result: "Program jest krótszy do sprawdzenia: każdą liczbę widać na rysunku. Promień freza siedzi w rejestrze D1, gdzie operator koryguje wymiar.",
+    story: { program: story, from: 11, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 10 },
   },
 
   practice: [
@@ -87,7 +91,7 @@ export const f4_2: LessonDoc = {
         { t: "require", codes: ["G41", "G40"] },
       ],
       hints: ["Pierwszy blok: G41 D1 G01 X0. F400.", "Kontur jak w F3.3, ale X0/X80/Y0/Y50 i R10. Na koniec G40 G01 X-20."],
-      solution: starter.replace("(DOPISZ: G41 D1 NA DOJEZDZIE DO X0,\n KONTUR 80X50 Z NAROZAMI R10 WYMIARAMI Z RYSUNKU,\n G40 NA ODJEZDZIE DO X-20)\n", contour),
+      solution: story, // ten sam program co w przykładzie przewijanym
     },
     {
       kind: "drill",

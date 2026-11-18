@@ -18,6 +18,7 @@ import LatheJog from "./LatheJog";
 import CssWidget from "./CssWidget";
 import { PointDrill } from "./PointGrid";
 import Quiz from "./Quiz";
+import WorkedStory from "./WorkedStory";
 import { LessonNav, LessonRail, LessonStatus } from "./LessonSide";
 import LessonSheet from "./LessonSheet";
 import Shared, { vtName } from "@/components/ui/Shared";
@@ -115,11 +116,15 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
           </div>
         )}
         {doc.worked.fig && diagrams[doc.worked.fig]?.()}
-        <ol className="ls-steps">
-          {doc.worked.steps.map((s, i) => (
-            <li key={i}><span>{rich(s.x)}</span>{s.code && <code>{s.code}</code>}</li>
-          ))}
-        </ol>
+        {doc.worked.story ? (
+          <WorkedStory story={doc.worked.story} steps={doc.worked.steps.map((s, i) => ({ node: <p key={i}>{rich(s.x)}</p>, code: s.code, line: s.line }))} />
+        ) : (
+          <ol className="ls-steps">
+            {doc.worked.steps.map((s, i) => (
+              <li key={i}><span>{rich(s.x)}</span>{s.code && <code>{s.code}</code>}</li>
+            ))}
+          </ol>
+        )}
         <p className="ls-result">{rich(doc.worked.result)}</p>
       </Sec>
 
