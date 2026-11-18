@@ -30,6 +30,11 @@ M30`;
 
 const lead = { in: "G41 D1 G01 X-10. Y0. F400\nG03 X0. Y10. R10.", out: "G03 X-10. Y20. R10.\nG40 G01 X-20. Y10." };
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = starter
+  .replace("(DOPISZ NAJAZD: G41 D1 G01 X-10. Y0. F400 I LUK G03 DO X0 Y10 R10)", lead.in)
+  .replace("(DOPISZ ODJAZD: LUK G03 DO X-10 Y20 R10 I G40 G01 X-20. Y10.)", lead.out);
+
 export const f4_3: LessonDoc = {
   id: "F4.3",
   slug: "f4-3-najazd-odjazd",
@@ -60,12 +65,13 @@ export const f4_3: LessonDoc = {
     intro: "Sytuacja: kontur płytki zaczyna się i kończy w X0 Y10 na lewej krawędzi, obieg zgodnie z zegarem z G41. Frez stoi na głębokości w X−20 Y10. Wejście i wyjście mają być styczne, żeby na ściance nie został ślad. Rysunek pokazuje lewy dolny róg płytki.",
     fig: "f43-leadin",
     steps: [
-      { x: "Najazd: odcinek w powietrzu z włączeniem korekcji — do początku łuku.", code: "G41 D1 G01 X-10. Y0. F400" },
-      { x: "Łuk styczny do lewej krawędzi, środek X−10 Y10. Kierunek przeciwny do zegara.", code: "G03 X0. Y10. R10." },
-      { x: "Odjazd: po obiegu konturu łuk wyjścia, dalej w górę i w lewo od krawędzi.", code: "G03 X-10. Y20. R10." },
-      { x: "Odcinek w powietrzu z wyłączeniem korekcji.", code: "G40 G01 X-20. Y10." },
+      { x: "Najazd: odcinek w powietrzu z włączeniem korekcji — do początku łuku.", code: "G41 D1 G01 X-10. Y0. F400", line: 12 },
+      { x: "Łuk styczny do lewej krawędzi, środek X−10 Y10. Kierunek przeciwny do zegara.", code: "G03 X0. Y10. R10.", line: 13 },
+      { x: "Odjazd: po obiegu konturu łuk wyjścia, dalej w górę i w lewo od krawędzi.", code: "G03 X-10. Y20. R10.", line: 22 },
+      { x: "Odcinek w powietrzu z wyłączeniem korekcji.", code: "G40 G01 X-20. Y10.", line: 23 },
     ],
     result: "Frez wchodzi i schodzi z konturu stycznie w tym samym punkcie X0 Y10. Program płytki ma teraz docelową postać — zobacz ją poniżej.",
+    story: { program: story, from: 11, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 10 },
   },
 
   practice: [
@@ -78,9 +84,7 @@ export const f4_3: LessonDoc = {
         { t: "require", codes: ["G41", "G40", "G03"] },
       ],
       hints: ["Najazd: G41 D1 G01 X-10. Y0. F400, potem G03 X0. Y10. R10.", "Odjazd: G03 X-10. Y20. R10., potem G40 G01 X-20. Y10."],
-      solution: starter
-        .replace("(DOPISZ NAJAZD: G41 D1 G01 X-10. Y0. F400 I LUK G03 DO X0 Y10 R10)", lead.in)
-        .replace("(DOPISZ ODJAZD: LUK G03 DO X-10 Y20 R10 I G40 G01 X-20. Y10.)", lead.out),
+      solution: story, // ten sam program co w przykładzie przewijanym
     },
     {
       kind: "drill",

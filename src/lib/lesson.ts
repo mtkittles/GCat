@@ -104,7 +104,27 @@ export type Practice =
   | { kind: "task"; intro: string; brief?: string[]; /** Dodatkowy widok nad edytorem: przekrój Z dla G43. */ view?: "g43"; starter: string; checks: TaskCheck[]; hints?: string[]; solution: string; mode?: "mill" | "lathe" }
   | { kind: "points"; intro: string; tasks: PointTask[] };
 
-export interface WorkedStep { x: string; code?: string }
+export interface WorkedStep {
+  x: string; code?: string;
+  /** Lekcja przewijana (`worked.story`): linia programu przykładu (od 1), którą krok opisuje. Bez `line` — krok bez ruchu (np. rachunek), podgląd zostaje na poprzedniej linii. */
+  line?: number;
+}
+
+/**
+ * Przykład sterowany przewijaniem (Etap 12, B3): program przyklejony obok kroków, krok ↔ linia,
+ * podgląd toru w XY do tej linii. Program musi przechodzić walidator (audit:programy).
+ */
+export interface WorkedStory {
+  program: string;
+  /** Linia (od 1), do której program jest już wykonany przed pierwszym krokiem — stan z „Dane przykładu”. */
+  from?: number;
+  /** Półfabrykat w XY: [x0, y0, x1, y1]. */
+  stock?: [number, number, number, number];
+  /** Kontur gotowy w XY: prostokąt z promieniem naroży. */
+  part?: { x: [number, number]; y: [number, number]; r?: number };
+  /** Średnica narzędzia — okrąg na końcu bieżącej linii. */
+  tool?: number;
+}
 
 export interface LessonDoc {
   id: string; slug: string; title: string; minutes: number;
@@ -115,7 +135,7 @@ export interface LessonDoc {
    * `data` — ramka „Dane przykładu”: pary [nazwa, wartość] — maszyna, jednostki, zero W, półfabrykat,
    * narzędzie, stan początkowy. Jedno miejsce na założenia zamiast rozrzucenia po tekście (#80 §5).
    */
-  worked: { title: string; intro: string; data?: [string, string][]; fig?: string; steps: WorkedStep[]; result: string };
+  worked: { title: string; intro: string; data?: [string, string][]; fig?: string; steps: WorkedStep[]; result: string; story?: WorkedStory };
   practice: Practice[];
   /** danger: kolizja, uszkodzenie narzędzia albo zagrożenie dla operatora — czerwona karta; reszta neutralna. */
   pitfalls: { title: string; x: string; fig?: string; danger?: boolean }[];

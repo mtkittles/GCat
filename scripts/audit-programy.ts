@@ -26,6 +26,7 @@ for (const e of exercises) { add(`zadania/${e.slug} starter`, e.starter, e.mode,
 for (const f of readdirSync("content/kody").filter((x) => x.endsWith(".mdx")).sort()) mdxPrograms(readFileSync(`content/kody/${f}`, "utf8")).forEach((p, i) => add(`artykuł ${f.slice(0, -4)} program ${i}`, p.src, p.mode));
 for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) {
   const d = l.doc; if (!d) continue; const mode: Mode = t === "frezowanie" ? "mill" : "lathe";
+  add(`${d.id} przykład przewijany`, d.worked.story?.program, mode);
   flatBlocks(d.theory).forEach((b, i) => { if (b.t === "sim" || b.t === "demo") add(`${d.id} teoria blok ${i}`, b.src, b.mode ?? mode); });
   d.practice.forEach((p, i) => {
     if (p.kind === "task") { add(`${d.id} zadanie ${i} starter`, p.starter, p.mode ?? mode, true); add(`${d.id} zadanie ${i} rozwiązanie`, p.solution, p.mode ?? mode); }

@@ -29,6 +29,9 @@ G02 X70. Y-5. R15.
 G01 X10.
 G02 X-5. Y10. R15.`;
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = starter.replace("(DOPISZ KONTUR Z NAROZAMI R10 NA DETALU)\n", contour);
+
 export const f3_3: LessonDoc = {
   id: "F3.3",
   slug: "f3-3-g02-g03-promien-r",
@@ -64,12 +67,13 @@ export const f3_3: LessonDoc = {
     ],
     fig: "f33-corner",
     steps: [
-      { x: "Odcinek kończy się na wysokości środka naroża — tu zaczyna się łuk.", code: "G01 Y40." },
-      { x: "Łuk zgodnie z zegarem, patrząc z góry.", code: "G02" },
-      { x: "Koniec łuku: nad środkiem naroża, 15 mm wyżej.", code: "X10. Y55." },
-      { x: "Promień toru: 10 + 5. Łuk ma 90°, więc R dodatnie.", code: "R15." },
+      { x: "Odcinek kończy się na wysokości środka naroża — tu zaczyna się łuk.", code: "G01 Y40.", line: 14 },
+      { x: "Łuk zgodnie z zegarem, patrząc z góry.", code: "G02", line: 15 },
+      { x: "Koniec łuku: nad środkiem naroża, 15 mm wyżej.", code: "X10. Y55.", line: 15 },
+      { x: "Promień toru: 10 + 5. Łuk ma 90°, więc R dodatnie.", code: "R15.", line: 15 },
     ],
     result: "`G02 X10. Y55. R15.` Pozostałe trzy naroża idą tak samo — zmieniają się tylko punkty końcowe.",
+    story: { program: story, from: 13, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 10 },
   },
 
   practice: [
@@ -82,7 +86,7 @@ export const f3_3: LessonDoc = {
         { t: "arcFormat", fmt: "R", label: "Każdy łuk zapisany przez R" },
       ],
       hints: ["Lewa krawędź kończy się w Y40, potem G02 X10. Y55. R15.", "Kolejne naroża: X85 Y40, X70 Y−5, X−5 Y10 — każde z R15."],
-      solution: starter.replace("(DOPISZ KONTUR Z NAROZAMI R10 NA DETALU)\n", contour),
+      solution: story, // ten sam program co w przykładzie przewijanym
     },
     {
       kind: "drill",

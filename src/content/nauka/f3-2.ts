@@ -26,6 +26,9 @@ G01 Y-5.
 G01 X-5.
 G01 Y10.`;
 
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = starter.replace("(DOPISZ: ZEJSCIE NA Z-5, DOJAZD DO X-5 I OBIEG KONTURU)\n", cut);
+
 export const f3_2: LessonDoc = {
   id: "F3.2",
   slug: "f3-2-g01-interpolacja-liniowa",
@@ -67,12 +70,13 @@ export const f3_2: LessonDoc = {
     ],
     fig: "f32-path",
     steps: [
-      { x: "Krok 1, lewa krawędź X0: frez na zewnątrz, czyli 0 − 5.", code: "X-5." },
-      { x: "Krok 2, górna krawędź Y50: 50 + 5.", code: "Y55." },
-      { x: "Krok 3, prawa krawędź X80: 80 + 5.", code: "X85." },
-      { x: "Krok 4, dolna krawędź Y0: 0 − 5.", code: "Y-5." },
+      { x: "Krok 1, lewa krawędź X0: frez na zewnątrz, czyli 0 − 5.", code: "X-5.", line: 13 },
+      { x: "Krok 2, górna krawędź Y50: 50 + 5.", code: "Y55.", line: 14 },
+      { x: "Krok 3, prawa krawędź X80: 80 + 5.", code: "X85.", line: 15 },
+      { x: "Krok 4, dolna krawędź Y0: 0 − 5.", code: "Y-5.", line: 16 },
     ],
     result: "Obieg: `Y55.` → `X85.` → `Y-5.` → `X-5.` → `Y10.` (domknięcie do punktu wejścia). Naroża toru są ostre — detal też. Zaokrąglenia R10 doda lekcja F3.3.",
+    story: { program: story, from: 12, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50] }, tool: 10 },
   },
 
   practice: [
@@ -87,7 +91,7 @@ export const f3_2: LessonDoc = {
         { t: "winding", dir: "cw", label: "Obieg zgodnie z ruchem wskazówek zegara — frezowanie współbieżne przy M03" },
       ],
       hints: ["Zejście: G01 Z-5. F150 — frez stoi już nad X−20 Y10.", "Kontur: X−5, potem Y55, X85, Y−5, X−5 i powrót do Y10. Posuw F400 wpisz w pierwszym bloku konturu."],
-      solution: starter.replace("(DOPISZ: ZEJSCIE NA Z-5, DOJAZD DO X-5 I OBIEG KONTURU)\n", cut),
+      solution: story, // ten sam program co w przykładzie przewijanym
     },
     {
       kind: "drill",
