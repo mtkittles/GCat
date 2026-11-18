@@ -895,7 +895,10 @@ html.lenis { scroll-behavior: auto !important; }
 .kc-bar { -webkit-backdrop-filter: none; backdrop-filter: none; background: color-mix(in srgb, var(--bg) 97%, transparent); }
 
 /* Długie listy: sekcje poza ekranem nie są układane ani malowane, dopóki nie podjadą (rozmiar zapamiętany) */
-.kc-group, .tl-mod { content-visibility: auto; contain-intrinsic-size: auto 520px; }
+/* Zastępczy rozmiar sekcji poza ekranem tylko w pionie. `contain-intrinsic-size: auto 520px` ustawiał też
+   SZEROKOŚĆ 520 px — Safari (iOS) brał ją jako minimalną szerokość niewyrenderowanych sekcji i rozpychał
+   stronę na telefonie (Nauka, Gotowe programy przycięte z prawej). Oś poprzeczna zostaje `none`. */
+.kc-group, .tl-mod { content-visibility: auto; contain-intrinsic-block-size: auto 520px; }
 
 /* ==========================================================================
    12. Rysownik i edytor treści — klawisze i diody pulpitu (tylko wygląd; układ jak w CAD bez zmian)
@@ -1013,7 +1016,7 @@ html.lenis { scroll-behavior: auto !important; }
 /* gotowe programy */
 .pg-jump-x { display: flex; gap: .4rem; overflow-x: auto; scrollbar-width: none; }
 .pg-jump-x a { text-decoration: none; }
-.pgx-cat { scroll-margin-top: 80px; content-visibility: auto; contain-intrinsic-size: auto 640px; }
+.pgx-cat { scroll-margin-top: 80px; content-visibility: auto; contain-intrinsic-block-size: auto 640px; } /* tylko pion — patrz .tl-mod */
 .pgx-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: .9rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
 .pgx-grid > li { display: grid; }
 .pgx-card { display: grid; grid-template-rows: auto 1fr; }
