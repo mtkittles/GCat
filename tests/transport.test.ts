@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { parseProgram, playLength } from "../src/lib/parser";
 import { segSeconds } from "../src/lib/parser/stats";
 import {
-  advance, BASE_RATE, blockEnd, cumulativeSeconds, DRY_MULT, FEED_DETENTS, fmtClock, RAPID_MULT,
-  secondsAt, segmentRate, snapFeed, stepFeed,
+  advance, BASE_RATE, blockStops, cumulative, cumulativeSeconds, DRY_MULT, FEED_DETENTS, fmtClock, RAPID_MULT,
+  secondsAt, segmentRate, snapFeed, stepFeed, stopIndexAt,
 } from "../src/components/simulator/transport";
 
 const PROG = [
@@ -63,39 +63,54 @@ describe("tempo odcinka", () => {
   });
 });
 
-describe("SINGLE BLOCK — koniec bloku", () => {
+describe("SINGLE BLOCK — zatrzymanie po każdym bloku", () => {
   const prog = parseProgram(PROG, {});
   const segs = prog.segments;
   const lengths = segs.map(playLength);
-  const total = lengths.reduce((a, b) => a + b, 0);
+  const marks = cumulative(lengths);
+  const total = marks.at(-1)!;
+  const stops = blockStops(prog.lines, segs, marks);
+  const raw = (i: number) => prog.lines[stops[i].line].raw;
 
-  it("blok z kilkoma odcinkami (cykl G81) kończy się po ostatnim z nich", () => {
-    const i = segs.findIndex((s) => prog.lines[s.line].raw.startsWith("G81"));
-    const line = segs[i].line;
-    const last = segs.map((s) => s.line).lastIndexOf(line);
-    expect(last).toBeGreaterThan(i); // cykl to kilka ruchów w jednym bloku
-    const start = lengths.slice(0, i).reduce((a, b) => a + b, 0);
-    const end = lengths.slice(0, last + 1).reduce((a, b) => a + b, 0);
-    expect(blockEnd(start + 0.01, segs, lengths)).toBeCloseTo(end, 6);
-    expect(blockEnd(start, segs, lengths)).toBeCloseTo(end, 6);
+  it("każda linia z blokiem — także bez ruchu — po kolei; bez numeru programu O", () => {
+    expect(stops.map((s) => prog.lines[s.line].raw)).toEqual(PROG.split("\n").slice(1));
   });
-  it("na granicy bloków — koniec następnego bloku", () => {
-    const e1 = blockEnd(0, segs, lengths);
-    const e2 = blockEnd(e1, segs, lengths);
-    expect(e2).toBeGreaterThan(e1);
-    expect(segs.find((_, k) => lengths.slice(0, k).reduce((a, b) => a + b, 0) >= e1 - 1e-9)!.line)
-      .not.toBe(segs[0].line);
+  it("bloki bez ruchu przed pierwszym ruchem stoją na początku", () => {
+    expect(raw(0)).toBe("G21 G90 G94 G17");
+    expect(stops[0].at).toBe(0);
+    expect(stops[2].at).toBe(0); // T1 M06
   });
-  it("na końcu programu — koniec programu", () => {
-    expect(blockEnd(total, segs, lengths)).toBeCloseTo(total, 6);
-    expect(blockEnd(0, [], [])).toBe(0);
+  it("blok z kilkoma ruchami (cykl G81) kończy się po ostatnim z nich; S2000 M03 stoi w miejscu", () => {
+    const k = stops.findIndex((s) => prog.lines[s.line].raw.startsWith("G81"));
+    const last = segs.map((s) => s.line).lastIndexOf(stops[k].line);
+    expect(stops[k].at).toBeCloseTo(marks[last + 1], 9);
+    const m3 = stops.findIndex((s) => prog.lines[s.line].raw === "S2000 M03");
+    expect(stops[m3].at).toBe(stops[m3 - 1].at);
   });
-  it("odtwarzanie w SINGLE BLOCK staje dokładnie na końcu bloku", () => {
-    const stopAt = blockEnd(0, segs, lengths);
+  it("M30 na końcu programu, kolejne zatrzymania nie cofają się", () => {
+    expect(raw(stops.length - 1)).toBe("M30");
+    expect(stops.at(-1)!.at).toBeCloseTo(total, 9);
+    for (let i = 1; i < stops.length; i++) expect(stops[i].at).toBeGreaterThanOrEqual(stops[i - 1].at);
+  });
+  it("ostatni wykonany blok przy danej drodze", () => {
+    expect(stopIndexAt(stops, 0)).toBe(-1);
+    const g80 = stops.findIndex((s) => prog.lines[s.line].raw === "G80");
+    // stojąc po cyklu: wykonany „X20.”, G80 (bez ruchu) — następny
+    expect(stopIndexAt(stops, stops[g80].at)).toBe(g80 - 1);
+    expect(stopIndexAt(stops, (stops[g80 - 1].at + stops[g80 - 2].at) / 2)).toBe(g80 - 2);
+    expect(stopIndexAt(stops, total)).toBe(stops.findIndex((s) => prog.lines[s.line].raw === "G00 Z50."));
+  });
+  it("odtwarzanie staje dokładnie na końcu bloku z ruchem", () => {
+    const k = stops.findIndex((s) => s.at > 0);
     let p = 0, stop = false, n = 0;
-    while (!stop && n++ < 10_000) ({ p, stop } = advance(p, 1 / 60, { segments: segs, lengths, feed: 100, mode: "single", stopAt }));
+    while (!stop && n++ < 10_000) ({ p, stop } = advance(p, 1 / 60, { segments: segs, lengths, feed: 100, mode: "single", stopAt: stops[k].at }));
     expect(stop).toBe(true);
-    expect(p).toBeCloseTo(stopAt, 9);
+    expect(p).toBeCloseTo(stops[k].at, 9);
+  });
+  it("pętla wstecz (powtórzona linia) dodaje zatrzymanie, bez powtarzania linii bez ruchu", () => {
+    const lines = [{ words: [{ letter: "G" }] }, { words: [{ letter: "M" }] }, { words: [{ letter: "G" }] }];
+    const st = blockStops(lines, [{ line: 0 }, { line: 2 }, { line: 0 }], [0, 1, 2, 3]);
+    expect(st).toEqual([{ line: 0, at: 1 }, { line: 1, at: 1 }, { line: 2, at: 2 }, { line: 0, at: 3 }]);
   });
 });
 
