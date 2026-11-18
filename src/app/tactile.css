@@ -1513,3 +1513,43 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 .ws-try.is-warn { border-style: solid; border-color: color-mix(in srgb, var(--amber) 55%, var(--line)); color: var(--amber-ink); background: color-mix(in srgb, var(--amber) 7%, transparent); }
 .ws-try button { flex: none; height: 26px; padding: 0 .6rem; border-radius: 7px; border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink); font: 600 12px/1 var(--font-sans); }
 @media (max-width: 1279px) { .ws-try { font-size: 11.5px; padding: .3rem .45rem; } }
+
+/* ==========================================================================
+   20. Mapa nauki na Pulpicie (Etap 12c): dni z nauką jak wykres aktywności —
+       kolumna = tydzień (pn–nd), odcień = liczba lekcji danego dnia
+   ========================================================================== */
+.nm { display: grid; gap: .75rem; padding: .9rem; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+.nm-dro dd { display: flex; align-items: baseline; gap: .35rem; }
+.nm-dro dd small { font: 500 12px/1 var(--font-mono); color: var(--muted); letter-spacing: 0; }
+.nm-dro dt { font: 600 10.5px/1.2 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.nm-box { min-width: 0; overflow: hidden; }
+.nm-skel { height: calc(8 * 16px); border-radius: 10px; }
+.nm-grid {
+  display: grid; width: max-content; max-width: 100%;
+  grid-template-columns: 26px repeat(var(--w), var(--c, 13px)); grid-template-rows: 16px repeat(7, var(--c, 13px)); gap: 3px;
+}
+.nm-corner { grid-column: 1; grid-row: 1; }
+.nm-month { grid-row: 1; font: 500 10.5px/16px var(--font-mono); color: var(--muted); white-space: nowrap; overflow: visible; }
+.nm-dow { grid-column: 1; align-self: center; font: 500 10px/1 var(--font-mono); color: var(--muted); }
+.nm-c { display: block; width: 13px; height: 13px; border-radius: 3px; position: relative; }
+.nm-grid .nm-c { width: var(--c, 13px); height: var(--c, 13px); cursor: default; transition: box-shadow .12s ease; }
+.nm-l0 { background: var(--surface-2); box-shadow: inset 0 0 0 1px var(--line); }
+.nm-l1 { background: color-mix(in srgb, var(--accent) 28%, var(--surface-2)); }
+.nm-l2 { background: color-mix(in srgb, var(--accent) 50%, var(--surface-2)); }
+.nm-l3 { background: color-mix(in srgb, var(--accent) 74%, var(--surface-2)); }
+.nm-l4 { background: var(--accent); }
+.nm-lx { background: transparent; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--line) 50%, transparent); }
+/* ukończenie lekcji tego dnia — mała kropka */
+.nm-c.is-done::after { content: ""; position: absolute; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--ink); opacity: .85; }
+.nm-l4.is-done::after, .nm-l3.is-done::after { background: var(--on-accent); }
+.nm-c.is-pick { box-shadow: 0 0 0 2px var(--ink); z-index: 1; }
+.nm-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .4rem 1rem; }
+.nm-info { margin: 0; min-height: 1.4em; font-size: 13px; line-height: 1.4; color: var(--ink-2); }
+.nm-legend { display: inline-flex; align-items: center; gap: 3px; font: 500 11px/1 var(--font-mono); color: var(--muted); }
+.nm-legend .nm-c { width: 11px; height: 11px; }
+.nm-legend .nm-c:first-of-type { margin-left: .35rem; }
+.nm-legend .nm-c:last-of-type { margin-right: .35rem; }
+@media (min-width: 900px) {
+  .nm { padding: 1rem 1.1rem; }
+  .nm-dro { max-width: 640px; }
+}

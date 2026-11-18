@@ -18,6 +18,32 @@ export interface LessonProgress {
   done?: boolean;
   /** najlepszy wynik pełnego testu */
   quiz?: { score: number; total: number; at: number };
+  /**
+   * Dziennik dni z nauką (mapa nauki na Pulpicie): dzień lokalny `RRRR-MM-DD` → bity
+   * 1 — otwarcie lekcji, 2 — pełny test, 4 — ukończenie (test ≥ 80% albo „przeczytana”).
+   * Tylko w przeglądarce (konto synchronizuje pola z tabeli `lesson_progress`).
+   */
+  log?: Record<string, number>;
+}
+
+/** Bity dziennika dni. */
+export const LOG_OPEN = 1, LOG_TEST = 2, LOG_DONE = 4;
+/** Najwięcej dni w dzienniku jednej lekcji — starsze wypadają. */
+const LOG_MAX = 400;
+
+/** Dzień lokalny `RRRR-MM-DD` dla znacznika czasu. */
+export function dayKey(t: number): string {
+  const d = new Date(t);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Dopisanie bitu do dziennika dnia; przycina dziennik do {@link LOG_MAX} ostatnich dni. */
+export function logDay(log: Record<string, number> | undefined, t: number, bit: number): Record<string, number> {
+  const k = dayKey(t);
+  const next = { ...(log ?? {}), [k]: ((log ?? {})[k] ?? 0) | bit };
+  const keys = Object.keys(next);
+  if (keys.length > LOG_MAX) for (const old of keys.sort().slice(0, keys.length - LOG_MAX)) delete next[old];
+  return next;
 }
 export type ProgressStore = Record<string, LessonProgress>;
 
@@ -81,15 +107,17 @@ export const isRead = (p?: LessonProgress) => !isPassed(p) && (!!p?.read || !!p?
 /** Ukończona w jakiejkolwiek formie — do wyboru następnej lekcji. */
 export const isFinished = (p?: LessonProgress) => isPassed(p) || isRead(p);
 
-export function markVisited(key: string) { update(key, (p) => ({ ...p, visited: Date.now() })); }
-/** Ręczne oznaczenie „przeczytana”. Cofnięcie usuwa też zapis „done” ze starszej wersji. */
-export function setRead(key: string, read: boolean) { update(key, (p) => ({ ...p, read, ...(read ? {} : { done: false }) })); }
+export function markVisited(key: string) { const t = Date.now(); update(key, (p) => ({ ...p, visited: t, log: logDay(p.log, t, LOG_OPEN) })); }
+/** Ręczne oznaczenie „przeczytana”. Cofnięcie usuwa też zapis „done” ze starszej wersji (dziennik dni zostaje). */
+export function setRead(key: string, read: boolean) { update(key, (p) => ({ ...p, read, ...(read ? { log: logDay(p.log, Date.now(), LOG_DONE) } : { done: false }) })); }
 
 /** Wynik pełnego testu: zostaje najlepszy; zaliczenie liczy się z wyniku (≥ 80%). */
 export function recordQuiz(key: string, score: number, total: number) {
   update(key, (p) => {
-    const best = !p.quiz || score / total >= p.quiz.score / p.quiz.total ? { score, total, at: Date.now() } : p.quiz;
-    return { ...p, quiz: best };
+    const t = Date.now();
+    const best = !p.quiz || score / total >= p.quiz.score / p.quiz.total ? { score, total, at: t } : p.quiz;
+    const bits = LOG_TEST | (total > 0 && score / total >= PASS ? LOG_DONE : 0);
+    return { ...p, quiz: best, log: logDay(p.log, t, bits) };
   });
 }
 
