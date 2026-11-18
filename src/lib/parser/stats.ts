@@ -23,7 +23,8 @@ export interface ProgramStats {
   spindle: { min: number; max: number } | null;
 }
 
-const segSeconds = (sg: Segment, program: Program, rapidRate = 20000) => {
+/** Czas odcinka [s] przy zaprogramowanym posuwie; G00 umownie 20 m/min. */
+export const segSeconds = (sg: Segment, program: Program, rapidRate = 20000) => {
   if (sg.kind === "dwell") return sg.seconds;
   const len = segmentLength(sg);
   if (sg.kind === "rapid") return (len / rapidRate) * 60;
