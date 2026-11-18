@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f1_5: LessonDoc = {
   id: "F1.5",
   slug: "f1-5-blok-startowy-koniec",
@@ -48,13 +53,14 @@ export const f1_5: LessonDoc = {
     ],
     fig: "f15-skeleton",
     steps: [
-      { x: "Nagłówek: numer programu i opis w komentarzu — operator czyta go przed uruchomieniem.", code: "O1000 (PLYTKA)" },
-      { x: "Bezpieczny start, linia 1: milimetry, wymiary absolutne, posuw w mm/min, płaszczyzna XY.", code: "G21 G90 G94 G17" },
-      { x: "Linia 2 kasuje korekcje i cykle, potem wybór zera detalu.", code: "G40 G49 G80 → G54" },
-      { x: "Pierwszy ruch po wymianie narzędzia z jawnym trybem ruchu: szybko w Z, na wysokość nad przeszkodami.", code: "G00 G43 H1 Z50." },
-      { x: "Koniec: odjazd w Z, stop wrzeciona, M30. Jeśli w programie było G91, przed końcem przywróć G90.", code: "M05 … M30" },
+      { x: "Nagłówek: numer programu i opis w komentarzu — operator czyta go przed uruchomieniem.", code: "O1000 (PLYTKA)", line: 1 },
+      { x: "Bezpieczny start, linia 1: milimetry, wymiary absolutne, posuw w mm/min, płaszczyzna XY.", code: "G21 G90 G94 G17", line: 2 },
+      { x: "Linia 2 kasuje korekcje i cykle, potem wybór zera detalu.", code: "G40 G49 G80 → G54", line: 3, lineTo: 4 },
+      { x: "Pierwszy ruch po wymianie narzędzia z jawnym trybem ruchu: szybko w Z, na wysokość nad przeszkodami.", code: "G00 G43 H1 Z50.", line: 6 },
+      { x: "Koniec: odjazd w Z, stop wrzeciona, M30. Jeśli w programie było G91, przed końcem przywróć G90.", code: "M05 … M30", line: 13, lineTo: 15 },
     ],
     result: "Cały program w obecnym stanie widać w sekcji Program detalu poniżej — po tej lekcji ma już komplet: nagłówek, blok startowy i zakończenie. Od bloku startowego znane są tryby wymienione w tabeli. Inne funkcje, których maszyna używa, ustawia się według jej instrukcji.",
+    story: { program: story, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50] }, tool: 10 },
   },
 
   practice: [
@@ -65,7 +71,7 @@ export const f1_5: LessonDoc = {
       starter: "O1000 (PLYTKA)\n(TU START)\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(TU KONIEC)",
       checks: [{"t":"require","codes":["G21","G90","G94","G17","G40","G49","G80","G54"],"before":"move"},{"t":"require","codes":["M05","M30"]},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["Blok startowy z lekcji: `G21 G90 G94 G17`, potem `G40 G49 G80`, a na końcu wybór zera `G54`.","Zakończenie: `M05` zatrzymuje wrzeciono, `M30` kończy program i przewija go na początek."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

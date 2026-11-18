@@ -24,6 +24,11 @@ ${block(18.9)}
 
 ${tail}`;
 
+const solution = starter.replace("(DOPISZ TRZY OSTATNIE PRZEJSCIA: FI18.5, FI18.25 I FI18.16)\n", `${[18.5, 18.25, 18.16].map(block).join("\n")}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t7_2: LessonDoc = {
   id: "T7.2",
   slug: "t7-2-g32-g33",
@@ -55,12 +60,13 @@ export const t7_2: LessonDoc = {
     intro: "Sytuacja: ten sam gwint M20×1,5 co w T7.1, ale zapisany ręcznie — żeby zobaczyć, co robi cykl. Gwint jednozwojny, skok 1,5 mm, rdzeń Ø18,16, start X22 Z5. Wejścia prostopadłe, coraz płytsze — ten rozkład to założenie przykładu; rzeczywisty dobiera się do płytki, materiału i skoku według zaleceń producenta płytki. Numery na rysunku to numery kroków.",
     fig: "t72-depths",
     steps: [
-      { x: "Pierwsze przejście: 0,3 mm na stronę.", code: "X19.4" },
-      { x: "Kolejne: 0,25 i 0,2 mm na stronę.", code: "X18.9 → X18.5" },
-      { x: "Przedostatnie: 0,125 mm.", code: "X18.25" },
-      { x: "Wykańczające na rdzeń.", code: "X18.16" },
+      { x: "Pierwsze przejście: 0,3 mm na stronę.", code: "X19.4", line: 8, lineTo: 11 },
+      { x: "Kolejne: 0,25 i 0,2 mm na stronę.", code: "X18.9 → X18.5", line: 12, lineTo: 19 },
+      { x: "Przedostatnie: 0,125 mm.", code: "X18.25", line: 20, lineTo: 23 },
+      { x: "Wykańczające na rdzeń.", code: "X18.16", line: 24, lineTo: 27 },
     ],
     result: "Pięć razy te same cztery bloki, zmienia się tylko X. Tyle właśnie oszczędza cykl — i dlatego w programie wałka zostaje G76.",
+    story: { program: story, from: 7 },
   },
 
   practice: [
@@ -74,7 +80,7 @@ export const t7_2: LessonDoc = {
         { t: "require", codes: ["G32"] },
       ],
       hints: ["Każde przejście: G00 X…, G32 Z-17. F1.5, G00 X22., Z5.", "Średnice: 18.5, 18.25, 18.16."],
-      solution: starter.replace("(DOPISZ TRZY OSTATNIE PRZEJSCIA: FI18.5, FI18.25 I FI18.16)\n", `${[18.5, 18.25, 18.16].map(block).join("\n")}\n`),
+      solution,
     },
     {
       kind: "drill",

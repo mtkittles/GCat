@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { parseProgram } from "@/lib/parser";
 import type { WorkedStory as Story } from "@/lib/lesson";
-import { motionClass, stepLine, storyGeometry } from "@/lib/workedStory";
+import { focusLines, motionClass, plane, stepLines, storyGeometry, type StoryMode } from "@/lib/workedStory";
 
 /*
   Przykład sterowany przewijaniem (Etap 12, B3). Kroki przewijają się, program i podgląd stoją:
@@ -26,12 +26,15 @@ function CodeLine({ text }: { text: string }) {
   return <>{out}</>;
 }
 
-export default function WorkedStory({ story, steps }: {
+export default function WorkedStory({ story, steps, mode = "mill" }: {
   story: Story;
-  steps: { node: ReactNode; code?: string; line?: number }[];
+  /** frezowanie — widok XY z góry; toczenie — widok ZX (Z w prawo, X w górę) */
+  mode?: StoryMode;
+  steps: { node: ReactNode; code?: string; line?: number; lineTo?: number }[];
 }) {
-  const geo = useMemo(() => storyGeometry(story), [story]);
-  const prog = useMemo(() => parseProgram(story.program, {}), [story.program]);
+  const lathe = mode === "lathe";
+  const geo = useMemo(() => storyGeometry(story, mode, focusLines(steps, story.from)), [story, mode, steps]);
+  const prog = useMemo(() => parseProgram(story.program, { diameterX: lathe }), [story.program, lathe]);
   const rows = useMemo(() => story.program.split("\n"), [story.program]);
   const [active, setActive] = useState(-1);
   const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
@@ -69,8 +72,10 @@ export default function WorkedStory({ story, steps }: {
     return () => io.disconnect();
   }, [steps.length, band]);
 
-  const line = stepLine(steps, active, story.from);
-  const cur = active >= 0 && steps[active].line ? steps[active].line! - 1 : -1;
+  // [c0, line]: linie bieżącego kroku (podświetlone); podgląd do `line`. Krok bez linii — nic nie podświetla.
+  const [c0, line] = stepLines(steps, active, story.from);
+  const own = active >= 0 && !!steps[active].line;
+  const isCur = (i: number) => own && i >= c0 && i <= line;
 
   // bieżąca linia widoczna w liście programu (przewija się tylko lista, nie strona)
   useEffect(() => {
@@ -89,6 +94,8 @@ export default function WorkedStory({ story, steps }: {
   };
 
   const p = line >= 0 ? geo.pos[line] : null;
+  const pv = p ? plane(mode)(p) : [0, 0];
+  const sp = line >= 0 ? prog.lines[line]?.state.pos ?? null : null;
   const st = line >= 0 ? prog.lines[line]?.state : null;
   const v = geo.view;
   const unit = Math.max(v.w, v.h) / 100; // grubości kresek niezależne od skali rysunku
@@ -98,32 +105,46 @@ export default function WorkedStory({ story, steps }: {
     <div ref={rootRef} className="ws">
       <div ref={panelRef} className="ws-panel" aria-label="Program przykładu i podgląd toru">
         <svg className="ws-view" viewBox={`${v.x} ${v.y} ${v.w} ${v.h}`} role="img"
-          aria-label={p ? `Tor do linii ${line + 1}; narzędzie w X${fmt(p.x)} Y${fmt(p.y)} Z${fmt(p.z)}` : "Tor przed pierwszym ruchem"}>
+          aria-label={p && geo.xy[line] ? `Tor do linii ${line + 1}; narzędzie w ${lathe ? `X⌀${fmt((sp ?? p).x * 2)} Z${fmt((sp ?? p).z)}` : `X${fmt((sp ?? p).x)} Y${fmt((sp ?? p).y)} Z${fmt((sp ?? p).z)}`}` : "Tor przed pierwszym ruchem"}>
+          {story.bar && (
+            <>
+              <rect className="ws-stock" x={story.bar.z[0]} y={-story.bar.d / 2} width={story.bar.z[1] - story.bar.z[0]} height={story.bar.d / 2} />
+              {/* oś toczenia */}
+              <path className="ws-axis" d={`M${v.x} 0H${v.x + v.w}`} strokeWidth={unit * 0.3} strokeDasharray={`${unit * 3} ${unit} ${unit * 0.6} ${unit}`} />
+            </>
+          )}
           {story.stock && <rect className="ws-stock" x={story.stock[0]} y={-story.stock[3]} width={story.stock[2] - story.stock[0]} height={story.stock[3] - story.stock[1]} />}
-          {story.part && <rect className="ws-part" x={story.part.x[0]} y={-story.part.y[1]} width={story.part.x[1] - story.part.x[0]} height={story.part.y[1] - story.part.y[0]} rx={story.part.r ?? 0} strokeWidth={unit * 0.45} />}
+          {story.part && ("cx" in story.part
+            ? <circle className="ws-part" cx={story.part.cx} cy={-story.part.cy} r={story.part.d / 2} strokeWidth={unit * 0.45} />
+            : <rect className="ws-part" x={story.part.x[0]} y={-story.part.y[1]} width={story.part.x[1] - story.part.x[0]} height={story.part.y[1] - story.part.y[0]} rx={story.part.r ?? 0} strokeWidth={unit * 0.45} />)}
+          {/* otwory z cykli wiercenia — od linii, w której powstały */}
+          {geo.holes.filter((h) => h.line <= line).map((h, i) => <circle key={`h${i}`} className="ws-hole" cx={h.x} cy={-h.y} r={Math.max(unit, tr * 0.9)} strokeWidth={unit * 0.35} />)}
           {/* zero W */}
           <g className="ws-zero" strokeWidth={unit * 0.35}><path d={`M${-unit * 3} 0H${unit * 3}M0 ${-unit * 3}V${unit * 3}`} /></g>
           {/* tor środka z korekcją G41/G42 — cienka kropkowana linia pod torem programu */}
           {geo.center.filter((s) => s.line <= line && s.kind !== "rapid").map((s, i) => <path key={`c${i}`} d={s.d} className="ws-center" strokeWidth={unit * 0.35} strokeDasharray={`${unit * 0.5} ${unit * 0.9}`} />)}
           {geo.segs.map((s, i) => {
-            const state = s.line > line ? "is-next" : s.line === cur ? "is-cur" : "is-done";
+            const state = s.line > line ? "is-next" : isCur(s.line) ? "is-cur" : "is-done";
             return <path key={i} d={s.d} className={`ws-seg ws-${s.kind} ${state}`} strokeWidth={unit * (state === "is-cur" ? 0.9 : 0.55)}
               strokeDasharray={s.kind === "rapid" ? `${unit * 1.6} ${unit * 1.2}` : undefined} />;
           })}
-          {p && (
+          {p && geo.xy[line] && (
             <g className="ws-tool">
-              {tr > 0 && <circle cx={p.x} cy={-p.y} r={tr} strokeWidth={unit * 0.4} />}
-              <circle cx={p.x} cy={-p.y} r={unit * 0.9} className="ws-tool-c" />
+              {!lathe && tr > 0 && <circle cx={pv[0]} cy={-pv[1]} r={tr} strokeWidth={unit * 0.4} />}
+              <circle cx={pv[0]} cy={-pv[1]} r={unit * 0.9} className="ws-tool-c" />
             </g>
           )}
         </svg>
         <div className="ws-dro" aria-live="polite">
-          {p ? <><span>X {fmt(p.x)}</span><span>Y {fmt(p.y)}</span><span>Z {fmt(p.z)}</span></> : <span>przed pierwszym ruchem</span>}
+          {/* odczyt: punkt z programu (jak w kodzie); znacznik na rysunku — środek freza / naroże z korekcją */}
+          {!p || !sp ? <span>przed pierwszym ruchem</span>
+            : lathe ? <><span>X {geo.xy[line] ? `⌀${fmt(sp.x * 2)}` : "—"}</span><span>Z {geo.xy[line] ? fmt(sp.z) : "—"}</span></>
+            : <><span>X {geo.xy[line] ? fmt(sp.x) : "—"}</span><span>Y {geo.xy[line] ? fmt(sp.y) : "—"}</span><span>Z {fmt(sp.z)}</span></>}
           {st && <span className="ws-mod">G{String(st.motion ?? 0).padStart(2, "0")}{st.feed ? ` · F${st.feed}` : ""}</span>}
         </div>
         <ol ref={codeRef} className="ws-code" aria-label="Program przykładu" tabIndex={0} data-lenis-prevent>
           {rows.map((r, i) => (
-            <li key={i} className={i === cur ? "is-cur" : i > line ? "is-next" : undefined} aria-current={i === cur ? "step" : undefined}>
+            <li key={i} className={isCur(i) ? "is-cur" : i > line ? "is-next" : undefined} aria-current={isCur(i) ? "step" : undefined}>
               <span className="ws-n" aria-hidden>{i + 1}</span><code><CodeLine text={r} /></code>
             </li>
           ))}
@@ -141,7 +162,6 @@ export default function WorkedStory({ story, steps }: {
             <div className="ws-x">
               {s.node}
               {s.code && <code className="ws-chip">{s.code}</code>}
-              {s.line && <small className="ws-l">linia {s.line}</small>}
             </div>
           </li>
         ))}

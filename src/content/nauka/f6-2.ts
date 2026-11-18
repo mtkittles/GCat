@@ -45,6 +45,11 @@ M09
 M05
 M30`;
 
+const solution = starter.replace("(DOPISZ WYKANCZANIE SCIAN: G41, NAJAZD PO LUKU R6 NA SRODEK DOLNEJ SCIANY,\n OBIEG PRZECIWNIE DO ZEGARA, ODJAZD PO LUKU, G40)\n", finish);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f6_2: LessonDoc = {
   id: "F6.2",
   slug: "f6-2-kieszen-prostokatna",
@@ -85,9 +90,10 @@ export const f6_2: LessonDoc = {
       { x: "Odsunięcie środka freza od ściany: promień + naddatek, 5 + 1.", code: "6 mm" },
       { x: "X: 17 + 6 i 43 − 6.", code: "X23…X37" },
       { x: "Y: 15 + 6 i 35 − 6.", code: "Y21…Y29" },
-      { x: "Pętla przeciwnie do zegara z osi kieszeni: w górę, w lewo, w dół, w prawo.", code: "Y29. → X23. → Y21. → X37." },
+      { x: "Pętla przeciwnie do zegara z osi kieszeni: w górę, w lewo, w dół, w prawo.", code: "Y29. → X23. → Y21. → X37.", line: 17, lineTo: 20 },
     ],
     result: "Pętla przykrywa całe wnętrze — frez Ø10 na torze odsuniętym o 4 mm od osi sięga aż do osi. Na ścianach zostaje dokładnie 1 mm dla przejścia wykańczającego.",
+    story: { program: story, from: 16, part: { x: [17, 43], y: [15, 35], r: 6 }, tool: 10 },
   },
 
   practice: [
@@ -100,7 +106,7 @@ export const f6_2: LessonDoc = {
         { t: "require", codes: ["G41", "G40", "G03"] },
       ],
       hints: ["Najazd: G41 D1 G01 X24. Y21., potem G03 X30. Y15. R6.", "Ściany przeciwnie do zegara: X37 → G03 X43. Y21. R6. → Y29 → G03 X37. Y35. R6. → X23 → G03 X17. Y29. R6. → Y21 → G03 X23. Y15. R6. → X30.", "Odjazd: G03 X36. Y21. R6., potem G40 G01 X30. Y25."],
-      solution: starter.replace("(DOPISZ WYKANCZANIE SCIAN: G41, NAJAZD PO LUKU R6 NA SRODEK DOLNEJ SCIANY,\n OBIEG PRZECIWNIE DO ZEGARA, ODJAZD PO LUKU, G40)\n", finish),
+      solution,
     },
     {
       kind: "drill",

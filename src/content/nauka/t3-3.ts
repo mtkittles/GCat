@@ -24,6 +24,11 @@ G28 U0.
 G28 W0.
 M30`;
 
+const solution = starter.replace("(DOPISZ STOPIEN Z PROMIENIAMI: FI30 DO POCZATKU R1,\n LUK R1 DO X32 Z-40, CZOLO DO X35, LUK R0.5 DO X36 Z-40.5)\n", `${arcs}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t3_3: LessonDoc = {
   id: "T3.3",
   slug: "t3-3-g02-g03-glowica",
@@ -54,12 +59,13 @@ export const t3_3: LessonDoc = {
     intro: "Sytuacja: na rysunku doszły promienie — R1 w narożu wklęsłym między Ø30 a czołem stopnia i R0,5 na krawędzi Ø36. Rysunek w widoku z kursu: Z w prawo, X w górę, głowica tylna. Numery na rysunku to numery kroków.",
     fig: "t33-arcs",
     steps: [
-      { x: "Ø30 kończy się 1 mm przed czołem stopnia — tam zaczyna się łuk R1.", code: "Z-39." },
-      { x: "Łuk wklęsły w górę do czoła, zgodnie z zegarem: średnica 30 + 2 · 1.", code: "G02 X32. Z-40. R1." },
-      { x: "Czoło stopnia do początku zaokrąglenia: 36 − 2 · 0,5.", code: "G01 X35." },
-      { x: "Zaokrąglenie wypukłe na Ø36, przeciwnie do zegara, 0,5 mm dalej w Z.", code: "G03 X36. Z-40.5 R0.5" },
+      { x: "Ø30 kończy się 1 mm przed czołem stopnia — tam zaczyna się łuk R1.", code: "Z-39.", line: 13 },
+      { x: "Łuk wklęsły w górę do czoła, zgodnie z zegarem: średnica 30 + 2 · 1.", code: "G02 X32. Z-40. R1.", line: 14 },
+      { x: "Czoło stopnia do początku zaokrąglenia: 36 − 2 · 0,5.", code: "G01 X35.", line: 15 },
+      { x: "Zaokrąglenie wypukłe na Ø36, przeciwnie do zegara, 0,5 mm dalej w Z.", code: "G03 X36. Z-40.5 R0.5", line: 16 },
     ],
     result: "Po G03 kontur wraca do ruchu liniowego jawnym `G01 Z-55.`. Tak wygląda docelowy kontur wykańczający wałka — poniżej w programie.",
+    story: { program: story, from: 12, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -73,7 +79,7 @@ export const t3_3: LessonDoc = {
         { t: "require", codes: ["G02", "G03"] },
       ],
       hints: ["Z-39., potem G02 X32. Z-40. R1.", "G01 X35., potem G03 X36. Z-40.5 R0.5."],
-      solution: starter.replace("(DOPISZ STOPIEN Z PROMIENIAMI: FI30 DO POCZATKU R1,\n LUK R1 DO X32 Z-40, CZOLO DO X35, LUK R0.5 DO X36 Z-40.5)\n", `${arcs}\n`),
+      solution,
     },
     {
       kind: "drill",

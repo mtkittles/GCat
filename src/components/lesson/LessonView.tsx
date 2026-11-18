@@ -117,7 +117,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
         )}
         {doc.worked.fig && diagrams[doc.worked.fig]?.()}
         {doc.worked.story ? (
-          <WorkedStory story={doc.worked.story} steps={doc.worked.steps.map((s, i) => ({ node: <p key={i}>{rich(s.x)}</p>, code: s.code, line: s.line }))} />
+          <WorkedStory story={doc.worked.story} mode={T.mode} steps={doc.worked.steps.map((s, i) => ({ node: <p key={i}>{rich(s.x)}</p>, code: s.code, line: s.line, lineTo: s.lineTo }))} />
         ) : (
           <ol className="ls-steps">
             {doc.worked.steps.map((s, i) => (

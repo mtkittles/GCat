@@ -40,6 +40,13 @@ G28 U0.
 G28 W0.
 M30`;
 
+const solution = starter
+        .replace("(DOPISZ DOJAZD DO X14 Z2 Z WLACZENIEM KOREKCJI)\n", "G42 G00 X14. Z2.\n")
+        .replace("(DOPISZ ODJAZD NA Z2 Z WYLACZENIEM KOREKCJI)\n", "G40 G00 Z2.\n");
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t4_1: LessonDoc = {
   id: "T4.1",
   slug: "t4-1-g41-g42-tokarka",
@@ -80,12 +87,13 @@ export const t4_1: LessonDoc = {
     intro: "Sytuacja: program wykańczający wałka z T3.3 daje na fazach 45° błąd 0,414 · 0,4 ≈ 0,17 mm, bo prowadzi punkt P noża T0202 z narożem R0,4. W tabeli korekcji T02 są już wpisane promień R0,4 i kierunek ostrza 3 (lekcja T4.2). Trzeba dopisać korekcję tak, żeby kontur w programie został bez zmian. Numery kroków odpowiadają numerom na rysunku.",
     fig: "t41-run",
     steps: [
-      { x: "Krok 1: nóż zewnętrzny jedzie w stronę uchwytu, nad konturem — G42. Korekcję włącza ruch liniowy w powietrzu, do punktu startowego X14 Z2; na nim sterowanie odsuwa naroże o rε od konturu.", code: "G42 G00 X14. Z2." },
-      { x: "Krok 2: kontur bez zmian — wymiary z rysunku. Sterowanie prowadzi naroże stycznie do faz i promieni.", code: "G01 X20. Z-1. F0.1 …" },
-      { x: "Kontur kończy wyjście na X42 — nóż jest już ponad detalem.", code: "X42." },
-      { x: "Krok 3: wyłączenie korekcji na odjeździe w Z, w powietrzu.", code: "G40 G00 Z2." },
+      { x: "Krok 1: nóż zewnętrzny jedzie w stronę uchwytu, nad konturem — G42. Korekcję włącza ruch liniowy w powietrzu, do punktu startowego X14 Z2; na nim sterowanie odsuwa naroże o rε od konturu.", code: "G42 G00 X14. Z2.", line: 8 },
+      { x: "Krok 2: kontur bez zmian — wymiary z rysunku. Sterowanie prowadzi naroże stycznie do faz i promieni.", code: "G01 X20. Z-1. F0.1 …", line: 10, lineTo: 18 },
+      { x: "Kontur kończy wyjście na X42 — nóż jest już ponad detalem.", code: "X42.", line: 19 },
+      { x: "Krok 3: wyłączenie korekcji na odjeździe w Z, w powietrzu.", code: "G40 G00 Z2.", line: 20 },
     ],
     result: "Wystarczą dwa słowa w programie: G42 i G40. Przy poprawnych R i T w tabeli usuwają błąd 0,17 mm na fazach i poprawiają kształt obu promieni przy stopniu. Średnice i czoła wychodziły dobrze także bez korekcji.",
+    story: { program: story, from: 7, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -100,9 +108,7 @@ export const t4_1: LessonDoc = {
         { t: "state", comp: 42, label: "Korekcja G42 aktywna na ruchach konturu" },
       ],
       hints: ["Dojazd: G42 G00 X14. Z2.", "Odjazd: G40 G00 Z2."],
-      solution: starter
-        .replace("(DOPISZ DOJAZD DO X14 Z2 Z WLACZENIEM KOREKCJI)\n", "G42 G00 X14. Z2.\n")
-        .replace("(DOPISZ ODJAZD NA Z2 Z WYLACZENIEM KOREKCJI)\n", "G40 G00 Z2.\n"),
+      solution,
     },
     {
       kind: "drill",

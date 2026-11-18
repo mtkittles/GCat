@@ -30,6 +30,13 @@ M09
 M05
 M30`;
 
+const solution = starter
+        .replace("(DOPISZ SPIRALE: 4 OBROTY PO 1 MM WOKOL X60 Y25 I OBROT NA DNIE)\n", `${helix}\n`)
+        .replace("(DOPISZ PELNY OKRAG WYKANCZAJACY PO SCIANIE FI20)\n", "G03 I-10.\n");
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f6_3: LessonDoc = {
   id: "F6.3",
   slug: "f6-3-kieszen-okragla",
@@ -61,12 +68,13 @@ export const f6_3: LessonDoc = {
     intro: "Sytuacja: kieszeń Ø20 o środku X60 Y25 i głębokości 4 mm, frez Ø10. Nie ma otworu wstępnego, więc frez schodzi spiralą, potem wykańcza ścianę pełnym okręgiem z korekcją. Rysunek pokazuje spiralę, najazd, okrąg i odjazd.",
     fig: "f63-circle",
     steps: [
-      { x: "Start spirali 3 mm na prawo od środka.", code: "G00 X63. Y25." },
-      { x: "Cztery zwoje po 1 mm i obrót na dnie. I = 60 − 63.", code: "G03 I-3. Z-1. … Z-4." },
-      { x: "Najazd: z G41 7 mm w dół, łuk R7 do ściany w X70.", code: "G41 D1 G01 Y18. → G03 X70. Y25. R7." },
-      { x: "Okrąg na ścianie: środek 10 mm w lewo od X70.", code: "G03 I-10." },
+      { x: "Start spirali 3 mm na prawo od środka.", code: "G00 X63. Y25.", line: 9 },
+      { x: "Cztery zwoje po 1 mm i obrót na dnie. I = 60 − 63.", code: "G03 I-3. Z-1. … Z-4.", line: 12, lineTo: 15 },
+      { x: "Najazd: z G41 7 mm w dół, łuk R7 do ściany w X70.", code: "G41 D1 G01 Y18. → G03 X70. Y25. R7.", line: 18, lineTo: 19 },
+      { x: "Okrąg na ścianie: środek 10 mm w lewo od X70.", code: "G03 I-10.", line: 20 },
     ],
     result: "Pięć bloków G03 z tym samym `I-3.` różni się tylko Z. W module F7 zamienisz je na podprogram wywoływany kilka razy.",
+    story: { program: story, from: 8, part: { cx: 60, cy: 25, d: 20 }, tool: 10 },
   },
 
   practice: [
@@ -79,9 +87,7 @@ export const f6_3: LessonDoc = {
         { t: "require", codes: ["G03", "G41"] },
       ],
       hints: ["Spirala: G03 I-3. Z-1., potem Z-2., Z-3., Z-4. i G03 I-3. F400 na dnie.", "Okrąg na ścianie: G03 I-10."],
-      solution: starter
-        .replace("(DOPISZ SPIRALE: 4 OBROTY PO 1 MM WOKOL X60 Y25 I OBROT NA DNIE)\n", `${helix}\n`)
-        .replace("(DOPISZ PELNY OKRAG WYKANCZAJACY PO SCIANIE FI20)\n", "G03 I-10.\n"),
+      solution,
     },
     {
       kind: "drill",

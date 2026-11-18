@@ -25,6 +25,11 @@ const starter = `${head}
 
 ${tail}`;
 
+const solution = starter.replace("(DOPISZ CYKL G75: WYCOFANIE 0.5, DNO FI17, DRUGIE WCIECIE W Z-20,\n WCIECIA PO 1.5 MM NA STRONE, PRZESUNIECIE 1 MM, POSUW 0.05)\n", `${cyc}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t6_1: LessonDoc = {
   id: "T6.1",
   slug: "t6-1-g75-rowki",
@@ -59,12 +64,13 @@ export const t6_1: LessonDoc = {
     intro: "Sytuacja: przed gwintem M20 wałek potrzebuje podcięcia Z−16…Z−20 z dnem Ø17, tuż przy stopniu Ø30. Nóż do rowków ma 3 mm i jest zmierzony na lewym narożu. Ø20 przed rowkiem. Numery na rysunku to numery kroków.",
     fig: "t61-groove",
     steps: [
-      { x: "Pierwsze wcięcie: lewe naroże w Z−19, prawe w Z−16. Start ponad Ø20.", code: "G00 X22. Z-19." },
-      { x: "Głębokość na stronę: (22 − 17) / 2 = 2,5 — dwa wejścia, po 1,5 i 1 mm.", code: "P1500" },
-      { x: "Drugie wcięcie przy stopniu: lewe naroże w Z−20, czyli 1 mm dalej.", code: "Z-20. Q1000" },
-      { x: "Cykl i odjazd w X.", code: "G75 R0.5 → G75 X17. Z-20. P1500 Q1000 F0.05 → G00 X44." },
+      { x: "Pierwsze wcięcie: lewe naroże w Z−19, prawe w Z−16. Start ponad Ø20.", code: "G00 X22. Z-19.", line: 8 },
+      { x: "Głębokość na stronę: (22 − 17) / 2 = 2,5 — dwa wejścia, po 1,5 i 1 mm.", code: "P1500", line: 10 },
+      { x: "Drugie wcięcie przy stopniu: lewe naroże w Z−20, czyli 1 mm dalej.", code: "Z-20. Q1000", line: 10 },
+      { x: "Cykl i odjazd w X.", code: "G75 R0.5 → G75 X17. Z-20. P1500 Q1000 F0.05 → G00 X44.", line: 9, lineTo: 12 },
     ],
     result: "Cykl robi oba wcięcia, łamie wiór na każdym i wraca do punktu startowego. P1500 i Q1000 to milimetry zapisane w mikrometrach — przy systemie wejściowym 0,001 mm.",
+    story: { program: story, from: 7 },
   },
 
   practice: [
@@ -78,7 +84,7 @@ export const t6_1: LessonDoc = {
         { t: "require", codes: ["G75"] },
       ],
       hints: ["G75 R0.5", "G75 X17. Z-20. P1500 Q1000 F0.05"],
-      solution: starter.replace("(DOPISZ CYKL G75: WYCOFANIE 0.5, DNO FI17, DRUGIE WCIECIE W Z-20,\n WCIECIA PO 1.5 MM NA STRONE, PRZESUNIECIE 1 MM, POSUW 0.05)\n", `${cyc}\n`),
+      solution,
     },
     {
       kind: "drill",

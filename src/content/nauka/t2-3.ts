@@ -22,6 +22,11 @@ G28 U0.
 G28 W0.
 M30`;
 
+const solution = starter.replace("(DOPISZ PLANOWANIE CZOLA: DOJAZD NA Z0 POZA PRETEM,\n PRZEJSCIE PRZEZ OS Z F0.15, ODJAZD OD CZOLA)\n", `${face}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t2_3: LessonDoc = {
   id: "T2.3",
   slug: "t2-3-posuw-na-obrot",
@@ -56,11 +61,12 @@ export const t2_3: LessonDoc = {
     intro: "Sytuacja: pręt Ø40, nóż CNMG z narożem R0,8 (kierunek ostrza 3, korekcja promienia wyłączona), `G96 S200`, `G50 S3000`. Trzeba splanować czoło na Z0, zbierając ok. 0,5 mm. Numery na rysunku to numery kroków.",
     fig: "t23-pass",
     steps: [
-      { x: "Dojazd ruchem szybkim na Z0, poza średnicą pręta.", code: "G00 X44. Z0." },
-      { x: "Przejście przez oś z posuwem wykańczającym. Koniec za osią: −2 · 0,8 = −1,6.", code: "G01 X-1.6 F0.15" },
-      { x: "Odjazd od czoła w Z, zanim nóż wróci w X.", code: "G00 Z2." },
+      { x: "Dojazd ruchem szybkim na Z0, poza średnicą pręta.", code: "G00 X44. Z0.", line: 8 },
+      { x: "Przejście przez oś z posuwem wykańczającym. Koniec za osią: −2 · 0,8 = −1,6.", code: "G01 X-1.6 F0.15", line: 9 },
+      { x: "Odjazd od czoła w Z, zanim nóż wróci w X.", code: "G00 Z2.", line: 10 },
     ],
     result: "Od Ø21 w dół obroty stoją na limicie, więc posuw minutowy też przestaje rosnąć: vf = 0,15 · 3000 = 450 mm/min.",
+    story: { program: story, from: 7, bar: { d: 40, z: [-70, 0.5] } },
   },
 
   practice: [
@@ -74,7 +80,7 @@ export const t2_3: LessonDoc = {
         { t: "require", codes: ["G01"] },
       ],
       hints: ["G00 X44. Z0., potem G01 X-1.6 F0.15.", "Na koniec G00 Z2."],
-      solution: starter.replace("(DOPISZ PLANOWANIE CZOLA: DOJAZD NA Z0 POZA PRETEM,\n PRZEJSCIE PRZEZ OS Z F0.15, ODJAZD OD CZOLA)\n", `${face}\n`),
+      solution,
     },
     {
       kind: "drill",

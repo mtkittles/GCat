@@ -24,6 +24,11 @@ const starter = `${head}
 
 ${tail}`;
 
+const solution = starter.replace("(DOPISZ CYKL G74: WYCOFANIE 0.5, WIERCENIE DO Z-15,\n WEJSCIA PO 3 MM, POSUW 0.08)\n", `${cyc}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t6_2: LessonDoc = {
   id: "T6.2",
   slug: "t6-2-g74-wiercenie-osiowe",
@@ -57,12 +62,13 @@ export const t6_2: LessonDoc = {
     intro: "Sytuacja: po toczeniu z G96 w czole wałka trzeba wywiercić otwór Ø8 wiertłem HSS z pozycji 5, czubek na Z−15. Numery na rysunku to numery kroków.",
     fig: "t62-pecks",
     steps: [
-      { x: "Obroty stałe dla Ø8 — G96 z toczenia trzeba wyłączyć.", code: "G97 S1200 M03" },
-      { x: "Nad osią, 2 mm przed czołem.", code: "G00 X0. Z2." },
-      { x: "Wycofanie 0,5 po każdym wejściu.", code: "G74 R0.5" },
-      { x: "Do Z−15 po 3 mm, posuw 0,08 mm/obr.", code: "G74 Z-15. Q3000 F0.08" },
+      { x: "Obroty stałe dla Ø8 — G96 z toczenia trzeba wyłączyć.", code: "G97 S1200 M03", line: 5 },
+      { x: "Nad osią, 2 mm przed czołem.", code: "G00 X0. Z2.", line: 7 },
+      { x: "Wycofanie 0,5 po każdym wejściu.", code: "G74 R0.5", line: 8 },
+      { x: "Do Z−15 po 3 mm, posuw 0,08 mm/obr.", code: "G74 Z-15. Q3000 F0.08", line: 9 },
     ],
     result: "Z2 do Z−15 to 17 mm — sześć wejść po 3 mm, ostatnie krótsze. Cykl sam dzieli głębokość i wraca do Z2. Odjazd w Z od czoła, potem zmiana narzędzia.",
+    story: { program: story, from: 4 },
   },
 
   practice: [
@@ -77,7 +83,7 @@ export const t6_2: LessonDoc = {
         { t: "state", inLine: "G74", css: false, label: "Wiercenie G74 przy stałych obrotach (G97)" },
       ],
       hints: ["G74 R0.5", "G74 Z-15. Q3000 F0.08"],
-      solution: starter.replace("(DOPISZ CYKL G74: WYCOFANIE 0.5, WIERCENIE DO Z-15,\n WEJSCIA PO 3 MM, POSUW 0.08)\n", `${cyc}\n`),
+      solution,
     },
     {
       kind: "drill",

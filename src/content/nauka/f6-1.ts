@@ -21,6 +21,11 @@ G01 Z0. F200
 G01 X120. F800
 G00 Z50.`;
 
+const solution = starter.replace("(DOPISZ: NAJAZD NAD X-40 Y25, ZEJSCIE NA Z0 OBOK DETALU,\n JEDNO PRZEJSCIE DO X120 Z F800, ODJAZD NA Z50)\n", pass);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f6_1: LessonDoc = {
   id: "F6.1",
   slug: "f6-1-planowanie",
@@ -54,12 +59,13 @@ export const f6_1: LessonDoc = {
     intro: "Sytuacja: górna powierzchnia płytki 80 × 50 ma 1 mm naddatku i trzeba ją zebrać jednym przejściem. Głowica Ø63 z 5 płytkami 45°, vc = 200 m/min, fz = 0,16. Gdzie ustawić oś głowicy, skąd zacząć i dokąd jechać? Rysunek pokazuje płytkę z góry i oba położenia głowicy.",
     fig: "f61-face",
     steps: [
-      { x: "Oś na środku płytki: Y25, ae = 50 mm.", code: "Y25." },
-      { x: "Start poza detalem (lewy okrąg na rysunku): promień 31,5 + zapas — krawędź głowicy w X−8,5.", code: "X-40." },
+      { x: "Oś na środku płytki: Y25, ae = 50 mm.", code: "Y25.", line: 9 },
+      { x: "Start poza detalem (lewy okrąg na rysunku): promień 31,5 + zapas — krawędź głowicy w X−8,5.", code: "X-40.", line: 9 },
       { x: "Obroty i posuw: S = 1000 · 200 / (π · 63) ≈ 1010, F = 0,16 · 5 · 1000.", code: "S1000 F800" },
-      { x: "Jedno przejście na Z0 do punktu za detalem.", code: "G01 X120. F800" },
+      { x: "Jedno przejście na Z0 do punktu za detalem.", code: "G01 X120. F800", line: 12 },
     ],
     result: "`G00 X-40. Y25.` → `G00 Z5.` → `G01 Z0. F200` → `G01 X120. F800` → `G00 Z50.`. Ta operacja otwiera teraz program płytki.",
+    story: { program: story, from: 8, part: { x: [0, 80], y: [0, 50] }, tool: 63 },
   },
 
   practice: [
@@ -73,7 +79,7 @@ export const f6_1: LessonDoc = {
         { t: "end", x: 120, y: 25, z: 50, label: "Głowica kończy za detalem na Z50" },
       ],
       hints: ["G00 X-40. Y25., potem G00 Z5.", "G01 Z0. F200, G01 X120. F800, G00 Z50."],
-      solution: starter.replace("(DOPISZ: NAJAZD NAD X-40 Y25, ZEJSCIE NA Z0 OBOK DETALU,\n JEDNO PRZEJSCIE DO X120 Z F800, ODJAZD NA Z50)\n", pass),
+      solution,
     },
     {
       kind: "drill",

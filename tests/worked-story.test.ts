@@ -2,33 +2,54 @@ import { describe, expect, it } from "vitest";
 import { flat } from "@/lib/course";
 import { parseProgram } from "@/lib/parser";
 import { validate } from "@/lib/parser/validate";
-import { motionClass, stepLine, storyGeometry } from "@/lib/workedStory";
+import { focusLines, motionClass, plane, stepLines, storyGeometry } from "@/lib/workedStory";
 
-const stories = flat("frezowanie").flatMap((l) => (l.doc?.worked.story ? [{ id: l.id, w: l.doc.worked, story: l.doc.worked.story }] : []));
+const storiesOf = (t: "frezowanie" | "toczenie") => flat(t).flatMap((l) => (l.doc?.worked.story ? [{ id: l.id, w: l.doc.worked, story: l.doc.worked.story, mode: (t === "toczenie" ? "lathe" : "mill") as "mill" | "lathe" }] : []));
+const stories = [...storiesOf("frezowanie"), ...storiesOf("toczenie")];
+/** Słowo programu z liczbą znormalizowaną: `X44` i `X44.` to to samo. */
+const word = (w: string) => { const m = /^([A-Z])(-?[0-9.]+)$/.exec(w); return m ? `${m[1]}${Number(m[2])}` : w; };
 
 describe("przykład przewijany (Etap 12, B3) — pilotaż", () => {
-  it("pilotaż: F3.1, F3.2, F3.3, F4.2, F4.3", () => {
-    expect(stories.map((s) => s.id)).toEqual(["F3.1", "F3.2", "F3.3", "F4.2", "F4.3"]);
+  it("przykłady z programem; bez podprogramów (F7.1, T8.1 — kolejność wykonania ≠ kolejność linii) i kroków opisujących konturu przed cyklem (T5.2)", () => {
+    expect(storiesOf("frezowanie").map((s) => s.id)).toEqual(["F1.3", "F1.5", "F2.1", "F2.3", "F2.4", "F3.1", "F3.2", "F3.3", "F3.4", "F4.2", "F4.3", "F5.1", "F5.2", "F5.3", "F5.4", "F6.1", "F6.2", "F6.3", "F8.1"]);
+    expect(storiesOf("toczenie").map((s) => s.id)).toEqual(["T1.1", "T1.2", "T1.3", "T2.1", "T2.3", "T3.1", "T3.2", "T3.3", "T4.1", "T5.1", "T6.1", "T6.2", "T7.2"]);
   });
 
-  for (const { id, w, story } of stories) {
+  for (const { id, w, story, mode } of stories) {
     describe(id, () => {
-      const prog = parseProgram(story.program, {});
+      const prog = parseProgram(story.program, { diameterX: mode === "lathe" });
       const rows = story.program.split("\n");
       it("program przechodzi parser i walidator bez uwag", () => {
         expect(prog.lines.flatMap((l) => l.errors)).toEqual([]);
         expect(validate(prog, "fanuc")).toEqual([]);
       });
-      it("kroki wskazują linie programu z kodem kroku; kolejność nie maleje", () => {
+      it("kadr obejmuje pozycje narzędzia w krokach", () => {
+        const g = storyGeometry(story, mode, focusLines(w.steps, story.from));
+        const P = plane(mode);
+        for (const l of focusLines(w.steps, story.from)) {
+          const p = g.pos[l]; if (!p || !g.xy[l]) continue;
+          const [h, v] = P(p);
+          expect(h).toBeGreaterThanOrEqual(g.view.x); expect(h).toBeLessThanOrEqual(g.view.x + g.view.w);
+          expect(-v).toBeGreaterThanOrEqual(g.view.y); expect(-v).toBeLessThanOrEqual(g.view.y + g.view.h);
+        }
+      });
+      it("kroki wskazują linie programu z kodem kroku; końce kroków nie maleją", () => {
         let prev = story.from ?? 0;
-        for (const s of w.steps) {
-          if (!s.line) continue;
-          expect(s.line).toBeGreaterThan(0);
-          expect(s.line).toBeLessThanOrEqual(rows.length);
-          expect(s.line).toBeGreaterThanOrEqual(prev);
-          prev = s.line;
-          // kod kroku zapisany jak w programie (bez rachunków i strzałek) — każde słowo jest w tej linii
-          if (s.code && /^[A-Z0-9.\- ]+$/.test(s.code)) for (const word of s.code.split(/\s+/)) expect(rows[s.line - 1].split(/\s+/)).toContain(word);
+        for (const st of w.steps) {
+          if (!st.line) { expect(st.lineTo).toBeUndefined(); continue; }
+          const to = st.lineTo ?? st.line;
+          expect(st.line).toBeGreaterThan(0);
+          expect(to).toBeGreaterThanOrEqual(st.line);
+          expect(to).toBeLessThanOrEqual(rows.length);
+          expect(to).toBeGreaterThanOrEqual(prev);
+          prev = to;
+          // kod kroku zapisany jak w programie (bez rachunków, strzałek, „…”, „·”): co najmniej połowa słów jest
+          // w liniach kroku — krok może pokazywać też współrzędną modalną z wcześniejszej linii (np. T1.1 `X36 Z-55`)
+          if (st.code && /^[A-Z0-9.\- ]+$/.test(st.code)) {
+            const words = rows.slice(st.line - 1, to).join(" ").split(/\s+/).map(word);
+            const mine = st.code.split(/\s+/).map(word);
+            expect(mine.filter((x) => words.includes(x)).length * 2, `${id}: ${st.code}`).toBeGreaterThanOrEqual(mine.length);
+          }
         }
         expect(story.from ?? 0).toBeLessThan(w.steps.find((s) => s.line)!.line!);
       });
@@ -56,6 +77,28 @@ describe("geometria przykładu", () => {
     expect(g.pos[12]!.x).toBeCloseTo(-5, 6);
     expect(g.pos[12]!.y).toBeCloseTo(40, 6);
   });
+  it("F5.1: cztery otwory z cyklu G82 w środkach naroży R10, każdy z linii, w której powstał", () => {
+    const g = storyGeometry(byId("F5.1"));
+    expect(g.holes.map((h) => [h.x, h.y, h.line + 1])).toEqual([[10, 10, 9], [70, 10, 10], [70, 40, 11], [10, 40, 12]]);
+  });
+  it("F6.3: kieszeń okrągła w kadrze; bez cykli — bez otworów", () => {
+    const g = storyGeometry(byId("F6.3"));
+    expect(g.holes).toEqual([]);
+    expect(g.view.x).toBeLessThan(50);
+  });
+  it("T3.3: łuk wklęsły G02 R1 w widoku Z→, X↑ idzie zgodnie z zegarem przez punkt nad stopniem (Z−39, ⌀32)", () => {
+    const g = storyGeometry(byId("T3.3"), "lathe");
+    const arc = g.segs.find((s) => s.kind === "arc" && s.line === 13)!;
+    // próbki łuku leżą na okręgu o środku Z−39 X(promień)16 — wklęsły (środek poza materiałem)
+    const pts = [...arc.d.matchAll(/[ML](-?[\d.]+) (-?[\d.]+)/g)].map((m) => [Number(m[1]), -Number(m[2])]);
+    for (const [h, v] of pts) expect(Math.hypot(h - -39, v - 16)).toBeCloseTo(1, 2);
+  });
+  it("T1.1: tokarka — pozycja po linii 10 (Z-55.) to ⌀36 Z−55; kadr obejmuje oś", () => {
+    const g = storyGeometry(byId("T1.1"), "lathe");
+    expect(g.pos[9]!.x * 2).toBeCloseTo(36, 6);
+    expect(g.pos[9]!.z).toBeCloseTo(-55, 6);
+    expect(g.view.y + g.view.h).toBeGreaterThan(0);
+  });
   it("viewBox obejmuje półfabrykat i promień narzędzia", () => {
     const g = storyGeometry(byId("F3.3"));
     expect(g.view.x).toBeLessThan(-2 - 5);
@@ -64,13 +107,13 @@ describe("geometria przykładu", () => {
 });
 
 describe("krok → linia", () => {
-  const steps = [{ line: 10 }, {}, { line: 11 }];
-  it("przed pierwszym krokiem — linia `from`; krok bez linii zostaje na poprzedniej", () => {
-    expect(stepLine(steps, -1, 9)).toBe(8);
-    expect(stepLine(steps, 0, 9)).toBe(9);
-    expect(stepLine(steps, 1, 9)).toBe(9);
-    expect(stepLine(steps, 2, 9)).toBe(10);
-    expect(stepLine([{}], 0)).toBe(-1);
+  const steps = [{ line: 10 }, {}, { line: 11, lineTo: 13 }];
+  it("przed pierwszym krokiem — linia `from`; krok bez linii zostaje na poprzedniej; zakres linii", () => {
+    expect(stepLines(steps, -1, 9)).toEqual([8, 8]);
+    expect(stepLines(steps, 0, 9)).toEqual([9, 9]);
+    expect(stepLines(steps, 1, 9)).toEqual([9, 9]);
+    expect(stepLines(steps, 2, 9)).toEqual([10, 12]);
+    expect(stepLines([{}], 0)).toEqual([-1, -1]);
   });
   it("kolory ruchu", () => {
     expect(motionClass("G00")).toBe("g00");

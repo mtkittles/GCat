@@ -1,5 +1,10 @@
 import type { LessonDoc } from "@/lib/lesson";
 
+const solution = "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30";
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution.replace("G01 Y55.\nG00 Z50.", "G01 Y55.\nG00 Z5.");
+
 export const f2_4: LessonDoc = {
   id: "F2.4",
   slug: "f2-4-chlodziwo-m08-m09",
@@ -37,12 +42,13 @@ export const f2_4: LessonDoc = {
     ],
     fig: "f24-time",
     steps: [
-      { x: "Krok 1: po wymianie narzędzia włączasz obroty.", code: "S2500 M03" },
-      { x: "Krok 2: chłodziwo włączone przed najazdem — ciecz jest na ostrzu, zanim frez dotknie materiału.", code: "M08" },
-      { x: "Krok 3: po konturze odjazd w Z.", code: "G00 Z5." },
-      { x: "Krok 4: chłodziwo wyłączone przed zatrzymaniem wrzeciona — kolejność przyjęta w kursie na koniec operacji.", code: "M09 → M05" },
+      { x: "Krok 1: po wymianie narzędzia włączasz obroty.", code: "S2500 M03", line: 7 },
+      { x: "Krok 2: chłodziwo włączone przed najazdem — ciecz jest na ostrzu, zanim frez dotknie materiału.", code: "M08", line: 8 },
+      { x: "Krok 3: po konturze odjazd w Z.", code: "G00 Z5.", line: 14 },
+      { x: "Krok 4: chłodziwo wyłączone przed zatrzymaniem wrzeciona — kolejność przyjęta w kursie na koniec operacji.", code: "M09 → M05", line: 15, lineTo: 16 },
     ],
     result: "Pas „ciecz płynie” obejmuje cały najazd i kontur. Oba kody są już w programie płytki poniżej.",
+    story: { program: story, from: 6, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50] }, tool: 10 },
   },
 
   practice: [
@@ -52,7 +58,7 @@ export const f2_4: LessonDoc = {
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\n(DOPISZ WLACZENIE CHLODZIWA ZALEWOWEGO)\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\n(DOPISZ WYLACZENIE CHLODZIWA)\nM05\nM30",
       checks: [{"t":"coolant","label":"Chłodziwo włączone (M08) podczas każdego ruchu roboczego — w tym ćwiczeniu także zejścia w powietrzu","offBeforeStop":true},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
       hints: ["`M08` po włączeniu obrotów, przed najazdem — chłodziwo ma płynąć, zanim ostrze dotknie materiału.","`M09` po odjeździe w Z, przed `M05`."],
-      solution: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
+      solution,
     },
     {
       kind: "drill",

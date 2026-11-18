@@ -12,6 +12,11 @@ const starter = `${T3_HEAD}
 
 ${T3_TAIL}`;
 
+const solution = starter.replace("(DOPISZ PIERWSZE PRZEJSCIE ZGRUBNE NA FI36.4 DO Z-54.8,\n WYJSCIE NA FI42 I POWROT NAD CZOLO)\n", `${pass}\n`);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const t3_1: LessonDoc = {
   id: "T3.1",
   slug: "t3-1-g00-ruch-szybki",
@@ -44,12 +49,13 @@ export const t3_1: LessonDoc = {
     intro: "Sytuacja: po planowaniu nóż stoi w X−1,6 Z2. Pręt Ø40 wystaje 70 mm ze szczęk. Pierwsze przejście ma zdjąć pręt na Ø36,4 do Z−54,8 (0,2 mm naddatku w Z przed stopniem Ø36). Gdzie można jechać ruchem szybkim i ile zostaje miejsca? Numery na rysunku to numery kroków.",
     fig: "t31-clear",
     steps: [
-      { x: "Ruch szybki w X na średnicę przejścia — przed czołem, w powietrzu.", code: "G00 X36.4" },
-      { x: "Toczenie wzdłużne z posuwem zgrubnym. Koniec w Z−54,8: do szczęk w Z−70 zostaje 15,2 mm.", code: "G01 Z-54.8 F0.3" },
-      { x: "Wyjście w X na posuwie, 1 mm na stronę nad surowym prętem Ø40.", code: "X42." },
-      { x: "Powrót ruchem szybkim nad czoło — nóż jest już ponad surówką.", code: "G00 Z2." },
+      { x: "Ruch szybki w X na średnicę przejścia — przed czołem, w powietrzu.", code: "G00 X36.4", line: 11 },
+      { x: "Toczenie wzdłużne z posuwem zgrubnym. Koniec w Z−54,8: do szczęk w Z−70 zostaje 15,2 mm.", code: "G01 Z-54.8 F0.3", line: 12 },
+      { x: "Wyjście w X na posuwie, 1 mm na stronę nad surowym prętem Ø40.", code: "X42.", line: 13 },
+      { x: "Powrót ruchem szybkim nad czoło — nóż jest już ponad surówką.", code: "G00 Z2.", line: 14 },
     ],
     result: "Cztery bloki, dwa kody G. Oba prześwity, nad surówką i do szczęk, wynikają z półfabrykatu i zamocowania, a nie z rysunku detalu. W T3.2 dojdą kolejne przejścia według tego samego wzoru.",
+    story: { program: story, from: 10, bar: { d: 40, z: [-70, 0] } },
   },
 
   practice: [
@@ -63,7 +69,7 @@ export const t3_1: LessonDoc = {
         { t: "end", x: 42, z: 2, label: "Nóż kończy nad czołem, ponad prętem (X42 Z2)" },
       ],
       hints: ["G00 X36.4, potem G01 Z-54.8 F0.3.", "Wyjście X42. i powrót G00 Z2."],
-      solution: starter.replace("(DOPISZ PIERWSZE PRZEJSCIE ZGRUBNE NA FI36.4 DO Z-54.8,\n WYJSCIE NA FI42 I POWROT NAD CZOLO)\n", `${pass}\n`),
+      solution,
     },
     {
       kind: "drill",

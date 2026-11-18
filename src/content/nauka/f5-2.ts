@@ -21,6 +21,11 @@ Y40.
 X10.
 G80`;
 
+const solution = starter.replace("(DOPISZ: G83 DLA CZTERECH OTWOROW,\n Z-18. R2. Q4. F380, NA KONIEC G80)\n", cycle);
+
+/** Program przykładu przewijanego (Etap 12, B3) — kroki wskazują jego linie. */
+const story = solution;
+
 export const f5_2: LessonDoc = {
   id: "F5.2",
   slug: "f5-2-g83-g73",
@@ -56,11 +61,12 @@ export const f5_2: LessonDoc = {
     steps: [
       { x: "Koniec gwintownika musi zejść o nakrój poniżej pełnego gwintu: 12 + 3 = 15 mm.", code: "15 mm" },
       { x: "Pod końcem gwintownika zostawiamy zapas na wióry i bicie osiowe — w tym przykładzie 2 mm. Tyle dalej musi sięgać pełna średnica otworu.", code: "17 mm" },
-      { x: "Stożek wiertła 140°: (D/2) / tan 70° = 2,5 / 2,75 ≈ 0,9 mm. Czubek: 17 + 0,9 = 17,9 — zaokrąglasz do Z−18. Pełna średnica sięga wtedy Z−17,1.", code: "Z-18." },
-      { x: "18 / 5 = 3,6 średnicy — głęboko jak na wiertło bez chłodzenia przez wrzeciono, więc G83.", code: "G83" },
-      { x: "Od R2 do Z−18 jest 20 mm: pięć zagłębień po 4 mm, dna w Z−2, −6, −10, −14, −18 (prawa część rysunku).", code: "Q4." },
+      { x: "Stożek wiertła 140°: (D/2) / tan 70° = 2,5 / 2,75 ≈ 0,9 mm. Czubek: 17 + 0,9 = 17,9 — zaokrąglasz do Z−18. Pełna średnica sięga wtedy Z−17,1.", code: "Z-18.", line: 9 },
+      { x: "18 / 5 = 3,6 średnicy — głęboko jak na wiertło bez chłodzenia przez wrzeciono, więc G83.", code: "G83", line: 9 },
+      { x: "Od R2 do Z−18 jest 20 mm: pięć zagłębień po 4 mm, dna w Z−2, −6, −10, −14, −18 (prawa część rysunku).", code: "Q4.", line: 9 },
     ],
     result: "`G83 X10. Y10. Z-18. R2. Q4. F380`. Pod czubkiem zostają 2 mm materiału płytki. Posuw 380 mm/min przy S3800 to 0,1 mm/obr — wartość przyjęta w tym przykładzie; zakres dla konkretnego wiertła podaje producent.",
+    story: { program: story, from: 8, stock: [-2, -2, 82, 52], part: { x: [0, 80], y: [0, 50], r: 10 }, tool: 5 },
   },
 
   practice: [
@@ -73,7 +79,7 @@ export const f5_2: LessonDoc = {
         { t: "require", codes: ["G83", "G80"] },
       ],
       hints: ["G83 X10. Y10. Z-18. R2. Q4. F380", "Potem X70., Y40., X10. i G80."],
-      solution: starter.replace("(DOPISZ: G83 DLA CZTERECH OTWOROW,\n Z-18. R2. Q4. F380, NA KONIEC G80)\n", cycle),
+      solution,
     },
     {
       kind: "drill",
