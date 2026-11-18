@@ -8,7 +8,7 @@ level: 2
 modal: true
 machines:
   - frezowanie
-star: false
+star: true
 related:
   - g81-g83
   - g73
@@ -26,15 +26,21 @@ desc: >-
   wrzeciona (lekcja F3.5).
 syntax:
   fanuc: G98/G99 G82 X_ Y_ Z_ R_ P_ F_
-  sinumerik: CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)
-sinumerik: '**CYCLE82**: postój w dnie to parametr **DTB** w sekundach.'
+  sinumerik: |-
+    CYCLE82(RTP, RFP, SDIS, DP, DPR, DTB)
+    MCALL CYCLE82(…) / MCALL
+sinumerik: >-
+  **CYCLE82**: postój w dnie to parametr **DTB** w sekundach. Pozostałe
+  parametry jak w CYCLE81.
 params:
-  - key: P
-    desc: 'postój w dnie w milisekundach: P300 = 0,3 s'
+  - key: X Y
+    desc: pozycja otworu [mm]
   - key: Z
-    desc: dno otworu
+    desc: dno otworu [mm]; przy nawiertaku — czubek
   - key: R
-    desc: płaszczyzna startu
+    desc: płaszczyzna startu posuwu [mm]
+  - key: P
+    desc: 'postój w dnie [ms], bez kropki: P300 = 0,3 s'
   - key: F
     desc: posuw [mm/min]
 pitfalls:
@@ -49,6 +55,9 @@ sources:
   - id: fanuc
     where: G82 — wiercenie z postojem
     loc: rozdz. 3.1, tab. 3.1, s. 73; rozdz. 4, s. 89
+  - id: sinumerik-cycles
+    where: CYCLE82 — postój DTB w sekundach
+    loc: rozdz. 2.1.3, s. 2-55–2-56
 example:
   src: |-
     G21 G90 G94 G17
@@ -72,3 +81,64 @@ example:
   stock:
     discriminant: false
 ---
+**G82** działa jak \[\[G81]], ale na dnie zatrzymuje posuw na czas P. Wrzeciono obraca się dalej, więc ostrze wykonuje w dnie kilka obrotów bez zagłębiania.
+
+## Co robi sterowanie \{#co-robi-sterowanie}
+
+1. Ruch szybki nad otwór (X, Y), potem w dół do płaszczyzny R.
+2. Posuw F do dna Z.
+3. Postój: osie stoją przez czas P, wrzeciono pracuje.
+4. Powrót ruchem szybkim do R (\[\[G99]]) albo do poziomu początkowego (\[\[G98]]).
+
+Postój działa jak \[\[G04]] wstawione w dno otworu. W cyklu Fanuc P podaje się w milisekundach, bez kropki: `P300` to 0,3 s.
+
+## Ile czekać \{#ile-czekać}
+
+Czas postoju dobiera się do operacji i liczy z liczby obrotów wrzeciona (lekcja F3.5). Jeden obrót trwa 60 / S sekund.
+
+<Code caption="Postój na trzy obroty przy obrotach z przykładu tej karty.">
+  ```
+  (S1800: 1 obrot = 60 / 1800 = 0,033 s)
+  (3 obroty = 0,1 s, czyli P100)
+  G99 G82 Z-3. R2. P100 F150
+  ```
+</Code>
+
+Przykład karty stoi 0,3 s, czyli 9 obrotów przy S1800. Dłuższy postój wydłuża cykl przy każdym otworze i może zwiększać nagrzewanie dna.
+
+## Nawiercanie i fazka \{#nawiercanie-i-fazka}
+
+Nawiertak zostawia stożek, w który trafia potem wiertło, i od razu fazkę na krawędzi otworu. Z w bloku cyklu to położenie czubka nawiertaka. Przy kącie 90° ścianka stożka biegnie pod 45°, więc głębokość równa się połowie średnicy fazki.
+
+<Diagram id="f51-spot" />
+
+Przykład karty schodzi do Z−3, czyli zostawia fazkę Ø6. Przy innym kącie nawiertaka zależność jest inna i trzeba ją policzyć z kąta. Postój wyrównuje powierzchnię stożka, tak jak dno przy pogłębianiu czołowym.
+
+## Fanuc i Sinumerik \{#fanuc-i-sinumerik}
+
+<Table caption="Fanuc wg serii 0i-F, Sinumerik wg instrukcji cykli 840D (wydanie 04.00).">
+  | Cecha     | Fanuc                                                      | Sinumerik                                          |
+  | --------- | ---------------------------------------------------------- | -------------------------------------------------- |
+  | Wywołanie | G82 w bloku z Z, R, P; kolejne bloki z X Y powtarzają cykl | `CYCLE82(…)` raz; `MCALL CYCLE82(…)` powtarza cykl |
+  | Postój    | P w milisekundach                                          | DTB w sekundach                                    |
+  | Dno       | Z                                                          | DP absolutnie albo DPR od RFP                      |
+  | Powrót    | G98 albo G99                                               | RTP                                                |
+</Table>
+
+<Code caption="Przykład karty w składni Sinumerik: dno −3, postój 0,3 s.">
+  ```
+  ; RTP, RFP, SDIS, DP, DPR, DTB
+  MCALL CYCLE82(10, 0, 2, -3, , 0.3)
+  X15 Y15
+  X45
+  X75
+  MCALL
+  ```
+</Code>
+
+## Typowe błędy \{#typowe-błędy}
+
+* **P z kropką.** `P0.3` w cyklu Fanuc zostanie odczytane inaczej albo da alarm, zależnie od sterowania. Postój 0,3 s to `P300`.
+* **Postój w sekundach przeniesiony z Sinumerika.** DTB = 0.3 to 0,3 s, a `P0.3` albo `P3` w cyklu Fanuc to inny czas.
+* **Z nawiertaka liczone od średnicy wiertła.** Głębokość wynika z fazki, której potrzebuje detal: Ø6 przy 90° to Z−3.
+* **G82 tam, gdzie postój nie jest potrzebny.** Przy zwykłym otworze przelotowym postój tylko wydłuża cykl. Wystarczy G81.

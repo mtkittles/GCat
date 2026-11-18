@@ -9,7 +9,7 @@ modal: true
 machines:
   - frezowanie
   - toczenie
-star: false
+star: true
 related:
   - g81-g83
   - g94-g95
@@ -35,16 +35,18 @@ syntax:
     G99 G81 X_ Y_ Z_ R_ F_
   sinumerik: |-
     ; RTP = poziom powrotu
-    CYCLE81(RTP, RFP, SDIS, DP)
+    CYCLE81(RTP, RFP, SDIS, DP, DPR)
     G94 / G95   ; jednostka posuwu
 sinumerik: >-
   Cykle Sinumerik nie mają G98/G99: płaszczyznę powrotu podaje parametr **RTP**.
   Jednostkę posuwu wybierają **G94**/**G95** na każdej maszynie.
 params:
   - key: G98
-    desc: powrót do poziomu początkowego
+    desc: >-
+      frezarka: powrót do poziomu początkowego; tokarka (system A): posuw
+      [mm/min]
   - key: G99
-    desc: powrót do płaszczyzny R
+    desc: 'frezarka: powrót do płaszczyzny R; tokarka (system A): posuw [mm/obr]'
 pitfalls:
   - >-
     G99 przy zaciskach między otworami: narzędzie przejedzie na wysokości R i
@@ -62,6 +64,9 @@ sources:
     loc: >-
       rozdz. 3.1, tab. 3.1, s. 74; rozdz. 3.2, tab. 3.2, s. 78; rozdz. 4, s.
       92–93
+  - id: sinumerik-cycles
+    where: płaszczyzna wycofania RTP w cyklach wiercenia
+    loc: rozdz. 2.1.2, s. 2-52–2-54
 example:
   src: |-
     G21 G90 G94 G17
@@ -85,3 +90,50 @@ example:
   stock:
     discriminant: false
 ---
+**G98** i **G99** mają dwa znaczenia, zależnie od maszyny. Na frezarce wybierają, dokąd narzędzie wraca po każdym otworze w cyklu stałym. Na tokarce Fanuc w systemie kodów A wybierają jednostkę posuwu.
+
+## Frezarka: dwa poziomy powrotu \{#frezarka-dwa-poziomy-powrotu}
+
+* **Poziom początkowy** to Z, na którym stało narzędzie w chwili wywołania cyklu. Ustawia go ostatni ruch w Z przed blokiem cyklu, np. `G00 Z30.`.
+* **Płaszczyzna R** to poziom, od którego zaczyna się posuw roboczy. Podaje go adres R w bloku cyklu.
+
+Z G99 narzędzie wraca po otworze do R i na tej wysokości przejeżdża do następnego otworu. Z G98 wraca na poziom początkowy. Ruchy w osi Z są wtedy dłuższe, ale przejazd idzie nad przeszkodami niższymi niż ten poziom.
+
+<Diagram id="g98-g99" />
+
+## Gdzie wstawić G98 \{#gdzie-wstawić-g98}
+
+Przejazd do kolejnego otworu odbywa się na wysokości, na którą narzędzie wróciło po poprzednim. Dlatego G98 stoi w bloku **ostatniego otworu przed przeszkodą**, a G99 wraca w bloku pierwszego otworu za nią.
+
+<Code caption="Przykład z tej karty: zacisk między X50 a X90. Poziom początkowy Z30 jest wyżej niż zacisk.">
+  ```
+  (fragment: G54, Z0 na gorze detalu)
+  G00 X10. Y20.
+  G00 Z30. (poziom poczatkowy)
+  G99 G81 Z-10. R2. F150
+  G98 X50. (po otworze wraca na Z30.)
+  G99 X90. (przejazd na Z30., powrot do R)
+  G80
+  ```
+</Code>
+
+Gdyby G98 stało dopiero przy X90., narzędzie przejechałoby z X50 do X90 na wysokości R2 i uderzyło w zacisk. Tryb jest modalny, więc bez G99 w bloku X90. kolejne otwory też wracałyby na Z30.
+
+## Tokarka: jednostka posuwu \{#tokarka-jednostka-posuwu}
+
+Na tokarce Fanuc w systemie kodów A **G99** to posuw na obrót (mm/obr), a **G98** posuw na minutę (mm/min). Odpowiadają frezarkowym \[\[G95]] i \[\[G94]]. W systemach B i C posuw wybierają G95 i G94, a G98 i G99 wybierają poziom powrotu jak na frezarce.
+
+<Note kind="warn">
+  `F0.2` po G98 na tokarce w systemie A to 0,2 mm/min, a nie 0,2 mm/obr. Narzędzie prawie stoi. W odwrotnej pomyłce `F100` po G99 to 100 mm na każdy obrót.
+</Note>
+
+## Fanuc i Sinumerik \{#fanuc-i-sinumerik}
+
+Cykle Sinumerika w języku natywnym nie mają G98 i G99. Po otworze narzędzie wraca na płaszczyznę wycofania podaną parametrem **RTP**, np. `CYCLE81(10, 0, 2, -15)` wraca na Z10. Odpowiednikiem G98 jest więc RTP na wysokości poziomu początkowego, a odpowiednikiem G99 RTP równe RFP + SDIS. Jednostkę posuwu na każdej maszynie wybierają G94 i G95.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **G99 przy zaciskach między otworami.** Narzędzie przejeżdża na wysokości R i uderza w zacisk.
+* **G98 w bloku otworu za przeszkodą.** Przejazd do tego otworu odbywa się jeszcze na wysokości R.
+* **Poziom początkowy niżej niż przeszkoda.** G98 wraca tylko tam, gdzie narzędzie stało przed cyklem. Jeśli przed cyklem stało na Z5., przejazd też idzie na Z5.
+* **G98 na tokarce w systemie A** zamiast G99: posuw w mm/min zamiast mm/obr.
