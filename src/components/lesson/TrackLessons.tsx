@@ -3,7 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import NumberFlow from "@number-flow/react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Box, ListChecks } from "lucide-react";
 import StatusLed from "@/components/tactile/StatusLed";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { isFinished, isPassed, isRead, progressKey, resetTrack, restoreProgress, useProgress } from "@/lib/progress";
@@ -12,7 +12,8 @@ import Shared, { vtName } from "@/components/ui/Shared";
 
 /*
   Plan ścieżki jako lista: przełącznik Frezowanie ↔ Toczenie, postęp z zapisu nauki (NumberFlow + linijka
-  segmentów), „Kontynuuj naukę”, moduły z wierszami lekcji (dioda stanu, kod, tytuł, plakietki Test / Symulator).
+  segmentów), „Kontynuuj naukę”, moduły z wierszami lekcji (dioda stanu, kod, tytuł, ikony test / symulator
+  z legendą raz nad listą — V4, zamiast plakietki „Test” w prawie każdym wierszu).
   `nav` — przełącznik zmienia adres (/nauka/frezowanie ↔ /nauka/toczenie); bez niego przełącza na miejscu (/nauka).
 */
 export type Track = "frezowanie" | "toczenie";
@@ -53,6 +54,7 @@ export default function TrackLessons({ tracks, initial, nav = false, aside }: {
       </div>
 
       <p className="tl-profile">{T.profile}</p>
+      <p className="tl-legend"><ListChecks aria-hidden /> test na końcu lekcji <Box aria-hidden /> ćwiczenie w symulatorze</p>
 
       <div className="tl-body">
         <ol className="tl-mods">
@@ -78,8 +80,8 @@ export default function TrackLessons({ tracks, initial, nav = false, aside }: {
                         <Shared name={vtName("lek", l.id)}><code className="tl-id">{l.id}</code></Shared>
                         <span className="tl-t">{l.title}</span>
                         <span className="tl-tags">
-                          {l.test && <span className="tl-tag">Test</span>}
-                          {l.sim && <span className="tl-tag">Symulator</span>}
+                          {l.test && <span className="tl-ic" role="img" aria-label="test" title="Test na końcu lekcji"><ListChecks aria-hidden /></span>}
+                          {l.sim && <span className="tl-ic" role="img" aria-label="symulator" title="Ćwiczenie w symulatorze"><Box aria-hidden /></span>}
                         </span>
                         <span className="tl-meta">{l.href ? state ?? `${l.minutes} min` : "wkrótce"}</span>
                       </>
