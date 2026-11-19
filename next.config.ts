@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { PROGRAM_REDIRECTS } from "./src/content/programy/redirects";
+import { codeRedirects } from "./src/lib/codeRedirects";
+
+/* Karty kodów: slug i pole `code` z frontmattera MDX — do przekierowań z pojedynczych kodów (src/lib/codeRedirects.ts). */
+const KODY_DIR = join(process.cwd(), "content/kody");
+const CODE_CARDS = readdirSync(KODY_DIR).filter((f) => f.endsWith(".mdx")).map((f) => {
+  const t = readFileSync(join(KODY_DIR, f), "utf8");
+  return { slug: /^slug:\s*(.+)$/m.exec(t)?.[1].trim() ?? f.replace(/\.mdx$/, ""), code: /^code:\s*(.+)$/m.exec(t)?.[1].trim() ?? "" };
+});
 
 /* Stare adresy archiwalnego kursu (12 lekcji sprzed podziału na ścieżki) prowadzą do odpowiedników w ścieżkach. */
 const ARCHIVE_REDIRECTS: Record<string, string> = {
@@ -23,6 +33,8 @@ const nextConfig: NextConfig = {
       ...Object.entries(ARCHIVE_REDIRECTS).map(([from, to]) => ({ source: `/nauka/${from}`, destination: to, permanent: true })),
       // G02 i G03 to jedna karta (decyzja 2 audytu kart, paczka W2); kotwice obu kart były takie same
       { source: "/kody/g03", destination: "/kody/g02", permanent: true },
+      // pojedynczy kod z karty zbiorczej (/kody/g81 → /kody/g81-g83); g03 jest wyżej
+      ...Object.entries(codeRedirects(CODE_CARDS)).filter(([from]) => from !== "g03").map(([from, to]) => ({ source: `/kody/${from}`, destination: `/kody/${to}`, permanent: true })),
       ...Object.entries(PROGRAM_REDIRECTS).map(([from, to]) => ({ source: `/programy/${from}`, destination: `/programy/${to}`, permanent: true })),
     ];
   },
