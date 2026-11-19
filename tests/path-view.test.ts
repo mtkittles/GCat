@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deepestCut, depthShade, normalizeView, pathWindow, segPart, tailLength, toolColor, toolSpanAt, VIEW_LESSON, VIEW_MATERIAL } from "../src/components/simulator/pathView";
+import { DEPTH_DEEP, DEPTH_TOP, deepestCut, depthShade, normalizeView, pathWindow, segPart, tailLength, toolColor, toolSpanAt, VIEW_LESSON, VIEW_MATERIAL } from "../src/components/simulator/pathView";
 
 describe("pathWindow — widoczna część toru", () => {
   const total = 1000;
@@ -80,6 +80,10 @@ describe("depthShade — cieniowanie głębokości", () => {
     expect(deepestCut([5, 0, -4, -5, 2], 0, -20)).toBe(-5);
     expect(deepestCut([5, 2], 0, -20)).toBe(-20);
     expect(deepestCut([-30], 0, -20)).toBe(-20);
+  });
+  it("wierzch półfabrykatu w ciemnym tonie stali — nie jaśniejszy niż tor i opisy (V5)", () => {
+    for (const v of DEPTH_TOP) expect(v).toBeLessThanOrEqual(120);
+    DEPTH_TOP.forEach((v, i) => expect(v).toBeGreaterThan(DEPTH_DEEP[i] + 40)); // skala głębokości dalej czytelna
   });
   it("zły półfabrykat (top ≤ bottom) — nic", () => {
     expect(depthShade(-1, 0, 0)).toBeNull();

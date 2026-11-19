@@ -113,7 +113,9 @@ export function toolColor(tool: number | null): string {
 }
 
 /** Barwa powierzchni nieobrobionej i najgłębszej (szarości łupka; im głębiej, tym ciemniej). */
-export const DEPTH_TOP = [176, 189, 206] as const;
+/* Wierzch półfabrykatu w ciemnym, chłodnym tonie stali (V5): jasnoszary #B0BDCE był najjaśniejszą plamą ekranu
+   i zagłuszał tor. Dno wybrań ciemnieje z głębokością jak dotąd (legenda „Głębokość”). */
+export const DEPTH_TOP = [92, 101, 115] as const;
 export const DEPTH_DEEP = [30, 35, 45] as const;
 
 /**

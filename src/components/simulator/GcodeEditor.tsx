@@ -142,7 +142,8 @@ export default function GcodeEditor({ value, onChange, activeLine, follow = fals
             }
           }),
           // etykieta pola dla czytników ekranu (axe: aria-input-field-name, znane od audytu kart cz. 2)
-          EditorView.contentAttributes.of({ "aria-label": "Program G-kodu" }),
+          // tabindex jawnie: axe (scrollable-region-focusable) nie liczy samego contenteditable jako elementu z fokusem
+          EditorView.contentAttributes.of({ "aria-label": "Program G-kodu", tabindex: "0" }),
           EditorView.theme({ "&": { fontSize: "13px" }, ".cm-content": { fontFamily: "var(--font-mono)" }, ".cm-gutters": { background: "transparent", border: "none" } }),
         ],
       }),

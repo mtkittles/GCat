@@ -2,6 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
@@ -49,6 +50,7 @@ import StatusCapsule, { claimCapsule } from "./StatusCapsule";
 import { advance, BASE_RATE, blockStops, cumulative, cumulativeSeconds, MODE_LABEL, MODE_TITLE, MODES, secondsAt, stepFeed, stopIndexAt, type RunMode } from "./transport";
 import { segSeconds } from "@/lib/parser/stats";
 import { useMedia } from "@/lib/ui/prefs";
+import { useSimBarSlot } from "./simBarSlot";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -78,6 +80,8 @@ interface Props {
   codeTop?: ReactNode;
   /** Tylko telefon: dodatkowe ustawienia w zakładce „Ustawienia”. */
   settingsExtra?: ReactNode;
+  /** Komputer, strona /symulator: pozycje strony (kopiuj, link) na początku menu „Plik” w pasku nad stanowiskiem. */
+  fileItems?: ReactNode;
   /** Układ aplikacji na telefonie: zakładki Kod / Symulacja / Narzędzia / Ustawienia (strona /symulator). */
   appLayout?: boolean;
   /** Program wzorcowy (zadanie, rozwiązanie) do nałożenia na tor jako przerywana linia. */
@@ -109,7 +113,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference, lesson = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, fileItems, appLayout = false, reference, lesson = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   // Kinematyka frezarki 4/5-osiowej: „auto” — z liter osi w programie (B → B/C, inaczej A/C).
   const [kinSel, setKinSel] = useState<Kin | "auto">("auto");
@@ -141,6 +145,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const togglePath = () => setPv({ path: pv.path === "none" ? (pv.stock ? "tail" : "all") : "none" });
   // „2D + 3D” tylko tam, gdzie mieszczą się dwa podglądy obok siebie (jak dotąd .only-split od 1100 px)
   const wideDesk = useMedia("(min-width: 1100px)");
+  // pasek strony /symulator (V5): miejsce na widok, warstwy i „Plik” — patrz `barTools` niżej
+  const barSlot = useSimBarSlot();
+  const deskBar = useMedia("(min-width: 768px)");
   // warstwy podglądu 2D: ruchy szybkie G00 i siatka współrzędnych
   const showRapid = pv.rapid;
   const [showGrid, setShowGrid] = useState(true);
@@ -1241,7 +1248,10 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Menu układu (komputer): co pokazywać na stanowisku symulatora.
   const layoutMenu = appLayout && (
     <details className="lay-menu">
-      <summary title="Układ ekranu symulatora">Układ ▾</summary>
+      <summary title="Układ ekranu symulatora" aria-label="Układ ekranu">
+        <svg className="bar-ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16" /><path d="M9 12h12" /></svg>
+        <span className="lay-tx">Układ ▾</span>
+      </summary>
       <div className="lay-pop">
         {([["hud", "Tabelka na podglądzie"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
@@ -1473,6 +1483,63 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     </>
   );
 
+  // ---- Pasek nad stanowiskiem (komputer, /symulator, V5): widok, warstwy, nauka, układ i „Plik” w jednym rzędzie
+  // z programem i maszyną. Stronę z paskiem rozpoznajemy po #sim-bar-view; gdzie indziej (zadania, lekcje) zostaje .viewbar.
+  const ported = appLayout && !compact && deskBar && !!barSlot && allow3d;
+  const compLabel = mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)";
+  const layersSummary = [pv.stock ? "Materiał" : "Tor", pathLabel, showRapid ? "G00" : null, showGrid ? "Siatka" : null].filter(Boolean).join(" · ");
+  const layersMenu = (
+    <details className="lay-menu bar-menu">
+      <summary title="Co widać na podglądzie: materiał, tor, ruchy G00, siatka, korekcja promienia">
+        <span className="bar-k">Warstwy</span><span className="bar-sum">{layersSummary}</span><span aria-hidden>▾</span>
+      </summary>
+      <div className="lay-pop pv-pop bar-pop">
+        <div className="bar-row"><span className="bar-l">Podgląd</span>{pvSwitch}</div>
+        <fieldset className="pv-modes">
+          <legend>Tor narzędzia</legend>
+          {PATH_MODES.map((m) => (
+            <label key={m.value} title={m.hint}><input type="radio" name="bar-pv-path" checked={pv.path === m.value} onChange={() => setPv({ path: m.value })} /><span>{m.label}<small>{m.hint}</small></span></label>
+          ))}
+        </fieldset>
+        <label><input type="checkbox" checked={pv.rapid} onChange={(e) => setPv({ rapid: e.target.checked })} />Ruchy szybkie G00</label>
+        <label><input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} />Siatka współrzędnych (2D)</label>
+        <label><input type="checkbox" checked={pv.color === "tool"} onChange={(e) => setPv({ color: e.target.checked ? "tool" : "move" })} />Kolor toru wg narzędzia</label>
+        <label className={pv.stock ? undefined : "is-off"}><input type="checkbox" checked={pv.depth} disabled={!pv.stock} onChange={(e) => setPv({ depth: e.target.checked })} />Cieniowanie głębokości (2D)</label>
+        {comp.active
+          ? <label><input type="checkbox" checked={showComp} onChange={(e) => setShowComp(e.target.checked)} />{compLabel}</label>
+          : <p className="bar-note">{mode === "lathe"
+            ? "G40 — program prowadzi punkt P ostrza; na fazach i łukach naroże zostawia materiał (pomarańczowy ślad)."
+            : "G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu."}</p>}
+        {refSegments && refSegments.length > 0 && <label><input type="checkbox" checked={showRef} onChange={(e) => setShowRef(e.target.checked)} />Tor wzorcowy (przerywana linia)</label>}
+        <div className="pv-acts">
+          <button type="button" className="key" onClick={() => setPv({ ...VIEW_CLEAN, color: pv.color, depth: pv.depth })}>Czysty widok</button>
+          <button type="button" className="key" onClick={() => setPv(pv.stock ? VIEW_MATERIAL : VIEW_BACKPLOT)}>Domyślne</button>
+        </div>
+      </div>
+    </details>
+  );
+  const fileMenu = (
+    <details className="lay-menu bar-menu">
+      <summary title="Kopiowanie, link do programu, eksport podglądu i toru"><span className="bar-k">Plik</span><span aria-hidden>▾</span></summary>
+      <div className="lay-pop bar-pop is-right bar-file">
+        {fileItems}
+        {fileItems && <hr />}
+        {exportItems}
+      </div>
+    </details>
+  );
+  const learnBtn = (
+    <button type="button" className="bar-btn" aria-pressed={learn} onClick={() => { if (!learn) setSplit(false); setLearn(!learn); }}
+      title="Tryb nauki: opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (spacja, ←, →, Home)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg>
+      <span className="bar-tx">Nauka</span>
+    </button>
+  );
+  const barTools = ported && createPortal(
+    <>{viewSwitch}{layersMenu}{learnBtn}{layoutMenu}{fileMenu}</>,
+    barSlot,
+  );
+
   return (
     <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined} tabIndex={-1}
       onKeyDown={(e) => {
@@ -1493,7 +1560,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <details className="panel m-code" open>
           <summary className="panel-head">Program</summary>
           <div className="flex flex-col gap-2 min-h-0 panel-body">
-          {codeTop && <div className="m-only grid gap-2">{codeTop}</div>}
+          {codeTop && <div className="code-top grid gap-2">{codeTop}</div>}
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
@@ -1566,10 +1633,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </details>
 
       )}
+      {barTools}
       <div className="flex flex-col gap-2 wb-main">
         {appLayout && !compact && <SplitHandle />}
         {!compact && allow3d && (
-            <div className="viewbar m-sim">
+            <div className={`viewbar m-sim${ported ? " is-ported" : ""}`}>
               {viewSwitch}
               <button type="button" className="vb-m vb-dim" onClick={() => setView(view === "2d" ? "3d" : "2d")}
                 aria-label={view === "2d" ? "Przełącz na widok 3D" : "Przełącz na widok 2D"} title="Przełącz widok 2D / 3D">
