@@ -1776,3 +1776,37 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
 .bar-file > button:disabled { color: var(--muted); cursor: default; }
 .bar-file > button svg { width: 15px; height: 15px; flex: none; color: var(--muted); }
 .bar-file hr { margin: .25rem .3rem; border: 0; border-top: 1px solid var(--line); }
+
+/* ==========================================================================
+   29. V5b — panel „Stan sterowania” obok podglądu (zamiast tabelki na kanwie)
+   ========================================================================== */
+@media (min-width: 768px) {
+  .wb-main.has-aside { display: grid; grid-template-columns: minmax(0, 1fr) 15.5rem; column-gap: .75rem; align-items: start; }
+  .wb-main.has-aside > * { grid-column: 1 / -1; }
+  .wb-main.has-aside > .stage-view { grid-column: 1; }
+  .wb-main.has-aside > .sim-aside { grid-column: 2; align-self: stretch; }
+}
+.sim-aside {
+  display: flex; flex-direction: column; gap: .85rem; min-height: 0; overflow-y: auto; padding: .85rem .9rem;
+  border: 1px solid var(--line); border-radius: 14px; background: var(--card);
+}
+.sa-h { margin: 0; font: 600 12px/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.sa-sec { display: grid; gap: .35rem; }
+.sa-k { font: 500 12px/1.2 var(--font-sans); color: var(--muted); }
+.sa-code { font: 600 14px/1.4 var(--font-mono); color: var(--ink); overflow-wrap: anywhere; }
+.sa-desc { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-2); }
+.sa-desc.is-err { color: var(--red-ink); }
+.sa-pos { grid-template-columns: repeat(auto-fill, minmax(6.2rem, 1fr)); gap: .3rem .6rem; font: 500 13px/1.3 var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.sa-pos i { font-style: normal; color: var(--muted); margin-right: .35rem; }
+.sa-pos .sa-prog { grid-column: 1 / -1; font-size: 12px; color: var(--ink-2); }
+.sa-mod { display: flex; flex-wrap: wrap; gap: .3rem; }
+.sa-mod span { padding: .2rem .42rem; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface-2); font: 600 12px/1 var(--font-mono); color: var(--ink-2); }
+.sa-fs { grid-template-columns: 1fr 1fr; gap: .6rem; }
+.sa-fs > div { display: grid; gap: .15rem; }
+.sa-fs b { font: 650 1.35rem/1.1 var(--font-mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.sa-fs small { font-size: 12px; color: var(--muted); }
+.sa-tool { font-size: 13.5px; line-height: 1.4; color: var(--ink-2); }
+.sa-tool b { font-family: var(--font-mono); color: var(--cm-t, var(--accent-ink)); }
+.sa-val { margin: auto 0 0; display: flex; align-items: center; gap: .45rem; font-size: 13px; color: var(--ink-2); padding-top: .6rem; border-top: 1px solid var(--line); }
+/* jasny motyw: etykieta ostrzegawcza (np. poziom „średni”) — #B45309 na tle 14% bursztynu miał 4,33:1; ciemniejszy bursztyn 6,4:1 */
+:root:not([data-theme="dark"]) .chip-warning { color: #92400E; }
