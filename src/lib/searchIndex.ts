@@ -4,6 +4,7 @@ import { exercises, glossary } from "./content";
 import articleText from "../../content/.generated/szukaj.json";
 import { readyLessons, lessonHref, tracks } from "./course";
 import { flatBlocks, type Block } from "./article";
+import { norm, queryTerms } from "./searchNorm";
 
 export interface SearchDoc {
   kind: "kod" | "lekcja" | "zadanie" | "pojęcie";
@@ -41,16 +42,12 @@ export const searchDocs: SearchDoc[] = [
   })),
 ];
 
-const norm = (s: string) => s.toLowerCase()
-  .replace(/[ąàâ]/g, "a").replace(/[ćč]/g, "c").replace(/[ęèé]/g, "e").replace(/ł/g, "l")
-  .replace(/ń/g, "n").replace(/[óô]/g, "o").replace(/[śš]/g, "s").replace(/[żź]/g, "z");
 
 export interface Hit extends SearchDoc { score: number; snippet: string }
 
 export function search(query: string, limit = 25): Hit[] {
-  const q = norm(query.trim());
-  if (q.length < 2) return [];
-  const terms = q.split(/\s+/);
+  if (norm(query.trim()).length < 2) return [];
+  const terms = queryTerms(query);
   const hits: Hit[] = [];
   for (const d of searchDocs) {
     const title = norm(d.title), body = norm(d.body);
