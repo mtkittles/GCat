@@ -5,7 +5,7 @@ import { Moon, Sun, User, Vibrate, VibrateOff, Volume2, VolumeX } from "lucide-r
 import StatusLed from "@/components/tactile/StatusLed";
 import Tip, { TipProvider } from "./Tip";
 import { setHapticOn, setSoundOn, useHapticOn, useSoundOn, useTheme } from "@/lib/ui/prefs";
-import { switchTheme } from "@/lib/ui/themeSwitch";
+import { toggleTheme } from "@/lib/ui/themeSwitch";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
 
 /* Klawisze pulpitu: motyw, dźwięk pulpitu, (telefon) wibracje, konto. Komputer — w górnym pasku, telefon — w arkuszu „Więcej”. Przełączniki z diodą stanu. */
@@ -23,7 +23,7 @@ export default function ShellKeys({ tipSide = "top", labels }: { tipSide?: "top"
     <div className={`keys${labels ? " has-labels" : ""}`}>
       <Tip side={tipSide} label={dark ? "Jasny motyw" : "Ciemny motyw"}>
         <button type="button" className="key" aria-label={dark ? "Włącz jasny motyw" : "Włącz ciemny motyw"}
-          onClick={(e) => { feedback(); switchTheme(dark ? "light" : "dark", e.currentTarget); }}>
+          onClick={(e) => { feedback(); toggleTheme(e.currentTarget); }}>
           {dark ? <Moon aria-hidden /> : <Sun aria-hidden />}
           {labels && <span>{dark ? "Ciemny" : "Jasny"}</span>}
         </button>
