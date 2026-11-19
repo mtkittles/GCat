@@ -31,11 +31,14 @@ export const metadata: Metadata = {
   description: "Nauka G-kodu po polsku: lekcje, karty funkcji G i M, symulator 2D/3D toru narzędzia, walidator, kalkulator parametrów skrawania.",
   icons: { icon: [{ url: "/icon-192.png", type: "image/png" }], apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }] },
   appleWebApp: { capable: true, title: "GCat", statusBarStyle: "black" },
+  // iOS zamienia ciągi cyfr na linki tel: przed hydratacją — niezgodność drzewa i przebudowa <html> przez Reacta.
+  formatDetection: { telephone: false, date: false, address: false, email: false },
   openGraph: { title: "GCat — nauka G-kodu po polsku", description: "Ucz się. Programuj. Skrawaj. Lekcje, symulator 2D/3D, walidator, kalkulator.", siteName: "GCat" },
 };
 
 export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#FAFAF9" }, { media: "(prefers-color-scheme: dark)", color: "#111214" }],
+  // theme-color ustawia skrypt PREFS_SCRIPT według motywu strony — z media (prefers-color-scheme)
+  // pasek miał kolor motywu systemu, nie wybranego na stronie.
   colorScheme: "dark light",
   viewportFit: "cover",
 };
