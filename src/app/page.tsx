@@ -15,10 +15,10 @@ import { gcodes } from "@/lib/gcodes";
 import { exercises } from "@/lib/content";
 import { PROGRAMS } from "@/content/programy";
 import type { LibProgram } from "@/lib/programLibrary";
-import { pl } from "@/lib/plural";
+import { plural } from "@/lib/plural";
 
 /*
-  Pulpit operatora (strona główna): powitanie z panelem postępu, mini-pulpit CNC z programem pokazowym,
+  Pulpit operatora (strona główna): powitanie z liczbami serwisu i kartą „następny krok”, mini-pulpit CNC z programem pokazowym,
   dwie ścieżki nauki i siatka narzędzi. Wszystkie liczby i treści z danych serwisu — nic na sztywno.
 */
 const LESSONS: ResumeLesson[] = (["frezowanie", "toczenie"] as const).flatMap((t) =>
@@ -37,6 +37,7 @@ const TASK_AS_PROGRAM: LibProgram = { slug: TASK.slug, title: TASK.title, mode: 
 const PROGRAM = PROGRAMS.find((p) => p.slug === "plytka-gcat") ?? PROGRAMS[0];
 
 const GK = "G‑kod";
+const TRACK_IMG = { frezowanie: tracks.frezowanie.banner.replace("/img/banner-", "/img/clean/banner-"), toczenie: tracks.toczenie.banner.replace("/img/banner-", "/img/clean/banner-") };
 
 export default function Home() {
   return (
@@ -47,15 +48,23 @@ export default function Home() {
           <span className="pw-badge"><StatusLed state="ready" />Ucz się · Programuj · Skrawaj</span>
           <h1 id="pw-title" className="pw-title">Naucz się czytać i pisać {GK} w&nbsp;praktyce</h1>
           <p className="pw-lead">
-            {pl(LESSONS.length, "lekcja", "lekcje", "lekcji")} frezowania i toczenia z testami, symulator toru narzędzia 2D/3D
+            Lekcje frezowania i toczenia z testami, symulator toru narzędzia 2D/3D
             i karty kodów ze składnią Fanuc i Sinumerik.
           </p>
           <div className="pw-actions">
             <Link href="/nauka" className="btn">Rozpocznij naukę</Link>
             <Link href="/symulator" className="btn ghost">Otwórz symulator</Link>
           </div>
+          {/* liczniki z treści serwisu — jedna cicha linia zamiast trzech kafli (V3) */}
+          <p className="pw-stats">
+            <Link href="/nauka"><b>{LESSONS.length}</b> {plural(LESSONS.length, "lekcja", "lekcje", "lekcji")}</Link>
+            <span aria-hidden>·</span>
+            <Link href="/kody"><b>{gcodes.length}</b> {plural(gcodes.length, "karta kodu", "karty kodów", "kart kodów")}</Link>
+            <span aria-hidden>·</span>
+            <Link href="/programy"><b>{PROGRAMS.length}</b> {plural(PROGRAMS.length, "gotowy program", "gotowe programy", "gotowych programów")}</Link>
+          </p>
         </div>
-        <ResumePanel lessons={LESSONS} counts={{ lessons: LESSONS.length, codes: gcodes.length, programs: PROGRAMS.length }} />
+        <ResumePanel lessons={LESSONS} img={{ frezowanie: TRACK_IMG.frezowanie, toczenie: TRACK_IMG.toczenie }} />
       </section>
 
       {/* 2: mini-pulpit CNC */}
@@ -68,7 +77,7 @@ export default function Home() {
           <Link href="/nauka" className="bw-link">Plan kursu <ArrowRight aria-hidden /></Link>
         </header>
         <TrackCards lessons={LESSONS} tracks={(["frezowanie", "toczenie"] as const).map((k) => ({
-          key: k, title: tracks[k].title, blurb: tracks[k].blurb, img: tracks[k].banner.replace("/img/banner-", "/img/clean/banner-"),
+          key: k, title: tracks[k].title, blurb: tracks[k].blurb, img: TRACK_IMG[k],
         }))} />
       </section>
 
@@ -78,7 +87,7 @@ export default function Home() {
           <h2 id="pz-map" className="pz-title">Mapa nauki</h2>
           <Link href="/nauka" className="bw-link">Plan kursu <ArrowRight aria-hidden /></Link>
         </header>
-        <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} />
+        <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} first={LESSONS[0]?.href ?? "/nauka"} />
       </section>
 
       {/* 5: warsztat i baza */}

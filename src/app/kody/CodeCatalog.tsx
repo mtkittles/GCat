@@ -1,19 +1,21 @@
 "use client";
 import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import NumberFlow from "@number-flow/react";
-import { Search, X } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import SpotlightCard from "@/components/tactile/SpotlightCard";
-import StatusLed from "@/components/tactile/StatusLed";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import GcodeLine from "@/components/pulpit/gcodeTokens";
 import CodeDrawer from "@/components/kody/CodeDrawer";
 import { levelName, type GCode } from "@/lib/gcodes";
 import { codeParts, groupId } from "@/lib/codeRange";
+import { motionClass } from "@/lib/motionClass";
 import EmptyState from "@/components/ui/EmptyState";
 
 /*
-  Katalog /kody: przyklejony pasek (szukanie, licznik, język sterowania: Fanuc / Sinumerik / porównanie 1:1),
-  filtry (grupa, maszyna, modalność, ★ opracowane) i siatka kart z blokiem składni w wybranym języku.
+  Katalog /kody: przyklejony pasek (szukanie, licznik, „Filtry”, język sterowania: Fanuc / Sinumerik / porównanie 1:1),
+  jeden pasek grup i siatka kart z blokiem składni w wybranym języku. Maszyna, modalność i ★ opracowane są
+  w panelu pod przyciskiem „Filtry” (V4 — jeden rząd filtrów zamiast trzech; na telefonie także język sterowania).
+  Nazwa kodu w kolorze ruchu tylko dla G00–G03, pozostałe neutralne; modalność widać w karcie, nie na liście.
   Kliknięcie karty otwiera panel szczegółów (CodeDrawer); Ctrl/⌘ + klik i środkowy przycisk otwierają pełną kartę.
   Filtry i pozycja listy zostają w sesji — po wejściu w kartę i cofnięciu lista wygląda tak samo.
 */
@@ -52,6 +54,7 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
   const [star, setStar] = useState(false);
   const [sel, setSel] = useState<GCode | null>(null);
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
 
   // stan z sesji po hydratacji (początek musi zgadzać się z HTML-em z serwera)
   useEffect(() => {
@@ -97,6 +100,11 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
   };
   const clear = () => { setQ(""); setGroup("all"); setTech("all"); setModal("all"); setStar(false); save({ q: "", group: "all", tech: "all", modal: "all", star: false }); };
   const starCount = items.filter((g) => g.star).length;
+  const active = (tech !== "all" ? 1 : 0) + (modal !== "all" ? 1 : 0) + (star ? 1 : 0);
+  const dialectCtl = (cls: string) => (
+    <TactileSegmentedControl<Dialect> label="Składnia na kartach" value={dialect} onChange={(v) => set("dialect", v, setDialect)} size="sm" className={cls}
+      options={[{ value: "fanuc", label: "Fanuc / ISO" }, { value: "sinumerik", label: "Sinumerik" }, { value: "compare", label: "Porównanie 1:1" }]} />
+  );
 
   return (
     <div className="kc">
@@ -107,8 +115,10 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
           {q && <button type="button" className="kc-clear" onClick={() => set("q", "", setQ)} aria-label="Wyczyść"><X aria-hidden /></button>}
         </label>
         <span className="kc-count" aria-live="polite"><NumberFlow value={list.length} /><small>/{items.length}</small></span>
-        <TactileSegmentedControl<Dialect> label="Składnia na kartach" value={dialect} onChange={(v) => set("dialect", v, setDialect)} size="sm" className="kc-dialect"
-          options={[{ value: "fanuc", label: "Fanuc / ISO" }, { value: "sinumerik", label: "Sinumerik" }, { value: "compare", label: "Porównanie 1:1" }]} />
+        <button type="button" className="kc-more-btn" aria-expanded={more} aria-controls="kc-more" onClick={() => setMore((v) => !v)}>
+          <SlidersHorizontal aria-hidden /><span className="kc-more-t">Filtry</span>{active > 0 && <span className="kc-more-n" aria-label={`aktywne: ${active}`}>{active}</span>}
+        </button>
+        {dialectCtl("kc-dialect")}
       </div>
 
       <div className="kc-filters">
@@ -119,14 +129,16 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
             return <button key={gr} type="button" className="pill-f" aria-pressed={group === gr} disabled={!n} onClick={() => set("group", gr, setGroup)}>{gr} <small>{n}</small></button>;
           })}
         </div>
-        <div className="kc-sub">
+        {more && <div id="kc-more" className="kc-sub">
+          {dialectCtl("kc-dialect-m")}
           <TactileSegmentedControl<Tech> label="Maszyna" size="sm" value={tech} onChange={(v) => set("tech", v, setTech)}
             options={[{ value: "all", label: "Obie maszyny", led: false }, { value: "mill", label: "Frezowanie", led: false }, { value: "lathe", label: "Toczenie", led: false }]} />
           <TactileSegmentedControl<Modal> label="Modalność" size="sm" value={modal} onChange={(v) => set("modal", v, setModal)}
             options={[{ value: "all", label: "Wszystkie", led: false }, { value: "modal", label: "Modalne", led: false }, { value: "once", label: "Niemodalne", led: false }]} />
           <button type="button" className="pill-f" aria-pressed={star} onClick={() => set("star", !star, setStar)}
             title="Karty opracowane w pełnym układzie: schematy, animacje, różnice sterowań, typowe błędy">★ Opracowane <small>{starCount}</small></button>
-        </div>
+          {active > 0 && <button type="button" className="kc-reset" onClick={() => { setTech("all"); setModal("all"); setStar(false); save({ tech: "all", modal: "all", star: false }); }}>Wyczyść</button>}
+        </div>}
       </div>
 
       {sections.map(([grp, gs]) => (
@@ -137,8 +149,7 @@ export default function CodeCatalog({ items }: { items: GCode[] }) {
               <li key={g.slug}>
                 <SpotlightCard href={`/kody/${g.slug}`} className="kc-card" onClick={openCard(g)} aria-haspopup="dialog">
                   <span className="kc-top">
-                    <code className="kc-code"><Code code={g.code} />{g.star && <span className="star" title="Karta opracowana">★</span>}</code>
-                    <span className="kc-modal"><StatusLed state={g.modal ? "ready" : "idle"} pulse={false} />{g.modal ? "Modalny" : "Niemodalny"}</span>
+                    <code className={`kc-code${motionClass(codeParts(g.code)[0] ?? "")}`}><Code code={g.code} />{g.star && <span className="star" title="Karta opracowana">★</span>}</code>
                   </span>
                   <span className="kc-name">{g.name}</span>
                   <span className="kc-short">{g.short}</span>
