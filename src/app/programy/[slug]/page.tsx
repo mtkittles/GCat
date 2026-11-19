@@ -84,7 +84,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
         </section>
         <section className="pg-code">
           <h2 className="pg-h">Program</h2>
-          <pre>{lines.map((l, k) => <span key={k}><i>{k + 1}</i>{l}{"\n"}</span>)}</pre>
+          <pre tabIndex={0} role="region" aria-label={`Kod programu ${p.title}`}>{lines.map((l, k) => <span key={k}><i>{k + 1}</i>{l}{"\n"}</span>)}</pre>
         </section>
       </div>
       {same.length > 0 && (
