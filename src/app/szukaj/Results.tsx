@@ -3,17 +3,24 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { search } from "@/lib/searchIndex";
+import { matchRanges } from "@/lib/searchNorm";
 import EmptyState from "@/components/ui/EmptyState";
 
 const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie"] as const;
 
-/** Podświetla w tekście wystąpienia frazy (bez rozróżniania wielkości liter) — V4. */
+/** Podświetla trafienia według tych samych reguł co `search()` (bez polskich znaków, każde słowo osobno). */
 function hl(text: string, q: string): ReactNode {
-  const s = q.trim();
-  if (s.length < 2 || !text) return text;
-  const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const re = new RegExp("(" + esc + ")", "gi");
-  return text.split(re).map((part, i) => (i % 2 ? <mark key={i} className="hl">{part}</mark> : part));
+  const ranges = matchRanges(text, q);
+  if (!ranges.length) return text;
+  const out: ReactNode[] = [];
+  let p = 0;
+  ranges.forEach(([a, b], i) => {
+    if (a > p) out.push(text.slice(p, a));
+    out.push(<mark key={i} className="hl">{text.slice(a, b)}</mark>);
+    p = b;
+  });
+  if (p < text.length) out.push(text.slice(p));
+  return out;
 }
 
 export default function Results() {
