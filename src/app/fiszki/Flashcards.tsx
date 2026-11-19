@@ -2,7 +2,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useMotionValue, useReducedMotion, useTransform, type PanInfo } from "motion/react";
-import NumberFlow from "@number-flow/react";
+import { Drawer } from "vaul";
+import { ChevronDown, X } from "lucide-react";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import StatusLed from "@/components/tactile/StatusLed";
 import { useMedia } from "@/lib/ui/prefs";
@@ -15,6 +16,8 @@ import { BOX_DAYS, buildSession, deckStats, requeue, review, shuffle, type Deck 
 /*
   Fiszki: pytanie z przodu, odpowiedź z tyłu, powtórki w pięciu pudełkach (Leitner). Stan w przeglądarce.
   Free: 15 pierwszych haseł słownika. Pro: słownik, wzory i kody w obie strony.
+  Karta od razu po wejściu (V6): tura startuje sama z zapisanej talii; talia, liczba kart i stan pudełek
+  są w arkuszu „Ustawienia powtórki” (telefon — dół ekranu, komputer — z prawej).
 */
 const KEY = "gcat:fiszki";
 
@@ -31,7 +34,11 @@ const SIZES = [10, 20, 0] as const; // 0 = wszystkie zaległe i nowe
 const BOX_LABEL = ["nowe", "1 dzień", "3 dni", "7 dni", "14 dni", "30 dni"];
 
 /** „1 karta”, „204 karty”, „15 kart”. */
-const karty = (n: number) => `${n} ${n === 1 ? "karta" : n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14) ? "karty" : "kart"}`;
+const few = (n: number) => n % 10 >= 2 && n % 10 <= 4 && !(n % 100 >= 12 && n % 100 <= 14);
+const karty = (n: number) => `${n} ${n === 1 ? "karta" : few(n) ? "karty" : "kart"}`;
+/** „1 karta czeka”, „3 karty czekają”, „15 kart czeka”. */
+const czeka = (n: number) => `${karty(n)} ${n !== 1 && few(n) ? "czekają" : "czeka"}`;
+const noop = () => () => {};
 
 interface Run { queue: string[]; total: number; flipped: boolean; known: number; missed: Set<string>; practice: boolean }
 
@@ -53,7 +60,11 @@ export default function Flashcards() {
   const [scope, setScope] = useState<Scope>("all");
   const [size, setSize] = useState<(typeof SIZES)[number]>(10);
   const [run, setRun] = useState<Run | null>(null);
+  const [sheet, setSheet] = useState(false);
+  const [restart, setRestart] = useState(0);
   const deck = useDeck();
+  const hydrated = useSyncExternalStore(noop, () => true, () => false);
+  const wide = useMedia("(min-width: 768px)", true);
   const reduce = useReducedMotion();
   // telefon: odwróconą kartę przesuwa się w prawo (opanowane) albo w lewo (do powtórki)
   const touch = useMedia("(pointer: coarse)");
@@ -72,10 +83,27 @@ export default function Flashcards() {
   const stats = useMemo(() => deckStats(deck, ids), [deck, ids]);
   const waiting = stats.due + stats.boxes[0];
 
-  const begin = (practice: boolean) => {
-    const queue = practice ? shuffle(ids).slice(0, size || ids.length) : buildSession(deck, ids, { size: size || undefined });
-    setRun({ queue, total: queue.length, flipped: false, known: 0, missed: new Set(), practice });
+  // talia czytana prosto z localStorage (load), bo zaraz po hydratacji `deck` może być jeszcze pusty
+  const makeRun = (practice: boolean): Run => {
+    const queue = practice ? shuffle(ids).slice(0, size || ids.length) : buildSession(load(), ids, { size: size || undefined });
+    return { queue, total: queue.length, flipped: false, known: 0, missed: new Set(), practice };
   };
+  const begin = (practice: boolean) => { setRun(makeRun(practice)); setSheet(false); };
+
+  // start tury od razu po wejściu i po zmianie talii / liczby kart w arkuszu; gdy dojdzie plan Pro
+  // (konto wczytuje się później), tura zmienia się tylko, jeśli nie została jeszcze zaczęta
+  const key = `${pro ? 1 : 0}|${scope}|${size}`;
+  const [seen, setSeen] = useState<{ key: string; restart: number } | null>(null);
+  if (hydrated && (!seen || seen.key !== key || seen.restart !== restart)) {
+    const asked = !seen || seen.restart !== restart;
+    const touched = !!run && (run.known > 0 || run.missed.size > 0 || run.flipped);
+    setSeen({ key, restart });
+    if (asked || !touched) {
+      const st = deckStats(load(), ids);
+      setRun(st.due + st.boxes[0] ? makeRun(false) : null);
+    }
+  }
+  const pick = <T,>(set: (v: T) => void) => (v: T) => { set(v); setRestart((r) => r + 1); };
   const flip = (e?: { timeStamp: number }) => { if (e && e.timeStamp - dragged.current < 250) return; setRun((r) => (r && r.queue.length ? { ...r, flipped: !r.flipped } : r)); };
   const onSwipe = (e: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
     dragged.current = e.timeStamp;
@@ -99,7 +127,7 @@ export default function Flashcards() {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const t = e.target as HTMLElement | null;
-      if (t?.closest("input, select, textarea")) return;
+      if (t?.closest("input, select, textarea, [role='dialog']")) return;
       if (e.key === " " || e.key === "Enter") {
         if (t?.closest("a, button")) return; // przycisk i link obsługują spację i Enter same
         e.preventDefault(); document.querySelector<HTMLButtonElement>("[data-fc='flip']")?.click();
@@ -114,51 +142,34 @@ export default function Flashcards() {
   const cur = run?.queue.length ? byId.get(run.queue[0]) : undefined;
   const scopes: [Scope, string][] = [["all", "Wszystko"], ...(Object.entries(DECKS) as [DeckId, string][])];
   const countOf = (s: Scope) => (pro ? FLASHCARDS : freeCards()).filter((c) => s === "all" || c.deck === s).length;
+  const scopeName = scopes.find(([v]) => v === scope)?.[1] ?? "Wszystko";
+  const sizeName = size ? karty(size) : "wszystkie karty";
 
   return (
     <div className="fc-page">
-      <header className="ph">
+      <header className="ph fc-ph">
         <span className="ph-k">Powtórki · {karty((pro ? FLASHCARDS : freeCards()).length)}</span>
-        <h1 className="ph-title">Fiszki</h1>
-        <p className="ph-lead">Pytanie z przodu, odpowiedź z tyłu. Co umiesz, wraca rzadziej.</p>
+        <div className="fc-title-row">
+          <h1 className="ph-title">Fiszki</h1>
+          <button type="button" className="fc-pick" aria-haspopup="dialog" onClick={() => setSheet(true)}
+            aria-label={`Ustawienia powtórki: ${scopeName}, ${sizeName}`}>
+            <span>{scopeName} · {sizeName}</span><ChevronDown aria-hidden />
+          </button>
+        </div>
+        <p className="ph-lead">Pytanie z przodu, odpowiedź z tyłu. To, co już umiesz, wraca rzadziej.</p>
       </header>
 
-      {!run ? (
-        <>
-          {!pro && (
-            <div className="note note-info">W wersji Free jest {FREE_LIMIT} fiszek ze słownika. Pełna talia ({karty(FLASHCARDS.length)}: słownik, wzory i kody pytane w obie strony) jest w planie <Link href="/konto/pro" className="underline">Pro</Link>.</div>
-          )}
-          <section className="fc-setup" aria-label="Ustawienia powtórki">
-            <div className="fc-row">
-              <span className="fc-label" id="fc-scope">Talia</span>
-              <TactileSegmentedControl<Scope> label="Talia" size="sm" value={scope} onChange={setScope} className="fc-tsc"
-                options={scopes.map(([s, l]) => { const n = countOf(s); return { value: s, label: <>{l} <small className="tl-n">{n ? n : "Pro"}</small></>, disabled: !n }; })} />
-            </div>
-            <div className="fc-row">
-              <span className="fc-label" id="fc-size">Kart w turze</span>
-              <TactileSegmentedControl<string> label="Kart w turze" size="sm" value={String(size)} onChange={(v) => setSize(Number(v) as (typeof SIZES)[number])} className="fc-tsc"
-                options={SIZES.map((n) => ({ value: String(n), label: n ? String(n) : "Wszystkie", led: false }))} />
-            </div>
-            <div className="fc-go">
-              <button type="button" className="btn" disabled={!waiting} onClick={() => begin(false)}>{waiting ? "Zacznij powtórkę" : "Na dziś wszystko powtórzone"}</button>
-              <button type="button" className="btn ghost" onClick={() => begin(true)}>Losowe karty bez zapisu</button>
-            </div>
-            <p className="fc-sub">W powtórce najpierw idą karty zaległe, potem nowe — w losowej kolejności. „Losowe karty bez zapisu” to trening: nie przesuwa kart między pudełkami.</p>
-          </section>
-
-          <section className="fc-boxes" aria-label="Stan talii">
-            <p className="fc-sum" aria-live="polite"><b>{stats.due}</b> zaległych · <b>{stats.boxes[0]}</b> nowych · <b>{stats.learned}</b> opanowanych · {stats.total} razem</p>
-            <ol>
-              {stats.boxes.map((n, i) => (
-                <li key={i} className={n ? undefined : "is-empty"}>
-                  <b>{n}</b>
-                  <span><StatusLed state={!n ? "idle" : i === 0 ? "warning" : i >= stats.boxes.length - 1 ? "ready" : "on"} pulse={false} />{i === 0 ? "nowe" : `pudełko ${i}`}</span>
-                  <small>{i === 0 ? "jeszcze nie pytane" : `wraca po: ${BOX_LABEL[i]}`}</small>
-                </li>
-              ))}
-            </ol>
-          </section>
-        </>
+      {!hydrated ? (
+        <section className="fc-stage" aria-busy="true" aria-label="Powtórka"><div className="fcx-card fc-wait" aria-hidden /></section>
+      ) : !run ? (
+        <section className="fc-done fc-idle" aria-live="polite">
+          <h2>{waiting ? `${czeka(waiting)} na powtórkę` : "Na dziś wszystko powtórzone"}</h2>
+          <p className="fc-sum"><b>{stats.due}</b> zaległych · <b>{stats.boxes[0]}</b> nowych · <b>{stats.learned}</b> opanowanych · {stats.total} razem</p>
+          <div className="fc-go">
+            {waiting > 0 && <button type="button" className="btn" onClick={() => begin(false)}>Zacznij powtórkę</button>}
+            <button type="button" className={`btn${waiting ? " ghost" : ""}`} onClick={() => begin(true)}>Losowe karty bez zapisu</button>
+          </div>
+        </section>
       ) : !cur ? (
         <section className="fc-done">
           <h2>{run.total ? "Tura skończona" : "Brak kart w tej talii"}</h2>
@@ -173,19 +184,19 @@ export default function Flashcards() {
           )}
           <div className="fc-go">
             <button type="button" className="btn" onClick={() => begin(true)}>Losowe karty bez zapisu</button>
-            <button type="button" className="btn ghost" onClick={() => setRun(null)}>Wróć do talii</button>
+            <button type="button" className="btn ghost" onClick={() => setRun(null)}>Stan talii</button>
           </div>
         </section>
       ) : (
         <section className="fc-stage" aria-label="Powtórka">
           <div className="fc-bar">
+            <span className="fc-bar-t">Zrobione {run.known} z {run.total}</span>
+            <span className="fc-bar-s">{run.practice ? "trening bez zapisu" : `${stats.boxes[0]} nowych · ${stats.due} zaległych`}</span>
+            <button type="button" className="link-btn" onClick={() => setRun(null)}>Zakończ</button>
             <div className="fc-progress" role="progressbar" aria-label="Postęp tury" aria-valuemin={0} aria-valuemax={run.total} aria-valuenow={run.known}>
               <i style={{ width: `${(run.known / run.total) * 100}%` }} />
             </div>
-            <span className="fcx-count"><NumberFlow value={run.known} /> / {run.total}</span>
-            <button type="button" className="link-btn" onClick={() => setRun(null)}>Zakończ</button>
           </div>
-
           <motion.div className="fcx-drag" style={{ x, rotate: tilt }}
             drag={touch && run.flipped ? "x" : false} dragConstraints={{ left: 0, right: 0 }} dragElastic={0.7} dragSnapToOrigin onDragEnd={onSwipe}>
             {touch && run.flipped && (
@@ -226,6 +237,50 @@ export default function Flashcards() {
             : touch ? "Odpowiedz w myślach i dotknij karty, żeby ją odwrócić." : "Odpowiedz w myślach i odwróć kartę: klik albo spacja."}</p>
         </section>
       )}
+
+      {!pro && <p className="fc-pro">Wersja Free: {karty(FREE_LIMIT)} ze słownika. Wzory i kody w obie strony — w planie <Link href="/konto/pro" className="underline">Pro</Link>.</p>}
+
+      <Drawer.Root open={sheet} onOpenChange={setSheet} direction={wide ? "right" : "bottom"}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="vd-overlay" />
+          <Drawer.Content className={`vd ${wide ? "vd-right" : "vd-bottom"} fc-sheet`} aria-describedby={undefined}>
+            {!wide && <div className="vd-handle" aria-hidden />}
+            <div className="fc-sheet-head">
+              <Drawer.Title className="fc-sheet-t">Ustawienia powtórki</Drawer.Title>
+              <Drawer.Close className="cd-x" aria-label="Zamknij"><X aria-hidden /></Drawer.Close>
+            </div>
+            <div className="fc-sheet-body" data-vaul-no-drag="">
+              <div className="fc-row">
+                <span className="fc-label">Talia</span>
+                <TactileSegmentedControl<Scope> label="Talia" size="sm" value={scope} onChange={pick(setScope)} className="fc-tsc"
+                  options={scopes.map(([s, l]) => { const n = countOf(s); return { value: s, label: <>{l} <small className="tl-n">{n ? n : "Pro"}</small></>, disabled: !n }; })} />
+              </div>
+              <div className="fc-row">
+                <span className="fc-label">Kart w turze</span>
+                <TactileSegmentedControl<string> label="Kart w turze" size="sm" value={String(size)} onChange={pick((v: string) => setSize(Number(v) as (typeof SIZES)[number]))} className="fc-tsc"
+                  options={SIZES.map((n) => ({ value: String(n), label: n ? String(n) : "Wszystkie", led: false }))} />
+              </div>
+              <p className="fc-sub">Zmiana talii albo liczby kart zaczyna nową turę. W powtórce najpierw idą karty zaległe, potem nowe — w losowej kolejności. „Losowe karty bez zapisu” to trening: nie przesuwa kart między pudełkami.</p>
+              <div className="fc-go">
+                <button type="button" className="btn" disabled={!waiting} onClick={() => begin(false)}>{waiting ? "Zacznij powtórkę od nowa" : "Na dziś wszystko powtórzone"}</button>
+                <button type="button" className="btn ghost" onClick={() => begin(true)}>Losowe karty bez zapisu</button>
+              </div>
+              <section className="fc-boxes" aria-label="Stan talii">
+                <p className="fc-sum" aria-live="polite"><b>{stats.due}</b> zaległych · <b>{stats.boxes[0]}</b> nowych · <b>{stats.learned}</b> opanowanych · {stats.total} razem</p>
+                <ol>
+                  {stats.boxes.map((n, i) => (
+                    <li key={i} className={n ? undefined : "is-empty"}>
+                      <b>{n}</b>
+                      <span><StatusLed state={!n ? "idle" : i === 0 ? "warning" : i >= stats.boxes.length - 1 ? "ready" : "on"} pulse={false} />{i === 0 ? "nowe" : `pudełko ${i}`}</span>
+                      <small>{i === 0 ? "jeszcze nie pytane" : `wraca po: ${BOX_LABEL[i]}`}</small>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </div>
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
     </div>
   );
 }

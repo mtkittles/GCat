@@ -1743,3 +1743,35 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
 /* wymagane kody zadania: neutralne, kolor tylko dla słowa ruchu (jak kod w tekście, V1) */
 .zx-codes code { color: var(--ink-2); }
 .zx-codes code.is-g00 { color: var(--amber-ink); } .zx-codes code.is-g01 { color: var(--green-ink); } .zx-codes code.is-g02 { color: var(--blue-ink); }
+
+/* ==========================================================================
+   27. V6 — Fiszki: karta od razu po wejściu, ustawienia i stan talii w arkuszu, Pro jednym wierszem
+   ========================================================================== */
+.fc-title-row { display: flex; align-items: center; gap: .5rem .75rem; flex-wrap: wrap; }
+.fc-pick {
+  margin-left: auto; display: inline-flex; align-items: center; gap: .45rem; height: 40px; padding: 0 .7rem 0 .85rem;
+  border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); color: var(--ink);
+  font: 500 14px/1 var(--font-sans); cursor: pointer; white-space: nowrap;
+}
+.fc-pick svg { width: 15px; height: 15px; flex: none; color: var(--muted); }
+.fc-pick:hover { border-color: color-mix(in srgb, var(--accent) 50%, var(--line-strong)); }
+.fc-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: baseline; gap: .45rem .9rem; font: 500 13px/1.3 var(--font-sans); color: var(--muted); }
+.fc-bar .fc-progress { grid-column: 1 / -1; }
+.fc-bar-t { color: var(--ink-2); font-weight: 600; }
+.fc-pro { margin: 0; text-align: center; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.fc-wait { min-height: clamp(15rem, 44dvh, 22rem); border-radius: 18px; border: 1px solid var(--line); background: var(--card); opacity: .55; pointer-events: none; }
+.fc-idle h2 { margin: 0; }
+.fc-sheet { gap: 0; }
+.fc-sheet-head { display: flex; align-items: center; gap: .75rem; padding: .8rem 1.1rem .75rem; border-bottom: 1px solid var(--line); }
+.fc-sheet-t { margin: 0; font: 650 16px/1.2 var(--font-display); color: var(--ink); }
+.fc-sheet-body { flex: 1 1 auto; min-height: 0; display: grid; align-content: start; gap: .9rem; padding: 1rem 1.1rem 1.2rem; overflow-y: auto; }
+.fc-sheet .fc-boxes { padding: .9rem; }
+.fc-sheet .fc-boxes ol { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.fc-sheet .fc-row { grid-template-columns: minmax(0, 1fr); gap: .4rem; }
+.fc-sheet .fc-boxes li { padding: .55rem .5rem; }
+.fc-sheet .fc-boxes li span { white-space: nowrap; }
+@media (max-width: 640px) {
+  .fc-ph .ph-k, .fc-ph .ph-lead { display: none; }
+  .fc-bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .fc-bar-s { display: none; }
+}
