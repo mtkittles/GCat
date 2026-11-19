@@ -1728,3 +1728,18 @@ a.rp-card:hover .rp-go svg { transform: translateX(2px); }
 .gl-ix-m { margin-left: auto; flex: none; font: 600 12px/1 var(--font-mono); letter-spacing: .1em; color: var(--muted); }
 @media (max-width: 520px) { .gl-index { columns: 1; } .gl-ix-g a { padding-block: .5rem; } }
 mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+
+/* ==========================================================================
+   26. V6 — miniatury detali jako rysunek: ciemne pole w obu motywach (jak rysunki w lekcjach)
+   ========================================================================== */
+.zx-fig, .pgx-fig, .bw-fig, .pg-hero-prev, .ex-prev, .pg-mini a > :first-child {
+  --grid-c: #1D1E23;
+  background-color: var(--panel);
+  background-image: linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
+  background-size: 16px 16px; background-position: -1px -1px;
+}
+/* meta kart jednym spokojnym wierszem: bez wersalików i rozstrzelenia */
+.zx-state, .pgx-meta { font: 500 12.5px/1.3 var(--font-sans); letter-spacing: 0; text-transform: none; }
+/* wymagane kody zadania: neutralne, kolor tylko dla słowa ruchu (jak kod w tekście, V1) */
+.zx-codes code { color: var(--ink-2); }
+.zx-codes code.is-g00 { color: var(--amber-ink); } .zx-codes code.is-g01 { color: var(--green-ink); } .zx-codes code.is-g02 { color: var(--blue-ink); }
