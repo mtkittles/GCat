@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import NumberFlow from "@number-flow/react";
 import { useProgress } from "@/lib/progress";
@@ -9,6 +10,8 @@ import { pl } from "@/lib/plural";
   Mapa nauki (Etap 12c): dni z nauką jak wykres aktywności GitHuba — kolumna to tydzień (pn–nd),
   odcień to liczba lekcji tego dnia. Tylko dane z zapisu postępu w tej przeglądarce; pusty zapis to pusta mapa.
   Liczba tygodni dopasowana do szerokości. Siatka rysowana dopiero po hydratacji (data „dziś” jest z przeglądarki).
+  V3: bez żadnego dnia nauki (i przed hydratacją) mapa jest zwinięta do jednego rzędu z opisem i przyciskiem
+  do pierwszej lekcji — zamiast trzech zer i pustej siatki na cały ekran.
 */
 export type MapLesson = { track: "frezowanie" | "toczenie"; id: string; title: string };
 
@@ -26,13 +29,24 @@ function describe(c: MapCell, names: Map<string, string>): string {
   return `${d}: ${pl(ids.length, "lekcja", "lekcje", "lekcji")} (${ids.join(", ")})${extra.length ? ` · ${extra.join(" · ")}` : ""}`;
 }
 
-export default function LearnMap({ lessons }: { lessons: MapLesson[] }) {
+export default function LearnMap({ lessons, first }: { lessons: MapLesson[]; first: string }) {
   const store = useProgress();
   const live = useSyncExternalStore(noop, hydrated, () => false);
   const boxRef = useRef<HTMLDivElement>(null);
   const [weeks, setWeeks] = useState(26);
   const [cell, setCell] = useState(CELL);
   const [pick, setPick] = useState<MapCell | null>(null);
+
+  const names = useMemo(() => new Map(lessons.map((l) => [`${l.track}/${l.id}`, l.id])), [lessons]);
+  // tylko lekcje z planu kursu — klucze ze starszych wersji serwisu nie zawyżają mapy
+  const mine = useMemo(() => Object.fromEntries(Object.entries(store).filter(([k]) => names.has(k))), [store, names]);
+  const by = useMemo(() => activityByDay(mine), [mine]);
+  const today = useMemo(() => (live ? new Date() : null), [live]);
+  const cols = useMemo(() => (today ? mapGrid(by, today, weeks) : []), [by, today, weeks]);
+  const sum = useMemo(() => summary(cols, mine), [cols, mine]);
+  const run = today ? streak(by, today) : 0;
+  const empty = live && by.size === 0;
+  const full = live && !empty;
 
   useEffect(() => {
     const el = boxRef.current;
@@ -48,17 +62,7 @@ export default function LearnMap({ lessons }: { lessons: MapLesson[] }) {
     const ro = new ResizeObserver(fit);
     ro.observe(el);
     return () => ro.disconnect();
-  }, []);
-
-  const names = useMemo(() => new Map(lessons.map((l) => [`${l.track}/${l.id}`, l.id])), [lessons]);
-  // tylko lekcje z planu kursu — klucze ze starszych wersji serwisu nie zawyżają mapy
-  const mine = useMemo(() => Object.fromEntries(Object.entries(store).filter(([k]) => names.has(k))), [store, names]);
-  const by = useMemo(() => activityByDay(mine), [mine]);
-  const today = useMemo(() => (live ? new Date() : null), [live]);
-  const cols = useMemo(() => (today ? mapGrid(by, today, weeks) : []), [by, today, weeks]);
-  const sum = useMemo(() => summary(cols, mine), [cols, mine]);
-  const run = today ? streak(by, today) : 0;
-  const empty = live && by.size === 0;
+  }, [full]);
 
   // podpisy miesięcy nad kolumną, w której zaczyna się miesiąc (pierwszy poniedziałek miesiąca albo pierwsza kolumna)
   const months = cols.map((c, i) => {
@@ -67,8 +71,20 @@ export default function LearnMap({ lessons }: { lessons: MapLesson[] }) {
   });
 
   const label = !live ? "Mapa nauki"
-    : empty ? "Mapa nauki: jeszcze bez dni z nauką"
     : `Mapa nauki z ostatnich ${weeks} tygodni: ${pl(sum.days, "dzień", "dni", "dni")} z nauką, seria ${pl(run, "dzień", "dni", "dni")}.`;
+
+  if (!full) {
+    return (
+      <div className="nm nm-empty" aria-busy={!live || undefined}>
+        <div className="nm-empty-t">
+          <p className="nm-empty-h">{live ? "Zapełni się po pierwszej lekcji" : "Mapa nauki"}</p>
+          <p className="nm-info">Dni nauki, seria i ukończone lekcje. Zapis zostaje w tej przeglądarce.</p>
+        </div>
+        <span className="nm-mini" aria-hidden>{Array.from({ length: 80 }, (_, i) => <i key={i} />)}</span>
+        <Link href={first} className="btn ghost nm-go">Otwórz pierwszą lekcję</Link>
+      </div>
+    );
+  }
 
   return (
     <div className="nm">
@@ -100,7 +116,6 @@ export default function LearnMap({ lessons }: { lessons: MapLesson[] }) {
         <p className="nm-info" aria-live="polite">
           {!live ? " "
             : pick ? describe(pick, names)
-            : empty ? "Mapa wypełni się, gdy otworzysz pierwszą lekcję. Zapis zostaje w tej przeglądarce."
             : "Wskaż dzień, żeby zobaczyć lekcje. Odcień — liczba lekcji tego dnia; kropka — ukończenie."}
         </p>
         <span className="nm-legend" aria-hidden>mniej<i className="nm-c nm-l0" /><i className="nm-c nm-l1" /><i className="nm-c nm-l2" /><i className="nm-c nm-l3" /><i className="nm-c nm-l4" />więcej</span>
