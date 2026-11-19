@@ -22,7 +22,8 @@ const GROUPS = [...new Set(SORTED.map((e) => groupOf(e.term)))];
 
 /*
   Wybrana litera żyje w adresie (#litera-K), żeby dało się ją podesłać i żeby „wstecz” działało.
-  Kotwica hasła (#posuw) nie filtruje: pokazuje wszystkie hasła i przewija do wskazanego.
+  Bez litery i bez wyszukiwania strona pokazuje spis haseł (V4: zamiast 84 kart naraz — ok. 28 tys. px na komputerze).
+  Kotwica hasła (#posuw) pokazuje karty litery tego hasła i przewija do niego (wejścia z dymków, kalkulatora, wyszukiwarki).
 */
 const subs = new Set<() => void>();
 const subscribe = (cb: () => void) => {
@@ -118,7 +119,10 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
   // litera z adresu obowiązuje, o ile ma hasła w bieżących wynikach wyszukiwania
   const wanted = hash.startsWith(LETTER) ? hash.slice(LETTER.length) : "";
-  const letter = wanted && counts[wanted] ? wanted : "";
+  // kotwica hasła (bez wyszukiwania) wybiera literę tego hasła
+  const entry = !q.trim() && hash && !hash.startsWith(LETTER) ? SORTED.find((e) => e.anchor === hash) : undefined;
+  const letter = wanted && counts[wanted] ? wanted : entry ? groupOf(entry.term) : "";
+  const index = !q.trim() && !letter;
   const shown = letter ? found.filter((e) => groupOf(e.term) === letter) : found;
 
   // Przejście do hasła po kotwicy (wejście z dymka, z kalkulatora, z wyszukiwarki w nagłówku).
@@ -153,7 +157,7 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
   const summary = q.trim()
     ? `${hasla(shown.length)} dla „${q.trim()}”${letter ? ` na literę ${letter}` : ""}`
-    : letter ? `${hasla(shown.length)} na ${letter === DIGITS ? "cyfrę" : `literę ${letter}`}` : hasla(SORTED.length);
+    : letter ? `${hasla(shown.length)} na ${letter === DIGITS ? "cyfrę" : `literę ${letter}`}` : `Spis: ${hasla(SORTED.length)}`;
 
   return (
     <div className="gl-page">
@@ -176,7 +180,7 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
       </div>
 
       <nav className="gl-letters" aria-label="Filtr liter" ref={navRef}>
-        <button type="button" className="gl-all" aria-pressed={!letter} onClick={() => pick("")}>Wszystkie</button>
+        <button type="button" className="gl-all" aria-pressed={!letter} onClick={() => pick("")}>{q.trim() ? "Wszystkie" : "Spis"}</button>
         {GROUPS.map((L) => (
           <button key={L} type="button" aria-pressed={letter === L} disabled={!counts[L]} title={counts[L] ? hasla(counts[L]) : "Brak haseł w wynikach"} onClick={() => pick(letter === L ? "" : L)}>{L}</button>
         ))}
@@ -185,8 +189,33 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
       <div className="gl-list" ref={listRef}>
         {/* przy samym filtrze litery liczbę haseł pokazuje nagłówek litery; komunikat zostaje dla czytników ekranu */}
-        <p className={`gl-count${letter && !q.trim() ? " sr-only" : ""}`} role="status">{summary}</p>
-        {shown.map((e, k) => {
+        <p className={`gl-count${(letter && !q.trim()) || index ? " sr-only" : ""}`} role="status">{summary}</p>
+        {index && (
+          <div className="gl-index">
+            <p className="gl-ix-legend"><span aria-hidden>ƒ</span> hasło ze wzorem · <span aria-hidden>◧</span> z rysunkiem. Kliknij hasło, żeby otworzyć jego kartę, albo literę — żeby zobaczyć wszystkie karty na tę literę.</p>
+            {GROUPS.map((L) => (
+              <section key={L} className="gl-ix-g" aria-labelledby={`ix-${L}`}>
+                <h2 id={`ix-${L}`} className="gl-ix-h"><button type="button" onClick={() => pick(L)} title={`Karty na ${L === DIGITS ? "cyfrę" : `literę ${L}`}`}>{L}</button></h2>
+                <ul>
+                  {SORTED.filter((e) => groupOf(e.term) === L).map((e) => (
+                    <li key={e.anchor}>
+                      {/* Lenis (anchors, nasłuch na window) przewijałby płynnie do celu, którego w spisie jeszcze nie ma —
+                          stopPropagation zatrzymuje go; przewinięcie do karty robi efekt kotwicy niżej */}
+                      <a href={`/slownik#${encodeURIComponent(e.anchor)}`} onClick={(ev) => { if (ev.metaKey || ev.ctrlKey || ev.shiftKey || ev.button !== 0) return; ev.preventDefault(); ev.stopPropagation(); writeHash(e.anchor); }}>
+                        <Title term={e.term} />
+                        {(e.formulas?.length || e.diagram || e.rysunek) ? <>
+                          <span className="gl-ix-m" aria-hidden>{e.formulas?.length ? "ƒ" : ""}{e.diagram || e.rysunek ? "◧" : ""}</span>
+                          <span className="sr-only">{[e.formulas?.length ? "ze wzorem" : "", e.diagram || e.rysunek ? "z rysunkiem" : ""].filter(Boolean).join(", ")}</span>
+                        </> : null}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )}
+        {!index && shown.map((e, k) => {
           const g = groupOf(e.term), head = k === 0 || groupOf(shown[k - 1].term) !== g;
           return (
             <Fragment key={e.anchor}>

@@ -1,11 +1,20 @@
 "use client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { search } from "@/lib/searchIndex";
 import EmptyState from "@/components/ui/EmptyState";
 
 const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie"] as const;
+
+/** Podświetla w tekście wystąpienia frazy (bez rozróżniania wielkości liter) — V4. */
+function hl(text: string, q: string): ReactNode {
+  const s = q.trim();
+  if (s.length < 2 || !text) return text;
+  const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const re = new RegExp("(" + esc + ")", "gi");
+  return text.split(re).map((part, i) => (i % 2 ? <mark key={i} className="hl">{part}</mark> : part));
+}
 
 export default function Results() {
   const params = useSearchParams();
@@ -29,9 +38,9 @@ export default function Results() {
         {shown.map((h) => (
           <Link key={h.href + h.title} href={h.href} className="search-row">
             <span className={`search-kind k-${h.kind}`}>{h.kind}</span>
-            <span className="search-title">{h.title}</span>
+            <span className="search-title">{hl(h.title, q)}</span>
             <span className="text-sm text-muted">{h.subtitle}</span>
-            <span className="search-snip">{h.snippet}</span>
+            <span className="search-snip">{hl(h.snippet, q)}</span>
           </Link>
         ))}
       </div>
