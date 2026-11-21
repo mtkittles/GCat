@@ -50,15 +50,18 @@
   --font-weights-sans: 400 600;
   --font-weights-display: 600 800;
   --font-weights-mono: 400 700;
+  --fs-display: clamp(2.125rem, 1.45rem + 2.1vw, 3.35rem);
   --fs-h1: clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem);
   --fs-h2: 1.375rem;
   --fs-h3: 1.125rem;
-  --fs-lesson: 1.0625rem;
+  --fs-lesson: 1rem;
   --fs-text: 1rem;
   --fs-aux: .875rem;
   --fs-small: .8125rem;
   --fs-code: .8125rem;
   --fs-label: .75rem;
+  --fs-micro: .6875rem;
+  --fs-num: 1.75rem;
   --lh-text: 1.65;
   --lh-aux: 1.5;
   --lh-code: 1.55;
@@ -99,7 +102,7 @@
   --dash-stock: 4 3;
   --fig-width: 360;
   --fig-height: 250;
-  --fig-radius: 16px;
+  --fig-radius: var(--radius-lg);
   --fig-svg-radius: 10px;
   --fig-padding: .75rem;
   --fig-arrow-box: 10;

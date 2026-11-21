@@ -112,16 +112,19 @@ export const fonts: Group[] = [
     { name: "--font-weights-display", value: "600 800", use: "Sora", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`sora = localFont\(\{[^}]*weight: "([^"]*)"` } },
     { name: "--font-weights-mono", value: "400 700", use: "JetBrains Mono", src: { kind: "file", file: "src/app/layout.tsx", re: String.raw`mono = localFont\(\{[^}]*weight: "([^"]*)"` } },
   ] },
-  { id: "skala-tekstu", title: "Skala tekstu (V8b): 12 · 13 · 14 · 16 · 17 · 18 · 22 · 28–36 px; Sora tylko w H1–H3", tokens: [
+  { id: "skala-tekstu", title: "Skala tekstu (UI-4): 11 · 12 · 13 · 14 · 16 · 18 · 22 · 28–36 px; Sora tylko w nagłówkach, mono najwyżej 14 px (poza liczbami odczytu)", tokens: [
+    { name: "--fs-display", value: "clamp(2.125rem, 1.45rem + 2.1vw, 3.35rem)", use: "tylko hasło na stronie głównej (34 → 54 px, Sora 700)", src: V },
     { name: "--fs-h1", value: "clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem)", use: "H1 strony (28 px telefon → 36 px komputer, Sora 700)", src: V },
     { name: "--fs-h2", value: "1.375rem", use: "H2 sekcji strony, artykułu i lekcji (22 px, Sora 700)", src: V },
     { name: "--fs-h3", value: "1.125rem", use: "H3 i wyróżnione zdania: cel lekcji, pytanie testu (18 px)", src: V },
-    { name: "--fs-lesson", value: "1.0625rem", use: "treść lekcji (17 px)", src: V },
+    { name: "--fs-lesson", value: "1rem", use: "treść lekcji — równa --fs-text (UI-4: jeden rozmiar treści)", src: V },
     { name: "--fs-text", value: "1rem", use: "akapit, lista, tytuł karty (16 px)", src: V },
     { name: "--fs-aux", value: ".875rem", use: "interfejs, podpisy, tabele, źródła (14 px)", src: V },
     { name: "--fs-small", value: ".8125rem", use: "drobny tekst, metadane (13 px)", src: V },
     { name: "--fs-code", value: ".8125rem", use: "bloki kodu i notki z kodem w rysunkach (13 px mono)", src: V },
     { name: "--fs-label", value: ".75rem", use: "etykiety — mono 600, wersaliki, odstęp .06em (12 px)", src: V },
+    { name: "--fs-micro", value: ".6875rem", use: "gęste panele narzędzi: rysownik, przyciski symulatora (11 px) — nie w treści", src: V },
+    { name: "--fs-num", value: "1.75rem", use: "duże liczby odczytu: DRO, wynik kalkulatora, wynik testu (28 px mono)", src: V },
     { name: "--lh-text", value: "1.65", use: "interlinia tekstu", src: V },
     { name: "--lh-aux", value: "1.5", use: "interlinia tekstu pomocniczego", src: V },
     { name: "--lh-code", value: "1.55", use: "interlinia kodu", src: V },
@@ -181,7 +184,7 @@ export const figure: Group[] = [
   { id: "rysunek", title: "Rysunek: kadr i ramka", tokens: [
     { name: "--fig-width", value: "360", use: "szerokość viewBox (format pod telefon)", src: { kind: "file", file: FIG, re: String.raw`w = (\d+)` } },
     { name: "--fig-height", value: "250", use: "domyślna wysokość viewBox", src: { kind: "file", file: FIG, re: String.raw`h = (\d+)` } },
-    { name: "--fig-radius", value: "16px", use: "zaokrąglenie ramki .fig", src: rule(".fig", "border-radius") },
+    { name: "--fig-radius", value: "var(--radius-lg)", use: "zaokrąglenie ramki .fig (= karta, 14 px)", src: rule(".fig", "border-radius") },
     { name: "--fig-svg-radius", value: "10px", use: "zaokrąglenie panelu SVG", src: rule(".fig svg", "border-radius") },
     { name: "--fig-padding", value: ".75rem", use: "wewnętrzny odstęp ramki", src: rule(".fig", "padding") },
   ] },
@@ -253,5 +256,4 @@ export const simulatorDuplicates: { what: string; value: string; file: string; s
   { what: "wymiary (pomiar 2D i 3D)", value: "#FACC15", file: "src/components/simulator/measure2d.ts, Sim3D.tsx" },
   { what: "materiał półfabrykatu w 3D", value: "0x8a94a3", file: "src/components/simulator/Sim3D.tsx" },
   { what: "tło sceny 3D", value: "0x12161c", file: "src/components/simulator/Sim3D.tsx" },
-  { what: "font kanwy 2D (HUD, podziałka, wymiary)", value: "ui-monospace, monospace", file: "src/components/simulator/Simulator.tsx, measure2d.ts", same: "--font-mono (JetBrains Mono) — kanwa używa fontu systemowego" },
 ];
