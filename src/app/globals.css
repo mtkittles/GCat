@@ -2008,11 +2008,21 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 @media (min-width: 900px) { .ex-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 1rem; } }
 
 /* ===== Gotowe programy ===== */
+/* miniatura detalu (ProgramPreview) — rysunek jak w kursie: ciemne pole, kontur obróbki w akcencie, wymiary, W */
 .pp { width: 100%; height: auto; display: block; }
-.pp-axis { stroke: rgba(148,163,184,.45); stroke-width: 1; stroke-dasharray: 10 4 2 4; }
-.pp-part { stroke: rgba(15,23,42,.55); stroke-width: .8; }
-.pp-edge { fill: none; stroke: rgba(15,23,42,.6); stroke-width: .8; }
-.pp-hole { fill: #0f141c; stroke: rgba(148,163,184,.4); stroke-width: .6; }
+.pp text { font: 500 14.5px/1 var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3.2px; stroke-linejoin: round; }
+.pp-axis { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 10 4 2 4; opacity: .7; }
+.pp-part { stroke: none; }
+.pp-edge { fill: none; stroke: #5A6170; stroke-width: 1; }
+.pp-cut { fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; stroke-linecap: round; }
+.pp-hole { fill: var(--panel); stroke: var(--accent); stroke-width: 1.4; }
+.pp .p-dim { stroke: var(--muted); stroke-width: .9; fill: none; }
+.pp .p-ext { stroke: var(--muted); stroke-width: .7; opacity: .75; }
+.pp .mk-dim { fill: var(--muted); }
+.pp-wpt circle { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+.pp-wpt text { font-weight: 700; fill: var(--accent-ink); }
+.pp .pp-note { font: 500 13.5px/1 var(--font-sans); fill: var(--muted); }
+.pg-hero-prev .pp text { font-size: 11px; } .pg-hero-prev .pp .pp-note { font-size: 10px; }
 .pg-jump { display: flex; gap: .5rem; flex-wrap: wrap; }
 .pg-jump a { padding: .45rem .9rem; border-radius: 99px; border: 1px solid var(--line); background: var(--card); font-weight: 600; font-size: 14px; }
 .pg-jump a b { color: var(--accent-ink); margin-left: .25rem; }
@@ -2509,7 +2519,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
    więc wewnątrz nich obowiązują ciemne wartości tuszu, linii i kolorów składni. */
 :root:not([data-theme="dark"]) :is(.syntax, .showcase, .bu-code, .se-code, .gap-line, .tok-line, .pg-code pre, .ls-rail-prog pre,
   .cq pre, .cq-rel a, .cq-tags span, .tab-rename, .jog-read, .oj-read, .ord-seq, .codecard, .fig svg, .jog-view svg, .seg2, .sim-pick-lib,
-  .calc-out, .calc-fig svg, .arc-out, .fs-root, .hero, .tm-read, .g43s svg, .tm-panels svg) {
+  .calc-out, .calc-fig svg, .arc-out, .fs-root, .hero, .tm-read, .g43s svg, .tm-panels svg, .pp) {
   --accent-ink: #FB923C; --red-ink: #F87171; --green-ink: #22C55E; --amber-ink: #F59E0B; --blue-ink: #38BDF8;
   --ink: #F5F5F4; --ink-2: #C8C9CC; --muted: #9A9CA3; --line: #2A2B30; --line-strong: #3A3B41;
   --surface: #17181B; --surface-2: #202125; --surface-3: #292A2F; --card: #1A1B1F; --accent-soft: #2B1C12; --warn-bg: #2A1A10;

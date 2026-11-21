@@ -10,8 +10,8 @@ import { flat, lessonHref, trackList } from "@/lib/course";
 import { isFinished, isPassed, isRead, progressKey, useProgress, type ProgressStore } from "@/lib/progress";
 import { loadPrograms } from "@/app/symulator/programs";
 import { SYNC_OFF, getSyncStatus, subscribeSync } from "@/lib/sync";
+import { longDate, shortDate } from "@/lib/shortDate";
 
-const fmtDate = (ms: number) => new Date(ms).toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
 
 function useSync() { return useSyncExternalStore(subscribeSync, getSyncStatus, () => SYNC_OFF); }
 
@@ -46,7 +46,7 @@ function Stats() {
         <div><span>Przeczytane</span><b>{tracks.reduce((a, { s }) => a + s.read, 0)}</b></div>
         <div><span>Zadania</span><b>{done.length} / {exercises.length}</b></div>
         <div><span>Programy w symulatorze</span><b>{programs}</b></div>
-        <div><span>Ostatnia aktywność</span><b>{lastAt ? fmtDate(lastAt) : "—"}</b></div>
+        <div><span>Ostatnia aktywność</span><b>{lastAt ? <time dateTime={new Date(lastAt).toISOString()} title={longDate(lastAt)}>{shortDate(lastAt)}</time> : "—"}</b></div>
         <div><span>Średni wynik testów</span><b>{(() => { const v = tracks.map(({ s }) => s.avg).filter((x): x is number => x !== null); return v.length ? `${Math.round(v.reduce((a, b) => a + b, 0) / v.length)} %` : "—"; })()}</b></div>
       </div>
       <div className="acct-tracks">

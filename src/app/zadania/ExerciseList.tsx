@@ -8,6 +8,7 @@ import { exercises } from "@/lib/content";
 import { useDone } from "@/lib/exercisesDone";
 import EmptyState from "@/components/ui/EmptyState";
 import Shared, { vtName } from "@/components/ui/Shared";
+import { motionClass } from "@/lib/motionClass";
 
 /*
   Lista zadań: nagłówek z postępem (zaliczone z zapisu w przeglądarce / koncie), przełączniki maszyny
@@ -65,7 +66,7 @@ export default function ExerciseList({ previews = {} }: { previews?: Record<stri
                   <span className="zx-brief">{e.brief}</span>
                   {e.requireCodes && e.requireCodes.length > 0 && (
                     <span className="zx-codes" aria-label="Wymagane kody">
-                      {e.requireCodes.map((c) => <code key={c}>{c}</code>)}
+                      {e.requireCodes.map((c) => <code key={c} className={motionClass(c).trim() || undefined}>{c}</code>)}
                     </span>
                   )}
                 </span>
