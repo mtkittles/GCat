@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { FEATURES, type Feature } from "@/lib/entitlements";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata: Metadata = { title: "GCat Pro — GCat", description: "Co daje plan Pro w GCat: certyfikaty, symulator 4 i 5 osi, eksporty, fiszki." };
 
@@ -10,11 +11,8 @@ export default function ProPage() {
   return (
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/konto", label: "Konto" }, { label: "Pro" }]} />
-      <div className="grid gap-2">
-        <p className="hero-kicker">Plan Pro</p>
-        <h1 className="ph-title">Wszystko z Free i narzędzia dla zaawansowanych</h1>
-        <p className="text-muted max-w-prose">Lekcje, karty, symulator i zadania zostają bezpłatne. Pro dodaje funkcje, które powstają w kolejnych sprintach — poniżej stan na dziś.</p>
-      </div>
+      <PageHead title="Wszystko z Free i narzędzia dla zaawansowanych"
+        lead="Lekcje, karty, symulator i zadania zostają bezpłatne. Pro dodaje funkcje, które powstają w kolejnych sprintach — poniżej stan na dziś." />
       <ul className="plan-list">
         {keys.map((k) => { const f = FEATURES[k]; return (
           <li key={k} className={`plan-item is-${f.plan}`}>

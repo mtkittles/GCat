@@ -60,6 +60,31 @@ Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
 - Chipy tematów (poziom, frezowanie/toczenie) neutralne; barwny tylko chip stanu (`szkic — do weryfikacji`,
   `zależy od…`) i `Pro`.
 
+## Szkielet podstrony (UI-6)
+
+Każda podstrona zaczyna się od `components/ui/PageHead.tsx`:
+
+- okruszki (gdy strona jest głębiej niż jeden poziom),
+- **tytuł** Sora 600 `--fs-h1`, **liczba** szarym tekstem przy tytule („55 kart”), bez pigułki,
+- **opis** 16 px wyciszony (`--muted`), najwyżej ~62 znaki w wierszu,
+- opcjonalnie `aside` (postęp, wybór talii) po prawej na komputerze, pod opisem na telefonie, i `icon` (ikona działu).
+
+Nad tytułem nie ma napisów wersalikami ani zdjęć. Etykiety grup na listach („Ruch 3”, „Płyty i korpusy 9”) i etykiety
+kart („Detal przewodni”) są zdaniem: Inter 500–600, 13–14 px. Wersaliki mono zostają tylko w nagłówkach tabel,
+etykietach składni (FANUC / SINUMERIK w bloku kodu), odczytach DRO i makietach.
+
+**Sterowanie list:**
+
+| Element | Wygląd |
+|---|---|
+| Pole szukania | pigułka 44 px, tło `--surface`, ikona 17 px, fokus = `--line-strong` (bez pomarańczowej poświaty) |
+| Przełącznik (2–4 opcje) | `TactileSegmentedControl`, bez diod (dioda tylko `led: true` w trybach symulatora) |
+| Filtry (wiele opcji) | `.pill-f`; wybrany = `--surface-2` + `--line-strong`, nie pomarańcz |
+| Przycisk | `.btn` 40 px, 14 px, pigułka; pomarańczowy tylko główne działanie strony |
+
+**Pomarańcz na listach:** główny przycisk („Zacznij”), stan aktywny i znacznik „tu jesteś” (dioda przy następnej
+lekcji, wskazana karta słownika). Numery lekcji, litery słownika, skróty, gwiazdki, rodzaje wyników — neutralnie.
+
 ## Telefon
 
 Strona główna: po otwarciu widać hasło, przyciski (40 px) i rysunek toru w oknie programu. Pasek okna to jeden

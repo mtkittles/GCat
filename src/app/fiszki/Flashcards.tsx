@@ -12,6 +12,7 @@ import { useAccount } from "@/lib/auth";
 import { can } from "@/lib/entitlements";
 import { DECKS, FLASHCARDS, FREE_LIMIT, freeCards, type DeckId, type Flashcard } from "@/lib/flashcards";
 import { BOX_DAYS, buildSession, deckStats, requeue, review, shuffle, type Deck } from "@/lib/leitner";
+import PageHead from "@/components/ui/PageHead";
 
 /*
   Fiszki: pytanie z przodu, odpowiedź z tyłu, powtórki w pięciu pudełkach (Leitner). Stan w przeglądarce.
@@ -147,16 +148,12 @@ export default function Flashcards() {
 
   return (
     <div className="fc-page">
-      <header className="ph fc-ph">
-        <div className="fc-title-row">
-          <h1 className="ph-title">Fiszki <span className="ph-n">{karty((pro ? FLASHCARDS : freeCards()).length)}</span></h1>
-          <button type="button" className="fc-pick" aria-haspopup="dialog" onClick={() => setSheet(true)}
-            aria-label={`Ustawienia powtórki: ${scopeName}, ${sizeName}`}>
-            <span>{scopeName} · {sizeName}</span><ChevronDown aria-hidden />
-          </button>
-        </div>
-        <p className="ph-lead">Pytanie z przodu, odpowiedź z tyłu. To, co już umiesz, wraca rzadziej.</p>
-      </header>
+      <PageHead className="fc-ph" title="Fiszki" count={karty((pro ? FLASHCARDS : freeCards()).length)}
+        lead="Pytanie z przodu, odpowiedź z tyłu. To, co już umiesz, wraca rzadziej."
+        aside={<button type="button" className="fc-pick" aria-haspopup="dialog" onClick={() => setSheet(true)}
+          aria-label={`Ustawienia powtórki: ${scopeName}, ${sizeName}`}>
+          <span>{scopeName} · {sizeName}</span><ChevronDown aria-hidden />
+        </button>} />
 
       {!hydrated ? (
         <section className="fc-stage" aria-busy="true" aria-label="Powtórka"><div className="fcx-card fc-wait" aria-hidden /></section>

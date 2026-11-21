@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import AdminGate from "@/components/edycja/AdminGate";
-import PageBanner from "@/components/ui/PageBanner";
+import PageHead from "@/components/ui/PageHead";
 import { glossary } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 import { panelUrl } from "@/lib/edycja";
@@ -15,7 +15,7 @@ export default function EdytorIndex() {
   return (
     <AdminGate what="Edytor treści">
     <div className="ed-index">
-      <PageBanner plain kicker="Tryb edycji" title="Edytor treści" subtitle="Wybierz kartę — edytujesz ją na stronie, z podglądem i historią wersji." />
+      <PageHead title="Edytor treści" lead="Wybierz kartę — edytujesz ją na stronie, z podglądem i historią wersji." />
       {groups.map((gr) => (
         <section key={gr} className="grid gap-2">
           <h2 className="card-h">{gr}</h2>

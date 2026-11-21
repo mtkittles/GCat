@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { NAV } from "@/lib/nav";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata = { title: "Nie znaleziono strony — GCat" };
 
 export default function NotFound() {
   return (
     <div className="grid gap-5 max-w-prose py-10">
-      <p className="hero-kicker">Błąd 404</p>
-      <h1 className="ph-title">Nie ma takiej strony</h1>
-      <p className="text-muted">Adres mógł się zmienić albo zawiera literówkę. Spróbuj wyszukiwarki albo przejdź do jednego z działów.</p>
+      <PageHead title="Nie ma takiej strony" count="błąd 404" lead="Adres mógł się zmienić albo zawiera literówkę. Spróbuj wyszukiwarki albo przejdź do jednego z działów." />
       <div className="flex flex-wrap gap-2">
         <Link href="/" className="btn">Strona główna</Link>
         <Link href="/szukaj" className="btn ghost">Szukaj</Link>

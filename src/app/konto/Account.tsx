@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { Component, useState, useSyncExternalStore, type ReactNode } from "react";
-import PageBanner from "@/components/ui/PageBanner";
+import PageHead from "@/components/ui/PageHead";
 import { deleteAccount, signInWithEmail, signInWithGoogle, signOut, useAccount } from "@/lib/auth";
 import { PLAN_LABEL } from "@/lib/entitlements";
 import { useDone } from "@/lib/exercisesDone";
@@ -190,8 +190,7 @@ export default function Account() {
   const acc = useAccount();
   return (
     <div className="grid gap-6 max-w-4xl">
-      <PageBanner src="/img/banner-tasks.jpg" kicker="Twoje konto" title="Konto"
-        subtitle="Postęp nauki, statystyki i zapisane programy." size="compact" priority />
+      <PageHead title="Konto" lead="Postęp nauki, statystyki i zapisane programy." />
       {!acc.enabled && (
         <section className="acct-card">
           <h2 className="sec-h">Konto wkrótce</h2>

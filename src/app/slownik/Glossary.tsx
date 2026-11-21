@@ -14,6 +14,7 @@ import Term from "@/components/ui/Term";
 import NumberFlow from "@number-flow/react";
 import { Search, X } from "lucide-react";
 import EmptyState from "@/components/ui/EmptyState";
+import PageHead from "@/components/ui/PageHead";
 
 export type LessonLink = { id: string; title: string; href: string };
 
@@ -162,10 +163,8 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
 
   return (
     <div className="gl-page">
-      <header className="ph">
-        <h1 className="ph-title">Słownik <span className="ph-n">{hasla(SORTED.length)}</span></h1>
-        <p className="ph-lead">Pojęcia z lekcji i z hali, wyjaśnione krótko — ze wzorami, rysunkami i odnośnikami do kart kodów.</p>
-      </header>
+      <PageHead title="Słownik" count={hasla(SORTED.length)}
+        lead="Pojęcia z lekcji i z hali, wyjaśnione krótko — ze wzorami, rysunkami i odnośnikami do kart kodów." />
 
       {/* wyszukiwarka i indeks liter przyklejone razem pod paskiem strony */}
       <div className="gl-sticky">

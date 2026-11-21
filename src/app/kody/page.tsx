@@ -1,6 +1,7 @@
 import CodeCatalog from "./CodeCatalog";
 import { gcodes } from "@/lib/gcodes";
 import { pl } from "@/lib/plural";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata = {
   title: "Lista kodów G i M — GCat",
@@ -10,10 +11,8 @@ export const metadata = {
 export default function KodyPage() {
   return (
     <div className="grid gap-5">
-      <header className="ph">
-        <h1 className="ph-title">Katalog kodów G i M <span className="ph-n">{pl(gcodes.length, "karta", "karty", "kart")}</span></h1>
-        <p className="ph-lead">Składnia Fanuc i Sinumerik, przykład dla każdego kodu i animacja tam, gdzie symulator ją odtwarza. Kliknij kartę, żeby zobaczyć szczegóły bez wychodzenia z listy.</p>
-      </header>
+      <PageHead title="Katalog kodów G i M" count={pl(gcodes.length, "karta", "karty", "kart")}
+        lead="Składnia Fanuc i Sinumerik, przykład dla każdego kodu i animacja tam, gdzie symulator ją odtwarza. Kliknij kartę, żeby zobaczyć szczegóły bez wychodzenia z listy." />
       <CodeCatalog items={gcodes} />
     </div>
   );

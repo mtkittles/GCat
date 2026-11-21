@@ -5,6 +5,8 @@ import { useMemo, useState, type ReactNode } from "react";
 import { search } from "@/lib/searchIndex";
 import { matchRanges } from "@/lib/searchNorm";
 import EmptyState from "@/components/ui/EmptyState";
+import PageHead from "@/components/ui/PageHead";
+import { Search } from "lucide-react";
 
 const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie", "artykuł"] as const;
 
@@ -33,10 +35,12 @@ export default function Results() {
 
   return (
     <div className="grid gap-4">
-      <h1 className="ph-title">Szukaj</h1>
-      <div className="filters">
-        <input className="grow" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Wpisz frazę…" autoFocus />
-      </div>
+      <PageHead title="Szukaj" />
+      <label className="kc-search sz-search">
+        <Search aria-hidden />
+        <span className="sr-only">Szukaj w serwisie</span>
+        <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Wpisz frazę…" autoFocus />
+      </label>
       <div className="filters">
         {KINDS.map((k) => <button key={k} aria-pressed={kind === k} onClick={() => setKind(k)}>{k}{k !== "wszystko" && ` (${hits.filter((h) => h.kind === k).length})`}</button>)}
       </div>

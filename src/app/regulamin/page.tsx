@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { LEGAL } from "@/lib/legal";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata: Metadata = {
   title: "Regulamin — GCat",
@@ -12,11 +13,7 @@ export default function TermsPage() {
   return (
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { label: "Regulamin" }]} />
-      <div className="grid gap-2">
-        <p className="hero-kicker">Informacje prawne</p>
-        <h1 className="ph-title">Regulamin serwisu GCat</h1>
-        <p className="text-muted">Obowiązuje od: {LEGAL.effective}</p>
-      </div>
+      <PageHead title="Regulamin serwisu GCat" lead={<>Obowiązuje od: {LEGAL.effective}</>} />
 
       <article className="article grid gap-4">
         <h2>1. Postanowienia ogólne</h2>

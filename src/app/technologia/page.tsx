@@ -5,6 +5,7 @@ import TechThumb from "@/components/technologia/TechThumb";
 import TechCards from "@/components/technologia/TechCards";
 import { levelName } from "@/lib/gcodes";
 import { artHref, artsOf, artykulow, dzialy, publicArts, recent, TYP_LABEL } from "@/lib/technologia";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata: Metadata = {
   title: "Technologia obróbki skrawaniem — GCat",
@@ -17,10 +18,8 @@ export default function TechnologiaPage() {
   const latest = recent(publicArts, 4);
   return (
     <div className="grid gap-6 tech">
-      <header className="ph">
-        <h1 className="ph-title">Technologia <span className="ph-n">{artykulow(publicArts.length)}</span></h1>
-        <p className="ph-lead">Obróbka skrawaniem w całości: budowa i dobór narzędzi, płytki, wzory, proces, mocowanie, materiały i strategie. Wartości liczbowe zawsze ze wskazanym źródłem.</p>
-      </header>
+      <PageHead title="Technologia" count={artykulow(publicArts.length)}
+        lead="Obróbka skrawaniem w całości: budowa i dobór narzędzi, płytki, wzory, proces, mocowanie, materiały i strategie. Wartości liczbowe zawsze ze wskazanym źródłem." />
       <TechSearch arts={publicArts} dzialy={dzialy} />
       <section aria-labelledby="tech-dzialy" className="grid gap-3">
         <h2 id="tech-dzialy" className="sr-only">Działy</h2>
