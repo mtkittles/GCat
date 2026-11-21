@@ -1,3 +1,4 @@
+import { mono } from "./canvasFont";
 import { pointAt, type Program, type Segment, type Vec3 } from "@/lib/parser";
 import { angleAt, carveCyl, contactAngle, cylIndex, cylInit, cylMeta, fixtureOf, type CylMeta } from "./cylinder";
 import { cuttingRadius, toolOf, type Setup } from "./setup";
@@ -65,7 +66,7 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
   }
 
   // siatka: X co „ładny” krok, kąt co 45°
-  ctx.save(); ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COL.text; ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
+  ctx.save(); ctx.font = mono(10); ctx.fillStyle = COL.text; ctx.strokeStyle = COL.grid; ctx.lineWidth = 1;
   const span = f.x1 - f.x0, raw = span / 8, p10 = 10 ** Math.floor(Math.log10(raw)), stepX = [1, 2, 5, 10].map((k) => k * p10).find((v) => v >= raw) ?? 10 * p10;
   for (let x = Math.ceil(f.x0 / stepX) * stepX; x <= f.x1 + 1e-6; x += stepX) {
     const [px, top] = P(x, 360), [, bot] = P(x, 0);
@@ -85,9 +86,9 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
     const [gx0, gy0] = P(f.x0, 360), [gx1, gy1] = P(f.x0 + f.grip, 0);
     ctx.fillStyle = "rgba(239,68,68,0.16)"; ctx.fillRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
     ctx.strokeStyle = "rgba(239,68,68,0.55)"; ctx.setLineDash([4, 3]); ctx.strokeRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-    if (!o.compact) { ctx.setLineDash([]); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("szczęki", gx0 + 2, gy0 - 4); }
+    if (!o.compact) { ctx.setLineDash([]); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = mono(10); ctx.fillText("szczęki", gx0 + 2, gy0 - 4); }
   }
-  if (f.tail && !o.compact) { const [tx, ty] = P(f.x1, 360); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("konik →", tx - 46, ty - 4); }
+  if (f.tail && !o.compact) { const [tx, ty] = P(f.x1, 360); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = mono(10); ctx.fillText("konik →", tx - 46, ty - 4); }
   ctx.restore();
 
   // tor narzędzia w miejscu styku z płaszczem
@@ -130,7 +131,7 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
   ctx.restore();
 
   if (!o.compact) {
-    ctx.save(); ctx.font = "11px ui-monospace, monospace"; ctx.fillStyle = COL.text;
+    ctx.save(); ctx.font = mono(11); ctx.fillStyle = COL.text;
     ctx.fillText(`Rozwinięcie walca ⌀${Math.round(R * 2 * 100) / 100} · A ${Math.round(aNow * 10) / 10}° · głębokość do ${maxD.toFixed(2)} mm`, padL, 14);
     ctx.restore();
   }
@@ -143,7 +144,7 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
     ctx.save(); ctx.strokeStyle = "rgba(90,169,240,0.9)"; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(o.probe.px, 0); ctx.lineTo(o.probe.px, H); ctx.moveTo(0, o.probe.py); ctx.lineTo(W, o.probe.py); ctx.stroke();
     const label = `X ${hx.toFixed(2)} · ${th.toFixed(1)}°${depth !== null ? ` · głęb. ${depth.toFixed(2)}` : ""}`;
-    ctx.setLineDash([]); ctx.font = "11px ui-monospace, monospace";
+    ctx.setLineDash([]); ctx.font = mono(11);
     const w = ctx.measureText(label).width + 12, bx = Math.min(W - w - 4, o.probe.px + 10), by = Math.max(16, o.probe.py - 10);
     ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by - 13, w, 18); ctx.fillStyle = "#5AA9F0"; ctx.fillText(label, bx + 6, by);
     ctx.restore();

@@ -179,10 +179,10 @@ export default function CardView({ g, article, edit = (_k, v) => v, emptyArticle
       {edit("head", (
         <PageBanner plain kicker={g.group} title={g.code} subtitle={g.name} mono vtName={vtName("kod", g.slug)}
           meta={<>
-            <Chip tone={g.level === 1 ? "success" : g.level === 2 ? "warning" : "danger"}>{levelName(g.level)}</Chip>
+            <Chip tone="neutral">{levelName(g.level)}</Chip>
             <Chip>{g.modal ? "modalny" : "jednorazowy"}</Chip>
-            {g.milling && <Chip tone="info">frezowanie</Chip>}
-            {g.turning && <Chip tone="info">toczenie</Chip>}
+            {g.milling && <Chip tone="neutral">frezowanie</Chip>}
+            {g.turning && <Chip tone="neutral">toczenie</Chip>}
             {g.variesBy && <Chip tone="warning">zależy od: {g.variesBy}</Chip>}
           </>} />
       ))}

@@ -1,3 +1,4 @@
+import { mono } from "./canvasFont";
 import { arcParams, planeAxes, pointAt, type Segment, type Vec3 } from "@/lib/parser";
 
 /*
@@ -245,14 +246,14 @@ function arrow(ctx: CanvasRenderingContext2D, x: number, y: number, ang: number)
 }
 
 function tag(ctx: CanvasRenderingContext2D, W: number, H: number, x: number, y: number, main: string, subTxt: string) {
-  ctx.font = "600 12px ui-monospace, monospace"; const w1 = ctx.measureText(main).width;
-  ctx.font = "10.5px ui-monospace, monospace"; const w2 = subTxt ? ctx.measureText(subTxt).width : 0;
+  ctx.font = mono(12, 600); const w1 = ctx.measureText(main).width;
+  ctx.font = mono(10.5); const w2 = subTxt ? ctx.measureText(subTxt).width : 0;
   const w = Math.max(w1, w2) + 14, h = subTxt ? 34 : 20;
   const bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = Math.max(4, Math.min(H - h - 4, y - h / 2));
   ctx.fillStyle = "rgba(5,7,10,0.88)"; ctx.strokeStyle = "rgba(250,204,21,0.7)"; ctx.lineWidth = 1;
   ctx.fillRect(bx, by, w, h); ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
-  ctx.fillStyle = YEL; ctx.font = "600 12px ui-monospace, monospace"; ctx.fillText(main, bx + 7, by + 14);
-  if (subTxt) { ctx.fillStyle = "#CBD5E1"; ctx.font = "10.5px ui-monospace, monospace"; ctx.fillText(subTxt, bx + 7, by + 28); }
+  ctx.fillStyle = YEL; ctx.font = mono(12, 600); ctx.fillText(main, bx + 7, by + 14);
+  if (subTxt) { ctx.fillStyle = "#CBD5E1"; ctx.font = mono(10.5); ctx.fillText(subTxt, bx + 7, by + 28); }
 }
 
 /** Linia wymiarowa ze strzałkami na końcach (strzałki do środka, gdy jest miejsce). */

@@ -60,8 +60,8 @@ export default function TechArticleView({ a, dzial, body, nav = {}, edit = (_k, 
           meta={<>
             {a.stan === "szkic" && <Chip tone="warning">szkic — do weryfikacji</Chip>}
             {a.plan === "pro" && <Chip tone="accent">Pro</Chip>}
-            <Chip tone={a.poziom === 1 ? "success" : a.poziom === 2 ? "warning" : "danger"}>{levelName(a.poziom)}</Chip>
-            {a.obrobka.map((o) => <Chip key={o} tone="info">{OBROBKA_LABEL[o]}</Chip>)}
+            <Chip tone="neutral">{levelName(a.poziom)}</Chip>
+            {a.obrobka.map((o) => <Chip key={o} tone="neutral">{OBROBKA_LABEL[o]}</Chip>)}
             {a.normy.map((n) => <Chip key={n} mono>{n}</Chip>)}
             <Chip>{a.minutes} min czytania</Chip>
           </>} />

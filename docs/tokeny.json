@@ -365,6 +365,11 @@
       }
     },
     "skala-tekstu": {
+      "fs-display": {
+        "$type": "other",
+        "$value": "clamp(2.125rem, 1.45rem + 2.1vw, 3.35rem)",
+        "$description": "tylko hasło na stronie głównej (34 → 54 px, Sora 700)"
+      },
       "fs-h1": {
         "$type": "other",
         "$value": "clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem)",
@@ -382,8 +387,8 @@
       },
       "fs-lesson": {
         "$type": "other",
-        "$value": "1.0625rem",
-        "$description": "treść lekcji (17 px)"
+        "$value": "1rem",
+        "$description": "treść lekcji — równa --fs-text (UI-4: jeden rozmiar treści)"
       },
       "fs-text": {
         "$type": "other",
@@ -409,6 +414,16 @@
         "$type": "other",
         "$value": ".75rem",
         "$description": "etykiety — mono 600, wersaliki, odstęp .06em (12 px)"
+      },
+      "fs-micro": {
+        "$type": "other",
+        "$value": ".6875rem",
+        "$description": "gęste panele narzędzi: rysownik, przyciski symulatora (11 px) — nie w treści"
+      },
+      "fs-num": {
+        "$type": "other",
+        "$value": "1.75rem",
+        "$description": "duże liczby odczytu: DRO, wynik kalkulatora, wynik testu (28 px mono)"
       },
       "lh-text": {
         "$type": "dimension",
@@ -623,9 +638,9 @@
         "$description": "domyślna wysokość viewBox"
       },
       "fig-radius": {
-        "$type": "dimension",
-        "$value": "16px",
-        "$description": "zaokrąglenie ramki .fig"
+        "$type": "other",
+        "$value": "var(--radius-lg)",
+        "$description": "zaokrąglenie ramki .fig (= karta, 14 px)"
       },
       "fig-svg-radius": {
         "$type": "dimension",

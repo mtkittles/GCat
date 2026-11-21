@@ -1,5 +1,6 @@
 "use client";
 
+import { mono } from "./canvasFont";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile, latheChuck } from "./latheStock";
@@ -832,7 +833,7 @@ function makeLabel(text: string, pos: THREE.Vector3, color: string, size = 1) {
   const w = Math.max(64, 28 * text.length + 16);
   const cv = document.createElement("canvas"); cv.width = w; cv.height = 64;
   const c = cv.getContext("2d")!;
-  c.fillStyle = color; c.font = "bold 44px ui-monospace, monospace"; c.textAlign = "center"; c.textBaseline = "middle";
+  c.fillStyle = color; c.font = mono(44, "bold"); c.textAlign = "center"; c.textBaseline = "middle";
   c.fillText(text, w / 2, 32);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false }));
   sp.position.copy(pos); sp.scale.set(9 * size * (w / 64), 9 * size, 1);
@@ -1274,7 +1275,7 @@ function screenLabel(text: string, pos: THREE.Vector3) {
   const c = cv.getContext("2d")!;
   c.fillStyle = "rgba(5,7,10,0.88)"; c.fillRect(0, 0, w, 64);
   c.strokeStyle = "rgba(250,204,21,0.8)"; c.lineWidth = 3; c.strokeRect(1.5, 1.5, w - 3, 61);
-  c.fillStyle = "#FACC15"; c.font = "600 40px ui-monospace, monospace"; c.textAlign = "center"; c.textBaseline = "middle";
+  c.fillStyle = "#FACC15"; c.font = mono(40, 600); c.textAlign = "center"; c.textBaseline = "middle";
   c.fillText(text, w / 2, 33);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false, sizeAttenuation: false }));
   const h = 0.042;

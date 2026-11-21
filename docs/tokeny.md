@@ -111,19 +111,22 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--font-weights-display` | `600 800` | Sora · `src/app/layout.tsx` |
 | `--font-weights-mono` | `400 700` | JetBrains Mono · `src/app/layout.tsx` |
 
-### Skala tekstu (V8b): 12 · 13 · 14 · 16 · 17 · 18 · 22 · 28–36 px; Sora tylko w H1–H3
+### Skala tekstu (UI-4): 11 · 12 · 13 · 14 · 16 · 18 · 22 · 28–36 px; Sora tylko w nagłówkach, mono najwyżej 14 px (poza liczbami odczytu)
 
 | Token | Wartość | Gdzie używany |
 |---|---|---|
+| `--fs-display` | `clamp(2.125rem, 1.45rem + 2.1vw, 3.35rem)` | tylko hasło na stronie głównej (34 → 54 px, Sora 700) |
 | `--fs-h1` | `clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem)` | H1 strony (28 px telefon → 36 px komputer, Sora 700) |
 | `--fs-h2` | `1.375rem` | H2 sekcji strony, artykułu i lekcji (22 px, Sora 700) |
 | `--fs-h3` | `1.125rem` | H3 i wyróżnione zdania: cel lekcji, pytanie testu (18 px) |
-| `--fs-lesson` | `1.0625rem` | treść lekcji (17 px) |
+| `--fs-lesson` | `1rem` | treść lekcji — równa --fs-text (UI-4: jeden rozmiar treści) |
 | `--fs-text` | `1rem` | akapit, lista, tytuł karty (16 px) |
 | `--fs-aux` | `.875rem` | interfejs, podpisy, tabele, źródła (14 px) |
 | `--fs-small` | `.8125rem` | drobny tekst, metadane (13 px) |
 | `--fs-code` | `.8125rem` | bloki kodu i notki z kodem w rysunkach (13 px mono) |
 | `--fs-label` | `.75rem` | etykiety — mono 600, wersaliki, odstęp .06em (12 px) |
+| `--fs-micro` | `.6875rem` | gęste panele narzędzi: rysownik, przyciski symulatora (11 px) — nie w treści |
+| `--fs-num` | `1.75rem` | duże liczby odczytu: DRO, wynik kalkulatora, wynik testu (28 px mono) |
 | `--lh-text` | `1.65` | interlinia tekstu |
 | `--lh-aux` | `1.5` | interlinia tekstu pomocniczego |
 | `--lh-code` | `1.55` | interlinia kodu |
@@ -188,7 +191,7 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 |---|---|---|
 | `--fig-width` | `360` | szerokość viewBox (format pod telefon) · `src/components/fig.tsx` |
 | `--fig-height` | `250` | domyślna wysokość viewBox · `src/components/fig.tsx` |
-| `--fig-radius` | `16px` | zaokrąglenie ramki .fig · `.fig { border-radius }` |
+| `--fig-radius` | `var(--radius-lg)` | zaokrąglenie ramki .fig (= karta, 14 px) · `.fig { border-radius }` |
 | `--fig-svg-radius` | `10px` | zaokrąglenie panelu SVG · `.fig svg { border-radius }` |
 | `--fig-padding` | `.75rem` | wewnętrzny odstęp ramki · `.fig { padding }` |
 
@@ -251,4 +254,3 @@ Symulator jest **nietykalny**. Poniższe wartości są wpisane w jego kod obok t
 | wymiary (pomiar 2D i 3D) | ![#FACC15](tokeny/FACC15.svg) `#FACC15` | `src/components/simulator/measure2d.ts, Sim3D.tsx` | — (brak tokenu) |
 | materiał półfabrykatu w 3D | ![#8A94A3](tokeny/8A94A3.svg) `#8A94A3` | `src/components/simulator/Sim3D.tsx` | — (brak tokenu) |
 | tło sceny 3D | ![#12161C](tokeny/12161C.svg) `#12161C` | `src/components/simulator/Sim3D.tsx` | — (brak tokenu) |
-| font kanwy 2D (HUD, podziałka, wymiary) | `ui-monospace, monospace` | `src/components/simulator/Simulator.tsx, measure2d.ts` | --font-mono (JetBrains Mono) — kanwa używa fontu systemowego |

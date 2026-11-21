@@ -1,5 +1,6 @@
 "use client";
 
+import { mono } from "./canvasFont";
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
@@ -571,7 +572,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.stroke();
       ctx.restore();
     }
-    ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = "10px ui-monospace, monospace"; ctx.fillStyle = COLORS.axis;
+    ctx.lineWidth = 1; ctx.strokeStyle = COLORS.grid; ctx.font = mono(10); ctx.fillStyle = COLORS.axis;
     if (showGrid) for (let v = Math.floor(vis.h0 / step) * step; v <= vis.h1 + step; v += step) {
       const [x] = P({ x: 0, y: 0, z: 0, [ha]: v } as Vec3);
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
@@ -586,7 +587,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     ctx.strokeStyle = COLORS.axis;
     const [zx, zy] = P({ x: 0, y: 0, z: 0 });
     ctx.beginPath(); ctx.moveTo(zx, 0); ctx.lineTo(zx, H); ctx.moveTo(0, zy); ctx.lineTo(W, zy); ctx.stroke();
-    ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+    ctx.fillStyle = COLORS.axis; ctx.font = mono(11);
     ctx.fillText(ha.toUpperCase(), W - 14, zy - 6);
     ctx.fillText(va.toUpperCase(), zx + 6, 14);
 
@@ -618,7 +619,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
       ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
       const [, cy] = P({ x: 0, y: 0, z: 0 }); ctx.beginPath(); ctx.moveTo(ax - 10, cy); ctx.lineTo(bx2 + 10, cy); ctx.stroke(); ctx.restore();
-      ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+      ctx.fillStyle = COLORS.axis; ctx.font = mono(11);
       ctx.fillText(`walec ⌀${st.d} × ${st.len} mm, oś A`, ax + 4, by2 - 6);
     } else if (!setup.stock.auto && mode === "mill") {
       const st = setup.stock;
@@ -627,7 +628,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const [ax, ay] = P({ x: b.x0, y: b.y0, z: 0 }); const [bx2, by2] = P({ x: b.x1, y: b.y1, z: 0 });
         ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
         ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
-        ctx.fillStyle = COLORS.axis; ctx.font = "11px ui-monospace, monospace";
+        ctx.fillStyle = COLORS.axis; ctx.font = mono(11);
         ctx.fillText(`${st.x} × ${st.y} × ${st.z} mm`, ax + 4, by2 - 6);
       }
     } else if (cut.length && mode === "mill" && setup.stock.perWcs !== false && stockBoxes(program, segments, setup, false).length > 1) {
@@ -651,7 +652,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.save(); ctx.strokeStyle = COLORS.axis; ctx.fillStyle = COLORS.axis; ctx.lineWidth = 1.5; ctx.setLineDash([4, 3]);
       ctx.beginPath(); ctx.moveTo(mx - 14, my); ctx.lineTo(mx + 14, my); ctx.moveTo(mx, my - 14); ctx.lineTo(mx, my + 14); ctx.stroke();
       ctx.setLineDash([]); ctx.beginPath(); ctx.arc(mx, my, 5, 0, Math.PI * 2); ctx.stroke();
-      if (!compact) { ctx.font = "11px ui-monospace, monospace"; ctx.fillText(`${wcsLabel(st0)} zero`, mx + 8, my - 8); }
+      if (!compact) { ctx.font = mono(11); ctx.fillText(`${wcsLabel(st0)} zero`, mx + 8, my - 8); }
       ctx.restore();
     }
 
@@ -781,7 +782,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             gr.addColorStop(0, `rgb(${DEPTH_TOP.join(",")})`); gr.addColorStop(1, `rgb(${DEPTH_DEEP.join(",")})`);
             ctx.fillStyle = gr; ctx.fillRect(lxp, lyp, lw, lh);
             ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1; ctx.strokeRect(lxp + 0.5, lyp + 0.5, lw - 1, lh - 1);
-            ctx.globalAlpha = 1; ctx.fillStyle = COLORS.axis; ctx.font = "10px ui-monospace, monospace";
+            ctx.globalAlpha = 1; ctx.fillStyle = COLORS.axis; ctx.font = mono(10);
             ctx.fillText("GŁĘBOKOŚĆ", lxp, lyp - 5);
             ctx.fillText(`Z${round(b0.top)}`, lxp, lyp + lh + 12);
             const zb = `Z${round(deeps[0])}`; ctx.fillText(zb, lxp + lw - ctx.measureText(zb).width, lyp + lh + 12);
@@ -819,7 +820,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           ctx.fillRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
           ctx.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
         }
-        { const [lx, ly] = P({ x: ch.jawR, y: 0, z: ch.zFace - ch.jawLen }); ctx.fillStyle = "rgba(203,213,225,0.75)"; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("szczęki", lx, ly - 4); }
+        { const [lx, ly] = P({ x: ch.jawR, y: 0, z: ch.zFace - ch.jawLen }); ctx.fillStyle = "rgba(203,213,225,0.75)"; ctx.font = mono(10); ctx.fillText("szczęki", lx, ly - 4); }
         ctx.restore();
       }
     }
@@ -894,7 +895,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       if (byR.size) {
         const lx0 = W < 600 && hudHtml ? 14 : W - 110, ly0 = 60;
         ctx.fillStyle = "rgba(167,139,250,0.55)"; ctx.fillRect(lx0, ly0 - 7, 14, 8);
-        ctx.fillStyle = COLORS.axis; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("CEL ZADANIA", lx0 + 20, ly0);
+        ctx.fillStyle = COLORS.axis; ctx.font = mono(10); ctx.fillText("CEL ZADANIA", lx0 + 20, ly0);
       }
       ctx.restore();
     }
@@ -964,7 +965,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // punkty charakterystyczne toru z podpisem współrzędnych (tryb pokazowy)
     if (showcase && !compact) {
       ctx.save();
-      ctx.font = "10.5px ui-monospace, monospace";
+      ctx.font = mono(10.5);
       const shown = new Set<string>();
       const placed: [number, number][] = [];
       let accP = 0;
@@ -1006,7 +1007,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.moveTo(oxp - r - 6, oyp); ctx.lineTo(oxp + r + 6, oyp);
       ctx.moveTo(oxp, oyp - r - 6); ctx.lineTo(oxp, oyp + r + 6);
       ctx.stroke();
-      ctx.font = "10px ui-monospace, monospace";
+      ctx.font = mono(10);
       ctx.fillText(mode === "lathe" ? "X0 Z0" : "X0 Y0", oxp + r + 8, oyp + r + 7);
       ctx.restore();
     }
@@ -1064,7 +1065,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const label = mode === "mill"
         ? `X ${probe.h.toFixed(2)}  Y ${probe.v.toFixed(2)}`
         : `Z ${probe.h.toFixed(2)}  X ${(probe.v * 2).toFixed(2)}⌀`;
-      ctx.font = "11px ui-monospace, monospace";
+      ctx.font = mono(11);
       const w = ctx.measureText(label).width + 12;
       const bx = Math.min(W - w - 4, probe.px + 10), by = Math.max(16, probe.py - 10);
       ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by - 13, w, 18);
@@ -1083,7 +1084,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         L ? `linia ${L.index + 1}: ${(L.raw.trim() || "—").slice(0, 34)}` : "koniec programu",
       ];
       ctx.save();
-      ctx.font = "11px ui-monospace, monospace";
+      ctx.font = mono(11);
       const wMax = Math.max(...rows.map((r) => ctx.measureText(r).width));
       ctx.fillStyle = "rgba(5,7,10,0.72)";
       ctx.fillRect(8, 8, wMax + 16, rows.length * 15 + 10);
@@ -1975,7 +1976,7 @@ function drawDwell(ctx: CanvasRenderingContext2D, sg: Extract<Segment, { kind: "
     if (!bare) {
       const remain = Math.max(0, sg.seconds * (1 - done));
       const label = `G04 · ${remain.toFixed(1)} s`;
-      ctx.font = "600 11px ui-monospace, monospace";
+      ctx.font = mono(11, 600);
       const w = ctx.measureText(label).width + 12;
       // Punkt postoju bywa w narożu podglądu (np. ostatni punkt konturu) — dymek
       // przerzucamy na stronę, po której jest miejsce, żeby nie wychodził z kanwy.
