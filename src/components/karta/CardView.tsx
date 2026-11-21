@@ -207,7 +207,7 @@ export default function CardView({ g, article, edit = (_k, v) => v, emptyArticle
     const toc = [{ id: "skladnia", label: "Składnia" }, ...(figure ? [{ id: "schemat", label: "Schemat" }] : []), ...tocItems(tocBlocks), ...(recap ? [{ id: "w-skrocie", label: "W skrócie" }] : []), ...(lessonsSec ? [{ id: "w-lekcjach", label: "W lekcjach" }] : []), ...(related ? [{ id: "powiazane", label: "Powiązane" }] : []), { id: "zrodla", label: "Źródła" }];
     return (
       <div className="article-layout cc">
-        <aside className="cc-left"><LeftToc items={toc} /></aside>
+        <aside className="cc-left" aria-label="Spis treści"><LeftToc items={toc} /></aside>
         <article className="grid gap-6 min-w-0 code-card">
           {head}
           {syntax}
@@ -240,7 +240,7 @@ export default function CardView({ g, article, edit = (_k, v) => v, emptyArticle
 
   return (
     <div className="article-layout cc">
-    <aside className="cc-left"><LeftToc items={toc} /></aside>
+    <aside className="cc-left" aria-label="Spis treści"><LeftToc items={toc} /></aside>
     <article className="grid gap-6 min-w-0 code-card">
       {head}
       {syntax}

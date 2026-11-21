@@ -12,6 +12,8 @@ import CommandPalette, { type PaletteProgram } from "@/components/shell/CommandP
 import type { MeterLesson } from "@/components/shell/LearnMeter";
 import { flat } from "@/lib/course";
 import { PROGRAMS } from "@/content/programy";
+import { dzialy as techDzialy, publicArts } from "@/lib/technologia";
+import type { TechData } from "@/lib/obszary";
 import { PREFS_SCRIPT } from "@/lib/ui/prefs";
 import { AdminFooterLink } from "@/components/edycja/AdminGate";
 import { EditBar } from "@/components/edycja/EditMode";
@@ -19,6 +21,7 @@ import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
 import "./tactile.css";
 import "./technologia.css";
+import "./obszary.css";
 
 // Czcionki z repozytorium (src/app/fonts, licencja OFL): build nie pobiera nic z Google Fonts.
 // Pliki zmienne (oś wght), podzbiór latin + latin-ext; zakres wag jak w nazwach poniżej. Nazwy zmiennych jak w globals.css.
@@ -46,6 +49,11 @@ export const viewport: Viewport = {
 
 /* Dane powłoki liczone przy budowie: lista lekcji do wskaźnika postępu i programy do palety Ctrl+K. */
 const METER: MeterLesson[] = (["frezowanie", "toczenie"] as const).flatMap((t) => flat(t).filter((l) => l.doc).map((l) => ({ track: t, id: l.id })));
+/* Drzewo obszaru Technologia w panelu bocznym i arkuszu „Więcej” (tylko artykuły bez planu Pro). */
+const TECH_TREE: TechData = {
+  dzialy: techDzialy.map(({ slug, title, icon }) => ({ slug, title, icon })),
+  arts: publicArts.map(({ dzial, slug, title, order }) => ({ dzial, slug, title, order })),
+};
 const PALETTE_PROGRAMS: PaletteProgram[] = PROGRAMS.map((p) => ({
   title: p.title, href: `/programy/${p.slug}`,
   sub: `${p.mode === "mill" ? "frezowanie" : "toczenie"} · ${p.category}`,
@@ -58,7 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen">
         {/* Motyw, panel boczny i dźwięk pulpitu ustawiamy przed malowaniem treści (src/lib/ui/prefs.ts). Domyślnie ciemny. */}
         <script dangerouslySetInnerHTML={{ __html: PREFS_SCRIPT }} />
-        <AppSidebar lessons={METER} />
+        <AppSidebar lessons={METER} tech={TECH_TREE} />
 
         <div className="app-main">
           <div className="app-inset">
@@ -84,7 +92,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </div>
 
-        <MobileDock />
+        <MobileDock tech={TECH_TREE} />
         <EditBar />
         <CommandPalette programs={PALETTE_PROGRAMS} />
         <AppToaster />

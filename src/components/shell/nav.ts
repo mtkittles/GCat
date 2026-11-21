@@ -21,9 +21,14 @@ export const NAV_SHOP: NavItem[] = [
 
 export const NAV_ALL = [...NAV_MAIN, ...NAV_SHOP];
 
+/** Pulpit — pierwszy klawisz szyny obszarów. */
+export const HOME = NAV_MAIN[0];
+/** Strony wspólne dla wszystkich obszarów (pod drzewem w panelu i w arkuszu „Więcej”). Podział na obszary: src/lib/obszary.ts. */
+export const COMMON = ["/kalkulator", "/slownik", "/fiszki"].map((h) => NAV_ALL.find((n) => n.href === h)!);
+
 /** Dok na telefonie: cztery działy + „Więcej”. */
 export const DOCK = ["/", "/nauka", "/symulator", "/kody"].map((h) => NAV_ALL.find((n) => n.href === h)!);
-/** Arkusz „Więcej”. */
+/** Strony spoza doku — „Więcej” świeci, gdy jesteśmy na jednej z nich (arkusz pokazuje drzewo obszaru i strony wspólne). */
 export const MORE = ["/technologia", "/zadania", "/programy", "/kalkulator", "/slownik", "/fiszki"].map((h) => NAV_ALL.find((n) => n.href === h)!);
 
 export const isActive = (path: string, href: string) => (href === "/" ? path === "/" : path === href || path.startsWith(href + "/"));
