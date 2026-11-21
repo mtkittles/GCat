@@ -62,6 +62,10 @@ Treść przewija się do samego dołu ekranu, pod dokiem i paskiem przeglądarki
 łagodne wygaszenie: na dole gradient do `--bg` (wysokość doku + 32 px), pod paskiem górnym 20 px.
 Symulator i panel klawiszy go nie mają.
 
+Dok ma 86% szerokości ekranu (najwyżej 420 px). Safari 26 maluje pod swoim paskiem jednolity pas, gdy przy
+krawędzi stoi stały element szerszy niż 90% widoku (WebKit `LocalFrameView::fixedContainerEdges`); węższy dok
+jest pomijany. Nie poszerzaj doku ani nie dodawaj pełnej szerokości stałych pasków przy dolnej krawędzi.
+
 ## Kontrola
 
 - `tests/standard-ui.test.ts` — rozmiary tylko z `--fs-*`, promienie z tokenów, kanwa przez `--font-mono`.

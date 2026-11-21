@@ -191,8 +191,13 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
     --dock-space: calc(72px + env(safe-area-inset-bottom, 0px));
   }
   body { padding-bottom: var(--dock-space); }
+  /* Dok węższy niż 90% ekranu (86vw, najwyżej 420 px): Safari 26 (WebKit, LocalFrameView::fixedContainerEdges)
+     traktuje stały element przy krawędzi jako „krawędź” i maluje pod paskiem przeglądarki jednolity pas,
+     gdy element ma co najmniej 90% szerokości widoku. Węższy dok zostaje pominięty — treść płynie pod nim
+     i pod paskiem z wygaszeniem body::after, także gdy dok wraca przy przewijaniu w górę. */
   .bottom-nav.dock {
-    left: 10px; right: 10px; bottom: var(--dock-bottom); padding: 4px; gap: 2px;
+    --dock-inset: max(7vw, calc((100vw - 420px) / 2));
+    left: var(--dock-inset); right: var(--dock-inset); bottom: var(--dock-bottom); padding: 4px; gap: 2px;
     border: 1px solid var(--line-strong); border-radius: 18px;
     background: color-mix(in srgb, var(--surface) 84%, transparent);
     -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);

@@ -50,6 +50,19 @@ describe("standard UI — typografia", () => {
   });
 });
 
+describe("standard UI — telefon", () => {
+  it("dok węższy niż 90% ekranu — Safari 26 nie maluje pod nim jednolitego pasa", () => {
+    // WebKit fixedContainerEdges: element stały przy krawędzi o szerokości < 0,9 × (widok − 8 px) jest pomijany.
+    const t = readFileSync("src/app/tactile.css", "utf8");
+    const m = t.match(/--dock-inset: max\((\d+(?:\.\d+)?)vw/);
+    expect(m).not.toBeNull();
+    for (const w of [320, 360, 390, 430, 767]) {
+      const dock = Math.min(w - 2 * (Number(m![1]) / 100) * w, 420);
+      expect(dock, `${w}px`).toBeLessThan(0.9 * (w - 8) * 0.99);
+    }
+  });
+});
+
 describe("standard UI — kształt", () => {
   it("promienie zaokrągleń z tokenów (poza drobnymi detalami ≤ 5 px)", () => {
     const bad = decls(/^border-radius$/)
