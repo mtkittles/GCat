@@ -9,6 +9,7 @@ import RijCalc from "@/components/RijCalc";
 import Rys from "@/components/rys/Rys";
 import { rysBySlug } from "@/components/rys/registry";
 import SimClient from "@/components/simulator/SimClient";
+import SortTable from "@/components/ui/SortTable";
 import Term from "@/components/ui/Term";
 import { simHref, type SimLink } from "@/lib/simLink";
 
@@ -90,9 +91,10 @@ export function Widget({ id }: { id: "rij" | "arc" | "jog" }) {
   return id === "jog" ? <JogDemo /> : <div id="kalkulator-zamiany-r-i-j">{id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
 }
 
-/** <Table caption="…"> wokół tabeli GFM (blok `table`); plugin owija nią każdą tabelę i dodaje klasy oraz data-label. Podpis nad tabelą (Z a). */
-export function Table({ caption, children }: { caption?: string; children?: ReactNode }) {
-  return <figure className="grid gap-1">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<div className="overflow-x-auto">{children}</div></figure>;
+/** <Table caption="…"> wokół tabeli GFM (blok `table`); plugin owija nią każdą tabelę i dodaje klasy oraz data-label. Podpis nad tabelą (Z a).
+    `sort="true"` — sortowanie kliknięciem w nagłówek kolumny (porównania w Technologii). */
+export function Table({ caption, sort, children }: { caption?: string; sort?: string; children?: ReactNode }) {
+  return <figure className="grid gap-1">{caption && <figcaption className="cap">{rich(caption)}</figcaption>}<div className="overflow-x-auto">{sort === "true" ? <SortTable>{children}</SortTable> : children}</div></figure>;
 }
 
 /** <Kolor k="g00|g01|g02|akcent|blad">tekst</Kolor> — wyróżnienie kolorem z gotowego zestawu (kolory ruchów jak w symulatorze). */

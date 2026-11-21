@@ -3,6 +3,7 @@ export const NAV = [
   { href: "/nauka", label: "Nauka" },
   { href: "/zadania", label: "Zadania" },
   { href: "/kody", label: "Kody" },
+  { href: "/technologia", label: "Technologia" },
   { href: "/symulator", label: "Symulator" },
   { href: "/programy", label: "Programy" },
   { href: "/kalkulator", label: "Kalkulator" },

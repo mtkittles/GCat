@@ -7,9 +7,10 @@ import { componentNames, diagramIds as liveDiagramIds } from "./names";
 import { ContentError, MARKER_RE, type ContentIssue, type GcatMeta } from "./remark";
 import { parseDoc, storeDoc, type RysFigure } from "@/lib/rys/model";
 import { knownCodes, resolveKey, selfCodes, sourcesFrom, type TermSources } from "./resolve";
+import { firstThumb, readingMinutes, type Thumb } from "./tech-meta";
 import {
-  cwiczeniaSchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, rysunekSchema, zadanieSchema,
-  type Cwiczenia, type Haslo, type Kod, type Lekcja, type Program, type Zadanie,
+  artykulSchema, cwiczeniaSchema, dzialySchema, hasloSchema, kodSchema, lekcjaSchema, programSchema, rysunekSchema, zadanieSchema,
+  type Artykul, type Cwiczenia, type Dzial, type Haslo, type Kod, type Lekcja, type Program, type Zadanie,
 } from "./schema";
 
 /*
@@ -24,6 +25,8 @@ export interface LoadOptions {
   sources?: TermSources;
   diagramIds?: Set<string>;
   components?: string[];
+  /** id lekcji z planu kursu (F1.2, T3.1…) do sprawdzenia `powiazane.lekcje` w Technologii; brak = bez kontroli */
+  lessonIds?: Set<string>;
 }
 
 export interface KodEntry { file: string; data: Kod; self: string[]; body: string; meta: GcatMeta; fields: Record<string, string> }
@@ -33,7 +36,11 @@ export interface ProgramEntry { file: string; data: Program; body: string; nc: s
 export interface ZadanieEntry { file: string; data: Zadanie }
 /** rysunek z rysownika: `data` w kształcie, którego używa strona (slug = nazwa pliku) */
 export interface RysunekEntry { file: string; data: RysFigure }
-export interface Content { kody: KodEntry[]; slownik: HasloEntry[]; lekcje: LekcjaEntry[]; programy: ProgramEntry[]; zadania: ZadanieEntry[]; rysunki: RysunekEntry[] }
+/** artykuł Technologii: frontmatter, skompilowana treść, spis, miniatura (pierwszy rysunek) i czas czytania */
+export interface ArtykulEntry { file: string; data: Artykul; body: string; meta: GcatMeta; thumb: Thumb | null; minutes: number }
+export interface Content { kody: KodEntry[]; slownik: HasloEntry[]; lekcje: LekcjaEntry[]; programy: ProgramEntry[]; zadania: ZadanieEntry[]; rysunki: RysunekEntry[]; technologia: { dzialy: Dzial[]; artykuly: ArtykulEntry[] } }
+
+export { firstThumb, readingMinutes, type Thumb } from "./tech-meta";
 
 export class ContentErrors extends Error {
   constructor(public errors: ContentError[]) {
@@ -124,7 +131,7 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   };
   const unexpected = (dir: string, f: string, want: string) => fail(path.join(dir, f), [{ message: `nieoczekiwany plik — w tym katalogu tylko ${want} (i README.md)` }]);
 
-  const out: Content = { kody: [], slownik: [], lekcje: [], programy: [], zadania: [], rysunki: [] };
+  const out: Content = { kody: [], slownik: [], lekcje: [], programy: [], zadania: [], rysunki: [], technologia: { dzialy: [], artykuly: [] } };
 
   // ── faza 0: rysunki z rysownika (karty i hasła odwołują się do nich po nazwie pliku)
   const rysDir = path.join(root, "rysunki");
@@ -246,6 +253,37 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
     out.zadania.push({ file: rel(file), data });
   }
 
+  // ── Technologia: dzialy.yaml + <dział>/<slug>.mdx
+  const techDir = path.join(root, "technologia");
+  if (existsSync(techDir)) {
+    const dzFile = path.join(techDir, "dzialy.yaml");
+    const dzialy = existsSync(dzFile) ? readYaml(dzFile, dzialySchema) : (fail(dzFile, [{ message: "brak pliku dzialy.yaml" }]), null);
+    if (dzialy) {
+      out.technologia.dzialy = [...dzialy].sort((a, b) => a.order - b.order);
+      const seen = new Set<string>();
+      for (const d of dzialy) { if (seen.has(d.slug)) fail(dzFile, [{ message: `dział „${d.slug}” powtarza się` }]); seen.add(d.slug); }
+    }
+    const dzSlugs = new Set((dzialy ?? []).map((d) => d.slug));
+    for (const dir of list(techDir)) {
+      if (dir === "dzialy.yaml") continue;
+      const dDir = path.join(techDir, dir);
+      if (!statSync(dDir).isDirectory()) { unexpected(techDir, dir, "dzialy.yaml i katalogi działów"); continue; }
+      if (!dzSlugs.has(dir)) { fail(dDir, [{ message: `katalog „${dir}” — nie ma takiego działu w dzialy.yaml` }]); continue; }
+      for (const f of list(dDir)) {
+        if (!f.endsWith(".mdx")) { unexpected(dDir, f, "<slug>.mdx"); continue; }
+        const file = path.join(dDir, f);
+        const r = readMdx(file, artykulSchema);
+        if (!r) continue;
+        if (r.data.slug !== f.slice(0, -4)) fail(file, [{ message: `slug „${r.data.slug}” ≠ nazwa pliku „${f}”` }]);
+        if (r.data.dzial !== dir) fail(file, [{ message: `dzial „${r.data.dzial}” ≠ katalog „${dir}”` }]);
+        checkMarkers(file, r.data);
+        const { code: body, meta } = await tryCompileMeta(file, r.body);
+        out.technologia.artykuly.push({ file: rel(file), data: r.data, body, meta, thumb: firstThumb(r.body), minutes: readingMinutes(meta.text) });
+      }
+    }
+    out.technologia.artykuly.sort((x, y) => x.data.dzial.localeCompare(y.data.dzial) || x.data.order - y.data.order);
+  }
+
   // ── odwołania między plikami
   const dup = <T,>(items: T[], key: (t: T) => string, file: (t: T) => string, what: string) => {
     const seen = new Map<string, string>();
@@ -262,6 +300,22 @@ export async function loadContent(root = "content", o: LoadOptions = {}): Promis
   for (const k of out.kody) for (const r of k.data.related) if (!kodSlugs.has(r)) fail(k.file, [{ message: `related: nie ma karty „${r}”` }]);
   for (const h of out.slownik) for (const r of h.data.see) if (!kodSlugs.has(r)) fail(h.file, [{ message: `see: nie ma karty „${r}”` }]);
   for (const l of out.lekcje) for (const r of l.data.codes) if (!kodSlugs.has(r)) fail(l.file, [{ message: `codes: nie ma karty „${r}”` }]);
+  // Technologia: powiązania z kartami, hasłami, lekcjami i innymi artykułami
+  const arts = out.technologia.artykuly;
+  dup(arts, (a) => `${a.data.dzial}/${a.data.slug}`, (a) => a.file, "artykuł");
+  dup(arts, (a) => `${a.data.dzial}#${a.data.order}`, (a) => a.file, "order artykułu w dziale");
+  const artKeys = new Set(arts.map((a) => `${a.data.dzial}/${a.data.slug}`));
+  const anchors = new Set(out.slownik.map((h) => h.data.anchor));
+  for (const a of arts) {
+    const p = a.data.powiazane, self = `${a.data.dzial}/${a.data.slug}`;
+    const bad = [
+      ...p.kody.filter((k) => !kodSlugs.has(k)).map((k) => `powiazane.kody: nie ma karty „${k}”`),
+      ...p.hasla.filter((h) => !anchors.has(h)).map((h) => `powiazane.hasla: nie ma hasła „${h}”`),
+      ...p.artykuly.filter((x) => !artKeys.has(x) || x === self).map((x) => (x === self ? "powiazane.artykuly: artykuł wskazuje sam siebie" : `powiazane.artykuly: nie ma artykułu „${x}”`)),
+      ...(o.lessonIds ? p.lekcje.filter((l) => !o.lessonIds!.has(l)).map((l) => `powiazane.lekcje: nie ma gotowej lekcji „${l}”`) : []),
+    ];
+    if (bad.length) fail(a.file, bad.map((message) => ({ message })));
+  }
 
   if (errors.length) throw new ContentErrors(errors);
   return out;

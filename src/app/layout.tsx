@@ -18,6 +18,7 @@ import { EditBar } from "@/components/edycja/EditMode";
 import BrandLogo from "@/components/BrandLogo";
 import "./globals.css";
 import "./tactile.css";
+import "./technologia.css";
 
 // Czcionki z repozytorium (src/app/fonts, licencja OFL): build nie pobiera nic z Google Fonts.
 // Pliki zmienne (oś wght), podzbiór latin + latin-ext; zakres wag jak w nazwach poniżej. Nazwy zmiennych jak w globals.css.

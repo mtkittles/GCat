@@ -26,10 +26,10 @@ type Data = Record<string, unknown>;
 export function Group({ title, children, id }: { title: string; children: ReactNode; id?: string }) {
   return <section className="rys-group" id={id}><h3>{title}</h3>{children}</section>;
 }
-function Seg<T extends string | number>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange: (v: T) => void; label: string }) {
+export function Seg<T extends string | number>({ value, options, onChange, label }: { value: T; options: [T, string][]; onChange: (v: T) => void; label: string }) {
   return <div className="rys-seg" role="radiogroup" aria-label={label}>{options.map(([v, l]) => <button key={String(v)} type="button" role="radio" aria-checked={value === v} onClick={() => onChange(v)}>{l}</button>)}</div>;
 }
-function Text({ label, value, onChange, id, mono, rows, placeholder, hint }: { label: string; value: string; onChange: (v: string) => void; id?: string; mono?: boolean; rows?: number; placeholder?: string; hint?: string }) {
+export function Text({ label, value, onChange, id, mono, rows, placeholder, hint }: { label: string; value: string; onChange: (v: string) => void; id?: string; mono?: boolean; rows?: number; placeholder?: string; hint?: string }) {
   return (
     <label className="ed-field" htmlFor={id}>
       <span>{label}</span>
@@ -97,6 +97,7 @@ function BlockPanel({ editor }: { editor: Editor }) {
   else if (c?.type === "table") body = (
     <Group title="Tabela">
       <Text label="Podpis nad tabelą" value={String(a.caption ?? "")} onChange={(v) => set({ caption: v })} />
+      <div className="rys-checks"><label><input type="checkbox" checked={a.sort === "true"} onChange={(e) => set({ sort: e.target.checked ? "true" : "" })} />sortowanie kliknięciem w nagłówek kolumny</label></div>
       <p className="rys-tip">Pierwszy wiersz to nagłówek. Na telefonie tabela układa się w karty z nazwami kolumn.</p>
       <Acts>
         <Act icon="plus" onClick={() => editor.chain().focus().addRowAfter().run()}>Wiersz poniżej</Act>
@@ -173,7 +174,7 @@ function DiagramPick({ id, onPick }: { id: string; onPick: (id: string) => void 
 
 /* ───────────── Karta ───────────── */
 
-function ListEdit<T>({ items, onChange, render, make, add }: { items: T[]; onChange: (v: T[]) => void; render: (it: T, set: (v: T) => void, i: number) => ReactNode; make: () => T; add: string }) {
+export function ListEdit<T>({ items, onChange, render, make, add }: { items: T[]; onChange: (v: T[]) => void; render: (it: T, set: (v: T) => void, i: number) => ReactNode; make: () => T; add: string }) {
   const move = (i: number, d: number) => { const n = [...items]; const [x] = n.splice(i, 1); n.splice(i + d, 0, x); onChange(n); };
   return (
     <div className="ed-items">
@@ -192,7 +193,7 @@ function ListEdit<T>({ items, onChange, render, make, add }: { items: T[]; onCha
   );
 }
 
-type Src = { id: string; where: string; loc: string; url: string };
+export type Src = { id: string; where: string; loc: string; url: string };
 type Stock = { discriminant: boolean; value?: Record<string, number> | null };
 
 function KartaPanel({ data, onChange }: { data: Data; onChange: (d: Data) => void }) {
@@ -283,18 +284,20 @@ function Kontrola({ problems, checking }: { problems: Problem[]; checking: boole
   );
 }
 
-export default function Panel({ tab, setTab, editor, data, onData, problems, checking }: {
+export default function Panel({ tab, setTab, editor, data, onData, problems, checking, fields }: {
   tab: Tab; setTab: (t: Tab) => void; editor: Editor; data: Data; onData: (d: Data) => void; problems: Problem[]; checking: boolean;
+  /** zamiast pól karty kodu: pola innego rodzaju treści (np. artykułu Technologii) */
+  fields?: { label: string; node: ReactNode };
 }) {
   return (
     <aside className="rys-panel ed-panel" aria-label="Ustawienia">
       <div className="rys-seg ed-tabs" role="tablist">
         <button type="button" role="tab" aria-selected={tab === "blok"} onClick={() => setTab("blok")}>Blok</button>
-        <button type="button" role="tab" aria-selected={tab === "karta"} onClick={() => setTab("karta")}>Karta</button>
+        <button type="button" role="tab" aria-selected={tab === "karta"} onClick={() => setTab("karta")}>{fields?.label ?? "Karta"}</button>
         <button type="button" role="tab" aria-selected={tab === "kontrola"} onClick={() => setTab("kontrola")}>Kontrola{problems.length ? ` (${problems.length})` : ""}</button>
       </div>
       {tab === "blok" && <BlockPanel editor={editor} />}
-      {tab === "karta" && <KartaPanel data={data} onChange={onData} />}
+      {tab === "karta" && (fields ? fields.node : <KartaPanel data={data} onChange={onData} />)}
       {tab === "kontrola" && <Kontrola problems={problems} checking={checking} />}
     </aside>
   );

@@ -94,6 +94,70 @@ export const hasloSchema = z.strictObject({
 });
 export type Haslo = z.infer<typeof hasloSchema>;
 
+// ───────────── Technologia: content/technologia/dzialy.yaml i <dział>/<slug>.mdx ─────────────
+
+/** Ikony działów (src/components/technologia/icons.tsx). */
+export const DZIAL_IKONY = ["frez", "plytka", "wzory", "proces", "mocowanie", "materialy", "strategie"] as const;
+export const dzialSchema = z.strictObject({
+  /** = nazwa katalogu; adres /technologia/<slug> */
+  slug,
+  title: text,
+  /** jedno zdanie na kaflu i pod tytułem działu */
+  short: text,
+  /** zakres tematów (pokazywany, dopóki dział nie ma artykułów) */
+  zakres: text,
+  icon: z.enum(DZIAL_IKONY),
+  order: z.number().int().positive(),
+  /** kafel podwójnej szerokości na /technologia */
+  big: z.boolean().default(false),
+});
+export const dzialySchema = z.array(dzialSchema).min(1);
+export type Dzial = z.infer<typeof dzialSchema>;
+
+/** Szablon artykułu (wybór przy „Nowy artykuł”). */
+export const ARTYKUL_TYPY = ["narzedzie", "temat", "porownanie"] as const;
+export const OBROBKI = ["frezowanie", "toczenie", "wiercenie"] as const;
+const sourcesField = z.array(z.strictObject({ id: text, where: text, loc: z.string().default(""), url: z.string().default("") })).default([]);
+/** odnośnik do artykułu: <dział>/<slug> */
+export const artykulRef = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*\/[a-z0-9]+(?:-[a-z0-9]+)*$/, "artykuł: <dział>/<slug>");
+
+export const artykulSchema = z.strictObject({
+  title: text,
+  /** = nazwa pliku; adres /technologia/<dzial>/<slug> */
+  slug,
+  /** = katalog pliku (dział z dzialy.yaml) */
+  dzial: slug,
+  typ: z.enum(ARTYKUL_TYPY, { error: "typ: narzedzie, temat albo porownanie" }),
+  /** kolejność w dziale (odstępy co 10) */
+  order: z.number().int().positive(),
+  /** jedno zdanie pod tytułem (lista, wyszukiwarka) */
+  short: text,
+  obrobka: z.array(z.enum(OBROBKI)).min(1),
+  poziom: level123,
+  normy: z.array(text).default([]),
+  /** szkic = treść czeka na weryfikację merytoryczną (plakietka na stronie, lista w audit:technologia) */
+  stan: z.enum(["szkic", "sprawdzony"]).default("szkic"),
+  /** pro = widoczne tylko dla planu Pro i konta redakcji */
+  plan: z.enum(["free", "pro"]).default("free"),
+  /** data dodania RRRR-MM-DD („Ostatnio dodane”) */
+  dodano: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "dodano: RRRR-MM-DD"),
+  /** źródła jak w kartach (src/content/nauka/sources.ts) */
+  sources: sourcesField,
+  powiazane: z.strictObject({
+    /** slugi kart kodów */
+    kody: z.array(slug).default([]),
+    /** id lekcji, np. F4.2 */
+    lekcje: z.array(z.string().regex(/^[FT](\d+|P)\.\d+$/, "id lekcji: F3.2, T1.4 albo FP.1")).default([]),
+    /** kotwice haseł słownika */
+    hasla: z.array(anchor).default([]),
+    /** inne artykuły: <dział>/<slug> */
+    artykuly: z.array(artykulRef).default([]),
+    /** odnośnik do kalkulatora parametrów skrawania */
+    kalkulator: z.boolean().default(false),
+  }).default({ kody: [], lekcje: [], hasla: [], artykuly: [], kalkulator: false }),
+});
+export type Artykul = z.infer<typeof artykulSchema>;
+
 // ───────────── rysunek z rysownika: content/rysunki/<slug>.yaml ─────────────
 
 /** Elementy sprawdza loader: zapis musi być równy storeDoc(parseDoc(…)) z src/lib/rys/model.ts (zakresy i listy rodzajów w jednym miejscu). */
