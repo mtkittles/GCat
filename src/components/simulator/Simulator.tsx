@@ -2,6 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { formatTime, validate, type StockBox } from "@/lib/parser/validate";
 import { applyCompensation, noseOf } from "./compensation";
@@ -45,10 +46,13 @@ import SplitHandle from "./SplitHandle";
 import SimDro from "./SimDro";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import OverrideKnob from "@/components/tactile/OverrideKnob";
+import StatusLed from "@/components/tactile/StatusLed";
 import StatusCapsule, { claimCapsule } from "./StatusCapsule";
 import { advance, BASE_RATE, blockStops, cumulative, cumulativeSeconds, MODE_LABEL, MODE_TITLE, MODES, secondsAt, stepFeed, stopIndexAt, type RunMode } from "./transport";
 import { segSeconds } from "@/lib/parser/stats";
 import { useMedia } from "@/lib/ui/prefs";
+import { useSimBarSlot } from "./simBarSlot";
+import { framed } from "./frame";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -78,6 +82,8 @@ interface Props {
   codeTop?: ReactNode;
   /** Tylko telefon: dodatkowe ustawienia w zakładce „Ustawienia”. */
   settingsExtra?: ReactNode;
+  /** Komputer, strona /symulator: pozycje strony (kopiuj, link) na początku menu „Plik” w pasku nad stanowiskiem. */
+  fileItems?: ReactNode;
   /** Układ aplikacji na telefonie: zakładki Kod / Symulacja / Narzędzia / Ustawienia (strona /symulator). */
   appLayout?: boolean;
   /** Program wzorcowy (zadanie, rozwiązanie) do nałożenia na tor jako przerywana linia. */
@@ -97,6 +103,9 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
 const Z0 = { k: 1, tx: 0, ty: 0 };
 const ZMIN = 0.5, ZMAX = 80;
 
+/** Cień celu zadania (obszar obróbki wzorca) — fiolet toru wzorcowego, mocno przygaszony. */
+const REF_GHOST = "rgba(167,139,250,0.22)";
+
 const COLORS = {
   rapid: "#F59E0B",   // szybki przejazd
   linear: "#22C55E",  // ruch roboczy
@@ -109,7 +118,7 @@ const COLORS = {
   stockEdge: "rgba(255,255,255,0.14)",
 };
 
-export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, appLayout = false, reference, lesson = false }: Props) {
+export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, fileItems, appLayout = false, reference, lesson = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
   // Kinematyka frezarki 4/5-osiowej: „auto” — z liter osi w programie (B → B/C, inaczej A/C).
   const [kinSel, setKinSel] = useState<Kin | "auto">("auto");
@@ -141,6 +150,9 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const togglePath = () => setPv({ path: pv.path === "none" ? (pv.stock ? "tail" : "all") : "none" });
   // „2D + 3D” tylko tam, gdzie mieszczą się dwa podglądy obok siebie (jak dotąd .only-split od 1100 px)
   const wideDesk = useMedia("(min-width: 1100px)");
+  // pasek strony /symulator (V5): miejsce na widok, warstwy i „Plik” — patrz `barTools` niżej
+  const barSlot = useSimBarSlot();
+  const deskBar = useMedia("(min-width: 768px)");
   // warstwy podglądu 2D: ruchy szybkie G00 i siatka współrzędnych
   const showRapid = pv.rapid;
   const [showGrid, setShowGrid] = useState(true);
@@ -277,7 +289,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const learn = appLayout ? layout.learn : localLearn;
   const setLearn = (v: boolean) => (appLayout ? setLayout({ learn: v }) : setLocalLearn(v));
   const [showRef, setShowRef] = useState(false);
-  const refSegments = useMemo(() => (reference ? parseProgram(reference, { diameterX: mode === "lathe", units, dialect }).segments.filter((sg) => sg.kind !== "rapid" && sg.kind !== "dwell") : null), [reference, mode, units, dialect]);
+  const refProgram = useMemo(() => (reference ? parseProgram(reference, { diameterX: mode === "lathe", units, dialect }) : null), [reference, mode, units, dialect]);
+  const refSegments = useMemo(() => (refProgram ? refProgram.segments.filter((sg) => sg.kind !== "rapid" && sg.kind !== "dwell") : null), [refProgram]);
   const api3d = useRef<Sim3DApi | null>(null);
   const onApi3d = useCallback((api: Sim3DApi | null) => { api3d.current = api; }, []);
   const account = useAccount();
@@ -287,11 +300,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   const segments: Segment[] = partSegs ?? (showComp && comp.active ? comp.segments : program.segments);
   // kadr 2D: przy 4/5 osiach z toru w układzie detalu, nie z osi maszyny
   const viewBounds = useMemo(() => {
-    if (!partSegs) return program.bounds;
+    // frezarka: kadr obejmuje też półfabrykat i tor wzorcowy zadania (tokarka — bez zmian, pręt dokłada latheStockBox)
+    if (!partSegs) return mode === "mill" ? framed(program.bounds, showStock && !compact && !showcase ? stockBox : undefined, refSegments) : program.bounds;
     const min = { x: 0, y: 0, z: 0 }, max = { x: 0, y: 0, z: 0 };
     for (const sg of partSegs) for (const p of [sg.from, sg.to]) for (const k of ["x", "y", "z"] as const) { min[k] = Math.min(min[k], p[k]); max[k] = Math.max(max[k], p[k]); }
     return { min, max };
-  }, [partSegs, program]);
+  }, [partSegs, program, mode, showStock, compact, showcase, stockBox, refSegments]);
   const lengths = useMemo(() => segments.map(playLength), [segments]);
   // wymiary pręta na tokarce — widok musi objąć cały przekrój, nie tylko tor
   const latheStockBox = useMemo(() => {
@@ -858,6 +872,29 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     }
 
     // wzorzec z zadania: tor roboczy rozwiązania jako przerywana linia pod torem użytkownika
+    // Cel zadania (V5): obszar obróbki wzorca jako cień — szerokość freza wzorca, jedna ścieżka na promień,
+    // więc nakładające się przejścia nie ciemnieją i nie widać kolejności ruchów. Dokładny tor — przełącznik „Wzorzec”.
+    if (refSegments && refProgram && mode === "mill" && !compact && !showcase) {
+      const top = stockBox?.length ? Math.max(...stockBox.map((b) => b.top)) : Infinity;
+      const byR = new Map<number, Path2D>();
+      for (const sg of refSegments) {
+        if (Math.min(sg.from.z, sg.to.z) >= top - 0.01) continue; // nad materiałem nic nie zbiera
+        const r = cuttingRadius(toolOf(setup, refProgram.lines[sg.line]?.state.tool ?? null, mode));
+        const path = byR.get(r) ?? (byR.set(r, new Path2D()), byR.get(r)!);
+        const n = sg.kind === "arc" ? 48 : 1;
+        const [x0, y0] = P(sg.from); path.moveTo(x0, y0);
+        for (let i = 1; i <= n; i++) { const [x, y] = P(pointAt(sg, i / n)); path.lineTo(x, y); }
+      }
+      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = REF_GHOST;
+      for (const [r, path] of byR) { ctx.lineWidth = Math.max(2, 2 * r * scale); ctx.stroke(path); }
+      // opis pod skalą głębokości (prawy górny róg; telefon z tabelką — z lewej)
+      if (byR.size) {
+        const lx0 = W < 600 && hudHtml ? 14 : W - 110, ly0 = 60;
+        ctx.fillStyle = "rgba(167,139,250,0.55)"; ctx.fillRect(lx0, ly0 - 7, 14, 8);
+        ctx.fillStyle = COLORS.axis; ctx.font = "10px ui-monospace, monospace"; ctx.fillText("CEL ZADANIA", lx0 + 20, ly0);
+      }
+      ctx.restore();
+    }
     if (showRef && refSegments) {
       ctx.save(); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
       for (const sg of refSegments) { ctx.strokeStyle = "rgba(167,139,250,0.9)"; drawSeg(ctx, sg, P, 1, 0.9); }
@@ -1054,7 +1091,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, pv, cutZs, zoom, meas, picks, placing, pending, hover, measure, mTool]);
+  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, refProgram, stockBox, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, pv, cutZs, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -1241,9 +1278,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Menu układu (komputer): co pokazywać na stanowisku symulatora.
   const layoutMenu = appLayout && (
     <details className="lay-menu">
-      <summary title="Układ ekranu symulatora">Układ ▾</summary>
+      <summary title="Układ ekranu symulatora" aria-label="Układ ekranu">
+        <svg className="bar-ic" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><rect x="3" y="4" width="18" height="16" rx="2" /><path d="M9 4v16" /><path d="M9 12h12" /></svg>
+        <span className="lay-tx">Układ ▾</span>
+      </summary>
       <div className="lay-pop">
-        {([["hud", "Tabelka na podglądzie"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
+        {([["hud", "Panel stanu sterowania"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
         ))}
         <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
@@ -1326,6 +1366,51 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </div>
       <div className="vh-tool">T{String(activeToolNo ?? 0).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</div>
     </div>
+  );
+  // Panel „Stan sterowania” (V5): na komputerze w układzie aplikacji zamiast tabelki na kanwie — kolumna obok podglądu,
+  // nic nie zasłania toru. Przełącznik: Układ → „Panel stanu sterowania” (layout.hud).
+  const asideOn = appLayout && !compact && deskBar && layout.hud;
+  const nErr = issues.filter((i) => i.level === "error").length, nWarn = issues.length - nErr;
+  const stateAside = asideOn && (
+    <aside className="sim-aside" aria-label="Stan sterowania">
+      <h2 className="sa-h">Stan sterowania</h2>
+      <section className="sa-sec">
+        <span className="sa-k">{activeLineText ? `Blok ${activeLineText.index + 1}` : "Blok"}</span>
+        <code className="sa-code">{activeLineText?.raw.trim() || "koniec programu"}</code>
+        {activeLineText && (activeLineText.errors.length ? <p className="sa-desc is-err">{activeLineText.errors.join(" ")}</p> : activeLineText.description ? <p className="sa-desc">{activeLineText.description}</p> : null)}
+      </section>
+      <section className="sa-sec sa-pos" aria-label="Pozycja">
+        <span><i>X</i><SimDro v={mode === "lathe" ? currentPos.x * 2 : currentPos.x} live={playing} />{mode === "lathe" ? " ⌀" : ""}</span>
+        {mode === "mill" && <span><i>Y</i><SimDro v={currentPos.y} live={playing} /></span>}
+        <span><i>Z</i><SimDro v={currentPos.z} live={playing} /></span>
+        {st?.rotary && (["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <span key={k}><i>{k.toUpperCase()}</i>{fmt(st.rotary![k]!)}°</span>)}
+        {offsetActive && <span className="sa-prog" title="Bieżący punkt w układzie programu (wyżej: maszyna)"><i>prog</i>{fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}{mode === "mill" ? ` / ${fmt(progPos.y)}` : ""} / {fmt(progPos.z)}</span>}
+      </section>
+      <section className="sa-sec">
+        <span className="sa-k">Stan modalny</span>
+        <div className="sa-mod">
+          <span>G{st?.motion ?? "--"}</span>{mode === "mill" && <span>G{st?.plane ?? 17}</span>}<span>{st?.units === "inch" ? "G20" : "G21"}</span>
+          <span>{st?.absolute ? "G90" : "G91"}</span><span>G{st?.feedMode ?? (mode === "lathe" ? 95 : 94)}</span>
+          <span title={zeroMark ? `Zero układu w maszynie: X${fmt(mode === "lathe" ? zeroMark.x * 2 : zeroMark.x)} Y${fmt(zeroMark.y)} Z${fmt(zeroMark.z)}` : "Układ współrzędnych"}>{st ? wcsLabel(st) : "G54"}</span>
+          <span>G{st?.comp ?? 40}</span>
+          <span>{st?.spindleOn === "off" ? "M05" : st?.spindleOn === "cw" ? "M03" : "M04"}</span><span>{st?.coolant ? "M08" : "M09"}</span>
+        </div>
+      </section>
+      <section className="sa-sec sa-fs">
+        <div><span className="sa-k">Posuw F</span><b>{st?.feed ?? "—"}</b><small>{st?.feedMode === 95 ? "mm/obr" : "mm/min"}</small></div>
+        <div><span className="sa-k">Obroty S</span><b>{st?.spindle ?? "—"}</b><small>{st?.css ? `G96 · ${st.css} m/min` : "obr/min"}</small></div>
+      </section>
+      <section className="sa-sec">
+        <span className="sa-k">Narzędzie</span>
+        <span className="sa-tool"><b>T{String(activeToolNo ?? 0).padStart(2, "0")}</b> {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</span>
+      </section>
+      <section className="sa-sec">
+        <span className="sa-k">Czas programu wg symulatora</span>
+        <span className="sa-tool">{formatTime(program.seconds)}</span>
+      </section>
+      <p className="sa-val"><StatusLed state={nErr ? "error" : nWarn ? "warning" : "ready"} pulse={false} />
+        {nErr || nWarn ? `Walidator: ${[nErr && `błędy ${nErr}`, nWarn && `ostrzeżenia ${nWarn}`].filter(Boolean).join(", ")}` : "Walidator: bez uwag"}</p>
+    </aside>
   );
   // Eksport: menu „Eksport” na komputerze, sekcja w Ustawieniach na telefonie
   const exportItems = (
@@ -1473,6 +1558,63 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     </>
   );
 
+  // ---- Pasek nad stanowiskiem (komputer, /symulator, V5): widok, warstwy, nauka, układ i „Plik” w jednym rzędzie
+  // z programem i maszyną. Stronę z paskiem rozpoznajemy po #sim-bar-view; gdzie indziej (zadania, lekcje) zostaje .viewbar.
+  const ported = appLayout && !compact && deskBar && !!barSlot && allow3d;
+  const compLabel = mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)";
+  const layersSummary = [pv.stock ? "Materiał" : "Tor", pathLabel, showRapid ? "G00" : null, showGrid ? "Siatka" : null].filter(Boolean).join(" · ");
+  const layersMenu = (
+    <details className="lay-menu bar-menu">
+      <summary title="Co widać na podglądzie: materiał, tor, ruchy G00, siatka, korekcja promienia">
+        <span className="bar-k">Warstwy</span><span className="bar-sum">{layersSummary}</span><span aria-hidden>▾</span>
+      </summary>
+      <div className="lay-pop pv-pop bar-pop">
+        <div className="bar-row"><span className="bar-l">Podgląd</span>{pvSwitch}</div>
+        <fieldset className="pv-modes">
+          <legend>Tor narzędzia</legend>
+          {PATH_MODES.map((m) => (
+            <label key={m.value} title={m.hint}><input type="radio" name="bar-pv-path" checked={pv.path === m.value} onChange={() => setPv({ path: m.value })} /><span>{m.label}<small>{m.hint}</small></span></label>
+          ))}
+        </fieldset>
+        <label><input type="checkbox" checked={pv.rapid} onChange={(e) => setPv({ rapid: e.target.checked })} />Ruchy szybkie G00</label>
+        <label><input type="checkbox" checked={showGrid} onChange={(e) => setShowGrid(e.target.checked)} />Siatka współrzędnych (2D)</label>
+        <label><input type="checkbox" checked={pv.color === "tool"} onChange={(e) => setPv({ color: e.target.checked ? "tool" : "move" })} />Kolor toru wg narzędzia</label>
+        <label className={pv.stock ? undefined : "is-off"}><input type="checkbox" checked={pv.depth} disabled={!pv.stock} onChange={(e) => setPv({ depth: e.target.checked })} />Cieniowanie głębokości (2D)</label>
+        {comp.active
+          ? <label><input type="checkbox" checked={showComp} onChange={(e) => setShowComp(e.target.checked)} />{compLabel}</label>
+          : <p className="bar-note">{mode === "lathe"
+            ? "G40 — program prowadzi punkt P ostrza; na fazach i łukach naroże zostawia materiał (pomarańczowy ślad)."
+            : "G40 — współrzędne opisują tor środka narzędzia, nie kontur detalu."}</p>}
+        {refSegments && refSegments.length > 0 && <label><input type="checkbox" checked={showRef} onChange={(e) => setShowRef(e.target.checked)} />Tor wzorcowy (przerywana linia)</label>}
+        <div className="pv-acts">
+          <button type="button" className="key" onClick={() => setPv({ ...VIEW_CLEAN, color: pv.color, depth: pv.depth })}>Czysty widok</button>
+          <button type="button" className="key" onClick={() => setPv(pv.stock ? VIEW_MATERIAL : VIEW_BACKPLOT)}>Domyślne</button>
+        </div>
+      </div>
+    </details>
+  );
+  const fileMenu = (
+    <details className="lay-menu bar-menu">
+      <summary title="Kopiowanie, link do programu, eksport podglądu i toru"><span className="bar-k">Plik</span><span aria-hidden>▾</span></summary>
+      <div className="lay-pop bar-pop is-right bar-file">
+        {fileItems}
+        {fileItems && <hr />}
+        {exportItems}
+      </div>
+    </details>
+  );
+  const learnBtn = (
+    <button type="button" className="bar-btn" aria-pressed={learn} onClick={() => { if (!learn) setSplit(false); setLearn(!learn); }}
+      title="Tryb nauki: opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (spacja, ←, →, Home)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg>
+      <span className="bar-tx">Nauka</span>
+    </button>
+  );
+  const barTools = ported && createPortal(
+    <>{viewSwitch}{layersMenu}{learnBtn}{layoutMenu}{fileMenu}</>,
+    barSlot,
+  );
+
   return (
     <div ref={rootRef} data-mtab={appLayout && !compact ? mTab : undefined} tabIndex={-1}
       onKeyDown={(e) => {
@@ -1493,7 +1635,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <details className="panel m-code" open>
           <summary className="panel-head">Program</summary>
           <div className="flex flex-col gap-2 min-h-0 panel-body">
-          {codeTop && <div className="m-only grid gap-2">{codeTop}</div>}
+          {codeTop && <div className="code-top grid gap-2">{codeTop}</div>}
           {editable ? (
             <>
               <GcodeEditor value={source} onChange={(v) => onSourceChange?.(v)} activeLine={activeLine} errorLines={errorLines} warnLines={warnLines}
@@ -1566,10 +1708,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         </details>
 
       )}
-      <div className="flex flex-col gap-2 wb-main">
+      {barTools}
+      <div className={`flex flex-col gap-2 wb-main${asideOn ? " has-aside" : ""}`}>
         {appLayout && !compact && <SplitHandle />}
         {!compact && allow3d && (
-            <div className="viewbar m-sim">
+            <div className={`viewbar m-sim${ported ? " is-ported" : ""}`}>
               {viewSwitch}
               <button type="button" className="vb-m vb-dim" onClick={() => setView(view === "2d" ? "3d" : "2d")}
                 aria-label={view === "2d" ? "Przełącz na widok 3D" : "Przełącz na widok 2D"} title="Przełącz widok 2D / 3D">
@@ -1598,12 +1741,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             {view !== "3d" && zoomTools}
           </div>
           {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary></div>}
-          {viewHud}
+          {!asideOn && viewHud}
         </div>
+        {stateAside}
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
         {transportBar}
         {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
-        {!compact && st && (
+        {!compact && st && !asideOn && (
           <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
             <span>G{st.motion ?? "--"}</span><span>G{st.plane}</span><span>{st.absolute ? "G90" : "G91"}</span>

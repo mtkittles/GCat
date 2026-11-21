@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { loadActiveId, loadPrograms, newId, saveActiveId, savePrograms, type StoredProgram } from "./programs";
 import PageBanner from "@/components/ui/PageBanner";
 import Link from "next/link";
@@ -184,6 +184,25 @@ export default function SimPage() {
       <button aria-pressed={dialect === "sinumerik"} onClick={() => setDialect("sinumerik")}>Sinumerik</button>
     </>
   );
+  // menu w pasku (details) zamykają się po kliknięciu obok i klawiszem Escape
+  const barRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    const close = (except?: EventTarget | null) => bar.querySelectorAll("details[open]").forEach((d) => {
+      if (!(except instanceof Node && d.contains(except))) d.removeAttribute("open");
+    });
+    const onDown = (e: PointerEvent) => close(e.target);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || !bar.querySelector("details[open]")) return;
+      const open = bar.querySelector<HTMLDetailsElement>("details[open]");
+      close(); open?.querySelector("summary")?.focus();
+    };
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    return () => { document.removeEventListener("pointerdown", onDown); document.removeEventListener("keydown", onKey); };
+  }, []);
+
   // link z programem w adresie — ten sam zapis co „Otwórz w symulatorze” z kart (src/lib/simLink.ts)
   const share = () => {
     if (src.length > SIM_LINK_MAX) { toast.error("Program jest za długi na link — skopiuj kod."); return; }
@@ -202,25 +221,24 @@ export default function SimPage() {
           <li>Walidator zaznacza błędy na czerwono, ostrzeżenia na żółto.</li>
           <li>W toczeniu X oznacza średnicę, jak w Fanuc.</li>
         </ul>} priority />
-      {/* Komputer: wszystko, co dotyczy programu i maszyny, w jednym pasku nad stanowiskiem */}
-      <div className="sim-bar">
-        <span className="sim-bar-title">Symulator</span>
-        <label className="sim-bar-prog">{progSelect}</label>
+      {/* Komputer: jeden pasek nad stanowiskiem (V5). Program, maszyna i sterownik — tutaj; widok, warstwy, nauka,
+          układ i „Plik” wstawia Symulator w #sim-bar-view (createPortal), żeby obsługiwały jego stan. */}
+      <div className="sim-bar" ref={barRef}>
+        <label className="sim-bar-prog" title={name}>{progSelect}</label>
         <TactileSegmentedControl<SimMode> label="Maszyna" size="sm" value={mode} onChange={setMode}
-          options={[{ value: "mill", label: "Frezowanie (XYZ)" }, { value: "lathe", label: "Toczenie (XZ)" }]} />
+          options={[{ value: "mill", label: "Frezowanie", title: "Frezarka — płaszczyzna XY, oś Z" }, { value: "lathe", label: "Toczenie", title: "Tokarka — płaszczyzna ZX, X w średnicy" }]} />
         <TactileSegmentedControl<Dialect> label="Sterownik walidatora" size="sm" value={dialect} onChange={setDialect}
           options={[{ value: "fanuc", label: "Fanuc" }, { value: "sinumerik", label: "Sinumerik" }]} />
-        <div className="sim-acts">
-          <button type="button" className="cd-copy" onClick={() => copyText(src, "Skopiowano kod programu")}><Copy aria-hidden /> Kopiuj kod</button>
-          <button type="button" className="cd-copy" onClick={share} title="Link z programem w adresie (?kod=…)"><Link2 aria-hidden /> Udostępnij link</button>
-        </div>
-        <div className="sim-bar-tabs">{programTabs}</div>
-        {cur && <span className="sim-bar-meta">{cur.level} · {Object.keys(cur.tools).length} narz.{cur.lesson ? <> · <Link href={cur.lesson.href}>{cur.lesson.label}</Link></> : null}</span>}
-        <Link href="/programy" className="sim-bar-lib">Galeria →</Link>
+        <div id="sim-bar-view" className="sim-bar-view" />
+        <Link href="/programy" className="sim-bar-lib"><span className="lbl-long">Galeria programów →</span><span className="lbl-short">Galeria →</span></Link>
       </div>
       {picker}
       <Simulator appLayout source={src} onSourceChange={setSrc} mode={mode} dialect={dialect} stock={stock} tools={tools}
         codeTop={<>{programTabs}</>}
+        fileItems={<>
+          <button type="button" onClick={() => copyText(src, "Skopiowano kod programu")}><Copy aria-hidden /> Kopiuj kod</button>
+          <button type="button" onClick={share} title="Link z programem w adresie (?kod=…)"><Link2 aria-hidden /> Udostępnij link</button>
+        </>}
         settingsExtra={<>
           <div className="m-set-row"><span>Obróbka</span><div className="filters">{modeButtons}</div></div>
           <div className="m-set-row"><span>Sterownik</span><div className="filters">{dialectButtons}</div></div>
