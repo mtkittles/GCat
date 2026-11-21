@@ -1285,7 +1285,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 
 /* szablon lekcji */
 .ls { display: grid; gap: 1.75rem; }
-.ls-goal { display: grid; gap: .3rem; padding: 1rem 1.1rem; border-radius: var(--radius-lg); background: var(--accent-soft); border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); }
+.ls-goal { display: grid; gap: .3rem; padding: 1rem 1.1rem; border-radius: var(--radius-lg); background: var(--card); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); }
 .ls-goal h2 { font-size: var(--fs-small); font-family: var(--font-sans); font-weight: 700; color: var(--accent-ink); letter-spacing: 0; }
 .ls-goal p { font-family: var(--font-sans); font-size: var(--fs-lesson); font-weight: 600; line-height: 1.45; color: var(--ink); letter-spacing: -.005em; }
 .ls-sec { display: grid; gap: .9rem; scroll-margin-top: 5rem; }
