@@ -218,10 +218,15 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
 
 /* ---------- 4. dok (telefon) i dolny arkusz Vaul ---------- */
 @media (max-width: 767px) {
-  :root { --dock-space: calc(78px + env(safe-area-inset-bottom, 0px)); }
+  :root {
+    /* dok blisko paska adresu Safari: w przeglądarce wcięcie dolne jest małe, w aplikacji z ekranu głównego
+       zostaje nad wskaźnikiem Home */
+    --dock-bottom: max(6px, calc(env(safe-area-inset-bottom, 0px) - 12px));
+    --dock-space: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
   body { padding-bottom: var(--dock-space); }
   .bottom-nav.dock {
-    left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); padding: 4px; gap: 2px;
+    left: 10px; right: 10px; bottom: var(--dock-bottom); padding: 4px; gap: 2px;
     border: 1px solid var(--line-strong); border-radius: 18px;
     background: color-mix(in srgb, var(--surface) 82%, transparent);
     -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
@@ -1932,6 +1937,42 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
 .lay-corner { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; padding-left: 1.4rem; }
 .lay-corner .key { font-size: 12.5px; justify-content: flex-start; }
 .lay-corner .key[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-ink); }
+
+/* ==========================================================================
+   31. V8a — dok na telefonie: niżej, chowany przy przewijaniu w dół; pasek sekcji symulatora wygląda jak dok
+   ========================================================================== */
+@media (max-width: 767px) {
+  .bottom-nav.dock {
+    transition: transform .42s cubic-bezier(.22, 1.2, .36, 1), opacity .3s ease;
+    will-change: transform;
+  }
+  .bottom-nav.dock[data-hidden] {
+    transform: translateY(calc(100% + var(--dock-bottom) + 12px));
+    opacity: 0; pointer-events: none;
+    transition: transform .3s cubic-bezier(.4, 0, .7, .2), opacity .25s ease .05s;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bottom-nav.dock, .bottom-nav.dock[data-hidden] { transition: opacity .2s ease; transform: none; }
+  }
+
+  /* symulator: ten sam dok co w serwisie — tło, ramka, cień, klawisze, wciśnięcie i dioda */
+  .workbench.is-app .m-simtabs {
+    bottom: var(--dock-bottom); gap: 2px; padding: 4px; margin-top: .4rem;
+    border: 1px solid var(--line-strong); border-radius: 18px;
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, .45);
+  }
+  [data-theme="light"] .workbench.is-app .m-simtabs { background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
+  .workbench.is-app .m-simtabs button, .workbench.is-app .m-simtabs-home {
+    position: relative; min-height: 54px; padding: 0; gap: 3px; justify-content: center;
+    border: 0; border-radius: 13px; background: transparent; color: var(--ink-2); font: 600 var(--fs-label)/1 var(--font-sans);
+  }
+  .workbench.is-app .m-simtabs button svg, .workbench.is-app .m-simtabs-home svg { width: 21px; height: 21px; stroke-width: 1.8; }
+  .workbench.is-app .m-simtabs button[aria-pressed="true"] { color: var(--ink); background: var(--bg); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35); }
+  [data-theme="light"] .workbench.is-app .m-simtabs button[aria-pressed="true"] { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .1); }
+  .workbench.is-app .m-simtabs button[aria-pressed="true"] svg { color: var(--accent-ink); }
+}
 
 /* ==========================================================================
    32. V8b — typografia: 9 stopni skali (--fs-*), Sora tylko w H1–H3, etykiety mono 12 wersalikami.
