@@ -7,7 +7,7 @@ import { isFinished, progressKey, useProgress } from "@/lib/progress";
 import { setObszar } from "@/lib/ui/prefs";
 import { pl } from "@/lib/plural";
 import { OBSZAR, OBSZARY, POMIAR_PLAN, type ObszarKey } from "@/lib/obszary";
-import type { ResumeLesson } from "@/components/pulpit/ResumePanel";
+import type { ResumeLesson } from "@/components/pulpit/types";
 import { DZIAL_ICO, IcoMill, IcoTurn, OBSZAR_ICO } from "./icons";
 import { CncPreview, PomiarPreview, TechPreview } from "./previews";
 import { useLive } from "./live";
