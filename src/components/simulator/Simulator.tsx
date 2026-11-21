@@ -14,7 +14,7 @@ import { stockBoxes } from "./pieces";
 import { cylCollisions, isCyl } from "./cylinder";
 import { drawUnrolled, type UnrollCache } from "./unrolled";
 import SetupPanel from "./SetupPanel";
-import LearnPanel from "./LearnPanel";
+import LearnPanel, { BlockChanges } from "./LearnPanel";
 import { download, pathToSvg } from "./exportPath";
 import type { Sim3DApi } from "./Sim3D";
 import { useAccount } from "@/lib/auth";
@@ -286,8 +286,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   const [showComp, setShowComp] = useState(true);
   const [localLearn, setLocalLearn] = useState(false);
-  const learn = appLayout ? layout.learn : localLearn;
-  const setLearn = (v: boolean) => (appLayout ? setLayout({ learn: v }) : setLocalLearn(v));
+  // tryb nauki pod podglądem — tylko symulator w zadaniach i lekcjach; na /symulator jego treść jest w panelu „Stan sterowania” (V5c)
+  const learn = appLayout ? false : localLearn;
+  const setLearn = (v: boolean) => { if (!appLayout) setLocalLearn(v); };
+  const [sheetOpen, setSheetOpen] = useState(true);
+  // telefon: panel jako arkusz na podglądzie — domyślnie wyłączony (jest pasek stanu pod podglądem), włącza go „Nauka”
+  const [phonePanel, setPhonePanel] = useState(false);
+  const togglePanel = () => setLayout({ hud: !layout.hud });
   const [showRef, setShowRef] = useState(false);
   const refProgram = useMemo(() => (reference ? parseProgram(reference, { diameterX: mode === "lathe", units, dialect }) : null), [reference, mode, units, dialect]);
   const refSegments = useMemo(() => (refProgram ? refProgram.segments.filter((sg) => sg.kind !== "rapid" && sg.kind !== "dwell") : null), [refProgram]);
@@ -501,8 +506,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   useEffect(() => {
     // W trybie pełnoekranowym rysujemy na kanwie powłoki, w zwykłym na osadzonej.
     const cv = (fs ? fsCanvasRef.current : canvasRef.current); if (!cv) return;
-    const wide = window.matchMedia("(min-width: 768px)").matches;
-    const hudHtml = !fs && appLayout && (layout.hud || !wide);
+    const hudHtml = !fs && appLayout; // stan sterowania jest w panelu (albo panel wyłączony — czysta kanwa)
     const ctx = cv.getContext("2d"); if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
@@ -1283,10 +1287,29 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         <span className="lay-tx">Układ ▾</span>
       </summary>
       <div className="lay-pop">
-        {([["hud", "Panel stanu sterowania"], ["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
+        <fieldset className="lay-set">
+          <legend>Układ ekranu</legend>
+          {([["full", "Pełny", "program, podgląd i panel"], ["wide", "Szeroki podgląd", "wąska kolumna programu"], ["focus", "Skupienie", "sam podgląd i pulpit (F)"]] as const).map(([v, l, h]) => (
+            <label key={v}><input type="radio" name="lay-preset" checked={(layout.focus ? "focus" : full ? "wide" : "full") === v}
+              onChange={() => { setLayout({ focus: v === "focus" }); setFull(v === "wide"); }} /><span>{l}<small>{h}</small></span></label>
+          ))}
+        </fieldset>
+        <fieldset className="lay-set">
+          <legend>Panel „Stan sterowania”</legend>
+          <label><input type="checkbox" checked={layout.hud} onChange={togglePanel} />Pokaż panel (P)</label>
+          <label className={layout.hud ? undefined : "is-off"}><input type="radio" name="lay-panel" disabled={!layout.hud} checked={layout.panel === "right"} onChange={() => setLayout({ panel: "right" })} />Z prawej, obok podglądu</label>
+          <label className={layout.hud ? undefined : "is-off"}><input type="radio" name="lay-panel" disabled={!layout.hud} checked={layout.panel === "over"} onChange={() => setLayout({ panel: "over" })} />Na podglądzie, półprzezroczysty</label>
+          {layout.hud && layout.panel === "over" && (
+            <div className="lay-corner" role="group" aria-label="Róg podglądu">
+              {([["tl", "↖ lewy górny"], ["tr", "↗ prawy górny"], ["bl", "↙ lewy dolny"], ["br", "↘ prawy dolny"]] as const).map(([c, l]) => (
+                <button key={c} type="button" className="key" aria-pressed={layout.corner === c} onClick={() => setLayout({ corner: c })}>{l}</button>
+              ))}
+            </div>
+          )}
+        </fieldset>
+        {([["ticks", "Podziałka współrzędnych w 3D"], ["follow", "Konsola śledzi wykonywaną linię"], ["lines", "Opisy linii pod konsolą"], ["zero", "Znacznik zera aktywnego układu"]] as const).map(([k, l]) => (
           <label key={k}><input type="checkbox" checked={layout[k]} onChange={(e) => setLayout({ [k]: e.target.checked })} />{l}</label>
         ))}
-        <label><input type="checkbox" checked={full} onChange={(e) => setFull(e.target.checked)} />Szeroki podgląd (wąska konsola)</label>
                 <label><input type="checkbox" checked={layout.jump} onChange={(e) => setLayout({ jump: e.target.checked })} />Klik w linię programu ustawia narzędzie</label>
         <label className="lay-units"><span>Jednostki</span>
           <select value={units} onChange={(e) => setUnits(e.target.value as "auto" | "mm" | "inch")}>
@@ -1349,35 +1372,47 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const n = activeLineText.words.find((w) => w.letter === "N");
     return n ? `N${n.value}` : `L${activeLineText.index + 1}`;
   })();
-  const viewHud = appLayout && layout.hud && !compact && (
-    <div className="view-hud" aria-live="off">
-      <div className="vh-line"><b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b><code>{activeLineText?.raw.trim() || "koniec programu"}</code></div>
-      <table>
-        <tbody>
-          <tr><th>X</th><td><SimDro v={mode === "lathe" ? currentPos.x * 2 : currentPos.x} live={playing} />{mode === "lathe" ? " ⌀" : ""}</td>{mode === "mill" && <><th>Y</th><td><SimDro v={currentPos.y} live={playing} /></td></>}<th>Z</th><td><SimDro v={currentPos.z} live={playing} /></td></tr>
-          <tr><th>F</th><td>{st?.feed ?? "--"}</td><th>S</th><td>{st?.spindle ?? "--"}</td>{mode === "mill" && <><th>T</th><td>{String(activeToolNo ?? 0).padStart(2, "0")}</td></>}</tr>
-          {st?.rotary && <tr>{(["a", "b", "c"] as const).filter((k) => st.rotary![k] !== undefined).map((k) => <Fragment key={k}><th>{k.toUpperCase()}</th><td>{fmt(st.rotary![k]!)}°</td></Fragment>)}</tr>}
-          {offsetActive && <tr className="vh-prog"><th title="Współrzędne w układzie programu (wiersz wyżej: maszyna)">prog</th><td>{fmt(mode === "lathe" ? progPos.x * 2 : progPos.x)}</td>{mode === "mill" && <><th /><td>{fmt(progPos.y)}</td></>}<th /><td>{fmt(progPos.z)}</td></tr>}
-        </tbody>
-      </table>
-      <div className="vh-mod">
-        <span>G{st?.motion ?? "--"}</span><span>{st?.absolute ? "G90" : "G91"}</span><span title={zeroMark ? `Zero układu w maszynie: X${fmt(mode === "lathe" ? zeroMark.x * 2 : zeroMark.x)} Y${fmt(zeroMark.y)} Z${fmt(zeroMark.z)}` : "Układ współrzędnych"}>{st ? wcsLabel(st) : "G54"}</span><span>G{st?.comp ?? 40}</span>
-        <span>{st?.spindleOn === "off" ? "M05" : st?.spindleOn === "cw" ? "M03" : "M04"}</span><span>{st?.coolant ? "M08" : "M09"}</span>
-      </div>
-      <div className="vh-tool">T{String(activeToolNo ?? 0).padStart(2, "0")} · {TOOL_LABEL[activeTool.kind]} {isLatheTool(activeTool.kind) ? `rε${activeTool.d}` : `⌀${activeTool.d}`}</div>
-    </div>
-  );
-  // Panel „Stan sterowania” (V5): na komputerze w układzie aplikacji zamiast tabelki na kanwie — kolumna obok podglądu,
-  // nic nie zasłania toru. Przełącznik: Układ → „Panel stanu sterowania” (layout.hud).
-  const asideOn = appLayout && !compact && deskBar && layout.hud;
+  // Panel „Stan sterowania” (V5, V5c): jedno miejsce na stan maszyny i tryb nauki (co zmienił blok).
+  // Komputer: z prawej obok podglądu albo na podglądzie (półprzezroczysty, w rogu, zwijany). Telefon: arkusz na dole
+  // podglądu, zwinięty do jednego wiersza. Włącza/wyłącza przycisk „Nauka” albo klawisz P (layout.hud).
+  const asideOn = appLayout && !compact && (deskBar ? layout.hud : phonePanel);
+  const asideRight = asideOn && deskBar && layout.panel === "right";
+  const asideOver = asideOn && !asideRight;
+  const asideMin = deskBar ? layout.panelMin : !sheetOpen;
   const nErr = issues.filter((i) => i.level === "error").length, nWarn = issues.length - nErr;
+  const asideLine = (
+    <span className="sa-line">
+      <b>{activeLineText ? String(activeLineText.index + 1).padStart(2, "0") : "—"}</b>
+      <code>{activeLineText?.raw.trim() || "koniec programu"}</code>
+      <span className="sa-line-pos">X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "mill" ? ` Y ${fmt(currentPos.y)}` : ""} Z {fmt(currentPos.z)}</span>
+    </span>
+  );
   const stateAside = asideOn && (
-    <aside className="sim-aside" aria-label="Stan sterowania">
-      <h2 className="sa-h">Stan sterowania</h2>
+    <aside className={`sim-aside${asideOver ? ` is-over c-${deskBar ? layout.corner : "sheet"}` : ""}${asideOver && asideMin ? " is-min" : ""}`} aria-label="Stan sterowania">
+      <div className="sa-head">
+        <h2 className="sa-h">Stan sterowania</h2>
+        {asideOver && (
+          <button type="button" className="sa-btn" aria-expanded={!asideMin}
+            onClick={() => (deskBar ? setLayout({ panelMin: !layout.panelMin }) : setSheetOpen((v) => !v))}
+            aria-label={asideMin ? "Rozwiń panel" : "Zwiń panel do jednego wiersza"} title={asideMin ? "Rozwiń" : "Zwiń"}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+              {asideMin === (deskBar && layout.corner[0] === "b") ? <path d="m6 15 6-6 6 6" /> : <path d="m6 9 6 6 6-6" />}
+            </svg>
+          </button>
+        )}
+        <button type="button" className="sa-btn" onClick={() => (deskBar ? togglePanel() : setPhonePanel(false))} aria-label="Ukryj panel (P)" title="Ukryj panel (P)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M18 6 6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
+      {asideOver && asideMin ? asideLine : <>
       <section className="sa-sec">
         <span className="sa-k">{activeLineText ? `Blok ${activeLineText.index + 1}` : "Blok"}</span>
         <code className="sa-code">{activeLineText?.raw.trim() || "koniec programu"}</code>
         {activeLineText && (activeLineText.errors.length ? <p className="sa-desc is-err">{activeLineText.errors.join(" ")}</p> : activeLineText.description ? <p className="sa-desc">{activeLineText.description}</p> : null)}
+      </section>
+      <section className="sa-sec sa-chg" aria-label="Co zmienił ten blok">
+        <span className="sa-k">Co zmienił ten blok</span>
+        <BlockChanges program={program} activeLine={activeLine} mode={mode} />
       </section>
       <section className="sa-sec sa-pos" aria-label="Pozycja">
         <span><i>X</i><SimDro v={mode === "lathe" ? currentPos.x * 2 : currentPos.x} live={playing} />{mode === "lathe" ? " ⌀" : ""}</span>
@@ -1410,6 +1445,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </section>
       <p className="sa-val"><StatusLed state={nErr ? "error" : nWarn ? "warning" : "ready"} pulse={false} />
         {nErr || nWarn ? `Walidator: ${[nErr && `błędy ${nErr}`, nWarn && `ostrzeżenia ${nWarn}`].filter(Boolean).join(", ")}` : "Walidator: bez uwag"}</p>
+      </>}
     </aside>
   );
   // Eksport: menu „Eksport” na komputerze, sekcja w Ustawieniach na telefonie
@@ -1510,9 +1546,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       </div>
     </details>
   );
+  // na /symulator (komputer) menu Układ jest tylko w pasku — dwie kopie z tymi samymi grupami radiowymi gasiły sobie zaznaczenie
+  const portBar = appLayout && !compact && deskBar && !!barSlot && allow3d;
   const viewExtras = (
     <>
-              {layoutMenu}
+              {!portBar && layoutMenu}
               <span className="vb-desk pv-group">{pvSwitch}{pvMenu}</span>
               <button className="vb-desk vb-layer is-g00" aria-pressed={showRapid} onClick={() => setPv({ rapid: !showRapid })} title="Ruchy szybkie G00 na podglądzie 2D" aria-label="Ruchy szybkie G00">
                 <span className="vb-tx"><b>G00</b></span>
@@ -1540,7 +1578,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                   {tall ? <path d="M9 3v6H3M15 21v-6h6M3 15h6v6M21 9h-6V3" /> : <path d="M3 9V3h6M21 15v6h-6M3 15v6h6M21 9V3h-6" />}
                 </svg>
               </button>
-              <button aria-pressed={learn} onClick={() => { if (!learn) setSplit(false); setLearn(!learn); }} title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
+              <button aria-pressed={appLayout ? (deskBar ? layout.hud : phonePanel) : learn}
+                onClick={() => {
+                  if (!appLayout) { if (!learn) setSplit(false); setLearn(!learn); }
+                  else if (deskBar) togglePanel();
+                  else { if (!phonePanel) setSheetOpen(true); setPhonePanel(!phonePanel); }
+                }}
+                title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg></span><span className="vb-tx"><span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span></span>
               </button>
               {appLayout && <button type="button" className="vb-m" aria-pressed={split} aria-label="Kod i podgląd"
@@ -1560,7 +1604,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
   // ---- Pasek nad stanowiskiem (komputer, /symulator, V5): widok, warstwy, nauka, układ i „Plik” w jednym rzędzie
   // z programem i maszyną. Stronę z paskiem rozpoznajemy po #sim-bar-view; gdzie indziej (zadania, lekcje) zostaje .viewbar.
-  const ported = appLayout && !compact && deskBar && !!barSlot && allow3d;
+  const ported = portBar;
   const compLabel = mode === "lathe" ? "Tor ostrza P (G41/G42)" : "Tor rzeczywisty (G41/G42)";
   const layersSummary = [pv.stock ? "Materiał" : "Tor", pathLabel, showRapid ? "G00" : null, showGrid ? "Siatka" : null].filter(Boolean).join(" · ");
   const layersMenu = (
@@ -1604,8 +1648,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     </details>
   );
   const learnBtn = (
-    <button type="button" className="bar-btn" aria-pressed={learn} onClick={() => { if (!learn) setSplit(false); setLearn(!learn); }}
-      title="Tryb nauki: opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (spacja, ←, →, Home)">
+    <button type="button" className="bar-btn" aria-pressed={layout.hud} onClick={togglePanel}
+      title="Panel nauki i stanu sterowania: blok, co zmienił, stan maszyny (klawisz P; krok po kroku: spacja, ←, →, Home)">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg>
       <span className="bar-tx">Nauka</span>
     </button>
@@ -1620,14 +1664,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       onKeyDown={(e) => {
         const el = e.target as HTMLElement;
         if (el.closest("input, textarea, select, [contenteditable=\"true\"], .cm-editor, button, a, summary")) return;
-        if (e.key === " ") { e.preventDefault(); togglePlay(); }
+        if (appLayout && !compact && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "p" || e.key === "P")) { e.preventDefault(); togglePanel(); }
+        else if (appLayout && !compact && deskBar && !e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "f" || e.key === "F")) { e.preventDefault(); setLayout({ focus: !layout.focus }); }
+        else if (e.key === " ") { e.preventDefault(); togglePlay(); }
         else if ((e.key === "+" || e.key === "=") && !compact) { e.preventDefault(); setFeed((v) => stepFeed(v, 1)); }
         else if (e.key === "-" && !compact) { e.preventDefault(); setFeed((v) => stepFeed(v, -1)); }
         else if (e.key === "ArrowRight") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, +1)); }
         else if (e.key === "ArrowLeft") { e.preventDefault(); userPlay(false); setProgress((p) => stepTo(p, lengths, -1)); }
         else if (e.key === "Home") { e.preventDefault(); resetProgram(); }
       }}
-      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""}`}
+      className={`${compact ? "grid gap-3" : "workbench"} ${appLayout && !compact ? "is-app" : ""} ${full ? "is-full" : ""} ${dragOver ? "is-dragover" : ""} ${show3d ? "is-3d" : ""} ${split && appLayout && !compact ? "is-split" : ""} ${appLayout && !compact && layout.focus ? "is-focus" : ""}`}
       onDragOver={(e) => { if (editable) { e.preventDefault(); setDragOver(true); } }}
       onDragLeave={() => setDragOver(false)}
       onDrop={onDrop}>
@@ -1709,7 +1755,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
       )}
       {barTools}
-      <div className={`flex flex-col gap-2 wb-main${asideOn ? " has-aside" : ""}`}>
+      <div className={`flex flex-col gap-2 wb-main${asideRight ? " has-aside" : ""}`}>
         {appLayout && !compact && <SplitHandle />}
         {!compact && allow3d && (
             <div className={`viewbar m-sim${ported ? " is-ported" : ""}`}>
@@ -1741,12 +1787,12 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             {view !== "3d" && zoomTools}
           </div>
           {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary></div>}
-          {!asideOn && viewHud}
+          {asideOver && stateAside}
         </div>
-        {stateAside}
+        {asideRight && stateAside}
         {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
         {transportBar}
-        {!compact && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
+        {!compact && !appLayout && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && !asideOn && (
           <div className="sim-state m-sim" aria-label="Stan maszyny">
             <span>X {fmt(mode === "lathe" ? currentPos.x * 2 : currentPos.x)}{mode === "lathe" ? " ⌀" : ""}</span>{mode === "mill" && <span>Y {fmt(currentPos.y)}</span>}<span>Z {fmt(currentPos.z)}</span>
