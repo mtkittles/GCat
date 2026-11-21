@@ -23,8 +23,6 @@ describe("strona startowa V3.1 — okno programu", () => {
     for (const d of D) {
       expect(d.segs.length).toBeGreaterThan(5);
       expect(d.ops.every((o) => o.name && o.tool)).toBe(true);
-      expect(d.code.fanuc.length).toBe(d.sinOf.length);
-      expect(Math.max(...d.sinOf)).toBeLessThan(d.code.sinumerik.length);
       // każda operacja ma ruch roboczy
       for (let k = 0; k < d.ops.length; k++) expect(d.segs.some((s) => s.op === k && s.kind !== "rapid"), `${d.key} op ${k}`).toBe(true);
     }
@@ -47,13 +45,11 @@ describe("strona startowa V3.1 — okno programu", () => {
     expect(w.segs.every((s) => s.pts.every(([, r]) => r >= 0 && r <= 50))).toBe(true);
   });
 
-  it("kolor ruchu w kodzie z trybu modalnego (oba zapisy)", () => {
+  it("kolor ruchu w kodzie z trybu modalnego (zapis Fanuc)", () => {
     const c = D[2].code;
-    const at = (lines: typeof c.fanuc, t: string) => lines.find((l) => l.t.trim() === t)!.k;
-    expect(at(c.fanuc, "Y45.")).toBe("linear");
-    expect(at(c.fanuc, "G03 X58. Y51. R6.")).toBe("arc");
-    expect(at(c.sinumerik, "G3 X58 Y51 CR=6")).toBe("arc");
-    expect(at(c.sinumerik, "Y45")).toBe("linear");
+    const at = (t: string) => c.find((l) => l.t.trim() === t)!.k;
+    expect(at("Y45.")).toBe("linear");
+    expect(at("G03 X58. Y51. R6.")).toBe("arc");
   });
 
   it("pas działów prowadzi do istniejących stron", () => {
@@ -72,7 +68,7 @@ describe("okno programu — pełne okręgi", () => {
     const D = heroDetale();
     const circle = (key: string, line: string) => {
       const d = D.find((x) => x.key === key)!;
-      const i = d.code.fanuc.findIndex((l) => l.t.trim().startsWith(line));
+      const i = d.code.findIndex((l) => l.t.trim().startsWith(line));
       const s = d.segs.find((g) => g.line === i)!;
       const [x0, y0] = s.pts[0], [x1, y1] = s.pts.at(-1)!;
       const far = Math.max(...s.pts.map(([x, y]) => Math.hypot(x - x0, y - y0)));
