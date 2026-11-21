@@ -1795,7 +1795,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           <div className="m-hud m-sim m-only">
             {statusStrip}
             {phoneLearn && (
-              <section className="m-learn" aria-label="Co zmienił ten blok">
+              <section key={activeLine} className="m-learn" aria-label="Co zmienił ten blok" tabIndex={0}>
                 {activeLineText && (activeLineText.errors.length ? <p className="sa-desc is-err">{activeLineText.errors.join(" ")}</p> : activeLineText.description ? <p className="sa-desc">{activeLineText.description}</p> : null)}
                 <div className="sa-chg"><BlockChanges program={program} activeLine={activeLine} mode={mode} /></div>
               </section>

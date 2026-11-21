@@ -1901,8 +1901,10 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
    w obu motywach („ciemna wyspa”), stąd własne kolory. */
 .m-learn {
   --ink: #F5F5F4; --ink-2: #C9CBD1; --muted: #9A9CA3; --accent-ink: #FB923C; --line: rgba(255, 255, 255, .12);
-  display: grid; gap: .35rem; padding-top: .45rem; border-top: 1px solid var(--line);
-  max-height: 9.5rem; overflow-y: auto; overscroll-behavior: contain;
+  display: grid; align-content: start; gap: .35rem; padding-top: .45rem; border-top: 1px solid var(--line);
+  /* stała wysokość: tekst bloku ma 1–6 wierszy, a zmienna karta przesuwała podgląd przy każdym kroku */
+  height: 8.5rem; overflow-y: auto; overscroll-behavior: contain;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1rem), transparent);
 }
 .m-learn .sa-desc { font-size: 13px; color: var(--ink-2); }
 
