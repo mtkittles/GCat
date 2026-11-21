@@ -194,11 +194,13 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
   .bottom-nav.dock {
     left: 10px; right: 10px; bottom: var(--dock-bottom); padding: 4px; gap: 2px;
     border: 1px solid var(--line-strong); border-radius: 18px;
-    background: color-mix(in srgb, var(--surface) 84%, transparent);
+    /* tło jako gradient, nie kolor: Safari 26 nie bierze go na jednolity „podbródek” pod paskiem
+       (tak jak wygaszenie body::after) — treść płynie pod dokiem także po jego pokazaniu */
+    background: transparent linear-gradient(color-mix(in srgb, var(--surface) 84%, transparent), color-mix(in srgb, var(--surface) 84%, transparent));
     -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
     box-shadow: 0 12px 32px rgba(0, 0, 0, .6);
   }
-  [data-theme="light"] .bottom-nav.dock { background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
+  [data-theme="light"] .bottom-nav.dock { background: transparent linear-gradient(color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface) 92%, transparent)); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
   /* UI-4: treść płynie do samego dołu ekranu, pod dokiem i paskiem przeglądarki; zamiast pełnego pasa
      łagodne wygaszenie (gradient bez koloru tła — Safari 26 nie ma z czego wziąć jednolitego „podbródka”). */
   body::after {
@@ -219,7 +221,7 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
   border: 0; border-radius: 13px; background: transparent; color: var(--ink-2); font: 600 var(--fs-label)/1 var(--font-sans);
 }
 .bottom-nav.dock .dock-key svg { width: 21px; height: 21px; stroke-width: 1.8; }
-.bottom-nav.dock .dock-key[aria-current="page"], .bottom-nav.dock .dock-key.is-active { color: var(--ink); background: var(--surface-2); }
+.bottom-nav.dock .dock-key[aria-current="page"], .bottom-nav.dock .dock-key.is-active { color: var(--ink); background: transparent linear-gradient(var(--surface-2), var(--surface-2)); }
 .bottom-nav.dock .dock-key[aria-current="page"] svg { color: var(--accent-ink); }
 .dock-led { position: absolute; top: 7px; right: calc(50% - 20px); }
 
@@ -1705,17 +1707,19 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
   .workbench.is-app .m-simtabs {
     bottom: var(--dock-bottom); gap: 2px; padding: 4px; margin-top: .4rem;
     border: 1px solid var(--line-strong); border-radius: var(--radius-lg);
-    background: color-mix(in srgb, var(--surface) 84%, transparent);
+    /* tło jako gradient, nie kolor: Safari 26 nie bierze go na jednolity „podbródek” pod paskiem
+       (tak jak wygaszenie body::after) — treść płynie pod dokiem także po jego pokazaniu */
+    background: transparent linear-gradient(color-mix(in srgb, var(--surface) 84%, transparent), color-mix(in srgb, var(--surface) 84%, transparent));
     -webkit-backdrop-filter: blur(16px) saturate(160%); backdrop-filter: blur(16px) saturate(160%);
     box-shadow: 0 12px 32px rgba(0, 0, 0, .6);
   }
-  [data-theme="light"] .workbench.is-app .m-simtabs { background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
+  [data-theme="light"] .workbench.is-app .m-simtabs { background: transparent linear-gradient(color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface) 92%, transparent)); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
   .workbench.is-app .m-simtabs button, .workbench.is-app .m-simtabs-home {
     position: relative; min-height: 54px; padding: 0; gap: 3px; justify-content: center;
     border: 0; border-radius: var(--radius-lg); background: transparent; color: var(--ink-2); font: 600 var(--fs-label)/1 var(--font-sans);
   }
   .workbench.is-app .m-simtabs button svg, .workbench.is-app .m-simtabs-home svg { width: 21px; height: 21px; stroke-width: 1.8; }
-  .workbench.is-app .m-simtabs button[aria-pressed="true"] { color: var(--ink); background: var(--surface-2); }
+  .workbench.is-app .m-simtabs button[aria-pressed="true"] { color: var(--ink); background: transparent linear-gradient(var(--surface-2), var(--surface-2)); }
   .workbench.is-app .m-simtabs button[aria-pressed="true"] svg { color: var(--accent-ink); }
 }
 
