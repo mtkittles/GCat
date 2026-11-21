@@ -4,12 +4,16 @@ import ProgramPreview from "@/components/ProgramPreview";
 import SpotlightCard from "@/components/tactile/SpotlightCard";
 import StatusLed from "@/components/tactile/StatusLed";
 import CncPanel from "@/components/pulpit/CncPanel";
-import ResumePanel, { type ResumeLesson } from "@/components/pulpit/ResumePanel";
+import type { ResumeLesson } from "@/components/pulpit/ResumePanel";
+import HeroStage from "@/components/pulpit/HeroStage";
+import CategoryMarquee from "@/components/pulpit/CategoryMarquee";
+import Reveal from "@/components/pulpit/Reveal";
+import { heroLines } from "@/components/pulpit/heroProgram";
 import LearnMap from "@/components/pulpit/LearnMap";
 import CodeWidget, { type CodeCard } from "@/components/pulpit/CodeWidget";
 import RpmWidget from "@/components/pulpit/RpmWidget";
 import FlashWidget from "@/components/pulpit/FlashWidget";
-import { lessonHref, readyLessons, tracks } from "@/lib/course";
+import { lessonHref, readyLessons } from "@/lib/course";
 import { gcodes } from "@/lib/gcodes";
 import { exercises } from "@/lib/content";
 import { PROGRAMS } from "@/content/programy";
@@ -39,60 +43,65 @@ const PROGRAM = PROGRAMS.find((p) => p.slug === "plytka-gcat") ?? PROGRAMS[0];
 
 const GK = "G‑kod";
 const TECH = techDzialy.map((d) => ({ slug: d.slug, title: d.title, icon: d.icon, n: artsOf(d.slug, publicArts).length }));
-const TRACK_IMG = { frezowanie: tracks.frezowanie.banner.replace("/img/banner-", "/img/clean/banner-"), toczenie: tracks.toczenie.banner.replace("/img/banner-", "/img/clean/banner-") };
+const HERO = heroLines();
 
 export default function Home() {
   return (
-    <div className="pulpit">
-      {/* 1: powitanie i panel postępu */}
-      <section className="pw" aria-labelledby="pw-title">
-        <div className="pw-main">
-          <span className="pw-badge"><StatusLed state="ready" />Ucz się · Programuj · Skrawaj</span>
-          <h1 id="pw-title" className="pw-title">Naucz się czytać i pisać {GK} w&nbsp;praktyce</h1>
-          <p className="pw-lead">
-            Lekcje frezowania i toczenia z testami, symulator toru narzędzia 2D/3D
-            i karty kodów ze składnią Fanuc i Sinumerik.
-          </p>
-          <div className="pw-actions">
-            <Link href="/nauka" className="btn">Rozpocznij naukę</Link>
-            <Link href="/symulator" className="btn ghost">Otwórz symulator</Link>
-          </div>
-          {/* liczniki z treści serwisu — jedna cicha linia zamiast trzech kafli (V3) */}
-          <p className="pw-stats">
-            <Link href="/nauka"><b>{LESSONS.length}</b> {plural(LESSONS.length, "lekcja", "lekcje", "lekcji")}</Link>
-            <span aria-hidden>·</span>
-            <Link href="/kody"><b>{gcodes.length}</b> {plural(gcodes.length, "karta kodu", "karty kodów", "kart kodów")}</Link>
-            <span aria-hidden>·</span>
-            <Link href="/programy"><b>{PROGRAMS.length}</b> {plural(PROGRAMS.length, "gotowy program", "gotowe programy", "gotowych programów")}</Link>
-          </p>
+    <div className="pulpit pv3">
+      <Reveal />
+      {/* 1: nagłówek (V3.1) — krótko, do lewej; liczby z treści serwisu */}
+      <section className="h3" aria-labelledby="pw-title">
+        <p className="h3-badge"><StatusLed state="ready" />Fanuc · Sinumerik</p>
+        <h1 id="pw-title" className="h3-title">Pisz programy CNC, zanim staniesz przy maszynie.</h1>
+        <p className="h3-lead">
+          Lekcje {GK}u z testami, symulator toru narzędzia i karty kodów — po polsku, ze źródłami.
+        </p>
+        <div className="h3-actions">
+          <Link href="/nauka" className="pill-btn is-primary">Rozpocznij naukę</Link>
+          <Link href="/symulator" className="h3-link">Otwórz symulator <ArrowRight aria-hidden /></Link>
         </div>
-        <ResumePanel lessons={LESSONS} img={{ frezowanie: TRACK_IMG.frezowanie, toczenie: TRACK_IMG.toczenie }} />
+        <p className="h3-stats">
+          <Link href="/nauka"><b>{LESSONS.length}</b> {plural(LESSONS.length, "lekcja", "lekcje", "lekcji")}</Link>
+          <span aria-hidden>·</span>
+          <Link href="/kody"><b>{gcodes.length}</b> {plural(gcodes.length, "karta kodu", "karty kodów", "kart kodów")}</Link>
+          <span aria-hidden>·</span>
+          <Link href="/programy"><b>{PROGRAMS.length}</b> {plural(PROGRAMS.length, "gotowy program", "gotowe programy", "gotowych programów")}</Link>
+        </p>
       </section>
 
+      {/* pas z programem wykonywanym blok po bloku */}
+      <HeroStage lines={HERO} />
+
+      {/* działy serwisu — przewijany pas z ikonami panelu bocznego */}
+      <CategoryMarquee />
+
       {/* 2: obszary nauki (V3.0b) — wybór przełącza drzewo w panelu bocznym */}
-      <section className="pz" aria-labelledby="pz-obszary">
+      <section className="pz" aria-labelledby="pz-obszary" data-rv>
         <header className="pz-head">
           <h2 id="pz-obszary" className="pz-title">Czego się uczysz?</h2>
+          <p className="pz-lead">Wybierz obszar — panel boczny pokaże jego drzewo. Pomiar i jakość dochodzi wkrótce.</p>
         </header>
         <ObszaryPicker lessons={LESSONS} codes={gcodes.length} tech={TECH} />
       </section>
 
       {/* 3: mini-pulpit CNC */}
-      <CncPanel />
+      <div data-rv><CncPanel /></div>
 
       {/* 4: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
-      <section className="pz" aria-labelledby="pz-map">
+      <section className="pz" aria-labelledby="pz-map" data-rv>
         <header className="pz-head">
           <h2 id="pz-map" className="pz-title">Mapa nauki</h2>
+          <p className="pz-lead">Dni z nauką z zapisu postępu w tej przeglądarce albo na koncie.</p>
           <Link href="/nauka" className="bw-link">Plan kursu <ArrowRight aria-hidden /></Link>
         </header>
         <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} first={LESSONS[0]?.href ?? "/nauka"} />
       </section>
 
       {/* 5: warsztat i baza */}
-      <section className="pz" aria-labelledby="pz-tools">
+      <section className="pz" aria-labelledby="pz-tools" data-rv>
         <header className="pz-head">
           <h2 id="pz-tools" className="pz-title">Warsztat i baza wiedzy</h2>
+          <p className="pz-lead">Karty kodów, obroty z prędkości skrawania, fiszki, zadania i gotowe programy.</p>
         </header>
         <div className="bento">
           <CodeWidget cards={CODE_CARDS} total={gcodes.length} />

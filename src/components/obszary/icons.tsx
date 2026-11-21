@@ -118,6 +118,44 @@ export const IcoCaliper = ({ className, ...p }: P) => (
   </Svg>
 );
 
+/** Kody G i M: kartka programu; podświetlony blok (a). */
+export const IcoCode = ({ className, ...p }: P) => (
+  <Svg className={`di-code ${className ?? ""}`} {...p}>
+    <path d="M5.5 2.5h9L19 7v14.5H5.5z" />
+    <path d="M14.5 2.5V7H19" />
+    <path d="M8.5 10.5h5M8.5 18h4" />
+    <path className="a" d="M8.5 14.25h7.5" />
+  </Svg>
+);
+
+/** Symulator: półfabrykat w rzucie izometrycznym i tor narzędzia na górnej ścianie (a). */
+export const IcoSim = ({ className, ...p }: P) => (
+  <Svg className={`di-sim ${className ?? ""}`} {...p}>
+    <path d="M3 9.5 12 5l9 4.5v7L12 21l-9-4.5z" />
+    <path d="M3 9.5 12 14l9-4.5M12 14v7" />
+    <path className="a" d="M7.5 9.5 12 7.25l4.5 2.25L12 11.75z" />
+  </Svg>
+);
+
+/** Kalkulatory: wyświetlacz, klawisze; klawisz wyniku (a). */
+export const IcoCalculator = ({ className, ...p }: P) => (
+  <Svg className={`di-calcu ${className ?? ""}`} {...p}>
+    <rect x="5" y="2.5" width="14" height="19" rx="2.5" />
+    <path d="M8.5 6.5h7" />
+    <path d="M8.5 11h.01M12 11h.01M15.5 11h.01M8.5 14.5h.01M12 14.5h.01M8.5 18h.01M12 18h.01" />
+    <path className="a" d="M15.5 14.5V18" />
+  </Svg>
+);
+
+/** Słownik: otwarta książka z zakładką (a). */
+export const IcoBook = ({ className, ...p }: P) => (
+  <Svg className={`di-book ${className ?? ""}`} {...p}>
+    <path d="M12 6.5C10 5 7 4.5 3 4.5v14c4 0 7 .5 9 2 2-1.5 5-2 9-2v-14c-4 0-7 .5-9 2z" />
+    <path d="M12 6.5v14" />
+    <path className="a" d="M15.5 5.1V10l1.5-1 1.5 1V4.8" />
+  </Svg>
+);
+
 /** Ikony działów Technologii po polu `icon` z content/technologia/dzialy.yaml. */
 export const DZIAL_ICO: Record<string, ComponentType<P>> = {
   frez: IcoMill, plytka: IcoInsert, wzory: IcoCalc, proces: IcoChip, mocowanie: IcoHolder, materialy: IcoCube, strategie: IcoPath,
