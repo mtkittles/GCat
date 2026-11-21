@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { label: "Polityka prywatności" }]} />
       <div className="grid gap-2">
         <p className="hero-kicker">Informacje prawne</p>
-        <h1 className="text-3xl font-bold">Polityka prywatności</h1>
+        <h1 className="ph-title">Polityka prywatności</h1>
         <p className="text-muted">Obowiązuje od: {LEGAL.effective}</p>
       </div>
 

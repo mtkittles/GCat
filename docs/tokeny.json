@@ -365,15 +365,40 @@
       }
     },
     "skala-tekstu": {
+      "fs-h1": {
+        "$type": "other",
+        "$value": "clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem)",
+        "$description": "H1 strony (28 px telefon → 36 px komputer, Sora 700)"
+      },
+      "fs-h2": {
+        "$type": "other",
+        "$value": "1.375rem",
+        "$description": "H2 sekcji strony, artykułu i lekcji (22 px, Sora 700)"
+      },
+      "fs-h3": {
+        "$type": "other",
+        "$value": "1.125rem",
+        "$description": "H3 i wyróżnione zdania: cel lekcji, pytanie testu (18 px)"
+      },
+      "fs-lesson": {
+        "$type": "other",
+        "$value": "1.0625rem",
+        "$description": "treść lekcji (17 px)"
+      },
       "fs-text": {
         "$type": "other",
         "$value": "1rem",
-        "$description": "akapit, lista, ramka uwagi, lead (16 px)"
+        "$description": "akapit, lista, tytuł karty (16 px)"
       },
       "fs-aux": {
         "$type": "other",
         "$value": ".875rem",
-        "$description": "podpisy, tabele, źródła, linia profilu (14 px)"
+        "$description": "interfejs, podpisy, tabele, źródła (14 px)"
+      },
+      "fs-small": {
+        "$type": "other",
+        "$value": ".8125rem",
+        "$description": "drobny tekst, metadane (13 px)"
       },
       "fs-code": {
         "$type": "other",
@@ -383,17 +408,7 @@
       "fs-label": {
         "$type": "other",
         "$value": ".75rem",
-        "$description": "nagłówki tabel, nadtytuły — wersaliki (12 px)"
-      },
-      "fs-h2": {
-        "$type": "other",
-        "$value": "1.3125rem",
-        "$description": "H2 sekcji strony, artykułu i „Źródła” (21 px)"
-      },
-      "fs-h3": {
-        "$type": "other",
-        "$value": "1.0625rem",
-        "$description": "H3 (17 px)"
+        "$description": "etykiety — mono 600, wersaliki, odstęp .06em (12 px)"
       },
       "lh-text": {
         "$type": "dimension",

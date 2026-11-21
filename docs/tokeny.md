@@ -111,16 +111,19 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--font-weights-display` | `600 800` | Sora · `src/app/layout.tsx` |
 | `--font-weights-mono` | `400 700` | JetBrains Mono · `src/app/layout.tsx` |
 
-### Skala tekstu kart kodów (paczka Z a, audyt kart cz. 2 §5)
+### Skala tekstu (V8b): 12 · 13 · 14 · 16 · 17 · 18 · 22 · 28–36 px; Sora tylko w H1–H3
 
 | Token | Wartość | Gdzie używany |
 |---|---|---|
-| `--fs-text` | `1rem` | akapit, lista, ramka uwagi, lead (16 px) |
-| `--fs-aux` | `.875rem` | podpisy, tabele, źródła, linia profilu (14 px) |
+| `--fs-h1` | `clamp(1.75rem, 1.2rem + 1.8vw, 2.25rem)` | H1 strony (28 px telefon → 36 px komputer, Sora 700) |
+| `--fs-h2` | `1.375rem` | H2 sekcji strony, artykułu i lekcji (22 px, Sora 700) |
+| `--fs-h3` | `1.125rem` | H3 i wyróżnione zdania: cel lekcji, pytanie testu (18 px) |
+| `--fs-lesson` | `1.0625rem` | treść lekcji (17 px) |
+| `--fs-text` | `1rem` | akapit, lista, tytuł karty (16 px) |
+| `--fs-aux` | `.875rem` | interfejs, podpisy, tabele, źródła (14 px) |
+| `--fs-small` | `.8125rem` | drobny tekst, metadane (13 px) |
 | `--fs-code` | `.8125rem` | bloki kodu i notki z kodem w rysunkach (13 px mono) |
-| `--fs-label` | `.75rem` | nagłówki tabel, nadtytuły — wersaliki (12 px) |
-| `--fs-h2` | `1.3125rem` | H2 sekcji strony, artykułu i „Źródła” (21 px) |
-| `--fs-h3` | `1.0625rem` | H3 (17 px) |
+| `--fs-label` | `.75rem` | etykiety — mono 600, wersaliki, odstęp .06em (12 px) |
 | `--lh-text` | `1.65` | interlinia tekstu |
 | `--lh-aux` | `1.5` | interlinia tekstu pomocniczego |
 | `--lh-code` | `1.55` | interlinia kodu |

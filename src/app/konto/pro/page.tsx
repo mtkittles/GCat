@@ -12,7 +12,7 @@ export default function ProPage() {
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/konto", label: "Konto" }, { label: "Pro" }]} />
       <div className="grid gap-2">
         <p className="hero-kicker">Plan Pro</p>
-        <h1 className="text-3xl font-bold">Wszystko z Free i narzędzia dla zaawansowanych</h1>
+        <h1 className="ph-title">Wszystko z Free i narzędzia dla zaawansowanych</h1>
         <p className="text-muted max-w-prose">Lekcje, karty, symulator i zadania zostają bezpłatne. Pro dodaje funkcje, które powstają w kolejnych sprintach — poniżej stan na dziś.</p>
       </div>
       <ul className="plan-list">

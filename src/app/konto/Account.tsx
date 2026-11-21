@@ -40,7 +40,7 @@ function Stats() {
   };
   return (
     <section className="grid gap-4" aria-labelledby="stats-h">
-      <h2 id="stats-h" className="text-xl font-bold">Statystyki nauki</h2>
+      <h2 id="stats-h" className="sec-h">Statystyki nauki</h2>
       <div className="stat-grid acct-stats">
         <div><span>Zaliczone testem</span><b>{tracks.reduce((a, { s }) => a + s.passed, 0)} / {tracks.reduce((a, { s }) => a + s.total, 0)}</b></div>
         <div><span>Przeczytane</span><b>{tracks.reduce((a, { s }) => a + s.read, 0)}</b></div>
@@ -80,7 +80,7 @@ function Login() {
   };
   return (
     <section className="acct-card" aria-labelledby="login-h">
-      <h2 id="login-h" className="text-xl font-bold">Zaloguj się</h2>
+      <h2 id="login-h" className="sec-h">Zaloguj się</h2>
       <p className="text-muted">Bez hasła: podaj e‑mail, wyślemy link do logowania. Postęp z tej przeglądarki zostanie połączony z kontem.</p>
       {sent ? <p className="note note-tip">Sprawdź pocztę — link logowania wysłany na {email}.</p> : (
         <form onSubmit={submit} className="acct-form">
@@ -117,7 +117,7 @@ class AccountBoundary extends Component<{ children: ReactNode }, { error: Error 
     if (!error) return this.props.children;
     return (
       <section className="acct-card" role="alert">
-        <h2 className="text-xl font-bold">Nie udało się wyświetlić konta</h2>
+        <h2 className="sec-h">Nie udało się wyświetlić konta</h2>
         <p className="text-muted font-mono break-words">{error.message || "(brak komunikatu)"}</p>
         <div className="flex flex-wrap gap-2">
           <button type="button" className="btn ghost" onClick={() => this.setState({ error: null })}>Spróbuj ponownie</button>
@@ -169,7 +169,7 @@ function Session() {
     <section className="acct-card" aria-labelledby="sess-h">
       <div className="acct-head">
         <div>
-          <h2 id="sess-h" className="text-xl font-bold">{profile?.displayName || user.email || "Konto"}</h2>
+          <h2 id="sess-h" className="sec-h">{profile?.displayName || user.email || "Konto"}</h2>
           <p className="text-muted">{user.email}</p>
         </div>
         <span className={`chip ${plan === "pro" ? "chip-accent" : ""}`}>{PLAN_LABEL[plan]}</span>
@@ -194,7 +194,7 @@ export default function Account() {
         subtitle="Postęp nauki, statystyki i zapisane programy." size="compact" priority />
       {!acc.enabled && (
         <section className="acct-card">
-          <h2 className="text-xl font-bold">Konto wkrótce</h2>
+          <h2 className="sec-h">Konto wkrótce</h2>
           <p className="text-muted">Logowanie nie jest jeszcze włączone na tej stronie. Postęp nauki zapisuje się w tej przeglądarce — poniżej statystyki z tego urządzenia; możesz je pobrać jako plik.</p>
         </section>
       )}
