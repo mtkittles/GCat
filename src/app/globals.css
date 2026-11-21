@@ -72,18 +72,19 @@
 :root { color-scheme: light; }
 [data-theme="dark"] {
   color-scheme: dark;
-  /* grafit neutralny — dopasowany do zdjęć obróbki i mockupu aplikacji */
-  --bg: #111214;
-  --surface: #17181B;
-  --surface-2: #202125;
-  --surface-3: #292A2F;
-  --card: #1A1B1F;
+  /* czerń UI‑2 (2026-11-21, w duchu Framera): pięć poziomów tła — strona #000, panel i pasek #0A0A0B,
+     karty #111113, najechanie #18181B, wyżej #222226; granice cienkimi liniami, nie cieniami */
+  --bg: #000000;
+  --surface: #0A0A0B;
+  --surface-2: #18181B;
+  --surface-3: #222226;
+  --card: #111113;
   --ink: #F5F5F4;
   --ink-2: #C8C9CC;
   --muted: #9A9CA3;
-  --line: #2A2B30;
-  --line-strong: #3A3B41;
-  --panel: #141518;
+  --line: #1F1F22;
+  --line-strong: #2E2E33;
+  --panel: #0A0A0B;
   --panel-ink: #F5F5F4;
 
   --accent: #F97316;

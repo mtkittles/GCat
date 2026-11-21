@@ -5,7 +5,7 @@
         "$type": "color",
         "$value": "#FAFAF9",
         "$extensions": {
-          "gcat.dark": "#111214"
+          "gcat.dark": "#000000"
         },
         "$description": "tło strony (html), pola formularzy w symulatorze"
       }
@@ -15,7 +15,7 @@
         "$type": "color",
         "$value": "#FFFFFF",
         "$extensions": {
-          "gcat.dark": "#17181B"
+          "gcat.dark": "#0A0A0B"
         },
         "$description": "paski, panele boczne"
       },
@@ -23,7 +23,7 @@
         "$type": "color",
         "$value": "#F5F5F4",
         "$extensions": {
-          "gcat.dark": "#202125"
+          "gcat.dark": "#18181B"
         },
         "$description": "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)"
       },
@@ -31,7 +31,7 @@
         "$type": "color",
         "$value": "#ECEAE7",
         "$extensions": {
-          "gcat.dark": "#292A2F"
+          "gcat.dark": "#222226"
         },
         "$description": "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)"
       },
@@ -39,7 +39,7 @@
         "$type": "color",
         "$value": "#FFFFFF",
         "$extensions": {
-          "gcat.dark": "#1A1B1F"
+          "gcat.dark": "#111113"
         },
         "$description": "karty, ramka rysunku (.fig), kod inline"
       },
@@ -47,7 +47,7 @@
         "$type": "color",
         "$value": "#141518",
         "$extensions": {
-          "gcat.dark": "#141518"
+          "gcat.dark": "#0A0A0B"
         },
         "$description": "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach"
       },
@@ -208,7 +208,7 @@
         "$type": "color",
         "$value": "#E7E5E4",
         "$extensions": {
-          "gcat.dark": "#2A2B30"
+          "gcat.dark": "#1F1F22"
         },
         "$description": "obramowania, separatory; drobna siatka rysunków (.gr-min)"
       },
@@ -216,7 +216,7 @@
         "$type": "color",
         "$value": "#D6D3D1",
         "$extensions": {
-          "gcat.dark": "#3A3B41"
+          "gcat.dark": "#2E2E33"
         },
         "$description": "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)"
       }

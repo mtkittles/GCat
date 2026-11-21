@@ -15,17 +15,17 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 
 | Token | Wartość (jasny) | Ciemny | Gdzie używany |
 |---|---|---|---|
-| `--bg` | ![#FAFAF9](tokeny/FAFAF9.svg) `#FAFAF9` | ![#111214](tokeny/111214.svg) `#111214` | tło strony (html), pola formularzy w symulatorze |
+| `--bg` | ![#FAFAF9](tokeny/FAFAF9.svg) `#FAFAF9` | ![#000000](tokeny/000000.svg) `#000000` | tło strony (html), pola formularzy w symulatorze |
 
 ### Powierzchnie
 
 | Token | Wartość (jasny) | Ciemny | Gdzie używany |
 |---|---|---|---|
-| `--surface` | ![#FFFFFF](tokeny/FFFFFF.svg) `#FFFFFF` | ![#17181B](tokeny/17181B.svg) `#17181B` | paski, panele boczne |
-| `--surface-2` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | ![#202125](tokeny/202125.svg) `#202125` | tło drugiego poziomu: chipy, pola, kroki rysunków (.step) |
-| `--surface-3` | ![#ECEAE7](tokeny/ECEAE7.svg) `#ECEAE7` | ![#292A2F](tokeny/292A2F.svg) `#292A2F` | trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle) |
-| `--card` | ![#FFFFFF](tokeny/FFFFFF.svg) `#FFFFFF` | ![#1A1B1F](tokeny/1A1B1F.svg) `#1A1B1F` | karty, ramka rysunku (.fig), kod inline |
-| `--panel` | ![#141518](tokeny/141518.svg) `#141518` | ![#141518](tokeny/141518.svg) `#141518` | „ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach |
+| `--surface` | ![#FFFFFF](tokeny/FFFFFF.svg) `#FFFFFF` | ![#0A0A0B](tokeny/0A0A0B.svg) `#0A0A0B` | paski, panele boczne |
+| `--surface-2` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | ![#18181B](tokeny/18181B.svg) `#18181B` | tło drugiego poziomu: chipy, pola, kroki rysunków (.step) |
+| `--surface-3` | ![#ECEAE7](tokeny/ECEAE7.svg) `#ECEAE7` | ![#222226](tokeny/222226.svg) `#222226` | trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle) |
+| `--card` | ![#FFFFFF](tokeny/FFFFFF.svg) `#FFFFFF` | ![#111113](tokeny/111113.svg) `#111113` | karty, ramka rysunku (.fig), kod inline |
+| `--panel` | ![#141518](tokeny/141518.svg) `#141518` | ![#0A0A0B](tokeny/0A0A0B.svg) `#0A0A0B` | „ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach |
 | `--panel-ink` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | tekst na panelu |
 
 ### Tekst
@@ -66,8 +66,8 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 
 | Token | Wartość (jasny) | Ciemny | Gdzie używany |
 |---|---|---|---|
-| `--line` | ![#E7E5E4](tokeny/E7E5E4.svg) `#E7E5E4` | ![#2A2B30](tokeny/2A2B30.svg) `#2A2B30` | obramowania, separatory; drobna siatka rysunków (.gr-min) |
-| `--line-strong` | ![#D6D3D1](tokeny/D6D3D1.svg) `#D6D3D1` | ![#3A3B41](tokeny/3A3B41.svg) `#3A3B41` | mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line) |
+| `--line` | ![#E7E5E4](tokeny/E7E5E4.svg) `#E7E5E4` | ![#1F1F22](tokeny/1F1F22.svg) `#1F1F22` | obramowania, separatory; drobna siatka rysunków (.gr-min) |
+| `--line-strong` | ![#D6D3D1](tokeny/D6D3D1.svg) `#D6D3D1` | ![#2E2E33](tokeny/2E2E33.svg) `#2E2E33` | mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line) |
 
 ### Tor narzędzia (G00 / G01 / G02)
 

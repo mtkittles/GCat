@@ -1,15 +1,10 @@
 /*
   Pulpit V3.1 — „w duchu Framera”: czysta czerń (ciemny motyw), krótki nagłówek do lewej, pas z programem
   wykonywanym blok po bloku, przewijany pas działów, sekcje przyciemnione poza widokiem.
-  Zakres: tylko strona główna (.pv3). Paleta całej strony — osobna paczka.
+  Zakres: strona główna (.pv3); paleta ciemnego motywu wspólna (globals.css, UI‑2).
 */
 
-/* ---------- czerń tylko w obszarze treści pulpitu ---------- */
-html[data-theme="dark"] .app-inset:has(.pv3) {
-  --bg: #000; --card: #0A0A0A; --panel: #050505; --surface-2: #121214; --surface-3: #18181B;
-  --line: #1C1C1F; --line-strong: #2C2C31;
-  background: #000; border-color: #1C1C1F;
-}
+/* czerń: paleta ciemnego motywu w globals.css (UI‑2) */
 .pv3 { --pv-g0: #F59E0B; --pv-g1: #22C55E; --pv-g2: #38BDF8; gap: clamp(3.5rem, 7vw, 6.5rem); padding-top: clamp(1.5rem, 4vw, 3.5rem); }
 [data-theme="light"] .pv3 { --pv-g0: #92400E; --pv-g1: #166534; --pv-g2: #075985; }
 
@@ -160,10 +155,9 @@ html[data-theme="dark"] .app-inset:has(.pv3) {
 a.mq-it:hover, a.mq-it:focus-visible { color: var(--ink); }
 .mq-key {
   display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; flex: none; color: var(--ink-2); --di-a: var(--accent-ink);
-  border: 1px solid var(--line-strong); background: linear-gradient(180deg, var(--surface-2), var(--card));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .5);
+  border: 1px solid var(--line-strong); background: var(--card);
 }
-[data-theme="light"] .mq-key { background: linear-gradient(180deg, #fff, var(--surface-2)); box-shadow: 0 1px 2px rgba(28, 25, 23, .1); }
+[data-theme="light"] .mq-key { background: var(--surface); }
 .mq-key svg { width: 21px; height: 21px; }
 .mq-t { font: 500 clamp(1rem, .9rem + .35vw, 1.125rem)/1 var(--font-sans); letter-spacing: -.005em; }
 .mq-it em { font: 600 var(--fs-label)/1 var(--font-mono); font-style: normal; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); opacity: .8; }

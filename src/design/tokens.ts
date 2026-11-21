@@ -40,14 +40,14 @@ const rule = (sel: string, prop: string): Src => ({ kind: "rule", sel, prop });
 
 export const colors: Group[] = [
   { id: "tlo", title: "Tło", tokens: [
-    { name: "--bg", value: "#FAFAF9", dark: "#111214", use: "tło strony (html), pola formularzy w symulatorze", src: V },
+    { name: "--bg", value: "#FAFAF9", dark: "#000000", use: "tło strony (html), pola formularzy w symulatorze", src: V },
   ] },
   { id: "powierzchnie", title: "Powierzchnie", tokens: [
-    { name: "--surface", value: "#FFFFFF", dark: "#17181B", use: "paski, panele boczne", src: V },
-    { name: "--surface-2", value: "#F5F5F4", dark: "#202125", use: "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)", src: V },
-    { name: "--surface-3", value: "#ECEAE7", dark: "#292A2F", use: "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)", src: V },
-    { name: "--card", value: "#FFFFFF", dark: "#1A1B1F", use: "karty, ramka rysunku (.fig), kod inline", src: V },
-    { name: "--panel", value: "#141518", dark: "#141518", use: "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach", src: V },
+    { name: "--surface", value: "#FFFFFF", dark: "#0A0A0B", use: "paski, panele boczne", src: V },
+    { name: "--surface-2", value: "#F5F5F4", dark: "#18181B", use: "tło drugiego poziomu: chipy, pola, kroki rysunków (.step)", src: V },
+    { name: "--surface-3", value: "#ECEAE7", dark: "#222226", use: "trzeci poziom: uchwyty i wrzeciono w rysunkach (.clamp, .spindle)", src: V },
+    { name: "--card", value: "#FFFFFF", dark: "#111113", use: "karty, ramka rysunku (.fig), kod inline", src: V },
+    { name: "--panel", value: "#141518", dark: "#0A0A0B", use: "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach", src: V },
     { name: "--panel-ink", value: "#F5F5F4", dark: "#F5F5F4", use: "tekst na panelu", src: V },
   ] },
   { id: "tekst", title: "Tekst", tokens: [
@@ -76,8 +76,8 @@ export const colors: Group[] = [
     { name: "--warn-bg", value: "#FFF7ED", dark: "#2A1A10", use: "tło ostrzeżeń", src: V },
   ] },
   { id: "linie", title: "Linie pomocnicze", tokens: [
-    { name: "--line", value: "#E7E5E4", dark: "#2A2B30", use: "obramowania, separatory; drobna siatka rysunków (.gr-min)", src: V },
-    { name: "--line-strong", value: "#D6D3D1", dark: "#3A3B41", use: "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)", src: V },
+    { name: "--line", value: "#E7E5E4", dark: "#1F1F22", use: "obramowania, separatory; drobna siatka rysunków (.gr-min)", src: V },
+    { name: "--line-strong", value: "#D6D3D1", dark: "#2E2E33", use: "mocniejsze obramowania; główna siatka i kreskowanie rysunków (.gr-maj, .hatch-line)", src: V },
   ] },
   { id: "tor", title: "Tor narzędzia (G00 / G01 / G02)", tokens: [
     { name: "--path-g00", value: "#F59E0B", use: "G00 — ruch szybki, linia przerywana (rysunki, legenda; w symulatorze osobno — patrz docs/tokeny.md)", src: { kind: "same", as: "--amber" } },
