@@ -101,7 +101,7 @@ export default function TechArticleView({ a, dzial, body, nav = {}, edit = (_k, 
 
   return (
     <div className="article-layout cc tech-art">
-      <aside className="cc-left"><LeftToc items={toc} title="W tym artykule" /></aside>
+      <aside className="cc-left" aria-label="Spis treści"><LeftToc items={toc} title="W tym artykule" /></aside>
       <article className="grid gap-6 min-w-0 code-card">
         {head}
         {gate ? gate(content) : content}

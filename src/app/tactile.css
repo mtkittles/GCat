@@ -4,7 +4,7 @@
    Sekcje: 1 prymitywy · 2 panel boczny i obszar roboczy · 3 pasek · 4 dok i arkusz · 5 paleta · 6 dymki/toasty
    ========================================================================== */
 
-:root { --sb-w: 248px; --inset-gap: 8px; }
+:root { --sb-w: 272px; --inset-gap: 8px; }
 html[data-sb="c"] { --sb-w: 68px; }
 
 /* ---------- 1. prymitywy ---------- */

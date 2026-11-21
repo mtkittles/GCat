@@ -16,9 +16,11 @@ import { exercises } from "@/lib/content";
 import { PROGRAMS } from "@/content/programy";
 import type { LibProgram } from "@/lib/programLibrary";
 import { plural } from "@/lib/plural";
+import ObszaryPicker from "@/components/obszary/ObszaryPicker";
+import { artsOf, dzialy as techDzialy, publicArts } from "@/lib/technologia";
 
 /*
-  Pulpit operatora (strona główna): powitanie z liczbami serwisu i kartą „następny krok”, mini-pulpit CNC z programem pokazowym,
+  Pulpit operatora (strona główna): powitanie z liczbami serwisu i kartą „następny krok”, wybór obszaru nauki, mini-pulpit CNC z programem pokazowym,
   dwie ścieżki nauki i siatka narzędzi. Wszystkie liczby i treści z danych serwisu — nic na sztywno.
 */
 const LESSONS: ResumeLesson[] = (["frezowanie", "toczenie"] as const).flatMap((t) =>
@@ -37,6 +39,7 @@ const TASK_AS_PROGRAM: LibProgram = { slug: TASK.slug, title: TASK.title, mode: 
 const PROGRAM = PROGRAMS.find((p) => p.slug === "plytka-gcat") ?? PROGRAMS[0];
 
 const GK = "G‑kod";
+const TECH = techDzialy.map((d) => ({ slug: d.slug, title: d.title, icon: d.icon, n: artsOf(d.slug, publicArts).length }));
 const TRACK_IMG = { frezowanie: tracks.frezowanie.banner.replace("/img/banner-", "/img/clean/banner-"), toczenie: tracks.toczenie.banner.replace("/img/banner-", "/img/clean/banner-") };
 
 export default function Home() {
@@ -67,10 +70,18 @@ export default function Home() {
         <ResumePanel lessons={LESSONS} img={{ frezowanie: TRACK_IMG.frezowanie, toczenie: TRACK_IMG.toczenie }} />
       </section>
 
-      {/* 2: mini-pulpit CNC */}
+      {/* 2: obszary nauki (V3.0b) — wybór przełącza drzewo w panelu bocznym */}
+      <section className="pz" aria-labelledby="pz-obszary">
+        <header className="pz-head">
+          <h2 id="pz-obszary" className="pz-title">Czego się uczysz?</h2>
+        </header>
+        <ObszaryPicker lessons={LESSONS} codes={gcodes.length} tech={TECH} />
+      </section>
+
+      {/* 3: mini-pulpit CNC */}
       <CncPanel />
 
-      {/* 3: ścieżki nauki */}
+      {/* 4: ścieżki nauki */}
       <section className="pz" aria-labelledby="pz-tracks">
         <header className="pz-head">
           <h2 id="pz-tracks" className="pz-title">Ścieżki nauki</h2>
@@ -81,7 +92,7 @@ export default function Home() {
         }))} />
       </section>
 
-      {/* 4: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
+      {/* 5: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
       <section className="pz" aria-labelledby="pz-map">
         <header className="pz-head">
           <h2 id="pz-map" className="pz-title">Mapa nauki</h2>
@@ -90,7 +101,7 @@ export default function Home() {
         <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} first={LESSONS[0]?.href ?? "/nauka"} />
       </section>
 
-      {/* 5: warsztat i baza */}
+      {/* 6: warsztat i baza */}
       <section className="pz" aria-labelledby="pz-tools">
         <header className="pz-head">
           <h2 id="pz-tools" className="pz-title">Warsztat i baza wiedzy</h2>

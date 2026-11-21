@@ -1,11 +1,13 @@
 "use client";
 import { useSyncExternalStore } from "react";
+import { isObszar, type ObszarKey } from "@/lib/obszary";
 
 /*
   Ustawienia interfejsu trzymane na <html> (data-*) i w localStorage:
   - data-sb: "e" panel boczny rozwinięty / "c" zwinięty (skrót Ctrl+B),
   - data-sound: "1" dźwięk pulpitu włączony (domyślnie wyłączony),
-  - data-haptic: "0" wibracje przycisków wyłączone (domyślnie włączone; działają tylko na ekranie dotykowym).
+  - data-haptic: "0" wibracje przycisków wyłączone (domyślnie włączone; działają tylko na ekranie dotykowym),
+  - data-obszar: wybrany obszar nauki "cnc" / "tech" / "pomiar" (src/lib/obszary.ts) — drzewo w panelu i rozwinięty kafel na pulpicie.
   Atrybuty ustawia skrypt przed malowaniem (layout.tsx), więc szerokość panelu
   nie skacze przy wczytaniu. React czyta je przez MutationObserver — bez stanu w komponentach.
   Wybrane wartości trzyma też window.__gcatPrefs, a skrypt pilnuje ich na <html>: gdy React
@@ -13,7 +15,7 @@ import { useSyncExternalStore } from "react";
   z layoutu), ustawienia wracają od razu, bez czekania na zapis w localStorage.
 */
 
-type PrefKey = "theme" | "sb" | "sound" | "haptic";
+type PrefKey = "theme" | "sb" | "sound" | "haptic" | "obszar";
 declare global { interface Window { __gcatPrefs?: Partial<Record<PrefKey, string>> } }
 
 /** Ustawia atrybut na <html> i zapamiętuje wybór dla strażnika ze skryptu PREFS_SCRIPT. */
@@ -32,6 +34,7 @@ const subSb = observe("data-sb");
 const subSound = observe("data-sound");
 const subTheme = observe("data-theme");
 const subHaptic = observe("data-haptic");
+const subObszar = observe("data-obszar");
 
 function save(key: string, v: string) { try { localStorage.setItem(key, v); } catch { /* tryb prywatny */ } }
 
@@ -60,6 +63,15 @@ export function setHapticOn(on: boolean) {
   save("gcat:haptic", on ? "1" : "0");
 }
 
+/** Wybrany obszar nauki (zapamiętany). Na serwerze i przy hydratacji — "cnc"; widok bez mignięcia daje CSS z html[data-obszar]. */
+export function useObszar(): ObszarKey {
+  return useSyncExternalStore(subObszar, () => { const v = document.documentElement.dataset.obszar; return isObszar(v) ? v : "cnc"; }, () => "cnc");
+}
+export function setObszar(k: ObszarKey) {
+  put("obszar", k);
+  save("gcat:obszar", k);
+}
+
 export type Theme = "dark" | "light";
 export function useTheme(): Theme {
   return useSyncExternalStore(subTheme, () => (document.documentElement.dataset.theme === "light" ? "light" : "dark"), () => "dark");
@@ -73,20 +85,21 @@ export function setTheme(t: Theme) {
 export const THEME_COLOR = { dark: "#111214", light: "#FAFAF9" } as const;
 
 /**
- * Skrypt na początku <body>: motyw, panel boczny (domyślnie zwinięty poniżej 1440 px), dźwięk i wibracje —
+ * Skrypt na początku <body>: motyw, panel boczny (domyślnie zwinięty poniżej 1440 px), dźwięk, wibracje i obszar nauki —
  * przed pierwszym malowaniem. Zostaje jako strażnik: MutationObserver przywraca wybrane wartości, gdy ktoś
  * inny zmieni lub usunie atrybut, i ustawia meta theme-color według motywu strony (nie systemu).
  */
 export const PREFS_SCRIPT = [
   'try{var d=document.documentElement,g=function(k){try{return localStorage.getItem(k)}catch(e){return null}},',
-  't=g("theme"),b=g("gcat:sb"),',
+  't=g("theme"),b=g("gcat:sb"),o,',
   'p=window.__gcatPrefs={theme:t==="light"?"light":"dark",sb:b==="c"||b==="e"?b:(innerWidth<1440?"c":"e"),',
-  'sound:g("gcat:sound")==="1"?"1":"0",haptic:g("gcat:haptic")==="0"?"0":"1"},',
+  'sound:g("gcat:sound")==="1"?"1":"0",haptic:g("gcat:haptic")==="0"?"0":"1",',
+  'obszar:(o=g("gcat:obszar"))==="tech"||o==="pomiar"?o:"cnc"},',
   'tc=function(q){var m=document.querySelector(\'meta[name="theme-color"]\');',
   'if(!m){m=document.createElement("meta");m.setAttribute("name","theme-color");document.head.appendChild(m)}',
   `var c=q.theme==="light"?"${THEME_COLOR.light}":"${THEME_COLOR.dark}";if(m.getAttribute("content")!==c)m.setAttribute("content",c)},`,
   'ap=function(){var q=window.__gcatPrefs||p;for(var k in q)if(q[k]&&d.dataset[k]!==q[k])d.dataset[k]=q[k];tc(q)};',
-  'ap();new MutationObserver(ap).observe(d,{attributes:true,attributeFilter:["data-theme","data-sb","data-sound","data-haptic"]})}catch(e){}',
+  'ap();new MutationObserver(ap).observe(d,{attributes:true,attributeFilter:["data-theme","data-sb","data-sound","data-haptic","data-obszar"]})}catch(e){}',
 ].join("");
 
 /** Zapytanie media (np. "(min-width: 768px)"); na serwerze i przy hydratacji — `fallback`. */

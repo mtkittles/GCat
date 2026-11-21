@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Dim, Fig, Step, T } from "@/components/fig";
+import { HV } from "./tech-data";
 
 /*
   Rysunki działu Technologia (V3.0) — ten sam styl co reszta serwisu (fig.tsx): szerokość 360, tekst 11 px,
@@ -60,14 +61,7 @@ export function EndMillParts() {
 }
 
 /* ================= twardość materiałów narzędziowych (zakresy HV) ================= */
-const HV: [string, number, number][] = [
-  ["HSS", 200, 1200],
-  ["węglik spiekany", 500, 3000],
-  ["cermetal", 500, 3000],
-  ["ceramika", 1000, 4000],
-  ["CBN (spiekany)", 2000, 5000],
-  ["diament spiekany", 8000, 12000],
-];
+
 export function ToolHardness() {
   const x0 = 116, x1 = 342, max = 12000, X = (v: number) => x0 + (v / max) * (x1 - x0);
   const y0 = 30, dy = 27;

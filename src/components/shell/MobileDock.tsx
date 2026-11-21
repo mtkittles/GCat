@@ -1,13 +1,17 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Drawer } from "vaul";
 import { ChevronRight, Ellipsis } from "lucide-react";
 import StatusLed from "@/components/tactile/StatusLed";
 import ShellKeys from "./ShellKeys";
-import { DOCK, MORE, isActive } from "./nav";
+import AreaTree from "@/components/obszary/AreaTree";
+import { OBSZAR_ICO } from "@/components/obszary/icons";
+import { COMMON, DOCK, MORE, isActive } from "./nav";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
+import { setObszar, useObszar } from "@/lib/ui/prefs";
+import { OBSZAR, OBSZARY, treeOf, type TechData } from "@/lib/obszary";
 
 /*
   Telefon (< 768 px): pływający dok z czterema działami i „Więcej”. „Więcej” otwiera dolny arkusz Vaul
@@ -37,10 +41,12 @@ function useHideOnScroll() {
   }, []);
   return [hidden, setHidden] as const;
 }
-export default function MobileDock() {
+export default function MobileDock({ tech }: { tech: TechData }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const feedback = useTactileFeedback();
+  const obszar = useObszar();
+  const nodes = useMemo(() => treeOf(obszar, tech), [obszar, tech]);
   const moreOn = MORE.some((m) => isActive(path, m.href)) || isActive(path, "/konto");
 
   const [hidden, setHidden] = useHideOnScroll();
@@ -74,8 +80,28 @@ export default function MobileDock() {
         <Drawer.Content className="vd vd-bottom" aria-describedby={undefined}>
           <div className="vd-handle" aria-hidden />
           <Drawer.Title className="vd-title">Więcej</Drawer.Title>
+          <div className="vd-areas" role="group" aria-label="Obszar nauki">
+            {OBSZARY.map((k) => {
+              const o = OBSZAR[k];
+              const Icon = OBSZAR_ICO[k];
+              return (
+                <button key={k} type="button" className={`vd-area${o.soon ? " is-soon" : ""}`} aria-pressed={obszar === k} aria-label={`${o.title}${o.soon ? " (wkrótce)" : ""}`} onClick={() => { feedback(0.5); setObszar(k); }}>
+                  <Icon className="vd-area-ico" />
+                  <span>{o.rail}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="vd-tree">
+            <p className="vd-tree-t">
+              {OBSZAR[obszar].href
+                ? <Link href={OBSZAR[obszar].href!} onClick={() => setOpen(false)}>{OBSZAR[obszar].title}<ChevronRight aria-hidden /></Link>
+                : <span>{OBSZAR[obszar].title} — plan działu w przygotowaniu</span>}
+            </p>
+            <AreaTree key={obszar} nodes={nodes} path={path} label={OBSZAR[obszar].title} onGo={() => setOpen(false)} />
+          </div>
           <ul className="more-list">
-            {MORE.map((m) => {
+            {COMMON.map((m) => {
               const on = isActive(path, m.href);
               const Icon = m.icon;
               return (
