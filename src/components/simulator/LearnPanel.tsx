@@ -39,14 +39,8 @@ function describe(s: MachineState | undefined, dia: boolean): Record<string, str
   };
 }
 
-export default function LearnPanel({ program, activeLine, mode }: { program: Program; activeLine: number | null; mode: "mill" | "lathe" }) {
-  const dia = mode === "lathe";
-  const line: ParsedLine | undefined = activeLine !== null ? program.lines[activeLine] : undefined;
-  if (!line) return (
-    <div className="learn" aria-live="polite">
-      <div className="learn-head"><b>Tryb nauki</b><span>koniec programu — wciśnij Reset albo tapnij linię</span></div>
-    </div>
-  );
+/** Co zmienił blok: ruch skąd → dokąd i wiersze stanu przed → po (te same dane co tryb nauki). */
+function changes(program: Program, line: ParsedLine, dia: boolean) {
   // stan przed blokiem: ostatnia wcześniejsza linia ze słowami
   let prev: ParsedLine | undefined;
   for (let i = line.index - 1; i >= 0; i--) { if (program.lines[i]?.words.length) { prev = program.lines[i]; break; } }
@@ -56,9 +50,7 @@ export default function LearnPanel({ program, activeLine, mode }: { program: Pro
   const from = moves[0]?.from, to = moves[moves.length - 1]?.to;
   const pos = (p: { x: number; y: number; z: number }) => dia ? `X${fmt(p.x * 2)} Z${fmt(p.z)}` : `X${fmt(p.x)} Y${fmt(p.y)} Z${fmt(p.z)}`;
   return (
-    <div className="learn" aria-live="polite">
-      <div className="learn-head"><b>Tryb nauki</b><code>{String(line.index + 1).padStart(2, "0")} {line.raw.trim() || "(pusta linia)"}</code></div>
-      <p className="learn-desc">{line.errors.length ? line.errors.join(" ") : line.description || (line.comment ? `Komentarz: ${line.comment}` : "Blok bez ruchu i bez zmiany stanu.")}</p>
+    <>
       {from && to && (
         <p className="learn-move">{moves.length === 1 ? "Ruch" : `${moves.length} ruchy`}: <b>{pos(from)}</b> → <b>{pos(to)}</b>{moves.some((m) => m.kind === "rapid") && moves.every((m) => m.kind === "rapid") ? " (szybki przejazd)" : ""}</p>
       )}
@@ -68,6 +60,29 @@ export default function LearnPanel({ program, activeLine, mode }: { program: Pro
           <tbody>{rows.map((r) => <tr key={r.label}><th scope="row">{r.label}</th><td>{r.before}</td><td><b>{r.after}</b></td></tr>)}</tbody>
         </table>
       ) : <p className="learn-none">Stan modalny bez zmian — blok korzysta z ustawień poprzednich bloków.</p>}
+    </>
+  );
+}
+
+/** Sekcja panelu „Stan sterowania” (V5c): ruch i zmiany stanu wykonywanego bloku. */
+export function BlockChanges({ program, activeLine, mode }: { program: Program; activeLine: number | null; mode: "mill" | "lathe" }) {
+  const line = activeLine !== null ? program.lines[activeLine] : undefined;
+  return line ? changes(program, line, mode === "lathe") : null;
+}
+
+/** Tryb nauki pod podglądem — tylko symulator osadzony w zadaniach i lekcjach; na /symulator treść jest w panelu. */
+export default function LearnPanel({ program, activeLine, mode }: { program: Program; activeLine: number | null; mode: "mill" | "lathe" }) {
+  const line: ParsedLine | undefined = activeLine !== null ? program.lines[activeLine] : undefined;
+  if (!line) return (
+    <div className="learn" aria-live="polite">
+      <div className="learn-head"><b>Tryb nauki</b><span>koniec programu — wciśnij Reset albo tapnij linię</span></div>
+    </div>
+  );
+  return (
+    <div className="learn" aria-live="polite">
+      <div className="learn-head"><b>Tryb nauki</b><code>{String(line.index + 1).padStart(2, "0")} {line.raw.trim() || "(pusta linia)"}</code></div>
+      <p className="learn-desc">{line.errors.length ? line.errors.join(" ") : line.description || (line.comment ? `Komentarz: ${line.comment}` : "Blok bez ruchu i bez zmiany stanu.")}</p>
+      {changes(program, line, mode === "lathe")}
     </div>
   );
 }

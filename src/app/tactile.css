@@ -1857,3 +1857,69 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
   .fc-bar { grid-template-columns: minmax(0, 1fr) auto; }
   .fc-bar-s { display: none; }
 }
+
+/* ==========================================================================
+   30. V5c — ekrany symulatora: jeden panel (stan + tryb nauki), miejsce panelu, Skupienie, arkusz na telefonie
+   ========================================================================== */
+.sa-head { display: flex; align-items: center; gap: .35rem; }
+.sa-head .sa-h { margin-right: auto; }
+.sa-btn {
+  display: inline-grid; place-items: center; width: 28px; height: 28px; flex: none; border: 1px solid transparent; border-radius: 7px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.sa-btn:hover { color: var(--ink); border-color: var(--line); background: var(--surface-2); }
+.sa-chg .learn-move { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-2); }
+.sa-chg .learn-move b { font-family: var(--font-mono); font-weight: 600; color: var(--ink); }
+.sa-chg .learn-tbl { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.sa-chg .learn-tbl th, .sa-chg .learn-tbl td { padding: .28rem .3rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.sa-chg .learn-tbl thead { display: none; } /* w panelu: „Ruch  G01 → G00” bez nagłówka tabeli */
+.sa-chg .learn-tbl td:first-of-type::after { content: " →"; color: var(--muted); }
+.sa-chg .learn-tbl tbody th { font-weight: 500; color: var(--ink-2); }
+.sa-chg .learn-tbl td { font-family: var(--font-mono); color: var(--muted); }
+.sa-chg .learn-tbl td b { color: var(--accent-ink); font-weight: 650; }
+.sa-chg .learn-none { margin: 0; font-size: 12.5px; color: var(--muted); }
+.sa-line { display: flex; align-items: baseline; gap: .5rem; min-width: 0; font: 500 13px/1.3 var(--font-mono); color: var(--ink); }
+.sa-line b { color: var(--muted); font-weight: 600; }
+.sa-line code { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.sa-line-pos { margin-left: auto; flex: none; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* panel na podglądzie: półprzezroczysty, w wybranym rogu, zwijany do jednego wiersza */
+.sim-aside.is-over {
+  position: absolute; z-index: 5; width: min(18.5rem, calc(100% - 24px)); max-height: calc(100% - 24px); gap: .7rem; padding: .7rem .8rem;
+  background: color-mix(in srgb, var(--card) 84%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .28);
+}
+.sim-aside.is-over.c-tl { top: 12px; left: 12px; }
+.sim-aside.is-over.c-tr { top: 12px; right: 12px; }
+.sim-aside.is-over.c-bl { bottom: 12px; left: 12px; }
+.sim-aside.is-over.c-br { bottom: 64px; right: 12px; } /* nad przyciskami powiększenia */
+.sim-aside.is-over.is-min { width: min(24rem, calc(100% - 24px)); gap: .4rem; padding: .5rem .6rem .55rem .75rem; }
+.sim-aside.is-over .sa-val { margin-top: 0; }
+/* telefon: arkusz na dole podglądu, zwinięty do wiersza (blok + XYZ), po rozwinięciu do połowy wysokości */
+/* telefon: „Nauka” dokłada do karty pod podglądem opis bloku i „Co zmienił ten blok” — bez nakładki na podgląd.
+   Zakładka „Symulacja” ma stałą wysokość, więc podgląd sam oddaje tyle, ile zajmuje ta część. Karta jest ciemna
+   w obu motywach („ciemna wyspa”), stąd własne kolory. */
+.m-learn {
+  --ink: #F5F5F4; --ink-2: #C9CBD1; --muted: #9A9CA3; --accent-ink: #FB923C; --line: rgba(255, 255, 255, .12);
+  display: grid; align-content: start; gap: .35rem; padding-top: .45rem; border-top: 1px solid var(--line);
+  /* stała wysokość: tekst bloku ma 1–6 wierszy, a zmienna karta przesuwała podgląd przy każdym kroku */
+  height: 8.5rem; overflow-y: auto; overscroll-behavior: contain;
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 1rem), transparent);
+}
+.m-learn .sa-desc { font-size: 13px; color: var(--ink-2); }
+
+/* Skupienie: sam podgląd i pulpit, bez kolumny programu (klawisz F) */
+@media (min-width: 768px) {
+  .workbench.is-app.is-focus { grid-template-columns: minmax(0, 1fr) !important; grid-template-areas: "view" !important; }
+  .workbench.is-app.is-focus > .panel.m-code, .workbench.is-app.is-focus .split-h { display: none !important; }
+}
+
+/* menu Układ: grupy */
+.lay-set { display: grid; gap: .35rem; margin: 0 0 .35rem; padding: 0 0 .5rem; border: 0; border-bottom: 1px solid var(--line); }
+.lay-set legend { padding: 0 0 .3rem; font: 600 12px/1 var(--font-sans); color: var(--muted); }
+.lay-set label span { display: grid; gap: .1rem; }
+.lay-set label small { font-size: 12px; color: var(--muted); }
+.lay-set .is-off { opacity: .55; }
+.lay-corner { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; padding-left: 1.4rem; }
+.lay-corner .key { font-size: 12.5px; justify-content: flex-start; }
+.lay-corner .key[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-ink); }
