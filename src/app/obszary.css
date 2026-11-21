@@ -12,18 +12,17 @@
 /* ---------- 2. plakietka i okno podglądu ---------- */
 .nplate {
   display: inline-flex; align-items: center; gap: .45rem; height: 24px; padding: 0 .55rem; width: max-content;
-  border: 1px solid var(--line); border-radius: 7px; background: var(--panel, var(--surface));
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .45);
+  border: 1px solid var(--line); border-radius: 7px; background: transparent;
   font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap;
 }
 .nplate b { font-weight: 700; color: var(--accent-ink); letter-spacing: .04em; }
-[data-theme="light"] .nplate { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .08); }
+
 
 .well {
   position: relative; overflow: hidden; border-radius: 12px; border: 1px solid var(--line);
-  background: var(--panel, var(--surface)); box-shadow: inset 0 2px 6px rgba(0, 0, 0, .45);
+  background: var(--panel, var(--surface));
 }
-[data-theme="light"] .well { background: var(--surface-2); box-shadow: inset 0 1px 3px rgba(28, 25, 23, .08); }
+[data-theme="light"] .well { background: var(--surface-2); }
 .well::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image: linear-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px),
@@ -37,14 +36,12 @@
 /* klawisz z ikoną (karty, nagłówki) — wypukły jak klawisz pulpitu */
 .ikey {
   flex: none; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; color: var(--ink-2);
-  border: 1px solid var(--line-strong); --di-a: var(--accent-ink);
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .5);
+  border: 1px solid var(--line-strong); --di-a: var(--accent-ink); background: var(--card);
 }
 .ikey svg { width: 24px; height: 24px; }
 .ikey.is-l { width: 52px; height: 52px; border-radius: 14px; }
 .ikey.is-l svg { width: 28px; height: 28px; }
-[data-theme="light"] .ikey { background: linear-gradient(180deg, #fff, var(--surface-2)); box-shadow: 0 1px 2px rgba(28, 25, 23, .1); }
+[data-theme="light"] .ikey { background: var(--surface); }
 
 /* ruch ikon po najechaniu na kartę (klasa .live-card) */
 .live-card .di-mill .fl { transition: transform .3s; }
@@ -85,25 +82,14 @@
 }
 .rail-key:hover { color: var(--ink); background: var(--surface-2); }
 .rail-ico { width: 19px; height: 19px; stroke-width: 1.75; }
-.rail-key[aria-current="page"] { color: var(--ink); background: var(--bg); border-color: var(--line); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .28); }
+.rail-key[aria-current="page"] { color: var(--ink); background: var(--surface-2); }
 .rail-key[aria-current="page"] .rail-ico { color: var(--accent-ink); }
 /* klawisze obszarów: wypukłe; wybrany — wciśnięty, z akcentem ikony */
-.rail-area {
-  height: 44px; color: var(--ink-2); border-color: var(--line-strong);
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .45);
-  transition: background .15s, box-shadow .15s, transform .1s;
-}
+.rail-area { height: 44px; color: var(--muted); transition: background .15s, color .15s, border-color .15s, transform .1s; }
 .rail-area .rail-ico { width: 21px; height: 21px; }
-.rail-area:hover { background: linear-gradient(180deg, var(--surface-3, var(--surface-2)), var(--surface-2)); }
-.rail-area:active { transform: translateY(1px); }
-.rail-area[aria-pressed="true"] {
-  --di-a: var(--accent-ink); color: var(--ink); background: var(--bg); border-color: var(--line);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .45);
-}
-.rail-area.is-soon:not([aria-pressed="true"]) { color: var(--muted); }
-[data-theme="light"] .rail-area { background: linear-gradient(180deg, #fff, var(--surface-2)); box-shadow: 0 1px 2px rgba(28, 25, 23, .1); }
-[data-theme="light"] .rail-area[aria-pressed="true"] { background: var(--surface-2); box-shadow: inset 0 1px 3px rgba(28, 25, 23, .14); }
+.rail-area:active { transform: scale(.96); }
+.rail-area[aria-pressed="true"] { --di-a: var(--accent-ink); color: var(--ink); background: var(--surface-2); border-color: var(--line-strong); }
+.rail-area.is-soon:not([aria-pressed="true"]) { color: var(--muted); opacity: .8; }
 .rail-led { position: absolute; top: 5px; right: 5px; }
 .rail-only-c { display: none !important; }
 html[data-sb="c"] .rail-only-c { display: grid !important; }
@@ -112,7 +98,7 @@ html[data-sb="c"] .sb-body { margin-top: .3rem; }
 html[data-sb="c"] .rail { width: 100%; }
 html[data-sb="c"] .sb-tree { display: none; }
 
-.sb-tree { flex: 1; min-width: 0; overflow: hidden auto; scrollbar-width: none; padding: 0 2px 0 .45rem; border-left: 1px solid var(--line); }
+.sb-tree { flex: 1; min-width: 0; overflow: hidden auto; scrollbar-width: none; padding: 0 2px 0 .5rem; border-left: 1px solid var(--line); }
 .sb-area { display: grid; gap: .45rem; padding: .2rem .35rem .65rem; }
 .sb-area-t { font: 600 var(--fs-text)/1.25 var(--font-sans); letter-spacing: -.005em; color: var(--ink); text-decoration: none; }
 a.sb-area-t:hover { color: var(--accent-ink); }
@@ -128,8 +114,8 @@ a.sb-area-t:hover { color: var(--accent-ink); }
   text-decoration: none; white-space: nowrap;
 }
 a.at-item:hover { background: var(--surface-2); color: var(--ink); }
-.at-item[aria-current="page"] { background: var(--bg); color: var(--ink); border-color: var(--line); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .28); --di-a: var(--accent-ink); }
-[data-theme="light"] .at-item[aria-current="page"] { background: var(--surface); box-shadow: 0 1px 2px rgba(28, 25, 23, .08); }
+.at-item[aria-current="page"] { background: var(--surface-2); color: var(--ink); --di-a: var(--accent-ink); }
+[data-theme="light"] .at-item[aria-current="page"] { background: var(--surface); box-shadow: 0 0 0 1px var(--line); }
 .at-item[aria-current="page"] svg.lucide { color: var(--accent-ink); }
 .at-item.is-trail { color: var(--ink); --di-a: var(--accent-ink); }
 .at-ico { width: 17px; height: 17px; flex: none; stroke-width: 1.75; }
@@ -155,15 +141,11 @@ a.at-item:hover { background: var(--surface-2); color: var(--ink); }
 .vd-areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
 .vd-area {
   position: relative; display: grid; justify-items: center; gap: .3rem; min-height: 60px; padding: .55rem .25rem;
-  border: 1px solid var(--line-strong); border-radius: 9px; color: var(--ink-2); cursor: pointer;
-  background: linear-gradient(180deg, var(--surface-2), var(--surface));
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05), 0 1px 2px rgba(0, 0, 0, .45);
+  border: 1px solid transparent; border-radius: 9px; color: var(--muted); cursor: pointer; background: transparent;
   font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase;
 }
 .vd-area-ico { width: 21px; height: 21px; }
-.vd-area[aria-pressed="true"] { --di-a: var(--accent-ink); color: var(--ink); background: var(--surface); border-color: var(--line); box-shadow: inset 0 2px 4px rgba(0, 0, 0, .45); }
-[data-theme="light"] .vd-area { background: linear-gradient(180deg, #fff, var(--surface-2)); box-shadow: 0 1px 2px rgba(28, 25, 23, .1); }
-[data-theme="light"] .vd-area[aria-pressed="true"] { background: var(--surface-2); box-shadow: inset 0 1px 3px rgba(28, 25, 23, .14); }
+.vd-area[aria-pressed="true"] { --di-a: var(--accent-ink); color: var(--ink); background: var(--surface-2); border-color: var(--line-strong); }
 .vd-tree { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: .35rem; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
 .vd-tree-t { margin: .2rem .35rem .45rem; font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .vd-tree-t a { display: inline-flex; align-items: center; gap: .3rem; color: var(--ink-2); text-decoration: none; }
@@ -252,7 +234,7 @@ a.at-item:hover { background: var(--surface-2); color: var(--ink); }
 .live-card::after {
   background: radial-gradient(420px circle at var(--mx, -999px) var(--my, -999px), color-mix(in srgb, var(--accent) 9%, transparent), transparent 60%) !important;
 }
-.live-card { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .035); transition: border-color .2s; }
+.live-card { transition: border-color .2s; }
 .live-card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
 
 .obs { display: flex; gap: .9rem; min-height: 430px; }

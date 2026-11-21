@@ -82,7 +82,7 @@ export function setTheme(t: Theme) {
 }
 
 /** Kolor paska przeglądarki / ekranu startowego (meta theme-color) — jak tło motywu. */
-export const THEME_COLOR = { dark: "#111214", light: "#FAFAF9" } as const;
+export const THEME_COLOR = { dark: "#000000", light: "#FAFAF9" } as const;
 
 /**
  * Skrypt na początku <body>: motyw, panel boczny (domyślnie zwinięty poniżej 1440 px), dźwięk, wibracje i obszar nauki —

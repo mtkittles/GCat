@@ -126,12 +126,12 @@
 }
 
 [data-theme="dark"] {
-  --bg: #111214;
-  --surface: #17181B;
-  --surface-2: #202125;
-  --surface-3: #292A2F;
-  --card: #1A1B1F;
-  --panel: #141518;
+  --bg: #000000;
+  --surface: #0A0A0B;
+  --surface-2: #18181B;
+  --surface-3: #222226;
+  --card: #111113;
+  --panel: #0A0A0B;
   --panel-ink: #F5F5F4;
   --ink: #F5F5F4;
   --ink-2: #C8C9CC;
@@ -147,8 +147,8 @@
   --amber-ink: #F59E0B;
   --blue-ink: #38BDF8;
   --warn-bg: #2A1A10;
-  --line: #2A2B30;
-  --line-strong: #3A3B41;
+  --line: #1F1F22;
+  --line-strong: #2E2E33;
   --cm-comment: #8B98AB;
   --cm-g: #FBBF24;
   --cm-m: #C4B5FD;
