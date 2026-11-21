@@ -6,7 +6,6 @@ import StatusLed from "@/components/tactile/StatusLed";
 import CncPanel from "@/components/pulpit/CncPanel";
 import ResumePanel, { type ResumeLesson } from "@/components/pulpit/ResumePanel";
 import LearnMap from "@/components/pulpit/LearnMap";
-import TrackCards from "@/components/pulpit/TrackCards";
 import CodeWidget, { type CodeCard } from "@/components/pulpit/CodeWidget";
 import RpmWidget from "@/components/pulpit/RpmWidget";
 import FlashWidget from "@/components/pulpit/FlashWidget";
@@ -20,7 +19,7 @@ import ObszaryPicker from "@/components/obszary/ObszaryPicker";
 import { artsOf, dzialy as techDzialy, publicArts } from "@/lib/technologia";
 
 /*
-  Pulpit operatora (strona główna): powitanie z liczbami serwisu i kartą „następny krok”, wybór obszaru nauki, mini-pulpit CNC z programem pokazowym,
+  Pulpit operatora (strona główna): powitanie z liczbami serwisu i kartą „następny krok”, wybór obszaru nauki (z postępem ścieżek frezowania i toczenia), mini-pulpit CNC z programem pokazowym,
   dwie ścieżki nauki i siatka narzędzi. Wszystkie liczby i treści z danych serwisu — nic na sztywno.
 */
 const LESSONS: ResumeLesson[] = (["frezowanie", "toczenie"] as const).flatMap((t) =>
@@ -81,18 +80,7 @@ export default function Home() {
       {/* 3: mini-pulpit CNC */}
       <CncPanel />
 
-      {/* 4: ścieżki nauki */}
-      <section className="pz" aria-labelledby="pz-tracks">
-        <header className="pz-head">
-          <h2 id="pz-tracks" className="pz-title">Ścieżki nauki</h2>
-          <Link href="/nauka" className="bw-link">Plan kursu <ArrowRight aria-hidden /></Link>
-        </header>
-        <TrackCards lessons={LESSONS} tracks={(["frezowanie", "toczenie"] as const).map((k) => ({
-          key: k, title: tracks[k].title, blurb: tracks[k].blurb, img: TRACK_IMG[k],
-        }))} />
-      </section>
-
-      {/* 5: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
+      {/* 4: mapa nauki — dni z nauką z zapisu postępu w przeglądarce */}
       <section className="pz" aria-labelledby="pz-map">
         <header className="pz-head">
           <h2 id="pz-map" className="pz-title">Mapa nauki</h2>
@@ -101,7 +89,7 @@ export default function Home() {
         <LearnMap lessons={LESSONS.map(({ track, id, title }) => ({ track, id, title }))} first={LESSONS[0]?.href ?? "/nauka"} />
       </section>
 
-      {/* 6: warsztat i baza */}
+      {/* 5: warsztat i baza */}
       <section className="pz" aria-labelledby="pz-tools">
         <header className="pz-head">
           <h2 id="pz-tools" className="pz-title">Warsztat i baza wiedzy</h2>

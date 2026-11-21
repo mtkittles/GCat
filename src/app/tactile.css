@@ -480,30 +480,6 @@ a.rp-card:hover .rp-meta svg { transform: translateX(3px); color: var(--accent-i
   .cp-lines { max-height: none; font-size: var(--fs-small); }
 }
 
-/* ścieżki nauki — jedyne karty ze zdjęciem */
-.tk { display: grid; gap: 1rem; }
-@media (min-width: 768px) { .tk { grid-template-columns: 1fr 1fr; } }
-.tk-card {
-  display: grid; grid-template-rows: auto 1fr; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius-lg);
-  background: var(--card); color: inherit; text-decoration: none; transition: border-color .2s ease;
-}
-.tk-card:hover, .tk-card:focus-visible { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
-.tk-photo { position: relative; display: block; aspect-ratio: 16 / 6.2; overflow: hidden; isolation: isolate; border-bottom: 1px solid var(--line); }
-.tk-photo .nk-photo { z-index: 0; }
-.tk-card:hover .nk-photo, .tk-card:focus-visible .nk-photo { transform: scale(1.06); }
-.tk-body { display: grid; gap: .6rem; padding: 1rem 1.1rem 1.1rem; }
-.tk-top { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; }
-.tk-top b { font: 600 var(--fs-h3)/1.1 var(--font-sans); letter-spacing: -.005em; }
-.tk-n { font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.tk-blurb { font-size: var(--fs-aux); color: var(--ink-2); line-height: 1.5; }
-.tk-meter { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .75rem; }
-.tk-meter .lm-bar { height: 9px; }
-.tk-v { font: 600 var(--fs-label)/1 var(--font-mono); font-variant-numeric: tabular-nums; color: var(--ink-2); }
-.tk-cta { display: inline-flex; align-items: center; gap: .4rem; font: 600 var(--fs-aux)/1 var(--font-sans); color: var(--accent-ink); }
-.tk-cta code { font: 600 var(--fs-small)/1 var(--font-mono); }
-.tk-cta svg { width: 16px; height: 16px; transition: transform .15s ease; }
-.tk-card:hover .tk-cta svg { transform: translateX(3px); }
-
 /* bento */
 .bento { display: grid; gap: 1rem; }
 @media (min-width: 768px) { .bento { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bw-codes { grid-column: 1 / -1; } }
@@ -588,7 +564,6 @@ a.rp-card:hover .rp-meta svg { transform: translateX(3px); color: var(--accent-i
 @media (prefers-reduced-motion: reduce) {
   .cp-path { animation: none; }
   .cp-path.is-rap { animation: none; }
-  .tk-card .nk-photo { transition: none; }
 }
 
 /* niskie okno (np. 1288 × 600): ciaśniejszy panel, żeby wszystkie pozycje mieściły się bez przewijania */

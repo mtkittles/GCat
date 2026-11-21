@@ -25,42 +25,6 @@
 .tech-search-res > p { margin: 0; padding: .4rem .65rem; font-size: var(--fs-aux); }
 .tech-search-all { justify-self: start; padding: .3rem .65rem; font: 600 var(--fs-aux)/1.3 var(--font-sans); color: var(--accent-ink); }
 
-/* ── kafle działów (bento): Narzędzia i Płytki szersze ── */
-.tech-bento { display: grid; gap: .9rem; grid-template-columns: minmax(0, 1fr); }
-@media (min-width: 640px) {
-  .tech-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .tech-tile.is-full { grid-column: 1 / -1; }
-}
-@media (min-width: 1024px) {
-  .tech-bento { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .tech-tile { grid-column: span 2; }
-  .tech-tile.is-big, .tech-tile.is-half { grid-column: span 3; }
-  .tech-tile.is-full { grid-column: 1 / -1; }
-}
-.tech-tile {
-  position: relative; display: grid; align-content: start; gap: .55rem; min-height: 9.5rem; padding: 1.05rem 1.1rem 1.1rem;
-  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); color: var(--ink); text-decoration: none;
-  transition: border-color .15s ease, background-color .15s ease;
-}
-.tech-tile:hover, .tech-tile:focus-visible { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
-.tech-tile.is-big { min-height: 12rem; }
-.tech-tile-ico {
-  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
-  border: 1px solid var(--line); background: var(--bg); color: var(--accent-ink);
-}
-[data-theme="light"] .tech-tile-ico { background: var(--surface-2); }
-.tech-tile-ico svg { width: 21px; height: 21px; stroke-width: 1.8; }
-.tech-tile.is-big .tech-tile-ico { width: 48px; height: 48px; }
-.tech-tile.is-big .tech-tile-ico svg { width: 25px; height: 25px; }
-.tech-tile-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .35rem .75rem; padding-right: 1.6rem; }
-.tech-tile-top b { font: 600 var(--fs-h3)/1.2 var(--font-sans); letter-spacing: -.005em; }
-.tech-tile-short { font-size: var(--fs-aux); line-height: 1.5; color: var(--ink-2); }
-.tech-tile-zakres { font-size: var(--fs-small); line-height: 1.55; color: var(--muted); }
-.tech-tile-go { position: absolute; top: 1rem; right: .9rem; color: var(--muted); }
-.tech-tile-go svg { width: 18px; height: 18px; transition: transform .15s ease; }
-.tech-tile:hover .tech-tile-go svg, .tech-tile:focus-visible .tech-tile-go svg { transform: translateX(3px); color: var(--accent-ink); }
-@media (prefers-reduced-motion: reduce) { .tech-tile-go svg { transition: none; } }
-
 /* ── listy artykułów ── */
 .tech-list { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
 .tech-row {
