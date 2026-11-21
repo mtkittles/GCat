@@ -33,7 +33,7 @@ export default function Results() {
 
   return (
     <div className="grid gap-4">
-      <h1 className="text-3xl font-bold">Szukaj</h1>
+      <h1 className="ph-title">Szukaj</h1>
       <div className="filters">
         <input className="grow" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Wpisz frazę…" autoFocus />
       </div>
