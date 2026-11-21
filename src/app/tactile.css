@@ -25,11 +25,10 @@ html[data-sb="c"] { --sb-w: 68px; }
 /* przełącznik segmentowy */
 .tsc {
   display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px;
-  background: var(--bg); border: 1px solid var(--line);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3);
+  background: var(--card); border: 1px solid var(--line);
   max-width: 100%;
 }
-[data-theme="light"] .tsc { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .08); }
+[data-theme="light"] .tsc { background: var(--surface-2); }
 .tsc.is-full { display: flex; width: 100%; }
 .tsc.is-full .tsc-btn { flex: 1; }
 .tsc-btn {
@@ -41,11 +40,10 @@ html[data-sb="c"] { --sb-w: 68px; }
 .tsc-btn.is-on { color: var(--ink); }
 .tsc-btn:focus-visible { outline-offset: -2px; }
 .tsc-cap {
-  position: absolute; inset: 0; border-radius: 7px; background: var(--surface-3);
+  position: absolute; inset: 0; border-radius: 7px; background: var(--surface-2);
   border: 1px solid var(--line-strong);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .45);
 }
-[data-theme="light"] .tsc-cap { background: var(--surface); box-shadow: 0 1px 2px rgba(28, 25, 23, .14); }
+[data-theme="light"] .tsc-cap { background: var(--surface); box-shadow: 0 1px 2px rgba(28, 25, 23, .1); }
 .tsc-in { position: relative; display: inline-flex; align-items: center; gap: .45rem; }
 .tsc-in svg { width: 15px; height: 15px; }
 
@@ -133,9 +131,7 @@ kbd { font: 500 10.5px/1 var(--font-mono); }
   display: flex; align-items: center; gap: .6rem; height: 36px; padding: 0 .55rem 0 .65rem; width: 100%;
   border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--muted);
   font: 500 var(--fs-aux)/1 var(--font-sans); cursor: pointer; text-align: left;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .25);
 }
-[data-theme="light"] .sb-search { box-shadow: inset 0 1px 2px rgba(28, 25, 23, .06); }
 .sb-search:hover { color: var(--ink-2); border-color: var(--line-strong); }
 .sb-kbd, .topbar-search kbd, .tip kbd, .pal kbd {
   display: inline-flex; align-items: center; gap: 2px; padding: 2px 5px; border-radius: 4px;
@@ -386,13 +382,13 @@ a.rp-card:hover .rp-meta svg { transform: translateX(3px); color: var(--accent-i
 .cp-ops { display: grid; gap: 4px; }
 .cp-op, .cp-sw {
   display: flex; align-items: center; gap: .65rem; width: 100%; min-height: 46px; padding: .45rem .7rem;
-  border: 1px solid var(--line-strong); border-radius: 9px; background: var(--surface-2); color: var(--ink-2);
-  text-align: left; cursor: pointer; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 1px 0 rgba(0, 0, 0, .35);
+  border: 1px solid var(--line); border-radius: 9px; background: var(--card); color: var(--ink-2);
+  text-align: left; cursor: pointer;
 }
-[data-theme="light"] :is(.cp-op, .cp-sw) { background: var(--card); box-shadow: 0 1px 0 rgba(28, 25, 23, .06); }
+[data-theme="light"] :is(.cp-op, .cp-sw) { background: var(--card); }
 .cp-op:hover, .cp-sw:hover { color: var(--ink); border-color: var(--muted); }
-.cp-op.is-on { background: var(--bg); color: var(--ink); border-color: var(--line-strong); box-shadow: inset 0 1px 3px rgba(0, 0, 0, .4); }
-[data-theme="light"] .cp-op.is-on { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .1); }
+.cp-op.is-on { background: var(--surface-2); color: var(--ink); border-color: var(--line-strong); }
+[data-theme="light"] .cp-op.is-on { background: var(--surface-2); }
 .cp-op:active, .cp-sw:active { transform: translateY(1px); }
 .cp-op-n { font: 600 var(--fs-label)/1 var(--font-mono); color: var(--muted); }
 .cp-op.is-on .cp-op-n { color: var(--accent-ink); }
@@ -507,16 +503,16 @@ a.rp-card:hover .rp-meta svg { transform: translateX(3px); color: var(--accent-i
 }
 .kn input[type="range"]::-webkit-slider-runnable-track {
   height: 6px; border-radius: 3px; border: 1px solid var(--line);
-  background: linear-gradient(90deg, var(--accent) var(--p), var(--bg) var(--p)); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35);
+  background: linear-gradient(90deg, var(--accent) var(--p), var(--surface-2) var(--p));
 }
-.kn input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid var(--line); background: var(--bg); }
+.kn input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; border: 1px solid var(--line); background: var(--surface-2); }
 .kn input[type="range"]::-moz-range-progress { height: 6px; border-radius: 3px; background: var(--accent); }
 .kn input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 5px;
-  background: var(--surface-3); border: 1px solid var(--line-strong); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .1), 0 1px 3px rgba(0, 0, 0, .5);
+  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
+  background: var(--ink); border: 3px solid var(--accent);
 }
-.kn input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 5px; background: var(--surface-3); border: 1px solid var(--line-strong); }
-[data-theme="light"] .kn input[type="range"]::-webkit-slider-thumb { background: var(--surface); box-shadow: 0 1px 3px rgba(28, 25, 23, .25); }
+.kn input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--ink); border: 3px solid var(--accent); }
+[data-theme="light"] .kn input[type="range"]::-webkit-slider-thumb { background: var(--surface); }
 
 /* wyświetlacz DRO */
 .dro {
@@ -910,22 +906,18 @@ html.lenis { scroll-behavior: auto !important; }
    12. Rysownik i edytor treści — klawisze i diody pulpitu (tylko wygląd; układ jak w CAD bez zmian)
    Szyna zagłębiona, wybrany klawisz to wypukła nakładka z diodą — jak TactileSegmentedControl.
    ========================================================================== */
-.rys-tools, .rys-seg {
-  background: var(--bg); border-color: var(--line);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, .3);
-}
-[data-theme="light"] :is(.rys-tools, .rys-seg) { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .08); }
+.rys-tools, .rys-seg { background: var(--card); border-color: var(--line); }
+[data-theme="light"] :is(.rys-tools, .rys-seg) { background: var(--surface-2); }
 
 .rys-tool, .rys-sbtn { position: relative; }
 :is(.rys-tool, .rys-sbtn)[aria-pressed="true"],
 :is(.rys-tool, .rys-sbtn)[aria-pressed="true"]:hover:not(:disabled),
 .rys-seg button[aria-checked="true"],
 .ed-tabs button[aria-selected="true"] {
-  background: var(--surface-3); color: var(--ink);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .45), 0 0 0 1px var(--line-strong);
+  background: var(--surface-2); color: var(--ink); box-shadow: 0 0 0 1px var(--line-strong);
 }
 [data-theme="light"] :is(:is(.rys-tool, .rys-sbtn)[aria-pressed="true"], .rys-seg button[aria-checked="true"], .ed-tabs button[aria-selected="true"]) {
-  background: var(--surface); box-shadow: 0 1px 2px rgba(28, 25, 23, .14), 0 0 0 1px var(--line-strong);
+  background: var(--surface); box-shadow: 0 0 0 1px var(--line-strong);
 }
 :is(.rys-tool, .rys-sbtn)[aria-pressed="true"] svg { color: var(--accent-ink); }
 
@@ -1071,8 +1063,8 @@ html.lenis { scroll-behavior: auto !important; }
 .gl-sticky { position: sticky; top: calc(52px + env(safe-area-inset-top, 0px)); z-index: 6; display: grid; gap: .45rem; margin-inline: -.5rem; padding: .55rem .5rem .5rem; background: color-mix(in srgb, var(--bg) 97%, transparent); border-bottom: 1px solid var(--line); }
 .gl-bar { display: flex; align-items: center; gap: .6rem; }
 .gl-sticky .gl-letters { position: static; margin: 0; padding: 0; border: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-.gl-letters button[aria-pressed="true"] { background: var(--surface-3); color: var(--ink); border-color: var(--line-strong); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 1px 2px rgba(0, 0, 0, .4), inset 0 -2px 0 var(--accent); }
-[data-theme="light"] .gl-letters button[aria-pressed="true"] { background: var(--surface); box-shadow: 0 1px 2px rgba(28, 25, 23, .14), inset 0 -2px 0 var(--accent); }
+.gl-letters button[aria-pressed="true"] { background: var(--surface-3); color: var(--ink); border-color: var(--line-strong); box-shadow: inset 0 -2px 0 var(--accent); }
+[data-theme="light"] .gl-letters button[aria-pressed="true"] { background: var(--surface); box-shadow: inset 0 -2px 0 var(--accent); }
 .gl-peek { display: inline-flex; }
 .gl-peek .term { padding: .2rem .45rem; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--bg); font: 600 var(--fs-label)/1.2 var(--font-mono); color: var(--accent-ink); text-decoration: none; cursor: pointer; }
 .gl-peek .term:hover, .gl-peek .term[aria-expanded="true"] { border-color: var(--accent); }
@@ -1097,7 +1089,6 @@ html.lenis { scroll-behavior: auto !important; }
   grid-area: 1 / 1; display: grid; align-content: center; justify-items: center; gap: .7rem; position: relative;
   min-height: clamp(15rem, 44dvh, 22rem); padding: 2.6rem 1.5rem 1.6rem; border-radius: 18px; border: 1px solid var(--line);
   background: var(--card); -webkit-backface-visibility: hidden; backface-visibility: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .04), 0 1px 2px rgba(0, 0, 0, .35);
   transition: border-color .15s ease;
 }
 .fcx-card:hover .fcx-face { border-color: var(--line-strong); }
@@ -1294,17 +1285,17 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 .sp-feed-cap { display: grid; justify-items: start; gap: 1px; font: 600 var(--fs-label)/1.1 var(--font-mono); letter-spacing: .12em; color: var(--muted); }
 .sp-feed-cap b { font-weight: 700; color: var(--ink-2); }
 
-/* przycisk pulpitu — klawisz z krawędzią i cieniem, wciśnięcie o 1 px */
+/* przycisk pulpitu — płaski klawisz z cienką krawędzią (UI‑3), wciśnięcie zmniejsza */
 .sim-panel .pb {
   position: relative; display: inline-grid; place-items: center; min-width: 44px; height: 44px; min-height: 0; padding: 0 .5rem;
-  border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface-2); color: var(--ink);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 1px 0 rgba(0, 0, 0, .4), 0 2px 4px rgba(0, 0, 0, .18);
+  border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card); color: var(--ink);
   font: 700 10px/1.05 var(--font-mono); letter-spacing: .08em; cursor: pointer;
   transition: transform .09s var(--ease-out, ease-out), box-shadow .12s ease, background-color .15s ease, border-color .15s ease;
 }
-[data-theme="light"] .sim-panel .pb { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8), 0 1px 0 rgba(28, 25, 23, .12), 0 2px 4px rgba(28, 25, 23, .06); }
+[data-theme="light"] .sim-panel .pb { background: var(--surface); }
 .sim-panel .pb:hover { border-color: color-mix(in srgb, var(--ink) 28%, var(--line-strong)); }
-.sim-panel .pb:active { transform: translateY(1px); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35); }
+.sim-panel .pb:hover { background: var(--surface-2); }
+.sim-panel .pb:active { transform: scale(.96); }
 .sim-panel .pb-ico { width: 40px; min-width: 40px; padding: 0; color: var(--ink-2); }
 /* trzy przyciski kroku jako jedna listwa */
 .sp-step { gap: 0; }
@@ -1318,9 +1309,9 @@ button, .btn, .key { transition-property: transform, background-color, border-co
 .sim-panel .pb-hold { --c: var(--red); width: 58px; }
 .pb-t { color: color-mix(in srgb, var(--c) 70%, var(--ink)); }
 .pb-led { width: 18px; height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--c) 22%, var(--line-strong)); box-shadow: inset 0 1px 1px rgba(0, 0, 0, .35); transition: background-color .15s ease, box-shadow .15s ease; }
-.sim-panel .pb-start { border-color: color-mix(in srgb, var(--c) 45%, var(--line-strong)); background: color-mix(in srgb, var(--c) 9%, var(--surface-2)); }
-.sim-panel .pb-hold { border-color: color-mix(in srgb, var(--c) 35%, var(--line-strong)); background: color-mix(in srgb, var(--c) 6%, var(--surface-2)); }
-.sim-panel .pb.is-lit { background: color-mix(in srgb, var(--c) 18%, var(--surface-2)); border-color: color-mix(in srgb, var(--c) 70%, var(--line-strong)); }
+.sim-panel .pb-start { border-color: color-mix(in srgb, var(--c) 45%, var(--line-strong)); background: color-mix(in srgb, var(--c) 9%, var(--card)); }
+.sim-panel .pb-hold { border-color: color-mix(in srgb, var(--c) 35%, var(--line-strong)); background: color-mix(in srgb, var(--c) 6%, var(--card)); }
+.sim-panel .pb.is-lit { background: color-mix(in srgb, var(--c) 18%, var(--card)); border-color: color-mix(in srgb, var(--c) 70%, var(--line-strong)); }
 .sim-panel .pb.is-lit .pb-led { background: var(--c); box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 40%, #000), 0 0 8px color-mix(in srgb, var(--c) 75%, transparent); }
 .sim-panel .pb.is-lit .pb-t { color: var(--ink); }
 [data-theme="light"] .wb-main > .sim-panel .pb-start .pb-t { color: color-mix(in srgb, var(--green-ink) 85%, #000); }
@@ -1395,7 +1386,7 @@ button, .btn, .key { transition-property: transform, background-color, border-co
   position: fixed; left: 50%; bottom: calc(var(--dock-space, 0px) + .6rem); z-index: 46; transform: translateX(-50%);
   display: inline-flex; align-items: center; gap: .15rem; max-width: calc(100vw - 1.5rem); height: 42px; padding: 0 .25rem 0 .3rem;
   border: 1px solid var(--line-strong); border-radius: 999px; background: var(--surface);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, .38), inset 0 1px 0 rgba(255, 255, 255, .05);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .5);
   transition: opacity .22s var(--ease-out, ease-out), transform .22s var(--ease-out, ease-out);
 }
 @starting-style { .sim-capsule { opacity: 0; transform: translate(-50%, 10px); } }
@@ -1934,8 +1925,7 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
     border: 0; border-radius: 13px; background: transparent; color: var(--ink-2); font: 600 var(--fs-label)/1 var(--font-sans);
   }
   .workbench.is-app .m-simtabs button svg, .workbench.is-app .m-simtabs-home svg { width: 21px; height: 21px; stroke-width: 1.8; }
-  .workbench.is-app .m-simtabs button[aria-pressed="true"] { color: var(--ink); background: var(--bg); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .35); }
-  [data-theme="light"] .workbench.is-app .m-simtabs button[aria-pressed="true"] { background: var(--surface-2); box-shadow: inset 0 1px 2px rgba(28, 25, 23, .1); }
+  .workbench.is-app .m-simtabs button[aria-pressed="true"] { color: var(--ink); background: var(--surface-2); }
   .workbench.is-app .m-simtabs button[aria-pressed="true"] svg { color: var(--accent-ink); }
 }
 

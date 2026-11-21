@@ -173,13 +173,13 @@ a { text-underline-offset: 3px; }
 /* ---------- przyciski ---------- */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .45rem;
-  padding: .68rem 1.2rem; border-radius: var(--radius-sm); font-weight: 600; font-size: var(--fs-text);
+  padding: .68rem 1.25rem; border-radius: 999px; font-weight: 600; font-size: var(--fs-text);
   background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent);
   min-height: 44px;
 }
 .btn:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
-.btn.ghost { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
-.btn.ghost:hover { border-color: var(--ink); background: var(--surface-2); }
+.btn.ghost { background: var(--card); color: var(--ink); border-color: var(--line-strong); }
+.btn.ghost:hover { border-color: color-mix(in srgb, var(--ink) 30%, var(--line-strong)); background: var(--surface-2); }
 .btn.plain { background: transparent; border-color: transparent; color: var(--ink); }
 .btn.plain:hover { background: var(--surface-2); }
 button, a, select, summary { transition: background-color .14s ease, border-color .14s ease, color .14s ease, transform .08s ease, filter .14s ease; }
