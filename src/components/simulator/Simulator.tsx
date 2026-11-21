@@ -1936,6 +1936,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
               }}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d={t.d} /></svg>
               <span>{t.label}</span>
+              {mTab === t.id && <StatusLed state="on" pulse={false} className="dock-led" />}
             </button>
           ))}
         </nav>
