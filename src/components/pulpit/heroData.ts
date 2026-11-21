@@ -1,7 +1,7 @@
 import { parseProgram, type Segment } from "@/lib/parser";
 import { simHref } from "@/lib/simLink";
-import { HOME_DEMO, HOME_DEMO_OPS, HOME_DEMO_SINUMERIK, HOME_DEMO_SINUMERIK_OPS } from "@/content/homeDemo";
-import { KORPUS, KORPUS_OPS, KORPUS_SINUMERIK, KORPUS_SINUMERIK_OPS, WALEK, WALEK_OPS, WALEK_SINUMERIK, WALEK_SINUMERIK_OPS } from "@/content/heroDetale";
+import { HOME_DEMO, HOME_DEMO_OPS } from "@/content/homeDemo";
+import { KORPUS, KORPUS_OPS, WALEK, WALEK_OPS } from "@/content/heroDetale";
 
 /*
   Dane okna programu na stronie startowej (V3.1), liczone przy budowie strony: tor z parsera (wersja Fanuc),
@@ -31,9 +31,8 @@ export interface HDetal {
   key: string; name: string; sub: string; mode: "mill" | "lathe";
   stock: { x0: number; y0: number; x1: number; y1: number };
   ops: HOp[];
-  code: { fanuc: CodeLine[]; sinumerik: CodeLine[] };
+  code: CodeLine[];
   /** indeks linii Sinumerik odpowiadający linii Fanuc */
-  sinOf: number[];
   segs: HSeg[];
   simHref: string;
 }
@@ -84,14 +83,14 @@ function opIndex(lines: string[], starts: string[]) {
 }
 
 function build(o: {
-  key: string; name: string; sub: string; mode: "mill" | "lathe"; fanuc: string; sinumerik: string;
-  ops: string[]; sinOps: string[]; opNames: string[]; opTools: string[]; stock: HDetal["stock"];
+  key: string; name: string; sub: string; mode: "mill" | "lathe"; fanuc: string;
+  ops: string[]; opNames: string[]; opTools: string[]; stock: HDetal["stock"];
 }): HDetal {
   const lathe = o.mode === "lathe";
   const prog = parseProgram(o.fanuc, { diameterX: lathe });
-  const fl = o.fanuc.split("\n"), sl = o.sinumerik.split("\n");
-  const fStart = opIndex(fl, o.ops), sStart = opIndex(sl, o.sinOps);
-  if ([...fStart, ...sStart].some((i) => i < 0)) throw new Error(`heroData ${o.key}: brak początku operacji`);
+  const fl = o.fanuc.split("\n");
+  const fStart = opIndex(fl, o.ops);
+  if (fStart.some((i) => i < 0)) throw new Error(`heroData ${o.key}: brak początku operacji`);
   const opOf = (line: number) => Math.max(0, fStart.filter((s) => s <= line).length - 1);
 
   // narzędzie operacji: ostatnie T przed jej początkiem (komentarz z FI<średnica>)
@@ -124,20 +123,11 @@ function build(o: {
     });
   }
 
-  // mapa linii: pozycja w obrębie operacji, ograniczona długością operacji w drugim zapisie
-  const sinOf = fl.map((_, i) => {
-    const k = opOf(i);
-    if (i < fStart[0]) return Math.min(i, sStart[0] - 1);
-    const rel = i - fStart[k];
-    const end = (sStart[k + 1] ?? sl.length) - 1;
-    return Math.min(sStart[k] + rel, end);
-  });
-
   return {
     key: o.key, name: o.name, sub: o.sub, mode: o.mode, stock: o.stock,
     ops: fStart.map((line, k) => ({ name: o.opNames[k], tool: o.opTools[k], line })),
-    code: { fanuc: colorize(o.fanuc, o.ops), sinumerik: colorize(o.sinumerik, o.sinOps) },
-    sinOf, segs,
+    code: colorize(o.fanuc, o.ops),
+    segs,
     simHref: simHref({ src: o.fanuc, mode: o.mode, name: o.name }),
   };
 }
@@ -146,19 +136,19 @@ export function heroDetale(): HDetal[] {
   return [
     build({
       key: "plytka", name: "Płytka mocująca 80 × 50", sub: "frezowanie · 2 narzędzia", mode: "mill",
-      fanuc: HOME_DEMO, sinumerik: HOME_DEMO_SINUMERIK, ops: HOME_DEMO_OPS, sinOps: HOME_DEMO_SINUMERIK_OPS,
+      fanuc: HOME_DEMO, ops: HOME_DEMO_OPS,
       opNames: ["Kontur R10", "Kieszeń ⌀30", "Rowki", "Otwory G81"], opTools: ["frez ⌀10", "frez ⌀10", "frez ⌀10", "wiertło ⌀6"],
       stock: { x0: 0, y0: 0, x1: 80, y1: 50 },
     }),
     build({
       key: "walek", name: "Wałek stopniowany ⌀50", sub: "toczenie · nóż zewnętrzny", mode: "lathe",
-      fanuc: WALEK, sinumerik: WALEK_SINUMERIK, ops: WALEK_OPS, sinOps: WALEK_SINUMERIK_OPS,
+      fanuc: WALEK, ops: WALEK_OPS,
       opNames: ["Zgrubnie", "Wykańczająco"], opTools: ["nóż zewnętrzny", "nóż zewnętrzny"],
       stock: { x0: -62, y0: 0, x1: 0, y1: 25 },
     }),
     build({
       key: "korpus", name: "Korpus z kieszenią i wyspą", sub: "frezowanie · 2 narzędzia", mode: "mill",
-      fanuc: KORPUS, sinumerik: KORPUS_SINUMERIK, ops: KORPUS_OPS, sinOps: KORPUS_SINUMERIK_OPS,
+      fanuc: KORPUS, ops: KORPUS_OPS,
       opNames: ["Kieszeń z wyspą", "Otwory G81"], opTools: ["frez ⌀10", "wiertło ⌀6,8"],
       stock: { x0: 0, y0: 0, x1: 90, y1: 70 },
     }),

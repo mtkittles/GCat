@@ -43,6 +43,10 @@ nie mogą nadpisać komponentów osadzonych w treści (legenda i kod symulatora,
 | **Wnęka** (blok kodu, wiersz w karcie, pole) | `--surface` / `--bg` | `--line` | `--radius` / `--radius-sm` |
 | **Uniesiona** (menu, dymek, aktywny przycisk) | `--surface-2` | `--line-strong` | `--radius` |
 
+**Karta z podglądem** (strona główna, w duchu Framera; `components/pulpit/Shots.tsx`): na górze uproszczona makieta
+ekranu serwisu (lekcja, symulator, kalkulator) na wnęce, wygaszona maską w dół i w prawo; pod nią tytuł Inter 500
+18 px, opis 16 px wyciszony i odnośnik „… →”. Bez ramki ikony i numeru; ikony w makietach cienkie (lucide 1,5).
+
 Pigułki (przyciski, chipy, przełączniki): `999px`. Drobne detale (kbd, znaczniki, paski) ≤ 5 px.
 Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
 
@@ -57,6 +61,9 @@ Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
   `zależy od…`) i `Pro`.
 
 ## Telefon
+
+Strona główna: po otwarciu widać hasło, przyciski (40 px) i rysunek toru w oknie programu. Pasek okna to jeden
+wiersz (detale + odtwarzanie); bez przełącznika Fanuc/Sinumerik — zapis Sinumerik należy do nauki.
 
 Treść przewija się do samego dołu ekranu, pod dokiem i paskiem przeglądarki. Zamiast pełnego pasa jest
 łagodne wygaszenie: pod paskiem górnym 20 px; na dole gradient do `--bg` (wysokość doku + 32 px) — poza iOS.

@@ -10,13 +10,12 @@ import type { HDetal, HSeg } from "./heroData";
   Strona startowa (V3.1): okno programu pod nagłówkiem. Trzy detale na zmianę (płytka, wałek, korpus): program
   wykonuje się płynnie, narzędzie zbiera materiał (ślad o szerokości freza, przy toczeniu — zebrany obszar przekroju),
   bieżąca linia kodu podświetla się, X/Y/Z na żywo. Po programie — przejście do następnego detalu.
-  Przełącznik Fanuc / Sinumerik zmienia zapis kodu (tor jest ten sam); najechanie na linię podświetla jej ruch.
+  Kod w zapisie Fanuc (ISO); najechanie na linię podświetla jej ruch. Zapis Sinumerik — w nauce, nie na stronie głównej.
   Ruch tylko w widoku; „ogranicz ruch” — gotowy detal bez odtwarzania, ▶ uruchamia ręcznie.
 */
 const DUR = 11; // s na program
 const HOLD = 1.8; // s pauzy po programie
 const COL = { rapid: "var(--pv-g0)", linear: "var(--pv-g1)", arc: "var(--pv-g2)" } as const;
-type Dialect = "fanuc" | "sinumerik";
 
 function timeline(segs: HSeg[]) {
   const total = segs.reduce((a, s) => a + s.w, 0);
@@ -45,7 +44,6 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
   const [ref, inView] = useLive<HTMLDivElement>();
   const reduce = useMedia("(prefers-reduced-motion: reduce)");
   const [di, setDi] = useState(0);
-  const [dialect, setDialect] = useState<Dialect>("fanuc");
   const [playing, setPlaying] = useState(true);
   const [started, setStarted] = useState(false); // przy „ogranicz ruch” odtwarzanie tylko po ▶
   const [t, setT] = useState<number | null>(null); // s od startu programu; null = gotowy detal
@@ -85,8 +83,7 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
   const curSeg = d.segs[si];
   const curPts = partial(curSeg.pts, sf);
   const pos = curPts.at(-1)!;
-  const fLine = t === null ? d.code.fanuc.length - 1 : curSeg.line;
-  const line = dialect === "fanuc" ? fLine : d.sinOf[fLine];
+  const line = t === null ? d.code.length - 1 : curSeg.line;
   const op = t === null ? d.ops.length - 1 : curSeg.op;
 
   // kod: bieżąca linia w polu widzenia listy (bez przewijania strony)
@@ -95,7 +92,7 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
     if (!ol || !li) return;
     const top = li.offsetTop - ol.clientHeight / 2 + li.clientHeight / 2;
     ol.scrollTo({ top, behavior: reduce ? "auto" : "smooth" });
-  }, [line, dialect, di, reduce]);
+  }, [line, di, reduce]);
 
   // geometria widoku
   const lathe = d.mode === "lathe";
@@ -113,7 +110,7 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
 
   const fmt = (v: number) => v.toFixed(3);
   const dro = lathe ? [["X", fmt(pos[1] * 2)], ["Z", fmt(pos[0])]] : [["X", fmt(pos[0])], ["Y", fmt(pos[1])], ["Z", fmt(pos[2])]];
-  const code = d.code[dialect];
+  const code = d.code;
 
   const pick = (k: number) => { if (k === di) return; setFade(true); window.setTimeout(() => { setDi(k); setT(run ? 0 : null); setFade(false); }, 260); };
   const toggle = () => {
@@ -133,20 +130,15 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
               <button key={x.key} type="button" aria-pressed={k === di} onClick={() => pick(k)}>{x.name.split(" ")[0]}</button>
             ))}
           </div>
-          <div className="hw-seg" role="group" aria-label="Sterowanie">
-            {(["fanuc", "sinumerik"] as const).map((v) => (
-              <button key={v} type="button" aria-pressed={dialect === v} onClick={() => setDialect(v)}>{v === "fanuc" ? "Fanuc" : "Sinumerik"}</button>
-            ))}
-          </div>
           <button type="button" className="hw-play" onClick={toggle} aria-label={run ? "Wstrzymaj" : "Odtwórz"}>
             {run ? <Pause aria-hidden /> : <Play aria-hidden />}
           </button>
         </header>
 
         <div className={`hw-body${fade ? " is-fade" : ""}`}>
-          <ol ref={codeRef} className="hw-code" aria-label={`Program — ${d.name}, ${dialect === "fanuc" ? "Fanuc" : "Sinumerik"}`}>
+          <ol ref={codeRef} className="hw-code" aria-label={`Program — ${d.name}, Fanuc`}>
             {code.map((c, i) => {
-              const fi = dialect === "fanuc" ? i : d.sinOf.indexOf(i);
+              const fi = i;
               return (
                 <li key={i} className={`${i === line ? "is-on" : ""}${i > line ? " is-next" : ""}`}
                   onPointerEnter={(e) => { if (e.pointerType === "mouse" && fi >= 0) setHover(fi); }} onPointerLeave={() => setHover(null)}>
@@ -214,7 +206,6 @@ export default function HeroWindow({ detale }: { detale: HDetal[] }) {
           </ol>
           <Link href={d.simHref} className="hw-open">Otwórz w symulatorze<ArrowUpRight aria-hidden /></Link>
         </footer>
-        {dialect === "sinumerik" && <p className="hw-note">Tor liczony z zapisu ISO — symulator czyta wersję Fanuc.</p>}
       </section>
     </div>
   );
