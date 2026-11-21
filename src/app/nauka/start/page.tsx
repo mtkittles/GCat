@@ -4,6 +4,7 @@ import PageBanner from "@/components/ui/PageBanner";
 import { START7 } from "@/content/nauka/start7";
 import { flat, lessonHref } from "@/lib/course";
 import StartPlan from "./StartPlan";
+import { pl } from "@/lib/plural";
 
 export const metadata: Metadata = { title: "7 dni do pierwszego programu — GCat", description: "Plan dzienny z lekcji frezowania: od osi maszyny do korekcji długości i pierwszych otworów cyklem G81." };
 
@@ -18,8 +19,8 @@ export default function StartPage() {
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { label: "7 dni" }]} />
       <PageBanner src="/img/banner-mill.jpg" kicker="Ścieżka startowa" title="7 dni do pierwszego programu"
-        subtitle={`${days.reduce((a, d) => a + d.lessons.length, 0)} lekcji frezowania, około ${String(Math.round(total / 60 * 10) / 10).replace(".", ",")} godz. — około 30–40 minut dziennie, we własnym tempie.`} size="compact" priority />
-      <p className="text-muted max-w-prose">Każdy dzień to dwie–trzy lekcje z testem; czas ćwiczeń zależy od Ciebie. Zaliczone testem oznaczamy automatycznie. Po tygodniu napiszesz pierwszy program płytki: kontur z łukami i wiercenie otworów cyklem. Planowanie, korekcję promienia, kieszenie i gwinty dokładasz potem w pełnej ścieżce frezowania.</p>
+        subtitle={`${pl(days.reduce((a, d) => a + d.lessons.length, 0), "lekcja", "lekcje", "lekcji")} frezowania, około ${String(Math.round(total / 60 * 10) / 10).replace(".", ",")} godz. — około 30–40 minut dziennie, we własnym tempie.`} size="compact" priority />
+      <p className="text-muted max-w-prose">Każdego dnia dwie lub trzy lekcje z testem; czas ćwiczeń zależy od Ciebie. Lekcje zaliczone testem oznaczamy automatycznie. Po tygodniu napiszesz pierwszy program płytki: kontur z łukami i wiercenie otworów cyklem. Planowanie, korekcję promienia, kieszenie i gwinty dokładasz potem w pełnej ścieżce frezowania.</p>
       <StartPlan days={days} />
     </div>
   );

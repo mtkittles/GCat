@@ -86,7 +86,7 @@ export default function LessonView({ track, slug }: { track: Track; slug: string
     <article className="ls">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/nauka", label: "Nauka" }, { href: `/nauka/${track}`, label: T.title }, { label: doc.id }]} />
       <header className="ph lh">
-        <span className="ph-k"><Shared name={vtName("lek", doc.id)}><b className="vt-inline">{doc.id}</b></Shared> · {plan.module.id} {plan.module.title} · {T.title} · {doc.minutes} min</span>
+        <span className="ph-k"><Shared name={vtName("lek", doc.id)}><b className="vt-inline">{doc.id}</b></Shared><span className="lh-more"> · {plan.module.id} {plan.module.title} · {T.title}</span> · {doc.minutes} min</span>
         <h1 className="ph-title">{doc.title}</h1>
       </header>
 

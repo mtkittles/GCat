@@ -10,8 +10,8 @@ def: >-
   Odchyłka osi obrotu narzędzia od osi wrzeciona: ostrza krążą po okręgu
   przesuniętym względem osi, więc jedno ostrze zbiera grubszy wiór, a inne
   cieńszy. Skutek to nierówne zużycie naroży, krótsza trwałość, gorsza
-  powierzchnia i hałas. Producent zaleca bicie poniżej 0,02 mm; sprawdza się je
-  czujnikiem na trzonku i szuka przyczyny w uchwycie, tulejce i czystości
+  powierzchnia i hałas. Sandvik Coromant zaleca bicie poniżej 0,02 mm; sprawdza
+  się je czujnikiem na trzonku i szuka przyczyny w uchwycie, tulejce i czystości
   stożka.
 formulas: []
 see:

@@ -2,6 +2,7 @@ import Link from "next/link";
 import TrackLessons from "@/components/lesson/TrackLessons";
 import { trackPlan } from "@/components/lesson/trackPlan";
 import { readyLessons } from "@/lib/course";
+import { pl } from "@/lib/plural";
 
 export const metadata = { title: "Nauka G-kodu krok po kroku — GCat" };
 
@@ -11,8 +12,7 @@ export default function Nauka() {
   return (
     <div className="grid gap-6">
       <header className="ph">
-        <span className="ph-k">Ścieżki nauki · {N} lekcji</span>
-        <h1 className="ph-title">Nauka</h1>
+        <h1 className="ph-title">Nauka <span className="ph-n">{pl(N, "lekcja", "lekcje", "lekcji")}</span></h1>
         <p className="ph-lead">Wybierz obróbkę. Każda lekcja ma ten sam układ: teoria z rysunkami, przykład, ćwiczenia, typowe błędy, test i program detalu, który rośnie z lekcji na lekcję. Nie musisz znać <span className="whitespace-nowrap">G-kodu</span>.</p>
       </header>
       <TrackLessons tracks={trackPlan()} initial="frezowanie" aside={
