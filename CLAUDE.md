@@ -20,6 +20,7 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
 - `src/lib/progress.ts`, `exercisesDone.ts`, `app/symulator/programs.ts` — stan w przeglądarce; `src/lib/sync.ts`, `auth.ts`, `supabase.ts` — konto i synchronizacja; `entitlements.ts` — plany Free/Pro; `supabase/migrations/` — schemat bazy.
 - `src/lib/edytor/`, `src/components/edytor/`, `/edytor` — edytor treści na stronie: MDX ↔ dokument TipTap (blok bez zmian zapisuje się bajt w bajt, `tests/edytor.test.ts`), frontmatter przez `yaml` (zmienia się tylko edytowane pole), walidacja jak `npm run tresci`, API `/api/edytor/*` (lokalnie dysk + `git log`; produkcja: token GitHub z logowania panelu, zapis = gałąź `tresci/…` + PR + scalenie). Widok karty wspólny ze stroną: `src/components/karta/CardView.tsx`. Słownik: `/edytor/slownik/<kotwica>` (karta hasła z `app/slownik/Glossary.tsx`). Rysunki i obrazy publikują się razem z treścią (`components/edytor/pending.tsx`: rysownik nad edytorem, „Przerysuj w rysowniku” dla rysunków z `diagrams.tsx` — oryginał zostaje w kodzie; obrazy do `public/rysunki/`, sygnatura pliku sprawdzana). Narzędzia redakcji tylko dla konta GitHub z prawem zapisu (`lib/edytor/admin.ts`).
 - `src/lib/rys/`, `src/components/rys/` — rysownik: model rysunku (warstwy `layers` + pole `l`, grupy `g`, układ współrzędnych `axes`), renderer wspólny z `fig.tsx`, edytor (`/rysownik`), pole panelu; rysunki w `content/rysunki/*.yaml` (README obok). Śledzenie jak w CAD: `lib/rys/track.ts`; edycja geometrii (utnij, wydłuż, zaokrąglij, fazuj, odsuń, lustro, rozbij, złącz) na krzywych L/A, łuk styczny do dwóch krzywych (`filletCurves`), faza d × kąt: `lib/rys/edit.ts`; ołówek odręczny z wygładzaniem: `lib/rys/sketch.ts`; symbole rysunku technicznego (ramka tolerancji ISO 1101, baza ISO 5459, chropowatość ISO 21920-1): `lib/rys/symbols.ts` + `components/rys/symbols.tsx`; wymiary robocze („Wstaw jako wymiar”): `components/rys/workdims.tsx`; polilinia może mieć łuki (pole `b`, wypukłość jak bulge w CAD). Obszary nachodzących figur i operacje logiczne (suma, różnica, część wspólna, „poza wspólną”): `lib/rys/regions.ts`; krycie elementu `op` i warstwy `layers[].op` (zapis tylko poniżej 100%). Menu Plik i eksport SVG/PNG/PDF: `components/rys/exportRys.tsx`, `Extras.tsx`; szkice, kopie automatyczne i kalka w IndexedDB (`lib/rys/idb.ts`). `src/lib/edycja.ts`, `/edycja` — tryb edycji i adresy wpisów w panelu.
+- `content/technologia/`, `/technologia` — dział Technologia (V3): `dzialy.yaml` + artykuły `<dział>/<slug>.mdx` (README obok), dane strony `src/lib/technologia.ts`, widok artykułu wspólny ze stroną i edytorem `src/components/technologia/TechArticleView.tsx`, edytor `/edytor/technologia/…` (`ArtykulEditor`, szablony `src/lib/edytor/szablony.ts`), rysunki `src/components/technologia/figs-tech.tsx`, style `src/app/technologia.css`. Artykuł `plan: pro` — `can(plan, "proContent", { admin })` (konto redakcji widzi wszystko). Kontrola: `npm run audit:technologia`.
 - `docs/karty-kodow.md` — standard opracowania kart i lekcji + tabela statusu audytu. **Czytaj przed pracą nad treścią.**
 - `docs/audyt-tresci-2026-10.md` — raport audytu treści.
 
@@ -31,7 +32,8 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
     npm run test           # vitest: parser, walidator, checker
     npm run audit:nauka    # spójność lekcji (odnośniki, testy, rysunki, źródła)
     npm run audit:programy # każdy program z treści przez parser + walidator
-    npm run audit:jezyk    # miary języka: zdania > 25 słów, pauzy i ozdobniki na 1000 słów (--karty)
+    npm run audit:jezyk    # miary języka: zdania > 25 słów, pauzy i ozdobniki na 1000 słów (--karty, --technologia)
+    npm run audit:technologia # Technologia: schemat, powiązania, źródła, liczby bez źródła, programy, odnośniki
     npm run test:calc      # kalkulatory
 
 ## Zasady
@@ -46,7 +48,7 @@ kalkulatory, słownik. Stack: **Next.js 16 (App Router) + React 19 + TypeScript 
    `src/components/simulator` z testem w `tests/` i przebiegiem `audit:programy`.
 5. Sekrety tylko w zmiennych środowiskowych (Vercel, lokalnie `.env.local`). Nic w repo. Konto: `supabase/README.md`;
    bez `NEXT_PUBLIC_SUPABASE_*` strona działa bez konta (postęp w przeglądarce). Klucz `service_role` nigdy w kliencie.
-6. Gałęzie: `sprint-N/nazwa` → draft PR do `main`. Nie commitujemy bezpośrednio na `main`.
+6. Gałęzie: `feat/…` (wcześniej `sprint-N/nazwa`) → draft PR do `main`. Nie commitujemy bezpośrednio na `main`.
 7. Po każdej sesji: krótkie podsumowanie `.md` dla użytkownika (zadania, commity, decyzje, env vary).
 
 ## Czego nie robić

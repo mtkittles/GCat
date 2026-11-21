@@ -82,10 +82,10 @@ function list(l: List, src: string): JSONContent {
   return l.ordered ? { type: "orderedList", attrs: { start: l.start ?? 1 }, content: items } : { type: "bulletList", content: items };
 }
 
-function table(t: Table, src: string, caption = ""): JSONContent {
+function table(t: Table, src: string, caption = "", sort = ""): JSONContent {
   return {
     type: "table",
-    attrs: { caption, align: t.align ?? null },
+    attrs: { caption, sort, align: t.align ?? null },
     content: t.children.map((r: TableRow, i) => ({
       type: "tableRow",
       content: r.children.map((c: TableCell) => {
@@ -139,7 +139,7 @@ function block(n: RootContent, src: string): JSONContent[] {
       }
       if (name === "Table") {
         if (kids.length !== 1 || kids[0].type !== "table") return [raw(n, src)];
-        return [table(kids[0], src, attrOf(n, "caption") ?? "")];
+        return [table(kids[0], src, attrOf(n, "caption") ?? "", attrOf(n, "sort") ?? "")];
       }
       const p = PROGRAM[name];
       if (p) {
@@ -279,7 +279,7 @@ function toMdast(n: JSONContent): RootContent | null {
         align: (a.align as Table["align"]) ?? null,
         children: (n.content ?? []).map((r) => ({ type: "tableRow", children: (r.content ?? []).map((c) => ({ type: "tableCell", children: phrasing(c.content?.[0]?.content ?? []) }) as TableCell) }) as TableRow),
       };
-      return a.caption ? jsxBlock("Table", [["caption", a.caption]], [t]) : t;
+      return a.caption || a.sort ? jsxBlock("Table", [["caption", a.caption], ["sort", a.sort]], [t]) : t;
     }
     case "note": return jsxBlock("Note", [["kind", a.kind]], (n.content ?? []).map(toMdast).filter(Boolean) as BlockContent[]);
     case "codeFig": return jsxBlock("Code", [["caption", a.caption]], [{ type: "code", lang: (a.lang as string) ?? null, value: textOf(n) } as Code]);

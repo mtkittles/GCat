@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
   który minął 30% wysokości ekranu; na samym dole strony — ostatnia sekcja).
   Gdy spis jest dłuższy niż ekran, przewija się sam tak, żeby bieżąca pozycja była widoczna.
 */
-export default function LeftToc({ items }: { items: { id: string; label: string }[] }) {
+export default function LeftToc({ items, title = "W tej karcie" }: { items: { id: string; label: string }[]; title?: string }) {
   const [active, setActive] = useState(-1);
   const nav = useRef<HTMLElement>(null);
 
@@ -43,8 +43,8 @@ export default function LeftToc({ items }: { items: { id: string; label: string 
   }, [active]);
 
   return (
-    <nav ref={nav} className="toc toc-sticky toc-spy" aria-label="W tej karcie">
-      <span className="toc-title">W tej karcie</span>
+    <nav ref={nav} className="toc toc-sticky toc-spy" aria-label={title}>
+      <span className="toc-title">{title}</span>
       <ol>
         {items.map((t, k) => (
           <li key={t.id} className={k === active ? "is-active" : undefined}>

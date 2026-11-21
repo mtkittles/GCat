@@ -6,7 +6,7 @@ import { FEATURES, type Feature } from "@/lib/entitlements";
 export const metadata: Metadata = { title: "GCat Pro — GCat", description: "Co daje plan Pro w GCat: certyfikaty, symulator 4 i 5 osi, eksporty, fiszki." };
 
 export default function ProPage() {
-  const keys = Object.keys(FEATURES) as Feature[];
+  const keys = (Object.keys(FEATURES) as Feature[]).filter((k) => !FEATURES[k].hidden);
   return (
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/konto", label: "Konto" }, { label: "Pro" }]} />

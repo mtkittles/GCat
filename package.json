@@ -17,6 +17,7 @@
     "audit:programy": "npx --yes tsx scripts/audit-programy.ts",
     "audit:jezyk": "tsx scripts/audit-jezyk.ts",
     "audit:dzialy": "npx --yes tsx scripts/audit-dzialy.ts",
+    "audit:technologia": "tsx scripts/audit-technologia.ts",
     "tokeny": "npx --yes tsx scripts/tokeny.ts",
     "tresci": "tsx scripts/tresci.ts",
     "porownaj": "tsx scripts/porownaj-build.ts",

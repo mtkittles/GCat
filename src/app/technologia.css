@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Technologia (/technologia, V3.0): kafle działów, listy artykułów z miniaturą, szukajka,
+   artykuł (układ karty kodu), tabela sortowana, bramka Pro. Typografia wg V8b — tylko tokeny --fs-*.
+   Osobny plik (nie koniec tactile.css), żeby równoległe paczki nie zderzały się w jednym miejscu.
+   ========================================================================== */
+
+/* etykieta wersalikami (standard V8b) */
+.tech-k { font: 600 var(--fs-label)/1.2 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+
+/* ── szukajka ── */
+.tech-search { display: grid; gap: .6rem; max-width: 46rem; }
+.tech-search-box {
+  display: flex; align-items: center; gap: .6rem; height: 46px; padding: 0 .9rem;
+  border: 1px solid var(--line); border-radius: 12px; background: var(--surface);
+}
+.tech-search-box:focus-within { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); box-shadow: 0 0 0 3px var(--accent-soft); }
+.tech-search-box svg { width: 18px; height: 18px; color: var(--muted); flex: none; }
+.tech-search-box input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); font: 400 var(--fs-text)/1 var(--font-sans); }
+.tech-search-res { display: grid; gap: .5rem; padding: .5rem; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+.tech-search-res ul { display: grid; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.tech-search-res a { display: grid; gap: .2rem; padding: .55rem .65rem; border-radius: 8px; color: var(--ink); text-decoration: none; }
+.tech-search-res a:hover, .tech-search-res a:focus-visible { background: var(--surface-2); }
+.tech-search-res b { font: 600 var(--fs-text)/1.3 var(--font-sans); }
+.tech-search-res a > span:last-child { font-size: var(--fs-aux); color: var(--ink-2); }
+.tech-search-res > p { margin: 0; padding: .4rem .65rem; font-size: var(--fs-aux); }
+.tech-search-all { justify-self: start; padding: .3rem .65rem; font: 600 var(--fs-aux)/1.3 var(--font-sans); color: var(--accent-ink); }
+
+/* ── kafle działów (bento): Narzędzia i Płytki szersze ── */
+.tech-bento { display: grid; gap: .9rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 640px) {
+  .tech-bento { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tech-tile.is-full { grid-column: 1 / -1; }
+}
+@media (min-width: 1024px) {
+  .tech-bento { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .tech-tile { grid-column: span 2; }
+  .tech-tile.is-big, .tech-tile.is-half { grid-column: span 3; }
+  .tech-tile.is-full { grid-column: 1 / -1; }
+}
+.tech-tile {
+  position: relative; display: grid; align-content: start; gap: .55rem; min-height: 9.5rem; padding: 1.05rem 1.1rem 1.1rem;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); color: var(--ink); text-decoration: none;
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.tech-tile:hover, .tech-tile:focus-visible { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.tech-tile.is-big { min-height: 12rem; }
+.tech-tile-ico {
+  display: grid; place-items: center; width: 40px; height: 40px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); color: var(--accent-ink);
+}
+[data-theme="light"] .tech-tile-ico { background: var(--surface-2); }
+.tech-tile-ico svg { width: 21px; height: 21px; stroke-width: 1.8; }
+.tech-tile.is-big .tech-tile-ico { width: 48px; height: 48px; }
+.tech-tile.is-big .tech-tile-ico svg { width: 25px; height: 25px; }
+.tech-tile-top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .35rem .75rem; padding-right: 1.6rem; }
+.tech-tile-top b { font: 600 var(--fs-h3)/1.2 var(--font-sans); letter-spacing: -.005em; }
+.tech-tile-short { font-size: var(--fs-aux); line-height: 1.5; color: var(--ink-2); }
+.tech-tile-zakres { font-size: var(--fs-small); line-height: 1.55; color: var(--muted); }
+.tech-tile-go { position: absolute; top: 1rem; right: .9rem; color: var(--muted); }
+.tech-tile-go svg { width: 18px; height: 18px; transition: transform .15s ease; }
+.tech-tile:hover .tech-tile-go svg, .tech-tile:focus-visible .tech-tile-go svg { transform: translateX(3px); color: var(--accent-ink); }
+@media (prefers-reduced-motion: reduce) { .tech-tile-go svg { transition: none; } }
+
+/* ── listy artykułów ── */
+.tech-list { display: grid; gap: .6rem; margin: 0; padding: 0; list-style: none; }
+.tech-row {
+  display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: 1rem; align-items: center; padding: .7rem;
+  border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); color: var(--ink); text-decoration: none;
+}
+.tech-row:hover, .tech-row:focus-visible { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); }
+.tech-row-txt { display: grid; gap: .3rem; min-width: 0; }
+.tech-row-txt b { font: 600 var(--fs-h3)/1.25 var(--font-sans); letter-spacing: -.005em; }
+.tech-row-short { font-size: var(--fs-aux); line-height: 1.5; color: var(--ink-2); }
+.tech-row-meta { font-size: var(--fs-small); color: var(--muted); }
+@media (max-width: 559.98px) { .tech-row { grid-template-columns: 4.5rem minmax(0, 1fr); gap: .75rem; } }
+
+/* miniatura: rysunek bez nagłówka, legendy i podpisu */
+.tech-thumb {
+  display: grid; place-items: center; aspect-ratio: 4 / 3; overflow: hidden; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg); pointer-events: none;
+}
+[data-theme="light"] .tech-thumb { background: var(--surface-2); }
+.tech-thumb .fig { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; width: 100%; }
+.tech-thumb .fig-head, .tech-thumb .fig-legend, .tech-thumb .fig-cap, .tech-thumb .fig-notes, .tech-thumb .fz-btn { display: none; }
+.tech-thumb svg { display: block; width: 100%; height: auto; }
+.tech-thumb.is-icon { color: var(--accent-ink); }
+.tech-thumb.is-icon svg { width: 34%; height: auto; stroke-width: 1.5; }
+
+/* ── strona działu ── */
+.tech-ph { grid-template-columns: auto minmax(0, 1fr); column-gap: .9rem; align-items: center; }
+.tech-ph .ph-lead { grid-column: 1 / -1; }
+.tech-ph-ico { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); color: var(--accent-ink); }
+.tech-ph-ico svg { width: 25px; height: 25px; stroke-width: 1.8; }
+.tech-filters { display: grid; gap: .5rem; }
+.tech-pills { display: flex; flex-wrap: wrap; gap: .4rem; }
+.tech-empty { display: grid; gap: .45rem; max-width: 70ch; padding: 1rem 1.1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
+.tech-empty p { margin: 0; line-height: 1.6; }
+.tech-other { display: flex; flex-wrap: wrap; gap: .4rem; padding-top: .5rem; border-top: 1px solid var(--line); }
+.tech-other .pill-f { text-decoration: none; }
+.tech-other .pill-f svg { color: var(--muted); }
+
+/* ── artykuł ── */
+.tech-q-head { align-items: center; }
+.tech-q-ico { width: 18px; height: 18px; color: var(--accent-ink); flex: none; }
+.tech-q-note { margin: .5rem 0 0; font-size: var(--fs-small); line-height: 1.5; color: var(--amber-ink, var(--ink-2)); }
+.tech-gate { display: grid; gap: .5rem; padding: 1.1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
+.tech-gate p { margin: 0; }
+
+/* ── tabela sortowana (<Table sort="true">) ── */
+.st-table th { padding: 0; }
+.st-btn {
+  display: inline-flex; align-items: center; gap: .35rem; width: 100%; padding: inherit; padding: .55rem .7rem;
+  border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer;
+}
+.st-btn:hover { color: var(--accent-ink); }
+.st-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.st-ico { font-size: var(--fs-label); color: var(--muted); }
+th[aria-sort="ascending"] .st-ico, th[aria-sort="descending"] .st-ico { color: var(--accent-ink); }
+
+/* ── edytor: „Nowy artykuł” i indeks ── */
+.ed-index-new { border-style: dashed !important; }
+.ed-index-new code { color: var(--accent-ink); }
+.ed-new { max-width: 64rem; }
+.ed-new-form { display: grid; gap: 1.25rem; }
+.ed-new-form fieldset { display: grid; gap: .6rem; margin: 0; padding: 0; border: 0; }
+.ed-new-form legend { margin-bottom: .5rem; font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.ed-new-grid { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr)); }
+.ed-new-grid.is-3 { grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.ed-new-opt {
+  display: flex; align-items: center; gap: .55rem; padding: .7rem .8rem; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink);
+}
+.ed-new-opt.is-tall { display: grid; grid-template-columns: auto 1fr; align-items: start; }
+.ed-new-opt.is-tall span { grid-column: 2; font-size: var(--fs-small); line-height: 1.5; color: var(--ink-2); }
+.ed-new-opt:has(input:checked) { border-color: color-mix(in srgb, var(--accent) 60%, var(--line)); background: var(--accent-soft); }
+.ed-new-opt svg { color: var(--accent-ink); flex: none; }
+.ed-new-opt input { accent-color: var(--accent); margin: 0; }
+.ed-new-acts { display: flex; flex-wrap: wrap; gap: .5rem; }

@@ -5,10 +5,11 @@ import PageBanner from "@/components/ui/PageBanner";
 import { glossary } from "@/lib/content";
 import { gcodes } from "@/lib/gcodes";
 import { panelUrl } from "@/lib/edycja";
+import { artsOf, dzialy, TYP_LABEL } from "@/lib/technologia";
 
 export const metadata: Metadata = { title: "Edytor treści — GCat", robots: { index: false, follow: false } };
 
-/* Lista treści do edycji: karty kodów (edytor na stronie), słownik i rysunki. */
+/* Lista treści do edycji: karty kodów (edytor na stronie), artykuły Technologii, słownik i rysunki. */
 export default function EdytorIndex() {
   const groups = [...new Set(gcodes.map((g) => g.group))];
   return (
@@ -25,6 +26,15 @@ export default function EdytorIndex() {
           </div>
         </section>
       ))}
+      <section className="grid gap-2">
+        <h2 className="card-h" id="technologia">Technologia</h2>
+        <div className="ed-index-grid">
+          <Link href="/edytor/technologia/nowy" className="ed-index-new"><code>+ Nowy artykuł</code><span>Dział, szablon, tytuł</span></Link>
+          {dzialy.flatMap((d) => artsOf(d.slug).map((a) => (
+            <Link key={a.key} href={`/edytor/technologia/${a.key}`}><code>{d.title}{a.stan === "szkic" ? " · szkic" : ""}{a.plan === "pro" ? " · Pro" : ""}</code><span>{a.title} — {TYP_LABEL[a.typ]}</span></Link>
+          )))}
+        </div>
+      </section>
       <section className="grid gap-2">
         <h2 className="card-h" id="slownik">Słownik</h2>
         <div className="ed-index-grid">

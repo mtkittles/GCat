@@ -35,6 +35,7 @@ const GROUPS: { kind: string; label: string }[] = [
   { kind: "program", label: "Gotowe programy" },
   { kind: "zadanie", label: "Zadania" },
   { kind: "pojęcie", label: "Słownik" },
+  { kind: "artykuł", label: "Technologia" },
 ];
 
 const norm = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l");

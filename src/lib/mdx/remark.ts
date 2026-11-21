@@ -28,6 +28,8 @@ const ENUMS: Record<string, Record<string, string[]>> = {
   Widget: { id: ["rij", "arc", "jog"] },
   /** kolor wyróżnienia w tekście — gotowy zestaw jak kolory ruchów (rysownik, symulator) */
   Kolor: { k: ["g00", "g01", "g02", "akcent", "blad"] },
+  /** sort="true" — tabela sortowana kliknięciem w nagłówek (porównania w Technologii) */
+  Table: { sort: ["true"] },
 };
 const WITH_SRC = new Set(["Code", "Sim", "Demo"]);
 

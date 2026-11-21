@@ -1,10 +1,10 @@
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { promisify } from "node:util";
 import { exists, GhError, history, publish, readFile, REPO, whoami, type Wersja } from "@/lib/edytor/github";
-import { rodzaj, sprawdzHaslo, sprawdzKarte, sprawdzObraz, sprawdzRysunek, type Problem } from "@/lib/edytor/walidacja";
+import { rodzaj, sprawdzArtykul, sprawdzHaslo, sprawdzKarte, sprawdzObraz, sprawdzRysunek, type Problem } from "@/lib/edytor/walidacja";
 import { rysunki } from "@/components/rys/registry";
 
 /*
@@ -122,7 +122,8 @@ export async function POST(req: Request, ctx: { params: Promise<{ op: string }> 
       const srcs = [...f.text!.matchAll(/<Obraz[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]).filter((s) => s.startsWith("/rysunki/") && !newImg.has(s));
       const known = new Set<string>(newImg);
       for (const s of srcs) if (LOCAL ? existsSync(path.join(process.cwd(), "public", s)) : await exists(token0!, `public${s}`).catch(() => false)) known.add(s);
-      pr = (await sprawdzKarte(f.path, f.text!, { rysIds, publicFile: (s) => known.has(s) })).problems;
+      const check = kind === "artykul" ? sprawdzArtykul : sprawdzKarte;
+      pr = (await check(f.path, f.text!, { rysIds, publicFile: (s) => known.has(s) })).problems;
     }
     problems.push(...pr.map((x) => ({ ...x, file: f.path })));
   }
@@ -135,7 +136,7 @@ export async function POST(req: Request, ctx: { params: Promise<{ op: string }> 
       const base = body.base?.[f.path];
       if (base && cur !== null && blobSha(cur) !== base) return json({ error: `Plik ${f.path} zmienił się na dysku od otwarcia w edytorze.`, conflict: f.path }, 409);
     }
-    for (const f of files) writeFileSync(abs(f.path), f.base64 !== undefined ? Buffer.from(f.base64, "base64") : f.text!);
+    for (const f of files) { mkdirSync(path.dirname(abs(f.path)), { recursive: true }); writeFileSync(abs(f.path), f.base64 !== undefined ? Buffer.from(f.base64, "base64") : f.text!); }
     return json({ mode: "local", merged: true, files: files.map((f) => ({ path: f.path, sha: f.text !== undefined ? blobSha(f.text) : "" })) });
   }
 

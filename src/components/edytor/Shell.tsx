@@ -15,11 +15,13 @@ export const PREVIEW_KEY = "gcat:edytor:podglad";
 const NONE: unknown[] = [];
 export type Extra = { path: string; text?: string; base64?: string };
 
-export function useDokument({ path, initial, current, extra, extraLabels, loadText, validate, onPublished }: {
+export function useDokument({ path, initial, current, extra, extraLabels, loadText, validate, onPublished, fresh = false }: {
   path: string; initial: string; current: string; extra: Extra[]; extraLabels: string[];
   loadText: (text: string) => void; validate: (text: string) => Promise<Problem[]>; onPublished: () => void;
+  /** nowy plik (np. artykuł z szablonu): w repozytorium jeszcze go nie ma — cała treść to zmiana do publikacji */
+  fresh?: boolean;
 }) {
-  const [base, setBase] = useState<{ text: string; sha: string | null }>({ text: initial, sha: null });
+  const [base, setBase] = useState<{ text: string; sha: string | null }>({ text: fresh ? "" : initial, sha: null });
   const [ja, setJa] = useState<Ja | null>(null);
   const [note, setNote] = useState("");
   const [draft, setDraft] = useState<{ text: string; at: number } | null>(null);

@@ -1,0 +1,115 @@
+---
+title: Materiały narzędziowe — od HSS do PCD
+slug: materialy-narzedziowe
+dzial: materialy
+typ: porownanie
+order: 10
+short: >-
+  Stal szybkotnąca, węglik spiekany, cermetal, ceramika, CBN i diament
+  polikrystaliczny: twardość, oznaczenie według ISO 513 i typowe zastosowanie.
+obrobka:
+  - frezowanie
+  - toczenie
+  - wiercenie
+poziom: 1
+normy:
+  - ISO 513
+stan: szkic
+plan: free
+dodano: 2026-11-21
+sources:
+  - id: iso513
+    where: >-
+      oznaczenia literowe twardych materiałów skrawających (HW, HF, HT, HC; CA,
+      CR, CM, CN, CC; DM, DD, DP; BL, BH, BC), grupy zastosowań P, M, K, N, S, H
+      z kolorami; wyższy numer grupy — większa ciągliwość, mniejsza odporność na
+      ścieranie; norma klasyfikuje zastosowanie, nie gatunki producentów
+    loc: rozdz. 2, tab. 1–4; rozdz. 3, tab. 5; wprowadzenie
+  - id: mmc-bezpieczenstwo
+    where: >-
+      zakresy twardości HV: HSS 200–1200, węglik spiekany 500–3000, cermetal
+      500–3000, ceramika 1000–4000, CBN spiekany 2000–5000, diament spiekany
+      8000–12 000
+    loc: Basic characteristics of hard tool materials
+  - id: mmc-materialy
+    where: >-
+      powlekany węglik do zgrubnej, cermetal do wykańczającej; diament silnie
+      rozpuszcza się w żelazie
+  - id: mmc-cbn-pcd
+    where: >-
+      CBN — stal hartowana, żeliwo i spieki, mniejsze powinowactwo do żelaza niż
+      diament; PCD — aluminium, metale nieżelazne, tworzywa wzmacniane włóknem
+  - id: ntk-materialy
+    where: >-
+      ceramika tlenkowa i azotkowa do żeliwa, wzmacniana whiskerami i SiAlON do
+      stopów żaroodpornych, mieszana do materiałów hartowanych
+    loc: C14, C16–C28
+  - id: mmc-frezowanie
+    where: >-
+      frezy monolityczne HSS — tanie i ciągliwe, nie do materiałów hartowanych;
+      z węglika — wyższe parametry i materiały hartowane
+    loc: End milling — Types
+  - id: sandvik-materialy
+    where: powlekany węglik spiekany to 80–90% wszystkich płytek skrawających
+  - id: bigdaishowa-pcd
+    where: >-
+      PCD nie nadaje się do materiałów żelaznych (stal, żeliwo) — węgiel reaguje
+      z żelazem; CBN do stali hartowanej, zwykle do obróbki wykańczającej
+    loc: s. 32
+powiazane:
+  kody: []
+  lekcje:
+    - FP.2
+  hasla:
+    - płytka-skrawająca
+  artykuly:
+    - narzedzia/frez-trzpieniowy-walcowy
+  kalkulator: false
+---
+Materiał ostrza decyduje o tym, jaki materiał obrabiany i z jaką prędkością można skrawać. Norma ISO 513 dzieli twarde materiały skrawające na grupy i nadaje im oznaczenia literowe. Stali szybkotnącej norma nie obejmuje.
+
+<Diagram id="tech-twardosc" />
+
+<Table caption="Materiały narzędziowe — kliknij nagłówek kolumny, żeby posortować" sort="true">
+  | Materiał                       | ISO 513                | Twardość HV | Typowe zastosowanie                                                                                                                      |
+  | ------------------------------ | ---------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+  | stal szybkotnąca (HSS)         | poza normą             | 200–1200    | frezy monolityczne: tanie i ciągliwe, nie do materiałów hartowanych                                                                      |
+  | węglik spiekany                | HW, HF, HC (powlekany) | 500–3000    | płytki: 80–90% to węglik powlekany, gatunki do obróbki zgrubnej; frezy monolityczne: wyższe parametry niż HSS, także materiały hartowane |
+  | cermetal                       | HT                     | 500–3000    | obróbka wykańczająca                                                                                                                     |
+  | ceramika                       | CA, CR, CM, CN, CC     | 1000–4000   | żeliwo (tlenkowa, azotkowa), stopy żaroodporne (SiAlON, wzmacniana whiskerami), materiały hartowane (mieszana)                           |
+  | regularny azotek boru (CBN)    | BL, BH, BC             | 2000–5000   | stal hartowana, żeliwo, spieki                                                                                                           |
+  | diament polikrystaliczny (PCD) | DP                     | 8000–12 000 | aluminium i inne metale nieżelazne, tworzywa wzmacniane włóknem; nie do stali i żeliwa                                                   |
+</Table>
+
+Twardość to zakres dla całej grupy według tabeli producenta; konkretny gatunek ma jedną wartość w karcie katalogowej.
+
+Litery z ISO 513:
+
+* HW, HF: węglik niepowlekany z ziarnem co najmniej 1 µm (HW) albo poniżej 1 µm (HF); HT: cermetal; HC: węglik powlekany.
+* CA: ceramika tlenkowa; CR: tlenkowa wzmacniana; CM: mieszana; CN: azotkowa; CC: ceramika powlekana.
+* BL, BH: CBN o małej i dużej zawartości azotku boru; BC: CBN powlekany.
+* DP: diament polikrystaliczny ze spoiwem.
+
+## Grupy zastosowań ISO 513 \{#grupy-zastosowań-iso-513}
+
+<Table caption="Grupy materiałów obrabianych i ich kolory według ISO 513">
+  | Grupa | Kolor     | Materiał obrabiany                                                     |
+  | ----- | --------- | ---------------------------------------------------------------------- |
+  | P     | niebieski | stal i staliwo, bez austenitycznych stali nierdzewnych                 |
+  | M     | żółty     | stale nierdzewne austenityczne i austenityczno-ferrytyczne, staliwo    |
+  | K     | czerwony  | żeliwo szare, sferoidalne i ciągliwe                                   |
+  | N     | zielony   | metale nieżelazne (np. aluminium) i materiały niemetalowe              |
+  | S     | brązowy   | stopy żaroodporne na bazie żelaza, niklu i kobaltu, tytan i jego stopy |
+  | H     | szary     | stal hartowana, żeliwo hartowane i zabielone                           |
+</Table>
+
+W każdej grupie numer (np. P10, P30) określa zastosowanie. Wyższy numer to gatunek bardziej ciągliwy i mniej odporny na ścieranie.
+
+## Wnioski \{#wnioski}
+
+* Zakresy twardości rosną od HSS, przez węglik i cermetal (ten sam zakres), ceramikę i CBN, do diamentu.
+* Diament polikrystaliczny jest dla aluminium, innych metali nieżelaznych i tworzyw. Nie nadaje się do stali i żeliwa: w wysokiej temperaturze węgiel diamentu reaguje z żelazem.
+* CBN ma mniejsze powinowactwo do żelaza niż diament; to materiał do stali hartowanej (zwykle wykańczająco), żeliwa i spieków.
+* Większość płytek to węglik spiekany powlekany; cermetal stosuje się do obróbki wykańczającej.
+* HSS zostaje tam, gdzie liczy się cena i ciągliwość narzędzia, ale nie do materiałów hartowanych.
+* ISO 513 opisuje zastosowanie, nie gatunek. Gatunek ostrza i parametry dobiera się z katalogu producenta.

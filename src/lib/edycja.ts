@@ -22,6 +22,11 @@ export function editTarget(pathname: string): { href: string; label: string } | 
   const kod = p.match(/^\/kody\/([^/]+)$/);
   if (kod) return { href: `/edytor/kody/${kod[1]}`, label: "Edytuj tę kartę" };
   if (p === "/kody") return { href: "/edytor", label: "Edytor treści" };
+  const art = p.match(/^\/technologia\/([^/]+)\/([^/]+)$/);
+  if (art) return { href: `/edytor/technologia/${art[1]}/${art[2]}`, label: "Edytuj ten artykuł" };
+  const dz = p.match(/^\/technologia\/([^/]+)$/);
+  if (dz) return { href: `/edytor/technologia/nowy?dzial=${dz[1]}`, label: "Nowy artykuł w dziale" };
+  if (p === "/technologia") return { href: "/edytor#technologia", label: "Artykuły w edytorze" };
   if (p === "/slownik") return { href: "/edytor#slownik", label: "Hasła w edytorze" };
   return null;
 }
