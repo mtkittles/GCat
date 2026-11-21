@@ -14,7 +14,7 @@ export default function TermsPage() {
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { label: "Regulamin" }]} />
       <div className="grid gap-2">
         <p className="hero-kicker">Informacje prawne</p>
-        <h1 className="text-3xl font-bold">Regulamin serwisu GCat</h1>
+        <h1 className="ph-title">Regulamin serwisu GCat</h1>
         <p className="text-muted">Obowiązuje od: {LEGAL.effective}</p>
       </div>
 
