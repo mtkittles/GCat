@@ -1,0 +1,59 @@
+- slug: narzedzia
+  title: Narzędzia
+  short: Budowa, rodzaje i dobór frezów, wierteł, gwintowników i noży tokarskich.
+  zakres: >-
+    Budowa freza, rodzaje frezów, wiertła i nawiertaki, gwintowniki i frezy do
+    gwintów, rozwiertaki, wytaczadła, noże tokarskie, geometria ostrza.
+  icon: frez
+  order: 10
+  big: true
+- slug: plytki-iso
+  title: Płytki ISO
+  short: Oznaczenie płytek wymiennych, kształty, promień naroża, gatunki i grupy materiałowe.
+  zakres: >-
+    Oznaczenie według ISO 1832, kształty i promień naroża, łamacze wióra, gatunki
+    i powłoki, grupy materiałowe P, M, K, N, S, H według ISO 513.
+  icon: plytka
+  order: 20
+  big: true
+- slug: obliczenia
+  title: Obliczenia
+  short: Wzory parametrów skrawania z przykładami liczbowymi.
+  zakres: >-
+    Prędkość skrawania i obroty, posuw na ostrze i minutowy, głębokość i
+    szerokość skrawania, wydajność, moc i moment, chropowatość teoretyczna, czas
+    maszynowy.
+  icon: wzory
+  order: 30
+- slug: proces
+  title: Proces skrawania
+  short: Wiór, zużycie ostrza, trwałość, drgania i chłodzenie.
+  zakres: >-
+    Rodzaje wióra, formy zużycia ostrza, trwałość narzędzia, drgania, frezowanie
+    współbieżne i przeciwbieżne, chłodzenie.
+  icon: proces
+  order: 40
+- slug: mocowanie
+  title: Mocowanie
+  short: Oprawki, stożki narzędziowe, bicie i wysięg, mocowanie przedmiotu.
+  zakres: >-
+    Oprawki ER, Weldon, hydrauliczne i termokurczliwe, stożki SK/BT, HSK i Capto,
+    bicie i wysięg, imadła, uchwyty tokarskie, kieł.
+  icon: mocowanie
+  order: 50
+- slug: materialy
+  title: Materiały
+  short: Materiały narzędziowe i obrabiane, skrawalność.
+  zakres: >-
+    Materiały narzędziowe od HSS do PCD, materiały obrabiane według grup ISO,
+    skrawalność, właściwa siła skrawania.
+  icon: materialy
+  order: 60
+- slug: strategie
+  title: Strategie obróbki
+  short: Obróbka zgrubna i wykańczająca, wejście w materiał, kolejność operacji.
+  zakres: >-
+    Obróbka zgrubna i wykańczająca, naddatki, wejście po rampie i helisie,
+    frezowanie trochoidalne, kolejność operacji, karta technologiczna.
+  icon: strategie
+  order: 70

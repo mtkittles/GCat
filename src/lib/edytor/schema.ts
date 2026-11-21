@@ -103,6 +103,8 @@ const GfmTable = Table.extend({
     return {
       ...this.parent?.(),
       caption: { default: "", rendered: false },
+      /** "true" — tabela sortowana kliknięciem w nagłówek (<Table sort="true">, porównania w Technologii) */
+      sort: { default: "", rendered: false },
       /** wyrównanie kolumn z tabeli GFM (null | left | center | right) — zapisywane bez zmian */
       align: { default: null, rendered: false },
     };

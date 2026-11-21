@@ -1,6 +1,8 @@
 import type { GlossaryEntry } from "@/lib/content";
 import type { GCode } from "@/lib/gcodes";
-import type { Haslo, Kod } from "./schema";
+import type { TechArt } from "@/lib/technologia";
+import type { Thumb } from "./tech-meta";
+import type { Artykul, Haslo, Kod } from "./schema";
 
 /** Frontmatter karty → rekord GCode, którego używa strona (lista, dymki, wyszukiwarka, karta). */
 export function kodToGcode(k: Kod, hasArticle: boolean): GCode {
@@ -25,5 +27,16 @@ export function hasloToEntry(h: Haslo): GlossaryEntry {
   return { term: h.term, anchor: h.anchor, aliases: h.aliases, def: h.def, see: h.see, ...(h.diagram ? { diagram: h.diagram } : {}), ...(h.rysunek ? { rysunek: h.rysunek } : {}),
     ...(h.formulas.length ? { formulas: h.formulas.map((f) => ({ expr: f.expr, where: f.where, ...(f.example ? { example: f.example } : {}) })) } : {}),
     ...(h.sources.length ? { sources: h.sources.map((x) => ({ id: x.id, where: x.where, ...(x.loc ? { loc: x.loc } : {}), ...(x.url ? { url: x.url } : {}) })) } : {}),
+  };
+}
+
+/** Artykuł Technologii (z loadera) → wpis strony: frontmatter + spis, miniatura, czas czytania. */
+export function artykulToEntry(a: { data: Artykul; meta: { headings: { id: string; label: string }[] }; thumb: Thumb | null; minutes: number }): TechArt {
+  const d = a.data;
+  return {
+    key: `${d.dzial}/${d.slug}`, title: d.title, slug: d.slug, dzial: d.dzial, typ: d.typ, order: d.order, short: d.short,
+    obrobka: d.obrobka, poziom: d.poziom, normy: d.normy, stan: d.stan, plan: d.plan, dodano: d.dodano,
+    sources: d.sources.map((x) => ({ id: x.id, where: x.where, ...(x.loc ? { loc: x.loc } : {}), ...(x.url ? { url: x.url } : {}) })),
+    powiazane: d.powiazane, headings: a.meta.headings, thumb: a.thumb, minutes: a.minutes,
   };
 }

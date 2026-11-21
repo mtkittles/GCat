@@ -1,9 +1,10 @@
 /*
-  audit:jezyk — miary języka w Nauce i w kartach kodów (audyt Kody G i M, cz. 2, §3.2, §3.5, §9).
+  audit:jezyk — miary języka w Nauce, w kartach kodów i w Technologii (audyt Kody G i M, cz. 2, §3.2, §3.5, §9).
   Raport, nie bramka: liczy zdania > 25 słów, pauzy „ — ” i ozdobniki na 1000 słów, formy „zostaje/zostanie”.
-  Kryterium paczki X2 dla kart: ozdobniki ≤ 3 i pauzy ≤ 10 na 1000 słów. `--karty` wypisuje karty powyżej progu.
+  Kryterium paczki X2 dla kart: ozdobniki ≤ 3 i pauzy ≤ 10 na 1000 słów. `--karty` wypisuje karty powyżej progu,
+  `--technologia` — każdy artykuł Technologii osobno.
 */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { parse } from "yaml";
 import { readyLessons } from "@/lib/course";
 import { flatBlocks, type Block } from "@/lib/article";
@@ -67,8 +68,29 @@ for (const f of readdirSync("content/kody").filter((x) => x.endsWith(".mdx"))) {
   for (const k of Object.keys(st) as (keyof Stat)[]) kodyAll[k] += st[k];
 }
 
+// Technologia: treść artykułu (bez kodu, tabel i komponentów) + opis pod tytułem
+const tech = new Map<string, Stat>();
+const techAll = zero();
+const TDIR = "content/technologia";
+if (existsSync(TDIR)) for (const d of readdirSync(TDIR).filter((x) => statSync(`${TDIR}/${x}`).isDirectory()))
+  for (const f of readdirSync(`${TDIR}/${d}`).filter((x) => x.endsWith(".mdx"))) {
+    const fm = splitFrontmatter(readFileSync(`${TDIR}/${d}/${f}`, "utf8"))!;
+    const st = zero();
+    add(st, String(parse(fm.yaml).short ?? ""));
+    let code = false;
+    for (const l of fm.body.split("\n")) {
+      if (/^\s*```/.test(l)) { code = !code; continue; }
+      if (code || /^\s*(<|\|)/.test(l) || !l.trim()) continue;
+      add(st, l.replace(/^#+\s*|^\s*[*-]\s+/, "").replace(/\\\{#.*\}/, ""));
+    }
+    tech.set(`${d}/${f.slice(0, -4)}`, st);
+    for (const k of Object.keys(st) as (keyof Stat)[]) techAll[k] += st[k];
+  }
+
 console.log(line("Nauka", nauka));
 console.log(line("Kody G i M", kodyAll));
+if (tech.size) console.log(line("Technologia", techAll));
+if (process.argv.includes("--technologia")) for (const [k, s] of tech) console.log("  " + line(k, s));
 if (process.argv.includes("--karty")) {
   console.log("\nKarty powyżej progu X2 (ozdobniki > 3 albo pauzy > 10 na 1000 słów, od 150 słów):");
   for (const [k, s] of [...karty].sort((a, b) => b[1].pause / b[1].words - a[1].pause / a[1].words))

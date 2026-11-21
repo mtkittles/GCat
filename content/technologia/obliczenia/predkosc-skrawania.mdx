@@ -1,0 +1,126 @@
+---
+title: Prędkość skrawania i obroty wrzeciona
+slug: predkosc-skrawania
+dzial: obliczenia
+typ: temat
+order: 10
+short: >-
+  Dlaczego z katalogu bierze się prędkość skrawania, a nie obroty; jak
+  przeliczyć Vc na obroty i z powrotem, którą średnicę podstawić i jak zapisać
+  to w programie (S, G96, G97).
+obrobka:
+  - frezowanie
+  - toczenie
+  - wiercenie
+poziom: 1
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-21
+sources:
+  - id: sandvik-wzory-frezowanie
+    where: >-
+      vc = π · Dcap · n / 1000 i n = vc · 1000 / (π · Dcap); Dcap — średnica
+      skrawania na głębokości ap
+  - id: sandvik-wzory-toczenie
+    where: n = Vc · 1000 / (π · Dm); Dm — obrabiana średnica detalu
+  - id: kuryjanski
+    where: prędkość skrawania i prędkość obrotowa, wzór n = 1000 · vc / (π · D)
+    loc: s. 53
+  - id: sandvik-handbook
+    where: >-
+      przykłady: ⌀50 i ⌀80 mm przy 2000 obr/min; 400 m/min i ⌀100 mm daje 1274
+      obr/min
+    loc: część A Toczenie, rozdz. Teoria
+  - id: fanuc
+    where: >-
+      G96 S_ i G97 S_ — stała prędkość skrawania i jej wyłączenie; G50 S_ —
+      ograniczenie maksymalnej prędkości wrzeciona w systemie A
+    loc: >-
+      rozdz. 3.1, tab. 3.1, s. 73; rozdz. 3.2, tab. 3.2, s. 76 i 78; rozdz. 4,
+      s. 86 i 92
+powiazane:
+  kody:
+    - m03-m05
+    - g96-g97
+    - g50
+  lekcje:
+    - F2.2
+    - T2.2
+  hasla:
+    - vc-prędkość-skrawania
+    - n-obroty-wrzeciona
+    - stała-prędkość-skrawania
+    - limit-obrotów
+  artykuly:
+    - narzedzia/frez-trzpieniowy-walcowy
+  kalkulator: true
+---
+Prędkość skrawania Vc to prędkość, z jaką powierzchnia materiału przesuwa się względem ostrza, w metrach na minutę. Producent narzędzia podaje Vc dla gatunku ostrza i materiału, a program potrzebuje obrotów wrzeciona. Ten sam frez przy tej samej Vc kręci się inaczej na średnicy 10 i 20 mm, więc obroty zawsze przelicza się z Vc i średnicy.
+
+## Teoria \{#teoria}
+
+<Diagram id="vc" />
+
+Punkt na obwodzie w jednym obrocie przebywa drogę π · D. Przy n obrotach na minutę to π · D · n milimetrów na minutę; dzielenie przez 1000 daje metry na minutę. Stąd wzór na Vc, a po przekształceniu wzór na obroty.
+
+Którą średnicę podstawić:
+
+* **toczenie:** obrabiana średnica detalu (Dm), czyli ta, na której w danej chwili pracuje ostrze,
+* **frezowanie:** średnica skrawania na głębokości ap (Dcap). Dla freza walcowego to jego średnica. Dla freza kulistego albo fazowego przy małej głębokości jest mniejsza niż średnica nominalna,
+* **wiercenie:** średnica wiertła.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+<Table caption="Prędkość skrawania i obroty — wzory">
+  | Szukane               | Wzór                    | Jednostki                       |
+  | --------------------- | ----------------------- | ------------------------------- |
+  | prędkość skrawania Vc | Vc = π · D · n / 1000   | Vc w m/min, D w mm, n w obr/min |
+  | obroty wrzeciona n    | n = 1000 · Vc / (π · D) | n w obr/min, Vc w m/min, D w mm |
+</Table>
+
+Przykłady (π ≈ 3,14):
+
+* Wałek ⌀50 mm przy 2000 obr/min: Vc = 3,14 · 50 · 2000 / 1000 = 314 m/min. Ten sam wałek toczony na ⌀80 mm przy tych samych obrotach: Vc ≈ 502 m/min.
+* Vc = 400 m/min na ⌀100 mm: n = 1000 · 400 / (3,14 · 100) ≈ 1274 obr/min.
+* Frez ⌀10 mm, Vc = 150 m/min (wartość przyjęta do rachunku): n = 1000 · 150 / (3,14 · 10) ≈ 4777 obr/min.
+
+Gdy z wzoru wychodzi więcej, niż daje wrzeciono, obroty są ograniczone przez maszynę, a faktyczna prędkość skrawania jest mniejsza: Vc = π · D · nmax / 1000. Frez ⌀3 mm przy Vc = 150 m/min potrzebowałby 1000 · 150 / (3,14 · 3) ≈ 15 924 obr/min. Na wrzecionie o maksimum 10 000 obr/min (przykład) Vc = 3,14 · 3 · 10 000 / 1000 ≈ 94 m/min.
+
+## Stała prędkość skrawania na tokarce \{#stała-prędkość-skrawania-na-tokarce}
+
+Przy planowaniu i toczeniu profilu średnica zmienia się w trakcie przejścia. Przy stałych obrotach prędkość skrawania spadałaby razem ze średnicą. G96 każe sterowaniu liczyć obroty na bieżąco z zadanej Vc i aktualnej średnicy; G97 wraca do stałych obrotów. Przy małej średnicy obroty z wzoru szybko rosną. Dlatego przed G96 ustawia się limit: na Fanucu w systemie A adresem G50 S…, na Sinumeriku przez LIMS=.
+
+<Diagram id="t22-css" />
+
+## Na co uważać \{#na-co-uważać}
+
+* **Którą średnicę podstawiasz.** Przy toczeniu to średnica obrabiana, nie średnica pręta przed przejściem. Przy frezie kulistym liczy się średnica na głębokości skrawania, a nie średnica nominalna.
+* **Jednostki adresu S.** Na frezarce i przy G97 S to obroty na minutę. Przy G96 S to prędkość skrawania w m/min, więc ta sama liczba znaczy co innego.
+* **G96 bez limitu obrotów.** Przy zbliżaniu do osi wrzeciono rozpędza się do maksimum. Ustaw G50 S… (Fanuc, system A) albo LIMS= (Sinumerik) przed G96.
+* **Wiercenie w osi na tokarce** wykonuje się na G97. Przy G96 i średnicy bliskiej zeru sterowanie dąży do obrotów na limicie.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Na frezarce adres S to zawsze obroty, a Vc przelicza się samemu albo w kalkulatorze. Na tokarce G96 S podaje Vc, a G97 S obroty. Program poniżej planuje czoło i toczy jedno przejście wzdłużne na stałej prędkości skrawania z limitem obrotów, a przed odjazdem wraca do stałych obrotów.
+
+<Sim mode="lathe" caption="G50 S3000 — limit obrotów, G96 S200 — Vc 200 m/min, G97 S1000 — stałe obroty przed odjazdem.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  T0101
+  G50 S3000
+  G96 S200 M03
+  G00 X62. Z0.
+  G01 X-1.6 F0.15
+  G00 Z2.
+  G00 X56.
+  G01 Z-30. F0.25
+  G01 X62.
+  G00 Z2.
+  G97 S1000
+  G00 X100. Z50.
+  M05
+  M30
+  ```
+</Sim>

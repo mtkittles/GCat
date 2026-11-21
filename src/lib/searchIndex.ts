@@ -5,9 +5,12 @@ import articleText from "../../content/.generated/szukaj.json";
 import { readyLessons, lessonHref, tracks } from "./course";
 import { flatBlocks, type Block } from "./article";
 import { norm, queryTerms } from "./searchNorm";
+// Technologia: frontmatter (technologia.json) i tekst artykułów (szukaj-technologia.json); bez artykułów Pro
+import techText from "../../content/.generated/szukaj-technologia.json";
+import { artHref, dzialBySlug, publicArts, TYP_LABEL } from "./technologia";
 
 export interface SearchDoc {
-  kind: "kod" | "lekcja" | "zadanie" | "pojęcie";
+  kind: "kod" | "lekcja" | "zadanie" | "pojęcie" | "artykuł";
   title: string; subtitle: string; href: string; body: string;
 }
 
@@ -39,6 +42,10 @@ export const searchDocs: SearchDoc[] = [
   ...glossary.map((g) => ({
     kind: "pojęcie" as const, title: g.term, subtitle: "słownik",
     href: `/slownik#${g.anchor}`, body: [g.term, ...g.aliases, g.def].join(" "),
+  })),
+  ...publicArts.map((a) => ({
+    kind: "artykuł" as const, title: a.title, subtitle: `Technologia · ${dzialBySlug(a.dzial)?.title ?? a.dzial} · ${TYP_LABEL[a.typ]}`,
+    href: artHref(a), body: [a.title, a.short, ...a.normy, (techText as Record<string, string>)[a.key] ?? ""].join(" "),
   })),
 ];
 
@@ -86,6 +93,8 @@ export function peek(href: string): Peek | null {
     const g = glossary.find((x) => `/slownik#${x.anchor}` === href);
     if (g) return { kind: "pojęcie", title: g.term, sub: g.aliases.length ? `także: ${g.aliases.slice(0, 3).join(", ")}` : "słownik", text: clean(g.def), href };
   }
+  const art = publicArts.find((a) => artHref(a) === path);
+  if (art) return { kind: "artykuł", title: art.title, sub: `${dzialBySlug(art.dzial)?.title ?? "Technologia"} · ${TYP_LABEL[art.typ]} · ${art.minutes} min`, text: clean(art.short), href };
   const ex = exercises.find((e) => `/zadania/${e.slug}` === path);
   if (ex) return { kind: "zadanie", title: ex.title, sub: ex.mode === "mill" ? "zadanie · frezowanie" : "zadanie · toczenie", text: clean(ex.brief), href };
   const doc = searchDocs.find((d) => d.kind === "lekcja" && d.href === path);

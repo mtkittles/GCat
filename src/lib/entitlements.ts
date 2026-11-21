@@ -4,9 +4,9 @@
 */
 export type Plan = "free" | "pro";
 
-export type Feature = "sync" | "stats" | "certificate" | "multiaxis" | "exports" | "unlimitedPrograms" | "flashcards";
+export type Feature = "sync" | "stats" | "certificate" | "multiaxis" | "exports" | "unlimitedPrograms" | "flashcards" | "proContent";
 
-export const FEATURES: Record<Feature, { label: string; desc: string; plan: Plan; soon?: boolean }> = {
+export const FEATURES: Record<Feature, { label: string; desc: string; plan: Plan; soon?: boolean; /** nie pokazuj na /konto/pro (funkcja bez oferty) */ hidden?: boolean }> = {
   sync: { label: "Postęp na koncie", desc: "Lekcje, testy, zadania i programy zapisane na koncie — na każdym urządzeniu.", plan: "free" },
   stats: { label: "Statystyki nauki", desc: "Zaliczenia, najlepsze wyniki testów, zadania, ostatnia aktywność.", plan: "free" },
   certificate: { label: "Certyfikat ścieżki", desc: "Po zaliczeniu wszystkich testów ścieżki — certyfikat do druku/PDF z numerem.", plan: "pro" },
@@ -14,8 +14,13 @@ export const FEATURES: Record<Feature, { label: string; desc: string; plan: Plan
   exports: { label: "Eksport z symulatora", desc: "Tor jako SVG i wynik obróbki 3D jako STL (PNG podglądu jest bezpłatny).", plan: "pro" },
   unlimitedPrograms: { label: "Nielimitowane programy", desc: "Więcej niż 20 zapisanych programów w symulatorze.", plan: "pro", soon: true },
   flashcards: { label: "Fiszki z powtórkami", desc: "Słownik, wzory i kody pytane w obie strony jako fiszki z powtórkami Leitnera (Free: 15 fiszek ze słownika).", plan: "pro" },
+  // Technologia jest darmowa (decyzja 2026-11-21); `plan: pro` w artykule = szkic pod Pro, widoczny dla redakcji
+  proContent: { label: "Artykuły Pro w Technologii", desc: "Treści działu Technologia oznaczone jako Pro.", plan: "pro", hidden: true },
 };
 
 export const PLAN_LABEL: Record<Plan, string> = { free: "Free", pro: "Pro" };
 
-export const can = (plan: Plan, feature: Feature) => FEATURES[feature].plan === "free" || plan === "pro";
+/** Kto pyta: `admin` — konto redakcji (GitHub z prawem zapisu, lib/edytor/admin.ts) widzi wszystko bez względu na plan. */
+export interface Who { admin?: boolean }
+
+export const can = (plan: Plan, feature: Feature, who: Who = {}) => !!who.admin || FEATURES[feature].plan === "free" || plan === "pro";

@@ -6,7 +6,7 @@ import { search } from "@/lib/searchIndex";
 import { matchRanges } from "@/lib/searchNorm";
 import EmptyState from "@/components/ui/EmptyState";
 
-const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie"] as const;
+const KINDS = ["wszystko", "kod", "lekcja", "zadanie", "pojęcie", "artykuł"] as const;
 
 /** Podświetla trafienia według tych samych reguł co `search()` (bez polskich znaków, każde słowo osobno). */
 function hl(text: string, q: string): ReactNode {

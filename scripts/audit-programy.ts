@@ -1,7 +1,7 @@
 /* Audyt programów osadzonych w treści: każdy przez parser + walidator (Fanuc).
    Błędy parsera/walidatora kończą się kodem 1 (poza starterami, które z założenia są niekompletne).
    Uruchom: npm run audit:programy */
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { parseProgram } from "@/lib/parser";
 import { validate } from "@/lib/parser/validate";
 import { checkExercise } from "@/lib/checker";
@@ -34,6 +34,11 @@ for (const t of ["frezowanie", "toczenie"] as Track[]) for (const l of flat(t)) 
   });
 }
 for (const p of PROGRAMS) items.push({ where: `programy/${p.slug}`, src: p.src, mode: p.mode, dialect: p.dialect });
+// Technologia (V3.0): programy z <Sim>/<Demo> w artykułach content/technologia/<dział>/<slug>.mdx
+const techProgs = existsSync("content/technologia") ? readdirSync("content/technologia").filter((d) => statSync(`content/technologia/${d}`).isDirectory())
+  .flatMap((d) => readdirSync(`content/technologia/${d}`).filter((f) => f.endsWith(".mdx")).sort()
+    .flatMap((f) => mdxPrograms(readFileSync(`content/technologia/${d}/${f}`, "utf8")).map((p, i) => ({ where: `technologia/${d}/${f.slice(0, -4)} program ${i}`, ...p })))) : [];
+for (const p of techProgs) add(p.where, p.src, p.mode);
 const home = readFileSync("src/content/homeDemo.ts", "utf8").match(/const HOME_DEMO = `([\s\S]*?)`;/);
 if (home) add("strona główna DEMO", home[1], "mill");
 
@@ -74,6 +79,11 @@ for (const e of exercises) {
     const r = profil({ src, mode: e.mode, kind: "program" }).filter((x) => full || FORMAT.test(x));
     if (r.length) { profile++; console.log(`✗ profil zadania/${e.slug} ${what}`); r.forEach((x) => console.log("   " + x)); }
   }
+}
+// Technologia: pełne programy w tym samym profilu zapisu co karty
+for (const p of techProgs) {
+  const r = profil({ src: p.src, mode: p.mode, kind: "program" });
+  if (r.length) { profile++; console.log(`✗ profil ${p.where}`); r.forEach((x) => console.log("   " + x)); }
 }
 // Przykład bez podglądu, który symulator odtworzyłby w całości i bez ostrzeżeń, powinien mieć podgląd.
 for (const p of kart.filter((x) => x.kind === "example" && !x.simulate && x.full)) {
