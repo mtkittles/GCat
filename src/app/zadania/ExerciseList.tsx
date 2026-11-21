@@ -9,6 +9,7 @@ import { useDone } from "@/lib/exercisesDone";
 import EmptyState from "@/components/ui/EmptyState";
 import Shared, { vtName } from "@/components/ui/Shared";
 import { motionClass } from "@/lib/motionClass";
+import { pl } from "@/lib/plural";
 
 /*
   Lista zadań: nagłówek z postępem (zaliczone z zapisu w przeglądarce / koncie), przełączniki maszyny
@@ -30,8 +31,7 @@ export default function ExerciseList({ previews = {} }: { previews?: Record<stri
     <div className="grid gap-5">
       <header className="ph zx-head">
         <div className="grid gap-2">
-          <span className="ph-k">Praktyka · {exercises.length} zadań</span>
-          <h1 className="ph-title">Zadania</h1>
+          <h1 className="ph-title">Zadania <span className="ph-n">{pl(exercises.length, "zadanie", "zadania", "zadań")}</span></h1>
           <p className="ph-lead">Napisz program, a symulator porówna tor narzędzia z rozwiązaniem wzorcowym. Liczy się geometria toru, nie identyczny zapis.</p>
         </div>
         <div className="zx-prog" aria-label={`Zaliczone ${passed} z ${exercises.length}`}>

@@ -21,7 +21,7 @@ const BANNERS: Record<Tab, { title: string; sub: string }> = {
 const r0 = (v: number) => (Number.isFinite(v) ? Math.round(v) : 0);
 const r2 = (v: number) => (Number.isFinite(v) ? Math.round(v * 100) / 100 : 0);
 const r3 = (v: number) => (Number.isFinite(v) ? Math.round(v * 1000) / 1000 : 0);
-const pl = (v: number) => String(v).replace(".", ",");
+const pl = (v: number | string) => String(v).replace(".", ",");
 
 /** Moc skrawania [kW] z wydajności Q [cm³/min] i oporu właściwego kc [N/mm²]. */
 export const cutPower = (q: number, kc: number) => (q * kc) / 60000;
@@ -262,10 +262,10 @@ export default function Calc() {
             </div>
           )}
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcMill} / (π · {d}) = <strong>{r0(nMill)} obr/min</strong></Formula>
-            <Formula>Vf = n · z · fz = {r0(nMill)} · {z} · {r3(fzCorr)} = <strong>{r0(vfMill)} mm/min</strong></Formula>
-            <Formula>Q = ap · ae · Vf / 1000 = {ap} · {ae} · {r0(vfMill)} / 1000 = <strong>{r2(qMill)} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {r2(qMill)} · {mat.kc} / 60000 = <strong>{r2(pMill)} kW</strong></Formula>
+            <Formula>n = 1000 · Vc / (π · D) = 1000 · {pl(vcMill)} / (π · {pl(d)}) = <strong>{pl(r0(nMill))} obr/min</strong></Formula>
+            <Formula>Vf = n · z · fz = {pl(r0(nMill))} · {pl(z)} · {pl(r3(fzCorr))} = <strong>{pl(r0(vfMill))} mm/min</strong></Formula>
+            <Formula>Q = ap · ae · Vf / 1000 = {pl(ap)} · {pl(ae)} · {pl(r0(vfMill))} / 1000 = <strong>{pl(r2(qMill))} cm³/min</strong></Formula>
+            <Formula>P = Q · kc / 60000 = {pl(r2(qMill))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pMill))} kW</strong></Formula>
           </div>
           
         </section>
@@ -292,10 +292,10 @@ export default function Calc() {
           <CodeOut stale={staleOf("t-")} text={`G50 S${Math.min(4000, r0(nTurn * 2))}   (LIMIT OBROTOW - DOBIERZ DO UCHWYTU)\nG96 S${vcTurn} M03\nG99   (MM/OBR: FANUC SYSTEM A; SINUMERIK I FANUC B/C: G95)\nG01 X_ Z_ F${fTurn}`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = 1000 · {vcTurn} / (π · {dT}) = <strong>{r0(nTurn)} obr/min</strong></Formula>
-            <Formula>Q = Vc · ap · f = {vcTurn} · {apT} · {fTurn} = <strong>{r2(qTurn)} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {r2(qTurn)} · {mat.kc} / 60000 = <strong>{r2(pTurn)} kW</strong></Formula>
-            <Formula>Rt ≈ f² / (8 · rε) · 1000 = {fTurn}² / (8 · {re}) · 1000 = <strong>{r2(rz)} µm</strong></Formula>
+            <Formula>n = 1000 · Vc / (π · D) = 1000 · {pl(vcTurn)} / (π · {pl(dT)}) = <strong>{pl(r0(nTurn))} obr/min</strong></Formula>
+            <Formula>Q = Vc · ap · f = {pl(vcTurn)} · {pl(apT)} · {pl(fTurn)} = <strong>{pl(r2(qTurn))} cm³/min</strong></Formula>
+            <Formula>P = Q · kc / 60000 = {pl(r2(qTurn))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pTurn))} kW</strong></Formula>
+            <Formula>Rt ≈ f² / (8 · rε) · 1000 = {pl(fTurn)}² / (8 · {pl(re)}) · 1000 = <strong>{pl(r2(rz))} µm</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">W tym modelu teoretyczna wysokość nierówności Rt zależy tylko od posuwu i promienia naroża — obroty we wzorze nie występują. Rzeczywista chropowatość zależy też od drgań, zużycia ostrza i materiału; potwierdza ją pomiar. Ra wynosi orientacyjnie ok. Rt / 4 (lekcja T2.3).</p>
           
@@ -321,10 +321,10 @@ export default function Calc() {
           <CodeOut stale={staleOf("d-")} text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = <strong>{r0(nDrill)} obr/min</strong></Formula>
-            <Formula>Vf = n · f = {r0(nDrill)} · {fDrill} = <strong>{r0(vfDrill)} mm/min</strong></Formula>
-            <Formula>Q = π · D² / 4 · Vf / 1000 = π · {dD}² / 4 · {r0(vfDrill)} / 1000 = <strong>{r2(qDrill)} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {r2(qDrill)} · {mat.kc} / 60000 = <strong>{r2(pDrill)} kW</strong></Formula>
+            <Formula>n = 1000 · Vc / (π · D) = <strong>{pl(r0(nDrill))} obr/min</strong></Formula>
+            <Formula>Vf = n · f = {pl(r0(nDrill))} · {pl(fDrill)} = <strong>{pl(r0(vfDrill))} mm/min</strong></Formula>
+            <Formula>Q = π · D² / 4 · Vf / 1000 = π · {pl(dD)}² / 4 · {pl(r0(vfDrill))} / 1000 = <strong>{pl(r2(qDrill))} cm³/min</strong></Formula>
+            <Formula>P = Q · kc / 60000 = {pl(r2(qDrill))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pDrill))} kW</strong></Formula>
           </div>
           <p className="text-sm text-muted max-w-prose">Przy otworach głębszych niż ok. 3 × D stosuje się zwykle wiercenie z wycofaniem (G83, lekcja F5.2) — granicę podaje producent wiertła. Orientacyjny posuw na start: ok. 2% średnicy wiertła na obrót.</p>
           
@@ -350,8 +350,8 @@ export default function Calc() {
           <CodeOut stale={staleOf("g-")} text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>F = n · skok = {nTap} · {th.pitch} = <strong>{r0(fTap)} mm/min</strong></Formula>
-            <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {th.name.slice(1)} − {th.pitch} = <strong>{th.drill} mm</strong></Formula>
+            <Formula>F = n · skok = {pl(nTap)} · {pl(th.pitch)} = <strong>{pl(r0(fTap))} mm/min</strong></Formula>
+            <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {pl(th.name.slice(1))} − {pl(th.pitch)} = <strong>{pl(th.drill)} mm</strong></Formula>
           </div>
           <p className="note note-warn max-w-prose">Posuw gwintowania wynika ze skoku: przy G94 F = S · skok, przy G95 F = skok. Inna wartość rozjeżdża ruch osi Z z obrotem wrzeciona — przy gwintowaniu sztywnym grozi to zniszczeniem gwintu albo złamaniem gwintownika (lekcja F5.3).</p>
           

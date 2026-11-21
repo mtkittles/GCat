@@ -54,7 +54,8 @@ export function Card({ e, lessons, edit, figure = rysBySlug }: { e: GlossaryEntr
   const fig = drawn ? () => <Rys fig={drawn} /> : e.diagram ? diagrams[e.diagram] : undefined;
   const codes = e.see.map((s) => bySlug(s)).filter((g): g is NonNullable<typeof g> => !!g);
   // nazwy zamienne bez powtórzeń tytułu („n — obroty wrzeciona” nie pokazuje „n” ani „obroty wrzeciona”)
-  const own = new Set(e.term.split(" — ").concat(e.term).map((t) => t.trim().toLocaleLowerCase("pl")));
+  // i bez części tytułu przed nawiasem („3+2 (obróbka pozycjonowana)” nie pokazuje „3+2”)
+  const own = new Set(e.term.split(/ — | \(|\)/).concat(e.term).map((t) => t.trim().toLocaleLowerCase("pl")).filter(Boolean));
   const also = e.aliases.filter((a) => !own.has(a.trim().toLocaleLowerCase("pl")));
   return (
     <article id={e.anchor} className={`gl-card${fig ? " is-wide" : ""}`}>
@@ -162,8 +163,7 @@ export default function Glossary({ lessons = {} }: { lessons?: Record<string, Le
   return (
     <div className="gl-page">
       <header className="ph">
-        <span className="ph-k">Słownik CNC · {hasla(SORTED.length)}</span>
-        <h1 className="ph-title">Słownik</h1>
+        <h1 className="ph-title">Słownik <span className="ph-n">{hasla(SORTED.length)}</span></h1>
         <p className="ph-lead">Pojęcia z lekcji i z hali, wyjaśnione krótko — ze wzorami, rysunkami i odnośnikami do kart kodów.</p>
       </header>
 

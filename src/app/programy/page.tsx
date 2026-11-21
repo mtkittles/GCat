@@ -3,6 +3,7 @@ import ProgramGrid, { type GridGroup, type GridProgram } from "./ProgramGrid";
 import { PROGRAMS } from "@/content/programy";
 import type { LibProgram } from "@/lib/programLibrary";
 import { TOOL_LABEL } from "@/components/simulator/setup";
+import { pl } from "@/lib/plural";
 
 export const metadata = { title: "Gotowe programy CNC — frezowanie i toczenie — GCat" };
 
@@ -33,8 +34,7 @@ export default function ProgramsPage() {
   return (
     <div className="grid gap-6">
       <header className="ph">
-        <span className="ph-k">Biblioteka · {PROGRAMS.length} detali</span>
-        <h1 className="ph-title">Gotowe programy</h1>
+        <h1 className="ph-title">Gotowe programy <span className="ph-n">{pl(PROGRAMS.length, "detal", "detale", "detali")}</span></h1>
         <p className="ph-lead">Kompletne detale z kilkoma narzędziami, kartą technologiczną i opisem zabiegów. Podejrzyj kod albo otwórz program w symulatorze i zobacz, jak powstaje detal.</p>
       </header>
       <nav className="pg-jump-x" aria-label="Działy">

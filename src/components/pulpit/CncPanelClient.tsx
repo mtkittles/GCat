@@ -22,8 +22,8 @@ const OPS: { key: string; name: string; tool: string; text: string[]; fanuc: str
     text: [
       "Bez korekcji promienia (G40) zaprogramowany kontur 80 × 50 jest torem środka freza. Frez ⌀10 zbiera po 5 mm z obu stron toru, więc płytka po obróbce ma 70 × 40, a naroża R5.",
     ],
-    fanuc: "naroża łukiem G03 z promieniem w adresie R10.",
-    sinumerik: "naroża łukiem G3 z promieniem w adresie CR=10.",
+    fanuc: "naroża łukiem G03 z promieniem R10.",
+    sinumerik: "naroża łukiem G3 z promieniem CR=10.",
     warn: "G40 — wymiar detalu = tor − średnica freza",
   },
   {

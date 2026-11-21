@@ -148,9 +148,8 @@ export default function Flashcards() {
   return (
     <div className="fc-page">
       <header className="ph fc-ph">
-        <span className="ph-k">Powtórki · {karty((pro ? FLASHCARDS : freeCards()).length)}</span>
         <div className="fc-title-row">
-          <h1 className="ph-title">Fiszki</h1>
+          <h1 className="ph-title">Fiszki <span className="ph-n">{karty((pro ? FLASHCARDS : freeCards()).length)}</span></h1>
           <button type="button" className="fc-pick" aria-haspopup="dialog" onClick={() => setSheet(true)}
             aria-label={`Ustawienia powtórki: ${scopeName}, ${sizeName}`}>
             <span>{scopeName} · {sizeName}</span><ChevronDown aria-hidden />
