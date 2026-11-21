@@ -59,7 +59,9 @@ Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
 ## Telefon
 
 Treść przewija się do samego dołu ekranu, pod dokiem i paskiem przeglądarki. Zamiast pełnego pasa jest
-łagodne wygaszenie: na dole gradient do `--bg` (wysokość doku + 32 px), pod paskiem górnym 20 px.
+łagodne wygaszenie: pod paskiem górnym 20 px; na dole gradient do `--bg` (wysokość doku + 32 px) — poza iOS.
+Na iPhonie dół wygasza sam Safari 26; element stały nie rysuje się pod jego paskiem, więc nasz gradient
+zostawiałby tam jaśniejszy pas.
 Symulator i panel klawiszy go nie mają.
 
 Dok ma 86% szerokości ekranu (najwyżej 420 px). Safari 26 maluje pod swoim paskiem jednolity pas, gdy przy

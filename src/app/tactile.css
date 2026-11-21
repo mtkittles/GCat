@@ -194,7 +194,7 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
   /* Dok węższy niż 90% ekranu (86vw, najwyżej 420 px): Safari 26 (WebKit, LocalFrameView::fixedContainerEdges)
      traktuje stały element przy krawędzi jako „krawędź” i maluje pod paskiem przeglądarki jednolity pas,
      gdy element ma co najmniej 90% szerokości widoku. Węższy dok zostaje pominięty — treść płynie pod nim
-     i pod paskiem z wygaszeniem body::after, także gdy dok wraca przy przewijaniu w górę. */
+     i pod paskiem przeglądarki, także gdy dok wraca przy przewijaniu w górę. */
   .bottom-nav.dock {
     --dock-inset: max(7vw, calc((100vw - 420px) / 2));
     left: var(--dock-inset); right: var(--dock-inset); bottom: var(--dock-bottom); padding: 4px; gap: 2px;
@@ -204,12 +204,16 @@ html[data-sb="c"] .sb .key { flex: none; width: 40px; }
     box-shadow: 0 12px 32px rgba(0, 0, 0, .6);
   }
   [data-theme="light"] .bottom-nav.dock { background: color-mix(in srgb, var(--surface) 92%, transparent); box-shadow: 0 8px 24px rgba(28, 25, 23, .14); }
-  /* UI-4: treść płynie do samego dołu ekranu, pod dokiem i paskiem przeglądarki; zamiast pełnego pasa
-     łagodne wygaszenie (gradient bez koloru tła — Safari 26 nie ma z czego wziąć jednolitego „podbródka”). */
-  body::after {
-    content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; pointer-events: none;
-    height: calc(var(--dock-space) + 32px);
-    background: linear-gradient(to top, color-mix(in srgb, var(--bg) 90%, transparent) 0%, color-mix(in srgb, var(--bg) 62%, transparent) 50%, transparent 100%);
+  /* UI-4: treść płynie do samego dołu ekranu, pod dokiem i paskiem przeglądarki, z łagodnym wygaszeniem.
+     iOS (Safari 26) wygasza krawędź sam (efekt krawędzi pod paskiem), a element stały nie rysuje się poniżej
+     paska — nasz gradient kończyłby się nad nim i pod spodem zostawałby jaśniejszy pas. Dlatego gradient
+     tylko poza iOS (-webkit-touch-callout istnieje wyłącznie w WebKit na iOS). */
+  @supports not (-webkit-touch-callout: none) {
+    body::after {
+      content: ""; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; pointer-events: none;
+      height: calc(var(--dock-space) + 32px);
+      background: linear-gradient(to top, color-mix(in srgb, var(--bg) 90%, transparent) 0%, color-mix(in srgb, var(--bg) 62%, transparent) 50%, transparent 100%);
+    }
   }
   body:has(.sim-page)::after, body:has(.ks-panel)::after { display: none; }
   .site-header.topbar { border-bottom-color: transparent; }
