@@ -289,7 +289,6 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // tryb nauki pod podglądem — tylko symulator w zadaniach i lekcjach; na /symulator jego treść jest w panelu „Stan sterowania” (V5c)
   const learn = appLayout ? false : localLearn;
   const setLearn = (v: boolean) => { if (!appLayout) setLocalLearn(v); };
-  const [sheetOpen, setSheetOpen] = useState(true);
   // telefon: panel jako arkusz na podglądzie — domyślnie wyłączony (jest pasek stanu pod podglądem), włącza go „Nauka”
   const [phonePanel, setPhonePanel] = useState(false);
   const togglePanel = () => setLayout({ hud: !layout.hud });
@@ -1373,12 +1372,14 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     return n ? `N${n.value}` : `L${activeLineText.index + 1}`;
   })();
   // Panel „Stan sterowania” (V5, V5c): jedno miejsce na stan maszyny i tryb nauki (co zmienił blok).
-  // Komputer: z prawej obok podglądu albo na podglądzie (półprzezroczysty, w rogu, zwijany). Telefon: arkusz na dole
-  // podglądu, zwinięty do jednego wiersza. Włącza/wyłącza przycisk „Nauka” albo klawisz P (layout.hud).
-  const asideOn = appLayout && !compact && (deskBar ? layout.hud : phonePanel);
+  // Komputer: z prawej obok podglądu albo na podglądzie (półprzezroczysty, w rogu, zwijany). Włącza/wyłącza przycisk
+  // „Nauka” albo klawisz P (layout.hud). Telefon: bez nakładki — karta pod podglądem ma już blok, XYZ, F, S, T i stan
+  // modalny, więc „Nauka” dokłada do niej tylko opis bloku i „Co zmienił ten blok”.
+  const asideOn = appLayout && !compact && deskBar && layout.hud;
+  const phoneLearn = appLayout && !compact && !deskBar && phonePanel;
   const asideRight = asideOn && deskBar && layout.panel === "right";
   const asideOver = asideOn && !asideRight;
-  const asideMin = deskBar ? layout.panelMin : !sheetOpen;
+  const asideMin = layout.panelMin;
   const nErr = issues.filter((i) => i.level === "error").length, nWarn = issues.length - nErr;
   const asideLine = (
     <span className="sa-line">
@@ -1388,19 +1389,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     </span>
   );
   const stateAside = asideOn && (
-    <aside className={`sim-aside${asideOver ? ` is-over c-${deskBar ? layout.corner : "sheet"}` : ""}${asideOver && asideMin ? " is-min" : ""}`} aria-label="Stan sterowania">
+    <aside className={`sim-aside${asideOver ? ` is-over c-${layout.corner}` : ""}${asideOver && asideMin ? " is-min" : ""}`} aria-label="Stan sterowania">
       <div className="sa-head">
         <h2 className="sa-h">Stan sterowania</h2>
         {asideOver && (
           <button type="button" className="sa-btn" aria-expanded={!asideMin}
-            onClick={() => (deskBar ? setLayout({ panelMin: !layout.panelMin }) : setSheetOpen((v) => !v))}
+            onClick={() => setLayout({ panelMin: !layout.panelMin })}
             aria-label={asideMin ? "Rozwiń panel" : "Zwiń panel do jednego wiersza"} title={asideMin ? "Rozwiń" : "Zwiń"}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              {asideMin === (deskBar && layout.corner[0] === "b") ? <path d="m6 15 6-6 6 6" /> : <path d="m6 9 6 6 6-6" />}
+              {asideMin === (layout.corner[0] === "b") ? <path d="m6 15 6-6 6 6" /> : <path d="m6 9 6 6 6-6" />}
             </svg>
           </button>
         )}
-        <button type="button" className="sa-btn" onClick={() => (deskBar ? togglePanel() : setPhonePanel(false))} aria-label="Ukryj panel (P)" title="Ukryj panel (P)">
+        <button type="button" className="sa-btn" onClick={togglePanel} aria-label="Ukryj panel (P)" title="Ukryj panel (P)">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden><path d="M18 6 6 18M6 6l12 12" /></svg>
         </button>
       </div>
@@ -1582,7 +1583,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
                 onClick={() => {
                   if (!appLayout) { if (!learn) setSplit(false); setLearn(!learn); }
                   else if (deskBar) togglePanel();
-                  else { if (!phonePanel) setSheetOpen(true); setPhonePanel(!phonePanel); }
+                  else setPhonePanel(!phonePanel);
                 }}
                 title="Opis wykonywanego bloku i zmiany stanu maszyny krok po kroku (klawisze: spacja, ←, →, Home)" aria-label="Tryb nauki">
                 <span className="vb-ic" aria-hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 10 12 5 2 10l10 5 10-5z" /><path d="M6 12v5c3 2 9 2 12 0v-5" /></svg></span><span className="vb-tx"><span className="lbl-long">Tryb nauki</span><span className="lbl-short">Nauka</span></span>
@@ -1790,7 +1791,17 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           {asideOver && stateAside}
         </div>
         {asideRight && stateAside}
-        {appLayout && !compact && <div className="m-hud m-sim m-only">{statusStrip}</div>}
+        {appLayout && !compact && (
+          <div className="m-hud m-sim m-only">
+            {statusStrip}
+            {phoneLearn && (
+              <section className="m-learn" aria-label="Co zmienił ten blok">
+                {activeLineText && (activeLineText.errors.length ? <p className="sa-desc is-err">{activeLineText.errors.join(" ")}</p> : activeLineText.description ? <p className="sa-desc">{activeLineText.description}</p> : null)}
+                <div className="sa-chg"><BlockChanges program={program} activeLine={activeLine} mode={mode} /></div>
+              </section>
+            )}
+          </div>
+        )}
         {transportBar}
         {!compact && !appLayout && learn && <div className="m-sim learn-wrap"><LearnPanel program={program} activeLine={activeLine} mode={mode} /></div>}
         {!compact && st && !asideOn && (

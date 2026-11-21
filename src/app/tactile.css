@@ -1896,7 +1896,15 @@ mark.hl { background: color-mix(in srgb, var(--accent) 24%, transparent); color:
 .sim-aside.is-over.is-min { width: min(24rem, calc(100% - 24px)); gap: .4rem; padding: .5rem .6rem .55rem .75rem; }
 .sim-aside.is-over .sa-val { margin-top: 0; }
 /* telefon: arkusz na dole podglądu, zwinięty do wiersza (blok + XYZ), po rozwinięciu do połowy wysokości */
-.sim-aside.is-over.c-sheet { left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 58%; border-radius: 14px; }
+/* telefon: „Nauka” dokłada do karty pod podglądem opis bloku i „Co zmienił ten blok” — bez nakładki na podgląd.
+   Zakładka „Symulacja” ma stałą wysokość, więc podgląd sam oddaje tyle, ile zajmuje ta część. Karta jest ciemna
+   w obu motywach („ciemna wyspa”), stąd własne kolory. */
+.m-learn {
+  --ink: #F5F5F4; --ink-2: #C9CBD1; --muted: #9A9CA3; --accent-ink: #FB923C; --line: rgba(255, 255, 255, .12);
+  display: grid; gap: .35rem; padding-top: .45rem; border-top: 1px solid var(--line);
+  max-height: 9.5rem; overflow-y: auto; overscroll-behavior: contain;
+}
+.m-learn .sa-desc { font-size: 13px; color: var(--ink-2); }
 
 /* Skupienie: sam podgląd i pulpit, bez kolumny programu (klawisz F) */
 @media (min-width: 768px) {
