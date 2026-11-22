@@ -3412,3 +3412,44 @@ a.rys-btn { text-decoration: none; }
 .ed-gl .gl-fig.ed-empty { min-height: 8rem; }
 .fig-edit { margin: .45rem 0 0; }
 [data-theme="light"] .pp image { filter: brightness(2.1) contrast(.85) saturate(.7); }
+
+/* ===== Jasny motyw: sterowanie symulatora na papierze (UI-9b) =====
+   Kanwa i scena 3D leżą na papierze (--paper), więc przyciski na podglądzie, pasek pozycji na telefonie
+   i powłoka pełnego ekranu też są jasne: powierzchnia --surface, linia --line-strong, tekst --ink.
+   Uwaga: --panel w jasnym motywie jest ciemny (bloki kodu) — w symulatorze go nie używamy. */
+[data-theme="light"] .fs-sim { background: var(--bg); color: var(--ink); }
+[data-theme="light"] .fs-canvas { background: var(--paper); }
+[data-theme="light"] :is(.fs-bar, .fs-status, .fs-transport) { border-color: var(--line); }
+[data-theme="light"] .fs-status { background: var(--surface); }
+[data-theme="light"] .fs-line code { color: var(--ink); }
+[data-theme="light"] .fs-line-no { color: var(--accent-ink); }
+[data-theme="light"] :is(.fs-coords, .m-hud .fs-mod) span,
+[data-theme="light"] .fs-coords span.is-tool { background: var(--surface-2); color: var(--ink-2); }
+[data-theme="light"] :is(.fs-close, .fs-sheet-btn:not(.is-open)) { background: var(--surface); border-color: var(--line-strong); color: var(--ink); }
+[data-theme="light"] .fs-sheet-btn.is-open { color: var(--on-accent); }
+[data-theme="light"] .fs-tools .segmented { background: var(--surface-2); border-color: var(--line); }
+[data-theme="light"] .fs-tools .segmented button { color: var(--ink-2); }
+[data-theme="light"] .is-app .m-hud { background: var(--surface); border-color: var(--line); color: var(--ink); }
+[data-theme="light"] .z2d { background: color-mix(in srgb, var(--surface) 90%, transparent); border-color: var(--line-strong); box-shadow: 0 2px 8px rgba(28, 25, 23, .08); }
+[data-theme="light"] .z2d button { color: var(--ink-2); }
+[data-theme="light"] .z2d button:hover { background: var(--surface-2); color: var(--ink); }
+[data-theme="light"] .z2d button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+[data-theme="light"] .z2d-hint { color: #A16207; }
+[data-theme="light"] .z2d-sep { background: var(--line-strong); }
+[data-theme="light"] .cf-zoom { fill: var(--paper); }
+[data-theme="light"] .sim-capsule { box-shadow: 0 8px 22px rgba(28, 25, 23, .14); }
+@media (max-width: 767px) {
+  [data-theme="light"] .is-app .viewbar .segmented,
+  [data-theme="light"] .is-app .viewbar > button:not(.fs-open):not(.icon-btn):not(.only-wide):not([aria-pressed="true"]),
+  [data-theme="light"] .is-app .viewbar > .exp-menu > summary,
+  [data-theme="light"] .is-app .viewbar .fs-open,
+  [data-theme="light"] .view3d-menu > summary,
+  [data-theme="light"] .view3d-pop {
+    background: color-mix(in srgb, var(--surface) 92%, transparent); border-color: var(--line-strong); color: var(--ink);
+    box-shadow: 0 2px 8px rgba(28, 25, 23, .08);
+  }
+  [data-theme="light"] .is-app .viewbar .segmented button { color: var(--ink-2); }
+  [data-theme="light"] .is-app .viewbar .segmented button[aria-selected="true"] { color: var(--ink); }
+  [data-theme="light"] .view3d-pop button { color: var(--ink); }
+  [data-theme="light"] .view3d-pop button[aria-pressed="true"] { color: var(--accent-ink); }
+}
