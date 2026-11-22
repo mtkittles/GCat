@@ -273,6 +273,78 @@ export const sources: Record<string, Source> = {
     note: "Strony — numeracja PDF.",
     internal: "Kopia poradnika producenta na stronie uczelni (University of Florida); wersji na stronie producenta nie znaleziono.",
   },
+  // ── Technologia (V3.1a): geometria ostrza i frezy ──
+  "iso3002-1": {
+    id: "iso3002-1", short: "ISO 3002-1", author: "ISO",
+    title: "ISO 3002-1 — Basic quantities in cutting and grinding — Part 1: Geometry of the active part of cutting tools — General terms, reference systems, tool and working angles, chip breakers",
+    edition: "1982 (wydanie 2), zmiana Amd 1:1992",
+    url: "https://www.iso.org/standard/8052.html", accessed: "11/2026",
+    note: "Kąty narzędzia w układzie narzędzia (przed zamocowaniem); kąty robocze w czasie skrawania mogą się od nich różnić.",
+    internal: "Definicje i zależności przeczytane z normy indyjskiej IS 11522 (Part 1)-1986, identycznej z ISO 3002/1-1982 (law.resource.org/pub/in/bis/S01/is.11522.1.1986.pdf, tekst OCR). Numery punktów jak w normie. Samego tekstu ISO nie sprawdzono.",
+  },
+  "mmc-geometria-toczenie": {
+    id: "mmc-geometria-toczenie", short: "Mitsubishi Materials — kąty ostrza noża tokarskiego", author: "Mitsubishi Materials",
+    title: "Basic Turning — kurs e-learningowy producenta, rozdział Tool geometry (kąty ostrza i ich wpływ)",
+    url: "https://www.mmc-carbide.com/permanent/courses/75/tool-geometry.html", accessed: "11/2026",
+    note: "Zależności ogólne; kąty konkretnej płytki i oprawki podaje katalog.",
+  },
+  "mmc-katy-frez-czolowy": {
+    id: "mmc-katy-frez-czolowy", short: "Mitsubishi Materials — kąty ostrza głowicy frezowej", author: "Mitsubishi Materials",
+    title: "Function of each cutting edge angle in face milling — kąty natarcia osiowy i promieniowy, kąt przystawienia, kąt pochylenia (informacja techniczna producenta)",
+    url: "https://mitsubishicarbide.net/contents/mmus/enus/html/product/technical_information/information/f_shoumen.html", accessed: "11/2026",
+  },
+  "sandvik-frezowanie-czolowe": {
+    id: "sandvik-frezowanie-czolowe", short: "Sandvik Coromant — frezowanie czołowe", author: "Sandvik Coromant",
+    title: "Face milling — frezowanie czołowe: kąt przystawienia, średnica i położenie głowicy, wejście w materiał (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/face-milling", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — narzędzie do pobierania stron nie czyta treści. Zdania potwierdzone w wynikach wyszukiwarki z tej strony (11/2026): 45° najczęściej, 90° do ścianek cienkich i słabo zamocowanych, średnica 20–50% większa od przedmiotu, wtoczenie w materiał (roll into cut), położenie poza osią przy krawędziach cienkich ścianek. Do sprawdzenia w przeglądarce.",
+  },
+  "sandvik-tor-freza": {
+    id: "sandvik-tor-freza", short: "Sandvik Coromant — tor freza i tworzenie wióra", author: "Sandvik Coromant",
+    title: "Cutter path and chip formation in milling — wejście, łuk przyporu i wyjście ostrza, położenie freza (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/cutter-path-and-chip-formation", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — zdania potwierdzone w wynikach wyszukiwarki z tej strony (11/2026): Dc o 20–50% większe od ae, frez poza osią, wyjście z materiału najbardziej wrażliwe, gruby wiór na wyjściu przy wejściu na wprost. Do sprawdzenia w przeglądarce.",
+  },
+  "sandvik-frezowanie-kopiowe": {
+    id: "sandvik-frezowanie-kopiowe", short: "Sandvik Coromant — frezowanie kopiowe", author: "Sandvik Coromant",
+    title: "Profile milling — frezowanie kopiowe: płytki okrągłe, frezy z promieniem i frezy kuliste (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/profile-milling", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — zdanie o płytkach okrągłych i promieniu (zgrubnie) i frezach kulistych (wykańczająco) potwierdzone w wyniku wyszukiwarki (11/2026).",
+  },
+  "sandvik-rowki": {
+    id: "sandvik-rowki", short: "Sandvik Coromant — frezowanie rowków", author: "Sandvik Coromant",
+    title: "Groove or slot milling — frezowanie rowków frezem tarczowym, frezem z długą krawędzią i frezem trzpieniowym (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/milling/groove-or-slot-milling", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — treść potwierdzona w wyniku wyszukiwarki (11/2026).",
+  },
+  "sandvik-corom331": {
+    id: "sandvik-corom331", short: "Sandvik Coromant — frez tarczowy CoroMill 331", author: "Sandvik Coromant",
+    title: "How to use CoroMill 331 — frez tarczowy trzystronny i dwustronny: dobór korpusu, montaż zestawu (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/tools/milling-tools/cut-off-slot-and-groove-milling-tools/coromill-331/how-to-use-coromill-331", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — treść potwierdzona w wyniku wyszukiwarki (11/2026).",
+  },
+  "sandvik-fazowanie": {
+    id: "sandvik-fazowanie", short: "Sandvik Coromant — frezowanie faz", author: "Sandvik Coromant",
+    title: "Chamfer milling — frezowanie faz: dobór narzędzia, dane skrawania, programowanie (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/milling/chamfer-milling", accessed: "11/2026",
+    internal: "Strona renderowana skryptem — treść potwierdzona w wynikach wyszukiwarki (11/2026).",
+  },
+  "sandvik-corom316-faza": {
+    id: "sandvik-corom316-faza", short: "Sandvik Coromant — głowice do faz CoroMill 316", author: "Sandvik Coromant",
+    title: "Milling heads for chamfer milling — CoroMill 316: kąty fazy, nawiercanie głowicą dwuostrzową (strona producenta)",
+    url: "https://sandvik.coromant.com/en-gb/tools/milling-tools/solid-carbide-end-mills/coromill-316/milling-heads-for-chamfer-milling", accessed: "11/2026",
+  },
+  "imco-kulisty": {
+    id: "imco-kulisty", short: "IMCO — frezy kuliste: średnica efektywna i grzbiety", author: "IMCO Carbide Tool",
+    title: "Adjustments for Ball Nose End Mills — średnica efektywna, wysokość grzbietów (karta techniczna producenta)",
+    url: "https://cms.imcousa.com/wp-content/uploads/2021/01/Adjustments-for-Ball-Nose-Endmills.pdf", accessed: "11/2026",
+    note: "Wzór na wysokość grzbietów jest przybliżony.",
+  },
+  "datron-teowy": {
+    id: "datron-teowy", short: "DATRON — frez do rowków teowych", author: "DATRON",
+    title: "T-Slot Mill — opis narzędzia w sklepie producenta",
+    url: "https://shop.datron.com/?p=9504", accessed: "11/2026",
+  },
   haas: {
     id: "haas", short: "Haas — kody G frezarki", author: "Haas Automation",
     title: "Mill Operator's Manual — G-codes",

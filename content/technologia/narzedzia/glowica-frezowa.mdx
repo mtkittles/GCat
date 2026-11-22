@@ -1,0 +1,159 @@
+---
+title: Głowica frezowa
+slug: glowica-frezowa
+dzial: narzedzia
+typ: narzedzie
+order: 50
+short: >-
+  Frez czołowy z płytkami wymiennymi do planowania: kąt przystawienia,
+  podziałka, średnica i położenie względem przedmiotu, wejście w materiał po
+  łuku.
+obrobka:
+  - frezowanie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-22
+sources:
+  - id: sandvik-frezowanie-czolowe
+    where: >-
+      głowice 45° stosowane najczęściej; 90° do detali cienkościennych, słabo
+      zamocowanych i tam, gdzie potrzebny jest kąt 90°; średnica 20–50% większa
+      od przedmiotu; wtoczenie w materiał (roll into cut) tym ważniejsze, im
+      większy kąt przystawienia, przy 90° konieczne, a gdy niemożliwe —
+      zmniejszony posuw na wejściu; głowica o podziałce różnicowej przy
+      drganiach; omijanie przerw w powierzchni albo posuw zmniejszony o 50%;
+      stabilność maszyny, wielkość wrzeciona i moc
+  - id: sandvik-tor-freza
+    where: >-
+      Dc o 20–50% większa od ae, głowica poza osią przedmiotu; położenie
+      symetryczne daje gruby wiór na wyjściu i skłonność do drgań; wyjście z
+      materiału najbardziej wrażliwe; wejście na wprost daje gruby wiór na
+      wyjściu do pełnego zagłębienia i skraca trwałość
+  - id: sandvik-kat-frezowanie
+    where: >-
+      typowe kąty przystawienia 90°, 45°, 10° i płytki okrągłe; mniejszy kąt
+      daje cieńszy wiór (hex = fz · sin κr) i większe siły osiowe; 90° nie
+      obciąża przedmiotu osiowo; 10° w głowicach do dużych posuwów i frezowania
+      wgłębnego przy małym ap; przy płytkach okrągłych grubość wióra zależy od
+      ap; przykład: hex 0,1 mm przy 45° → fz = 1,4 · 0,1 mm
+  - id: sandvik-tg-d
+    where: >-
+      podziałka normalna jako pierwszy wybór, rzadka przy długim wysięgu,
+      niestabilnych warunkach i małej mocy, gęsta do materiałów krótkowiórowych
+      i superstopów; kąt 45° wyrównuje siły promieniowe i osiowe
+    loc: s. D 36, D 38
+  - id: mmc-katy-frez-czolowy
+    where: >-
+      osiowy kąt natarcia decyduje o kierunku spływu wióra, promieniowy o
+      ostrości, kąt przystawienia o grubości wióra, kąt pochylenia o kierunku
+      odprowadzania wióra
+  - id: sandvik-wzory-frezowanie
+    where: n = vc · 1000 / (π · Dcap), vf = fz · n · zc
+powiazane:
+  kody:
+    - m06
+    - g43-g49
+    - g02
+  lekcje:
+    - F6.1
+    - F2.2
+    - F2.3
+  hasla:
+    - kąt-przystawienia
+    - pocienianie-wióra
+    - płytka-skrawająca
+    - ae-szerokość-skrawania
+    - frezowanie-współbieżne
+  artykuly:
+    - narzedzia/geometria-ostrza
+    - narzedzia/rodzaje-frezow
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Głowica frezowa, nazywana też frezem czołowym, ma korpus z gniazdami na płytki wymienne i skrawa głównie czołem. Służy do planowania powierzchni. W programie to narzędzie jak każde inne: adres T, korekcja długości i obroty liczone ze średnicy głowicy.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-glowica-katy" />
+
+* **Korpus:** nośnik płytek. Mocuje się go na trzpieniu frezarskim albo w złączu modułowym oprawki.
+* **Płytki wymienne:** przykręcane do gniazd korpusu. Kształt płytki i gniazda wyznacza kąt przystawienia κr.
+* **Kąty ostrza głowicy:** osiowy kąt natarcia decyduje o kierunku spływu wióra, a promieniowy o ostrości skrawania. \[\[kąt przystawienia|Kąt przystawienia]] decyduje o grubości wióra, a kąt pochylenia o kierunku jego odprowadzania. Definicje kątów: [Geometria ostrza](/technologia/narzedzia/geometria-ostrza).
+* **Podziałka:** liczba płytek na obwodzie przy danej średnicy.
+
+## Rodzaje \{#rodzaje}
+
+Według kąta przystawienia:
+
+* **90°:** ścianka pod kątem prostym, detale cienkościenne i słabo zamocowane. Siła działa głównie poprzecznie do osi, więc nie dociska przedmiotu w dół.
+* **45°:** głowice stosowane najczęściej do ogólnego planowania. Siły promieniowa i osiowa są wyrównane, a wiór jest cieńszy niż przy 90°.
+* **10°:** głowice do dużych posuwów i frezowania wgłębnego. Pracują przy małej głębokości ap z dużym posuwem na ostrze.
+* **Płytki okrągłe:** grubość wióra zmienia się z głębokością. Przy małym ap trzeba zwiększyć posuw, żeby wiór nie był za cienki.
+
+Według podziałki (Sandvik Coromant):
+
+* **normalna:** pierwszy wybór,
+* **rzadka:** długi wysięg, niestabilne warunki, mała moc wrzeciona,
+* **gęsta:** materiały krótkowiórowe i superstopy.
+
+Głowica o podziałce różnicowej, z nierównymi odstępami płytek, pomaga przy drganiach.
+
+## Zastosowanie \{#zastosowanie}
+
+Planowanie powierzchni detali, płyt i korpusów. Przy frezowaniu krawędzi cienkich ścianek Sandvik Coromant zaleca ustawić głowicę poza osią ścianki: skrawanie jest spokojniejsze, a siły rozkładają się równiej wzdłuż ścianki.
+
+## Dobór \{#dobór}
+
+<Diagram id="tech-glowica-pozycja" />
+
+**Średnica.** Średnica głowicy Dc powinna być o 20–50% większa od szerokości frezowania ae. Przykład (wartości przyjęte do rachunku): płyta szeroka na 60 mm wymaga Dc od 72 do 90 mm, np. głowicy ⌀80.
+
+**Położenie.** Oś głowicy ustawia się poza osią przedmiotu. Głowica w osi daje gruby wiór na wyjściu ostrza z materiału i skłonność do drgań. Wyjście z materiału jest dla ostrza bardziej wrażliwe niż wejście.
+
+**Kąt przystawienia** dobiera się do ścianki i sztywności detalu (Rodzaje). **Podziałkę** dobiera się do stabilności zamocowania i mocy wrzeciona. Producent każe też sprawdzić stabilność maszyny i wielkość wrzeciona.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnej głowicy, gatunku płytki i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
+</Note>
+
+Przy kącie przystawienia mniejszym niż 90° wiór jest cieńszy od posuwu na ostrze: hex = fz · sin κr. Gdy producent podaje zalecaną grubość wióra, posuw na ostrze liczy się z niej: fz = hex / sin κr. Przy κr = 45° i hex = 0,1 mm daje to fz = 0,1 / 0,71 ≈ 0,14 mm.
+
+Przykład (wartości przyjęte do rachunku): głowica ⌀80, 6 płytek, κr = 45°, Vc = 250 m/min, fz = 0,14 mm.
+
+* n = 1000 · 250 / (3,14 · 80) ≈ 995 obr/min
+* vf = 0,14 · 995 · 6 ≈ 836 mm/min
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Wejście na wprost.** Do pełnego zagłębienia głowicy ostrza wychodzą z materiału przy grubym wiórze, co skraca trwałość płytek. Producent zaleca wtoczenie po łuku. Przy głowicy 90° jest ono konieczne, a gdy tor na to nie pozwala, trzeba zmniejszyć posuw na wejściu.
+* **Głowica w osi przedmiotu.** Gruby wiór na wyjściu i drgania. Przesuń oś głowicy w stronę, z której ostrza wchodzą w materiał.
+* **Frezowanie przez przerwy w powierzchni.** Ostrze wielokrotnie wchodzi i wychodzi z materiału. Producent zaleca omijać otwory i rowki, a gdy to niemożliwe, zmniejszyć posuw nad nimi o 50%.
+* **Głowica 45° na cienkiej ściance.** Siła osiowa ugina ściankę. Do takich detali przeznaczona jest głowica 90°.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Głowicę wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Przy planowaniu program prowadzi środek głowicy, bez korekcji promienia. Program poniżej planuje płytę 100 × 60 mm na głębokość 1 mm głowicą ⌀80 z przykładu rachunkowego. Głowica wtacza się w materiał łukiem G02 o promieniu 40 mm i dalej jedzie prosto. Tor Y35 leży 5 mm od osi płyty (Y30), w stronę wejścia ostrzy przy obrotach M03 i posuwie w plus X. Komentarz w pierwszej linii podaje symulatorowi wymiary płyty.
+
+<Sim mode="mill" caption="Planowanie płyty 100 × 60 mm głowicą ⌀80: wtoczenie łukiem G02, przejście poza osią płyty.">
+  ```
+  (POLFABRYKAT 100X60X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (GLOWICA FI80)
+  G00 G43 H1 Z50.
+  S995 M03
+  G00 X-50. Y-5.
+  G00 Z5.
+  G01 Z-1. F300
+  G02 X-10. Y35. R40. F836
+  G01 X150.
+  G00 Z50.
+  M05
+  M30
+  ```
+</Sim>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Dim, Fig, Step, T } from "@/components/fig";
 import { HV } from "./tech-data";
+import { frezyFigs } from "./figs-frezy";
 
 /*
   Rysunki działu Technologia (V3.0) — ten sam styl co reszta serwisu (fig.tsx): szerokość 360, tekst 11 px,
@@ -97,4 +98,5 @@ const fmt = (v: number) => (v >= 10000 ? `${Math.floor(v / 1000)} ${String(v % 1
 export const techFigs: Record<string, () => ReactNode> = {
   "tech-frez-budowa": () => <EndMillParts />,
   "tech-twardosc": () => <ToolHardness />,
+  ...frezyFigs,
 };

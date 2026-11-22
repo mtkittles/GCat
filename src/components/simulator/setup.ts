@@ -150,6 +150,14 @@ export function inferTool(comment: string | undefined, mode: "mill" | "lathe"): 
   if (/WIERT|DRILL/.test(c)) return { ...makeTool("drill"), d: fi ?? 8, angle: deg ?? 118 };
   if (/GLOWIC|GŁOWIC|FACE/.test(c)) return { ...makeTool("facemill"), d: fi ?? 50 };
   if (/KULIST|BALL/.test(c)) return { ...makeTool("ballnose"), d: fi ?? 10 };
+  // V3.1a: frez fazowy (FAZOWNIK, FREZ FAZOWY FI10 90ST), teowy i tarczowy (szerokość: SZER6), z promieniem naroża (FREZ FI12 R1.5)
+  if (/FAZ|CHAMFER/.test(c)) return { ...makeTool("chamfer"), d: fi ?? 10, angle: deg ?? 90 };
+  if (/TEOW|TARCZ|T-SLOT|TSLOT/.test(c)) {
+    const w = num(/SZER\s*(\d+(?:[.,]\d+)?)/);
+    return { ...makeTool("tslot"), d: fi ?? 20, ...(w ? { len: w } : {}) };
+  }
+  const rc = num(/\bR\s*(\d+(?:[.,]\d+)?)/);
+  if (/FREZ|MILL/.test(c) && rc) return { ...makeTool("bullnose"), d: fi ?? 12, corner: rc };
   if (/FREZ|MILL/.test(c)) return { ...makeTool("endmill"), d: fi ?? 10 };
   return null;
 }

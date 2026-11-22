@@ -33,7 +33,7 @@ describe("obszary nauki (V3.0b)", () => {
     expect(t.slice(1).map((n) => n.href)).toEqual(dzialy.map((d) => `/technologia/${d.slug}`));
     const narz = t.find((n) => n.href === "/technologia/narzedzia")!;
     expect(narz.n).toBe(narz.children?.length);
-    expect(narz.children?.[0].href).toBe("/technologia/narzedzia/frez-trzpieniowy-walcowy");
+    expect(narz.children?.[0].href).toBe("/technologia/narzedzia/geometria-ostrza");
   });
 
   it("aktywny węzeł i ścieżka; „Przegląd” tylko przy dokładnym adresie", () => {
