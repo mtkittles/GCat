@@ -77,7 +77,7 @@ export function LessonStatus({ track, id, inline = false }: { track: string; id:
         {p?.quiz ? <>Najlepszy wynik testu: <b>{p.quiz.score} / {p.quiz.total}</b>{isPassed(p) ? "" : " — test zalicza wynik od 80%."}</> : "Test jeszcze nierozwiązany. Wynik od 80% zalicza lekcję testem."}
       </p>
       {!isPassed(p) && (
-        <button type="button" className={isRead(p) ? "btn ghost" : "btn"} onClick={() => setRead(key, !isRead(p))}>
+        <button type="button" className={isRead(p) ? "btn plain" : "btn ghost"} onClick={() => setRead(key, !isRead(p))}>
           {isRead(p) ? "Cofnij „przeczytana”" : "Oznacz jako przeczytaną"}
         </button>
       )}

@@ -91,6 +91,21 @@ describe("standard UI — karty list (UI-7)", () => {
   });
 });
 
+describe("standard UI — strony robocze (UI-8)", () => {
+  const g = readFileSync("src/app/globals.css", "utf8");
+  const rule = (sel: string) => { const i = g.indexOf(`\n${sel} {`); expect(i, sel).toBeGreaterThan(-1); return g.slice(i, g.indexOf("}", i)); };
+  it("ramki lekcji na tle karty, kolor tylko w ramce", () => {
+    for (const sel of [".ls-data", ".ls-result", ".ls-pit.is-danger", ".ptask-brief"]) expect(rule(sel), sel).toMatch(/background: var\(--card\)/);
+    expect(rule(".ls-goal")).not.toMatch(/--accent/);
+  });
+  it("numery sekcji i nagłówki bez pomarańczu, „Następna” zostaje pomarańczowa", () => {
+    expect(rule(".ls-h i")).not.toMatch(/--accent/);
+    expect(rule(".code-card .article h2::before, .code-card .ls-src h2::before")).toMatch(/display: none/);
+    expect(rule(".pager-btn.is-next")).toMatch(/var\(--accent\)/);
+  });
+  it("tabela danych .tbl ma styl", () => { expect(rule(".tbl th")).toMatch(/border-bottom/); });
+});
+
 describe("standard UI — telefon", () => {
   it("dok węższy niż 90% ekranu — Safari 26 nie maluje pod nim jednolitego pasa", () => {
     // WebKit fixedContainerEdges: element stały przy krawędzi o szerokości < 0,9 × (widok − 8 px) jest pomijany.

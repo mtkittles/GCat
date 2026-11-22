@@ -7,6 +7,7 @@ import { exerciseBySlug, exercises, type Exercise } from "@/lib/content";
 import { flat, lessonHref, type Track } from "@/lib/course";
 import { EXERCISE_FIGS } from "@/components/zadania/figs";
 import Shared, { vtName } from "@/components/ui/Shared";
+import { motionClass } from "@/lib/motionClass";
 
 export function generateStaticParams() { return exercises.map((e) => ({ slug: e.slug })); }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -55,9 +56,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           <span className="task-kicker">Zadanie {i + 1} z {exercises.length}</span>
           <h1><Shared name={vtName("zad", e.slug)}><span className="vt-inline">{e.title}</span></Shared></h1>
           <div className="task-chips">
-            <Chip tone={e.level === 1 ? "success" : e.level === 2 ? "warning" : "danger"}>{LEVEL[e.level]}</Chip>
-            <Chip tone="info">{e.mode === "mill" ? "frezowanie" : "toczenie"}</Chip>
-            {e.requireCodes?.map((c) => <code key={c} className="task-code">{c}</code>)}
+            <Chip>{LEVEL[e.level]}</Chip>
+            <Chip>{e.mode === "mill" ? "frezowanie" : "toczenie"}</Chip>
+            {e.requireCodes?.map((c) => <code key={c} className={`task-code${motionClass(c)}`}>{c}</code>)}
           </div>
         </header>
         {e.steps?.length ? (
