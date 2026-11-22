@@ -2,7 +2,6 @@
 import Link from "next/link";
 import { useState, type ComponentType } from "react";
 import { ArrowRight } from "lucide-react";
-import StatusLed from "@/components/tactile/StatusLed";
 import { isFinished, progressKey, useProgress } from "@/lib/progress";
 import { setObszar } from "@/lib/ui/prefs";
 import { pl } from "@/lib/plural";
@@ -101,10 +100,6 @@ export default function ObszaryPicker({ lessons, codes, tech }: { lessons: Resum
               e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
               e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
             }}>
-            <div className="ob-hd">
-              <span className="nplate"><b>{o.nr}</b><span>{o.soon ? "wkrótce" : o.rail}</span></span>
-              <StatusLed state={o.soon ? "idle" : "ready"} pulse={false} />
-            </div>
             <div className="ob-ttl">
               <span className="ikey is-l"><Icon /></span>
               <span className="ob-tt">

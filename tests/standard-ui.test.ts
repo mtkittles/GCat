@@ -75,6 +75,22 @@ describe("standard UI — szkielet podstron (UI-6)", () => {
   });
 });
 
+describe("standard UI — karty list (UI-7)", () => {
+  it("bez plakietek z numerem i diod na kartach obszarów, działów i w panelu", () => {
+    for (const f of ["src/components/obszary/ObszaryPicker.tsx", "src/components/technologia/TechCards.tsx"]) {
+      expect(readFileSync(f, "utf8"), f).not.toMatch(/className="nplate"|<StatusLed/);
+    }
+    // w panelu dioda zostaje tylko jako „tu jesteś” przy bieżącej stronie
+    expect(readFileSync("src/components/shell/AppSidebar.tsx", "utf8")).not.toMatch(/className="nplate"/);
+  });
+  it("rysunki detali bez pomarańczu, akcje kart programów neutralne", () => {
+    const g = readFileSync("src/app/globals.css", "utf8");
+    expect(g).toMatch(/\.pp-cut \{[^}]*stroke: var\(--pp-cut\)/);
+    expect(g).not.toMatch(/\.pp-(cut|hole|wpt)[^{]*\{[^}]*var\(--accent/);
+    expect(readFileSync("src/app/programy/ProgramGrid.tsx", "utf8")).toContain("btn ghost pgx-sim");
+  });
+});
+
 describe("standard UI — telefon", () => {
   it("dok węższy niż 90% ekranu — Safari 26 nie maluje pod nim jednolitego pasa", () => {
     // WebKit fixedContainerEdges: element stały przy krawędzi o szerokości < 0,9 × (widok − 8 px) jest pomijany.

@@ -47,6 +47,13 @@ nie mogą nadpisać komponentów osadzonych w treści (legenda i kod symulatora,
 ekranu serwisu (lekcja, symulator, kalkulator) na wnęce, wygaszona maską w dół i w prawo; pod nią tytuł Inter 500
 18 px, opis 16 px wyciszony i odnośnik „… →”. Bez ramki ikony i numeru; ikony w makietach cienkie (lucide 1,5).
 
+**Karty list (UI-7)** — ten sam układ na listach programów, zadań, artykułów Technologii: karta z wewnętrznym
+odstępem 8 px, podgląd na wnęce (`calc(--radius-lg − 4px)`, linia wewnętrzna zamiast ramki dolnej), pod nim meta
+(wyciszona), tytuł Inter 500 18 px, opis wyciszony, akcje lub „Czytaj →”. Bez plakietek z numerem („01 CNC”, „T03”)
+i diod stanu na kartach i w panelu bocznym. Rysunki detali (`ProgramPreview`) w szarościach: jasna krawędź obróbki,
+punkt W bez pomarańczu (`--pp-cut`, `--pp-w`); kolory ruchu tylko dla toru i kodu. Na liście z wieloma kartami
+żadna akcja karty nie jest pomarańczowa (`btn ghost`).
+
 Pigułki (przyciski, chipy, przełączniki): `999px`. Drobne detale (kbd, znaczniki, paski) ≤ 5 px.
 Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
 
