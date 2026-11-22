@@ -13,7 +13,8 @@ export const t2_2: LessonDoc = {
 
     { t: "h", x: "Stała prędkość skrawania", id: "g96" },
     { t: "p", x: "[[G96]] zamienia znaczenie S: `G96 S200` to prędkość skrawania 200 m/min. Sterowanie samo liczy obroty z bieżącej średnicy i zmienia je w trakcie ruchu w X, żeby ostrze pracowało zawsze z tą samą prędkością." },
-    { t: "code", x: "n = 1000 · vc / (π · D)\nØ40: n = 1000 · 200 / (π · 40) ≈ 1592\nØ20: n = 1000 · 200 / (π · 20) ≈ 3183" },
+    { t: "wzor", f: "n = \\frac{1000 \\cdot v_c}{\\pi \\cdot D}", legend: "n — obroty wrzeciona [obr/min]; v_c — prędkość skrawania, przy G96 adres S [m/min]; D — bieżąca średnica [mm]", caption: "Obroty przy G96" },
+    { t: "wzor", f: "n = \\frac{1000 \\cdot 200}{\\pi \\cdot 40} \\approx 1592\\ \\text{obr/min} \\\\ n = \\frac{1000 \\cdot 200}{\\pi \\cdot 20} \\approx 3183\\ \\text{obr/min}", caption: "Ø40, G96 S200; Ø20, G96 S200", kind: "obliczenie" },
     { t: "p", x: "Korzyści: równa powierzchnia na wszystkich średnicach, przewidywalne zużycie płytki i krótszy czas — małe średnice nie są toczone za wolno." },
 
     { t: "h", x: "Limit obrotów G50", id: "g50" },
@@ -34,8 +35,8 @@ export const t2_2: LessonDoc = {
     intro: "Sytuacja: nóż planuje czoło od Ø44 do osi przy `G96 S200` i `G50 S3000`. Jak zmieniają się obroty po drodze i od której średnicy prędkość skrawania przestaje być stała? Numery na wykresie to numery kroków.",
     fig: "t22-face",
     steps: [
-      { x: "Na starcie, na Ø44: 1000 · 200 / (π · 44).", code: "≈ 1447 obr/min" },
-      { x: "Średnica, przy której wzór daje limit: 1000 · 200 / (π · 3000).", code: "Ø21,2" },
+      { x: "Na starcie, na Ø44: \\(n = \\frac{1000 \\cdot 200}{\\pi \\cdot 44}\\).", code: "≈ 1447 obr/min" },
+      { x: "Średnica, przy której wzór daje limit: \\(D = \\frac{1000 \\cdot 200}{\\pi \\cdot 3000}\\).", code: "Ø21,2" },
       { x: "Od Ø21,2 do osi obroty stoją na limicie, a prędkość skrawania maleje razem ze średnicą.", code: "3000 obr/min" },
       { x: "Zapis w programie — limit przed G96.", code: "G50 S3000 → G96 S200 M03" },
     ],
@@ -63,9 +64,9 @@ export const t2_2: LessonDoc = {
       questions: [
     {"kind":"bughunt","q":"Planowanie czoła do osi. Który blok jest w złej kolejności?","program":"T0101\nG96 S200 M03\nG50 S3000\nG00 X44. Z0.\nG01 X-1.6 F0.15","answer":2,"why":"Limit obrotów musi stać PRZED G96 — tu wrzeciono rozpędza się bez ograniczenia, zanim limit zadziała. Kolejność: G50 S3000, potem G96 S200 M03."},
 
-        { kind: "gap", q: "W przykładzie limit zmieniono na `G50 S2000`, vc zostaje 200 m/min. Od jakiej średnicy obroty staną na limicie (mm, do 0,1)?", template: "Ø{0}", answers: [["31,8", "31.8"]], why: "1000 · 200 / (π · 2000) ≈ 31,8. Niższy limit zaczyna działać na większej średnicy — większa część czoła jest toczona z vc poniżej 200 m/min." },
-        { kind: "gap", q: "G96 S180. Jakie obroty da sterowanie na średnicy Ø30 (pełne obr/min)?", template: "n = {0}", answers: [["1910", "1909", "1911"]], why: "1000 · 180 / (π · 30) ≈ 1910." },
-        { kind: "gap", q: "G96 S150, G50 S2500. Poniżej jakiej średnicy działa limit (mm, do 0,1)?", template: "Ø{0}", answers: [["19.1", "19,1"]], why: "1000 · 150 / (π · 2500) ≈ 19,1." },
+        { kind: "gap", q: "W przykładzie limit zmieniono na `G50 S2000`, vc zostaje 200 m/min. Od jakiej średnicy obroty staną na limicie (mm, do 0,1)?", template: "Ø{0}", answers: [["31,8", "31.8"]], why: "\\(D = \\frac{1000 \\cdot 200}{\\pi \\cdot 2000} \\approx 31,8\\) mm. Niższy limit zaczyna działać na większej średnicy — większa część czoła jest toczona z vc poniżej 200 m/min." },
+        { kind: "gap", q: "G96 S180. Jakie obroty da sterowanie na średnicy Ø30 (pełne obr/min)?", template: "n = {0}", answers: [["1910", "1909", "1911"]], why: "\\(n = \\frac{1000 \\cdot 180}{\\pi \\cdot 30} \\approx 1910\\) obr/min." },
+        { kind: "gap", q: "G96 S150, G50 S2500. Poniżej jakiej średnicy działa limit (mm, do 0,1)?", template: "Ø{0}", answers: [["19.1", "19,1"]], why: "\\(D = \\frac{1000 \\cdot 150}{\\pi \\cdot 2500} \\approx 19,1\\) mm." },
         { kind: "choice", q: "Wiercenie w osi wiertłem Ø8. Który tryb obrotów?", options: ["G97 z obrotami dla Ø8", "G96", "G50", "bez znaczenia"], answer: 0, why: "Przy D = 0 G96 dałby od razu limit." },
       ],
     },
@@ -90,7 +91,7 @@ export const t2_2: LessonDoc = {
   quiz: [
     { kind: "choice", review: "T2.1", q: "Co oznacza `T0303`?", options: ["pozycja 3, korekcja 3", "nóż 303", "3 obroty głowicy", "korekcja 30"], answer: 0, why: "Dwie cyfry pozycji, dwie korekcji." },
     { kind: "choice", q: "Co oznacza `S200` przy aktywnym G96?", options: ["200 m/min prędkości skrawania", "200 obr/min", "200 mm/obr", "limit 200"], answer: 0, why: "G96 zmienia znaczenie S." },
-    { kind: "gap", q: "G96 S200. Jakie obroty da sterowanie na Ø50 (pełne obr/min)?", template: "n = {0}", answers: [["1273", "1274"]], why: "1000 · 200 / (π · 50) ≈ 1273." },
+    { kind: "gap", q: "G96 S200. Jakie obroty da sterowanie na Ø50 (pełne obr/min)?", template: "n = {0}", answers: [["1273", "1274"]], why: "\\(n = \\frac{1000 \\cdot 200}{\\pi \\cdot 50} \\approx 1273\\) obr/min." },
     { kind: "choice", q: "Po co G50 przed G96?", options: ["ogranicza obroty przy małych średnicach", "zmienia posuw", "wybiera narzędzie", "ustawia zero"], answer: 0, why: "Przy osi obroty z wzoru rosłyby bez końca." },
     { kind: "choice", q: "Kiedy używać G97 na tokarce?", options: ["przy wierceniu w osi i toczeniu gwintów", "zawsze przy planowaniu", "nigdy", "tylko z G50"], answer: 0, why: "Tam obroty muszą być stałe albo D = 0." },
     { kind: "choice", q: "Co dzieje się z prędkością skrawania poniżej średnicy limitu?", options: ["spada, bo obroty już nie rosną", "rośnie", "zostaje stała", "zmienia się posuw"], answer: 0, why: "Sterowanie trzyma limit obrotów." },
@@ -98,7 +99,7 @@ export const t2_2: LessonDoc = {
 
   summary: [
     "G97 — stałe obroty. G96 — stała prędkość skrawania, S w m/min.",
-    "n = 1000 · vc / (π · D) — sterowanie liczy to na bieżąco.",
+    "\\(n = \\frac{1000 \\cdot v_c}{\\pi \\cdot D}\\) — sterowanie liczy to na bieżąco.",
     "G50 S… przed G96 ogranicza obroty przy osi. Limit dobieraj do uchwytu i detalu.",
     "Wiercenie w osi i gwinty — G97.",
   ],

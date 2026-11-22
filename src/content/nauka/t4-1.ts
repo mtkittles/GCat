@@ -115,7 +115,7 @@ export const t4_1: LessonDoc = {
       intro: "Strona korekcji i wielkość błędu.",
       questions: [
         { kind: "gap", q: "Faza 45°, naroże R1,2, program bez korekcji promienia. O ile kontur fazy odbiega od rysunku, mierząc prostopadle (mm, do 0,01)?", template: "{0}", answers: [["0.5", "0,5", "0.50", "0,50"]], why: "0,414 · 1,2 ≈ 0,50." },
-        { kind: "choice", q: "Program ma `G42` na dojeździe i `G40` na odjeździe, ale w tabeli korekcji T02 promień naroża R = 0, choć płytka ma R0,4. O ile faza 45° będzie odbiegać od rysunku (prostopadle)?", options: ["ok. 0,17 mm — jak bez korekcji", "0 — G42 wystarczy", "ok. 0,33 mm", "sterowanie zatrzyma program"], answer: 0, why: "G42 przesuwa naroże o promień z tabeli. Przy R = 0 przesunięcia nie ma i zostaje błąd 0,414 · 0,4 ≈ 0,17 mm." },
+        { kind: "choice", q: "Program ma `G42` na dojeździe i `G40` na odjeździe, ale w tabeli korekcji T02 promień naroża R = 0, choć płytka ma R0,4. O ile faza 45° będzie odbiegać od rysunku (prostopadle)?", options: ["ok. 0,17 mm — jak bez korekcji", "0 — G42 wystarczy", "ok. 0,33 mm", "sterowanie zatrzyma program"], answer: 0, why: "G42 przesuwa naroże o promień z tabeli. Przy R = 0 przesunięcia nie ma i zostaje błąd \\(0,414 \\cdot 0,4 \\approx 0,17\\) mm." },
         { kind: "choice", q: "Wytaczanie otworu w stronę uchwytu. Który kod?", options: ["G41", "G42", "G40", "G43"], answer: 0, why: "Nóż pod konturem — po lewej stronie kierunku ruchu." },
         { kind: "choice", q: "Na którym elemencie konturu brak korekcji **nie** daje błędu kształtu?", options: ["średnica wzdłuż Z", "faza 45°", "stożek", "promień R1"], answer: 0, why: "Na średnicach i czołach naroże styka się na wysokości P." },
       ],

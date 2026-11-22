@@ -44,7 +44,7 @@ export const t4_2: LessonDoc = {
       intro: "Kierunki ostrza i odczyt płytek.",
       questions: [
         { kind: "choice", q: "Wytaczak toczy otwór w stronę uchwytu. Jaki kierunek ostrza wpiszesz w tabeli korekcji?", options: ["2", "3", "8", "0"], answer: 0, why: "P wyżej i bliżej uchwytu niż środek naroża." },
-        { kind: "gap", q: "W przykładzie w wierszu 02 wpisano kierunek 2 zamiast 3, R 0,4 bez zmian. Jaką średnicę da przy G42 odcinek Ø36 z programu?", template: "Ø{0}", answers: [["37,6", "37.6"]], why: "Sterowanie sądzi, że P leży nad środkiem naroża, a leży pod nim. Środek wychodzi o 2 · 0,4 = 0,8 mm za wysoko na promieniu — średnica o 1,6 mm za duża: Ø37,6. Przesuwa się cały kontur, nie tylko fazy." },
+        { kind: "gap", q: "W przykładzie w wierszu 02 wpisano kierunek 2 zamiast 3, R 0,4 bez zmian. Jaką średnicę da przy G42 odcinek Ø36 z programu?", template: "Ø{0}", answers: [["37,6", "37.6"]], why: "Sterowanie sądzi, że P leży nad środkiem naroża, a leży pod nim. Środek wychodzi o \\(2 \\cdot 0,4 = 0,8\\) mm za wysoko na promieniu — średnica o 1,6 mm za duża: Ø37,6. Przesuwa się cały kontur, nie tylko fazy." },
         { kind: "gap", q: "Jaki promień naroża ma płytka DNMG 150612?", template: "R{0}", answers: [["1.2", "1,2"]], why: "Ostatnie cyfry 12 → 1,2 mm." },
         { kind: "choice", q: "Nóż zewnętrzny ma w tabeli T = 2 zamiast 3. Co się stanie z G42?", options: ["sterowanie źle wyznaczy środek naroża i przesunie kontur", "nic", "alarm przy każdym bloku", "wyłączy się G96"], answer: 0, why: "Kierunek ostrza decyduje, gdzie leży środek naroża względem P. Przy 2 zamiast 3 cały kontur przesuwa się o 2 · rε promieniowo." },
       ],
@@ -52,7 +52,7 @@ export const t4_2: LessonDoc = {
   ],
 
   pitfalls: [
-    { title: "Zły kierunek ostrza", x: "T = 2 zamiast 3 dla noża zewnętrznego. Sterowanie liczy środek naroża po złej stronie P — cały kontur przesuwa się o 2 · rε promieniowo, średnice wychodzą o 4 · rε za duże." },
+    { title: "Zły kierunek ostrza", x: "T = 2 zamiast 3 dla noża zewnętrznego. Sterowanie liczy środek naroża po złej stronie P — cały kontur przesuwa się o \\(2 \\cdot r_{\\varepsilon}\\) promieniowo, średnice wychodzą o \\(4 \\cdot r_{\\varepsilon}\\) za duże." },
     { title: "Stary promień po zmianie płytki", x: "Płytka R0,8 wymieniona na R0,4, w tabeli zostało 0,8. Korekcja przesuwa naroże o 0,4 za dużo — kontur na fazach i łukach wychodzi za mały." },
     { title: "R wpisany jako średnica", x: "Z oznaczenia „08” operator wpisuje 1,6. Korekcja odsuwa naroże dwa razy za daleko." },
   ],

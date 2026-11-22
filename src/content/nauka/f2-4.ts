@@ -89,7 +89,7 @@ export const f2_4: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F2.3", q: "fz = 0,04, z = 4, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["480"]], why: "0,04 · 4 · 3000 = 480." },
+    { kind: "gap", review: "F2.3", q: "fz = 0,04, z = 4, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["480"]], why: "\\(F = 0,04 \\cdot 4 \\cdot 3000 = 480\\) mm/min." },
     { kind: "choice", q: "Co robi `M09`?", options: ["włącza chłodziwo", "wyłącza chłodziwo", "włącza mgłę", "zatrzymuje wrzeciono"], answer: 1, why: "M09 — chłodziwo wyłączone." },
     { kind: "choice", q: "Gdzie w programie stoi `M08`?", options: ["po włączeniu obrotów, przed najazdem", "przed M06", "po M30", "w bloku startowym"], answer: 0, why: "Chłodziwo ma płynąć, zanim narzędzie dotknie materiału." },
     { kind: "choice", q: "Który materiał zwykle obrabia się na sucho?", options: ["żeliwo szare", "stop tytanu", "aluminium", "stal nierdzewna przy wierceniu"], answer: 0, why: "Żeliwo szare daje suchy, kruchy wiór." },

@@ -87,7 +87,7 @@ export const t1_3: LessonDoc = {
       intro: "Kolejność i znaczenie kodów startowych.",
       questions: [
         { kind: "order", q: "Ułóż zakończenie programu tokarskiego.", items: ["M30", "G28 W0.", "M05", "G28 U0."], answer: [2, 3, 1, 0], why: "Stop wrzeciona, odjazd X, odjazd Z, koniec." },
-        { kind: "gap", q: "Poprzedni program zostawił `G98` (posuw na minutę), a w bloku startowym brakuje `G99`. Ile razy wolniej niż zakładano pojedzie `G01 X36. F0.2` przy `G97 S1000`?", template: "{0} razy", answers: [["1000"]], why: "Zakładano 0,2 mm/obr · 1000 obr/min = 200 mm/min. Przy G98 F0.2 to 0,2 mm/min — tysiąc razy wolniej. Nóż prawie stoi w materiale i go grzeje." },
+        { kind: "gap", q: "Poprzedni program zostawił `G98` (posuw na minutę), a w bloku startowym brakuje `G99`. Ile razy wolniej niż zakładano pojedzie `G01 X36. F0.2` przy `G97 S1000`?", template: "{0} razy", answers: [["1000"]], why: "Zakładano 0,2 mm/obr przy 1000 obr/min, czyli \\(0,2 \\cdot 1000 = 200\\) mm/min. Przy G98 F0.2 to 0,2 mm/min — tysiąc razy wolniej. Nóż prawie stoi w materiale i go grzeje." },
         { kind: "choice", q: "Po co `G99` w bloku startowym tokarki Fanuc?", options: ["ustawia posuw w mm/obr", "kasuje cykl", "wybiera płaszczyznę", "kończy program"], answer: 0, why: "F0.2 ma znaczyć 0,2 mm na obrót." },
       ],
     },

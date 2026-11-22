@@ -43,7 +43,7 @@ export const t6_2: LessonDoc = {
 
     { t: "h", x: "Obroty — G97", id: "obroty" },
     { t: "p", x: "W osi średnica jest równa zeru. Przy G96 sterowanie od razu podniosłoby obroty do limitu G50 (lekcja T2.2). Przy klasycznym wierceniu nieruchomym wiertłem w osi programuje się więc G97, z obrotami liczonymi dla średnicy wiertła." },
-    { t: "code", x: "wiertło HSS Ø8, vc ≈ 30 m/min:\nn = 1000 · 30 / (π · 8) ≈ 1194  →  G97 S1200" },
+    { t: "wzor", f: "n = \\frac{1000 \\cdot 30}{\\pi \\cdot 8} \\approx 1194\\ \\text{obr/min}", caption: "Wiertło HSS Ø8, vc ≈ 30 m/min — w programie G97 S1200", kind: "obliczenie" },
 
     { t: "h", x: "Cykl G74", id: "g74" },
     { t: "code", x: "G74 R0.5\nG74 Z-15. Q3000 F0.08" },
@@ -90,7 +90,7 @@ export const t6_2: LessonDoc = {
       intro: "Wiercenie w osi.",
       questions: [
         { kind: "gap", q: "W przykładzie pominięto krok 1 — zostało `G96 S200` z toczenia przy `G50 S3000`. Z jakimi obrotami pracuje wiertło w X0?", template: "{0} obr/min", answers: [["3000"]], why: "W X0 średnica jest zerowa, więc G96 od razu dochodzi do limitu G50: 3000 obr/min. Wiertło Ø8 ma wtedy vc ≈ π · 8 · 3000 / 1000 ≈ 75 m/min zamiast zakładanych 30." },
-        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Jakie obroty wpiszesz przy G97 (pełne obr/min)?", template: "S{0}", answers: [["796", "795", "800"]], why: "1000 · 25 / (π · 10) ≈ 796." },
+        { kind: "gap", q: "Wiertło Ø10, vc = 25 m/min. Jakie obroty wpiszesz przy G97 (pełne obr/min)?", template: "S{0}", answers: [["796", "795", "800"]], why: "\\(n = \\frac{1000 \\cdot 25}{\\pi \\cdot 10} \\approx 796\\) obr/min." },
         { kind: "choice", q: "Dlaczego wiercenie w osi w G97?", options: ["przy D = 0 G96 dałby od razu limit obrotów", "G96 nie działa z G74", "bo tak jest szybciej", "bez powodu"], answer: 0, why: "Obroty z G96 dążą do nieskończoności przy osi." },
         { kind: "gap", q: "Wejścia po 4 mm. Jaką wartość Q wpiszesz w G74 (µm, bez kropki)?", template: "Q{0}", answers: [["4000"]], why: "Mikrometry, bez kropki." },
       ],

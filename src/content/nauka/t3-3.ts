@@ -87,7 +87,7 @@ export const t3_3: LessonDoc = {
       questions: [
         { kind: "choice", q: "Nóż jedzie od czoła w stronę uchwytu (głowica za osią). Którym kodem zaprogramujesz promień wklęsły między Ø24 a czołem stopnia Ø30?", options: ["G02", "G03", "G01", "zależy od głowicy"], answer: 0, why: "Wklęsły w kierunku uchwytu przy X w górę — zgodnie z zegarem." },
         { kind: "choice", q: "W przykładzie zamiast `G02 X32. Z-40. R1.` wpisano `G03 X32. Z-40. R1.`. Co powstanie w narożu?", options: ["wypukły garb materiału zamiast wklęsłego promienia", "nic — punkty końcowe są te same", "alarm — zły kierunek łuku", "łuk wytnie wgłębienie w czole stopnia"], answer: 0, why: "Przy tych samych punktach i R sterowanie liczy łuk ze środkiem po drugiej stronie cięciwy — w samym narożu, w X30 Z−40. Tor wygina się na zewnątrz i zostawia w narożu ćwierćokrągły garb zamiast promienia R1." },
-        { kind: "gap", q: "Czop Ø24 przechodzi łukiem wklęsłym R2 w czoło stopnia w Z−30. W jakim punkcie kończy się łuk?", template: "X{0} Z{1}", answers: [["28"], ["-30"]], why: "24 + 2 · 2 = 28, na czole stopnia." },
+        { kind: "gap", q: "Czop Ø24 przechodzi łukiem wklęsłym R2 w czoło stopnia w Z−30. W jakim punkcie kończy się łuk?", template: "X{0} Z{1}", answers: [["28"], ["-30"]], why: "\\(24 + 2 \\cdot 2 = 28\\), na czole stopnia." },
         { kind: "choice", q: "Tokarka z głowicą przednią. Czy trzeba zamienić G02 na G03?", options: ["zwykle nie, program jest ten sam", "tak, zawsze", "tylko przy R", "tylko przy G96"], answer: 0, why: "Na typowych tokarkach zmienia się tylko widok z miejsca operatora — kierunki osi ustawia konfiguracja maszyny." },
       ],
     },

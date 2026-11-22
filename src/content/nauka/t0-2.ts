@@ -25,7 +25,8 @@ export const t0_2: LessonDoc = {
     { t: "h", x: "Fazy i stożki", id: "fazy" },
     { t: "p", x: "Faza 1 × 45° zabiera 1 mm w Z i 1 mm promieniowo. W zapisie średnicowym X zmienia się więc o 2 mm na każdy 1 mm w Z." },
     { t: "diagram", id: "t02-chamfer" },
-    { t: "code", x: "faza 45°:     |ΔX| = 2 · |ΔZ|\nstożek α:     |ΔX| = 2 · |ΔZ| · tan α     (α — półkąt: kąt tworzącej do osi Z;\n                                          pełny kąt wierzchołkowy = 2α)", caption: "Wartości bezwzględne. Znaki ΔX i ΔZ zależą od kierunku ruchu — w stronę uchwytu Z maleje." },
+    { t: "wzor", f: "|\\Delta X| = 2 \\cdot |\\Delta Z| \\\\ |\\Delta X| = 2 \\cdot |\\Delta Z| \\cdot \\tan \\alpha", legend: "\\Delta X — zmiana X, czyli średnicy [mm]; \\Delta Z — zmiana Z [mm]; \\alpha — półkąt stożka: kąt tworzącej do osi Z (pełny kąt wierzchołkowy to 2α)", caption: "Faza 45°; Stożek" },
+    { t: "p", x: "Wzory podają wartości bezwzględne. Znaki ΔX i ΔZ zależą od kierunku ruchu — w stronę uchwytu Z maleje." },
     { t: "diagram", id: "t02-taper" },
   ],
 
@@ -57,7 +58,7 @@ export const t0_2: LessonDoc = {
       intro: "Przeliczenia średnicowe.",
       questions: [
         { kind: "gap", q: "Toczysz z Ø36 na Ø30 jednym przejściem. Ile wynosi głębokość skrawania ap?", template: "{0} mm", answers: [["3"]], why: "(36 − 30) / 2 = 3." },
-        { kind: "gap", q: "Faza 1,5 × 45° na czopie Ø24. Na jakiej średnicy faza zaczyna się na czole?", template: "X{0}", answers: [["21"]], why: "24 − 2 · 1,5 = 21." },
+        { kind: "gap", q: "Faza 1,5 × 45° na czopie Ø24. Na jakiej średnicy faza zaczyna się na czole?", template: "X{0}", answers: [["21"]], why: "\\(24 - 2 \\cdot 1,5 = 21\\)." },
         { kind: "gap", q: "W programie czopa Ø30 z pręta Ø40 zamiast `X30.` wpisano promień z rysunku, `X15.`. Jaką średnicę stoczy nóż i jaką głębokość weźmie jednym przejściem?", template: "Ø{0}, ap {1} mm", answers: [["15"], ["12,5", "12.5"]], why: "X15 to średnica 15, czyli 7,5 mm od osi. Z promienia 20 na 7,5 to 12,5 mm na stronę — pięć razy więcej niż zakładane 2,5 mm. Detal do wyrzucenia, a nóż przy takim ap może się złamać." },
         { kind: "choice", q: "Nóż stoi w X40. Ile milimetrów od osi?", options: ["20", "40", "80", "10"], answer: 0, why: "X to średnica, promień to połowa." },
       ],
@@ -84,7 +85,7 @@ export const t0_2: LessonDoc = {
     { kind: "choice", review: "T0.1", q: "Gdzie leży X0 na tokarce?", options: ["na osi obrotu", "na powierzchni pręta", "na czole", "na szczękach"], answer: 0, why: "X0 to oś." },
     { kind: "choice", q: "Co oznacza `X30` na tokarce z programowaniem średnicowym?", options: ["średnicę 30 mm", "30 mm od osi", "30 mm od czoła", "promień 30"], answer: 0, why: "Nóż stoi 15 mm od osi." },
     { kind: "gap", q: "Toczysz z Ø50 na Ø42 jednym przejściem. Ile wynosi ap?", template: "{0} mm", answers: [["4"]], why: "(50 − 42) / 2 = 4." },
-    { kind: "gap", q: "Faza 1 × 45° zaczyna się na czole stopnia w Z−20 i kończy na Ø30 w Z−21. Na jakiej średnicy się zaczyna?", template: "X{0}", answers: [["28"]], why: "30 − 2 · 1 = 28." },
+    { kind: "gap", q: "Faza 1 × 45° zaczyna się na czole stopnia w Z−20 i kończy na Ø30 w Z−21. Na jakiej średnicy się zaczyna?", template: "X{0}", answers: [["28"]], why: "\\(30 - 2 \\cdot 1 = 28\\)." },
     { kind: "choice", q: "Jak podajesz promień łuku R na tokarce z programowaniem średnicowym?", options: ["jako promień", "jako średnicę", "zależnie od X", "w U"], answer: 0, why: "R to zawsze promień." },
     { kind: "choice", q: "Po co średnice w programie?", options: ["tak wymiaruje się rysunki i mierzy detal", "bo sterowanie liczy szybciej", "bo X nie może być promieniem", "bez powodu"], answer: 0, why: "Liczby z rysunku i pomiaru trafiają do programu bez przeliczeń." },
   ],
@@ -93,7 +94,7 @@ export const t0_2: LessonDoc = {
     "X na tokarce to średnica: X30 = 15 mm od osi.",
     "ap = (D przed − D po) / 2.",
     "R łuku i I są w promieniu, choć X jest w średnicy.",
-    "Faza 45°: |ΔX| = 2 · |ΔZ| (wartości bezwzględne).",
+    "Faza 45°: \\(|\\Delta X| = 2 \\cdot |\\Delta Z|\\) (wartości bezwzględne).",
   ],
 
   sources: [

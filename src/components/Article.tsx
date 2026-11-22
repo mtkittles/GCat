@@ -7,6 +7,7 @@ import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
 import { tableClass } from "@/lib/tableKind";
 import CodeBlock from "@/components/CodeBlock";
+import Wzor from "@/components/Wzor";
 import { isProgram } from "@/lib/codeBlock";
 export { rich };
 
@@ -61,6 +62,7 @@ export default function Article({ blocks, mode, dialect = "fanuc" }: { blocks: B
             </table></div></figure>
           );
           case "diagram": return <div key={i}>{diagrams[b.id]?.()}</div>;
+          case "wzor": return <Wzor key={i} f={b.f} legend={b.legend} caption={b.caption} kind={b.kind} />;
           case "widget": return b.id === "jog" ? <JogDemo key={i} /> : <div key={i} id="kalkulator-zamiany-r-i-j">{b.id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
           case "more": return (
             <details key={i} className="more">

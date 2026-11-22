@@ -8,6 +8,7 @@ import { norm, queryTerms } from "./searchNorm";
 // Technologia: frontmatter (technologia.json) i tekst artykułów (szukaj-technologia.json); bez artykułów Pro
 import techText from "../../content/.generated/szukaj-technologia.json";
 import { artHref, dzialBySlug, publicArts, TYP_LABEL } from "./technologia";
+import { texPlain } from "@/components/Wzor";
 
 export interface SearchDoc {
   kind: "kod" | "lekcja" | "zadanie" | "pojęcie" | "artykuł";
@@ -22,9 +23,12 @@ const blockText = (bs: Block[] | undefined) =>
       case "ul": case "ol": return b.items.join(" ");
       case "table": return [...b.head, ...b.rows.flat()].join(" ");
       case "code": case "sim": return b.caption ?? "";
+      case "wzor": return `${b.caption ?? ""} ${texPlain(b.f)}`;
       default: return "";
     }
   }).join(" ").replace(/\*\*|`/g, "");
+/** Wzór w zdaniu \(…\) → sam tekst do wyszukiwarki. */
+const plainMath = (t: string) => t.replace(/\\\((.+?)\\\)/g, (_, m: string) => texPlain(m));
 
 export const searchDocs: SearchDoc[] = [
   ...gcodes.map((g) => ({
@@ -33,7 +37,7 @@ export const searchDocs: SearchDoc[] = [
   })),
   ...(["frezowanie", "toczenie"] as const).flatMap((t) => readyLessons(t).map((l) => ({
     kind: "lekcja" as const, title: `${l.id} ${l.title}`, subtitle: `${tracks[t].title} · ${l.doc!.minutes} min`,
-    href: lessonHref(t, l.slug!), body: [l.title, l.doc!.goal, blockText(l.doc!.theory), ...l.doc!.summary, ...l.doc!.pitfalls.map((p) => `${p.title} ${p.x}`)].join(" "),
+    href: lessonHref(t, l.slug!), body: plainMath([l.title, l.doc!.goal, blockText(l.doc!.theory), ...l.doc!.summary, ...l.doc!.pitfalls.map((p) => `${p.title} ${p.x}`)].join(" ")),
   }))),
   ...exercises.map((e) => ({
     kind: "zadanie" as const, title: e.title, subtitle: e.mode === "mill" ? "frezowanie" : "toczenie",
