@@ -120,6 +120,7 @@ W jasnym motywie rysunki i podglądy symulatora leżą na **papierze technicznym
 - Kanwy czytają motyw w chwili rysowania (`simTheme.ts`): 2D przerysowuje się po zmianie motywu, scena 3D
   buduje się od nowa. Palety kanwy 2D: `simPalette.ts` (`SIM_DARK`, `SIM_LIGHT` — te same role).
 - Bloki kodu zostają ciemną wyspą w obu motywach (jak w edytorach).
+- Sterowanie symulatora też jest jasne: przyciski na podglądzie, menu „Widok”, powiększenie, pasek pozycji na telefonie, cały pełny ekran (pasek, stan, pulpit). `--panel` jest w jasnym motywie ciemny (bloki kodu), więc w symulatorze go nie używamy — tła to `--paper`, `--surface`, `--bg`.
 - Pilnuje tego `tests/sim-theme.test.ts` (kontrast linii i opisów do papieru, zgodność palet).
 
 ## Telefon

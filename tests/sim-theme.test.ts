@@ -62,4 +62,15 @@ describe("motyw symulatora — papier techniczny (UI-9)", () => {
     expect(g).toMatch(/\.sim-canvas \{[^}]*background: var\(--paper\)/);
     expect(g).toMatch(/\[data-theme="light"\] :is\(\.fig svg, \.fig-legend, \.pp, \.calc-fig, \.lj, \.tech-thumb\)/);
   });
+  it("sterowanie symulatora na telefonie i pełny ekran jasne w jasnym motywie (UI-9b)", () => {
+    const g = readFileSync("src/app/globals.css", "utf8");
+    // --panel jest w jasnym motywie ciemny (bloki kodu) — powłoka pełnego ekranu i kanwa mają własne jasne tło
+    expect(g).toMatch(/\[data-theme="light"\] \.fs-sim \{[^}]*background: var\(--bg\)/);
+    expect(g).toMatch(/\[data-theme="light"\] \.fs-canvas \{[^}]*background: var\(--paper\)/);
+    expect(g).toMatch(/\[data-theme="light"\] \.is-app \.m-hud \{[^}]*background: var\(--surface\)/);
+    expect(g).toMatch(/\[data-theme="light"\] \.z2d \{[^}]*background:/);
+    expect(g).toMatch(/\[data-theme="light"\] \.view3d-menu > summary/);
+    const t = readFileSync("src/app/tactile.css", "utf8");
+    expect(t).toMatch(/\[data-theme="light"\] :is\(\.showcase-ctrl, \.fs-transport\) \.knob-body/);
+  });
 });
