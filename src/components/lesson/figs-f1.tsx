@@ -138,7 +138,8 @@ export function BlockRead() {
   return (
     <Fig id="f11rd" code="N90" title="N90 G01 X-5. F400 — co zrobi frez" h={206} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">N90 G01 X-5. F400</Code></>}
-      caption={<>Widok z góry. Przed blokiem frez Ø10 stoi w X−20 Y10 na Z−5, obok płytki. 1 — N90 to tylko etykieta. 2 — G01: ruch roboczy po prostej. 3 — X−5: cel w osi X; Y10 i Z−5 zostają, bo blok ich nie podaje. 4 — F400: prędkość ruchu 400 mm/min. Półfabrykat zaczyna się na X−2: na ostatnich 2 mm drogi krawędź freza przechodzi przez naddatek i staje na konturze gotowym X0.</>}>
+      caption={<>Widok z góry: frez Ø10 stoi przed blokiem w X−20 Y10 na Z−5, a na ostatnich 2 mm drogi (półfabrykat od X−2) przechodzi przez naddatek i staje na konturze X0.</>}
+      marks={[<>N90 to tylko etykieta</>, <>G01: ruch roboczy po prostej</>, <>X−5: cel w osi X; Y10 i Z−5 zostają, bo blok ich nie podaje</>, <>F400: prędkość ruchu 400 mm/min</>]}>
       {(c) => (
         <g>
           <rect x={m.X(-2)} y={m.Y(30)} width={32 * m.u} height={32 * m.u} className="allow" />
@@ -172,7 +173,8 @@ export function ModalRun() {
   return (
     <Fig id="f12rn" code="modal" title="Linie 2–5 — widok z przodu" h={352} legend={["rap", "cut", "stock", "allow"]}
       notes={<><Code k="rap">2  G00 X-20. Y10.</Code><Code k="rap">3  Z5.</Code><Code k="cut">4  G01 Z-5. F150</Code><Code k="cut">5  X-5. F400</Code></>}
-      caption={<>Rzut XZ (widok z przodu); od linii 2 Y10 się nie zmienia. Narzędzie zaczyna nad W (X0 Y0) na Z50 po <code>G00 G43 H1 Z50.</code> 2 — G00 nad punkt X−20 (w tym rzucie nie widać ruchu w Y). 3 — linia bez kodu ruchu: działa G00 z linii 2. 4 — G01 i F150 zmieniają stan. 5 — znów bez kodu ruchu: działa G01 z linii 4, a F400 zastępuje F150.</>}>
+      caption={<>Rzut XZ (widok z przodu): narzędzie zaczyna nad W (X0 Y0) na Z50 po <code>G00 G43 H1 Z50.</code>, a od linii 2 Y10 się nie zmienia.</>}
+      marks={[<>G00 nad punkt X−20 (w tym rzucie nie widać ruchu w Y)</>, <>linia bez kodu ruchu: działa G00 z linii 2</>, <>G01 i F150 zmieniają stan</>, <>znów bez kodu ruchu: działa G01 z linii 4, a F400 zastępuje F150</>]} marksFrom={2}>
       {(c) => (
         <g>
           <rect x={m.X(-2)} y={m.Y(0)} width={2 * m.u} height={12 * m.u} className="allow" />

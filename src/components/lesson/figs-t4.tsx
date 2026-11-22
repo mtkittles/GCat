@@ -89,7 +89,8 @@ export function CompRun() {
   return (
     <Fig id="t41rn" code="G42 G40" title="Wałek: włączenie i wyłączenie korekcji" h={172} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">1  G42 G00 X14. Z2.</Code><Code k="cut">2  G01 X20. Z-1. F0.1 … X42.</Code><Code k="rap">3  G40 G00 Z2.</Code></>}
-      caption={<>Połowa przekroju wałka, X w górę jako promień. 1 — dojazd w powietrzu do X14 Z2: na tym ruchu sterowanie odsuwa naroże o rε od konturu. 2 — kontur z wymiarów rysunku, z fazami i dwoma promieniami przy stopniu; kończy go wyjście na X42, ponad detal. 3 — odjazd w Z z G40, nóż jest już w powietrzu.</>}>
+      caption={<>Połowa przekroju wałka, X w górę jako promień.</>}
+      marks={[<>dojazd w powietrzu do X14 Z2: na tym ruchu sterowanie odsuwa naroże o rε od konturu</>, <>kontur z wymiarów rysunku, z fazami i dwoma promieniami przy stopniu; kończy go wyjście na X42, ponad detal</>, <>odjazd w Z z G40, nóż jest już w powietrzu</>]}>
       {(c) => (
         <g>
           <polygon points={part.map(([z, x]) => `${m.X(z)},${m.Y(x)}`).join(" ")} fill={c.hatch} className="p-con" />

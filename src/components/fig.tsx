@@ -24,24 +24,26 @@ export type LegendItem = Kind | "stock" | "tool" | "allow" | "alt" | [string, st
 export interface Ctx { a: (k: Kind) => string; hatch: string }
 
 /** Objaśnienie numerów z rysunku (Step n): lista pod rysunkiem, numer w kółku jak na rysunku (standard treści 2026-11-22). */
-export function FigMarks({ marks }: { marks: ReactNode[] }) {
+export function FigMarks({ marks, from = 1 }: { marks: ReactNode[]; from?: number }) {
   return (
     <ul className="oznaczenia fig-marks">
-      {marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + 1}</span>{m}</li>)}
+      {marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + from}</span>{m}</li>)}
     </ul>
   );
 }
 
-export function Fig({ id, code, title, caption, legend, notes, marks, w = 360, h = 250, children }: {
+export function Fig({ id, code, title, caption, legend, notes, marks, marksFrom = 1, w = 360, h = 250, children }: {
   id: string; code?: string; title: string; caption?: ReactNode; legend?: LegendItem[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
   /** opisy numerów 1, 2, 3… z rysunku — lista pod podpisem; podpis zostaje jednym zdaniem */
   marks?: ReactNode[];
+  /** numer pierwszego opisu, gdy rysunek zaczyna numerację dalej (np. od kroku 2 przykładu) */
+  marksFrom?: number;
 }) {
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
-      <FigZoom title={title} caption={caption} marks={marks?.map((m, i) => <Fragment key={i}>{m}</Fragment>)}>
+      <FigZoom title={title} caption={caption} marks={marks?.map((m, i) => <Fragment key={i}>{m}</Fragment>)} marksFrom={marksFrom}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
         <FigDefs id={id} />
         {children(figCtx(id))}
@@ -54,7 +56,7 @@ export function Fig({ id, code, title, caption, legend, notes, marks, w = 360, h
         </div>
       )}
       {caption && <figcaption className="fig-cap">{caption}</figcaption>}
-      {marks && marks.length > 0 && <FigMarks marks={marks} />}
+      {marks && marks.length > 0 && <FigMarks marks={marks} from={marksFrom} />}
     </figure>
   );
 }

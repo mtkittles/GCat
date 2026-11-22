@@ -188,7 +188,8 @@ export function LatheExit() {
   return (
     <Fig id="t13ex" code="G28" title="Zakończenie: najpierw X, potem Z" h={234} legend={["rap", "stock"]}
       notes={<><Code k="con">M05 (już przed odjazdem)</Code><Code k="rap">3  G28 U0. → G28 W0.</Code><Code k="con">4  M30</Code></>}
-      caption={<>Po przejściu nóż stoi w X42 Z2, nad czołem. 3 — najpierw ruch promieniowy do punktu referencyjnego X, potem wzdłuż osi do punktu referencyjnego Z. Wrzeciono stoi już po M05 z programu. 4 — koniec programu. Kroki 1–2 ustawiają tryby i zero, osie się wtedy nie ruszają. Położenie punktu referencyjnego zależy od maszyny — tu umowne. Skala promieniowa powiększona.</>}>
+      caption={<>Po przejściu nóż stoi w X42 Z2; kroki 1–2 tylko ustawiają tryby i zero, a położenie punktu referencyjnego jest umowne (skala promieniowa powiększona).</>}
+      marks={[<>najpierw ruch promieniowy do punktu referencyjnego X, potem wzdłuż osi do punktu referencyjnego Z; wrzeciono stoi już po M05 z programu</>, <>koniec programu</>]} marksFrom={3}>
       {(c) => (
         <g>
           <Bar m={m} hatch={c.hatch} />
