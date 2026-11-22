@@ -4,13 +4,13 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 /*
   Powiększenie rysunku (#80 §5, Z a — audyt kart cz. 2 §4.5): okno startuje dopasowane do szerokości
   ekranu (cały rysunek widać od razu), przyciski „−” i „+” zmieniają skalę 1× / 1,5× / 2× / 3×,
-  a większy rysunek przesuwa się palcem. Pod rysunkiem stoi jego podpis.
+  a większy rysunek przesuwa się palcem. Pod rysunkiem stoi jego podpis i lista numerów.
   Natywny <dialog>: Esc zamyka, fokus zostaje w oknie. Kopia rysunku powstaje dopiero
   po otwarciu, żeby identyfikatory znaczników SVG nie dublowały się w dokumencie.
 */
 const STEPS = [1, 1.5, 2, 3];
 
-export default function FigZoom({ title, caption, children }: { title: string; caption?: ReactNode; children: ReactNode }) {
+export default function FigZoom({ title, caption, marks, children }: { title: string; caption?: ReactNode; marks?: ReactNode[]; children: ReactNode }) {
   const dlg = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [k, setK] = useState(0);
@@ -37,6 +37,9 @@ export default function FigZoom({ title, caption, children }: { title: string; c
           <div className="fz-body" tabIndex={0}>
             <div className="fz-fig" style={{ width: `${z * 100}%`, maxWidth: `${860 * z}px` }}>{children}</div>
             {caption && <p className="fz-cap">{caption}</p>}
+            {marks && marks.length > 0 && (
+              <ul className="oznaczenia fig-marks">{marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + 1}</span>{m}</li>)}</ul>
+            )}
           </div>
         </dialog>
       )}

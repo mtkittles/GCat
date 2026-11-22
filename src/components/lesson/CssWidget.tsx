@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { tex } from "@/components/Wzor";
 
 /*
   Stała prędkość skrawania (G96): obroty rosną, gdy średnica maleje,
@@ -53,7 +54,7 @@ export default function CssWidget({ vc0 = 200, limit0 = 3000 }: { vc0?: number; 
       <p className={`jog-status${clamped ? " is-bad" : ""}`}>
         {clamped
           ? `Limit G50: sterowanie trzyma ${limit} obr/min. Prędkość skrawania spada poniżej ${vc} m/min — poniżej Ø${dLimit.toFixed(1)}.`
-          : `n = 1000 · ${vc} / (π · ${d}) ≈ ${Math.round(raw)} obr/min. Prędkość skrawania stała: ${vc} m/min.`}
+          : <><span dangerouslySetInnerHTML={{ __html: tex(String.raw`n = \frac{1000 \cdot ${vc}}{\pi \cdot ${String(d).replace(".", ",")}} \approx ${Math.round(raw)}\ \text{obr/min}`, false) }} />. Prędkość skrawania stała: {vc} m/min.</>}
       </p>
     </div>
   );

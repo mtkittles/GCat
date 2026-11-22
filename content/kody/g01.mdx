@@ -193,7 +193,13 @@ G01 i posuw F pozostają aktywne, więc kontur można zapisać krócej. Oba zapi
 
 ## Dobór posuwu \{#dobór-posuwu}
 
-Przy frezowaniu posuw liczy się z posuwu na ostrze: **vf = fz · z · n**. Tu fz to \[\[fz — posuw na ostrze|posuw na ostrze]] z katalogu narzędzia, z — liczba ostrzy, n — obroty. Frez ⌀10 z czterema ostrzami przy 3000 obr/min i fz 0,05 mm daje F = 0,05 · 4 · 3000 = **600 mm/min**.
+Przy frezowaniu posuw liczy się z \[\[fz — posuw na ostrze|posuwu na ostrze]] z katalogu narzędzia:
+
+<Wzor f="v_f = f_z \cdot z \cdot n" legend="v_f — posuw minutowy, adres F [mm/min]; f_z — posuw na ostrze [mm]; z — liczba ostrzy; n — obroty wrzeciona [obr/min]" caption="Posuw minutowy" />
+
+Przykład: frez ⌀10 z czterema ostrzami przy 3000 obr/min i fz 0,05 mm.
+
+<Wzor f="F = 0,05 \cdot 4 \cdot 3000 = 600\ \text{mm/min}" kind="obliczenie" />
 
 Przy toczeniu podaje się wprost posuw na obrót, bo od niego zależy grubość wióra i \[\[Rz — chropowatość|chropowatość]]: typowo 0,25–0,45 mm/obr zgrubnie i 0,08–0,20 mm/obr wykańczająco. Gotowe wartości dla konkretnego materiału policzysz w [kalkulatorze](/kalkulator).
 

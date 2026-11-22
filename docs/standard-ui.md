@@ -152,6 +152,10 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
 - **Lista oznaczeń** — numery części z rysunku objaśnia lista w tekście, zaraz pod rysunkiem. Zapis w pliku:
   `* **(1) Chwyt:** część mocowana…` — każdy punkt listy zaczyna się od `(n)` w pogrubieniu. Strona pokazuje numer
   w kółku jak znacznik na rysunku (`.ozn-nr`, styl `.fig .step`), bez kropek listy (`ul.oznaczenia`).
+  Rysunek z rejestru (`Fig` w `figs*.tsx`, numery `Step`) dostaje tę listę z prop `marks` — pod podpisem i w powiększeniu
+  (`FigMarks`, `ul.fig-marks`), więc działa wszędzie, gdzie rysunek jest użyty (karta, lekcja, artykuł).
+- **Kalkulator** — „Jak to policzono”: każdy wzór w dwóch wierszach (wzór, potem podstawione liczby i wynik pogrubiony),
+  skład KaTeX jak w ramce `<Wzor>` (`Wz` w `app/kalkulator/Calc.tsx`). Wzór w zdaniu widżetu — `tex(…, false)`.
 - **Wzór** — wzór, z którego się liczy, idzie do ramki `<Wzor f="…" legend="…" caption="…" />` (`components/Wzor.tsx`):
   karta (`--card`, `--line`, `--radius-lg`), wzór wyśrodkowany, pod kreską legenda „symbol — znaczenie [jednostka]”
   (Inter `--fs-aux`, jednostka Mono), symbole w jednej pionowej linii (do lewej).

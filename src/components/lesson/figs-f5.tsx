@@ -14,7 +14,8 @@ export function CycleSteps() {
   return (
     <Fig id="f51cy" code="G81" title="Cykl wiercenia w czterech ruchach" h={254} legend={["rap", "cut", "stock"]}
       notes={<Code k="cut">G81 X40. Y… Z-10. R2. F120</Code>}
-      caption={<>1 — ruch szybki nad otwór, 2 — ruch szybki do płaszczyzny R, 3 — posuw do dna Z, 4 — ruch szybki w górę. Cały ten przebieg opisuje jeden blok.</>}>
+      caption={<>Cały ten przebieg opisuje jeden blok cyklu.</>}
+      marks={[<>ruch szybki nad otwór</>, <>ruch szybki do płaszczyzny R</>, <>posuw do dna Z</>, <>ruch szybki w górę</>]}>
       {(c) => (
         <g>
           <rect x={m.X(18)} y={m.Y(0)} width={60 * m.u} height={16 * m.u} fill={c.hatch} className="p-con" />

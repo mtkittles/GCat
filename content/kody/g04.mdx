@@ -118,14 +118,16 @@ Tu łatwo o błąd. Ta sama liczba znaczy co innego zależnie od **litery** i od
 
 ## Postój liczony w obrotach \{#postój-liczony-w-obrotach}
 
-Na dnie rowka czy otworu liczy się to, **ile razy ostrze obejdzie powierzchnię**. Ile obrotów potrzeba, zależy od operacji, narzędzia i wymagań powierzchni. W przykładach tej karty, jak w lekcji F3.5, wymagamy co najmniej trzech obrotów. Czas jednego obrotu to 60 / n sekund, więc postój k obrotów przy obrotach n \[obr/min] trwa:
+Na dnie rowka czy otworu liczy się to, **ile razy ostrze obejdzie powierzchnię**. Ile obrotów potrzeba, zależy od operacji, narzędzia i wymagań powierzchni. W przykładach tej karty, jak w lekcji F3.5, wymagamy co najmniej trzech obrotów. Jeden obrót trwa 60 / n sekund, więc postój k obrotów przy obrotach n trwa:
+
+<Wzor f="t = \frac{60 \cdot k}{n}" legend="t — czas postoju [s]; k — liczba obrotów; n — obroty wrzeciona [obr/min]" caption="Czas postoju" />
+
+Przykład: trzy obroty przy 600 obr/min.
+
+<Wzor f="t = \frac{60 \cdot 3}{600} = 0,3\ \text{s}" kind="obliczenie" />
 
 <Code caption="Sinumerik liczy obroty sam — G4 S3 odczeka trzy obroty niezależnie od zaprogramowanych obrotów.">
   ```
-  t = 60 · k / n    [s]
-
-  k = 3 obroty, n = 600 obr/min
-  t = 60 · 3 / 600 = 0,3 s
   Fanuc:     G04 X0.3   albo   G04 P300
   Sinumerik: G4 S3
   ```

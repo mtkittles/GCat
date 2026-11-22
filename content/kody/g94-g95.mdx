@@ -71,17 +71,13 @@ example:
 
 ## Co robi sterowanie \{#co-dokładnie-robi-sterownik}
 
-Przy G95 sterowanie mierzy obroty wrzeciona i na bieżąco przelicza posuw osi: **vf = f · n**. Gdy obroty spadną (np. przy G96 na dużej średnicy albo przy spadku pod obciążeniem), posuw minutowy spada razem z nimi, a grubość wióra zostaje stała. Przy G94 posuw osi nie zależy od wrzeciona.
+Przy G95 sterowanie mierzy obroty wrzeciona i na bieżąco przelicza posuw osi z posuwu na obrót. Gdy obroty spadną (np. przy G96 na dużej średnicy albo przy spadku pod obciążeniem), posuw minutowy spada razem z nimi, a grubość wióra zostaje stała. Przy G94 posuw osi nie zależy od wrzeciona.
 
-<Code>
-  ```
-  tokarka:  vf = f · n
-            0,25 mm/obr · 1200 obr/min
-            = 300 mm/min
-  frezarka: vf = fz · z · n
-            0,05 · 4 · 2000 = 400 mm/min
-  ```
-</Code>
+<Wzor f="v_f = f \cdot n \\ v_f = f_z \cdot z \cdot n" legend="v_f — posuw minutowy [mm/min]; f — posuw na obrót [mm/obr]; f_z — posuw na ostrze [mm]; z — liczba ostrzy; n — obroty wrzeciona [obr/min]" caption="Tokarka; Frezarka" />
+
+Przykład: tokarka z posuwem 0,25 mm/obr przy 1200 obr/min i frez z 4 ostrzami, 0,05 mm na ostrze, przy 2000 obr/min.
+
+<Wzor f="v_f = 0,25 \cdot 1200 = 300\ \text{mm/min} \\ v_f = 0,05 \cdot 4 \cdot 2000 = 400\ \text{mm/min}" caption="Tokarka; Frezarka" kind="obliczenie" />
 
 ## Który tryb gdzie \{#który-tryb-gdzie}
 
@@ -100,13 +96,11 @@ Przy G95 sterowanie mierzy obroty wrzeciona i na bieżąco przelicza posuw osi: 
 
 Przy toczeniu posuw na obrót wprost decyduje o chropowatości. Naroże płytki o promieniu rε zostawia łuki co f. Wysokość grzbietów to teoretyczna chropowatość:
 
-<Code caption="Dwa razy większy posuw — cztery razy większe Rt.">
-  ```
-  Rt ≈ f² / (8 · rε) · 1000   [µm]
-  f 0,2, rε 0,8:  0,04 / 6,4 · 1000 ≈ 6,3 µm
-  Ra ≈ Rt / 4 ≈ 1,6 µm
-  ```
-</Code>
+<Wzor f="R_t \approx \frac{f^2}{8 \cdot r_{\varepsilon}} \cdot 1000 \\ R_a \approx \frac{R_t}{4}" legend="R_t — teoretyczna wysokość nierówności [µm]; R_a — chropowatość, w przybliżeniu [µm]; f — posuw na obrót [mm/obr]; r_{\varepsilon} — promień naroża płytki [mm]" caption="Wysokość nierówności; Chropowatość Ra" />
+
+Przykład: posuw 0,2 mm/obr i naroże 0,8 mm. Dwa razy większy posuw daje cztery razy większe Rt.
+
+<Wzor f="R_t \approx \frac{0,2^2}{8 \cdot 0,8} \cdot 1000 \approx 6,3\ \mu\text{m} \\ R_a \approx \frac{6,3}{4} \approx 1,6\ \mu\text{m}" caption="Wysokość nierówności; Chropowatość Ra" kind="obliczenie" />
 
 <Diagram id="t23-rt" />
 

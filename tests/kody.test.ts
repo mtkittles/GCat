@@ -45,7 +45,7 @@ describe("karty i słownik z content/", () => {
       const all = [...src.matchAll(/^#{2,6} /gm)].length;
       expect(explicit.length, k.file).toBe(all);
     }
-    expect(Object.values(now).flat().length).toBe(160); // +14: artykuły G73, G82, G98/G99 (grupa Wiercenie)
+    expect(Object.values(now).flat().length).toBe(161); // +14: artykuły G73, G82, G98/G99 (grupa Wiercenie); +1: G50 — obroty przy G96 (standard treści)
   });
 
   it("kotwice słownika = migawka; plik = <kotwica>.yaml", async () => {
@@ -75,6 +75,6 @@ describe("karty i słownik z content/", () => {
       expect(html, g.slug).not.toMatch(/\[\[|\]\]|\{#/);
       n++;
     }
-    expect(n).toBe(29);
+    expect(n).toBe(30); // +1: G50 (standard treści — wzór obrotów przy G96)
   });
 });

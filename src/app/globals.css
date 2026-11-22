@@ -383,8 +383,6 @@ input[type="range"] { height: 26px; accent-color: var(--accent); }
 .calc-out.big .calc-out-v { font-size: var(--fs-num); color: #fff; }
 .calc-out-v span { font-size: var(--fs-label); opacity: .65; }
 .calc-formulas { display: grid; gap: .3rem; border-left: 3px solid var(--line-strong); padding-left: .9rem; }
-.calc-formula { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--muted); }
-.calc-formula strong { color: var(--ink); }
 
 /* ---------- wyszukiwarka ---------- */
 .search-row { display: grid; gap: .12rem; padding: .6rem .8rem; }
@@ -2692,7 +2690,14 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .calc-field .calc-preset { white-space: nowrap; }
 .calc-formulas { border-left: 1px solid var(--line); padding-left: 1rem; gap: .35rem; }
 .calc-formulas .calc-h { margin-bottom: .25rem; }
-.calc-formula { overflow-wrap: anywhere; }
+.calc-formulas { gap: .9rem; }
+/* wzory kalkulatora (standard treści): wzór i podstawienie w składzie KaTeX, do lewej */
+.calc-wz { display: grid; gap: .2rem; min-width: 0; }
+.calc-wz .wzor-lab { text-align: left; }
+.calc-wz .wzor-f { text-align: left; }
+.calc-wz .katex-display { margin: 0; text-align: left; }
+.calc-wz .katex-display > .katex { text-align: left; }
+.calc-wz .katex .mathnormal { font-size: var(--fs-math-var); }
 .calc-section > p { max-width: none; align-self: start; padding: .85rem 1rem; border: 1px dashed var(--line-strong); border-radius: var(--radius-lg); }
 .calc-section > .note { max-width: none; margin: 0; align-self: start; }
 
@@ -3480,6 +3485,12 @@ a.rys-btn { text-decoration: none; }
 .article ul.oznaczenia > li { position: relative; padding-left: 2.1rem; }
 .article ul.oznaczenia > li::marker { content: none; }
 .ozn-nr { position: absolute; left: 0; top: .12em; width: 1.5rem; height: 1.5rem; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--ink-2); background: var(--surface-2); color: var(--ink); font: 700 var(--fs-label)/1 var(--font-mono); }
+/* numery z rysunku objaśnione pod rysunkiem (Fig marks) — w karcie, lekcji i w powiększeniu */
+ul.fig-marks { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; font-size: var(--fs-aux); line-height: 1.55; color: var(--ink-2); }
+ul.fig-marks > li { position: relative; padding-left: 2rem; }
+ul.fig-marks > li::marker { content: none; }
+ul.fig-marks b { color: var(--ink); }
+.fz-body ul.fig-marks { margin-top: .6rem; }
 
 /* fragment kodu = linia programu ze strony: kolor ruchu tej linii, kliknięcie ustawia symulator */
 .inline-code.is-prog { cursor: pointer; text-decoration: underline dotted; text-underline-offset: .25em; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
