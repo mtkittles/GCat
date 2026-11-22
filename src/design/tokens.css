@@ -9,6 +9,9 @@
   --card: #FFFFFF;
   --panel: #141518;
   --panel-ink: #F5F5F4;
+  --paper: #F4EFE4;
+  --paper-grid: #E3D9C4;
+  --paper-ink: #1C1917;
   --ink: #1C1917;
   --ink-2: #44403C;
   --muted: #6B645E;
@@ -136,6 +139,9 @@
   --card: #111113;
   --panel: #0A0A0B;
   --panel-ink: #F5F5F4;
+  --paper: #0A0A0B;
+  --paper-grid: #1D1E23;
+  --paper-ink: #F5F5F4;
   --ink: #F5F5F4;
   --ink-2: #C8C9CC;
   --muted: #9A9CA3;

@@ -45,6 +45,10 @@
   --line-strong: #D6D3D1;
   --panel: #141518;
   --panel-ink: #F5F5F4;
+  /* UI-9: papier techniczny — tło rysunków i podglądów symulatora w jasnym motywie */
+  --paper: #F4EFE4;
+  --paper-grid: #E3D9C4;
+  --paper-ink: #1C1917;
 
   --accent: #F97316;
   --accent-hover: #EA580C;
@@ -89,6 +93,9 @@
   --line-strong: #2E2E33;
   --panel: #0A0A0B;
   --panel-ink: #F5F5F4;
+  --paper: #0A0A0B;
+  --paper-grid: #1D1E23;
+  --paper-ink: #F5F5F4;
 
   --accent: #F97316;
   --accent-hover: #FB923C;
@@ -191,7 +198,7 @@ button:active { transform: scale(.985); }
 .surface { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
 
 /* ---------- symulator ---------- */
-.sim-canvas { width: 100%; background: var(--panel); border-radius: var(--radius); display: block; border: 1px solid var(--line); }
+.sim-canvas { width: 100%; background: var(--paper); border-radius: var(--radius); display: block; border: 1px solid var(--line); }
 .sim-lines { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); max-height: 260px; overflow: auto; font-size: var(--fs-small); }
 .sim-lines li { display: grid; grid-template-columns: minmax(120px, 38%) 1fr; gap: .5rem; padding: .35rem .6rem; border-left: 3px solid transparent; }
 .sim-lines li + li { border-top: 1px solid var(--line); }
@@ -1175,8 +1182,8 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig { display: grid; gap: .5rem; max-width: 40rem; margin: 0; padding: .75rem; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--line); }
 .fig-head { display: flex; align-items: center; gap: .5rem; font-family: var(--font-sans); font-weight: 600; font-size: var(--fs-aux); color: var(--ink); }
 .fig-code { font: 700 var(--fs-label)/1 var(--font-mono); color: var(--ink-2); background: var(--surface-2); padding: .3rem .45rem; border-radius: var(--radius-sm); box-shadow: inset 0 0 0 1px var(--line); }
-.fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); }
-.fig svg text { font-family: var(--font-sans, Inter, system-ui, sans-serif); font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3.2px; stroke-linejoin: round; }
+.fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--paper); }
+.fig svg text { font-family: var(--font-sans, Inter, system-ui, sans-serif); font-size: 11px; fill: var(--ink-2); paint-order: stroke; stroke: var(--paper); stroke-width: 3.2px; stroke-linejoin: round; }
 .fig svg .t-b { font-weight: 700; fill: var(--ink); }
 .fig svg .t-mono { font-family: var(--font-mono); font-size: 10.5px; }
 .fig svg .t-big { font-size: 14px; }
@@ -1209,14 +1216,14 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig .hatch-line { stroke: var(--line-strong); stroke-width: 1.2; }
 .fig .mk-rap { fill: var(--amber); } .fig .mk-cut { fill: var(--green); } .fig .mk-arc { fill: var(--blue); }
 .fig .mk-con { fill: var(--ink); } .fig .mk-bad { fill: var(--red); } .fig .mk-dim { fill: var(--ink-2); } .fig .mk-acc { fill: var(--accent); }
-.fig .pt { fill: var(--ink); stroke: var(--panel); stroke-width: 1.5; }
-.fig .pt-arc { fill: var(--blue); stroke: var(--panel); stroke-width: 1.5; }
-.fig .pt-cut { fill: var(--green); stroke: var(--panel); stroke-width: 1.5; }
-.fig .pt-rap { fill: var(--amber); stroke: var(--panel); stroke-width: 1.5; }
+.fig .pt { fill: var(--ink); stroke: var(--paper); stroke-width: 1.5; }
+.fig .pt-arc { fill: var(--blue); stroke: var(--paper); stroke-width: 1.5; }
+.fig .pt-cut { fill: var(--green); stroke: var(--paper); stroke-width: 1.5; }
+.fig .pt-rap { fill: var(--amber); stroke: var(--paper); stroke-width: 1.5; }
 .fig .tool { fill: color-mix(in srgb, var(--green) 10%, transparent); stroke: var(--green); stroke-width: 1; stroke-dasharray: 3 2; }
 .fig .clamp { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
-.fig .hole { fill: var(--panel); stroke: var(--ink); stroke-width: 1.2; }
-.fig .hole-top { fill: var(--panel); stroke: var(--ink); stroke-width: 1.6; }
+.fig .hole { fill: var(--paper); stroke: var(--ink); stroke-width: 1.2; }
+.fig .hole-top { fill: var(--paper); stroke: var(--ink); stroke-width: 1.6; }
 .fig .solid-hatch { fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke: var(--ink); stroke-width: 1.2; }
 .fig .stock-out { fill: none; stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 3; }
 .fig .allow { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; }
@@ -1238,6 +1245,12 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .lg-stock { height: 9px !important; border: 1px solid var(--ink) !important; background: repeating-linear-gradient(45deg, var(--line-strong) 0 1.5px, transparent 1.5px 5px); }
 .fig-cap { font-size: var(--fs-aux); line-height: 1.55; color: var(--ink-2); }
 .fig-cap b { color: var(--ink); }
+
+/* UI-9: na papierze jasnego motywu barwy linii ciemniejsze (kontrast ≥ 3:1 do --paper), siatka i obrysy ciepłe */
+[data-theme="light"] :is(.fig svg, .fig-legend, .pp, .calc-fig, .lj, .tech-thumb) {
+  --amber: #B45309; --green: #15803D; --blue: #0369A1; --red: #B91C1C; --accent: #C2410C;
+  --line: #D9CFBB; --line-strong: #BFB39B; --surface-3: #E6DDCB; --muted: #6B6258;
+}
 
 /* starsze schematy (Plot): czytelne napisy na liniach */
 .diagram svg text { paint-order: stroke; stroke: var(--card); stroke-width: 3px; stroke-linejoin: round; }
@@ -1266,7 +1279,7 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .fig .p-fill-cut { fill: color-mix(in srgb, var(--green) 18%, transparent); stroke: none; }
 .fig .rot { stroke: var(--ink-2); stroke-width: 1.2; fill: none; }
 .fig .probe { fill: var(--surface-3); stroke: var(--ink-2); stroke-width: 1; }
-.fig .ruby { fill: #E0457B; stroke: var(--panel); stroke-width: 1; }
+.fig .ruby { fill: #E0457B; stroke: var(--paper); stroke-width: 1; }
 /* rysowanie toru przy przewijaniu (tylko ciągłe linie z pathLength=1) */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -1602,9 +1615,9 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 .lj-bar-low { fill: #2E2F35; stroke: none; }
 .lj-axis { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 10 3 2 3; }
 .lj-ax { stroke: var(--accent); stroke-width: 2; }
-.lj-axl { font: 700 var(--fs-label)/1 var(--font-sans); fill: var(--accent); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; }
+.lj-axl { font: 700 var(--fs-label)/1 var(--font-sans); fill: var(--accent); paint-order: stroke; stroke: var(--paper); stroke-width: 3px; }
 .lj-lab { font: 500 var(--fs-label)/1 var(--font-sans); fill: var(--muted); }
-.lj-w { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; }
+.lj-w { fill: var(--accent); stroke: var(--paper); stroke-width: 1.5; }
 .lj-tool polygon { fill: #C9A227; stroke: #F5E6A8; stroke-width: 1; }
 .lj-tool .lj-holder { fill: #6B6E76; stroke: #D4D4D8; stroke-width: 1; }
 .lj-tool.is-bad polygon { fill: var(--red); stroke: var(--red); }
@@ -1692,18 +1705,18 @@ h2[id], section[id] { scroll-margin-top: 84px; }
 /* ===== Gotowe programy ===== */
 /* miniatura detalu (ProgramPreview) — rysunek jak w kursie: ciemne pole, kontur obróbki w akcencie, wymiary, W */
 .pp { width: 100%; height: auto; display: block; }
-.pp text { font: 500 14.5px/1 var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3.2px; stroke-linejoin: round; }
+.pp text { font: 500 14.5px/1 var(--font-mono); fill: var(--ink-2); paint-order: stroke; stroke: var(--paper); stroke-width: 3.2px; stroke-linejoin: round; }
 .pp-axis { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 10 4 2 4; opacity: .7; }
 .pp-part { stroke: none; }
 .pp-edge { fill: none; stroke: #5A6170; stroke-width: 1; }
 /* UI-7: rysunek detalu w szarościach (krawędź obróbki jasna, nie pomarańczowa); kolory ruchu zostają dla toru */
-.pp { --pp-cut: color-mix(in srgb, var(--panel-ink) 88%, transparent); --pp-w: var(--panel-ink); }
+.pp { --pp-cut: color-mix(in srgb, var(--paper-ink) 88%, transparent); --pp-w: var(--paper-ink); }
 .pp-cut { fill: none; stroke: var(--pp-cut); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; }
-.pp-hole { fill: var(--panel); stroke: var(--pp-cut); stroke-width: 1.3; }
+.pp-hole { fill: var(--paper); stroke: var(--pp-cut); stroke-width: 1.3; }
 .pp .p-dim { stroke: var(--muted); stroke-width: .9; fill: none; }
 .pp .p-ext { stroke: var(--muted); stroke-width: .7; opacity: .75; }
 .pp .mk-dim { fill: var(--muted); }
-.pp-wpt circle { fill: var(--pp-w); stroke: var(--panel); stroke-width: 1.5; }
+.pp-wpt circle { fill: var(--pp-w); stroke: var(--paper); stroke-width: 1.5; }
 .pp-wpt text { font-weight: 700; fill: var(--pp-w); }
 .pp .pp-note { font: 500 var(--fs-aux)/1 var(--font-sans); fill: var(--muted); }
 .pg-hero-prev .pp text { font-size: 11px; } .pg-hero-prev .pp .pp-note { font-size: var(--fs-label); }
@@ -2412,8 +2425,8 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 
 /* Prawa dłoń w rysunkach (F0.1) — kształt z obrysem, bez cieniowania */
 .fig svg .hand-out { stroke: var(--ink-2); fill: none; }
-.fig svg .hand-in { stroke: color-mix(in srgb, var(--ink) 10%, var(--panel)); fill: none; }
-.fig svg .hand-palm { fill: color-mix(in srgb, var(--ink) 10%, var(--panel)); stroke: var(--ink-2); stroke-width: 1.2; stroke-linejoin: round; }
+.fig svg .hand-in { stroke: color-mix(in srgb, var(--ink) 10%, var(--paper)); fill: none; }
+.fig svg .hand-palm { fill: color-mix(in srgb, var(--ink) 10%, var(--paper)); stroke: var(--ink-2); stroke-width: 1.2; stroke-linejoin: round; }
 
 /* F0.1 — ruch stołu a ruch narzędzia (#31, V08) */
 .tm { display: grid; gap: .6rem; padding: .75rem; border-radius: var(--radius-lg); background: var(--card); border: 1px solid var(--line); }
@@ -2683,9 +2696,9 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .calc-section > .note { max-width: none; margin: 0; align-self: start; }
 
 /* rysunek poglądowy */
-.calc-fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--panel); }
+.calc-fig svg { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--paper); }
 .calc-fig figcaption { font-size: var(--fs-small); color: var(--muted); }
-.calc-fig text { font: 500 12.5px var(--font-sans); fill: var(--ink-2); paint-order: stroke; stroke: var(--panel); stroke-width: 3px; stroke-linejoin: round; }
+.calc-fig text { font: 500 12.5px var(--font-sans); fill: var(--ink-2); paint-order: stroke; stroke: var(--paper); stroke-width: 3px; stroke-linejoin: round; }
 .calc-fig .cf-cap { font-weight: 600; fill: var(--muted); }
 .calc-fig .cf-sub { font-size: var(--fs-label); fill: var(--muted); }
 .calc-fig .cf-acc { font-weight: 700; fill: var(--accent); }
@@ -2693,8 +2706,8 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .cf-stock { fill: #2A2F3A; stroke: #5B6577; stroke-width: 1; }
 .cf-chuck { fill: #1C2029; stroke: #5B6577; stroke-width: 1; }
 .cf-cut { fill: color-mix(in srgb, var(--green) 28%, transparent); stroke: var(--green); stroke-width: 1; stroke-dasharray: 4 3; }
-.cf-hole { fill: var(--panel); stroke: var(--ink-2); stroke-width: 1.4; stroke-linejoin: round; }
-.cf-tool { fill: color-mix(in srgb, var(--accent) 22%, var(--panel)); stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
+.cf-hole { fill: var(--paper); stroke: var(--ink-2); stroke-width: 1.4; stroke-linejoin: round; }
+.cf-tool { fill: color-mix(in srgb, var(--accent) 22%, var(--paper)); stroke: var(--accent); stroke-width: 1.6; stroke-linejoin: round; }
 .cf-tooth { stroke: var(--accent); stroke-width: 1; opacity: .55; fill: none; }
 .cf-dot { fill: var(--accent); }
 .cf-dim { stroke: var(--ink-2); stroke-width: .9; fill: none; }
@@ -2706,7 +2719,7 @@ pre.syntax { max-width: 100%; overflow-x: auto; }
 .cf-zoom { fill: #151922; stroke: var(--line-strong); stroke-width: 1; }
 .cf-profile { stroke: var(--accent); stroke-width: 1.6; fill: none; }
 .cf-fill { fill: #2A2F3A; stroke: none; }
-.cf-gone { fill: var(--panel); stroke: none; }
+.cf-gone { fill: var(--paper); stroke: none; }
 .cf-edge { stroke: #5B6577; stroke-width: 1; fill: none; }
 .cf-rt { stroke: var(--accent); stroke-width: 1.2; fill: none; }
 .cf-nose { fill: color-mix(in srgb, var(--accent) 14%, transparent); stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; }
@@ -2895,7 +2908,7 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .rys-std li b { font-weight: 600; color: var(--ink); }
 .rys-std li small { display: block; color: var(--muted); font-size: var(--fs-micro); }
 .fig.rys-std-s { flex: none; margin: 0; padding: 0; border: 0; background: none; }
-.fig.rys-std-s svg { display: block; background: var(--panel); border-radius: 5px; }
+.fig.rys-std-s svg { display: block; background: var(--paper); border-radius: 5px; }
 .rys-bar { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; padding: .45rem .75rem; background: var(--card); border-bottom: 1px solid var(--line); }
 .rys-tools { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface-2); align-items: stretch; }
 .rys-tool { display: grid; justify-items: center; align-content: center; gap: 1px; min-width: 3.25rem; padding: .3rem .4rem .25rem; border-radius: var(--radius-sm); border: 0; background: none; color: var(--ink-2); font: 500 var(--fs-micro)/1.2 var(--font-sans, Inter, system-ui, sans-serif); cursor: pointer; }
@@ -2931,17 +2944,17 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .fig .rys-gmaj { fill: none; stroke: color-mix(in srgb, var(--ink) 20%, transparent); stroke-width: .8; vector-effect: non-scaling-stroke; }
 .fig .rys-draft { opacity: .75; }
 .fig .rys-selbox { fill: none; stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; }
-.fig .rys-handle { fill: var(--accent); stroke: var(--panel); stroke-width: 1.2; cursor: grab; vector-effect: non-scaling-stroke; }
+.fig .rys-handle { fill: var(--accent); stroke: var(--paper); stroke-width: 1.2; cursor: grab; vector-effect: non-scaling-stroke; }
 .fig .rys-handle:hover, .fig .rys-ghandle:hover { stroke: var(--ink); stroke-width: 1.6; }
-.fig .rys-handle.is-alt { fill: var(--panel); stroke: var(--accent); }
+.fig .rys-handle.is-alt { fill: var(--paper); stroke: var(--accent); }
 /* ramka grupy, uchwyty skali (narożniki), obrót i punkt obrotu */
 .fig .rys-gframe { fill: none; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 2 3; opacity: .7; vector-effect: non-scaling-stroke; }
-.fig .rys-ghandle { fill: color-mix(in srgb, var(--accent) 70%, var(--panel)); stroke: var(--panel); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.fig .rys-ghandle { fill: color-mix(in srgb, var(--accent) 70%, var(--paper)); stroke: var(--paper); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .fig .rys-ghandle.is-d0 { cursor: ew-resize; } .fig .rys-ghandle.is-d1 { cursor: nwse-resize; }
 .fig .rys-ghandle.is-d2 { cursor: ns-resize; } .fig .rys-ghandle.is-d3 { cursor: nesw-resize; }
 .fig .rys-rotline { stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
 .fig .rys-rot { cursor: grab; }
-.fig .rys-rot circle { fill: var(--accent); stroke: var(--panel); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.fig .rys-rot circle { fill: var(--accent); stroke: var(--paper); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .fig .rys-rot path { fill: none; stroke: var(--on-accent); stroke-width: 1.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .fig .rys-pivot { cursor: move; }
 .fig .rys-pivot circle { fill: color-mix(in srgb, var(--accent) 25%, transparent); stroke: var(--accent); stroke-width: 1.4; vector-effect: non-scaling-stroke; }
@@ -3106,10 +3119,10 @@ button.calc-preset.is-back:hover { border-color: var(--accent); color: var(--ink
 .fig .rys-wdim-l, .fig .rys-wdim-ext { stroke: #22D3EE; stroke-width: .9; fill: none; vector-effect: non-scaling-stroke; }
 .fig .rys-wdim-ext { opacity: .55; stroke-dasharray: 2 2; }
 .fig .rys-wdim-dot { fill: #22D3EE; }
-.fig .rys-wdim-t rect { fill: var(--panel); stroke: #22D3EE; stroke-width: .9; vector-effect: non-scaling-stroke; }
+.fig .rys-wdim-t rect { fill: var(--paper); stroke: #22D3EE; stroke-width: .9; vector-effect: non-scaling-stroke; }
 .fig .rys-wdim-t text { fill: #67E8F9; font-family: var(--font-mono); font-weight: 600; stroke: none; paint-order: normal; }
 .fig .rys-wdim-t.is-edit { cursor: text; }
-.fig .rys-wdim-t.is-edit:hover rect { fill: color-mix(in srgb, #22D3EE 22%, var(--panel)); }
+.fig .rys-wdim-t.is-edit:hover rect { fill: color-mix(in srgb, #22D3EE 22%, var(--paper)); }
 .fig .rys-tanc { fill: none; stroke: #22D3EE; stroke-width: 2; opacity: .8; vector-effect: non-scaling-stroke; }
 .rys-svg.is-kalka-move { cursor: move; }
 .rys-svg.is-kalka-cal { cursor: crosshair; }
@@ -3398,3 +3411,4 @@ a.rys-btn { text-decoration: none; }
 .ed-gl .gl-list { max-width: 60rem; }
 .ed-gl .gl-fig.ed-empty { min-height: 8rem; }
 .fig-edit { margin: .45rem 0 0; }
+[data-theme="light"] .pp image { filter: brightness(2.1) contrast(.85) saturate(.7); }

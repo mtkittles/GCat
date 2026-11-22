@@ -1587,8 +1587,8 @@ mark.hl { background: color-mix(in srgb, var(--ink) 16%, transparent); color: in
    26. V6 — miniatury detali jako rysunek: ciemne pole w obu motywach (jak rysunki w lekcjach)
    ========================================================================== */
 .zx-fig, .pgx-fig, .pg-hero-prev, .pg-mini a > :first-child {
-  --grid-c: #1D1E23;
-  background-color: var(--panel);
+  --grid-c: var(--paper-grid);
+  background-color: var(--paper);
   background-image: linear-gradient(var(--grid-c) 1px, transparent 1px), linear-gradient(90deg, var(--grid-c) 1px, transparent 1px);
   background-size: 16px 16px; background-position: -1px -1px;
 }
@@ -1739,3 +1739,42 @@ mark.hl { background: color-mix(in srgb, var(--ink) 16%, transparent); color: in
 @media (min-width: 768px) { .fc-front { font-size: var(--fs-h1); } }
 @media (max-width: 767px) { .fc-front { font-size: var(--fs-h2); } }
 .sz-search { flex: none; max-width: 46rem; }
+
+/* ==========================================================================
+   UI-9 — jasny motyw: papier techniczny pod rysunkami i symulatorami.
+   Pokaz symulacji (lekcje, karty kodów) był ciemną wyspą w obu motywach; w jasnym kanwa jest na papierze,
+   a kod, stan i pulpit sterowania w barwach jasnego motywu (kolory składni jak w edytorze: --cm-*).
+   ========================================================================== */
+[data-theme="light"] .showcase { background: var(--card); }
+[data-theme="light"] .showcase-code { background: var(--surface); border-color: var(--line); }
+[data-theme="light"] .codecard-head { color: var(--ink-2); border-bottom-color: var(--line); }
+[data-theme="light"] .showcase-legend { color: var(--muted); }
+[data-theme="light"] .showcase { --amber: #B45309; --green: #15803D; --blue: #0369A1; }
+[data-theme="light"] .showcase-lines li { color: var(--ink-2); }
+[data-theme="light"] .showcase-lines li.is-active { background: var(--accent-soft); }
+[data-theme="light"] .showcase-lines .ln { color: var(--muted); }
+[data-theme="light"] .showcase-lines .t-g { color: var(--cm-g, #C2410C); }
+[data-theme="light"] .showcase-lines .t-m { color: var(--cm-m, #6D28D9); }
+[data-theme="light"] .showcase-lines .t-ax { color: var(--ink); }
+[data-theme="light"] .showcase-lines .t-fs { color: var(--green-ink); }
+[data-theme="light"] .showcase-lines .t-t { color: #BE185D; }
+[data-theme="light"] .showcase-lines .t-cm { color: var(--muted); }
+[data-theme="light"] .showcase-state { border-top-color: var(--line); }
+[data-theme="light"] .showcase-state span, [data-theme="light"] .showcase-state span.is-tool { background: var(--surface-2); color: var(--ink-2); }
+[data-theme="light"] .showcase-ctrl .sim-panel .pb { background: var(--surface); border-color: var(--line-strong); color: var(--ink-2); box-shadow: none; }
+[data-theme="light"] .showcase-ctrl .sim-panel .pb-start { background: color-mix(in srgb, var(--green) 9%, var(--card)); border-color: color-mix(in srgb, var(--green) 45%, var(--line-strong)); }
+[data-theme="light"] .showcase-ctrl .sim-panel .pb-hold { background: color-mix(in srgb, var(--red) 6%, var(--card)); border-color: color-mix(in srgb, var(--red) 35%, var(--line-strong)); }
+[data-theme="light"] .showcase-ctrl .sim-panel .pb.is-lit { background: color-mix(in srgb, var(--c) 18%, var(--card)); }
+[data-theme="light"] .showcase-ctrl .pb-t { color: color-mix(in srgb, var(--c) 70%, var(--ink)); }
+[data-theme="light"] .showcase-ctrl .sim-panel .pb.is-lit .pb-t { color: var(--ink); }
+[data-theme="light"] .showcase-ctrl .sp-feed-cap { color: var(--muted); }
+[data-theme="light"] .showcase-ctrl .sp-feed-cap b { color: var(--ink-2); }
+[data-theme="light"] .showcase-ctrl .knob-body { fill: var(--bg); stroke: var(--line-strong); }
+[data-theme="light"] .showcase-ctrl .knob-cap { fill: var(--surface-3); stroke: color-mix(in srgb, var(--ink) 12%, transparent); }
+
+/* kalkulator: przekrój półfabrykatu w odcieniu stali na papierze, nie czarna plama */
+[data-theme="light"] .cf-stock { fill: #9AA3AF; stroke: #57534E; }
+[data-theme="light"] .cf-chuck { fill: #6B7280; stroke: #44403C; }
+[data-theme="light"] .showcase-ctrl .knob-tick:not(.is-lit) { stroke: var(--line-strong); }
+[data-theme="light"] .showcase-ctrl .knob-val { color: var(--ink); }
+[data-theme="light"] .showcase-ctrl .knob-tick.is-100.is-lit { stroke: var(--ink); }

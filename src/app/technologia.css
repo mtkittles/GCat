@@ -41,9 +41,9 @@
 /* miniatura: rysunek bez nagłówka, legendy i podpisu */
 .tech-thumb {
   display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden; border-radius: calc(var(--radius-lg) - 4px);
-  box-shadow: inset 0 0 0 1px var(--line); background: var(--panel); pointer-events: none;
+  box-shadow: inset 0 0 0 1px var(--line); background: var(--paper); pointer-events: none;
 }
-[data-theme="light"] .tech-thumb { background: var(--surface-2); }
+[data-theme="light"] .tech-thumb { background: var(--paper); } /* UI-9: papier techniczny */
 .tech-thumb .fig { margin: 0; padding: 0; border: 0; background: none; box-shadow: none; width: 100%; }
 .tech-thumb .fig-head, .tech-thumb .fig-legend, .tech-thumb .fig-cap, .tech-thumb .fig-notes, .tech-thumb .fz-btn { display: none; }
 .tech-thumb svg { display: block; width: 100%; height: auto; }

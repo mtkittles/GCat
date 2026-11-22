@@ -49,6 +49,9 @@ export const colors: Group[] = [
     { name: "--card", value: "#FFFFFF", dark: "#111113", use: "karty, ramka rysunku (.fig), kod inline", src: V },
     { name: "--panel", value: "#141518", dark: "#0A0A0B", use: "„ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach", src: V },
     { name: "--panel-ink", value: "#F5F5F4", dark: "#F5F5F4", use: "tekst na panelu", src: V },
+    { name: "--paper", value: "#F4EFE4", dark: "#0A0A0B", use: "tło rysunków i podglądów symulatora: w jasnym motywie papier techniczny (UI-9), w ciemnym jak --panel", src: V },
+    { name: "--paper-grid", value: "#E3D9C4", dark: "#1D1E23", use: "siatka na papierze rysunków i podglądów", src: V },
+    { name: "--paper-ink", value: "#1C1917", dark: "#F5F5F4", use: "linie i tekst na papierze (krawędź detalu, punkt W)", src: V },
   ] },
   { id: "tekst", title: "Tekst", tokens: [
     { name: "--ink", value: "#1C1917", dark: "#F5F5F4", use: "tekst główny; kontur detalu w rysunkach (.p-con)", src: V },
@@ -246,10 +249,10 @@ export function cssVars(): { light: Record<string, string>; dark: Record<string,
  * Tylko dokumentacja: nic tego nie importuje.
  */
 export const simulatorDuplicates: { what: string; value: string; file: string; same?: string }[] = [
-  { what: "tor G00 na kanwie 2D (COLORS.rapid)", value: "#F59E0B", file: "src/components/simulator/Simulator.tsx", same: "--path-g00" },
-  { what: "tor G01 na kanwie 2D (COLORS.linear)", value: "#22C55E", file: "src/components/simulator/Simulator.tsx", same: "--path-g01" },
-  { what: "tor G02/G03 na kanwie 2D (COLORS.arc)", value: "#38BDF8", file: "src/components/simulator/Simulator.tsx", same: "--path-g02" },
-  { what: "postój G04 na kanwie 2D (COLORS.dwell)", value: "#F97316", file: "src/components/simulator/Simulator.tsx", same: "--accent" },
+  { what: "tor G00 na kanwie 2D (SIM_DARK.rapid)", value: "#F59E0B", file: "src/components/simulator/simPalette.ts", same: "--path-g00" },
+  { what: "tor G01 na kanwie 2D (SIM_DARK.linear)", value: "#22C55E", file: "src/components/simulator/simPalette.ts", same: "--path-g01" },
+  { what: "tor G02/G03 na kanwie 2D (SIM_DARK.arc)", value: "#38BDF8", file: "src/components/simulator/simPalette.ts", same: "--path-g02" },
+  { what: "postój G04 na kanwie 2D (SIM_DARK.dwell)", value: "#F97316", file: "src/components/simulator/simPalette.ts", same: "--accent" },
   { what: "tor G00 w 3D", value: "#F59E0B", file: "src/components/simulator/Sim3D.tsx", same: "--path-g00" },
   { what: "tor G01 w 3D", value: "#22C55E", file: "src/components/simulator/Sim3D.tsx", same: "--path-g01" },
   { what: "tor G02/G03 w 3D", value: "#38BDF8", file: "src/components/simulator/Sim3D.tsx", same: "--path-g02" },

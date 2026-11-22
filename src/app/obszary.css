@@ -16,7 +16,7 @@
   position: relative; overflow: hidden; border-radius: var(--radius-lg); border: 1px solid var(--line);
   background: var(--panel, var(--surface));
 }
-[data-theme="light"] .well { background: var(--surface-2); }
+[data-theme="light"] .well { background: var(--paper); --line: var(--paper-grid); } /* UI-9: papier techniczny */
 .well::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image: linear-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px),

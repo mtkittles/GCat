@@ -27,6 +27,9 @@ Wygenerowane z `src/design/tokens.ts` (`npm run tokeny`) — nie edytuj ręcznie
 | `--card` | ![#FFFFFF](tokeny/FFFFFF.svg) `#FFFFFF` | ![#111113](tokeny/111113.svg) `#111113` | karty, ramka rysunku (.fig), kod inline |
 | `--panel` | ![#141518](tokeny/141518.svg) `#141518` | ![#0A0A0B](tokeny/0A0A0B.svg) `#0A0A0B` | „ciemna wyspa”: tło rysunków SVG, kanw, bloków kodu; halo napisów w rysunkach |
 | `--panel-ink` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | tekst na panelu |
+| `--paper` | ![#F4EFE4](tokeny/F4EFE4.svg) `#F4EFE4` | ![#0A0A0B](tokeny/0A0A0B.svg) `#0A0A0B` | tło rysunków i podglądów symulatora: w jasnym motywie papier techniczny (UI-9), w ciemnym jak --panel |
+| `--paper-grid` | ![#E3D9C4](tokeny/E3D9C4.svg) `#E3D9C4` | ![#1D1E23](tokeny/1D1E23.svg) `#1D1E23` | siatka na papierze rysunków i podglądów |
+| `--paper-ink` | ![#1C1917](tokeny/1C1917.svg) `#1C1917` | ![#F5F5F4](tokeny/F5F5F4.svg) `#F5F5F4` | linie i tekst na papierze (krawędź detalu, punkt W) |
 
 ### Tekst
 
@@ -244,10 +247,10 @@ Symulator jest **nietykalny**. Poniższe wartości są wpisane w jego kod obok t
 
 | Co | Wartość | Plik | Odpowiada tokenowi |
 |---|---|---|---|
-| tor G00 na kanwie 2D (COLORS.rapid) | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | `src/components/simulator/Simulator.tsx` | --path-g00 |
-| tor G01 na kanwie 2D (COLORS.linear) | ![#22C55E](tokeny/22C55E.svg) `#22C55E` | `src/components/simulator/Simulator.tsx` | --path-g01 |
-| tor G02/G03 na kanwie 2D (COLORS.arc) | ![#38BDF8](tokeny/38BDF8.svg) `#38BDF8` | `src/components/simulator/Simulator.tsx` | --path-g02 |
-| postój G04 na kanwie 2D (COLORS.dwell) | ![#F97316](tokeny/F97316.svg) `#F97316` | `src/components/simulator/Simulator.tsx` | --accent |
+| tor G00 na kanwie 2D (SIM_DARK.rapid) | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | `src/components/simulator/simPalette.ts` | --path-g00 |
+| tor G01 na kanwie 2D (SIM_DARK.linear) | ![#22C55E](tokeny/22C55E.svg) `#22C55E` | `src/components/simulator/simPalette.ts` | --path-g01 |
+| tor G02/G03 na kanwie 2D (SIM_DARK.arc) | ![#38BDF8](tokeny/38BDF8.svg) `#38BDF8` | `src/components/simulator/simPalette.ts` | --path-g02 |
+| postój G04 na kanwie 2D (SIM_DARK.dwell) | ![#F97316](tokeny/F97316.svg) `#F97316` | `src/components/simulator/simPalette.ts` | --accent |
 | tor G00 w 3D | ![#F59E0B](tokeny/F59E0B.svg) `#F59E0B` | `src/components/simulator/Sim3D.tsx` | --path-g00 |
 | tor G01 w 3D | ![#22C55E](tokeny/22C55E.svg) `#22C55E` | `src/components/simulator/Sim3D.tsx` | --path-g01 |
 | tor G02/G03 w 3D | ![#38BDF8](tokeny/38BDF8.svg) `#38BDF8` | `src/components/simulator/Sim3D.tsx` | --path-g02 |
