@@ -55,8 +55,8 @@ export default function ProgramGrid({ groups, previews }: { groups: GridGroup[];
                           <span className="pgx-stat">{p.ops ? `${p.ops} zabiegów · ` : ""}{p.blocks} bloków</span>
                         </span>
                         <div className="pgx-acts">
-                          <button type="button" className="cd-copy" onClick={() => { setSel(p); setOpen(true); }} aria-haspopup="dialog"><Code2 aria-hidden /> Podgląd kodu i narzędzi</button>
-                          <Link href={`/symulator?program=${p.slug}`} className="btn pgx-sim"><Play aria-hidden /> Otwórz w symulatorze</Link>
+                          <button type="button" className="cd-copy" onClick={() => { setSel(p); setOpen(true); }} aria-haspopup="dialog"><Code2 aria-hidden /> Kod i narzędzia</button>
+                          <Link href={`/symulator?program=${p.slug}`} className="btn ghost pgx-sim"><Play aria-hidden /> Symulator</Link>
                         </div>
                       </div>
                     </SpotlightCard>
