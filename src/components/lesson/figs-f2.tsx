@@ -167,7 +167,8 @@ export function PlateFeeds() {
   return (
     <Fig id="f23pf" code="F" title="Gdzie który posuw — płytka z góry" h={240} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">1  G01 Z-5. F150</Code><Code k="cut">2  G01 X-5. F400</Code><Code k="cut">3  G01 Y55.</Code></>}
-      caption={<>Półfabrykat 84 × 54 ma po 2 mm naddatku na każdy bok konturu gotowego 80 × 50; zero W leży w lewym dolnym narożniku konturu gotowego. 1 — frez Ø10 schodzi na Z−5 w X−20 Y10; krawędź freza jest 13 mm od półfabrykatu: ruch w powietrzu. 2 — dojazd do X−5: na ostatnich 2 mm krawędź freza wchodzi w naddatek i staje na konturze gotowym X0, dlatego F400 pada już w tym bloku. 3 — ruch wzdłuż Y zbiera obwodem pas naddatku szerokości 2 mm; F400 działa dalej, bo F jest modalne.</>}>
+      caption={<>Półfabrykat 84 × 54 ma po 2 mm naddatku na każdy bok konturu gotowego 80 × 50, a zero W leży w jego lewym dolnym narożniku.</>}
+      marks={[<>frez Ø10 schodzi na Z−5 w X−20 Y10; krawędź freza jest 13 mm od półfabrykatu: ruch w powietrzu</>, <>dojazd do X−5: na ostatnich 2 mm krawędź freza wchodzi w naddatek i staje na konturze gotowym X0, dlatego F400 pada już w tym bloku</>, <>ruch wzdłuż Y zbiera obwodem pas naddatku szerokości 2 mm; F400 działa dalej, bo F jest modalne</>]}>
       {(c) => (
         <g>
           <rect x={m.X(-2)} y={m.Y(52)} width={84 * m.u} height={54 * m.u} className="allow" />

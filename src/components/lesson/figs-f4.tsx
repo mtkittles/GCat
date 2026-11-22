@@ -51,7 +51,8 @@ export function CompPath() {
   return (
     <Fig id="f42cp" code="G41" title="Program opisuje detal, sterowanie odsuwa środek freza" h={244} legend={["cut", "acc", "stock"]}
       notes={<><Code k="cut">program: X0…X80, R10</Code><Code k="acc">środek freza: X−5…X85, R15</Code></>}
-      caption={<>Z <b>G41 D1</b> w programie stoją wymiary z rysunku. Sterowanie prowadzi środek freza z lewej strony konturu (patrząc w kierunku ruchu), odsunięty o promień z D1. ① dojazd z korekcją, ② lewa krawędź, ③ naroże R10, ④ kolejne naroża.</>}>
+      caption={<>Z <b>G41 D1</b> program podaje wymiary z rysunku, a sterowanie prowadzi środek freza z lewej strony konturu (patrząc w kierunku ruchu), odsunięty o promień z D1.</>}
+      marks={[<>dojazd z korekcją</>, <>lewa krawędź</>, <>naroże R10</>, <>kolejne naroża</>]}>
       {(c) => (
         <g>
           <path d={rr(m, 0, 0, 80, 50, 10)} fill={c.hatch} className="p-con" />

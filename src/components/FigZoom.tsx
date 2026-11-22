@@ -10,7 +10,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 */
 const STEPS = [1, 1.5, 2, 3];
 
-export default function FigZoom({ title, caption, marks, children }: { title: string; caption?: ReactNode; marks?: ReactNode[]; children: ReactNode }) {
+export default function FigZoom({ title, caption, marks, marksFrom = 1, children }: { title: string; caption?: ReactNode; marks?: ReactNode[]; marksFrom?: number; children: ReactNode }) {
   const dlg = useRef<HTMLDialogElement>(null);
   const [open, setOpen] = useState(false);
   const [k, setK] = useState(0);
@@ -38,7 +38,7 @@ export default function FigZoom({ title, caption, marks, children }: { title: st
             <div className="fz-fig" style={{ width: `${z * 100}%`, maxWidth: `${860 * z}px` }}>{children}</div>
             {caption && <p className="fz-cap">{caption}</p>}
             {marks && marks.length > 0 && (
-              <ul className="oznaczenia fig-marks">{marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + 1}</span>{m}</li>)}</ul>
+              <ul className="oznaczenia fig-marks">{marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + marksFrom}</span>{m}</li>)}</ul>
             )}
           </div>
         </dialog>

@@ -166,7 +166,8 @@ export function CornerIJ() {
   return (
     <Fig id="f34ij" code="I J" title="Naroże przez I, J: wektor od startu do środka" h={248} legend={["arc", "acc", "stock"]}
       notes={<><Code k="arc">G02 X10. Y55. I15. J0.</Code></>}
-      caption={<>I i J to składowe wektora od punktu startu łuku (X−5 Y40) do jego środka (X10 Y40): w X o 15, w Y o 0 — J0 nie ma długości, więc nie ma strzałki. 1 — I = 10 − (−5). 2 — J = 40 − 40. 3 — kierunek G02. 4 — punkt końcowy X10 Y55.</>}>
+      caption={<>I i J to składowe wektora od punktu startu łuku (X−5 Y40) do jego środka (X10 Y40); J0 nie ma długości, więc nie ma strzałki.</>}
+      marks={[<>I = 10 − (−5) = 15</>, <>J = 40 − 40 = 0</>, <>kierunek G02</>, <>punkt końcowy X10 Y55</>]}>
       {(c) => (
         <g>
           <path d={part} fill={c.hatch} className="p-con" />

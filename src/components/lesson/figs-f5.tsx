@@ -322,7 +322,8 @@ export function TapRun() {
   return (
     <Fig id="f53rn" code="G84" title="Jeden otwór M6×1 — przebieg cyklu" h={246} legend={["cut", "stock"]}
       notes={<><Code k="acc">1  M29 S500</Code><Code k="cut">2–4  G84 X10. Y10. Z-15. R5. F500</Code><Code k="arc">6  wyjście do R5</Code></>}
-      caption={<>1 — tryb sztywny przed cyklem. 2 — od R5 obroty i oś Z ruszają razem. 3 — wejście z F = S · P = 500 mm/min. 4 — koniec gwintownika w Z−15, o nakrój 3 mm poniżej pełnego gwintu. 5 — pod nim 2,1 mm pełnej średnicy otworu. 6 — obroty odwrócone, wyjście tym samym torem do R5.</>}>
+      caption={<>Jeden otwór M6×1 gwintowany cyklem G84 w trybie sztywnym.</>}
+      marks={[<>tryb sztywny przed cyklem</>, <>od R5 obroty i oś Z ruszają razem</>, <>wejście z F = S · P = 500 mm/min</>, <>koniec gwintownika w Z−15, o nakrój 3 mm poniżej pełnego gwintu</>, <>pod nim 2,1 mm pełnej średnicy otworu</>, <>obroty odwrócone, wyjście tym samym torem do R5</>]}>
       {(c) => (
         <g>
           <polygon points={`${P(-19, 0)} ${P(xs - rH, 0)} ${P(xs - rH, zFull)} ${P(xs, zTip)} ${P(xs + rH, zFull)} ${P(xs + rH, 0)} ${P(25, 0)} ${P(25, -20.5)} ${P(-19, -20.5)}`} fill={c.hatch} className="p-con" />
@@ -385,7 +386,8 @@ export function RetractRun() {
   return (
     <Fig id="f54rn" code="G98 G99" title="Trzy otwory — tor narzędzia" h={232} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">1  G00 Z30.</Code><Code k="cut">2  G99 G81 X15. … R2.</Code><Code k="cut">3  G98 X45.</Code><Code k="cut">4  G99 X75.</Code><Code k="acc">5  G80</Code></>}
-      caption={<>1 — start nad pierwszym otworem na Z30: ta wysokość staje się poziomem początkowym. 2 — otwór X15 z G99: powrót do R2 i przejazd do X45 tuż nad detalem. 3 — otwór X45 z G98: powrót na Z30, przejazd nad dociskiem. 4 — otwór X75 z G99: znów powrót do R2. 5 — G80 kasuje cykl.</>}>
+      caption={<>Trzy otwory: G99 wraca do płaszczyzny R, G98 na poziom początkowy, żeby przejechać nad dociskiem.</>}
+      marks={[<>start nad pierwszym otworem na Z30: ta wysokość staje się poziomem początkowym</>, <>otwór X15 z G99: powrót do R2 i przejazd do X45 tuż nad detalem</>, <>otwór X45 z G98: powrót na Z30, przejazd nad dociskiem</>, <>otwór X75 z G99: znów powrót do R2</>, <>G80 kasuje cykl</>]}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={12 * m.u} fill={c.hatch} className="p-con" />
