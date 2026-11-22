@@ -18,6 +18,7 @@ import { PREFS_SCRIPT } from "@/lib/ui/prefs";
 import { AdminFooterLink } from "@/components/edycja/AdminGate";
 import { EditBar } from "@/components/edycja/EditMode";
 import BrandLogo from "@/components/BrandLogo";
+import "katex/dist/katex.min.css";
 import "./globals.css";
 import "./tactile.css";
 import "./technologia.css";

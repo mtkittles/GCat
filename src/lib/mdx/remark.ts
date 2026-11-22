@@ -7,6 +7,7 @@ import { anchorRe } from "./schema";
 import { motionClass } from "@/lib/motionClass";
 import { parseProgram } from "@/lib/parser";
 import { normLine, progHash } from "@/lib/progHash";
+import { parseLegend, texError, texPlain } from "@/components/Wzor";
 
 /*
   Plugin remark dla treści GCat (MDX):
@@ -164,7 +165,10 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         case "mdxJsxFlowElement": {
           if (n.name === "Note") return unesc(n.children.length ? source.slice(n.children[0].position!.start.offset!, n.children[n.children.length - 1].position!.end.offset!) : "");
           if (n.name === "Code" || n.name === "Sim") return String(strAttr(n, "caption") ?? "");
-          if (n.name === "Wzor") return [strAttr(n, "caption"), strAttr(n, "f"), strAttr(n, "legend")].filter((x) => typeof x === "string").join(" ").replace(/[_^{}]/g, "");
+          if (n.name === "Wzor") {
+            const f = strAttr(n, "f"), lg = strAttr(n, "legend"), cap = strAttr(n, "caption");
+            return [typeof cap === "string" ? cap : "", typeof f === "string" ? texPlain(f) : "", typeof lg === "string" ? parseLegend(lg).map((x) => `${texPlain(x.sym)} ${x.desc}`).join(" ") : ""].join(" ").trim();
+          }
           if (n.name === "Table") { const t = n.children.find((c): c is Table => c.type === "table"); return t ? cells(t).join(" ") : ""; }
           return "";
         }
@@ -212,8 +216,10 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         }
         if (el.name === "Wzor") {
           const f = strAttr(el, "f");
-          if (typeof f !== "string" || !f.trim()) at(n, `<Wzor> wymaga f="…" (zapis wzoru, np. n = 1000 · V_c / (π · D))`);
-          else if ((f.match(/\(/g) ?? []).length !== (f.match(/\)/g) ?? []).length) at(n, `<Wzor f="${f}">: niedomknięty nawias`);
+          if (typeof f !== "string" || !f.trim()) at(n, `<Wzor> wymaga f="…" (zapis LaTeX, np. n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D})`);
+          else { const e = texError(f); if (e) at(n, `<Wzor>: błąd zapisu wzoru — ${e}`); }
+          const lg = strAttr(el, "legend");
+          if (typeof lg === "string") for (const it of parseLegend(lg)) { const e = texError(it.sym); if (e) at(n, `<Wzor> legenda „${it.sym}”: błąd zapisu symbolu — ${e}`); }
         }
         if (el.name === "Obraz") {
           const src = strAttr(el, "src");

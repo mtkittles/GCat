@@ -3455,19 +3455,14 @@ a.rys-btn { text-decoration: none; }
 }
 
 /* ================= standard treści (pilotaż 2026-11-22): wzór, lista oznaczeń, kod programu w opisie ================= */
-/* <Wzor>: karta ze standardu, wzór wyśrodkowany (Inter, --fs-h3), zmienne kursywą, legenda symboli pod kreską */
+/* <Wzor>: karta ze standardu, wzór wyśrodkowany w kroju matematycznym KaTeX (tylko w ramce), legenda symboli pod kreską */
 .wzor { margin: 0; max-width: 68ch; display: grid; gap: .6rem; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
 .wzor-cap { font-size: var(--fs-small); font-weight: 500; color: var(--muted); text-align: center; }
-.wzor-f { display: grid; gap: .35rem; justify-items: center; font-family: var(--font-sans); font-size: var(--fs-h3); line-height: 1.5; color: var(--ink); text-align: center; overflow-wrap: anywhere; }
-.wzor-line { max-width: 100%; }
-.wzor-f i, .wzor-leg dt i { font-style: italic; }
-.wzor :is(sub, sup) { font-size: var(--fs-small); line-height: 0; font-style: normal; }
-.wzor sub { vertical-align: -.28em; }
-.wzor sup { vertical-align: .42em; }
-.wz-sqrt { white-space: nowrap; }
-.wz-rad { border-top: 1.5px solid currentColor; padding: .05em .12em 0; margin-left: .04em; }
-.wzor-leg { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem .9rem; align-items: baseline; padding-top: .6rem; border-top: 1px solid var(--line); font-size: var(--fs-aux); color: var(--ink-2); }
-.wzor-leg dt { font-family: var(--font-sans); font-size: var(--fs-text); color: var(--ink); text-align: right; white-space: nowrap; }
+.wzor-f { font-size: var(--fs-text); color: var(--ink); text-align: center; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: .15rem 0; }
+.wzor-f .katex-display { margin: 0; }
+.wzor-err { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--red-ink); }
+.wzor-leg { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .35rem .9rem; align-items: baseline; padding-top: .6rem; border-top: 1px solid var(--line); font-size: var(--fs-aux); color: var(--ink-2); }
+.wzor-leg dt { text-align: left; color: var(--ink); white-space: nowrap; }
 .wzor-leg dd { margin: 0; line-height: 1.5; }
 .wzor-unit { margin-left: .45em; font-family: var(--font-mono); font-size: var(--fs-small); color: var(--muted); }
 .wzor-unit::before { content: "["; } .wzor-unit::after { content: "]"; }
@@ -3482,3 +3477,24 @@ a.rys-btn { text-decoration: none; }
 .inline-code.is-prog { cursor: pointer; text-decoration: underline dotted; text-underline-offset: .25em; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
 .inline-code.is-prog:hover { border-color: var(--ink-2); }
 .inline-code.is-prog:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+/* pole wzoru w panelu edytora: paleta elementów, podgląd, błąd zapisu */
+.ed-wzor-pal { display: flex; flex-wrap: wrap; gap: .25rem; }
+.ed-wzor-pal button { min-width: 2.2rem; min-height: 2.2rem; padding: .15rem .45rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: var(--fs-small); }
+.ed-wzor-pal button:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.ed-wzor-tabs { display: flex; flex-wrap: wrap; gap: .2rem; }
+.ed-wzor-tabs button { padding: .25rem .55rem; border-radius: 999px; border: 1px solid transparent; background: none; color: var(--muted); font-size: var(--fs-label); }
+.ed-wzor-tabs button[aria-selected="true"] { background: var(--surface-2); border-color: var(--line-strong); color: var(--ink); }
+.ed-wzor-mf math-field { display: block; width: 100%; min-height: 3.2rem; padding: .5rem .6rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font-size: var(--fs-h3);
+  --primary-color: var(--ink-2); --caret-color: var(--ink); --selection-color: var(--ink); --selection-background-color: color-mix(in srgb, var(--ink-2) 30%, transparent);
+  --contains-highlight-background-color: var(--surface-2); --placeholder-color: var(--ink-2); --placeholder-opacity: .9; --smart-fence-color: var(--muted); --text-font-family: var(--font-sans); }
+.ed-wzor-mf math-field:focus-within { outline: 2px solid var(--ink-2); outline-offset: 1px; }
+.ed-wzor-mf math-field::part(virtual-keyboard-toggle) { display: none; }
+/* klawiatura i podpowiedzi MathLive nad edytorem (.ed-shell z-index 1100, rysownik 1200) */
+body { --keyboard-zindex: 1300; --suggestion-zindex: 1310; }
+.ed-wzor-pal button .katex { font-size: 1em; }
+.ed-wzor-acts { display: flex; gap: .4rem; }
+.ed-wzor-latex summary { cursor: pointer; color: var(--muted); font-size: var(--fs-label); }
+.ed-wzor-latex textarea { margin-top: .3rem; }
+.ed-wzor-err { color: var(--red-ink); }
+.ed-panel .ed-wzor-pole textarea.is-mono { font-size: var(--fs-small); line-height: 1.5; }
+.ed-wzor-pal button:disabled { opacity: .45; }

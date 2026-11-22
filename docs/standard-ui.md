@@ -153,10 +153,20 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
   `* **(1) Chwyt:** część mocowana…` — każdy punkt listy zaczyna się od `(n)` w pogrubieniu. Strona pokazuje numer
   w kółku jak znacznik na rysunku (`.ozn-nr`, styl `.fig .step`), bez kropek listy (`ul.oznaczenia`).
 - **Wzór** — wzór, z którego się liczy, idzie do ramki `<Wzor f="…" legend="…" caption="…" />` (`components/Wzor.tsx`):
-  karta (`--card`, `--line`, `--radius-lg`), wzór wyśrodkowany, Inter `--fs-h3`, zmienne kursywą, indeksy i liczby prosto,
-  π i funkcje prosto; pod kreską legenda „symbol — znaczenie [jednostka]” (`--fs-aux`, jednostka Mono). Zapis: `_` indeks
-  (V_c, D_{cap}), `^` wykładnik, `√(…)` pierwiastek, `;` kolejny wzór w tej samej ramce. Indeksy dolne tylko w ramce;
-  w zdaniach zostaje „Vc”, „fz”. Krótkie zależności w zdaniu („α + β + γ = 90°”) mogą zostać w tekście.
+  karta (`--card`, `--line`, `--radius-lg`), wzór wyśrodkowany, pod kreską legenda „symbol — znaczenie [jednostka]”
+  (Inter `--fs-aux`, jednostka Mono), symbole w jednej pionowej linii (do lewej).
+  **Skład matematyczny: KaTeX** (LaTeX → HTML + MathML dla czytników). Krój matematyczny KaTeX to jedyny wyjątek od
+  trzech krojów serwisu i występuje tylko w ramce wzoru i w legendzie symboli. Ułamek zawsze jako licznik nad
+  mianownikiem (`\frac{…}{…}`), indeksy `V_c`, potęgi `D^4`, pierwiastek `\sqrt{…}`, znaki `\cdot \approx \propto \le`,
+  kilka wzorów w ramce: `\\` (jeden pod drugim), z `&=` — wyrównane do znaku. Przecinek dziesiętny wpisuje się zwyczajnie.
+  Znak w legendzie, gdy może być nieznany czytelnikowi (np. `\propto — jest proporcjonalne do`).
+  W edytorze: przycisk „Wzór”, w panelu pole wzoru jak edytor równań w Wordzie (MathLive, `edytor/WzorPole.tsx`):
+  wzór widać złożony, szablony wstawiają pola □ (ułamek: licznik/mianownik, indeks: mniejsze pole, pierwiastek, nawiasy,
+  suma, całka, granica, klamra), Tab — następne pole, „Nowy wiersz”/Ctrl+Enter — kolejny wzór pod spodem. Paleta w
+  zakładkach (Układ, Działania, Strzałki i geometria, Greckie, Funkcje) + klawiatura ekranowa MathLive. Zapis LaTeX
+  podglądowo w „Zapis LaTeX”. Puste pole □ i błędny zapis — komunikat po polsku; build odrzuca błędny zapis.
+  Indeksy dolne tylko w ramce; w zdaniach zostaje „Vc”, „fz”. Krótkie zależności w zdaniu („α + β + γ = 90°”) mogą zostać
+  w tekście.
 - **Przebieg programu** — pod symulatorem lista kroków; każdy krok zaczyna się fragmentem kodu, który jest linią programu
   z tej strony (`` `G01 Z-3. F300` ``). Fragment dostaje kolor ruchu tej linii jak w edytorze (G00 bursztyn, G01 zieleń,
   G02/G03 błękit; także linia bez słowa ruchu, np. `X10.` po G01), T/M/S zostają neutralne. Kliknięcie (albo Enter)

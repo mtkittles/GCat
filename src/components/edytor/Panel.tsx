@@ -14,6 +14,7 @@ import { around, deleteBlock, duplicateBlock, moveBlock, topBlock } from "./bloc
 import { ei } from "./icons";
 import { usePendingCtx } from "./pending";
 import { TermPicker } from "./Toolbar";
+import WzorPole from "./WzorPole";
 
 /*
   Panel po prawej (jak w rysowniku): Blok — właściwości bloku pod kursorem; Karta — wszystkie pola karty;
@@ -136,8 +137,8 @@ function BlockPanel({ editor }: { editor: Editor }) {
   else if (c?.type === "widget") body = <Group title="Narzędzie"><Seg label="Narzędzie" value={String(a.id)} options={WIDGETS.map((w) => [w, WIDGET_LABEL[w]] as [string, string])} onChange={(v) => set({ id: v })} /></Group>;
   else if (c?.type === "wzor") body = (
     <Group title="Wzór">
-      <Text label="Wzór" mono rows={2} value={String(a.f ?? "")} placeholder="n = 1000 · V_c / (π · D)" onChange={(v) => set({ f: v })} hint="_ indeks dolny (V_c, D_{cap}), ^ wykładnik (ae^2), √(…) pierwiastek, ; kolejny wzór w tej samej ramce. Zmienne pokażą się kursywą." />
-      <Text label="Legenda" rows={4} value={String(a.legend ?? "")} placeholder="n — obroty wrzeciona [obr/min]; D — średnica [mm]" onChange={(v) => set({ legend: v })} hint="Wpisy rozdzielone średnikiem: symbol — znaczenie [jednostka]." />
+      <WzorPole value={String(a.f ?? "")} onChange={(v) => set({ f: v })} />
+      <Text label="Legenda" rows={4} value={String(a.legend ?? "")} placeholder="n — obroty wrzeciona [obr/min]; D — średnica [mm]" onChange={(v) => set({ legend: v })} hint="Wpisy rozdzielone średnikiem i spacją: symbol — znaczenie [jednostka]. Symbol w tym samym zapisie co wzór (V_c, \kappa_r, \propto)." />
       <Text label="Podpis nad wzorem" value={String(a.caption ?? "")} onChange={(v) => set({ caption: v })} />
     </Group>
   );

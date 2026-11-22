@@ -95,7 +95,7 @@ export const NEW: Record<string, () => JSONContent> = {
   rys: () => ({ type: "rys", attrs: { id: "" } }),
   obraz: () => ({ type: "obraz", attrs: { src: "", alt: "", caption: "" } }),
   widget: () => ({ type: "widget", attrs: { id: "rij" } }),
-  wzor: () => ({ type: "wzor", attrs: { f: "n = 1000 · V_c / (π · D)", legend: "n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica [mm]", caption: "" } }),
+  wzor: () => ({ type: "wzor", attrs: { f: "n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D}", legend: "n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica [mm]", caption: "" } }),
 };
 
 /** Ramka: zawija zaznaczone akapity; w ramce zmienia jej rodzaj albo ją zdejmuje (ten sam rodzaj). */
