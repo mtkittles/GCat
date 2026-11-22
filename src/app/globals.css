@@ -24,6 +24,7 @@
   --fs-label: .75rem;
   --fs-micro: .6875rem;
   --fs-num: 1.75rem;
+  --fs-math-var: 1.1em;   /* zmienne we wzorach (KaTeX ma niską wysokość x) — o 10% większe od cyfr, nie mniejsze od nich */
   --lh-text: 1.65;
   --lh-aux: 1.5;
   --lh-code: 1.55;
@@ -3453,3 +3454,55 @@ a.rys-btn { text-decoration: none; }
   [data-theme="light"] .view3d-pop button { color: var(--ink); }
   [data-theme="light"] .view3d-pop button[aria-pressed="true"] { color: var(--accent-ink); }
 }
+
+/* ================= standard treści (pilotaż 2026-11-22): wzór, lista oznaczeń, kod programu w opisie ================= */
+/* <Wzor>: karta ze standardu, wzór wyśrodkowany w kroju matematycznym KaTeX (tylko w ramce), legenda symboli pod kreską */
+.wzor { margin: 0; max-width: 68ch; display: grid; gap: .6rem; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.wzor-cap { font-size: var(--fs-small); font-weight: 500; color: var(--muted); text-align: center; }
+.wzor-rows { display: grid; gap: 1.15rem; }
+.wzor-row { display: grid; gap: .3rem; }
+.wzor-lab { font-size: var(--fs-small); font-weight: 500; color: var(--muted); text-align: center; }
+.wzor-f { font-size: var(--fs-text); color: var(--ink); text-align: center; max-width: 100%; overflow-x: auto; overflow-y: hidden; padding: .15rem 0; }
+.wzor .katex .mathnormal, .wzor-obl .katex .mathnormal { font-size: var(--fs-math-var); }
+/* obliczenie pod wzorem: ten sam skład (ułamki, indeksy), bez ramki i legendy */
+.wzor-obl { max-width: 68ch; display: grid; gap: .35rem; padding: .25rem 0; }
+.wzor-obl .wzor-rows { gap: .9rem; }
+.wzor-f .katex-display { margin: 0; }
+.wzor-err { font-family: var(--font-mono); font-size: var(--fs-small); color: var(--red-ink); }
+.wzor-leg { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .35rem .9rem; align-items: baseline; padding-top: .6rem; border-top: 1px solid var(--line); font-size: var(--fs-aux); color: var(--ink-2); }
+.wzor-leg dt { text-align: left; color: var(--ink); white-space: nowrap; font-size: var(--fs-text); }
+.wzor-leg dd { margin: 0; line-height: 1.5; }
+.wzor-unit { margin-left: .45em; font-family: var(--font-mono); font-size: var(--fs-small); color: var(--muted); }
+.wzor-unit::before { content: "["; } .wzor-unit::after { content: "]"; }
+
+/* lista oznaczeń pod rysunkiem: numer w kółku jak znacznik na rysunku (.fig .step), bez kropek listy */
+.article ul.oznaczenia { list-style: none; padding-left: 0; display: grid; gap: .55rem; }
+.article ul.oznaczenia > li { position: relative; padding-left: 2.1rem; }
+.article ul.oznaczenia > li::marker { content: none; }
+.ozn-nr { position: absolute; left: 0; top: .12em; width: 1.5rem; height: 1.5rem; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--ink-2); background: var(--surface-2); color: var(--ink); font: 700 var(--fs-label)/1 var(--font-mono); }
+
+/* fragment kodu = linia programu ze strony: kolor ruchu tej linii, kliknięcie ustawia symulator */
+.inline-code.is-prog { cursor: pointer; text-decoration: underline dotted; text-underline-offset: .25em; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
+.inline-code.is-prog:hover { border-color: var(--ink-2); }
+.inline-code.is-prog:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
+/* pole wzoru w panelu edytora: paleta elementów, podgląd, błąd zapisu */
+.ed-wzor-pal { display: flex; flex-wrap: wrap; gap: .25rem; }
+.ed-wzor-pal button { min-width: 2.2rem; min-height: 2.2rem; padding: .15rem .45rem; border-radius: var(--radius-sm); border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-size: var(--fs-small); }
+.ed-wzor-pal button:hover { border-color: var(--line-strong); background: var(--surface-2); }
+.ed-wzor-tabs { display: flex; flex-wrap: wrap; gap: .2rem; }
+.ed-wzor-tabs button { padding: .25rem .55rem; border-radius: 999px; border: 1px solid transparent; background: none; color: var(--muted); font-size: var(--fs-label); }
+.ed-wzor-tabs button[aria-selected="true"] { background: var(--surface-2); border-color: var(--line-strong); color: var(--ink); }
+.ed-wzor-mf math-field { display: block; width: 100%; min-height: 3.2rem; padding: .5rem .6rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); background: var(--card); color: var(--ink); font-size: var(--fs-h3);
+  --primary-color: var(--ink-2); --caret-color: var(--ink); --selection-color: var(--ink); --selection-background-color: color-mix(in srgb, var(--ink-2) 30%, transparent);
+  --contains-highlight-background-color: var(--surface-2); --placeholder-color: var(--ink-2); --placeholder-opacity: .9; --smart-fence-color: var(--muted); --text-font-family: var(--font-sans); }
+.ed-wzor-mf math-field:focus-within { outline: 2px solid var(--ink-2); outline-offset: 1px; }
+.ed-wzor-mf math-field::part(virtual-keyboard-toggle) { display: none; }
+/* klawiatura i podpowiedzi MathLive nad edytorem (.ed-shell z-index 1100, rysownik 1200) */
+body { --keyboard-zindex: 1300; --suggestion-zindex: 1310; }
+.ed-wzor-pal button .katex { font-size: 1em; }
+.ed-wzor-acts { display: flex; gap: .4rem; }
+.ed-wzor-latex summary { cursor: pointer; color: var(--muted); font-size: var(--fs-label); }
+.ed-wzor-latex textarea { margin-top: .3rem; }
+.ed-wzor-err { color: var(--red-ink); }
+.ed-panel .ed-wzor-pole textarea.is-mono { font-size: var(--fs-small); line-height: 1.5; }
+.ed-wzor-pal button:disabled { opacity: .45; }

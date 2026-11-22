@@ -56,6 +56,8 @@ import { segSeconds } from "@/lib/parser/stats";
 import { useMedia } from "@/lib/ui/prefs";
 import { useSimBarSlot } from "./simBarSlot";
 import { framed } from "./frame";
+import { progressAtLine } from "./seek";
+import { PROG_LINE_EVENT, progHash, type ProgLineDetail } from "@/lib/progHash";
 const GcodeEditor = dynamic(() => import("./GcodeEditor"), { ssr: false, loading: () => <div className="gcode-editor skel skel-code" style={{ minHeight: 200 }} aria-busy="true" aria-label="Wczytywanie edytora" /> });
 const GcodePad = dynamic(() => import("./GcodePad"), { ssr: false });
 const StatsPanel = dynamic(() => import("./StatsPanel"), { ssr: false });
@@ -302,6 +304,20 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     return { min, max };
   }, [partSegs, program, mode, showStock, compact, showcase, stockBox, refSegments]);
   const lengths = useMemo(() => segments.map(playLength), [segments]);
+  // fragment kodu w opisie artykułu (data-prog-line) ustawia ten symulator na wskazanej linii — standard treści 2026-11-22
+  const srcHash = useMemo(() => progHash(source), [source]);
+  useEffect(() => {
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<ProgLineDetail>).detail;
+      if (!d || d.hash !== srcHash) return;
+      const p = progressAtLine(segments, lengths, d.line);
+      if (p === null) return;
+      userPlay(false);
+      setProgress(p);
+    };
+    window.addEventListener(PROG_LINE_EVENT, on);
+    return () => window.removeEventListener(PROG_LINE_EVENT, on);
+  }, [srcHash, segments, lengths, userPlay]);
   // wymiary pręta na tokarce — widok musi objąć cały przekrój, nie tylko tor
   const latheStockBox = useMemo(() => {
     if (mode !== "lathe") return null;

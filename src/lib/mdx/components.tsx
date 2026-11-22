@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import type { MDXComponents } from "mdx/types";
 import ArcCalc from "@/components/ArcCalc";
 import { diagrams } from "@/components/diagrams";
+import WzorView from "@/components/Wzor";
+import { progHash } from "@/lib/progHash";
 import { FigEdit } from "@/components/edycja/EditMode";
 import JogDemo from "@/components/lesson/JogDemo";
 import { rich } from "@/components/Rich";
@@ -54,7 +56,7 @@ export function Code({ src, caption }: { src: string; caption?: string }) {
 export function Sim({ src, mode, caption, name }: { src: string; mode?: Mode; caption?: string; name?: string }) {
   // na karcie: animacja jak <Demo> + „Otwórz w symulatorze” (paczka Z b, decyzja 7 audytu kart); podpis pod animacją
   return (
-    <figure className="grid gap-2 demo-fig">
+    <figure className="grid gap-2 demo-fig" data-prog={progHash(src)}>
       <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
       <OpenInSim src={src} mode={mode ?? "mill"} name={name} />
       {caption && <figcaption className="cap">{rich(caption)}</figcaption>}
@@ -65,13 +67,18 @@ export function Sim({ src, mode, caption, name }: { src: string; mode?: Mode; ca
 /** <Demo mode title caption>```…```</Demo> — animacja bez edycji (blok `demo`). */
 export function Demo({ src, mode, title, caption }: { src: string; mode?: Mode; title?: string; caption?: string }) {
   return (
-    <figure className="grid gap-2 demo-fig">
+    <figure className="grid gap-2 demo-fig" data-prog={progHash(src)}>
       {title && <figcaption className="demo-title">{rich(title)}</figcaption>}
       <SimClient initial={src} mode={mode ?? "mill"} showcase autoplay="wide" controls editable={false} />
       <OpenInSim src={src} mode={mode ?? "mill"} name={title} />
       {caption && <figcaption className="cap">{rich(caption)}</figcaption>}
     </figure>
   );
+}
+
+/** <Wzor f="…" legend="…" caption="…" kind? /> — wzór w ramce z legendą albo obliczenie (standard treści 2026-11-22). */
+export function Wzor({ f, legend, caption, kind }: { f: string; legend?: string; caption?: string; kind?: string }) {
+  return <WzorView f={f} legend={legend} caption={caption} kind={kind} />;
 }
 
 /** Przycisk „Otwórz w symulatorze” pod animacją — ten sam program w pełnym warsztacie (`/symulator?kod=…`). */
@@ -102,6 +109,6 @@ export function Kolor({ k, children }: { k: "g00" | "g01" | "g02" | "akcent" | "
   return <span className={`kolor kolor-${k}`}>{children}</span>;
 }
 
-export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table, Kolor } satisfies MDXComponents;
+export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table, Kolor, Wzor } satisfies MDXComponents;
 
 export { componentNames, diagramIds } from "./names";

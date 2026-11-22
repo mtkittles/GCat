@@ -1,10 +1,13 @@
-import type { Heading, InlineCode, Nodes, PhrasingContent, Root, Table, Text } from "mdast";
+import type { Heading, InlineCode, List, Nodes, PhrasingContent, Root, Strong, Table, Text } from "mdast";
 import type { MdxJsxAttribute, MdxJsxFlowElement, MdxJsxTextElement } from "mdast-util-mdx-jsx";
 import { visit } from "unist-util-visit";
 import { tableClass } from "@/lib/tableKind";
 import { resolveKey, type TermSources } from "./resolve";
 import { anchorRe } from "./schema";
 import { motionClass } from "@/lib/motionClass";
+import { parseProgram } from "@/lib/parser";
+import { normLine, progHash } from "@/lib/progHash";
+import { WZOR_KINDS, captionError, parseLegend, texError, texPlain } from "@/components/Wzor";
 
 /*
   Plugin remark dla treści GCat (MDX):
@@ -18,6 +21,12 @@ import { motionClass } from "@/lib/motionClass";
   • <Code>/<Sim>/<Demo> zawierają jeden blok ``` — jego treść staje się atrybutem `src`.
   • Tabela GFM → <Table> (figure + klasy + data-label z nagłówka) jak blok `table` w Article.tsx.
   • file.data.gcat = { headings, diagrams, text, programs } — spis treści, „czy jest rysunek”, tekst do wyszukiwarki, programy.
+  Standard treści (pilotaż 2026-11-22):
+  • Lista oznaczeń: lista, w której każdy punkt zaczyna się od **(1) Nazwa:** → <ul class="oznaczenia">, numer jako
+    kółko jak na rysunku (span.ozn-nr), bez kropek listy.
+  • programLinks: `kod` równy linii programu z <Sim>/<Demo>/<Code> na tej stronie → kolor ruchu tej linii
+    (is-g00/g01/g02) + data-prog/data-prog-line (kliknięcie ustawia symulator na linii, components/ProgLinks.tsx).
+  • <Wzor f="…" legend="…" caption="…" /> — wzór w ramce (components/Wzor.tsx); kind="obliczenie" — rachunek bez ramki.
 */
 
 /** Wartości atrybutów komponentów (jak typy bloków w src/lib/article.ts). */
@@ -69,6 +78,8 @@ export interface GcatRemarkOptions {
   requireHeadingIds?: boolean;
   /** Czy plik public/<src> istnieje (dla <Obraz>); brak = bez kontroli — kompilacja w przeglądarce (edytor) nie ma dysku. */
   publicFile?: (src: string) => boolean;
+  /** Fragmenty kodu w tekście = linie programu z tej strony: kolor ruchu i przeskok symulatora (standard treści). */
+  programLinks?: boolean;
 }
 
 export interface ContentIssue { line?: number; column?: number; message: string }
@@ -136,6 +147,8 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     };
 
     const meta: GcatMeta = { headings: [], diagrams: 0, text: "", programs: [] };
+    /** wszystkie programy strony (także <Code>) — do przypisania fragmentów kodu w tekście */
+    const progs: { src: string; mode: "mill" | "lathe"; linked: boolean }[] = [];
     const source = String(file.value ?? "");
 
     // 0. Tekst do wyszukiwarki — z surowego źródła, przed przekształceniami (jeden wpis na blok najwyższego poziomu).
@@ -152,6 +165,10 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         case "mdxJsxFlowElement": {
           if (n.name === "Note") return unesc(n.children.length ? source.slice(n.children[0].position!.start.offset!, n.children[n.children.length - 1].position!.end.offset!) : "");
           if (n.name === "Code" || n.name === "Sim") return String(strAttr(n, "caption") ?? "");
+          if (n.name === "Wzor") {
+            const f = strAttr(n, "f"), lg = strAttr(n, "legend"), cap = strAttr(n, "caption");
+            return [typeof cap === "string" ? cap : "", typeof f === "string" ? texPlain(f) : "", typeof lg === "string" ? parseLegend(lg).map((x) => `${texPlain(x.sym)} ${x.desc}`).join(" ") : ""].join(" ").trim();
+          }
           if (n.name === "Table") { const t = n.children.find((c): c is Table => c.type === "table"); return t ? cells(t).join(" ") : ""; }
           return "";
         }
@@ -197,6 +214,18 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           if (typeof id !== "string") at(n, `<Rys> wymaga id="…" (nazwa rysunku z content/rysunki/)`);
           else if (opts.rysIds && !opts.rysIds.has(id)) at(n, `<Rys id="${id}" /> — nie ma pliku content/rysunki/${id}.yaml`);
         }
+        if (el.name === "Wzor") {
+          const f = strAttr(el, "f");
+          if (typeof f !== "string" || !f.trim()) at(n, `<Wzor> wymaga f="…" (zapis LaTeX, np. n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D})`);
+          else {
+            const e = texError(f); if (e) at(n, `<Wzor>: błąd zapisu wzoru — ${e}`);
+            const c = captionError(f, strAttr(el, "caption") as string | undefined); if (c) at(n, `<Wzor>: ${c}`);
+          }
+          const k = strAttr(el, "kind");
+          if (k !== undefined && !(WZOR_KINDS as readonly unknown[]).includes(k)) at(n, `<Wzor kind="${String(k)}"> — dozwolone: ${WZOR_KINDS.join(", ")} (albo bez kind: ramka z legendą)`);
+          const lg = strAttr(el, "legend");
+          if (typeof lg === "string") for (const it of parseLegend(lg)) { const e = texError(it.sym); if (e) at(n, `<Wzor> legenda „${it.sym}”: błąd zapisu symbolu — ${e}`); }
+        }
         if (el.name === "Obraz") {
           const src = strAttr(el, "src");
           if (typeof src !== "string" || !src.startsWith("/rysunki/") || src.includes("..")) at(n, `<Obraz> wymaga src="/rysunki/…" (plik w public/rysunki/)`);
@@ -223,6 +252,7 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           const src = (kids[0] as { value: string }).value;
           el.attributes.push(attr("src", src));
           el.children = [];
+          progs.push({ src, mode: strAttr(el, "mode") === "lathe" ? "lathe" : "mill", linked: el.name !== "Code" });
           if (el.name !== "Code") meta.programs.push({ kind: el.name === "Sim" ? "sim" : "demo", src, mode: strAttr(el, "mode") === "lathe" ? "lathe" : "mill" });
         }
       } else if (n.type === "code") at(n, "blok kodu ``` tylko wewnątrz <Code>, <Sim> albo <Demo>");
@@ -268,8 +298,53 @@ export function remarkGcat(opts: GcatRemarkOptions) {
     });
 
     // 4. `kod` jak w rich(): klasa inline-code (+ kolor słowa ruchu, lib/motionClass).
+    //    programLinks: fragment równy linii programu tej strony → kolor ruchu tej linii i odnośnik do symulatora.
+    const lines = opts.programLinks ? progs.map((p) => {
+      const prog = parseProgram(p.src, { diameterX: p.mode === "lathe" });
+      // rodzaj ruchu linii: z odcinka toru, a gdy go nie ma (pierwszy ruch, błąd) — z modalnego G00–G03, jeśli linia ma adres osi
+      const MODAL = ["rapid", "linear", "arc", "arc"];
+      const kind = (l: (typeof prog.lines)[number]) => prog.segments.find((sg) => sg.line === l.index && sg.kind !== "dwell")?.kind
+        ?? (/(^|\s)[XYZUWABC][-+.\d]/.test(normLine(l.raw ?? "")) && l.state?.motion != null ? MODAL[l.state.motion] : undefined);
+      return { hash: progHash(p.src), linked: p.linked, cursor: 0, rows: prog.lines.map((l) => ({ i: l.index, norm: normLine(l.raw ?? ""), kind: kind(l) })).filter((r) => r.norm) };
+    }) : [];
+    const findLine = (v: string) => {
+      const q = normLine(v);
+      if (!q) return null;
+      const words = q.split(" ").length;
+      const hit = (norm: string) => norm === q || (words >= 2 && norm.startsWith(q + " "));
+      for (const p of lines) {
+        const r = p.rows.find((x) => x.i >= p.cursor && hit(x.norm)) ?? p.rows.find((x) => hit(x.norm));
+        if (r) { p.cursor = r.i + 1; return { p, r }; }
+      }
+      return null;
+    };
+    const KIND: Record<string, string> = { rapid: " is-g00", linear: " is-g01", arc: " is-g02" };
     visit(tree, "inlineCode", (c: InlineCode) => {
-      c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), className: `inline-code${motionClass(c.value)}`.split(" ") } };
+      const bare = motionClass(c.value);
+      const m = bare ? null : findLine(c.value);
+      const props: Record<string, string | number | string[]> = { className: `inline-code${bare || (m?.r.kind ? KIND[m.r.kind] ?? "" : "")}${m?.p.linked ? " is-prog" : ""}`.split(" ") };
+      if (m?.p.linked) Object.assign(props, { dataProg: m.p.hash, dataProgLine: String(m.r.i), role: "button", tabIndex: 0, title: "Pokaż w symulatorze" });
+      c.data = { ...c.data, hProperties: { ...(c.data?.hProperties ?? {}), ...props } };
+    });
+
+    // 5. Lista oznaczeń: każdy punkt zaczyna się od **(n) Nazwa:** → numer w kółku jak na rysunku, bez kropek.
+    const OZN = /^\((\d{1,2})\)\s+/;
+    visit(tree, "list", (l: List) => {
+      if (l.ordered || !l.children.length) return;
+      const heads = l.children.map((li) => {
+        const p = li.children[0];
+        const s0 = p?.type === "paragraph" ? p.children[0] : undefined;
+        const t0 = s0?.type === "strong" ? (s0 as Strong).children[0] : undefined;
+        return t0?.type === "text" && OZN.test(t0.value) ? { p, s0: s0 as Strong, t0 } : null;
+      });
+      if (heads.some((h) => !h)) return;
+      l.data = { ...l.data, hProperties: { ...(l.data?.hProperties ?? {}), className: ["oznaczenia"] } };
+      for (const h of heads) {
+        const { p, t0 } = h!;
+        const n = t0.value.match(OZN)![1];
+        t0.value = t0.value.replace(OZN, "");
+        (p as { children: PhrasingContent[] }).children.unshift({ type: "text", value: n, data: { hName: "span", hProperties: { className: ["ozn-nr"] } } } as Text);
+      }
     });
 
     if (issues.length) throw new ContentError(file.path ?? "(treść)", issues);

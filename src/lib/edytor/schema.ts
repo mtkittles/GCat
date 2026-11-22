@@ -95,6 +95,8 @@ export const DiagramNode = atomBlock("diagram", { id: str("id") });
 export const RysNode = atomBlock("rys", { id: str("id"), /** rysunek z biblioteki, który ten zastąpił (przywrócenie w panelu; nie trafia do pliku) */ was: { default: "", rendered: false } as unknown as ReturnType<typeof str> });
 export const ObrazNode = atomBlock("obraz", { src: str("src"), alt: str("alt"), caption: str("caption") });
 export const WidgetNode = atomBlock("widget", { id: str("id", "rij") });
+/** <Wzor f legend caption kind> — wzór w ramce z legendą albo obliczenie (kind="obliczenie"); standard treści 2026-11-22 */
+export const WzorNode = atomBlock("wzor", { f: str("f"), legend: str("legend"), caption: str("caption"), kind: str("kind") });
 /** Blok, którego edytor nie zna — zostaje w pliku bez zmian (źródło MDX widoczne i edytowalne jako tekst). */
 export const RawNode = atomBlock("raw", { src: str("src") });
 
@@ -151,6 +153,7 @@ export function gcatExtensions(o: { placeholder?: string } = {}): AnyExtension[]
     RysNode,
     ObrazNode,
     WidgetNode,
+    WzorNode,
     RawNode,
     GfmTable,
     TableRow,

@@ -25,6 +25,7 @@ export const ei = {
   diagram: <I><path d="M3 16h14M4 15V4" /><path d="M5 13l3.5-4 3 2.5L16 6" /></I>,
   rys: <I><path d="M4 16 15 5l1.5 1.5L5.5 17.5H4z" /><path d="M13 7l1.5 1.5" /></I>,
   image: <I><rect x="3" y="4" width="14" height="12" rx="1.5" /><circle cx="7.5" cy="8.5" r="1.4" /><path d="M3.5 15l4.5-4 3 2.5 2.5-2 3 3" /></I>,
+  wzor: <I><path d="M5 5.5h3.5M6.8 5.5v9M11 9l3.5 5.5M14.5 9 11 14.5M4 16h4" /></I>,
   widget: <I><rect x="4" y="3" width="12" height="14" rx="1.5" /><path d="M7 6h6M7 9.5h1.5M11.5 9.5H13M7 13h1.5M11.5 13H13" /></I>,
   undo: <I><path d="M7 5L3.5 8.5 7 12" /><path d="M3.5 8.5H12a4 4 0 0 1 0 8H9" /></I>,
   redo: <I><path d="M13 5l3.5 3.5L13 12" /><path d="M16.5 8.5H8a4 4 0 0 0 0 8h3" /></I>,
