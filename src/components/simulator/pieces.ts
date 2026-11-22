@@ -31,9 +31,25 @@ export function pieceOrigins(program: Program, segments: Segment[], perWcs: bool
 }
 
 /**
+ * Półfabrykat z komentarza w programie, np. `(POLFABRYKAT 100X60X20)` — wymiary X × Y × Z w mm.
+ * Prostopadłościan od zera detalu: X i Y w plus, Z w dół od Z0 (zero na lewym przednim narożu, na górze).
+ * Działa przy półfabrykacie automatycznym; ręczne wymiary z ustawień mają pierwszeństwo.
+ */
+export function millStockFromComments(program: Program): { x: number; y: number; z: number } | null {
+  const n = (v: string) => Number(v.replace(",", "."));
+  for (const l of program.lines) {
+    const c = l.comment?.toUpperCase();
+    if (!c || !/POLFABRYKAT|PÓŁFABRYKAT/.test(c)) continue;
+    const m = c.match(/(\d+(?:[.,]\d+)?)\s*[X×]\s*(\d+(?:[.,]\d+)?)\s*[X×]\s*(\d+(?:[.,]\d+)?)/);
+    if (m && n(m[1]) > 0 && n(m[2]) > 0 && n(m[3]) > 0) return { x: n(m[1]), y: n(m[2]), z: n(m[3]) };
+  }
+  return null;
+}
+
+/**
  * Prostopadłościany półfabrykatów (współrzędne maszynowe), jeden na detal.
- * Ręczny wymiar: z ustawień, przesunięty do zera detalu. Automatyczny: obrys ruchów roboczych
- * tego detalu (z `margin` — plus promień największego narzędzia, jak w 3D).
+ * Ręczny wymiar: z ustawień, przesunięty do zera detalu. Automatyczny: z komentarza `(POLFABRYKAT AxBxC)`,
+ * a bez niego obrys ruchów roboczych tego detalu (z `margin` — plus promień największego narzędzia, jak w 3D).
  */
 export function stockBoxes(program: Program, segments: Segment[], setup: Setup, margin = true): PieceBox[] {
   const st = setup.stock;
@@ -42,6 +58,8 @@ export function stockBoxes(program: Program, segments: Segment[], setup: Setup, 
   if (!st.auto) {
     return origins.map((o) => ({ x0: o.x - st.ox, x1: o.x + st.x - st.ox, y0: o.y - st.oy, y1: o.y + st.y - st.oy, top: o.z + st.z - st.oz, bottom: o.z - st.oz, origin: o }));
   }
+  const note = millStockFromComments(program);
+  if (note) return origins.map((o) => ({ x0: o.x, x1: o.x + note.x, y0: o.y, y1: o.y + note.y, top: o.z, bottom: o.z - note.z, origin: o }));
   const r = margin ? Math.max(...Object.values(setup.tools).filter((t) => !isLatheTool(t.kind)).map((t) => t.d / 2), 3) : 0;
   const out: PieceBox[] = [];
   for (const o of origins) {

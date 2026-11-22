@@ -1,0 +1,142 @@
+---
+title: Geometria ostrza
+slug: geometria-ostrza
+dzial: narzedzia
+typ: temat
+order: 10
+short: >-
+  Kąty natarcia, przyłożenia, ostrza, przystawienia, naroża i pochylenia według
+  ISO 3002-1: gdzie się je mierzy, jak się sumują i jak wpływają na siły, wiór i
+  wytrzymałość krawędzi.
+obrobka:
+  - toczenie
+  - frezowanie
+poziom: 2
+normy:
+  - ISO 3002-1
+stan: szkic
+plan: free
+dodano: 2026-11-22
+sources:
+  - id: iso3002-1
+    where: >-
+      powierzchnia natarcia i przyłożenia, krawędź główna i pomocnicza, naroże;
+      płaszczyzny Pr, Ps, Po; kąty γo, αo, βo, κr, κr′, εr, ψr, λs i miejsca ich
+      pomiaru; αo + βo + γo = 90°, κr + εr + κr′ = 180°, κr + ψr = 90°; κr jest
+      zawsze dodatni; ψr to w USA „lead angle”
+    loc: pkt 3.3, 3.4, 4.1, 5.1.1–5.1.5, 5.3.1
+  - id: mmc-geometria-toczenie
+    where: >-
+      większy kąt natarcia: ostrzejsze skrawanie, opór mniejszy o ok. 1% na
+      każdy 1°, słabsza krawędź; większy do materiałów miękkich i przy słabej
+      sztywności, mniejszy do twardych i gdy potrzebna mocna krawędź; kąt
+      przyłożenia zapobiega tarciu o przedmiot; mniejszy kąt przystawienia
+      (większy „side cutting edge angle”): cieńszy i szerszy wiór, dłuższa
+      trwałość, większa siła odporowa, gorsze łamanie wióra; kąt przystawienia
+      krawędzi pomocniczej zwykle 5–15°, mniejszy daje mocniejsze ostrze, wyższą
+      temperaturę i większą siłę odporową; kąt pochylenia chroni krawędź przy
+      wejściu w ciężkie skrawanie, zalecany 3–5° przy toczeniu i 10–15° przy
+      frezowaniu
+    loc: Tool geometry
+  - id: mmc-katy-frez-czolowy
+    where: >-
+      osiowy kąt natarcia decyduje o kierunku spływu wióra, promieniowy o
+      ostrości, kąt przystawienia o grubości wióra, kąt pochylenia o kierunku
+      odprowadzania wióra; dodatni kąt pochylenia: dobre odprowadzanie wióra,
+      słabsza krawędź
+  - id: sandvik-kat-frezowanie
+    where: >-
+      przy mniejszym kącie przystawienia wiór jest cieńszy przy tym samym fz;
+      hex = fz · sin κr; przykład: hex 0,1 mm przy 45° wymaga fz = 1,4 · 0,1 mm
+powiazane:
+  kody: []
+  lekcje:
+    - FP.2
+    - TP.2
+    - T4.2
+  hasla:
+    - kąt-przystawienia
+    - pocienianie-wióra
+    - płytka-skrawająca
+    - wiór
+  artykuly:
+    - narzedzia/glowica-frezowa
+    - narzedzia/frez-trzpieniowy-walcowy
+    - materialy/materialy-narzedziowe
+  kalkulator: false
+---
+Ostrze noża, freza i wiertła to klin, który oddziela warstwę materiału. Kąty klina decydują o sile skrawania, o kierunku spływu wióra i o tym, ile krawędź wytrzyma. Norma ISO 3002-1 nazywa je jednakowo dla wszystkich narzędzi. Ten artykuł używa jej nazw i symboli.
+
+## Teoria \{#teoria}
+
+### Powierzchnie i krawędzie \{#powierzchnie-i-krawędzie}
+
+* **Powierzchnia natarcia (Aγ):** po niej spływa wiór.
+* **Powierzchnia przyłożenia (Aα):** mija ją powierzchnia, która powstaje na przedmiocie.
+* **Krawędź główna (S):** tworzy powierzchnię skrawania, czyli przejście od powierzchni obrabianej do obrobionej.
+* **Krawędź pomocnicza (S′):** pozostała część krawędzi. Nie tworzy powierzchni skrawania.
+* **Naroże:** krótki odcinek na styku krawędzi głównej i pomocniczej. Bywa zaokrąglone, ścięte albo ostre.
+
+### Płaszczyzny odniesienia \{#płaszczyzny-odniesienia}
+
+Kąty mierzy się w płaszczyznach przechodzących przez wybrany punkt krawędzi:
+
+* płaszczyzna podstawowa Pr, ustawiona zwykle prostopadle do kierunku ruchu głównego (prędkości skrawania),
+* płaszczyzna krawędzi Ps, styczna do krawędzi i prostopadła do Pr,
+* płaszczyzna ortogonalna Po, prostopadła do Pr i do Ps.
+
+### Kąty w płaszczyźnie ortogonalnej \{#kąty-w-płaszczyźnie-ortogonalnej}
+
+<Diagram id="tech-klin" />
+
+* **Kąt natarcia γ:** między powierzchnią natarcia a płaszczyzną Pr. Dodatni kąt natarcia zmniejsza kąt ostrza, ujemny go zwiększa.
+* **Kąt przyłożenia α:** między powierzchnią przyłożenia a płaszczyzną Ps. Odsuwa powierzchnię przyłożenia od przedmiotu, żeby o niego nie tarła.
+* **Kąt ostrza β:** między powierzchnią natarcia a powierzchnią przyłożenia.
+
+Trzy kąty zmierzone w płaszczyźnie Po dają razem 90°: α + β + γ = 90°.
+
+### Kąty w płaszczyźnie podstawowej \{#kąty-w-płaszczyźnie-podstawowej}
+
+<Diagram id="tech-katy-rzut" />
+
+* **Kąt przystawienia κr:** między krawędzią główną a kierunkiem posuwu. Według normy jest zawsze dodatni.
+* **Kąt przystawienia krawędzi pomocniczej κr′:** między krawędzią pomocniczą a kierunkiem posuwu, po drugiej stronie naroża.
+* **Kąt naroża εr:** między krawędzią główną a pomocniczą.
+
+W płaszczyźnie podstawowej κr + εr + κr′ = 180°. Norma definiuje też kąt ψr = 90° − κr, który katalogi amerykańskie nazywają „lead angle”.
+
+### Kąt pochylenia λs \{#kąt-pochylenia-λs}
+
+Kąt pochylenia krawędzi λs to kąt między krawędzią skrawającą a płaszczyzną Pr, mierzony w płaszczyźnie Ps. Decyduje o kierunku, w którym odpływa wiór. Pochylona krawędź wchodzi w materiał stopniowo, więc lepiej znosi uderzenie na początku ciężkiego skrawania. Mitsubishi Materials zaleca 3–5° przy toczeniu i 10–15° przy frezowaniu.
+
+### Wpływ kątów na skrawanie \{#wpływ-kątów-na-skrawanie}
+
+* **Kąt natarcia:** większy daje ostrzejsze skrawanie. Według Mitsubishi Materials każdy 1° w stronę dodatnią zmniejsza opór skrawania o około 1%, ale osłabia krawędź. Producent zaleca większy kąt do materiałów miękkich i przy słabej sztywności przedmiotu lub maszyny. Mniejszy kąt zaleca do materiałów twardych i tam, gdzie krawędź musi być mocna.
+* **Kąt przyłożenia:** zapobiega tarciu powierzchni przyłożenia o przedmiot.
+* **Kąt przystawienia:** przy tym samym posuwie mniejszy κr daje cieńszy i szerszy wiór. Siła rozkłada się na dłuższy odcinek krawędzi, co wydłuża trwałość. Rośnie za to siła odporowa, która ugina smukłe detale, a wiór łamie się trudniej. Przy frezowaniu mniejszy κr zwiększa siłę osiową.
+* **Kąt przystawienia krawędzi pomocniczej:** zwykle 5–15°. Mniejszy wzmacnia ostrze, ale podnosi temperaturę krawędzi i siłę odporową, co sprzyja drganiom.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+Kąty w płaszczyźnie Po sumują się do 90°. Przykład (wartości przyjęte do rachunku): kąt natarcia γ = 6° i kąt przyłożenia α = 7° dają kąt ostrza β = 90° − 6° − 7° = 77°.
+
+Kąty w płaszczyźnie Pr sumują się do 180°. Przykład (wartości przyjęte do rachunku): płytka o kącie naroża εr = 80° w oprawce z κr = 95° daje κr′ = 180° − 95° − 80° = 5°.
+
+Kąt przystawienia określa grubość wióra przy frezowaniu: hex = fz · sin κr. Przy fz = 0,1 mm:
+
+<Table caption="Grubość wióra hex przy fz = 0,1 mm (wartość przyjęta do rachunku)">
+  | κr  | sin κr | hex      |
+  | --- | ------ | -------- |
+  | 90° | 1,00   | 0,100 mm |
+  | 45° | 0,71   | 0,071 mm |
+  | 10° | 0,17   | 0,017 mm |
+</Table>
+
+Odwrotnie: żeby przy κr = 45° uzyskać wiór hex = 0,1 mm, trzeba posuwu fz = 0,1 / 0,71 ≈ 0,14 mm. Sandvik Coromant podaje ten przykład jako fz = 1,4 · 0,1 mm. To zjawisko opisuje hasło \[\[pocienianie wióra]].
+
+## Na co uważać \{#na-co-uważać}
+
+* Norma rozróżnia kąty narzędzia, mierzone w układzie narzędzia, i kąty robocze w czasie skrawania. Kąty robocze mogą się różnić od katalogowych.
+* Katalogi amerykańskie podają „lead angle” ψr zamiast κr. Kąt κr = 90° to ψr = 0°. Przed porównaniem dwóch narzędzi sprawdź, który kąt podano.
+* Duży dodatni kąt natarcia osłabia krawędź. W twardym materiale albo przy uderzeniach krawędź może się wykruszyć.
+* Mały kąt przystawienia zwiększa siłę odporową. Smukły wałek albo cienka ścianka ugną się pod nią.

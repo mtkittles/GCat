@@ -51,3 +51,21 @@ describe("detale w symulacji (osobny półfabrykat na układ)", () => {
     expect(validate(far, "fanuc", boxes).filter((i) => /Kolizja/.test(i.msg))).toHaveLength(0);
   });
 });
+
+describe("półfabrykat z komentarza (POLFABRYKAT AxBxC) — V3.1a", () => {
+  const prog = (head: string) => parseProgram(`${head}\nG21 G90 G94 G17\nG54\nT1 M06 (FREZ FI10)\nS1000 M03\nG00 X-20. Y-20.\nG00 Z5.\nG01 Z-1. F200\nG01 X120. Y80.\nG00 Z50.\nM30`);
+  it("prostopadłościan od zera detalu: X i Y w plus, Z w dół", () => {
+    const p = prog("(POLFABRYKAT 100X60X20)");
+    expect(stockBoxes(p, p.segments, defaultSetup("mill"))).toEqual([{ x0: 0, x1: 100, y0: 0, y1: 60, top: 0, bottom: -20, origin: { x: 0, y: 0, z: 0 } }]);
+  });
+  it("bez komentarza — obrys ruchów roboczych jak dotąd", () => {
+    const p = prog("(DETAL)");
+    const [b] = stockBoxes(p, p.segments, defaultSetup("mill"));
+    expect(b.x0).toBeLessThan(-20); expect(b.x1).toBeGreaterThan(120);
+  });
+  it("ręczny półfabrykat z ustawień ma pierwszeństwo", () => {
+    const p = prog("(POLFABRYKAT 100X60X20)");
+    const s = defaultSetup("mill"); s.stock = { ...s.stock, auto: false, x: 50, y: 40, z: 10, ox: 0, oy: 0, oz: 10 };
+    expect(stockBoxes(p, p.segments, s)[0]).toMatchObject({ x0: 0, x1: 50, y1: 40, top: 0, bottom: -10 });
+  });
+});

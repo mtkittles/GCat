@@ -1,0 +1,135 @@
+---
+title: Frez fazowy
+slug: frez-fazowy
+dzial: narzedzia
+typ: narzedzie
+order: 70
+short: >-
+  Frez stożkowy do faz, gratowania i rowków V: kąt fazy, średnica skrawania
+  zależna od głębokości, położenie narzędzia w programie i korekta wielkości
+  fazy.
+obrobka:
+  - frezowanie
+poziom: 1
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-22
+sources:
+  - id: sandvik-fazowanie
+    where: >-
+      fazy, rowki V, podcięcia, przygotowanie do spawania i gratowanie krawędzi;
+      wybór narzędzia zależy od fazowania od czoła albo od tyłu, kąta fazy,
+      maksymalnej głębokości fazy i materiału; ap i ae są małe w stosunku do
+      średnicy, więc obowiązują wyższe prędkości skrawania z zaleceń dla małego
+      zagłębienia; wielkość fazy zmienia się położeniem w Z, nie średnicą, bo
+      zmiana średnicy może powodować tarcie
+  - id: sandvik-corom316-faza
+    where: >-
+      głowice do faz o kątach 15°, 30°, 45°, 49° i 60°; głowica z dwoma ostrzami
+      nadaje się do nawiercania; fazowanie wewnętrzne i zewnętrzne
+  - id: sandvik-wzory-frezowanie
+    where: >-
+      n = vc · 1000 / (π · Dcap), vf = fz · n · zc; Dcap — średnica skrawania na
+      głębokości ap
+powiazane:
+  kody:
+    - m06
+    - g43-g49
+    - g01
+  lekcje:
+    - FP.2
+    - F4.2
+  hasla:
+    - faza
+    - frezowanie-współbieżne
+    - vc-prędkość-skrawania
+  artykuly:
+    - narzedzia/rodzaje-frezow
+    - narzedzia/frez-kulisty-i-z-narozem
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Frez fazowy ma część roboczą w kształcie stożka. Fazuje krawędzie detalu, gratuje je i frezuje rowki V. Sandvik Coromant wymienia też podcięcia i przygotowanie krawędzi do spawania. Ostrze skrawa na różnych średnicach wzdłuż stożka, więc obroty liczy się dla średnicy w miejscu skrawania.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-frez-fazowy" />
+
+* **Chwyt:** część mocowana w oprawce.
+* **Stożek z ostrzami:** krawędzie skrawające leżą na tworzącej stożka. Frez 90° ma kąt przystawienia 45° i robi fazę 45°.
+* **Czoło:** płaskie o średnicy dt albo zaostrzone. Od kształtu czoła zależy, jak blisko ściany może zejść wierzchołek.
+* **Średnica skrawania De:** rośnie wzdłuż fazy od jej dolnej do górnej krawędzi.
+
+## Rodzaje \{#rodzaje}
+
+* **Kąt fazy:** zależy od wykonania. Przykładowo głowice CoroMill 316 mają kąty 15°, 30°, 45°, 49° i 60°.
+* **Wykonanie:** frezy monolityczne, z wymienną głowicą i z płytkami.
+* **Kierunek:** fazowanie od czoła albo od tyłu, czyli krawędzi od spodu detalu, do której frez dochodzi przez otwór.
+* **Frez fazowy z dwoma ostrzami** może też nawiercać otwory pod wiertło.
+
+## Zastosowanie \{#zastosowanie}
+
+Fazy na krawędziach zewnętrznych i wewnętrznych, gratowanie po frezowaniu, rowki V i podcięcia, przygotowanie krawędzi do spawania.
+
+## Dobór \{#dobór}
+
+Sandvik Coromant dobiera frez fazowy według czterech cech: fazowanie od czoła albo od tyłu, kąt fazy, maksymalna głębokość fazy i materiał obrabiany.
+
+* **Kąt** freza odpowiada kątowi fazy na rysunku.
+* **Średnica:** stożek musi objąć całą fazę. Promień stożka na wysokości górnej krawędzi fazy nie może przekroczyć maksymalnego promienia freza.
+* **Czoło:** wierzchołek schodzi poniżej dolnej krawędzi fazy i nie może dotknąć ściany detalu.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnego freza, gatunku ostrza i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
+</Note>
+
+Przy fazowaniu głębokość i szerokość skrawania są małe w stosunku do średnicy freza. Sandvik Coromant każe wtedy brać z katalogu wyższe prędkości skrawania, podawane dla małego zagłębienia.
+
+Dla freza 90° z wierzchołkiem schodzącym na głębokość h poniżej górnej powierzchni i fazy c × 45°:
+
+* odległość osi freza od ściany: a = h + dt / 2 − c,
+* średnica skrawania w połowie fazy: De = dt + 2 · h − c.
+
+Przykład (wartości przyjęte do rachunku): frez 90° z ostrym wierzchołkiem (dt = 0), 2 ostrza, faza 1 × 45°, h = 2,5 mm, Vc = 100 m/min, fz = 0,025 mm.
+
+* a = 2,5 + 0 − 1 = 1,5 mm
+* De = 0 + 2 · 2,5 − 1 = 4,0 mm
+* n = 1000 · 100 / (3,14 · 4,0) ≈ 7962 obr/min
+* vf = 0,025 · 7962 · 2 ≈ 398 mm/min
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Korekta fazy promieniem narzędzia.** Zmiana promienia w korekcji przesuwa frez w XY i może powodować tarcie, np. w otworze. Producent zaleca zmieniać wielkość fazy położeniem w Z.
+* **Obroty z nominalnej średnicy freza.** W przykładzie wyżej frez ⌀10 skrawa na średnicy 4 mm. Obroty policzone z ⌀10 dałyby prędkość skrawania 2,5 razy niższą od zamierzonej.
+* **Wierzchołek przy ścianie.** Gdy oś freza leży za blisko ściany, czoło dotyka ściany poniżej fazy i zostawia na niej ślad.
+* **Za mały stożek.** Gdy faza jest większa niż stożek, jej górna część zostaje niedofrezowana albo materiał trafia na korpus freza poza ostrzami.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Frez fazowy wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Program poniżej fazuje górne krawędzie płyty 60 × 40 mm fazą 1 × 45° frezem 90° z ostrym wierzchołkiem, z wartościami z przykładu rachunkowego. Tor środka freza leży 1,5 mm na zewnątrz krawędzi, na głębokości Z−2,5. Frez obiega płytę zgodnie z ruchem wskazówek zegara, co przy obrotach M03 daje \[\[frezowanie współbieżne]]. Komentarz w pierwszej linii podaje symulatorowi wymiary płyty.
+
+<Sim mode="mill" caption="Faza 1 × 45° na obwodzie płyty 60 × 40 mm: tor środka freza 1,5 mm od krawędzi, Z−2,5.">
+  ```
+  (POLFABRYKAT 60X40X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (FREZ FAZOWY FI10 90ST)
+  G00 G43 H1 Z50.
+  S7962 M03
+  G00 X-1.5 Y-10.
+  G00 Z5.
+  G01 Z-2.5 F300
+  G01 Y41.5 F398
+  G01 X61.5
+  G01 Y-1.5
+  G01 X-1.5
+  G01 Y5.
+  G00 Z50.
+  M05
+  M30
+  ```
+</Sim>

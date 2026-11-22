@@ -1,0 +1,129 @@
+---
+title: Frez tarczowy i frez teowy
+slug: frez-tarczowy-i-teowy
+dzial: narzedzia
+typ: narzedzie
+order: 60
+short: >-
+  Frezy w kształcie tarczy do rowków, przecinania i podcięć: budowa, frez
+  trzystronny i dwustronny, dobór średnicy, kolejność obróbki rowka teowego.
+obrobka:
+  - frezowanie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-22
+sources:
+  - id: sandvik-rowki
+    where: >-
+      frez tarczowy jest najwydajniejszy przy długich i głębokich rowkach,
+      szczególnie na frezarkach poziomych; na centrach obróbkowych pionowych
+      rowki frezuje się też frezami trzpieniowymi i frezami z długą krawędzią;
+      wybór zależy od maszyny i częstości zabiegu
+  - id: sandvik-corom331
+    where: >-
+      frez trzystronny (full side and face), dwustronny (half side and face) i
+      do czoła tylnego; mocowanie: otwór z rowkiem wpustowym, chwyt walcowy,
+      Weldon; rowkowanie, przecinanie, frezowanie dwóch boków naraz, zestaw
+      frezów, interpolacja kołowa; dla wymaganej głębokości najmniejsza średnica
+      dla stabilności, przy danej średnicy więcej ostrzy dla wydajności; w
+      zestawie co drugi frez obrócony, żeby ostrza sąsiednich frezów nie leżały
+      w jednej linii
+  - id: datron-teowy
+    where: >-
+      frez teowy nie jest przeznaczony do wcinania — najpierw trzeba wykonać
+      rowek albo kieszeń
+powiazane:
+  kody:
+    - m06
+    - g43-g49
+    - g01
+  lekcje:
+    - FP.2
+    - F6.2
+  hasla:
+    - ae-szerokość-skrawania
+    - ap-głębokość-skrawania
+    - wejście-w-materiał
+  artykuly:
+    - narzedzia/rodzaje-frezow
+    - narzedzia/frez-trzpieniowy-walcowy
+  kalkulator: true
+---
+Frez tarczowy to tarcza z ostrzami na obwodzie i zwykle także na bokach. Frezuje rowki, przecina i obrabia dwa boki detalu naraz. Frez teowy to mała tarcza na cienkiej szyjce: wchodzi w wykonany wcześniej rowek i frezuje podcięcie pod jego krawędziami.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-frez-tarczowy" />
+
+* **Tarcza (1):** korpus z ostrzami albo z gniazdami na płytki.
+* **Ostrza na obwodzie (2)** frezują dno rowka, a **ostrza boczne (3)** jego ściany.
+* **Trzpień frezarski (4):** frez tarczowy z otworem osadza się na trzpieniu i ustala wpustem. Mniejsze frezy mają chwyt walcowy albo chwyt Weldon.
+* **Szyjka (5):** łączy tarczę freza teowego z chwytem. Jest węższa od tarczy, żeby zmieściła się w rowku nad podcięciem.
+* **Rowek (6) i podcięcie (7):** rowek teowy powstaje w dwóch zabiegach, najpierw rowek, potem podcięcie.
+
+## Rodzaje \{#rodzaje}
+
+* **Frez trzystronny:** ostrza na obwodzie i na obu bokach. Frezuje rowki o szerokości równej szerokości freza.
+* **Frez dwustronny:** ostrza na obwodzie i na jednym boku. Para takich frezów obrabia dwa boki detalu naraz.
+* **Frez do czoła tylnego:** obrabia powierzchnię od strony przeciwnej do wrzeciona.
+* **Frez teowy:** tarcza na szyjce i chwyt. Wymiary tarczy odpowiadają szerokości i wysokości podcięcia.
+
+## Zastosowanie \{#zastosowanie}
+
+Według Sandvik Coromant frez tarczowy jest najwydajniejszy przy długich i głębokich rowkach, szczególnie na frezarkach poziomych. Na pionowych centrach obróbkowych rowki frezuje się też frezami trzpieniowymi. Wybór zależy od maszyny i od tego, jak często wykonuje się zabieg. Frezy tarczowe służą też do przecinania, frezowania zestawem kilku frezów na wspólnym trzpieniu i, w wersji z chwytem, do interpolacji kołowej. Frez teowy wykonuje rowki teowe i podcięcia.
+
+## Dobór \{#dobór}
+
+**Szerokość** freza trzystronnego równa się szerokości rowka. **Średnica:** dla wymaganej głębokości rowka producent zaleca najmniejszą średnicę, bo frez jest wtedy sztywniejszy. Przy tej samej średnicy więcej ostrzy daje większą wydajność.
+
+**Frez teowy:** średnica tarczy i jej wysokość wynikają z wymiarów podcięcia. Szyjka musi być węższa od rowka, a jej długość większa od głębokości rowka.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnego freza, gatunku ostrza i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
+</Note>
+
+Obroty i posuw liczy się jak dla innych frezów, ze średnicy tarczy D i liczby ostrzy z: n = 1000 · Vc / (π · D), vf = fz · n · z. Szczegóły: [Prędkość skrawania i obroty wrzeciona](/technologia/obliczenia/predkosc-skrawania).
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Wcinanie frezem teowym w pełny materiał.** Frez teowy nie jest przeznaczony do wcinania. Najpierw wykonuje się rowek frezem walcowym, potem podcięcie.
+* **Rowek nieprzelotowy bez miejsca na wyjazd.** Tarcza nie wyjdzie z podcięcia do góry, bo nad nią jest węższy rowek. Frez wyjeżdża bokiem: przez koniec rowka albo przez kieszeń wykonaną wcześniej.
+* **Za duża średnica.** Tarcza większa, niż wymaga głębokość rowka, pracuje mniej stabilnie.
+* **Ostrza zestawu w jednej linii.** Producent zaleca montować co drugi frez z przesunięciem, tak żeby ostrza sąsiednich frezów nie leżały w jednej linii.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Program frezuje przelotowy rowek teowy w płycie długiej na 100 mm. Narzędzie T1, frez walcowy ⌀10, wykonuje rowek o szerokości 10 mm do głębokości 14 mm w dwóch przejściach. Narzędzie T2, frez teowy ⌀20 o szerokości tarczy 6 mm, schodzi poza płytą na Z−14 ruchem roboczym i frezuje podcięcie jednym przejściem. Potem wyjeżdża za koniec płyty i dopiero tam podnosi się do góry. Obroty i posuwy przyjęto do przykładu, nie są zaleceniem.
+
+<Code caption="Rowek teowy: T1 rowek 10 × 14 mm, T2 podcięcie ⌀20 × 6 mm na dnie rowka. Symulator liczy ubytek materiału z góry, więc podcięcia pod krawędzią rowka nie pokaże — program jest do odczytu.">
+  ```
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (FREZ FI10)
+  G00 G43 H1 Z50.
+  S3000 M03
+  G00 X-10. Y0.
+  G00 Z5.
+  G01 Z-7. F200
+  G01 X110. F300
+  G01 Z-14. F200
+  G01 X-10. F300
+  G00 Z50.
+  M05
+  T2 M06 (FREZ TEOWY FI20 SZER6)
+  G00 G43 H2 Z50.
+  S1500 M03
+  G00 X-20. Y0.
+  G00 Z5.
+  G01 Z-14. F300
+  G01 X120. F120
+  G00 Z50.
+  M05
+  M30
+  ```
+</Code>

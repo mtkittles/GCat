@@ -1,0 +1,95 @@
+---
+title: Rodzaje frezów
+slug: rodzaje-frezow
+dzial: narzedzia
+typ: porownanie
+order: 20
+short: >-
+  Frezy trzpieniowe walcowe, kuliste, z promieniem naroża i fazowe, głowice
+  frezowe, frezy tarczowe i teowe: kształt części roboczej, zabiegi i sposób
+  wejścia w materiał.
+obrobka:
+  - frezowanie
+poziom: 1
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-22
+sources:
+  - id: mmc-frezowanie
+    where: >-
+      czoło płaskie, z promieniem naroża i kuliste; frez z ostrzem przez środek
+      skrawa w kierunku osi
+    loc: End milling — Classification, Types
+  - id: helical-guidebook
+    where: wcinanie prosto w dół jest najmniej zalecanym sposobem wejścia
+    loc: s. 20–21
+  - id: sandvik-frezowanie-kopiowe
+    where: >-
+      płytki okrągłe i frezy z promieniem do obróbki zgrubnej i
+      półwykańczającej, frezy kuliste do wykańczającej przy frezowaniu kopiowym
+  - id: sandvik-frezowanie-czolowe
+    where: >-
+      głowice 45° najczęściej, 90° do ścianek cienkich, wtoczenie w materiał
+      zamiast wejścia na wprost
+  - id: sandvik-kat-frezowanie
+    where: >-
+      kąt przystawienia 10° w głowicach do dużych posuwów i frezowania wgłębnego
+  - id: sandvik-rowki
+    where: >-
+      frez tarczowy do długich i głębokich rowków, szczególnie na frezarkach
+      poziomych; na centrach pionowych także frezy trzpieniowe
+  - id: sandvik-corom331
+    where: >-
+      frez tarczowy trzystronny i dwustronny; rowkowanie, przecinanie,
+      frezowanie zestawem i interpolacją kołową
+  - id: datron-teowy
+    where: frez teowy nie służy do wcinania, najpierw wykonuje się rowek
+  - id: sandvik-fazowanie
+    where: fazy, rowki V, podcięcia, przygotowanie do spawania, gratowanie krawędzi
+  - id: sandvik-corom316-faza
+    where: głowica do faz z dwoma ostrzami nadaje się do nawiercania
+powiazane:
+  kody:
+    - m06
+    - g43-g49
+  lekcje:
+    - FP.2
+    - F6.1
+    - F6.2
+  hasla:
+    - wejście-w-materiał
+    - wejście-po-rampie
+    - faza
+  artykuly:
+    - narzedzia/frez-trzpieniowy-walcowy
+    - narzedzia/frez-kulisty-i-z-narozem
+    - narzedzia/glowica-frezowa
+    - narzedzia/frez-tarczowy-i-teowy
+    - narzedzia/frez-fazowy
+    - narzedzia/geometria-ostrza
+  kalkulator: false
+---
+Porównanie frezów według kształtu części roboczej, typowych zabiegów i sposobu wejścia w materiał. Każdy frez ma osobną kartę z budową, doborem i programem.
+
+<Diagram id="tech-frezy" />
+
+<Table caption="Rodzaje frezów — kliknij nagłówek, żeby posortować" sort="true">
+  | Frez                  | Część robocza                             | Typowe zabiegi                                                   | Wejście w materiał                                                |
+  | --------------------- | ----------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+  | walcowy (trzpieniowy) | ostrza na obwodzie i na płaskim czole     | ściany, rowki, kieszenie, kontury                                | w osi tylko z ostrzem przez środek; bezpieczniej rampa lub helisa |
+  | kulisty               | czoło w kształcie półkuli                 | powierzchnie krzywoliniowe, wykańczanie przy frezowaniu kopiowym | w osi prędkość skrawania równa zero                               |
+  | z promieniem naroża   | płaskie czoło zakończone łukiem           | dna i naroża z promieniem, obróbka zgrubna form                  | jak frez walcowy                                                  |
+  | fazowy                | stożek, czoło płaskie albo zaostrzone     | fazy, rowki V, gratowanie, nawiercanie                           | zależy od wykonania czoła                                         |
+  | głowica frezowa       | korpus z płytkami wymiennymi              | planowanie powierzchni                                           | z boku, wtoczenie po łuku; głowice 10° także wgłębnie             |
+  | tarczowy              | tarcza z ostrzami na obwodzie i na bokach | długie i głębokie rowki, przecinanie, frezowanie zestawem        | z boku, nie w osi                                                 |
+  | teowy                 | tarcza na cienkiej szyjce                 | rowki teowe, podcięcia                                           | z boku, do wykonanego wcześniej rowka                             |
+</Table>
+
+## Wnioski \{#wnioski}
+
+* Kształt czoła przenosi się na dno i naroże kieszeni: płaskie z ostrym narożem, z promieniem albo kuliste. Szczegóły: [Frez trzpieniowy walcowy](/technologia/narzedzia/frez-trzpieniowy-walcowy) i [Frez kulisty i frez z promieniem naroża](/technologia/narzedzia/frez-kulisty-i-z-narozem).
+* Frez kulisty, frez z promieniem naroża i frez fazowy skrawają na średnicy mniejszej niż nominalna. Obroty liczy się wtedy ze średnicy w miejscu skrawania: [Frez fazowy](/technologia/narzedzia/frez-fazowy).
+* Głowica frezowa i frez tarczowy wchodzą w materiał z boku. Przy głowicy producent zaleca wejście po łuku (wtoczenie): [Głowica frezowa](/technologia/narzedzia/glowica-frezowa).
+* Frez teowy potrzebuje wcześniej wykonanego rowka, bo szyjka jest węższa od tarczy: [Frez tarczowy i frez teowy](/technologia/narzedzia/frez-tarczowy-i-teowy).
+* Kąty ostrza wszystkich frezów opisuje ta sama norma: [Geometria ostrza](/technologia/narzedzia/geometria-ostrza).
