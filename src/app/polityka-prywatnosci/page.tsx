@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { LEGAL } from "@/lib/legal";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata: Metadata = {
   title: "Polityka prywatności — GCat",
@@ -12,11 +13,7 @@ export default function PrivacyPage() {
   return (
     <div className="grid gap-6 max-w-3xl">
       <Breadcrumbs items={[{ href: "/", label: "GCat" }, { label: "Polityka prywatności" }]} />
-      <div className="grid gap-2">
-        <p className="hero-kicker">Informacje prawne</p>
-        <h1 className="ph-title">Polityka prywatności</h1>
-        <p className="text-muted">Obowiązuje od: {LEGAL.effective}</p>
-      </div>
+      <PageHead title="Polityka prywatności" lead={<>Obowiązuje od: {LEGAL.effective}</>} />
 
       <article className="article grid gap-4">
         <p>Ten dokument wyjaśnia, jakie dane osobowe przetwarza serwis GCat, po co, na jakiej podstawie i jakie prawa Ci przysługują zgodnie z RODO (rozporządzenie Parlamentu Europejskiego i Rady (UE) 2016/679).</p>

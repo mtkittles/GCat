@@ -8,6 +8,7 @@ import CalcFig from "./CalcFig";
 import GcodeLine from "@/components/pulpit/gcodeTokens";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
+import PageHead from "@/components/ui/PageHead";
 
 type Tab = "mill" | "turn" | "drill" | "thread";
 
@@ -225,11 +226,7 @@ export default function Calc() {
   return (
     <div className="grid gap-5 calc-page">
       <header className="calc-head">
-        <div className="ph">
-          <span className="ph-k">Kalkulator · parametry skrawania</span>
-          <h1 className="ph-title">{BANNERS[tab].title}</h1>
-          <p className="ph-lead">{BANNERS[tab].sub}</p>
-        </div>
+        <PageHead title="Kalkulator skrawania" lead={BANNERS[tab].sub} />
         <TactileSegmentedControl<Tab> label="Rodzaj obróbki" value={tab} onChange={setTab} className="calc-tabs"
           options={([["mill", "Frezowanie"], ["turn", "Toczenie"], ["drill", "Wiercenie"], ["thread", "Gwintowanie"]] as [Tab, string][]).map(([value, label]) => ({ value, label }))} />
       </header>

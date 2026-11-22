@@ -8,6 +8,7 @@ import type { ResumeLesson } from "@/components/pulpit/types";
 import { gcodes } from "@/lib/gcodes";
 import { artsOf, dzialy as techDzialy, publicArts } from "@/lib/technologia";
 import { pl } from "@/lib/plural";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata = { title: "Nauka G-kodu krok po kroku — GCat" };
 
@@ -20,10 +21,8 @@ const TECH = techDzialy.map((d) => ({ slug: d.slug, title: d.title, icon: d.icon
 export default function Nauka() {
   return (
     <div className="grid gap-6">
-      <header className="ph">
-        <h1 className="ph-title">Nauka <span className="ph-n">{pl(N, "lekcja", "lekcje", "lekcji")}</span></h1>
-        <p className="ph-lead">Wybierz obróbkę. Każda lekcja ma ten sam układ: teoria z rysunkami, przykład, ćwiczenia, typowe błędy, test i program detalu, który rośnie z lekcji na lekcję. Nie musisz znać <span className="whitespace-nowrap">G-kodu</span>.</p>
-      </header>
+      <PageHead title="Nauka" count={pl(N, "lekcja", "lekcje", "lekcji")}
+        lead={<>Wybierz obróbkę. Każda lekcja ma ten sam układ: teoria z rysunkami, przykład, ćwiczenia, typowe błędy, test i program detalu, który rośnie z lekcji na lekcję. Nie musisz znać <span className="whitespace-nowrap">G-kodu</span>.</>} />
       <section className="pz" aria-labelledby="nk-obszary">
         <header className="pz-head"><h2 id="nk-obszary" className="pz-title">Czego się uczysz?</h2></header>
         <ObszaryPicker lessons={LESSONS} codes={gcodes.length} tech={TECH} />

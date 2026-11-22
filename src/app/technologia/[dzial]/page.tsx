@@ -4,8 +4,8 @@ import { notFound } from "next/navigation";
 import { DzialIcon } from "@/components/technologia/icons";
 import TechDzialList from "@/components/technologia/TechDzialList";
 import TechThumb from "@/components/technologia/TechThumb";
-import Breadcrumbs from "@/components/ui/Breadcrumbs";
 import { artsOf, artykulow, dzialBySlug, dzialy } from "@/lib/technologia";
+import PageHead from "@/components/ui/PageHead";
 
 export function generateStaticParams() { return dzialy.map((d) => ({ dzial: d.slug })); }
 export const dynamicParams = false;
@@ -24,12 +24,8 @@ export default async function DzialPage({ params }: { params: Promise<{ dzial: s
   const thumbs = Object.fromEntries(arts.map((a) => [a.key, <TechThumb key={a.key} a={a} icon={d.icon} />]));
   return (
     <div className="grid gap-5 tech">
-      <Breadcrumbs items={[{ href: "/", label: "GCat" }, { href: "/technologia", label: "Technologia" }, { label: d.title }]} />
-      <header className="ph tech-ph">
-        <span className="tech-ph-ico" aria-hidden><DzialIcon icon={d.icon} /></span>
-        <h1 className="ph-title">{d.title} <span className="ph-n">{pub.length ? artykulow(pub.length) : "w przygotowaniu"}</span></h1>
-        <p className="ph-lead">{d.short}</p>
-      </header>
+      <PageHead crumbs={[{ href: "/", label: "GCat" }, { href: "/technologia", label: "Technologia" }, { label: d.title }]}
+        icon={<DzialIcon icon={d.icon} />} title={d.title} count={pub.length ? artykulow(pub.length) : "w przygotowaniu"} lead={d.short} />
       {pub.length === 0 && (
         <section className="tech-empty">
           <p className="tech-k">Zakres działu</p>

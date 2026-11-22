@@ -5,8 +5,8 @@ import StatusLed from "./StatusLed";
 import { useTactileFeedback } from "@/lib/ui/useTactileFeedback";
 
 /*
-  Przełącznik trybów pulpitu: zagłębiona szyna, kapsuła przesuwana sprężyną (motion, layoutId)
-  i dioda w aktywnym przycisku. Semantyka radiogroup, strzałki zmieniają wybór.
+  Przełącznik segmentowy: szyna, kapsuła przesuwana sprężyną (motion, layoutId); dioda tylko na życzenie
+  (`led: true` — tryby symulatora). UI-6: domyślnie bez diody, jak przełączniki strony głównej. Semantyka radiogroup, strzałki zmieniają wybór.
 */
 export interface Segment<T extends string> { value: T; label: ReactNode; title?: string; led?: boolean; disabled?: boolean }
 
@@ -64,7 +64,7 @@ function TactileSegmentedControl<T extends string>({ value, onChange, options, l
               />
             )}
             <span className="tsc-in">
-              {o.led !== false && <StatusLed state={on ? "on" : "idle"} pulse={false} />}
+              {o.led === true && <StatusLed state={on ? "on" : "idle"} pulse={false} />}
               {o.label}
             </span>
           </button>

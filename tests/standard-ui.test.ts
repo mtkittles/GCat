@@ -50,6 +50,31 @@ describe("standard UI — typografia", () => {
   });
 });
 
+describe("standard UI — szkielet podstron (UI-6)", () => {
+  const LIST = ["src/app/nauka/page.tsx", "src/components/lesson/TrackPage.tsx", "src/app/kody/page.tsx", "src/app/programy/page.tsx",
+    "src/app/zadania/ExerciseList.tsx", "src/app/slownik/Glossary.tsx", "src/app/technologia/page.tsx", "src/app/technologia/[dzial]/page.tsx",
+    "src/app/fiszki/Flashcards.tsx", "src/app/kalkulator/Calc.tsx", "src/app/szukaj/Results.tsx", "src/app/nauka/start/page.tsx", "src/app/konto/Account.tsx"];
+  it("podstrony mają wspólny nagłówek PageHead, bez napisu nad tytułem i bez zdjęcia", () => {
+    for (const f of LIST) {
+      const t = readFileSync(f, "utf8");
+      expect(t, f).toContain("<PageHead");
+      expect(t, f).not.toMatch(/className="ph-k"|hero-kicker|<PageBanner/);
+    }
+  });
+  it("etykiety grup i kart bez wersalików", () => {
+    const css = CSS.map((f) => readFileSync(f, "utf8")).join("\n");
+    for (const sel of [".kc-h", ".cp-k", ".tech-k", ".tc-k", ".ob-meta", ".zx-state", ".pg-meta", ".s7-cta-k", ".eyebrow", ".banner-kicker", ".acct-stats span"]) {
+      const re = new RegExp(`(^|\\n)${sel.replace(/[.]/g, "\\.")}[^{,]*\\{[^}]*text-transform: uppercase`);
+      expect(re.test(css), sel).toBe(false);
+    }
+  });
+  it("wybrany filtr i pole szukania bez pomarańczu", () => {
+    const t = readFileSync("src/app/tactile.css", "utf8");
+    expect(t).toMatch(/\.pill-f\[aria-pressed="true"\] \{ background: var\(--surface-2\)/);
+    expect(t).toMatch(/\.kc-search, \.tech-search-box \{[^}]*height: 44px[^}]*border-radius: 999px/);
+  });
+});
+
 describe("standard UI — telefon", () => {
   it("dok węższy niż 90% ekranu — Safari 26 nie maluje pod nim jednolitego pasa", () => {
     // WebKit fixedContainerEdges: element stały przy krawędzi o szerokości < 0,9 × (widok − 8 px) jest pomijany.

@@ -4,6 +4,7 @@ import { PROGRAMS } from "@/content/programy";
 import type { LibProgram } from "@/lib/programLibrary";
 import { TOOL_LABEL } from "@/components/simulator/setup";
 import { pl } from "@/lib/plural";
+import PageHead from "@/components/ui/PageHead";
 
 export const metadata = { title: "Gotowe programy CNC — frezowanie i toczenie — GCat" };
 
@@ -33,10 +34,8 @@ export default function ProgramsPage() {
   const previews = Object.fromEntries(PROGRAMS.map((p) => [p.slug, <ProgramPreview key={p.slug} p={p} id={`pv-${p.slug}`} />]));
   return (
     <div className="grid gap-6">
-      <header className="ph">
-        <h1 className="ph-title">Gotowe programy <span className="ph-n">{pl(PROGRAMS.length, "detal", "detale", "detali")}</span></h1>
-        <p className="ph-lead">Kompletne detale z kilkoma narzędziami, kartą technologiczną i opisem zabiegów. Podejrzyj kod albo otwórz program w symulatorze i zobacz, jak powstaje detal.</p>
-      </header>
+      <PageHead title="Gotowe programy" count={pl(PROGRAMS.length, "detal", "detale", "detali")}
+        lead="Kompletne detale z kilkoma narzędziami, kartą technologiczną i opisem zabiegów. Podejrzyj kod albo otwórz program w symulatorze i zobacz, jak powstaje detal." />
       <nav className="pg-jump-x" aria-label="Działy">
         {groups.flatMap((g) => g.cats.map((c) => <a key={c.id} href={`#${c.id}`} className="pill-f">{g.title}: {c.c} <small>{c.items.length}</small></a>))}
       </nav>
