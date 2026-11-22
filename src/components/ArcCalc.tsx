@@ -1,5 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
+import { tex } from "@/components/Wzor";
 
 /*
   Kalkulator łuku: zamiana zapisu promieniowego (R) na wektorowy (I, J)
@@ -210,7 +211,7 @@ export default function ArcCalc() {
           <div className="arc-outs">
             <div className="arc-out big"><span>R</span><b>{Rfrom}</b></div>
           </div>
-          <p className="setup-hint">√(I² + J²) daje <b>wartość</b> promienia |R|. Same I i J nie wystarczą do ustalenia znaku R: znak zależy też od punktu końcowego i kierunku obiegu (G02/G03). Przy programowaniu promieniem (Fanuc R, Sinumerik CR=) dodatnie R wybiera łuk do 180°, ujemne R — łuk większy niż 180°. Pełnego okręgu nie definiuje się samym R — zapisuje się go przez I/J (K).</p>
+          <p className="setup-hint"><span dangerouslySetInnerHTML={{ __html: tex("\\sqrt{I^2 + J^2}", false) }} /> daje <b>wartość</b> promienia |R|. Same I i J nie wystarczą do ustalenia znaku R: znak zależy też od punktu końcowego i kierunku obiegu (G02/G03). Przy programowaniu promieniem (Fanuc R, Sinumerik CR=) dodatnie R wybiera łuk do 180°, ujemne R — łuk większy niż 180°. Pełnego okręgu nie definiuje się samym R — zapisuje się go przez I/J (K).</p>
         </div>
       </div>
     </div>

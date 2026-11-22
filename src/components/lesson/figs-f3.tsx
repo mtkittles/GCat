@@ -195,7 +195,8 @@ export function DwellTime() {
   return (
     <Fig id="f35dw" code="G04" title="Nawiercenie: Z w czasie przy S1500" h={206} legend={["cut", "rap", "acc"]}
       notes={<><Code k="cut">G01 Z-2. F80</Code><Code k="acc">G04 X0.2</Code><Code k="rap">G00 Z5.</Code></>}
-      caption={<>1 — wejście z F80. 2 — postój 0,2 s na dnie: przy S1500 jeden obrót trwa 0,04 s, więc to 5 obrotów — co najmniej 3 wymagane. 3 — wyjście ruchem szybkim. Czasy wejścia i wyjścia są tu poglądowe.</>}>
+      caption={<>Położenie Z w czasie przy S1500; czasy wejścia i wyjścia narysowano poglądowo.</>}
+      marks={[<>wejście z F80</>, <>postój 0,2 s na dnie — przy S1500 jeden obrót trwa 0,04 s, więc to 5 obrotów (wymagane co najmniej 3)</>, <>wyjście ruchem szybkim</>]}>
       {() => (
         <g>
           <line x1={X(0)} y1={Y(0)} x2={X(1)} y2={Y(0)} className="p-cons" strokeDasharray="3 3" />

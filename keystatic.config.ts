@@ -56,6 +56,15 @@ export const komponenty = {
     schema: { id: fields.select({ label: "Widżet", options: [{ label: "zamiana R ↔ I, J", value: "rij" }, { label: "łuk", value: "arc" }, { label: "ręczny przesuw (jog)", value: "jog" }], defaultValue: "rij" }) },
   }),
   Table: wrapper({ label: "Tabela z podpisem", schema: { caption: fields.text({ label: "Podpis" }) } }),
+  Wzor: block({
+    label: "Wzór (LaTeX) / obliczenie",
+    schema: {
+      f: fields.text({ label: "Wzór (LaTeX)", multiline: true }),
+      legend: fields.text({ label: "Legenda: symbol — znaczenie [jednostka]; …", multiline: true }),
+      caption: fields.text({ label: "Podpis; przy kilku wzorach opisy rozdzielone średnikiem" }),
+      kind: fields.text({ label: "Rodzaj: puste — ramka z legendą, obliczenie — rachunek bez ramki" }),
+    },
+  }),
 };
 
 export default config({

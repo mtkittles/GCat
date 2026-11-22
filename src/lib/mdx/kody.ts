@@ -28,7 +28,7 @@ export async function kartaMdx(slug: string): Promise<KartaMdx | null> {
   if (!existsSync(file)) return null;
   const fm = splitFrontmatter(readFileSync(file, "utf8"));
   if (!fm) throw new Error(`${file}: brak frontmattera`);
-  const { code, meta } = await compileContentMeta(fm.body, { file, sources: liveSources, components: componentNames, diagramIds });
+  const { code, meta } = await compileContentMeta(fm.body, { file, sources: liveSources, components: componentNames, diagramIds, programLinks: true });
   const programs = [...fm.body.matchAll(/```[^\n]*\n([\s\S]*?)```/g)].map((m) => normProgram(m[1]));
   return { headings: meta.headings, hasDiagram: meta.diagrams > 0, hasAddrTable: /^\s*\|\s*Adres\s*\|/m.test(fm.body), programs, render: () => renderContent(code, mdxComponents) };
 }

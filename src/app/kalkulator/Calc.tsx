@@ -9,6 +9,7 @@ import GcodeLine from "@/components/pulpit/gcodeTokens";
 import TactileSegmentedControl from "@/components/tactile/TactileSegmentedControl";
 import { GROUPS, MATERIALS, THREADS, TOOL_MATERIAL, mid } from "@/lib/machining";
 import PageHead from "@/components/ui/PageHead";
+import { tex } from "@/components/Wzor";
 
 type Tab = "mill" | "turn" | "drill" | "thread";
 
@@ -111,8 +112,14 @@ function Out({ label, value, unit, big, stale }: { label: string; value: string 
     </div>
   );
 }
-function Formula({ children }: { children: React.ReactNode }) {
-  return <p className="calc-formula">{children}</p>;
+/** Wzór z podstawieniem (standard treści): pierwszy wiersz — wzór, drugi — liczby i wynik; skład KaTeX jak w ramce <Wzor>. */
+function Wz({ label, f, sub }: { label: string; f: string; sub: string }) {
+  return (
+    <div className="calc-wz">
+      <div className="wzor-lab">{label}</div>
+      <div className="wzor-f" dangerouslySetInnerHTML={{ __html: tex(`\\begin{aligned}${f} \\\\[0.4em] ${sub}\\end{aligned}`, true) }} />
+    </div>
+  );
 }
 
 /** Gotowy fragment G-kodu z kolorami ruchu i przyciskiem kopiowania (toast). */
@@ -259,10 +266,10 @@ export default function Calc() {
             </div>
           )}
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = 1000 · {pl(vcMill)} / (π · {pl(d)}) = <strong>{pl(r0(nMill))} obr/min</strong></Formula>
-            <Formula>Vf = n · z · fz = {pl(r0(nMill))} · {pl(z)} · {pl(r3(fzCorr))} = <strong>{pl(r0(vfMill))} mm/min</strong></Formula>
-            <Formula>Q = ap · ae · Vf / 1000 = {pl(ap)} · {pl(ae)} · {pl(r0(vfMill))} / 1000 = <strong>{pl(r2(qMill))} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {pl(r2(qMill))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pMill))} kW</strong></Formula>
+            <Wz label="Obroty wrzeciona" f={String.raw`n &= \frac{1000 \cdot V_c}{\pi \cdot D}`} sub={String.raw`&= \frac{1000 \cdot ${pl(vcMill)}}{\pi \cdot ${pl(d)}} = \mathbf{${pl(r0(nMill))}}\ \text{obr/min}`} />
+            <Wz label="Posuw minutowy" f={String.raw`v_f &= n \cdot z \cdot f_z`} sub={String.raw`&= ${pl(r0(nMill))} \cdot ${pl(z)} \cdot ${pl(r3(fzCorr))} = \mathbf{${pl(r0(vfMill))}}\ \text{mm/min}`} />
+            <Wz label="Wydajność skrawania" f={String.raw`Q &= \frac{a_p \cdot a_e \cdot v_f}{1000}`} sub={String.raw`&= \frac{${pl(ap)} \cdot ${pl(ae)} \cdot ${pl(r0(vfMill))}}{1000} = \mathbf{${pl(r2(qMill))}}\ \text{cm}^3\text{/min}`} />
+            <Wz label="Moc skrawania" f={String.raw`P &= \frac{Q \cdot k_c}{60\,000}`} sub={String.raw`&= \frac{${pl(r2(qMill))} \cdot ${pl(mat.kc)}}{60\,000} = \mathbf{${pl(r2(pMill))}}\ \text{kW}`} />
           </div>
           
         </section>
@@ -289,10 +296,10 @@ export default function Calc() {
           <CodeOut stale={staleOf("t-")} text={`G50 S${Math.min(4000, r0(nTurn * 2))}   (LIMIT OBROTOW - DOBIERZ DO UCHWYTU)\nG96 S${vcTurn} M03\nG99   (MM/OBR: FANUC SYSTEM A; SINUMERIK I FANUC B/C: G95)\nG01 X_ Z_ F${fTurn}`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = 1000 · {pl(vcTurn)} / (π · {pl(dT)}) = <strong>{pl(r0(nTurn))} obr/min</strong></Formula>
-            <Formula>Q = Vc · ap · f = {pl(vcTurn)} · {pl(apT)} · {pl(fTurn)} = <strong>{pl(r2(qTurn))} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {pl(r2(qTurn))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pTurn))} kW</strong></Formula>
-            <Formula>Rt ≈ f² / (8 · rε) · 1000 = {pl(fTurn)}² / (8 · {pl(re)}) · 1000 = <strong>{pl(r2(rz))} µm</strong></Formula>
+            <Wz label="Obroty wrzeciona" f={String.raw`n &= \frac{1000 \cdot V_c}{\pi \cdot D}`} sub={String.raw`&= \frac{1000 \cdot ${pl(vcTurn)}}{\pi \cdot ${pl(dT)}} = \mathbf{${pl(r0(nTurn))}}\ \text{obr/min}`} />
+            <Wz label="Wydajność skrawania" f={String.raw`Q &= V_c \cdot a_p \cdot f`} sub={String.raw`&= ${pl(vcTurn)} \cdot ${pl(apT)} \cdot ${pl(fTurn)} = \mathbf{${pl(r2(qTurn))}}\ \text{cm}^3\text{/min}`} />
+            <Wz label="Moc skrawania" f={String.raw`P &= \frac{Q \cdot k_c}{60\,000}`} sub={String.raw`&= \frac{${pl(r2(qTurn))} \cdot ${pl(mat.kc)}}{60\,000} = \mathbf{${pl(r2(pTurn))}}\ \text{kW}`} />
+            <Wz label="Wysokość nierówności (teoretyczna)" f={String.raw`R_t &\approx \frac{f^2}{8 \cdot r_{\varepsilon}} \cdot 1000`} sub={String.raw`&= \frac{(${pl(fTurn)})^2}{8 \cdot ${pl(re)}} \cdot 1000 = \mathbf{${pl(r2(rz))}}\ \mu\text{m}`} />
           </div>
           <p className="text-sm text-muted max-w-prose">W tym modelu teoretyczna wysokość nierówności Rt zależy tylko od posuwu i promienia naroża — obroty we wzorze nie występują. Rzeczywista chropowatość zależy też od drgań, zużycia ostrza i materiału; potwierdza ją pomiar. Ra wynosi orientacyjnie ok. Rt / 4 (lekcja T2.3).</p>
           
@@ -318,10 +325,10 @@ export default function Calc() {
           <CodeOut stale={staleOf("d-")} text={`S${r0(nDrill)} M03\nG99 G83 X_ Y_ Z_ R2 Q${Math.max(1, Math.round(dD * 0.7))} F${r0(vfDrill)}\nG80`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>n = 1000 · Vc / (π · D) = <strong>{pl(r0(nDrill))} obr/min</strong></Formula>
-            <Formula>Vf = n · f = {pl(r0(nDrill))} · {pl(fDrill)} = <strong>{pl(r0(vfDrill))} mm/min</strong></Formula>
-            <Formula>Q = π · D² / 4 · Vf / 1000 = π · {pl(dD)}² / 4 · {pl(r0(vfDrill))} / 1000 = <strong>{pl(r2(qDrill))} cm³/min</strong></Formula>
-            <Formula>P = Q · kc / 60000 = {pl(r2(qDrill))} · {pl(mat.kc)} / 60000 = <strong>{pl(r2(pDrill))} kW</strong></Formula>
+            <Wz label="Obroty wrzeciona" f={String.raw`n &= \frac{1000 \cdot V_c}{\pi \cdot D}`} sub={String.raw`&= \frac{1000 \cdot ${pl(vcDrill)}}{\pi \cdot ${pl(dD)}} = \mathbf{${pl(r0(nDrill))}}\ \text{obr/min}`} />
+            <Wz label="Posuw minutowy" f={String.raw`v_f &= n \cdot f`} sub={String.raw`&= ${pl(r0(nDrill))} \cdot ${pl(fDrill)} = \mathbf{${pl(r0(vfDrill))}}\ \text{mm/min}`} />
+            <Wz label="Wydajność skrawania" f={String.raw`Q &= \frac{\pi \cdot D^2}{4} \cdot \frac{v_f}{1000}`} sub={String.raw`&= \frac{\pi \cdot (${pl(dD)})^2}{4} \cdot \frac{${pl(r0(vfDrill))}}{1000} = \mathbf{${pl(r2(qDrill))}}\ \text{cm}^3\text{/min}`} />
+            <Wz label="Moc skrawania" f={String.raw`P &= \frac{Q \cdot k_c}{60\,000}`} sub={String.raw`&= \frac{${pl(r2(qDrill))} \cdot ${pl(mat.kc)}}{60\,000} = \mathbf{${pl(r2(pDrill))}}\ \text{kW}`} />
           </div>
           <p className="text-sm text-muted max-w-prose">Przy otworach głębszych niż ok. 3 × D stosuje się zwykle wiercenie z wycofaniem (G83, lekcja F5.2) — granicę podaje producent wiertła. Orientacyjny posuw na start: ok. 2% średnicy wiertła na obrót.</p>
           
@@ -347,8 +354,8 @@ export default function Calc() {
           <CodeOut stale={staleOf("g-")} text={`M29 S${nTap}\nG99 G84 X_ Y_ Z_ R5 F${r0(fTap)}\nG80`} />
           </div>
           <div className="calc-card calc-formulas"><h2 className="calc-h">Jak to policzono</h2>
-            <Formula>F = n · skok = {pl(nTap)} · {pl(th.pitch)} = <strong>{pl(r0(fTap))} mm/min</strong></Formula>
-            <Formula>⌀ otworu ≈ ⌀ nominalna − skok = {pl(th.name.slice(1))} − {pl(th.pitch)} = <strong>{pl(th.drill)} mm</strong></Formula>
+            <Wz label="Posuw gwintowania (p — skok gwintu)" f={String.raw`F &= n \cdot p`} sub={String.raw`&= ${pl(nTap)} \cdot ${pl(th.pitch)} = \mathbf{${pl(r0(fTap))}}\ \text{mm/min}`} />
+            <Wz label="Otwór pod gwintownik (d — średnica nominalna)" f={String.raw`d_o &\approx d - p`} sub={String.raw`&= ${pl(th.name.slice(1))} - ${pl(th.pitch)} = \mathbf{${pl(th.drill)}}\ \text{mm}`} />
           </div>
           <p className="note note-warn max-w-prose">Posuw gwintowania wynika ze skoku: przy G94 F = S · skok, przy G95 F = skok. Inna wartość rozjeżdża ruch osi Z z obrotem wrzeciona — przy gwintowaniu sztywnym grozi to zniszczeniem gwintu albo złamaniem gwintownika (lekcja F5.3).</p>
           

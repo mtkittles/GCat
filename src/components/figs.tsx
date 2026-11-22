@@ -312,7 +312,8 @@ export function LatheSingle() {
   return (
     <Fig id="g90t" code="G90 (tokarka)" title="Jeden blok cyklu — cztery ruchy" h={242} legend={["rap", "cut", "con"]}
       notes={<Code>G90 X46. Z-40. F0.25</Code>}
-      caption={<>Z punktu startu: <b>1</b> dojazd na średnicę, <b>2</b> toczenie do Z, <b>3</b> wyjście w X, <b>4</b> powrót szybki. Kolejny blok z samym X powtarza cykl głębiej.</>}>
+      caption={<>Jeden blok z punktu startu; kolejny blok z samym X powtarza cykl głębiej.</>}
+      marks={[<>dojazd na średnicę</>, <>toczenie do Z</>, <>wyjście w X</>, <>powrót szybki</>]}>
       {(c) => (
         <g>
           <rect x={zx(-44)} y={xx(25)} width={zx(0) - zx(-44)} height={xx(10.6) - xx(25)} fill={c.hatch} className="p-con" />

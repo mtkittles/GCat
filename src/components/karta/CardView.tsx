@@ -5,6 +5,7 @@ import CardQuick from "@/components/CardQuick";
 import CodeText from "@/components/CodeText";
 import { diagrams } from "@/components/diagrams";
 import LeftToc from "@/components/LeftToc";
+import ProgLinks from "@/components/ProgLinks";
 import SourceList from "@/components/lesson/SourceList";
 import SimClient from "@/components/simulator/SimClient";
 import TocDrawer from "@/components/TocDrawer";
@@ -208,6 +209,7 @@ export default function CardView({ g, article, edit = (_k, v) => v, emptyArticle
     return (
       <div className="article-layout cc">
         <aside className="cc-left" aria-label="Spis treści"><LeftToc items={toc} /></aside>
+        <ProgLinks />
         <article className="grid gap-6 min-w-0 code-card">
           {head}
           {syntax}

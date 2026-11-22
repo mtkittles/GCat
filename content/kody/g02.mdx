@@ -249,13 +249,13 @@ Wpisz punkty i promień, a zobaczysz gotowe I, J wraz z geometrią łuku: poło�
 
 ## Skąd biorą się te wzory \{#skąd-biorą-się-te-wzory}
 
-Mając punkt startu (X₁, Y₁), punkt końcowy (X₂, Y₂) i promień R, środek wyznacza się w trzech krokach:
+Mając punkt startu (X₁, Y₁), punkt końcowy (X₂, Y₂) i promień R, środek wyznacza się w trzech krokach. Łuk istnieje tylko wtedy, gdy |R| jest co najmniej połową cięciwy.
 
-1. Środek cięciwy: Mx = (X₁ + X₂) / 2, My = (Y₁ + Y₂) / 2.
-2. Długość cięciwy: d = √((X₂ − X₁)² + (Y₂ − Y₁)²). Łuk istnieje tylko wtedy, gdy |R| ≥ d / 2.
-3. Odległość środka okręgu od środka cięciwy: h = √(R² − (d/2)²).
+<Wzor f="M_x = \frac{X_1 + X_2}{2}, \quad M_y = \frac{Y_1 + Y_2}{2} \\ d = \sqrt{(X_2 - X_1)^2 + (Y_2 - Y_1)^2} \\ h = \sqrt{R^2 - \left(\frac{d}{2}\right)^2}" legend="X_1, Y_1 — punkt startu; X_2, Y_2 — punkt końcowy; R — promień łuku; M_x, M_y — środek cięciwy; d — długość cięciwy; h — odległość środka okręgu od środka cięciwy" caption="1. Środek cięciwy; 2. Długość cięciwy; 3. Odległość środka okręgu od środka cięciwy" />
 
-Środek leży na prostopadłej do cięciwy, w odległości h od jej środka. Stronę wyznacza kierunek obiegu i znak R. Na koniec przelicza się go na wektor przyrostowy: **I = Xśrodka − X₁**, **J = Yśrodka − Y₁**. W drugą stronę jest prościej: **R = √(I² + J²)**.
+Środek leży na prostopadłej do cięciwy, w odległości h od jej środka. Stronę wyznacza kierunek obiegu i znak R. Na koniec przelicza się go na wektor przyrostowy I, J. W drugą stronę jest prościej:
+
+<Wzor f="I = X_S - X_1, \quad J = Y_S - Y_1 \\ R = \sqrt{I^2 + J^2}" legend="I, J — wektor od punktu startu do środka okręgu; X_S, Y_S — środek okręgu; X_1, Y_1 — punkt startu; R — promień łuku" caption="Wektor do środka; Promień z I i J" />
 
 Przy dobieraniu narzędzia przydają się jeszcze dwie wielkości: **kąt rozwarcia** łuku i **strzałkę**, czyli największą odległość łuku od cięciwy. Strzałka mówi, ile materiału zostaje w narożniku, jeśli zamiast łuku wykonasz prosty odcinek.
 

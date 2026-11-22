@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { tex } from "@/components/Wzor";
 
 function F({ l, v, on }: { l: string; v: number; on: (n: number) => void }) {
   const [text, setText] = useState(String(v));
@@ -50,7 +51,7 @@ export default function RijCalc() {
         <h3 className="font-bold">I, J → R</h3>
         <div className="grid grid-cols-2 gap-2"><F l="I" v={i} on={si} /><F l="J" v={j} on={sj} /></div>
         <p className="font-mono text-sm">R = {Rout}</p>
-        <p className="text-xs text-muted">R = √(I² + J²). Zamiana działa tylko dla łuków do 180°; powyżej użyj I/J, bo R jest niejednoznaczne.</p>
+        <p className="text-xs text-muted"><span dangerouslySetInnerHTML={{ __html: tex("R = \\sqrt{I^2 + J^2}", false) }} />. Zamiana działa tylko dla łuków do 180°; powyżej użyj I/J, bo R jest niejednoznaczne.</p>
       </div>
     </div>
   );

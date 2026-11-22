@@ -114,7 +114,7 @@ export function ConstVc() {
   return (
     <Fig id="vc96" code="G96 G50" title="Stała prędkość skrawania: obroty zależą od średnicy" h={250} legend={[["cut", "obroty przy G96 S200"], ["bad", "obroty bez limitu"], ["acc", "limit G50"], ["rap", "G97 — stałe obroty"]]}
       notes={<><Code k="acc">G50 S3000</Code><Code>G96 S200</Code><Code k="rap">G97 S1500</Code></>}
-      caption={<>Przy <b>G96 S200</b> sterowanie trzyma Vc = 200 m/min, więc obroty rosną, gdy nóż zbliża się do osi: n = 1000·Vc / (π·D). <b>G50 S3000</b> obcina je na 3000 obr/min — poniżej Ø21 prędkość skrawania już spada.</>}>
+      caption={<>Przy <b>G96 S200</b> obroty rosną ku osi, a <b>G50 S3000</b> obcina je na 3000 obr/min — poniżej ⌀21 prędkość skrawania już spada.</>}>
       {(c) => (
         <g>
           {[0, 2000, 4000, 6000, 8000].map((v) => <g key={v}><line x1={x0} y1={sy(v)} x2={x1} y2={sy(v)} className="gr-maj" /><T x={x0 - 4} y={sy(v) + 3.5} anchor="end" cls="t-tick">{v}</T></g>)}

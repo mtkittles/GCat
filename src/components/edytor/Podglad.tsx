@@ -46,7 +46,7 @@ async function build(path: string, text: string): Promise<State | { error: strin
   const r = kodSchema.safeParse(f.data);
   if (!r.success) return { error: `Pola karty: ${r.error.issues.map((i) => `${i.path.join(".")} — ${i.message}`).join("; ")}` };
   try {
-    const { code, meta } = await compileContentMeta(f.body, { file: path, sources: liveSources, components: componentNames, diagramIds });
+    const { code, meta } = await compileContentMeta(f.body, { file: path, sources: liveSources, components: componentNames, diagramIds, programLinks: true });
     const hasArticle = meta.headings.length > 0 || meta.text.trim() !== "";
     const g = kodToGcode(r.data, hasArticle);
     if (!hasArticle) return { g, article: null };

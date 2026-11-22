@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import FigZoom from "@/components/FigZoom";
 
 /*
@@ -23,14 +23,25 @@ export type LegendItem = Kind | "stock" | "tool" | "allow" | "alt" | [string, st
 
 export interface Ctx { a: (k: Kind) => string; hatch: string }
 
-export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250, children }: {
+/** Objaśnienie numerów z rysunku (Step n): lista pod rysunkiem, numer w kółku jak na rysunku (standard treści 2026-11-22). */
+export function FigMarks({ marks }: { marks: ReactNode[] }) {
+  return (
+    <ul className="oznaczenia fig-marks">
+      {marks.map((m, i) => <li key={i}><span className="ozn-nr">{i + 1}</span>{m}</li>)}
+    </ul>
+  );
+}
+
+export function Fig({ id, code, title, caption, legend, notes, marks, w = 360, h = 250, children }: {
   id: string; code?: string; title: string; caption?: ReactNode; legend?: LegendItem[];
   notes?: ReactNode; w?: number; h?: number; children: (c: Ctx) => ReactNode;
+  /** opisy numerów 1, 2, 3… z rysunku — lista pod podpisem; podpis zostaje jednym zdaniem */
+  marks?: ReactNode[];
 }) {
   return (
     <figure className="fig">
       <div className="fig-head">{code && <span className="fig-code">{code}</span>}<span>{title}</span></div>
-      <FigZoom title={title} caption={caption}>
+      <FigZoom title={title} caption={caption} marks={marks?.map((m, i) => <Fragment key={i}>{m}</Fragment>)}>
       <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}>
         <FigDefs id={id} />
         {children(figCtx(id))}
@@ -43,6 +54,7 @@ export function Fig({ id, code, title, caption, legend, notes, w = 360, h = 250,
         </div>
       )}
       {caption && <figcaption className="fig-cap">{caption}</figcaption>}
+      {marks && marks.length > 0 && <FigMarks marks={marks} />}
     </figure>
   );
 }

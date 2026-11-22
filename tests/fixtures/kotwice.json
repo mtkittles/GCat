@@ -105,7 +105,9 @@
    "dobre-praktyki",
    "typowe-błędy"
   ],
-  "g50": [],
+  "g50": [
+   "obroty-przy-g96"
+  ],
   "g52-g53": [
    "g52-układ-lokalny",
    "g53-współrzędne-maszynowe",

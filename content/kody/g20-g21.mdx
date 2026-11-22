@@ -67,13 +67,9 @@ example:
 
 Sterowanie przelicza wartości wymiarowe z programu na swoją jednostkę wewnętrzną. Jednostki ustawia się **raz, na początku programu, zanim padnie pierwsza współrzędna**. Zmiana w środku programu dotyczy wszystkich dalszych liczb w programie. Jak traktowane są wtedy rejestry przesunięć i korekcji, zależy od sterowania. Na maszynach Haas jednostki ustawienia maszyny (Setting 9) mają być zgodne z G20/G21 programu (lekcja F1.4).
 
-<Code>
-  ```
-  1 cal = 25,4 mm
-  X1.5  (G20) → 1,5 · 25,4 = 38,1 mm
-  F10.  (G20) → 10 cal/min = 254 mm/min
-  ```
-</Code>
+Przy G20 jeden cal to 25,4 mm. Tak przelicza się wymiar i posuw z programu calowego:
+
+<Wzor f="X = 1,5 \cdot 25,4 = 38,1\ \text{mm} \\ F = 10 \cdot 25,4 = 254\ \text{mm/min}" caption="X1.5 przy G20; F10. przy G20 (10 cali na minutę)" kind="obliczenie" />
 
 ## G71 i G70 na różnych sterowaniach \{#najbardziej-podchwytliwa-różnica-sterowań}
 
