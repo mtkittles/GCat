@@ -46,6 +46,12 @@ Typowe błędy, W G-kodzie; Temat — wstęp, Teoria, Wzór i przykład, Na co u
 **Zasady treści:**
 - Każda wartość liczbowa ma źródło w polu `sources` (CLAUDE.md, zasada 1). Wartości z katalogu producenta — „zależy od narzędzia”; przykład rachunkowy oznacz „wartości przyjęte do rachunku”.
 - Programy w `<Sim>`/`<Demo>` przechodzą parser i walidator bez ostrzeżeń (`audit:programy`, `audit:technologia`).
+- Narzędzie w symulatorze wynika z komentarza przy wywołaniu T: `(FREZ FI10)`, `(FREZ KULISTY FI10)`, `(FREZ FI12 R1.5)` (z promieniem naroża),
+  `(FREZ FAZOWY FI10 90ST)`, `(FREZ TEOWY FI20 SZER6)`, `(GLOWICA FI80)`, `(NAWIERTAK FI10 90ST)`, `(WIERTLO FI8)`.
+- Półfabrykat frezarki: komentarz `(POLFABRYKAT 100X60X20)` — X × Y × Z w mm od zera detalu (X i Y w plus, Z w dół od Z0).
+  Bez niego symulator bierze obrys ruchów roboczych powiększony o promień narzędzia.
+- Symulator liczy ubytek materiału z góry (mapa wysokości), więc podcięć (frez teowy) nie pokazuje — taki program idzie w `<Code>`
+  i trzeba go sprawdzić parserem i walidatorem ręcznie.
 - Miniatura na liście = pierwszy `<Diagram>`/`<Rys>` w treści.
 - `<Table sort="true">` — sortowanie kliknięciem w nagłówek (liczby i zakresy „200–1200” sortują się liczbowo).
 - Format pliku = zapis edytora (test `tests/technologia.test.ts`: zapis od zera daje ten sam plik).
