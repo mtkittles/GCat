@@ -76,9 +76,9 @@ export function Demo({ src, mode, title, caption }: { src: string; mode?: Mode; 
   );
 }
 
-/** <Wzor f="…" legend="…" caption="…" /> — wzór w ramce z legendą symboli (standard treści 2026-11-22). */
-export function Wzor({ f, legend, caption }: { f: string; legend?: string; caption?: string }) {
-  return <WzorView f={f} legend={legend} caption={caption} />;
+/** <Wzor f="…" legend="…" caption="…" kind? /> — wzór w ramce z legendą albo obliczenie (standard treści 2026-11-22). */
+export function Wzor({ f, legend, caption, kind }: { f: string; legend?: string; caption?: string; kind?: string }) {
+  return <WzorView f={f} legend={legend} caption={caption} kind={kind} />;
 }
 
 /** Przycisk „Otwórz w symulatorze” pod animacją — ten sam program w pełnym warsztacie (`/symulator?kod=…`). */

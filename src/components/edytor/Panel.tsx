@@ -15,6 +15,7 @@ import { ei } from "./icons";
 import { usePendingCtx } from "./pending";
 import { TermPicker } from "./Toolbar";
 import WzorPole from "./WzorPole";
+import { captionError } from "@/components/Wzor";
 
 /*
   Panel po prawej (jak w rysowniku): Blok — właściwości bloku pod kursorem; Karta — wszystkie pola karty;
@@ -136,10 +137,12 @@ function BlockPanel({ editor }: { editor: Editor }) {
   );
   else if (c?.type === "widget") body = <Group title="Narzędzie"><Seg label="Narzędzie" value={String(a.id)} options={WIDGETS.map((w) => [w, WIDGET_LABEL[w]] as [string, string])} onChange={(v) => set({ id: v })} /></Group>;
   else if (c?.type === "wzor") body = (
-    <Group title="Wzór">
+    <Group title={a.kind === "obliczenie" ? "Obliczenie" : "Wzór"}>
+      <Seg label="Rodzaj" value={a.kind === "obliczenie" ? "obliczenie" : "wzor"} options={[["wzor", "Wzór w ramce"], ["obliczenie", "Obliczenie"]]} onChange={(v) => set({ kind: v === "obliczenie" ? "obliczenie" : null })} />
       <WzorPole value={String(a.f ?? "")} onChange={(v) => set({ f: v })} />
-      <Text label="Legenda" rows={4} value={String(a.legend ?? "")} placeholder="n — obroty wrzeciona [obr/min]; D — średnica [mm]" onChange={(v) => set({ legend: v })} hint="Wpisy rozdzielone średnikiem i spacją: symbol — znaczenie [jednostka]. Symbol w tym samym zapisie co wzór (V_c, \kappa_r, \propto)." />
-      <Text label="Podpis nad wzorem" value={String(a.caption ?? "")} onChange={(v) => set({ caption: v })} />
+      {a.kind !== "obliczenie" && <Text label="Legenda" rows={4} value={String(a.legend ?? "")} placeholder="n — obroty wrzeciona [obr/min]; D — średnica [mm]" onChange={(v) => set({ legend: v })} hint="Wpisy rozdzielone średnikiem i spacją: symbol — znaczenie [jednostka]. Symbol w tym samym zapisie co wzór (V_c, \kappa_r, \propto)." />}
+      <Text label={a.kind === "obliczenie" ? "Opis (opcjonalnie)" : "Podpis nad wzorem"} value={String(a.caption ?? "")} onChange={(v) => set({ caption: v || null })}
+        hint={captionError(String(a.f ?? ""), String(a.caption ?? "")) ?? "Kilka wzorów jeden pod drugim: opisy rozdzielone średnikiem, w kolejności wierszy (np. Obroty wrzeciona; Posuw minutowy) — opis nad każdym wzorem."} />
     </Group>
   );
   else if (c?.type === "raw") body = <Group title="Fragment MDX"><p className="rys-tip">Edytor nie zna tego zapisu, więc zostawia go w pliku bez zmian. Możesz poprawić źródło w ramce.</p></Group>;

@@ -126,11 +126,11 @@ function WidgetView({ node, selected }: V) {
 }
 
 function WzorView({ node, selected }: V) {
-  const a = node.attrs as { f?: string; legend?: string; caption?: string };
+  const a = node.attrs as { f?: string; legend?: string; caption?: string; kind?: string };
   return (
     <NodeViewWrapper className={`ed-atom ed-wzor${selected ? " is-sel" : ""}`} data-drag-handle>
       <Tag>Wzór — pola w panelu z prawej</Tag>
-      <div contentEditable={false}>{a.f ? <WzorBlock f={a.f} legend={a.legend || undefined} caption={a.caption || undefined} /> : <Empty>Wzór — wpisz zapis w panelu</Empty>}</div>
+      <div contentEditable={false}>{a.f ? <WzorBlock f={a.f} legend={a.legend || undefined} caption={a.caption || undefined} kind={a.kind || undefined} /> : <Empty>Wzór — wpisz zapis w panelu</Empty>}</div>
     </NodeViewWrapper>
   );
 }

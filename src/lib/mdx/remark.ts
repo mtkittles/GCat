@@ -7,7 +7,7 @@ import { anchorRe } from "./schema";
 import { motionClass } from "@/lib/motionClass";
 import { parseProgram } from "@/lib/parser";
 import { normLine, progHash } from "@/lib/progHash";
-import { parseLegend, texError, texPlain } from "@/components/Wzor";
+import { WZOR_KINDS, captionError, parseLegend, texError, texPlain } from "@/components/Wzor";
 
 /*
   Plugin remark dla treści GCat (MDX):
@@ -26,7 +26,7 @@ import { parseLegend, texError, texPlain } from "@/components/Wzor";
     kółko jak na rysunku (span.ozn-nr), bez kropek listy.
   • programLinks: `kod` równy linii programu z <Sim>/<Demo>/<Code> na tej stronie → kolor ruchu tej linii
     (is-g00/g01/g02) + data-prog/data-prog-line (kliknięcie ustawia symulator na linii, components/ProgLinks.tsx).
-  • <Wzor f="…" legend="…" caption="…" /> — wzór w ramce (components/Wzor.tsx).
+  • <Wzor f="…" legend="…" caption="…" /> — wzór w ramce (components/Wzor.tsx); kind="obliczenie" — rachunek bez ramki.
 */
 
 /** Wartości atrybutów komponentów (jak typy bloków w src/lib/article.ts). */
@@ -217,7 +217,12 @@ export function remarkGcat(opts: GcatRemarkOptions) {
         if (el.name === "Wzor") {
           const f = strAttr(el, "f");
           if (typeof f !== "string" || !f.trim()) at(n, `<Wzor> wymaga f="…" (zapis LaTeX, np. n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D})`);
-          else { const e = texError(f); if (e) at(n, `<Wzor>: błąd zapisu wzoru — ${e}`); }
+          else {
+            const e = texError(f); if (e) at(n, `<Wzor>: błąd zapisu wzoru — ${e}`);
+            const c = captionError(f, strAttr(el, "caption") as string | undefined); if (c) at(n, `<Wzor>: ${c}`);
+          }
+          const k = strAttr(el, "kind");
+          if (k !== undefined && !(WZOR_KINDS as readonly unknown[]).includes(k)) at(n, `<Wzor kind="${String(k)}"> — dozwolone: ${WZOR_KINDS.join(", ")} (albo bez kind: ramka z legendą)`);
           const lg = strAttr(el, "legend");
           if (typeof lg === "string") for (const it of parseLegend(lg)) { const e = texError(it.sym); if (e) at(n, `<Wzor> legenda „${it.sym}”: błąd zapisu symbolu — ${e}`); }
         }

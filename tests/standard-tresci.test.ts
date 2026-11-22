@@ -3,7 +3,7 @@ import { Node as PMNode } from "@tiptap/pm/model";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import Wzor, { fromField, parseLegend, tex, texError, toField, wrapLines } from "@/components/Wzor";
+import Wzor, { captionError, fromField, layout, parseLegend, splitRows, tex, texError, toField, wrapLines } from "@/components/Wzor";
 import { progressAtLine } from "@/components/simulator/seek";
 import { docToMdx, mdxToDoc } from "@/lib/edytor/mdx";
 import { gcatExtensions } from "@/lib/edytor/schema";
@@ -31,10 +31,26 @@ describe("<Wzor> — skład matematyczny (KaTeX)", () => {
     expect(tex("D^4", false)).toContain("<msup><mi>D</mi><mn>4</mn></msup>");
     expect(tex("\\sqrt{a_p}", false)).toContain("<msqrt>");
   });
-  it("kilka wzorów w ramce: \\\\ jeden pod drugim, z & wyrównane do znaku", () => {
-    expect(wrapLines("a = 1 \\\\ b = 2")).toBe("\\begin{gathered}a = 1 \\\\ b = 2\\end{gathered}");
-    expect(wrapLines("a &= 1 \\\\ b &= 2")).toMatch(/^\\begin\{aligned\}/);
+  it("kilka wzorów w ramce: \\\\ jeden pod drugim z odstępem, z & wyrównane do znaku", () => {
+    expect(wrapLines("a = 1 \\\\ b = 2")).toBe("\\begin{gathered}a = 1 \\\\[0.6em] b = 2\\end{gathered}");
+    expect(wrapLines("a &= 1 \\\\ b &= 2")).toBe("\\begin{aligned}a &= 1 \\\\[0.6em] b &= 2\\end{aligned}");
     expect(wrapLines("a = 1")).toBe("a = 1");
+    expect(splitRows("a = 1 \\\\[2pt] b = \\begin{cases}1 \\\\ 2\\end{cases} \\\\ c")).toEqual(["a = 1", "b = \\begin{cases}1 \\\\ 2\\end{cases}", "c"]);
+    expect(splitRows("\\begin{gathered}a \\\\ b\\end{gathered}")).toEqual(["a", "b"]);
+    expect(splitRows("\\{x\\} \\\\ y")).toEqual(["\\{x\\}", "y"]);
+  });
+  it("opis nad każdym wzorem: podpis „A; B” przy dwóch wierszach", () => {
+    expect(layout("n = 1 \\\\ v = 2", "Obroty; Posuw")).toEqual({ title: undefined, rows: [{ label: "Obroty", tex: "n = 1" }, { label: "Posuw", tex: "v = 2" }] });
+    expect(layout("n = 1 \\\\ v = 2", "Obroty i posuw")).toEqual({ title: "Obroty i posuw", rows: [{ label: undefined, tex: "n = 1" }, { label: undefined, tex: "v = 2" }] });
+    expect(layout("n &= 1 \\\\ v &= 2", "Razem").rows).toHaveLength(1);
+    expect(captionError("n = 1 \\\\ v = 2", "A; B; C")).toBe("podpis ma 3 opisy rozdzielone średnikiem, a wzór 2 wiersze — po jednym opisie na wiersz");
+    expect(captionError("n = 1 \\\\ v = 2", "A; B")).toBeNull();
+  });
+  it("obliczenie: ten sam skład bez ramki i legendy", () => {
+    const h = renderToStaticMarkup(createElement(Wzor, { f: "n = \\frac{1000 \\cdot 150}{3,14 \\cdot 10} \\approx 4777\\ \\text{obr/min}", legend: "n — obroty", kind: "obliczenie" }));
+    expect(h).toMatch(/^<div class="wzor-obl">/);
+    expect(h).toContain("<mfrac>");
+    expect(h).not.toContain("wzor-leg");
   });
   it("przecinek dziesiętny bez odstępu, błąd zapisu z komunikatem", () => {
     expect(tex("0,05", false)).toContain("0,05");
@@ -67,7 +83,7 @@ describe("<Wzor> — skład matematyczny (KaTeX)", () => {
   it("ramka: podpis, wzór, legenda z jednostką", () => {
     const h = renderToStaticMarkup(createElement(Wzor, { f: "n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D} \\\\ v_f = f_z \\cdot n \\cdot z", legend: "n — obroty [obr/min]", caption: "Obroty" }));
     expect(h).toContain('<figcaption class="wzor-cap">Obroty</figcaption>');
-    expect(h).toContain("gathered");
+    expect(h.match(/class="wzor-f"/g)).toHaveLength(2);
     expect(h).toContain('<span class="wzor-unit">obr/min</span>');
   });
   it("w treści MDX: LaTeX w atrybucie, kontrola zapisu, edytor zapisuje bez zmian", async () => {
@@ -80,6 +96,16 @@ describe("<Wzor> — skład matematyczny (KaTeX)", () => {
     const doc = PMNode.fromJSON(getSchema(gcatExtensions()), p.doc).toJSON() as JSONContent;
     expect(doc.content?.map((n) => n.type)).toEqual(["paragraph", "wzor"]);
     expect(doc.content?.[1].attrs?.f).toBe("n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D} \\\\ v_f = f_z \\cdot n \\cdot z");
+    expect(docToMdx(doc, { origins: new Map(), lead: p.lead, tail: p.tail, seps: new Map() })).toBe(body);
+  });
+  it("obliczenie i opisy wierszy w MDX: kontrola i zapis z edytora bez zmian", async () => {
+    await expect(html('<Wzor f="a \\\\ b" caption="A; B; C" />')).rejects.toThrow(/podpis ma 3 opisy/);
+    await expect(html('<Wzor f="a" kind="tabela" />')).rejects.toThrow(/dozwolone: obliczenie/);
+    expect(await html('<Wzor kind="obliczenie" f="2^4 = 16" />')).toContain('class="wzor-obl"');
+    const body = 'Tekst.\n\n<Wzor f="n = \\frac{1000 \\cdot 150}{3,14 \\cdot 10} \\\\ v_f = 955" caption="Obroty; Posuw" kind="obliczenie" />\n';
+    const p = mdxToDoc(body);
+    const doc = PMNode.fromJSON(getSchema(gcatExtensions()), p.doc).toJSON() as JSONContent;
+    expect(doc.content?.[1].attrs?.kind).toBe("obliczenie");
     expect(docToMdx(doc, { origins: new Map(), lead: p.lead, tail: p.tail, seps: new Map() })).toBe(body);
   });
 });

@@ -158,7 +158,10 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
   **Skład matematyczny: KaTeX** (LaTeX → HTML + MathML dla czytników). Krój matematyczny KaTeX to jedyny wyjątek od
   trzech krojów serwisu i występuje tylko w ramce wzoru i w legendzie symboli. Ułamek zawsze jako licznik nad
   mianownikiem (`\frac{…}{…}`), indeksy `V_c`, potęgi `D^4`, pierwiastek `\sqrt{…}`, znaki `\cdot \approx \propto \le`,
-  kilka wzorów w ramce: `\\` (jeden pod drugim), z `&=` — wyrównane do znaku. Przecinek dziesiętny wpisuje się zwyczajnie.
+  kilka wzorów w ramce: `\\` (jeden pod drugim, z odstępem); przy kilku wzorach podpis z opisem każdego, rozdzielony
+  średnikiem w kolejności wierszy (`caption="Obroty wrzeciona; Posuw minutowy"` — opis nad każdym wzorem); z `&=` bez
+  opisów wierszy — wyrównane do znaku. Przecinek dziesiętny wpisuje się zwyczajnie. Zmienne o 10% większe od cyfr
+  (`--fs-math-var`, krój KaTeX ma niską wysokość x), symbole w legendzie w rozmiarze tekstu (`--fs-text`), opis `--fs-aux`.
   Znak w legendzie, gdy może być nieznany czytelnikowi (np. `\propto — jest proporcjonalne do`).
   W edytorze: przycisk „Wzór”, w panelu pole wzoru jak edytor równań w Wordzie (MathLive, `edytor/WzorPole.tsx`):
   wzór widać złożony, szablony wstawiają pola □ (ułamek: licznik/mianownik, indeks: mniejsze pole, pierwiastek, nawiasy,
@@ -167,6 +170,9 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
   podglądowo w „Zapis LaTeX”. Puste pole □ i błędny zapis — komunikat po polsku; build odrzuca błędny zapis.
   Indeksy dolne tylko w ramce; w zdaniach zostaje „Vc”, „fz”. Krótkie zależności w zdaniu („α + β + γ = 90°”) mogą zostać
   w tekście.
+- **Obliczenie** — przykład z liczbami pod wzorem w tym samym składzie (ułamek, indeksy, jednostki `\ \text{obr/min}`),
+  bez ramki i legendy: `<Wzor f="n = \frac{1000 \cdot 150}{3,14 \cdot 10} \approx 4777\ \text{obr/min}" kind="obliczenie" />`,
+  opisy wierszy jak wyżej. Nie listą z „/” w tekście. W edytorze: blok „Wzór”, Rodzaj → Obliczenie.
 - **Przebieg programu** — pod symulatorem lista kroków; każdy krok zaczyna się fragmentem kodu, który jest linią programu
   z tej strony (`` `G01 Z-3. F300` ``). Fragment dostaje kolor ruchu tej linii jak w edytorze (G00 bursztyn, G01 zieleń,
   G02/G03 błękit; także linia bez słowa ruchu, np. `X10.` po G01), T/M/S zostają neutralne. Kliknięcie (albo Enter)

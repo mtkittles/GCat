@@ -5,7 +5,9 @@ import katex from "katex";
   Zapis wzoru (`f`) i symboli legendy — LaTeX w składni KaTeX (prawdziwy skład matematyczny):
    • ułamek \frac{licznik}{mianownik}, pierwiastek \sqrt{x}, indeks V_c / D_{cap}, potęga D^4 / x^{2n},
    • znaki \cdot \approx \propto \le \ge \pm \pi \Delta \kappa_r …, tekst \text{obr/min},
-   • kilka wzorów w ramce: rozdzielone \\ (jeden pod drugim), z & — wyrównane do znaku (np. n &= …).
+   • kilka wzorów w ramce: rozdzielone \\ (jeden pod drugim, z odstępem); podpis „Obroty; Posuw” — opis nad każdym,
+     z & bez opisów wierszy — wyrównane do znaku (np. n &= …),
+   • kind="obliczenie" — rachunek z liczbami pod wzorem (ułamki jak we wzorze), bez ramki i legendy.
   Przecinek dziesiętny piszemy zwyczajnie (0,05) — zamieniany na {,}, żeby LaTeX nie dodawał odstępu.
   Legenda (`legend`): wpisy rozdzielone średnikiem, „symbol — znaczenie [jednostka]”, symbol też w LaTeX.
   Wynik: HTML KaTeX (krój matematyczny KaTeX tylko w ramce wzoru) + MathML dla czytników ekranu.
@@ -22,11 +24,64 @@ const LINES = /^\s*\\begin\{(gathered|aligned)\}([\s\S]*)\\end\{\1\}\s*$/;
 /** Zapis bez zagnieżdżonych środowisk (\begin{cases}…) — do sprawdzenia \\ i & na najwyższym poziomie. */
 const topLevel = (f: string) => f.replace(/\\begin\{(\w+)\}[\s\S]*?\\end\{\1\}/g, " ");
 
-/** Kilka wzorów w jednej ramce: \\ → gathered (jeden pod drugim), z & → aligned (wyrównanie do znaku). */
+/**
+ * Wiersze zapisu: podział na \\ na najwyższym poziomie (poza klamrami i środowiskami, np. \begin{cases}),
+ * bez otoczki gathered. Opcjonalny odstęp \\[…] pomijany — odstęp między wierszami daje ramka.
+ */
+export function splitRows(src: string): string[] {
+  const m = LINES.exec(src);
+  const f = m && m[1] === "gathered" ? m[2] : src;
+  const rows: string[] = [];
+  let cur = "", depth = 0, env = 0;
+  for (let i = 0; i < f.length; i++) {
+    const c = f[i];
+    if (c === "\\") {
+      if (f[i + 1] === "\\" && depth === 0 && env === 0) {
+        rows.push(cur); cur = ""; i++;
+        const opt = /^\s*\[[^\]]*\]/.exec(f.slice(i + 1));
+        if (opt) i += opt[0].length;
+        continue;
+      }
+      const b = /^\\(begin|end)\{/.exec(f.slice(i));
+      if (b) env += b[1] === "begin" ? 1 : -1;
+      cur += c + (f[i + 1] ?? ""); i++;
+      continue;
+    }
+    if (c === "{") depth++; else if (c === "}") depth--;
+    cur += c;
+  }
+  rows.push(cur);
+  return rows.map((r) => r.trim()).filter(Boolean);
+}
+
+/** Wyrównanie do znaku (&) w kilku wierszach: aligned z odstępem między wierszami. Pojedynczy wiersz z & → aligned. */
 export function wrapLines(f: string): string {
   const t = topLevel(f);
   if (LINES.test(f) || !/\\\\|&/.test(t)) return f;
-  return t.includes("&") ? `\\begin{aligned}${f}\\end{aligned}` : `\\begin{gathered}${f}\\end{gathered}`;
+  if (!t.includes("&")) return `\\begin{gathered}${splitRows(f).join(" \\\\[0.6em] ")}\\end{gathered}`;
+  return `\\begin{aligned}${splitRows(f).join(" \\\\[0.6em] ")}\\end{aligned}`;
+}
+
+export interface WzorRow { label?: string; tex: string }
+/**
+ * Układ ramki: wiersze wzoru, każdy osobno (odstęp między wzorami), i opisy.
+ * Podpis „A; B” przy dwóch wierszach = opis nad każdym wzorem; jeden podpis = nad całą ramką.
+ * Wiersze wyrównane do znaku (&) bez opisów wierszy zostają razem (aligned).
+ */
+export function layout(f: string, caption?: string): { title?: string; rows: WzorRow[] } {
+  const parts = (caption ?? "").split(/\s*;\s*/).map((p) => p.trim()).filter(Boolean);
+  const rows = splitRows(f);
+  const labels = parts.length > 1 && parts.length === rows.length ? parts : null;
+  if (!labels && rows.length > 1 && rows.some((r) => topLevel(r).includes("&"))) return { title: caption || undefined, rows: [{ tex: f }] };
+  return { title: labels ? undefined : caption || undefined, rows: rows.map((r, i) => ({ label: labels?.[i], tex: r })) };
+}
+
+/** Podpis z opisami wierszy (A; B) musi mieć tyle opisów, ile wzór ma wierszy. */
+export function captionError(f: string, caption?: string): string | null {
+  const parts = (caption ?? "").split(/\s*;\s*/).filter((p) => p.trim());
+  const n = splitRows(f).length;
+  const pl = (k: number, one: string, few: string, many: string) => `${k} ${k === 1 ? one : k % 10 >= 2 && k % 10 <= 4 && (k % 100 < 12 || k % 100 > 14) ? few : many}`;
+  return parts.length > 1 && parts.length !== n ? `podpis ma ${pl(parts.length, "opis", "opisy", "opisów")} rozdzielone średnikiem, a wzór ${pl(n, "wiersz", "wiersze", "wierszy")} — po jednym opisie na wiersz` : null;
 }
 
 /** Do pola edytora (MathLive): kilka wierszy → \displaylines (jak MathLive przy Ctrl+Enter), z & → aligned. */
@@ -91,12 +146,32 @@ export function parseLegend(legend: string): LegendItem[] {
 /** Tekst wzoru do wyszukiwarki: bez poleceń LaTeX i klamer. */
 export const texPlain = (s: string) => s.replace(/\\[a-zA-Z]+/g, " ").replace(/[_^{}\\&]/g, " ").replace(/\s+/g, " ").trim();
 
-export default function Wzor({ f, legend, caption }: { f: string; legend?: string; caption?: string }) {
+/** Rodzaj bloku: brak — ramka z legendą; „obliczenie” — rachunek z liczbami pod wzorem, bez ramki i legendy. */
+export const WZOR_KINDS = ["obliczenie"] as const;
+
+export default function Wzor({ f, legend, caption, kind }: { f: string; legend?: string; caption?: string; kind?: string }) {
+  const { title, rows } = layout(f, caption);
+  const body = (
+    <div className="wzor-rows">
+      {rows.map((r, i) => (
+        <div key={i} className="wzor-row">
+          {r.label && <div className="wzor-lab">{r.label}</div>}
+          <div className="wzor-f" dangerouslySetInnerHTML={{ __html: tex(r.tex, true) }} />
+        </div>
+      ))}
+    </div>
+  );
+  if (kind === "obliczenie") return (
+    <div className="wzor-obl">
+      {title && <div className="wzor-lab">{title}</div>}
+      {body}
+    </div>
+  );
   const items = legend ? parseLegend(legend) : [];
   return (
     <figure className="wzor">
-      {caption && <figcaption className="wzor-cap">{caption}</figcaption>}
-      <div className="wzor-f" dangerouslySetInnerHTML={{ __html: tex(f, true) }} />
+      {title && <figcaption className="wzor-cap">{title}</figcaption>}
+      {body}
       {items.length > 0 && (
         <dl className="wzor-leg">
           {items.map((it, n) => [
