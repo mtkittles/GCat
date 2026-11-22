@@ -78,11 +78,17 @@ Przy frezowaniu kopiowym, czyli obróbce powierzchni wypukłych i wklęsłych, S
 
 **Promień czoła.** Promień naroża freza dobiera się do promienia między dnem a ścianą na rysunku detalu. Frez kulisty pozostawia na każdym przejściu łuk o promieniu R.
 
-**Krok boczny.** Między przejściami zostają grzbiety. Ich wysokość rośnie z kwadratem kroku bocznego ae i maleje z promieniem: h ≈ ae² / (8 · R).
+**Krok boczny.** Między przejściami zostają grzbiety.
 
 <Diagram id="tech-grzbiety" />
 
-Przykład (wartości przyjęte do rachunku): frez kulisty ⌀10 (R = 5 mm) i krok ae = 3 mm dają h ≈ 3² / (8 · 5) ≈ 0,23 mm. Dla grzbietów h = 0,01 mm krok trzeba zmniejszyć do ae ≈ √(8 · 5 · 0,01) ≈ 0,63 mm.
+Wysokość grzbietów rośnie z kwadratem kroku bocznego ae i maleje z promieniem czoła R:
+
+<Wzor f="h \approx \frac{a_e^2}{8 \cdot R} \\ a_e \approx \sqrt{8 \cdot R \cdot h}" legend="h — wysokość grzbietów [mm]; a_e — krok boczny [mm]; R — promień czoła freza [mm]" caption="Wysokość grzbietów; Krok boczny dla zadanej wysokości grzbietów" />
+
+Przykład (wartości przyjęte do rachunku): frez kulisty ⌀10 (R = 5 mm) i krok ae = 3 mm. Dla grzbietów h = 0,01 mm krok trzeba zmniejszyć:
+
+<Wzor f="h \approx \frac{3^2}{8 \cdot 5} \approx 0,23\ \text{mm} \\ a_e \approx \sqrt{8 \cdot 5 \cdot 0,01} \approx 0,63\ \text{mm}" caption="Grzbiety przy kroku 3 mm; Krok dla grzbietów 0,01 mm" kind="obliczenie" />
 
 **Wysięg.** Długi wysięg sprzyja drganiom tak samo jak przy frezie walcowym. Sandvik Coromant zaleca przedłużki i oprawki o możliwie dużej średnicy w stosunku do średnicy freza.
 
@@ -92,15 +98,25 @@ Przykład (wartości przyjęte do rachunku): frez kulisty ⌀10 (R = 5 mm) i kro
   Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnego freza, gatunku i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
 </Note>
 
-Obroty liczy się ze średnicy skrawania De, nie z D. Dla freza kulistego De = 2 · √(ap · (D − ap)). Przykład (wartości przyjęte do rachunku): frez kulisty ⌀10, 2 ostrza, ap = 1 mm, Vc = 150 m/min, fz = 0,05 mm.
+Obroty liczy się ze średnicy skrawania De, nie z D:
 
-* De = 2 · √(1 · 9) = 6,0 mm
-* n = 1000 · 150 / (3,14 · 6,0) ≈ 7962 obr/min
-* vf = 0,05 · 7962 · 2 ≈ 796 mm/min
+<Wzor f="D_e = 2 \cdot \sqrt{a_p \cdot (D - a_p)} \\ n = \frac{1000 \cdot V_c}{\pi \cdot D_e} \\ v_f = f_z \cdot n \cdot z" legend="D_e — średnica skrawania [mm]; D — średnica nominalna freza [mm]; a_p — głębokość skrawania [mm]; n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; v_f — posuw minutowy [mm/min]; f_z — posuw na ostrze [mm]; z — liczba ostrzy" caption="Średnica skrawania freza kulistego; Obroty wrzeciona; Posuw minutowy" />
 
-Obroty policzone z D = 10 mm wyniosłyby 4777 obr/min. Na średnicy De prędkość skrawania byłaby wtedy równa 3,14 · 6,0 · 4777 / 1000 ≈ 90 m/min zamiast 150 m/min.
+Przykład (wartości przyjęte do rachunku): frez kulisty ⌀10, 2 ostrza, ap = 1 mm, Vc = 150 m/min, fz = 0,05 mm.
 
-Dla freza z promieniem naroża przy ap mniejszym niż rε: De = D − 2 · rε + 2 · √(ap · (2 · rε − ap)). To ten sam wzór, który Sandvik Coromant podaje dla głowic z płytkami okrągłymi. Przykład (wartości przyjęte do rachunku): frez ⌀12 z rε = 1,5 mm i ap = 0,5 mm skrawa na De = 9 + 2 · √1,25 ≈ 11,24 mm.
+<Wzor f="D_e = 2 \cdot \sqrt{1 \cdot (10 - 1)} = 6,0\ \text{mm} \\ n = \frac{1000 \cdot 150}{3,14 \cdot 6,0} \approx 7962\ \text{obr/min} \\ v_f = 0,05 \cdot 7962 \cdot 2 \approx 796\ \text{mm/min}" caption="Średnica skrawania; Obroty wrzeciona; Posuw minutowy" kind="obliczenie" />
+
+Obroty policzone z D = 10 mm wyniosłyby 4777 obr/min. Na średnicy De prędkość skrawania byłaby wtedy równa 90 m/min zamiast 150 m/min:
+
+<Wzor f="V_c = \frac{3,14 \cdot 6,0 \cdot 4777}{1000} \approx 90\ \text{m/min}" kind="obliczenie" />
+
+Dla freza z promieniem naroża przy ap mniejszym niż rε średnicę skrawania liczy się ze wzoru poniżej. To ten sam wzór, który Sandvik Coromant podaje dla głowic z płytkami okrągłymi.
+
+<Wzor f="\begin{aligned} D_e = D &{}- 2 \cdot r_{\varepsilon} \\ &{}+ 2 \cdot \sqrt{a_p \cdot (2 \cdot r_{\varepsilon} - a_p)} \end{aligned}" legend="D_e — średnica skrawania [mm]; D — średnica nominalna freza [mm]; r_{\varepsilon} — promień naroża [mm]; a_p — głębokość skrawania, mniejsza od promienia naroża [mm]" caption="Średnica skrawania freza z promieniem naroża" />
+
+Przykład (wartości przyjęte do rachunku): frez ⌀12 z rε = 1,5 mm i ap = 0,5 mm.
+
+<Wzor f="\begin{aligned} D_e &= 12 - 2 \cdot 1,5 + 2 \cdot \sqrt{0,5 \cdot 2,5} \\ &= 9 + 2 \cdot \sqrt{1,25} \approx 11,24\ \text{mm} \end{aligned}" kind="obliczenie" />
 
 ## Typowe błędy \{#typowe-błędy}
 
@@ -111,7 +127,7 @@ Dla freza z promieniem naroża przy ap mniejszym niż rε: De = D − 2 · rε +
 
 ## W G-kodzie \{#w-g-kodzie}
 
-Frez kulisty wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Program poniżej frezuje pole 40 × 12 mm pięcioma przejściami co ae = 3 mm na głębokości 1 mm, z obrotami i posuwem z przykładu rachunkowego. Komentarz w pierwszej linii podaje symulatorowi wymiary półfabrykatu. W widoku 3D między przejściami widać grzbiety.
+Frez kulisty wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Program poniżej frezuje pole 40 × 12 mm pięcioma przejściami co ae = 3 mm, z obrotami i posuwem z przykładu rachunkowego. Komentarz w pierwszej linii podaje symulatorowi wymiary półfabrykatu. W widoku 3D między przejściami widać grzbiety.
 
 <Sim mode="mill" caption="Frez kulisty ⌀10, ap = 1 mm, krok ae = 3 mm — grzbiety h ≈ 0,23 mm.">
   ```
@@ -139,3 +155,14 @@ Frez kulisty wybiera się adresem T i zmianą narzędzia M06, korekcję długoś
   M30
   ```
 </Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na frez kulisty T1. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1 i podjeżdża ruchem szybkim na Z50.
+2. `S7962 M03` włącza obroty z przykładu rachunkowego, w prawo.
+3. `G00 X-8. Y0.` i `G00 Z5.` ustawiają frez ruchem szybkim przed polem, poza materiałem.
+4. `G01 Z-1. F300` opuszcza frez na głębokość 1 mm ruchem roboczym.
+5. `G01 X48. F796` frezuje pierwsze przejście z posuwem z przykładu.
+6. `G01 Y3.` przesuwa frez o krok boczny 3 mm. `G01 X-8.` frezuje kolejne przejście w przeciwnym kierunku.
+7. Pary kroków i przejść powtarzają się do `G01 Y12.` i ostatniego przejścia `G01 X48.`.
+8. `G00 Z50.` wycofuje frez, `M05` zatrzymuje wrzeciono, `M30` kończy program.

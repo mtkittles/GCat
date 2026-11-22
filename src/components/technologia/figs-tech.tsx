@@ -69,7 +69,7 @@ export function ToolHardness() {
   const ticks = [0, 2000, 4000, 6000, 8000, 10000, 12000];
   return (
     <Fig id="tth" code="HV" title="Twardość materiałów narzędziowych — zakresy dla grup" h={226} legend={[["acc", "zakres twardości HV"]]}
-      caption={<>Zakresy z tabeli właściwości twardych materiałów narzędziowych producenta (Mitsubishi Materials). Konkretny gatunek ma jedną wartość — z karty katalogowej producenta.</>}>
+      caption={<>Zakresy twardości według tabeli Mitsubishi Materials; konkretny gatunek ma jedną wartość z karty katalogowej.</>}>
       {() => (
         <g>
           {ticks.map((t) => <line key={t} x1={X(t)} y1={y0 - 12} x2={X(t)} y2={y0 + dy * HV.length - 8} className="gr-min" />)}

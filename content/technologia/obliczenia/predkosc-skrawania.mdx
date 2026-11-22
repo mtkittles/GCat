@@ -62,7 +62,7 @@ Prędkość skrawania Vc to prędkość, z jaką powierzchnia materiału przesuw
 
 <Diagram id="vc" />
 
-Punkt na obwodzie w jednym obrocie przebywa drogę π · D. Przy n obrotach na minutę to π · D · n milimetrów na minutę; dzielenie przez 1000 daje metry na minutę. Stąd wzór na Vc, a po przekształceniu wzór na obroty.
+Punkt na obwodzie w jednym obrocie przebywa drogę π · D. Przy n obrotach na minutę to π · D · n milimetrów na minutę. Dzielenie przez 1000 daje metry na minutę. Stąd wzór na Vc, a po przekształceniu wzór na obroty (wzory niżej).
 
 Którą średnicę podstawić:
 
@@ -72,20 +72,19 @@ Którą średnicę podstawić:
 
 ## Wzór i przykład \{#wzór-i-przykład}
 
-<Table caption="Prędkość skrawania i obroty — wzory">
-  | Szukane               | Wzór                    | Jednostki                       |
-  | --------------------- | ----------------------- | ------------------------------- |
-  | prędkość skrawania Vc | Vc = π · D · n / 1000   | Vc w m/min, D w mm, n w obr/min |
-  | obroty wrzeciona n    | n = 1000 · Vc / (π · D) | n w obr/min, Vc w m/min, D w mm |
-</Table>
+<Wzor f="V_c = \frac{\pi \cdot D \cdot n}{1000} \\ n = \frac{1000 \cdot V_c}{\pi \cdot D}" legend="V_c — prędkość skrawania [m/min]; D — średnica [mm]; n — obroty wrzeciona [obr/min]; \pi — liczba pi, w przykładach 3,14" caption="Prędkość skrawania; Obroty wrzeciona" />
 
-Przykłady (π ≈ 3,14):
+Przykłady prędkości skrawania: wałek ⌀50 mm przy 2000 obr/min i ten sam wałek toczony na ⌀80 mm przy tych samych obrotach.
 
-* Wałek ⌀50 mm przy 2000 obr/min: Vc = 3,14 · 50 · 2000 / 1000 = 314 m/min. Ten sam wałek toczony na ⌀80 mm przy tych samych obrotach: Vc ≈ 502 m/min.
-* Vc = 400 m/min na ⌀100 mm: n = 1000 · 400 / (3,14 · 100) ≈ 1274 obr/min.
-* Frez ⌀10 mm, Vc = 150 m/min (wartość przyjęta do rachunku): n = 1000 · 150 / (3,14 · 10) ≈ 4777 obr/min.
+<Wzor f="V_c = \frac{3,14 \cdot 50 \cdot 2000}{1000} = 314\ \text{m/min} \\ V_c = \frac{3,14 \cdot 80 \cdot 2000}{1000} \approx 502\ \text{m/min}" caption="Wałek ⌀50 mm; Wałek ⌀80 mm" kind="obliczenie" />
 
-Gdy z wzoru wychodzi więcej, niż daje wrzeciono, obroty są ograniczone przez maszynę, a faktyczna prędkość skrawania jest mniejsza: Vc = π · D · nmax / 1000. Frez ⌀3 mm przy Vc = 150 m/min potrzebowałby 1000 · 150 / (3,14 · 3) ≈ 15 924 obr/min. Na wrzecionie o maksimum 10 000 obr/min (przykład) Vc = 3,14 · 3 · 10 000 / 1000 ≈ 94 m/min.
+Przykłady obrotów: Vc = 400 m/min na ⌀100 mm i frez ⌀10 mm przy Vc = 150 m/min (wartość przyjęta do rachunku).
+
+<Wzor f="n = \frac{1000 \cdot 400}{3,14 \cdot 100} \approx 1274\ \text{obr/min} \\ n = \frac{1000 \cdot 150}{3,14 \cdot 10} \approx 4777\ \text{obr/min}" caption="Toczenie ⌀100 mm; Frez ⌀10 mm" kind="obliczenie" />
+
+Gdy z wzoru wychodzi więcej, niż daje wrzeciono, obroty są ograniczone przez maszynę, a faktyczna prędkość skrawania jest mniejsza. Liczy się ją z obrotów maksymalnych nmax. Przykład: frez ⌀3 mm przy Vc = 150 m/min na wrzecionie o maksimum 10 000 obr/min.
+
+<Wzor f="n = \frac{1000 \cdot 150}{3,14 \cdot 3} \approx 15\,924\ \text{obr/min} \\ V_c = \frac{3,14 \cdot 3 \cdot 10\,000}{1000} \approx 94\ \text{m/min}" caption="Obroty potrzebne do Vc = 150 m/min; Prędkość skrawania przy nmax = 10 000 obr/min" kind="obliczenie" />
 
 ## Stała prędkość skrawania na tokarce \{#stała-prędkość-skrawania-na-tokarce}
 
@@ -102,7 +101,7 @@ Przy planowaniu i toczeniu profilu średnica zmienia się w trakcie przejścia. 
 
 ## W G-kodzie \{#w-g-kodzie}
 
-Na frezarce adres S to zawsze obroty, a Vc przelicza się samemu albo w kalkulatorze. Na tokarce G96 S podaje Vc, a G97 S obroty. Program poniżej planuje czoło i toczy jedno przejście wzdłużne na stałej prędkości skrawania z limitem obrotów, a przed odjazdem wraca do stałych obrotów.
+Na frezarce adres S to zawsze obroty, a Vc przelicza się samemu albo w kalkulatorze. Na tokarce G96 S podaje Vc, a G97 S obroty. Program poniżej planuje czoło i toczy jedno przejście wzdłużne na stałej prędkości skrawania z limitem obrotów.
 
 <Sim mode="lathe" caption="G50 S3000 — limit obrotów, G96 S200 — Vc 200 m/min, G97 S1000 — stałe obroty przed odjazdem.">
   ```
@@ -124,3 +123,14 @@ Na frezarce adres S to zawsze obroty, a Vc przelicza się samemu albo w kalkulat
   M30
   ```
 </Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T0101` wybiera narzędzie 1 z korekcją 1.
+2. `G50 S3000` ustawia limit obrotów 3000 obr/min. `G96 S200 M03` włącza stałą prędkość skrawania 200 m/min, wrzeciono w prawo.
+3. `G00 X62. Z0.` ustawia nóż ruchem szybkim przed czołem.
+4. `G01 X-1.6 F0.15` planuje czoło aż za oś. Średnica maleje, więc sterowanie podnosi obroty, najwyżej do limitu.
+5. `G00 Z2.` i `G00 X56.` odsuwają nóż od czoła i ustawiają go na średnicy 56 mm.
+6. `G01 Z-30. F0.25` toczy przejście wzdłużne na długości 30 mm. `G01 X62.` wyprowadza nóż ponad materiał.
+7. `G00 Z2.` odsuwa nóż, a `G97 S1000` przed odjazdem wraca do stałych obrotów 1000 obr/min.
+8. `G00 X100. Z50.` odjeżdża ruchem szybkim, `M05` zatrzymuje wrzeciono, `M30` kończy program.

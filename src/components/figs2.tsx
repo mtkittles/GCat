@@ -457,7 +457,7 @@ export function VcDiag() {
   return (
     <Fig id="vc" title="Vc — prędkość skrawania na obwodzie" h={240} legend={["cut", "arc", "dim"]}
       notes={<Code k="acc">Vc = π · D · n / 1000</Code>}
-      caption={<>Vc to prędkość, z jaką powierzchnia przesuwa się względem ostrza. Przy tych samych obrotach punkt na większej średnicy pokonuje dłuższą drogę — Vc rośnie razem z D.</>}>
+      caption={<>Przy tych samych obrotach punkt na większej średnicy pokonuje dłuższą drogę, więc Vc rośnie razem z D.</>}>
       {(c) => (
         <g>
           <circle cx={cx} cy={cy} r={R} fill={c.hatch} className="p-con" />

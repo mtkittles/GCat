@@ -28,7 +28,7 @@ export function WedgeAngles() {
   return (
     <Fig id="tkl" code="γ α β" title="Klin ostrza — kąty w płaszczyźnie ortogonalnej" h={236}
       legend={[["acc", "kąt narzędzia"], ["cons", "płaszczyzny odniesienia"], "stock"]}
-      caption={<><b>Pr</b> płaszczyzna podstawowa (prostopadła do kierunku skrawania) · <b>Ps</b> płaszczyzna krawędzi skrawającej · <b>γ</b> kąt natarcia — między powierzchnią natarcia a Pr · <b>β</b> kąt ostrza — między powierzchnią natarcia a przyłożenia · <b>α</b> kąt przyłożenia — między powierzchnią przyłożenia a Ps. Wszystkie trzy mierzy się w płaszczyźnie ortogonalnej Po i dają razem 90°. Kąty narysowano poglądowo.</>}>
+      caption={<>Klin ostrza w płaszczyźnie ortogonalnej Po; kąty narysowano poglądowo.</>}>
       {(c) => (
         <g>
           {/* przedmiot z warstwą skrawaną */}
@@ -80,7 +80,7 @@ export function PlanAngles() {
   return (
     <Fig id="tkr" code="κr εr" title="Kąty w rzucie na płaszczyznę podstawową — toczenie wzdłużne" h={250}
       legend={[["acc", "krawędź główna i kąty"], ["cons", "kierunek posuwu"], "stock"]}
-      caption={<>Widok z góry na nóż i wałek. <b>κr</b> kąt przystawienia — między krawędzią główną S a kierunkiem posuwu · <b>κr′</b> kąt przystawienia krawędzi pomocniczej S′ · <b>εr</b> kąt naroża między krawędziami. W płaszczyźnie podstawowej κr + εr + κr′ = 180°, a kąt ψr = 90° − κr (w katalogach amerykańskich „lead angle”). Na rysunku płytka rombowa o kącie naroża 80°.</>}>
+      caption={<>Widok z góry na nóż i wałek przy toczeniu wzdłużnym, płytka rombowa o kącie naroża 80°.</>}>
       {(c) => (
         <g>
           <line x1={10} y1={24} x2={350} y2={24} className="axis-c" />
@@ -124,7 +124,7 @@ export function BallBullDe() {
   return (
     <Fig id="tkb" code="De" title="Frez kulisty i z promieniem naroża — średnica skrawania" h={240}
       legend={[["acc", "część ostrza w materiale"], "dim", "stock"]}
-      caption={<>Przy głębokości <b>ap</b> mniejszej niż promień czoła frez skrawa na średnicy <b>De</b> mniejszej niż nominalna <b>D</b>. Obroty liczy się z De, nie z D. W osi freza kulistego prędkość skrawania spada do zera. Lewo: frez kulisty (promień czoła D/2), prawo: frez z promieniem naroża rε.</>}>
+      caption={<>Lewo: frez kulisty o promieniu czoła D/2, prawo: frez z promieniem naroża rε — oba przy głębokości ap.</>}>
       {(c) => (
         <g>
           <path d={`M 14 ${y0} H ${bx - hb} A ${R} ${R} 0 0 0 ${bx + hb} ${y0} H ${ux - ht} A ${re} ${re} 0 0 0 ${ux - R + re} ${y0 + apT} H ${ux + R - re} A ${re} ${re} 0 0 0 ${ux + ht} ${y0} H 346 V 226 H 14 Z`} fill={c.hatch} className="p-con" />
@@ -167,7 +167,7 @@ export function Scallops() {
   return (
     <Fig id="tks" code="h" title="Grzbiety między przejściami freza kulistego" h={226}
       legend={[["cons", "poprzednie przejścia"], "dim", "stock"]}
-      caption={<>Przekrój w poprzek przejść. Każde przejście zostawia łuk o promieniu czoła <b>R</b>. Między łukami zostają grzbiety o wysokości <b>h</b>, która rośnie z krokiem bocznym <b>ae</b> i maleje z promieniem: h ≈ ae² / (8 · R).</>}>
+      caption={<>Przekrój w poprzek przejść: każde przejście zostawia łuk o promieniu R, a między łukami zostają grzbiety h.</>}>
       {(c) => (
         <g>
           <path d={d} fill={c.hatch} className="p-con" />
@@ -220,7 +220,7 @@ export function EnteringAngles() {
   return (
     <Fig id="tka" code="κr" title="Kąt przystawienia głowicy — grubość wióra i kierunek siły" h={244}
       legend={[["acc", "krawędź i przekrój wióra"], "dim", "stock"]}
-      caption={<>Przekrój wzdłuż posuwu (posuw w lewo). Przy tym samym posuwie na ostrze <b>fz</b> grubość wióra <b>hex</b> = fz · sin κr maleje razem z kątem przystawienia, a siła <b>F</b> na przedmiot obraca się z kierunku poprzecznego do osiowego. Głębokość przy 10° narysowano mniejszą: takie głowice pracują przy małym ap.</>}>
+      caption={<>Przekrój wzdłuż posuwu (posuw w lewo): im mniejszy kąt przystawienia, tym cieńszy wiór hex i bardziej osiowa siła F.</>}>
       {(c) => (
         <g>
           <EnteringPanel x0={0} kr={90} ap={40} c={c} label="ścianka 90°" force="mała siła osiowa" />
@@ -239,7 +239,7 @@ export function FaceMillPosition() {
   return (
     <Fig id="tkp" code="Dc ae" title="Położenie głowicy względem przedmiotu — widok z góry" h={244}
       legend={[["cut", "wejście i wyjście ostrza"], ["cons", "oś przedmiotu"], "dim"]}
-      caption={<>Średnica głowicy <b>Dc</b> większa od szerokości frezowania <b>ae</b>, a oś głowicy przesunięta względem osi przedmiotu. Ostrze wchodzi w materiał przy grubym wiórze, a wychodzi przy cienkim. Obroty M03 (w prawo, patrząc od wrzeciona), posuw w lewo.</>}>
+      caption={<>Widok z góry: głowica Dc szersza od frezowanej powierzchni ae, oś przesunięta względem osi przedmiotu (M03, posuw w lewo).</>}>
       {(c) => (
         <g>
           <rect x={30} y={y0} width={cx - 30} height={y1 - y0} fill={c.hatch} className="p-con" />
@@ -272,7 +272,7 @@ export function DiscTSlot() {
   return (
     <Fig id="tkt" code="T" title="Frez tarczowy i frez teowy" h={240}
       legend={[["acc", "krawędzie skrawające"], "stock"]}
-      caption={<>Lewo: frez tarczowy na trzpieniu frezarskim w rowku (widok wzdłuż posuwu). Prawo: frez teowy w rowku teowym. <b>1</b> tarcza · <b>2</b> ostrza na obwodzie · <b>3</b> ostrza boczne · <b>4</b> trzpień frezarski · <b>5</b> szyjka · <b>6</b> rowek wykonany wcześniej frezem walcowym · <b>7</b> podcięcie wykonane frezem teowym.</>}>
+      caption={<>Lewo: frez tarczowy na trzpieniu frezarskim w rowku (widok wzdłuż posuwu), prawo: frez teowy w rowku teowym.</>}>
       {(c) => (
         <g>
           {/* frez tarczowy */}
@@ -313,7 +313,7 @@ export function ChamferMill() {
   return (
     <Fig id="tkf" code="45°" title="Frez fazowy na krawędzi — średnica skrawania" h={228}
       legend={[["acc", "krawędź skrawająca"], "dim", "stock"]}
-      caption={<>Frez fazowy 90° (kąt przystawienia 45°) z płaskim czołem o średnicy <b>dt</b>. Wierzchołek schodzi na głębokość <b>h</b> poniżej górnej powierzchni, poza ścianą detalu. Wielkość fazy <b>c</b> zależy od położenia narzędzia w Z i w XY. Średnica skrawania <b>De</b> zmienia się wzdłuż fazy — obroty liczy się dla średnicy w miejscu skrawania.</>}>
+      caption={<>Frez fazowy 90° na krawędzi: wierzchołek na głębokości h poza ścianą detalu, faza c.</>}>
       {(c) => (
         <g>
           <path d={P([[14, top], [wall - cc, top], [wall, top + cc], [wall, 214], [14, 214]])} fill={c.hatch} className="p-con" />
@@ -356,7 +356,7 @@ function Sil({ x, y, kind, label }: { x: number; y: number; kind: string; label:
 export function MillTypes() {
   return (
     <Fig id="tkm" code="frezy" title="Rodzaje frezów — sylwetki" h={228} legend={[["acc", "krawędzie skrawające"]]}
-      caption={<>Górny rząd: frezy trzpieniowe różniące się kształtem czoła. Dolny rząd: głowica frezowa z płytkami, frez tarczowy (na trzpieniu frezarskim, widok z boku) i frez teowy. Proporcje poglądowe.</>}>
+      caption={<>Sylwetki frezów: górny rząd — frezy trzpieniowe, dolny — głowica, frez tarczowy i frez teowy (proporcje poglądowe).</>}>
       {() => (
         <g>
           <Sil x={45} y={10} kind="walcowy" label="walcowy" />

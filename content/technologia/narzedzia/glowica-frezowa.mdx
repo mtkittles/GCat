@@ -108,7 +108,13 @@ Planowanie powierzchni detali, płyt i korpusów. Przy frezowaniu krawędzi cien
 
 <Diagram id="tech-glowica-pozycja" />
 
-**Średnica.** Średnica głowicy Dc powinna być o 20–50% większa od szerokości frezowania ae. Przykład (wartości przyjęte do rachunku): płyta szeroka na 60 mm wymaga Dc od 72 do 90 mm, np. głowicy ⌀80.
+**Średnica.** Średnica głowicy Dc powinna być o 20–50% większa od szerokości frezowania ae:
+
+<Wzor f="1,2 \cdot a_e \le D_c \le 1,5 \cdot a_e" legend="D_c — średnica głowicy [mm]; a_e — szerokość frezowania [mm]" caption="Średnica głowicy" />
+
+Przykład (wartości przyjęte do rachunku): płyta szeroka na 60 mm. Pasuje np. głowica ⌀80.
+
+<Wzor f="72\ \text{mm} = 1,2 \cdot 60 \le D_c \le 1,5 \cdot 60 = 90\ \text{mm}" kind="obliczenie" />
 
 **Położenie.** Oś głowicy ustawia się poza osią przedmiotu. Głowica w osi daje gruby wiór na wyjściu ostrza z materiału i skłonność do drgań. Wyjście z materiału jest dla ostrza bardziej wrażliwe niż wejście.
 
@@ -120,12 +126,13 @@ Planowanie powierzchni detali, płyt i korpusów. Przy frezowaniu krawędzi cien
   Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnej głowicy, gatunku płytki i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
 </Note>
 
-Przy kącie przystawienia mniejszym niż 90° wiór jest cieńszy od posuwu na ostrze: hex = fz · sin κr. Gdy producent podaje zalecaną grubość wióra, posuw na ostrze liczy się z niej: fz = hex / sin κr. Przy κr = 45° i hex = 0,1 mm daje to fz = 0,1 / 0,71 ≈ 0,14 mm.
+Przy kącie przystawienia mniejszym niż 90° wiór jest cieńszy od posuwu na ostrze. Gdy producent podaje zalecaną grubość wióra, posuw na ostrze liczy się z niej. Obroty i posuw minutowy liczy się ze średnicy głowicy i liczby płytek:
 
-Przykład (wartości przyjęte do rachunku): głowica ⌀80, 6 płytek, κr = 45°, Vc = 250 m/min, fz = 0,14 mm.
+<Wzor f="h_{ex} = f_z \cdot \sin \kappa_r \\ f_z = \frac{h_{ex}}{\sin \kappa_r} \\ n = \frac{1000 \cdot V_c}{\pi \cdot D_c} \\ v_f = f_z \cdot n \cdot z" legend="h_{ex} — grubość wióra [mm]; f_z — posuw na ostrze [mm]; \kappa_r — kąt przystawienia; n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D_c — średnica głowicy [mm]; v_f — posuw minutowy [mm/min]; z — liczba płytek" caption="Grubość wióra; Posuw na ostrze z zalecanej grubości wióra; Obroty wrzeciona; Posuw minutowy" />
 
-* n = 1000 · 250 / (3,14 · 80) ≈ 995 obr/min
-* vf = 0,14 · 995 · 6 ≈ 836 mm/min
+Przykład (wartości przyjęte do rachunku): głowica ⌀80, 6 płytek, κr = 45°, zalecana grubość wióra hex = 0,1 mm, Vc = 250 m/min.
+
+<Wzor f="f_z = \frac{0,1}{\sin 45^{\circ}} \approx \frac{0,1}{0,71} \approx 0,14\ \text{mm} \\ n = \frac{1000 \cdot 250}{3,14 \cdot 80} \approx 995\ \text{obr/min} \\ v_f = 0,14 \cdot 995 \cdot 6 \approx 836\ \text{mm/min}" caption="Posuw na ostrze; Obroty wrzeciona; Posuw minutowy" kind="obliczenie" />
 
 ## Typowe błędy \{#typowe-błędy}
 
@@ -136,7 +143,7 @@ Przykład (wartości przyjęte do rachunku): głowica ⌀80, 6 płytek, κr = 45
 
 ## W G-kodzie \{#w-g-kodzie}
 
-Głowicę wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Przy planowaniu program prowadzi środek głowicy, bez korekcji promienia. Program poniżej planuje płytę 100 × 60 mm na głębokość 1 mm głowicą ⌀80 z przykładu rachunkowego. Głowica wtacza się w materiał łukiem G02 o promieniu 40 mm i dalej jedzie prosto. Tor Y35 leży 5 mm od osi płyty (Y30), w stronę wejścia ostrzy przy obrotach M03 i posuwie w plus X. Komentarz w pierwszej linii podaje symulatorowi wymiary płyty.
+Głowicę wybiera się adresem T i zmianą narzędzia M06, korekcję długości włącza G43 z rejestrem H. Przy planowaniu program prowadzi środek głowicy, bez korekcji promienia. Program poniżej planuje płytę 100 × 60 mm na głębokość 1 mm głowicą ⌀80 z przykładu rachunkowego. Tor Y35 leży 5 mm od osi płyty (Y30), w stronę wejścia ostrzy przy obrotach M03 i posuwie w plus X. Komentarz w pierwszej linii podaje symulatorowi wymiary płyty.
 
 <Sim mode="mill" caption="Planowanie płyty 100 × 60 mm głowicą ⌀80: wtoczenie łukiem G02, przejście poza osią płyty.">
   ```
@@ -157,3 +164,13 @@ Głowicę wybiera się adresem T i zmianą narzędzia M06, korekcję długości 
   M30
   ```
 </Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na głowicę T1. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1 i podjeżdża ruchem szybkim na Z50.
+2. `S995 M03` włącza obroty z przykładu rachunkowego, w prawo.
+3. `G00 X-50. Y-5.` i `G00 Z5.` ustawiają głowicę ruchem szybkim obok płyty.
+4. `G01 Z-1. F300` opuszcza głowicę na głębokość 1 mm, nadal poza materiałem.
+5. `G02 X-10. Y35. R40. F836` wtacza głowicę w materiał łukiem o promieniu 40 mm, z posuwem z przykładu.
+6. `G01 X150.` planuje płytę jednym przejściem po torze Y35, aż głowica wyjdzie za płytę.
+7. `G00 Z50.` wycofuje głowicę, `M05` zatrzymuje wrzeciono, `M30` kończy program.

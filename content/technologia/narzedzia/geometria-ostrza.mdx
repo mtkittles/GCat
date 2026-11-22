@@ -93,7 +93,9 @@ Kąty mierzy się w płaszczyznach przechodzących przez wybrany punkt krawędzi
 * **Kąt przyłożenia α:** między powierzchnią przyłożenia a płaszczyzną Ps. Odsuwa powierzchnię przyłożenia od przedmiotu, żeby o niego nie tarła.
 * **Kąt ostrza β:** między powierzchnią natarcia a powierzchnią przyłożenia.
 
-Trzy kąty zmierzone w płaszczyźnie Po dają razem 90°: α + β + γ = 90°.
+Trzy kąty zmierzone w płaszczyźnie Po dają razem 90°:
+
+<Wzor f="\alpha + \beta + \gamma = 90^{\circ}" legend="\alpha — kąt przyłożenia; \beta — kąt ostrza; \gamma — kąt natarcia" caption="Kąty w płaszczyźnie ortogonalnej Po" />
 
 ### Kąty w płaszczyźnie podstawowej \{#kąty-w-płaszczyźnie-podstawowej}
 
@@ -103,7 +105,9 @@ Trzy kąty zmierzone w płaszczyźnie Po dają razem 90°: α + β + γ = 90°.
 * **Kąt przystawienia krawędzi pomocniczej κr′:** między krawędzią pomocniczą a kierunkiem posuwu, po drugiej stronie naroża.
 * **Kąt naroża εr:** między krawędzią główną a pomocniczą.
 
-W płaszczyźnie podstawowej κr + εr + κr′ = 180°. Norma definiuje też kąt ψr = 90° − κr, który katalogi amerykańskie nazywają „lead angle”.
+W płaszczyźnie podstawowej kąty sumują się do 180°. Norma definiuje też kąt ψr, który katalogi amerykańskie nazywają „lead angle”:
+
+<Wzor f="\kappa_r + \varepsilon_r + \kappa_r' = 180^{\circ} \\ \psi_r = 90^{\circ} - \kappa_r" legend="\kappa_r — kąt przystawienia; \varepsilon_r — kąt naroża; \kappa_r' — kąt przystawienia krawędzi pomocniczej; \psi_r — kąt podawany w katalogach amerykańskich jako „lead angle”" caption="Kąty w płaszczyźnie podstawowej Pr; Kąt ψr" />
 
 ### Kąt pochylenia λs \{#kąt-pochylenia-λs}
 
@@ -118,11 +122,15 @@ Kąt pochylenia krawędzi λs to kąt między krawędzią skrawającą a płaszc
 
 ## Wzór i przykład \{#wzór-i-przykład}
 
-Kąty w płaszczyźnie Po sumują się do 90°. Przykład (wartości przyjęte do rachunku): kąt natarcia γ = 6° i kąt przyłożenia α = 7° dają kąt ostrza β = 90° − 6° − 7° = 77°.
+Przykład (wartości przyjęte do rachunku): kąt natarcia γ = 6° i kąt przyłożenia α = 7°. Płytka o kącie naroża εr = 80° w oprawce z κr = 95°.
 
-Kąty w płaszczyźnie Pr sumują się do 180°. Przykład (wartości przyjęte do rachunku): płytka o kącie naroża εr = 80° w oprawce z κr = 95° daje κr′ = 180° − 95° − 80° = 5°.
+<Wzor f="\beta = 90^{\circ} - 6^{\circ} - 7^{\circ} = 77^{\circ} \\ \kappa_r' = 180^{\circ} - 95^{\circ} - 80^{\circ} = 5^{\circ}" caption="Kąt ostrza; Kąt przystawienia krawędzi pomocniczej" kind="obliczenie" />
 
-Kąt przystawienia określa grubość wióra przy frezowaniu: hex = fz · sin κr. Przy fz = 0,1 mm:
+Kąt przystawienia określa grubość wióra przy frezowaniu:
+
+<Wzor f="h_{ex} = f_z \cdot \sin \kappa_r" legend="h_{ex} — grubość wióra [mm]; f_z — posuw na ostrze [mm]; \kappa_r — kąt przystawienia" caption="Grubość wióra" />
+
+Przy fz = 0,1 mm:
 
 <Table caption="Grubość wióra hex przy fz = 0,1 mm (wartość przyjęta do rachunku)">
   | κr  | sin κr | hex      |
@@ -132,7 +140,11 @@ Kąt przystawienia określa grubość wióra przy frezowaniu: hex = fz · sin κ
   | 10° | 0,17   | 0,017 mm |
 </Table>
 
-Odwrotnie: żeby przy κr = 45° uzyskać wiór hex = 0,1 mm, trzeba posuwu fz = 0,1 / 0,71 ≈ 0,14 mm. Sandvik Coromant podaje ten przykład jako fz = 1,4 · 0,1 mm. To zjawisko opisuje hasło \[\[pocienianie wióra]].
+Odwrotnie: żeby przy κr = 45° uzyskać wiór hex = 0,1 mm, trzeba większego posuwu na ostrze:
+
+<Wzor f="f_z = \frac{0,1}{\sin 45^{\circ}} \approx \frac{0,1}{0,71} \approx 0,14\ \text{mm}" kind="obliczenie" />
+
+Sandvik Coromant podaje ten przykład jako fz = 1,4 · 0,1 mm. To zjawisko opisuje hasło \[\[pocienianie wióra]].
 
 ## Na co uważać \{#na-co-uważać}
 
