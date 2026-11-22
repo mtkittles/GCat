@@ -1,4 +1,5 @@
 import { mono } from "./canvasFont";
+import { isLight } from "./simTheme";
 import { pointAt, type Program, type Segment, type Vec3 } from "@/lib/parser";
 import { angleAt, carveCyl, contactAngle, cylIndex, cylInit, cylMeta, fixtureOf, type CylMeta } from "./cylinder";
 import { cuttingRadius, toolOf, type Setup } from "./setup";
@@ -17,9 +18,13 @@ interface Opts {
   probe: { px: number; py: number } | null;
 }
 
-const COL = { rapid: "#F59E0B", linear: "#22C55E", arc: "#38BDF8", grid: "rgba(255,255,255,0.07)", axis: "rgba(255,255,255,0.35)", text: "rgba(226,232,240,0.75)" };
+const COL_DARK = { rapid: "#F59E0B", linear: "#22C55E", arc: "#38BDF8", grid: "rgba(255,255,255,0.07)", axis: "rgba(255,255,255,0.35)", text: "rgba(226,232,240,0.75)", tool: "#FFFFFF", jaw: "rgba(239,68,68,0.16)", jawEdge: "rgba(239,68,68,0.55)", jawText: "rgba(252,165,165,0.9)", probe: "rgba(90,169,240,0.9)", hudBg: "rgba(5,7,10,0.85)", probeText: "#5AA9F0" };
+/** Papier jasnego motywu (UI-9): te same role, ciemniejsze odcienie. */
+const COL_LIGHT: typeof COL_DARK = { rapid: "#B45309", linear: "#15803D", arc: "#0369A1", grid: "rgba(28,25,23,0.10)", axis: "rgba(28,25,23,0.5)", text: "rgba(28,25,23,0.75)", tool: "#1C1917", jaw: "rgba(185,28,28,0.10)", jawEdge: "rgba(185,28,28,0.55)", jawText: "#B91C1C", probe: "rgba(29,78,216,0.85)", hudBg: "rgba(255,252,245,0.94)", probeText: "#1D4ED8" };
+const COL = { ...COL_DARK };
 
 export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number, o: Opts) {
+  Object.assign(COL, isLight() ? COL_LIGHT : COL_DARK);
   const { program, segments, lengths, progress, setup } = o;
   const f = fixtureOf(setup), R = f.R, circ = 2 * Math.PI * R;
 
@@ -84,11 +89,11 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
   ctx.save();
   if (f.grip > 0) {
     const [gx0, gy0] = P(f.x0, 360), [gx1, gy1] = P(f.x0 + f.grip, 0);
-    ctx.fillStyle = "rgba(239,68,68,0.16)"; ctx.fillRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-    ctx.strokeStyle = "rgba(239,68,68,0.55)"; ctx.setLineDash([4, 3]); ctx.strokeRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
-    if (!o.compact) { ctx.setLineDash([]); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = mono(10); ctx.fillText("szczęki", gx0 + 2, gy0 - 4); }
+    ctx.fillStyle = COL.jaw; ctx.fillRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
+    ctx.strokeStyle = COL.jawEdge; ctx.setLineDash([4, 3]); ctx.strokeRect(gx0, gy0, gx1 - gx0, gy1 - gy0);
+    if (!o.compact) { ctx.setLineDash([]); ctx.fillStyle = COL.jawText; ctx.font = mono(10); ctx.fillText("szczęki", gx0 + 2, gy0 - 4); }
   }
-  if (f.tail && !o.compact) { const [tx, ty] = P(f.x1, 360); ctx.fillStyle = "rgba(252,165,165,0.9)"; ctx.font = mono(10); ctx.fillText("konik →", tx - 46, ty - 4); }
+  if (f.tail && !o.compact) { const [tx, ty] = P(f.x1, 360); ctx.fillStyle = COL.jawText; ctx.font = mono(10); ctx.fillText("konik →", tx - 46, ty - 4); }
   ctx.restore();
 
   // tor narzędzia w miejscu styku z płaszczem
@@ -125,7 +130,7 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
   const toolNo = (() => { let a2 = 0, no: number | null = null; segments.forEach((sg, i) => { if (progress >= a2) no = program.lines[sg.line]?.state.tool ?? no; a2 += lengths[i]; }); return no; })();
   const rt = cuttingRadius(toolOf(setup, toolNo, "mill"));
   const [tx, ty] = P(o.currentPos.x, contactAngle(o.currentPos.y, aNow, R));
-  ctx.save(); ctx.strokeStyle = "#FFFFFF"; ctx.lineWidth = 1.5;
+  ctx.save(); ctx.strokeStyle = COL.tool; ctx.lineWidth = 1.5;
   ctx.beginPath(); ctx.arc(tx, ty, Math.max(3, rt * scale), 0, Math.PI * 2); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(tx - 8, ty); ctx.lineTo(tx + 8, ty); ctx.moveTo(tx, ty - 8); ctx.lineTo(tx, ty + 8); ctx.stroke();
   ctx.restore();
@@ -141,12 +146,12 @@ export function drawUnrolled(ctx: CanvasRenderingContext2D, W: number, H: number
     const [hx, th] = inv(o.probe.px, o.probe.py);
     const j = Math.round((hx - m.x0) / m.cx), i = Math.round((((th % 360) + 360) % 360) * Math.PI / 180 / m.ct);
     const depth = j >= 0 && j <= m.nx && th >= 0 && th <= 360 ? R - c.h[cylIndex(m, j, i)] : null;
-    ctx.save(); ctx.strokeStyle = "rgba(90,169,240,0.9)"; ctx.setLineDash([3, 3]);
+    ctx.save(); ctx.strokeStyle = COL.probe; ctx.setLineDash([3, 3]);
     ctx.beginPath(); ctx.moveTo(o.probe.px, 0); ctx.lineTo(o.probe.px, H); ctx.moveTo(0, o.probe.py); ctx.lineTo(W, o.probe.py); ctx.stroke();
     const label = `X ${hx.toFixed(2)} · ${th.toFixed(1)}°${depth !== null ? ` · głęb. ${depth.toFixed(2)}` : ""}`;
     ctx.setLineDash([]); ctx.font = mono(11);
     const w = ctx.measureText(label).width + 12, bx = Math.min(W - w - 4, o.probe.px + 10), by = Math.max(16, o.probe.py - 10);
-    ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by - 13, w, 18); ctx.fillStyle = "#5AA9F0"; ctx.fillText(label, bx + 6, by);
+    ctx.fillStyle = COL.hudBg; ctx.fillRect(bx, by - 13, w, 18); ctx.fillStyle = COL.probeText; ctx.fillText(label, bx + 6, by);
     ctx.restore();
   }
   return { inv };

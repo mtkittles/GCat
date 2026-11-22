@@ -100,7 +100,6 @@ export default function AppSidebar({ lessons, tech }: { lessons: MeterLesson[]; 
 
           <nav className="sb-tree" aria-label={def.title}>
             <div className="sb-area">
-              <span className="nplate"><b>{def.nr}</b><span>{def.soon ? "wkrótce" : "obszar"}</span></span>
               {def.href
                 ? <Link href={def.href} className="sb-area-t">{def.title}</Link>
                 : <span className="sb-area-t">{def.title}</span>}

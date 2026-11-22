@@ -58,6 +58,30 @@
           "gcat.dark": "#F5F5F4"
         },
         "$description": "tekst na panelu"
+      },
+      "paper": {
+        "$type": "color",
+        "$value": "#F4EFE4",
+        "$extensions": {
+          "gcat.dark": "#0A0A0B"
+        },
+        "$description": "tło rysunków i podglądów symulatora: w jasnym motywie papier techniczny (UI-9), w ciemnym jak --panel"
+      },
+      "paper-grid": {
+        "$type": "color",
+        "$value": "#E3D9C4",
+        "$extensions": {
+          "gcat.dark": "#1D1E23"
+        },
+        "$description": "siatka na papierze rysunków i podglądów"
+      },
+      "paper-ink": {
+        "$type": "color",
+        "$value": "#1C1917",
+        "$extensions": {
+          "gcat.dark": "#F5F5F4"
+        },
+        "$description": "linie i tekst na papierze (krawędź detalu, punkt W)"
       }
     },
     "tekst": {

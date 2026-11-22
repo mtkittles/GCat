@@ -10,19 +10,13 @@
 .di .a { stroke: var(--di-a, currentColor); }
 
 /* ---------- 2. plakietka i okno podglądu ---------- */
-.nplate {
-  display: inline-flex; align-items: center; gap: .45rem; height: 24px; padding: 0 .55rem; width: max-content;
-  border: 1px solid var(--line); border-radius: var(--radius-sm); background: transparent;
-  font: 600 var(--fs-label)/1 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); white-space: nowrap;
-}
-.nplate b { font-weight: 700; color: var(--accent-ink); letter-spacing: .04em; }
 
 
 .well {
   position: relative; overflow: hidden; border-radius: var(--radius-lg); border: 1px solid var(--line);
   background: var(--panel, var(--surface));
 }
-[data-theme="light"] .well { background: var(--surface-2); }
+[data-theme="light"] .well { background: var(--paper); --line: var(--paper-grid); } /* UI-9: papier techniczny */
 .well::after {
   content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background-image: linear-gradient(color-mix(in srgb, var(--line) 70%, transparent) 1px, transparent 1px),
@@ -242,7 +236,6 @@ a.at-item:hover { background: var(--surface-2); color: var(--ink); }
   position: relative; flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; padding: 1.1rem;
   transition: flex-grow .55s cubic-bezier(.2, .9, .2, 1), border-color .2s;
 }
-.ob-hd { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
 .ob-ttl { display: flex; align-items: center; gap: .8rem; margin-top: .9rem; }
 .ob-tt { display: grid; gap: .3rem; min-width: 0; }
 .ob-ttl h3 { margin: 0; font: 600 var(--fs-h2)/1.15 var(--font-display); letter-spacing: -.02em; }
@@ -320,7 +313,6 @@ a.ob-pill:hover { border-color: var(--line-strong); color: var(--ink); }
   .tc.is-c6 { grid-column: 1 / -1; }
 }
 .tc { display: flex; flex-direction: column; gap: .7rem; padding: 1rem; color: inherit; text-decoration: none; }
-.tc-hd { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .tc-ttl { display: flex; align-items: center; gap: .75rem; }
 .tc-tt { display: grid; gap: .3rem; min-width: 0; }
 .tc-tt b { font: 600 var(--fs-h3)/1.2 var(--font-sans); letter-spacing: -.005em; color: var(--ink); }

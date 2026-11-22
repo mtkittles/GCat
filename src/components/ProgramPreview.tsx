@@ -16,7 +16,7 @@ import { contourPath, isoSegments, joinSegments } from "@/lib/contour";
 
 /*
   Podgląd gotowego detalu jako rysunek SVG, liczony przy budowie strony — w stylu rysunków kursu (fig.tsx):
-  ciemne pole, stal w ciemnym tonie, krawędzie obróbki w kolorze akcentu, wymiary i punkt W.
+  ciemne pole, stal w ciemnym tonie, jasne krawędzie obróbki (UI-7), wymiary i punkt W.
   Tokarka: przekrój wałka po obróbce (profil zewnętrzny i otwór), średnica na lewym końcu i długość obróbki.
   Frezarka: widok z góry obrobionego detalu (mapa wysokości z cieniowaniem), wymiary półfabrykatu, W w X0 Y0.
   Wymiary biorą się z geometrii (półfabrykat z zadania/programu, profil po symulacji) — nic nie jest wpisane ręcznie.
@@ -122,7 +122,7 @@ function VDim({ x, xRef, y1, y2, label, side, c }: { x: number; xRef: number; y1
   );
 }
 
-/** Punkt zerowy przedmiotu W (kropka w kolorze akcentu i opis z halo). */
+/** Punkt zerowy przedmiotu W (kropka i opis z halo; kolor --pp-w). */
 function WMark({ x, y, pos }: { x: number; y: number; pos: "ne" | "nw" | "se" | "sw" }) {
   const dx = pos.endsWith("e") ? 7 : -7, dy = pos.startsWith("n") ? -7 : 15;
   return (

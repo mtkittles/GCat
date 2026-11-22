@@ -2,7 +2,6 @@
 import Link from "next/link";
 import type { PointerEvent, ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
-import StatusLed from "@/components/tactile/StatusLed";
 import { DZIAL_ICO, IcoCube } from "@/components/obszary/icons";
 import { useLive } from "@/components/obszary/live";
 import { ChipPreview, HardnessBars, IsoDecoder, MillParts, RpmDro, RunoutPreview, TrochoidPreview } from "@/components/obszary/previews";
@@ -43,22 +42,16 @@ function light(e: PointerEvent<HTMLElement>) {
 
 export default function TechCards({ dzialy }: { dzialy: TechCardData[] }) {
   const [ref, live] = useLive<HTMLDivElement>();
-  const order = new Map(dzialy.map((d, i) => [d.slug, i + 1]));
   return (
     <div ref={ref} className="tc-grid" data-live={live ? "" : undefined}>
       {bento(dzialy).map(({ item: d, span }) => {
         const Icon = DZIAL_ICO[d.icon] ?? IcoCube;
         const n = d.arts.length;
-        const nr = `T${String(order.get(d.slug)).padStart(2, "0")}`;
         const hero = span === "hero";
         const count = n ? pl(n, "artykuł", "artykuły", "artykułów") : "w przygotowaniu";
         return (
           <Link key={d.slug} href={`/technologia/${d.slug}`} className={`tc spot live-card is-${span}`} onPointerMove={light}
             aria-label={`${d.title} — ${count}`}>
-            <span className="tc-hd">
-              <span className="nplate"><b>{nr}</b><span>{d.title}</span></span>
-              <StatusLed state={n ? "ready" : "idle"} pulse={false} />
-            </span>
             <span className="tc-ttl">
               <span className="ikey"><Icon /></span>
               <span className="tc-tt">

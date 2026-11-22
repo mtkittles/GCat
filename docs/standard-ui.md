@@ -47,6 +47,13 @@ nie mogą nadpisać komponentów osadzonych w treści (legenda i kod symulatora,
 ekranu serwisu (lekcja, symulator, kalkulator) na wnęce, wygaszona maską w dół i w prawo; pod nią tytuł Inter 500
 18 px, opis 16 px wyciszony i odnośnik „… →”. Bez ramki ikony i numeru; ikony w makietach cienkie (lucide 1,5).
 
+**Karty list (UI-7)** — ten sam układ na listach programów, zadań, artykułów Technologii: karta z wewnętrznym
+odstępem 8 px, podgląd na wnęce (`calc(--radius-lg − 4px)`, linia wewnętrzna zamiast ramki dolnej), pod nim meta
+(wyciszona), tytuł Inter 500 18 px, opis wyciszony, akcje lub „Czytaj →”. Bez plakietek z numerem („01 CNC”, „T03”)
+i diod stanu na kartach i w panelu bocznym. Rysunki detali (`ProgramPreview`) w szarościach: jasna krawędź obróbki,
+punkt W bez pomarańczu (`--pp-cut`, `--pp-w`); kolory ruchu tylko dla toru i kodu. Na liście z wieloma kartami
+żadna akcja karty nie jest pomarańczowa (`btn ghost`).
+
 Pigułki (przyciski, chipy, przełączniki): `999px`. Drobne detale (kbd, znaczniki, paski) ≤ 5 px.
 Dok i arkusz dolny na telefonie mają własny, współśrodkowy promień.
 
@@ -84,6 +91,36 @@ etykietach składni (FANUC / SINUMERIK w bloku kodu), odczytach DRO i makietach.
 
 **Pomarańcz na listach:** główny przycisk („Zacznij”), stan aktywny i znacznik „tu jesteś” (dioda przy następnej
 lekcji, wskazana karta słownika). Numery lekcji, litery słownika, skróty, gwiazdki, rodzaje wyników — neutralnie.
+
+## Strony robocze (UI-8)
+
+Lekcja, karta kodu, artykuł Technologii, kalkulator, zadanie, program i symulator.
+
+- **Ramki z treścią** (cel lekcji, dane przykładu, wynik kroku, typowe błędy, notatki, zadanie w lekcji) — tło karty;
+  kolor znaczenia tylko w ramce i etykiecie (zielony wynik, czerwone „Groźne”, „Uwaga”). Cel lekcji: ramka `--line-strong`.
+- **Numery sekcji lekcji** i kroków zadania — neutralny kwadrat/kółko (`--surface-2`), nie pomarańcz.
+- **Nagłówki H2** w karcie kodu i artykule — bez pomarańczowej kreski; „tu jesteś” w spisie treści zostaje.
+- **Etykiety** („Cel lekcji”, „Dane przykładu”, „Co zrobić”, „Stan sterowania”, wyniki kalkulatora) — zdaniem, Inter.
+- **Akcje:** pomarańczowa jedna — „Następna lekcja”, „Sprawdź”, „Sprawdź program”, „Otwórz w symulatorze”;
+  „Oznacz jako przeczytaną” — `btn ghost`. Odnośniki w tekście i źródła — kolor tekstu z podkreśleniem.
+- **Chipy** poziomu i obróbki neutralne; kody wymagane w zadaniu w kolorze ruchu (`motionClass`).
+- **Tabela danych** `.tbl` — jak tabela kodów; na telefonie przewijana w bok.
+- **Rysunki i symulator** zachowują własną semantykę barw (narzędzie, nowy fragment programu, kolory ruchu).
+
+## Jasny motyw — papier techniczny (UI-9)
+
+W jasnym motywie rysunki i podglądy symulatora leżą na **papierze technicznym** (`--paper` #F4EFE4, siatka
+`--paper-grid`, linie `--paper-ink`); w ciemnym te tokeny równają się `--panel`, więc nic się nie zmienia.
+
+- Na papierze: rysunki lekcji i kart (`.fig`), podglądy detali (`ProgramPreview`), przekroje kalkulatora,
+  miniatury Technologii, okna podglądu na kafelkach obszarów, okno programu i makieta symulatora na stronie głównej,
+  kanwa 2D i scena 3D symulatora, pokaz symulacji w lekcjach (kanwa, kod, pulpit — w barwach jasnego motywu).
+- Barwy linii na papierze są ciemniejsze (kontrast ≥ 3:1): G00 #B45309, G01 #15803D, G02/G03 #0369A1,
+  akcent #C2410C, błąd #B91C1C; kolory narzędzi `TOOL_COLORS_LIGHT`; pastelowe opisy osi 3D przez `ink()`.
+- Kanwy czytają motyw w chwili rysowania (`simTheme.ts`): 2D przerysowuje się po zmianie motywu, scena 3D
+  buduje się od nowa. Palety kanwy 2D: `simPalette.ts` (`SIM_DARK`, `SIM_LIGHT` — te same role).
+- Bloki kodu zostają ciemną wyspą w obu motywach (jak w edytorach).
+- Pilnuje tego `tests/sim-theme.test.ts` (kontrast linii i opisów do papieru, zgodność palet).
 
 ## Telefon
 

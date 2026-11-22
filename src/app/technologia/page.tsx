@@ -6,6 +6,7 @@ import TechCards from "@/components/technologia/TechCards";
 import { levelName } from "@/lib/gcodes";
 import { artHref, artsOf, artykulow, dzialy, publicArts, recent, TYP_LABEL } from "@/lib/technologia";
 import PageHead from "@/components/ui/PageHead";
+import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Technologia obróbki skrawaniem — GCat",
@@ -40,6 +41,7 @@ export default function TechnologiaPage() {
                       <b>{a.title}</b>
                       <span className="tech-row-short">{a.short}</span>
                       <span className="tech-row-meta">{levelName(a.poziom)} · {a.obrobka.join(", ")} · {a.minutes} min{a.stan === "szkic" ? " · szkic" : ""}</span>
+                      <span className="tech-row-go">Czytaj<ArrowRight aria-hidden /></span>
                     </span>
                   </Link>
                 </li>

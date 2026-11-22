@@ -56,7 +56,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
       {p.ops && p.ops.length > 0 && (
         <section className="pg-ops">
           <h2 className="pg-h">Karta technologiczna</h2>
-          <table className="tbl">
+          <table className="tbl" tabIndex={0} aria-label="Karta technologiczna">
             <thead><tr><th>Nr</th><th>Zabieg</th><th>Narzędzie</th><th>Kody i parametry</th></tr></thead>
             <tbody>
               {p.ops.map((o, k) => {
@@ -72,7 +72,7 @@ export default async function ProgramPage({ params }: { params: Promise<{ slug: 
       <div className="pg-cols">
         <section className="pg-tools">
           <h2 className="pg-h">Narzędzia</h2>
-          <table className="tbl">
+          <table className="tbl" tabIndex={0} aria-label="Narzędzia">
             <thead><tr><th>T</th><th>Narzędzie</th><th>Rodzaj</th></tr></thead>
             <tbody>
               {Object.entries(p.tools).map(([t, tool]) => (

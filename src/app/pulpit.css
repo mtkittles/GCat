@@ -268,3 +268,7 @@ a.mq-it:hover, a.mq-it:focus-visible { color: var(--ink); }
   .h3-stats { margin-top: 0; font-size: var(--fs-small); }
   .pv3 { padding-top: .75rem; }
 }
+
+/* UI-9: jasny motyw — rysunek okna programu i makieta symulatora na papierze technicznym */
+[data-theme="light"] .hw-view { background: var(--paper); --line: var(--paper-grid); }
+[data-theme="light"] .sh-canvas { background: var(--paper); --line: var(--paper-grid); }

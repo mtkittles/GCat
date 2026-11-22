@@ -1,4 +1,5 @@
 import { mono } from "./canvasFont";
+import { ink, isLight } from "./simTheme";
 import { arcParams, planeAxes, pointAt, type Segment, type Vec3 } from "@/lib/parser";
 
 /*
@@ -236,7 +237,9 @@ export function measLabel(m: Meas2, mode: "mill" | "lathe"): { main: string; sub
 }
 
 type Proj = (p: Pt2) => readonly [number, number];
-const YEL = "#FACC15";
+const YEL_DARK = "#FACC15";
+/** Kolor wymiarów: żółty na ciemnym polu, ciemny bursztyn na papierze jasnego motywu (UI-9). */
+const yel = () => ink(YEL_DARK);
 
 function arrow(ctx: CanvasRenderingContext2D, x: number, y: number, ang: number) {
   ctx.beginPath(); ctx.moveTo(x, y);
@@ -250,10 +253,10 @@ function tag(ctx: CanvasRenderingContext2D, W: number, H: number, x: number, y: 
   ctx.font = mono(10.5); const w2 = subTxt ? ctx.measureText(subTxt).width : 0;
   const w = Math.max(w1, w2) + 14, h = subTxt ? 34 : 20;
   const bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = Math.max(4, Math.min(H - h - 4, y - h / 2));
-  ctx.fillStyle = "rgba(5,7,10,0.88)"; ctx.strokeStyle = "rgba(250,204,21,0.7)"; ctx.lineWidth = 1;
+  ctx.fillStyle = isLight() ? "rgba(255,252,245,0.94)" : "rgba(5,7,10,0.88)"; ctx.strokeStyle = isLight() ? "rgba(161,98,7,0.6)" : "rgba(250,204,21,0.7)"; ctx.lineWidth = 1;
   ctx.fillRect(bx, by, w, h); ctx.strokeRect(bx + 0.5, by + 0.5, w - 1, h - 1);
-  ctx.fillStyle = YEL; ctx.font = mono(12, 600); ctx.fillText(main, bx + 7, by + 14);
-  if (subTxt) { ctx.fillStyle = "#CBD5E1"; ctx.font = mono(10.5); ctx.fillText(subTxt, bx + 7, by + 28); }
+  ctx.fillStyle = yel(); ctx.font = mono(12, 600); ctx.fillText(main, bx + 7, by + 14);
+  if (subTxt) { ctx.fillStyle = isLight() ? "#57534E" : "#CBD5E1"; ctx.font = mono(10.5); ctx.fillText(subTxt, bx + 7, by + 28); }
 }
 
 /** Linia wymiarowa ze strzałkami na końcach (strzałki do środka, gdy jest miejsce). */
@@ -265,7 +268,7 @@ function dimLine(ctx: CanvasRenderingContext2D, x1: number, y1: number, x2: numb
 
 /** Rysuje wymiar na kanwie 2D. `full` — z opisem szczegółów (wymiar aktywny / podgląd). */
 export function drawMeas(ctx: CanvasRenderingContext2D, m: Meas2, Q: Proj, W: number, H: number, mode: "mill" | "lathe", alpha = 1, full = true) {
-  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = YEL; ctx.fillStyle = YEL; ctx.lineWidth = 1.4;
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = yel(); ctx.fillStyle = yel(); ctx.lineWidth = 1.4;
   const lb = measLabel(m, mode);
   const thin = () => { ctx.save(); ctx.lineWidth = 1; ctx.globalAlpha = alpha * 0.6; ctx.setLineDash([]); };
   switch (m.kind) {
@@ -329,7 +332,7 @@ export function drawMeas(ctx: CanvasRenderingContext2D, m: Meas2, Q: Proj, W: nu
 
 /** Podświetlenie wskazanego elementu (przed kliknięciem i po pierwszym wskazaniu). */
 export function drawEnt(ctx: CanvasRenderingContext2D, e: Ent, Q: Proj, alpha = 1) {
-  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = YEL; ctx.fillStyle = YEL; ctx.lineWidth = 2.5;
+  ctx.save(); ctx.globalAlpha = alpha; ctx.strokeStyle = yel(); ctx.fillStyle = yel(); ctx.lineWidth = 2.5;
   if (e.t === "p") { const [x, y] = Q(e.p); ctx.lineWidth = 1.5; ctx.strokeRect(x - 5, y - 5, 10, 10); }
   else if (e.t === "l") { const [ax, ay] = Q(e.a), [bx, by] = Q(e.b); ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); }
   else {

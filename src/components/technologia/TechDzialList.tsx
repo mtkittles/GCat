@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { levelName } from "@/lib/gcodes";
 import { artHref, OBROBKA_LABEL, TYP_LABEL, type Obrobka, type TechArt } from "@/lib/technologia";
 import { useProAccess } from "./useProAccess";
+import { ArrowRight } from "lucide-react";
 
 /*
   Lista artykułów działu z filtrami: obróbka i poziom. Artykuły Pro widzi tylko konto redakcji i plan Pro.
@@ -43,6 +44,7 @@ export default function TechDzialList({ arts, thumbs }: { arts: TechArt[]; thumb
                 <b>{a.title}</b>
                 <span className="tech-row-short">{a.short}</span>
                 <span className="tech-row-meta">{levelName(a.poziom)} · {a.obrobka.map((o) => OBROBKA_LABEL[o]).join(", ")} · {a.minutes} min{a.normy.length ? ` · ${a.normy.join(", ")}` : ""}</span>
+                <span className="tech-row-go">Czytaj<ArrowRight aria-hidden /></span>
               </span>
             </Link>
           </li>
