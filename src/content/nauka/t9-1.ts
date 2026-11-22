@@ -105,8 +105,8 @@ export const t9_1: LessonDoc = {
       kind: "drill",
       intro: "Zanim napiszesz program — przewiduj.",
       questions: [
-        { kind: "choice", q: "Program planowania napisano dla noża R0,4 (`X-0.8`), ale w głowicy jest nóż R0,8 z kursu. Co zobaczysz na czole?", options: ["czopek w środku czoła, o średnicy ok. 0,8 mm", "czyste czoło", "wgłębienie w środku", "alarm sterowania"], answer: 0, why: "Nóż R0,8 potrzebuje przejazdu do X−1,6. Kończąc w X−0,8, zostawia w środku nietoczony czopek o średnicy ok. 2 · (0,8 − 0,4) = 0,8 mm. Odwrotna sytuacja, X−1,6 przy nożu R0,4, tylko wydłuża ruch za osią." },
-        { kind: "gap", q: "Faza 1,5 × 45° na Ø26 przedłużona do Z2. Jaki X zapiszesz w N10?", template: "X{0}", answers: [["19"]], why: "Od Z2 do Z−1,5 jest 3,5 mm. Średnica zmienia się o 2 · 3,5 = 7 mm: 26 − 7 = 19." },
+        { kind: "choice", q: "Program planowania napisano dla noża R0,4 (`X-0.8`), ale w głowicy jest nóż R0,8 z kursu. Co zobaczysz na czole?", options: ["czopek w środku czoła, o średnicy ok. 0,8 mm", "czyste czoło", "wgłębienie w środku", "alarm sterowania"], answer: 0, why: "Nóż R0,8 potrzebuje przejazdu do X−1,6. Kończąc w X−0,8, zostawia w środku nietoczony czopek o średnicy ok. \\(2 \\cdot (0,8 - 0,4) = 0,8\\) mm. Odwrotna sytuacja, X−1,6 przy nożu R0,4, tylko wydłuża ruch za osią." },
+        { kind: "gap", q: "Faza 1,5 × 45° na Ø26 przedłużona do Z2. Jaki X zapiszesz w N10?", template: "X{0}", answers: [["19"]], why: "Od Z2 do Z−1,5 jest 3,5 mm. Średnica zmienia się o \\(2 \\cdot 3,5 = 7\\) mm: \\(26 - 7 = 19\\)." },
         { kind: "choice", q: "Kontur ma zostać obrobiony nożem R0,2 zamiast R0,4. Co zmieniasz w programie z G42?", options: ["nic w konturze — promień i kierunek ostrza są w korekcji narzędzia", "wszystkie współrzędne fazy", "G42 na G41", "X w N10"], answer: 0, why: "Z korekcją promienia ostrza program opisuje kontur z rysunku, a sterowanie liczy przesunięcie z danych narzędzia (lekcja T4.1)." },
       ],
     },
@@ -123,7 +123,7 @@ export const t9_1: LessonDoc = {
         { t: "coolant", label: "Chłodziwo na ruchach roboczych", offBeforeStop: true },
       ],
       hints: [
-        "Planowanie: `G00 X54. Z0.`, `G01 X-0.8 F0.15`, `G00 Z2.` — 2 · 0,4 = 0,8 za osią.",
+        "Planowanie: `G00 X54. Z0.`, `G01 X-0.8 F0.15`, `G00 Z2.` — \\(2 \\cdot 0,4 = 0,8\\) za osią.",
         "Cykl: `G00 X52.`, `G71 U1.5 R0.5`, `G71 P10 Q20 U0.4 W0.1 F0.25`.",
         "Kontur: `N10 G00 X19.`, `G01 X26. Z-1.5 F0.1`, `Z-22.`, `X34.`, `X36. Z-23.`, `Z-38.`, `X44.`, `G03 X46. Z-39. R1.`, `G01 Z-50.`, `N20 X52.`",
         "Wykańczanie: `T0202`, `G96 S250 M03`, `G42 G00 X52. Z2.`, `G70 P10 Q20`, `G40 G00 X54. Z5.`",
@@ -149,7 +149,7 @@ export const t9_1: LessonDoc = {
   },
 
   quiz: [
-    { kind: "choice", review: "T2.3", q: "Do jakiego X planujesz czoło nożem R0,4 z kierunkiem ostrza 3, bez korekcji?", options: ["X−0,8", "X0", "X−0,4", "X−1,6"], answer: 0, why: "Za oś o 2·rε, a X jest w średnicy: 2 · 0,4 = 0,8." },
+    { kind: "choice", review: "T2.3", q: "Do jakiego X planujesz czoło nożem R0,4 z kierunkiem ostrza 3, bez korekcji?", options: ["X−0,8", "X0", "X−0,4", "X−1,6"], answer: 0, why: "Za oś o \\(2 \\cdot r_{\\varepsilon}\\), a X jest w średnicy: \\(2 \\cdot 0,4 = 0,8\\)." },
     { kind: "choice", review: "T5.1", q: "Dlaczego kontur N10–N20 zaczyna się na Z2, a nie na Z0?", options: ["bo cykl startuje z Z2, a kontur musi zacząć się w punkcie startu w Z", "bo Z0 jest zajęte przez G54", "bo faza wymaga Z2", "bez powodu"], answer: 0, why: "G71 prowadzi przejścia od punktu startu. Przedłużenie fazy do Z2 daje ciągły kontur od tego punktu." },
     { kind: "gap", q: "Faza 1 × 45° na krawędzi Ø36 zaczyna się na czole stopnia w Z−22. Jaki X ma początek fazy?", template: "X{0}", answers: [["34"]], why: "36 − 2 · 1 = 34." },
     { kind: "choice", q: "Gdzie ustawisz punkt startu cyklu przy pręcie Ø50?", options: ["nad prętem, np. X52", "na Ø46", "na osi", "na Ø26"], answer: 0, why: "Start nad surówką, z zapasem — tak jak X42 nad prętem Ø40 w kursie." },

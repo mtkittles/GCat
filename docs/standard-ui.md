@@ -184,3 +184,8 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
   G02/G03 błękit; także linia bez słowa ruchu, np. `X10.` po G01), T/M/S zostają neutralne. Kliknięcie (albo Enter)
   przewija do symulatora i ustawia go na tej linii (`components/ProgLinks.tsx`, zdarzenie `gcat:prog-line`).
   Pozostały kod w zdaniu — jak dotąd: neutralny, kolor tylko samo słowo G00–G03.
+- **Lekcje (TS)** — wzór w teorii to blok `{ t: "wzor", f, legend, caption, kind? }` (ten sam `<Wzor>`), przykład liczbowy
+  `kind: "obliczenie"`. Rachunek w zdaniu (kroki przykładu, „dlaczego” w teście, podpowiedzi, podsumowanie, notatki programu
+  narastającego) — wzór w zdaniu `\(…\)` w `rich()`: skład KaTeX w trybie `\displaystyle`, więc ułamek jest licznikiem nad
+  mianownikiem także w zdaniu. W źródle TS ukośniki podwójne: `"\\(n = \\frac{1000 \\cdot 80}{\\pi \\cdot 10}\\)"`.
+  `audit:nauka` sprawdza zapis każdego wzoru (blok, legenda, wzór w zdaniu).

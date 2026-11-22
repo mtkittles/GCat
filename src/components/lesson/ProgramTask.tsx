@@ -4,6 +4,7 @@ import Simulator from "@/components/simulator/Simulator";
 import type { TaskCheck } from "@/lib/lesson";
 import { runTaskChecks } from "@/lib/taskCheck";
 import G43Side from "./G43Side";
+import { rich } from "@/components/Rich";
 
 /*
   Zadanie „dopisz do programu”: edytor z symulatorem, sprawdzanie według listy warunków.
@@ -24,7 +25,7 @@ export default function ProgramTask({ brief = [], view, starter, checks, hints =
       {brief.length > 0 && (
         <div className="ptask-brief">
           <span className="ptask-brief-k">Zadanie</span>
-          <ul>{brief.map((b, i) => <li key={i}>{b}</li>)}</ul>
+          <ul>{brief.map((b, i) => <li key={i}>{rich(b)}</li>)}</ul>
         </div>
       )}
       {view === "g43" && <G43Side src={src} />}
@@ -36,7 +37,7 @@ export default function ProgramTask({ brief = [], view, starter, checks, hints =
         {hint < hints.length && <button type="button" className="btn ghost" onClick={() => setHint(hint + 1)}>Podpowiedź {hint + 1}/{hints.length}</button>}
         <button type="button" className="btn ghost" onClick={() => setShowSol(!showSol)}>{showSol ? "Ukryj rozwiązanie" : "Rozwiązanie"}</button>
       </div>
-      {hint > 0 && <ul className="grid gap-2">{hints.slice(0, hint).map((h, i) => <li key={i} className="note note-info">{h}</li>)}</ul>}
+      {hint > 0 && <ul className="grid gap-2">{hints.slice(0, hint).map((h, i) => <li key={i} className="note note-info">{rich(h)}</li>)}</ul>}
       {res && (
         <div className={`result ${res.passed ? "ok" : "bad"}`}>
           <div className="result-head">{res.passed ? "Zaliczone" : "Jeszcze nie"}</div>

@@ -11,6 +11,8 @@ import { compileContent, renderContent } from "@/lib/mdx/compile";
 import { componentNames, diagramIds, mdxComponents } from "@/lib/mdx/components";
 import { liveSources } from "@/lib/mdx/live";
 import { normLine, progHash } from "@/lib/progHash";
+import { rich } from "@/components/Rich";
+import Article from "@/components/Article";
 
 /*
   Standard treści (pilotaż 2026-11-22): wzór w ramce (<Wzor>), lista oznaczeń pod rysunkiem (**(1) Nazwa:**),
@@ -154,5 +156,22 @@ describe("fragmenty kodu w opisie programu", () => {
     expect(progressAtLine(segs, len, 5)).toBeCloseTo(20);
     expect(progressAtLine(segs, len, 1)).toBeCloseTo(0);
     expect(progressAtLine(segs, len, 7)).toBeNull();
+  });
+});
+
+describe("lekcje: wzór w zdaniu i blok wzoru", () => {
+  it("rich(): \\(…\\) to skład KaTeX, reszta tekstu bez zmian", () => {
+    const html = renderToStaticMarkup(createElement("p", null, rich("Stal: \\(n = \\frac{1000 \\cdot 80}{\\pi \\cdot 10} \\approx 2546\\) obr/min, `S2500`.")));
+    expect(html).toContain('class="m-inline"');
+    expect(html).toContain("<mfrac>");
+    expect(html).toContain("obr/min, <code");
+  });
+  it("blok wzor w lekcji: ramka z legendą i obliczenie", () => {
+    const html = renderToStaticMarkup(createElement(Article, { blocks: [
+      { t: "wzor", f: "v_f = f_z \\cdot z \\cdot n", legend: "v_f — posuw minutowy [mm/min]", caption: "Posuw minutowy" },
+      { t: "wzor", f: "v_f = 0,04 \\cdot 4 \\cdot 2500 = 400", kind: "obliczenie" },
+    ] }));
+    expect(html).toContain('<figure class="wzor">');
+    expect(html).toContain('<div class="wzor-obl">');
   });
 });

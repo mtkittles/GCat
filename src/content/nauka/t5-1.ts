@@ -95,7 +95,7 @@ export const t5_1: LessonDoc = {
     fig: "t51-g71",
     steps: [
       { x: "Punkt startowy A ponad prętem, przed czołem — z niego cykl rusza i do niego wraca.", code: "G00 X42. Z2.", line: 11 },
-      { x: "Głębokość 2 mm na stronę, wycofanie 0,5. Pierwsza warstwa: 42 − 2 · 2 = Ø38.", code: "G71 U2. R0.5", line: 12 },
+      { x: "Głębokość 2 mm na stronę, wycofanie 0,5. Pierwsza warstwa: \\(42 - 2 \\cdot 2 = 38\\), czyli Ø38.", code: "G71 U2. R0.5", line: 12 },
       { x: "Kontur N10–N20, naddatki, posuw zgrubny. Ostatnie przejście cyklu idzie po konturze z naddatkiem.", code: "G71 P10 Q20 U0.4 W0.1 F0.3", line: 13 },
       { x: "Po zmianie noża: dojazd z G42 i wykończenie na wymiar z rysunku.", code: "G70 P10 Q20", line: 31 },
     ],

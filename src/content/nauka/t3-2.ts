@@ -93,7 +93,7 @@ export const t3_2: LessonDoc = {
         { kind: "choice", q: "W przykładzie fazę na Ø30 wpisano `X30. Z-22.` zamiast `X30. Z-21.`. Co powstanie na krawędzi stopnia?", options: ["stożek 2 mm długości o kącie ok. 26,6° do osi zamiast fazy 1 × 45°", "faza 1 × 45°, tylko przesunięta o 1 mm", "faza 2 × 45°", "nic — sterowanie poprawi kąt"], answer: 0, why: "ΔX = 2 w średnicy to 1 mm na stronę, a ΔZ = 2. tan α = 1 / 2, α ≈ 26,6°. Dla 45° potrzeba ΔZ równego połowie ΔX (T0.2)." },
         { kind: "gap", q: "Stopień Ø24, naddatek 0,4 mm na średnicy. Na jaką średnicę toczy ostatnie przejście zgrubne?", template: "Ø{0}", answers: [["24.4", "24,4"]], why: "24 + 0,4." },
         { kind: "gap", q: "Faza 1,5 × 45° na Ø40 zaczyna się na czole stopnia w Z−30. W jakim punkcie się kończy?", template: "X{0} Z{1}", answers: [["40"], ["-31.5", "-31,5"]], why: "Pełna średnica 1,5 mm dalej w Z." },
-        { kind: "gap", q: "Faza 1 × 45° kończy się w X20 Z−1. Nóż startuje na przedłużeniu fazy w Z2. Na jakiej średnicy?", template: "X{0}", answers: [["14"]], why: "Z2 to 3 mm przed końcem fazy: X = 20 − 2 · 3." },
+        { kind: "gap", q: "Faza 1 × 45° kończy się w X20 Z−1. Nóż startuje na przedłużeniu fazy w Z2. Na jakiej średnicy?", template: "X{0}", answers: [["14"]], why: "Z2 to 3 mm przed końcem fazy: \\(X = 20 - 2 \\cdot 3 = 14\\)." },
       ],
     },
   ],

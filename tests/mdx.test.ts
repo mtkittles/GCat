@@ -95,7 +95,9 @@ describe("loader: fixture content/", () => {
 describe("zgodność z dzisiejszym renderem (1:1)", () => {
   it("akapity lekcji (rich() w TS, przed migracją lekcji): MDX == rich()", async () => {
     const ps = (["frezowanie", "toczenie"] as const).flatMap((t) => flat(t)).flatMap((l) => l.doc?.theory ?? [])
-      .filter((b): b is { t: "p"; x: string } => b.t === "p").map((b) => b.x);
+      .filter((b): b is { t: "p"; x: string } => b.t === "p").map((b) => b.x)
+      // wzór w zdaniu \(…\) (standard treści) — w MDX klamry LaTeX to wyrażenia JSX; przy migracji lekcji idzie do <Wzor>
+      .filter((x) => !x.includes("\\("));
     expect(ps.length).toBeGreaterThan(100);
     const diff: string[] = [];
     for (const x of ps) if ((await html(await md(x))) !== N(renderToStaticMarkup(h("p", null, rich(x))))) diff.push(x);

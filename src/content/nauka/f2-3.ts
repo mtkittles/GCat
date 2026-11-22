@@ -18,7 +18,7 @@ export const f2_3: LessonDoc = {
 
     { t: "h", x: "Skąd wziąć F", id: "obliczanie" },
     { t: "p", x: "Katalog narzędzia podaje [[fz]], czyli posuw na ostrze, dla określonego materiału, narzędzia i warunków skrawania. To droga, o którą frez przesuwa się między pracą kolejnych ostrzy. Jeśli frez ma 4 ostrza, w jednym obrocie przesunie się o 4 · fz. Posuw minutowy liczy się z fz, liczby ostrzy z i obrotów n:" },
-    { t: "code", x: "vf = fz · z · n\n\nfz — posuw na ostrze [mm/ostrze]\nz  — liczba efektywnych ostrzy\nn  — prędkość obrotowa [obr/min]\nvf — posuw minutowy = F [mm/min]", caption: "Kalkulator obróbki w menu liczy to samo." },
+    { t: "wzor", f: "v_f = f_z \\cdot z \\cdot n", legend: "v_f — posuw minutowy, adres F [mm/min]; f_z — posuw na ostrze [mm/ostrze]; z — liczba efektywnych ostrzy; n — prędkość obrotowa [obr/min]", caption: "Posuw minutowy" },
     { t: "diagram", id: "f23-fz" },
     { t: "p", x: "Grubość wióra h to coś innego niż fz. Zależy od tego, w którym miejscu obwodu ostrze pracuje: w kierunku posuwu h = fz, z boku freza h maleje do zera. Przy małej szerokości skrawania (ae mniejsze niż połowa średnicy) ostrza pracują tylko przy boku, więc największa grubość wióra jest mniejsza niż fz — to [[pocienianie wióra]]. Katalogi podają wtedy korektę fz w górę. Zbyt cienki wiór może nie skrawać, tylko trzeć — granica zależy od narzędzia i materiału." },
     { t: "h", x: "Ile materiału zbiera frez: ap i ae", id: "ap-ae" },
@@ -44,7 +44,7 @@ export const f2_3: LessonDoc = {
     ],
     fig: "f23-feeds",
     steps: [
-      { x: "Posuw konturowy z przyjętego fz: vf = fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.", code: "F400" },
+      { x: "Posuw konturowy z przyjętego fz: \\(v_f = 0,04 \\cdot 4 \\cdot 2500 = 400\\) mm/min.", code: "F400" },
       { x: "Krok 1 na rysunku: zejście w X−20, obok półfabrykatu — frez nie skrawa. W kursie zejście idzie z ok. 40% posuwu konturowego, zaokrąglone. To założenie przykładu, nie wartość z katalogu.", code: "G01 Z-5. F150", line: 12 },
       { x: "Krok 2: dojazd do X−5. Półfabrykat zaczyna się na X−2, więc na ostatnich 2 mm drogi krawędź freza wchodzi w naddatek i staje na konturze gotowym X0. Ten ruch już skrawa — dlatego F400 pada w tym bloku.", code: "G01 X-5. F400", line: 13 },
       { x: "Krok 3: ruch wzdłuż boku zbiera obwodem pas naddatku szerokości 2 mm na głębokość 5 mm. F jest modalne, więc dalsze bloki nie muszą go powtarzać.", code: "G01 Y55.", line: 14 },
@@ -60,15 +60,15 @@ export const f2_3: LessonDoc = {
       brief: ["Posuw konturowy z fz = 0,04 mm, 4 ostrza, S2500.", "Posuw zejścia: około 40% posuwu konturowego, zaokrąglony do F150."],
       starter: "O1000 (PLYTKA)\nG21 G90 G94 G17\nG40 G49 G80\nG54\nT1 M06 (FREZ FI10)\nG00 G43 H1 Z50.\nS2500 M03\nM08\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. (DOPISZ POSUW ZEJSCIA)\nG01 X-5. (DOPISZ POSUW KONTUROWY)\nG01 Y55.\nG00 Z50.\nM09\nM05\nM30",
       checks: [{"t":"feed","on":"plunge","f":150,"label":"Zejście w Z z aktywnym F150"},{"t":"feed","on":"xy","f":400,"label":"Kontur z aktywnym F400"},{"t":"cut","reference":"G90\nG00 X-20. Y10.\nG00 Z5.\nG01 Z-5. F150\nG01 X-5. F400\nG01 Y55.\nG00 Z50.","tolerance":0.05}],
-      hints: ["Posuw konturowy: fz · z · n = 0,04 · 4 · 2500 = 400 mm/min.","Zejście w Z: ok. 40 % z 400, zaokrąglone — `F150` w bloku `G01 Z-5.`; `F400` w pierwszym bloku konturu."],
+      hints: ["Posuw konturowy: \\(v_f = 0,04 \\cdot 4 \\cdot 2500 = 400\\) mm/min.","Zejście w Z: ok. 40 % z 400, zaokrąglone — `F150` w bloku `G01 Z-5.`; `F400` w pierwszym bloku konturu."],
       solution,
     },
     {
       kind: "drill",
       intro: "Posuw minutowy i na ostrze.",
       questions: [
-        { kind: "gap", q: "fz = 0,05, z = 3, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["450"]], why: "0,05 · 3 · 3000 = 450 mm/min." },
-        { kind: "gap", q: "Program ma F600, frez 4-ostrzowy, S3000. Jakie jest fz?", template: "fz = {0}", answers: [["0.05", "0,05", ".05"]], why: "600 / (4 · 3000) = 0,05 mm/ostrze." },
+        { kind: "gap", q: "fz = 0,05, z = 3, n = 3000. Ile wynosi F?", template: "F{0}", answers: [["450"]], why: "\\(F = 0,05 \\cdot 3 \\cdot 3000 = 450\\) mm/min." },
+        { kind: "gap", q: "Program ma F600, frez 4-ostrzowy, S3000. Jakie jest fz?", template: "fz = {0}", answers: [["0.05", "0,05", ".05"]], why: "\\(f_z = \\frac{600}{4 \\cdot 3000} = 0,05\\) mm/ostrze." },
         { kind: "token", q: "Wskaż słowo, które ustawia **posuw**.", block: "G01 X80. Y0. F400", answer: 3, why: "F400 — 400 mm/min." },
         { kind: "choice", q: "Po bloku `G01 X-5. F400` frez Ø10 stoi w X−5 Y10 Z−5; jego krawędź leży na konturze gotowym X0, a półfabrykat zaczyna się na X−2. Następny blok to `G01 Y55.`. Co się stanie?", options: ["frez jedzie wzdłuż boku z F400 i zbiera obwodem 2 mm naddatku", "frez jedzie z F150, bo to był pierwszy posuw", "alarm — w bloku brak F", "ruch szybki, bo brak G01 w poprzednim bloku"], answer: 0, why: "G01 i F400 są modalne. Między X−2 a X0 jest naddatek, więc ruch wzdłuż Y zbiera go obwodem freza." },
         { kind: "choice", q: "Frez 2-ostrzowy zamiast 4-ostrzowego, to samo fz i S. Co dzieje się z posuwem F?", options: ["zostaje taki sam", "maleje o połowę", "rośnie dwukrotnie", "zależy od średnicy"], answer: 1, why: "F jest proporcjonalne do liczby ostrzy." },
@@ -94,9 +94,9 @@ export const f2_3: LessonDoc = {
   },
 
   quiz: [
-    { kind: "gap", review: "F2.2", q: "Frez Ø10, vc = 94 m/min. Ile obrotów wpiszesz (w pełnych obr/min)?", template: "n = {0}", answers: [["2992", "2991", "2993"]], why: "1000 · 94 / (π · 10) ≈ 2992." },
+    { kind: "gap", review: "F2.2", q: "Frez Ø10, vc = 94 m/min. Ile obrotów wpiszesz (w pełnych obr/min)?", template: "n = {0}", answers: [["2992", "2991", "2993"]], why: "\\(n = \\frac{1000 \\cdot 94}{\\pi \\cdot 10} \\approx 2992\\) obr/min." },
     { kind: "choice", q: "Co oznacza `F400` przy aktywnym `G94`?", options: ["400 mm/min", "400 mm/obr", "400 obr/min", "400 m/min"], answer: 0, why: "G94 — posuw minutowy." },
-    { kind: "gap", q: "fz = 0,06, z = 2, n = 5000. Ile wynosi F?", template: "F{0}", answers: [["600"]], why: "0,06 · 2 · 5000 = 600." },
+    { kind: "gap", q: "fz = 0,06, z = 2, n = 5000. Ile wynosi F?", template: "F{0}", answers: [["600"]], why: "\\(F = 0,06 \\cdot 2 \\cdot 5000 = 600\\) mm/min." },
     { kind: "choice", q: "Frez zagłębia się pionowo w materiał. Dlaczego posuw zejścia przyjmuje się mniejszy niż konturowy?", options: ["pracują ostrza czołowe: przy osi prędkość skrawania spada do zera, a wiór trudno wychodzi", "oś Z jest słabsza", "tak wymaga G01", "żeby oszczędzić chłodziwo"], answer: 0, why: "Przy zagłębianiu skrawa czoło freza, a nie obwód. Dopuszczalny posuw wgłębny podaje producent freza. Zejście obok detalu, w powietrzu, nie obciąża ostrzy." },
     { kind: "choice", q: "Obroty wzrosły z S2000 do S3000 przy tym samym fz. Co z F?", options: ["zostaje", "rośnie o połowę", "maleje", "rośnie dwukrotnie"], answer: 1, why: "F jest proporcjonalne do n: 3000/2000 = 1,5." },
     { kind: "choice", q: "Korektor posuwu ustawiony na 50%, w programie F400. Z jakim posuwem jedzie maszyna?", options: ["400 mm/min", "200 mm/min", "800 mm/min", "zależy od G00"], answer: 1, why: "Korektor mnoży posuw z programu." },
@@ -105,7 +105,7 @@ export const f2_3: LessonDoc = {
 
   summary: [
     "F to posuw. W G94 — mm/min, w G95 — mm/obr.",
-    "vf = fz · z · n. fz z katalogu, z — liczba ostrzy, n — obroty.",
+    "\\(v_f = f_z \\cdot z \\cdot n\\). fz z katalogu, z — liczba ostrzy, n — obroty.",
     "fz to droga między ostrzami, nie grubość wióra. Wiór jest cieńszy niż fz z boku freza i przy małym ae.",
     "ap — głębokość wzdłuż osi freza, ae — szerokość skrawania. W przykładzie płytki: ap = 5, ae = 2 mm.",
     "Zagłębianie w materiał — posuw wgłębny z katalogu. W kursie zejście w powietrzu obok półfabrykatu, ok. 40% posuwu konturowego — jako przykład dwóch wartości F.",

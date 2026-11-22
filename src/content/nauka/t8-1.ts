@@ -89,7 +89,7 @@ export const t8_1: LessonDoc = {
       intro: "Podprogramy na tokarce.",
       questions: [
         { kind: "gap", q: "W przykładzie w podprogramie przeniesiono `W-10.` na początek, przed `G01 X26.`. Start dalej w Z−10, `L3`. Gdzie powstaną rowki (lewa krawędź)?", template: "Z{0}, Z{1}, Z{2}", answers: [["-20"], ["-30"], ["-40"]], why: "Każdy przebieg najpierw przesuwa nóż o 10 mm, a dopiero potem wcina. Rowki wypadają o jedną podziałkę dalej: Z−20, Z−30, Z−40 — rowka w Z−10 nie ma." },
-        { kind: "gap", q: "Start Z−5, podprogram kończy się `W-8.`, wywołanie `L4`. Gdzie stoi nóż po ostatnim przebiegu?", template: "Z{0}", answers: [["-37"]], why: "−5 − 4 · 8 = −37." },
+        { kind: "gap", q: "Start Z−5, podprogram kończy się `W-8.`, wywołanie `L4`. Gdzie stoi nóż po ostatnim przebiegu?", template: "Z{0}", answers: [["-37"]], why: "\\(-5 - 4 \\cdot 8 = -37\\)." },
         { kind: "choice", q: "Czy podprogram z `W-10.` musi przywracać G90 przed M99?", options: ["nie — W jest przyrostem tylko w swoim bloku", "tak, zawsze", "tylko na Sinumeriku", "tylko przy L > 1"], answer: 0, why: "W systemie A tryb się nie zmienia." },
         { kind: "choice", q: "Po co program z podajnikiem pręta kończy się czasem M99?", options: ["żeby zaczynać kolejną sztukę bez zatrzymania", "żeby wyłączyć wrzeciono", "bo M30 nie działa na tokarce", "bez powodu"], answer: 0, why: "Pętlę przerywa licznik albo koniec pręta." },
       ],
@@ -116,7 +116,7 @@ export const t8_1: LessonDoc = {
     { kind: "choice", review: "T7.2", q: "Po G32 nóż jest w zwoju. Co dalej?", options: ["G00 w X, potem w Z", "G00 w Z", "G32 z powrotem", "M30"], answer: 0, why: "Najpierw wyjście ze zwoju." },
     { kind: "choice", q: "Co robi `M98 P3000 L3`?", options: ["wywołuje podprogram O3000 trzy razy", "wywołuje O3 trzy tysiące razy", "kończy program", "przesuwa nóż o 3000"], answer: 0, why: "P — numer, L — powtórzenia." },
     { kind: "choice", q: "Jak w podprogramie tokarskim Fanuc przesunąć nóż o 10 mm w stronę uchwytu bez zmiany trybu?", options: ["`W-10.`", "`G91 Z-10.`", "`Z-10.`", "`U-10.`"], answer: 0, why: "W to przyrost w Z." },
-    { kind: "gap", q: "Start w Z−12, podprogram kończy się `W-6.`, wywołanie `L5`. W jakim Z stanie nóż?", template: "Z{0}", answers: [["-42"]], why: "−12 − 5 · 6 = −42." },
+    { kind: "gap", q: "Start w Z−12, podprogram kończy się `W-6.`, wywołanie `L5`. W jakim Z stanie nóż?", template: "Z{0}", answers: [["-42"]], why: "\\(-12 - 5 \\cdot 6 = -42\\)." },
     { kind: "choice", q: "Jak w natywnym języku Siemensa (SINUMERIK) wywołasz podprogram trzy razy, tak jak `M98 P3000 L3`?", options: ["nazwa podprogramu z P3", "M98 P3000", "G65 P3", "CYCLE95"], answer: 0, why: "Wywołanie nazwą, P — liczba przebiegów." },
   ],
 

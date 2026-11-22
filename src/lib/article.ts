@@ -11,6 +11,8 @@ export type Block =
   | { t: "table"; head: string[]; rows: string[][]; caption?: string }
   | { t: "diagram"; id: string }
   | { t: "widget"; id: "rij" | "arc" | "jog" }
+  /** Wzór w ramce z legendą albo obliczenie (standard treści, jak <Wzor> w MDX): f — LaTeX, caption „A; B” — opis nad każdym wierszem. */
+  | { t: "wzor"; f: string; legend?: string; caption?: string; kind?: "obliczenie" }
   /** Blok zwijany („Pokaż pomoc”): porównania, dodatkowe rzuty, rozwinięcia — domyślnie zamknięty (#80 §5). */
   | { t: "more"; title: string; blocks: Block[] };
 

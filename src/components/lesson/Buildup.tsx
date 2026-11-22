@@ -2,6 +2,7 @@
 import { useState } from "react";
 import SimClient from "@/components/simulator/SimClient";
 import type { BuildLine } from "@/content/nauka/buildup";
+import { rich } from "@/components/Rich";
 
 /*
   Program detalu przewodniego. Widać linie z tej i wcześniejszych lekcji:
@@ -34,7 +35,7 @@ export default function Buildup({ title, lines, lessonId, mode }: { title: strin
               <code>{l.code}</code>
               {l.state !== "new" && <span className="bu-since">{l.since}</span>}
             </button>
-            {open === i && <p className="bu-note">{l.note}{l.state === "future" && l.sinceTitle ? ` Pojawi się w lekcji ${l.since}: ${l.sinceTitle}.` : ""}</p>}
+            {open === i && <p className="bu-note">{rich(l.note)}{l.state === "future" && l.sinceTitle ? ` Pojawi się w lekcji ${l.since}: ${l.sinceTitle}.` : ""}</p>}
           </li>
         ))}
       </ol>

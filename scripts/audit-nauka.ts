@@ -11,6 +11,7 @@ import { validate } from "@/lib/parser/validate";
 import { runTaskChecks } from "@/lib/taskCheck";
 import type { LessonDoc, Question } from "@/lib/lesson";
 import { flatBlocks, type Block } from "@/lib/article";
+import { captionError, parseLegend, texError } from "@/components/Wzor";
 
 const issues: string[] = [];
 const warn = (where: string, msg: string) => issues.push(`${where}: ${msg}`);
@@ -83,8 +84,18 @@ for (const track of ["frezowanie", "toczenie"] as Track[]) {
     [...doc.quiz, ...doc.practice.flatMap((p) => (p.kind === "drill" ? p.questions : []))].forEach((q) => checkQuestion(W, q, track, idx));
     if (doc.quiz.length < 5) warn(W, `test ma tylko ${doc.quiz.length} pytań`);
     if (!doc.quiz.some((q) => q.review) && idx > 0) warn(W, "test bez pytania powtórkowego");
+    // wzory (standard treści): blok wzor i wzór w zdaniu \(…\)
+    for (const b of flatBlocks(doc.theory)) {
+      if (b.t !== "wzor") continue;
+      const e = texError(b.f); if (e) warn(W, `wzór „${b.f.slice(0, 40)}”: ${e}`);
+      const c = captionError(b.f, b.caption); if (c) warn(W, `wzór „${b.f.slice(0, 40)}”: ${c}`);
+      for (const it of parseLegend(b.legend ?? "")) { const le = texError(it.sym); if (le) warn(W, `legenda „${it.sym}”: ${le}`); }
+    }
+    for (const t of [...texts(doc), ...doc.worked.steps.map((x) => x.code ?? "")]) for (const m of t.matchAll(/\\\((.+?)\\\)/g)) {
+      const e = texError(m[1]); if (e) warn(W, `wzór w zdaniu „${m[1].slice(0, 40)}”: ${e}`);
+    }
     // teksty
-    for (const t of texts(doc)) {
+    for (const t of texts(doc).map((x) => x.replace(/\\\((.+?)\\\)/g, " "))) {
       for (const m of t.matchAll(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g)) if (!lookup(m[1])) warn(W, `pojęcie bez karty/hasła: [[${m[1]}]]`);
       const prose = t.replace(/`[^`]*`/g, "");
       for (const m of prose.matchAll(/(?<![\w.−-])(\d+\.\d{1,2})(?![\w.\d])/g)) warn(W, `kropka dziesiętna w tekście: „${m[1]}” w: ${prose.slice(0, 70)}`);
