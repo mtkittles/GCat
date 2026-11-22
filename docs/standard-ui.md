@@ -107,6 +107,21 @@ Lekcja, karta kodu, artykuł Technologii, kalkulator, zadanie, program i symulat
 - **Tabela danych** `.tbl` — jak tabela kodów; na telefonie przewijana w bok.
 - **Rysunki i symulator** zachowują własną semantykę barw (narzędzie, nowy fragment programu, kolory ruchu).
 
+## Jasny motyw — papier techniczny (UI-9)
+
+W jasnym motywie rysunki i podglądy symulatora leżą na **papierze technicznym** (`--paper` #F4EFE4, siatka
+`--paper-grid`, linie `--paper-ink`); w ciemnym te tokeny równają się `--panel`, więc nic się nie zmienia.
+
+- Na papierze: rysunki lekcji i kart (`.fig`), podglądy detali (`ProgramPreview`), przekroje kalkulatora,
+  miniatury Technologii, okna podglądu na kafelkach obszarów, okno programu i makieta symulatora na stronie głównej,
+  kanwa 2D i scena 3D symulatora, pokaz symulacji w lekcjach (kanwa, kod, pulpit — w barwach jasnego motywu).
+- Barwy linii na papierze są ciemniejsze (kontrast ≥ 3:1): G00 #B45309, G01 #15803D, G02/G03 #0369A1,
+  akcent #C2410C, błąd #B91C1C; kolory narzędzi `TOOL_COLORS_LIGHT`; pastelowe opisy osi 3D przez `ink()`.
+- Kanwy czytają motyw w chwili rysowania (`simTheme.ts`): 2D przerysowuje się po zmianie motywu, scena 3D
+  buduje się od nowa. Palety kanwy 2D: `simPalette.ts` (`SIM_DARK`, `SIM_LIGHT` — te same role).
+- Bloki kodu zostają ciemną wyspą w obu motywach (jak w edytorach).
+- Pilnuje tego `tests/sim-theme.test.ts` (kontrast linii i opisów do papieru, zgodność palet).
+
 ## Telefon
 
 Strona główna: po otwarciu widać hasło, przyciski (40 px) i rysunek toru w oknie programu. Pasek okna to jeden

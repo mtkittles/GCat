@@ -1,6 +1,8 @@
 "use client";
 
 import { mono } from "./canvasFont";
+import { useLightTheme } from "./simTheme";
+import { SIM_DARK, SIM_LIGHT } from "./simPalette";
 import { Fragment, useCallback, useEffect, useId, useMemo, useRef, useState, type ReactNode } from "react";
 import dynamic from "next/dynamic";
 import { createPortal } from "react-dom";
@@ -104,20 +106,8 @@ const MTABS: { id: MTab; label: string; d: string }[] = [
 const Z0 = { k: 1, tx: 0, ty: 0 };
 const ZMIN = 0.5, ZMAX = 80;
 
-/** Cień celu zadania (obszar obróbki wzorca) — fiolet toru wzorcowego, mocno przygaszony. */
-const REF_GHOST = "rgba(167,139,250,0.22)";
-
-const COLORS = {
-  rapid: "#F59E0B",   // szybki przejazd
-  linear: "#22C55E",  // ruch roboczy
-  arc: "#38BDF8",     // interpolacja kołowa
-  dwell: "#F97316",   // postój (G04) — bez ruchu, rysowany osobnym znacznikiem
-  grid: "rgba(255,255,255,0.06)",
-  axis: "rgba(255,255,255,0.22)",
-  tool: "#FFFFFF",
-  stock: "rgba(255,255,255,0.04)",
-  stockEdge: "rgba(255,255,255,0.14)",
-};
+/** Paleta bieżąca kanwy 2D — rysowanie przepisuje do niej SIM_DARK albo SIM_LIGHT (simPalette.ts). */
+const COLORS = { ...SIM_DARK };
 
 export default function Simulator({ source, mode = "mill", editable = true, onSourceChange, compact = false, autoplay = false, controls = false, dialect = "fanuc", allow3d = true, stock: stockProp, tools: toolsProp, showcase = false, codeTop, settingsExtra, fileItems, appLayout = false, reference, lesson = false }: Props) {
   const [units, setUnits] = useState<"auto" | "mm" | "inch">("auto");
@@ -490,6 +480,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
   // Przerysowanie po zmianie rozmiaru kontenera — inaczej po obrocie telefonu
   // kanwa zostaje w starej rozdzielczości i rysunek jest rozmyty.
   const [resizeTick, setResizeTick] = useState(0);
+  // motyw strony: jasny = papier techniczny (UI-9); zmiana motywu przerysowuje kanwę i przebudowuje scenę 3D
+  const light = useLightTheme();
   useEffect(() => {
     if (typeof ResizeObserver === "undefined") return;
     let raf = 0;
@@ -507,6 +499,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // W trybie pełnoekranowym rysujemy na kanwie powłoki, w zwykłym na osadzonej.
     const cv = (fs ? fsCanvasRef.current : canvasRef.current); if (!cv) return;
     const hudHtml = !fs && appLayout; // stan sterowania jest w panelu (albo panel wyłączony — czysta kanwa)
+    Object.assign(COLORS, light ? SIM_LIGHT : SIM_DARK);
     const ctx = cv.getContext("2d"); if (!ctx) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     const W = cv.clientWidth, H = cv.clientHeight;
@@ -558,7 +551,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     const minor = step / 5;
     if (showGrid && minor * scale > 4) {
       ctx.save();
-      ctx.strokeStyle = "rgba(148,163,184,0.09)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = COLORS.gridMinor; ctx.lineWidth = 1;
       // jedna ścieżka na całą podziałkę zamiast stroke() na każdą linię; jedyna różnica: przecięcia nie ciemnieją (krycie 0,09)
       ctx.beginPath();
       for (let v = Math.floor(vis.h0 / minor) * minor; v <= vis.h1 + minor; v += minor) {
@@ -593,7 +586,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
     // tokarka: oś obrotu + lustrzany zarys wałka
     if (mode === "lathe") {
-      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
+      ctx.save(); ctx.strokeStyle = COLORS.center; ctx.setLineDash([8, 4, 2, 4]);
       const [, ay] = P({ x: 0, y: 0, z: 0 });
       ctx.beginPath(); ctx.moveTo(0, ay); ctx.lineTo(W, ay); ctx.stroke(); ctx.restore();
       // lustrzany tor tylko przy całym torze (w trybie „Materiał” ze śladem — dolna połowa bez linii)
@@ -617,7 +610,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const [ax, ay] = P({ x: x0, y: -R, z: 0 }); const [bx2, by2] = P({ x: x1, y: R, z: 0 });
       ctx.fillStyle = COLORS.stock; ctx.strokeStyle = COLORS.stockEdge; ctx.lineWidth = 1.5;
       ctx.fillRect(ax, by2, bx2 - ax, ay - by2); ctx.strokeRect(ax, by2, bx2 - ax, ay - by2);
-      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.35)"; ctx.setLineDash([8, 4, 2, 4]);
+      ctx.save(); ctx.strokeStyle = COLORS.center; ctx.setLineDash([8, 4, 2, 4]);
       const [, cy] = P({ x: 0, y: 0, z: 0 }); ctx.beginPath(); ctx.moveTo(ax - 10, cy); ctx.lineTo(bx2 + 10, cy); ctx.stroke(); ctx.restore();
       ctx.fillStyle = COLORS.axis; ctx.font = mono(11);
       ctx.fillText(`walec ⌀${st.d} × ${st.len} mm, oś A`, ax + 4, by2 - 6);
@@ -709,7 +702,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             lx.setTransform(dpr, 0, 0, dpr, 0, 0);
             lx.globalCompositeOperation = "source-over";
             // cieniowanie głębokości: nieprzezroczysta powierzchnia (krycie przy nakładaniu na podgląd); bez — półprzezroczysty prostokąt
-            lx.fillStyle = depth ? `rgb(${DEPTH_TOP.join(",")})` : "rgba(148,163,184,0.20)";
+            lx.fillStyle = depth ? `rgb(${DEPTH_TOP.join(",")})` : COLORS.flat;
             for (const r of rects) lx.fillRect(...r);
           }
 
@@ -769,7 +762,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
 
           // obrys półfabrykatu — granica materiału pozostaje czytelna
           ctx.save();
-          ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1.2;
+          ctx.strokeStyle = COLORS.frame; ctx.lineWidth = 1.2;
           for (const r of rects) ctx.strokeRect(...r);
           ctx.restore();
 
@@ -781,7 +774,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             const gr = ctx.createLinearGradient(lxp, 0, lxp + lw, 0);
             gr.addColorStop(0, `rgb(${DEPTH_TOP.join(",")})`); gr.addColorStop(1, `rgb(${DEPTH_DEEP.join(",")})`);
             ctx.fillStyle = gr; ctx.fillRect(lxp, lyp, lw, lh);
-            ctx.strokeStyle = "rgba(148,163,184,0.45)"; ctx.lineWidth = 1; ctx.strokeRect(lxp + 0.5, lyp + 0.5, lw - 1, lh - 1);
+            ctx.strokeStyle = COLORS.frame; ctx.lineWidth = 1; ctx.strokeRect(lxp + 0.5, lyp + 0.5, lw - 1, lh - 1);
             ctx.globalAlpha = 1; ctx.fillStyle = COLORS.axis; ctx.font = mono(10);
             ctx.fillText("GŁĘBOKOŚĆ", lxp, lyp - 5);
             ctx.fillText(`Z${round(b0.top)}`, lxp, lyp + lh + 12);
@@ -806,8 +799,8 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
           for (let k = n; k >= 0; k -= every) { const [x, y] = P({ x: sgn * pr.rin[k], y: 0, z: pr.z0 + k * pr.dz }); ctx.lineTo(x, y); }
           { const [x, y] = P({ x: sgn * pr.rin[0], y: 0, z: pr.z0 }); ctx.lineTo(x, y); }
           ctx.closePath();
-          ctx.fillStyle = sgn > 0 ? "rgba(148,163,184,0.24)" : "rgba(148,163,184,0.10)";
-          ctx.strokeStyle = sgn > 0 ? "rgba(203,213,225,0.6)" : "rgba(203,213,225,0.25)";
+          ctx.fillStyle = sgn > 0 ? COLORS.latheFill : COLORS.latheFillIn;
+          ctx.strokeStyle = sgn > 0 ? COLORS.latheEdge : COLORS.latheEdgeIn;
           ctx.lineWidth = 1.2;
           ctx.fill(); ctx.stroke();
         }
@@ -816,11 +809,11 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         ctx.save();
         for (const sgn of halves) {
           const [ax, ay] = P({ x: sgn * ch.R0, y: 0, z: ch.zFace - ch.jawLen }), [bx, by] = P({ x: sgn * ch.jawR, y: 0, z: ch.zFace });
-          ctx.fillStyle = "rgba(100,116,139,0.55)"; ctx.strokeStyle = "rgba(203,213,225,0.55)"; ctx.lineWidth = 1.2;
+          ctx.fillStyle = COLORS.chuckFill; ctx.strokeStyle = COLORS.chuckEdge; ctx.lineWidth = 1.2;
           ctx.fillRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
           ctx.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
         }
-        { const [lx, ly] = P({ x: ch.jawR, y: 0, z: ch.zFace - ch.jawLen }); ctx.fillStyle = "rgba(203,213,225,0.75)"; ctx.font = mono(10); ctx.fillText("szczęki", lx, ly - 4); }
+        { const [lx, ly] = P({ x: ch.jawR, y: 0, z: ch.zFace - ch.jawLen }); ctx.fillStyle = COLORS.label; ctx.font = mono(10); ctx.fillText("szczęki", lx, ly - 4); }
         ctx.restore();
       }
     }
@@ -833,7 +826,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       let accN = 0, open = false, lastR = 0, last: Vec3 | null = null;
       ctx.save();
       ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.strokeStyle = "rgba(249,115,22,0.12)";
+      ctx.strokeStyle = COLORS.trace;
       const flush = () => { if (open) ctx.stroke(); open = false; };
       segments.forEach((sg, i) => {
         const len = lengths[i];
@@ -864,7 +857,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // przy podglądzie korekcji: kontur z programu jako cienka linia przerywana
     // (w trybie „Materiał” tylko przy całym torze — przy śladzie i czystym widoku kontur programu by zaśmiecał)
     if (showComp && comp.active && !compact && !multi && (!pv.stock || pv.path === "all")) {
-      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = "rgba(248,250,252,0.5)"; ctx.lineWidth = 1.2;
+      ctx.save(); ctx.setLineDash([5, 4]); ctx.strokeStyle = COLORS.dashLight; ctx.lineWidth = 1.2;
       program.segments.forEach((sg) => {
         if (sg.kind === "rapid" || sg.kind === "dwell") return;
         const n = sg.kind === "arc" ? 32 : 1;
@@ -889,19 +882,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const [x0, y0] = P(sg.from); path.moveTo(x0, y0);
         for (let i = 1; i <= n; i++) { const [x, y] = P(pointAt(sg, i / n)); path.lineTo(x, y); }
       }
-      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = REF_GHOST;
+      ctx.save(); ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = COLORS.refGhost;
       for (const [r, path] of byR) { ctx.lineWidth = Math.max(2, 2 * r * scale); ctx.stroke(path); }
       // opis pod skalą głębokości (prawy górny róg; telefon z tabelką — z lewej)
       if (byR.size) {
         const lx0 = W < 600 && hudHtml ? 14 : W - 110, ly0 = 60;
-        ctx.fillStyle = "rgba(167,139,250,0.55)"; ctx.fillRect(lx0, ly0 - 7, 14, 8);
+        ctx.fillStyle = COLORS.refFill; ctx.fillRect(lx0, ly0 - 7, 14, 8);
         ctx.fillStyle = COLORS.axis; ctx.font = mono(10); ctx.fillText("CEL ZADANIA", lx0 + 20, ly0);
       }
       ctx.restore();
     }
     if (showRef && refSegments) {
       ctx.save(); ctx.setLineDash([5, 4]); ctx.lineWidth = 1.4;
-      for (const sg of refSegments) { ctx.strokeStyle = "rgba(167,139,250,0.9)"; drawSeg(ctx, sg, P, 1, 0.9); }
+      for (const sg of refSegments) { ctx.strokeStyle = COLORS.ref; drawSeg(ctx, sg, P, 1, 0.9); }
       ctx.restore();
     }
     // ścieżka
@@ -916,7 +909,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const toolAt = (i: number) => program.lines[segments[i]?.line]?.state.tool ?? null;
       const span: Span | null = pmode === "tool" ? toolSpanAt(lengths, toolAt, progress) : null;
       const win = pathWindow(pmode, progress, total, span);
-      const colorOf = (i: number) => (byTool && segments[i].kind !== "rapid" ? toolColor(toolAt(i)) : undefined);
+      const colorOf = (i: number) => (byTool && segments[i].kind !== "rapid" ? toolColor(toolAt(i), light) : undefined);
       const visible = (sg: Segment) => sg.kind !== "dwell" && (showRapid || sg.kind !== "rapid");
       // Przygaszony tor nie zmienia się w trakcie odtwarzania: rysujemy go raz na osobną kanwę
       // i w kolejnych klatkach tylko ją nakładamy. Nowa warstwa przy zmianie programu, kadru, rozmiaru, ustawień.
@@ -958,7 +951,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const bb = boundsOf(cut, ha, va);
       const [bx1, by1] = P({ x: 0, y: 0, z: 0, [ha]: bb.minH, [va]: bb.minV } as Vec3);
       const [bx2, by2] = P({ x: 0, y: 0, z: 0, [ha]: bb.maxH, [va]: bb.maxV } as Vec3);
-      ctx.save(); ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
+      ctx.save(); ctx.strokeStyle = COLORS.faint; ctx.setLineDash([2, 4]); ctx.lineWidth = 1;
       ctx.strokeRect(bx1, by2, bx2 - bx1, by1 - by2); ctx.restore();
     }
 
@@ -978,7 +971,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         if (shown.has(key)) return;
         shown.add(key);
         const [px, py] = P(sg.to);
-        ctx.fillStyle = "rgba(248,250,252,0.9)";
+        ctx.fillStyle = COLORS.hudText;
         ctx.beginPath(); ctx.arc(px, py, 2.6, 0, Math.PI * 2); ctx.fill();
         // podpis tylko tam, gdzie nie nachodzi na poprzedni
         if (placed.some(([qx, qy]) => Math.abs(qx - px) < 70 && Math.abs(qy - py) < 13)) return;
@@ -986,7 +979,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         const label = mode === "lathe"
           ? `X${fmt(sg.to.x * 2)} Z${fmt(sg.to.z)}`
           : `X${fmt(sg.to.x)} Y${fmt(sg.to.y)}`;
-        ctx.fillStyle = "rgba(148,163,184,0.85)";
+        ctx.fillStyle = COLORS.hudMuted;
         ctx.fillText(label, px + 6, py - 5);
       });
       ctx.restore();
@@ -999,7 +992,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       const [oxp, oyp] = P({ x: 0, y: 0, z: 0 });
       const r = 9;
       ctx.save();
-      ctx.strokeStyle = "#F97316"; ctx.fillStyle = "#F97316"; ctx.lineWidth = 1.4;
+      ctx.strokeStyle = COLORS.zero; ctx.fillStyle = COLORS.zero; ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.arc(oxp, oyp, r, 0, Math.PI * 2); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(oxp, oyp); ctx.arc(oxp, oyp, r, 0, Math.PI / 2); ctx.closePath(); ctx.fill();
       ctx.beginPath(); ctx.moveTo(oxp, oyp); ctx.arc(oxp, oyp, r, Math.PI, Math.PI * 1.5); ctx.closePath(); ctx.fill();
@@ -1025,13 +1018,13 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
         pts.forEach(([dz, dx], k) => { const [x, y] = P({ ...currentPos, z: currentPos.z + dz, x: currentPos.x + dx }); if (k) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
         ctx.closePath(); ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = stroke; ctx.lineWidth = 1.2; ctx.stroke();
       };
-      if (o.holder) poly(o.holder, "rgba(71,85,105,0.55)", "rgba(148,163,184,0.7)");
-      poly(o.insert, "rgba(202,160,40,0.55)", "#F5D76E");
+      if (o.holder) poly(o.holder, COLORS.holderFill, COLORS.holderEdge);
+      poly(o.insert, COLORS.insertFill, COLORS.insertEdge);
     } else {
       const nose = mode === "lathe" ? noseOf(activeTool) : null;
       const [ncx, ncy] = nose ? P({ ...currentPos, z: currentPos.z - nose.tz, x: currentPos.x - nose.tx }) : [tx, ty];
       const nR = nose ? Math.max(2.5, nose.r * scale) : rPx;
-      ctx.fillStyle = "rgba(248,250,252,0.10)";
+      ctx.fillStyle = COLORS.toolFill;
       ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = COLORS.tool; ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.arc(ncx, ncy, nR, 0, Math.PI * 2); ctx.stroke();
@@ -1057,19 +1050,19 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
     // celownik sondy pod palcem
     if (probe && !bare) {
       ctx.save();
-      ctx.strokeStyle = "rgba(90,169,240,0.9)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = COLORS.probe; ctx.lineWidth = 1;
       ctx.setLineDash([3, 3]);
       ctx.beginPath(); ctx.moveTo(probe.px, 0); ctx.lineTo(probe.px, H); ctx.moveTo(0, probe.py); ctx.lineTo(W, probe.py); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.beginPath(); ctx.arc(probe.px, probe.py, 4, 0, Math.PI * 2); ctx.strokeStyle = "#5AA9F0"; ctx.stroke();
+      ctx.beginPath(); ctx.arc(probe.px, probe.py, 4, 0, Math.PI * 2); ctx.strokeStyle = COLORS.probeDot; ctx.stroke();
       const label = mode === "mill"
         ? `X ${probe.h.toFixed(2)}  Y ${probe.v.toFixed(2)}`
         : `Z ${probe.h.toFixed(2)}  X ${(probe.v * 2).toFixed(2)}⌀`;
       ctx.font = mono(11);
       const w = ctx.measureText(label).width + 12;
       const bx = Math.min(W - w - 4, probe.px + 10), by = Math.max(16, probe.py - 10);
-      ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by - 13, w, 18);
-      ctx.fillStyle = "#5AA9F0"; ctx.fillText(label, bx + 6, by);
+      ctx.fillStyle = COLORS.hudBg; ctx.fillRect(bx, by - 13, w, 18);
+      ctx.fillStyle = COLORS.probeDot; ctx.fillText(label, bx + 6, by);
       ctx.restore();
     }
 
@@ -1086,16 +1079,16 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
       ctx.save();
       ctx.font = mono(11);
       const wMax = Math.max(...rows.map((r) => ctx.measureText(r).width));
-      ctx.fillStyle = "rgba(5,7,10,0.72)";
+      ctx.fillStyle = COLORS.hudBg2;
       ctx.fillRect(8, 8, wMax + 16, rows.length * 15 + 10);
       rows.forEach((r, i) => {
-        ctx.fillStyle = i === 0 ? "#F8FAFC" : i === 1 ? "#F97316" : "#94A3B8";
+        ctx.fillStyle = i === 0 ? COLORS.dro0 : i === 1 ? COLORS.dro1 : COLORS.dro2;
         ctx.fillText(r, 16, 24 + i * 15);
       });
       ctx.restore();
     }
 
-  }, [program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, refProgram, stockBox, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, pv, cutZs, zoom, meas, picks, placing, pending, hover, measure, mTool]);
+  }, [light, program, segments, progress, lengths, total, mode, compact, showcase, currentPos, setup, activeTool, activeLine, activeToolNo, probe, resizeTick, fs, showStock, comp, showComp, latheStockBox, appLayout, layout.hud, layout.zero, showRef, refSegments, refProgram, stockBox, zeroMark, viewBounds, multi, partSegs, kin, source, showPath, showRapid, showGrid, pv, cutZs, zoom, meas, picks, placing, pending, hover, measure, mTool]);
 
   const st = activeLine !== null ? program.lines[activeLine]?.state : program.lines.at(-1)?.state;
   /** Bieżący punkt we współrzędnych programu (po odjęciu przesunięć układu i obrotu). */
@@ -1788,7 +1781,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             <canvas ref={canvasRef} className={`sim-canvas sim-canvas-2d${measure ? " is-measure" : ""}`} style={{ height: compact ? 220 : tall ? "62vh" : 380, touchAction: "none" }} {...canvasEvents} />
             {view !== "3d" && zoomTools}
           </div>
-          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary></div>}
+          {!compact && allow3d && show3d && <div className="sim3d-wrap m-sim"><Sim3DBoundary><Sim3D key={light ? "paper" : "dark"} source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill={appLayout} ticks={appLayout && layout.ticks} zeroMark={!appLayout || layout.zero ? zeroMark : null} onApi={onApi3d} showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary></div>}
           {asideOver && stateAside}
         </div>
         {asideRight && stateAside}
@@ -1895,7 +1888,7 @@ export default function Simulator({ source, mode = "mill", editable = true, onSo
             title={mode === "lathe" ? "Toczenie" : "Frezowanie"}
             toolbar={viewSwitch}
             view={show3d
-              ? <Sim3DBoundary><Sim3D source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary>
+              ? <Sim3DBoundary><Sim3D key={light ? "paper" : "dark"} source={source} mode={mode} progress={progress} setup={setup} segments={segments} fill showStock={showStock} kin={kin} showPath={showPath} onTogglePath={togglePath} pathMode={pv.path} rapid={pv.rapid} colorBy={pv.color} /></Sim3DBoundary>
               : <div className="c2d c2d-fs"><canvas ref={fsCanvasRef} className={`fs-canvas${measure ? " is-measure" : ""}`} style={{ touchAction: "none" }} {...canvasEvents} />{zoomTools}</div>}
             status={statusStrip}
             transport={transportBar}
@@ -1961,7 +1954,7 @@ function drawDwell(ctx: CanvasRenderingContext2D, sg: Extract<Segment, { kind: "
 
   // stały, przygaszony znacznik miejsca postoju — widoczny zawsze, jak reszta toru
   ctx.save();
-  ctx.strokeStyle = "rgba(249,115,22,0.4)"; ctx.lineWidth = 1.3;
+  ctx.strokeStyle = COLORS.mLine; ctx.lineWidth = 1.3;
   ctx.beginPath(); ctx.arc(dx, dy, 5, 0, Math.PI * 2); ctx.stroke();
   ctx.restore();
 
@@ -1982,8 +1975,8 @@ function drawDwell(ctx: CanvasRenderingContext2D, sg: Extract<Segment, { kind: "
       // przerzucamy na stronę, po której jest miejsce, żeby nie wychodził z kanwy.
       const bx = dx + 12 + w > W ? dx - 12 - w : dx + 12;
       const by = dy - 20 < 0 ? Math.min(dy + 14, H - 20) : dy - 20;
-      ctx.fillStyle = "rgba(5,7,10,0.85)"; ctx.fillRect(bx, by, w, 18);
-      ctx.strokeStyle = "rgba(249,115,22,0.55)"; ctx.lineWidth = 1; ctx.strokeRect(bx, by, w, 18);
+      ctx.fillStyle = COLORS.hudBg; ctx.fillRect(bx, by, w, 18);
+      ctx.strokeStyle = COLORS.mEdge; ctx.lineWidth = 1; ctx.strokeRect(bx, by, w, 18);
       ctx.fillStyle = COLORS.dwell; ctx.fillText(label, bx + 6, by + 13);
     }
   } else {

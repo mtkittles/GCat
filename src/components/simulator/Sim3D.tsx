@@ -1,6 +1,7 @@
 "use client";
 
 import { mono } from "./canvasFont";
+import { ink, isLight } from "./simTheme";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { initLatheProfile, latheProfileCached, type LatheCache, type LatheProfile, latheChuck } from "./latheStock";
@@ -128,14 +129,14 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     // Utrata kontekstu GPU (np. przy przełączeniu karty) nie może wywracać strony.
     renderer.domElement.addEventListener("webglcontextlost", (ev) => { ev.preventDefault(); queueMicrotask(() => setFailed("error")); });
-    renderer.setPixelRatio(Math.min(1.75, window.devicePixelRatio)); renderer.setSize(W, H); renderer.setClearColor(0x12161c);
+    renderer.setPixelRatio(Math.min(1.75, window.devicePixelRatio)); renderer.setSize(W, H); renderer.setClearColor(isLight() ? 0xF4EFE4 : 0x12161c); // jasny motyw: papier techniczny (UI-9)
     el.appendChild(renderer.domElement);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, W / H, 0.1, 5000);
     const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
     scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 0.9));
     const dl = new THREE.DirectionalLight(0xffffff, 0.9); dl.position.set(60, 120, 80); scene.add(dl);
-    const grid = new THREE.GridHelper(400, 40, 0x3a4454, 0x232a35);
+    const grid = isLight() ? new THREE.GridHelper(400, 40, 0xB9AD95, 0xDDD3C0) : new THREE.GridHelper(400, 40, 0x3a4454, 0x232a35);
     scene.add(grid);
     gridRef.current = grid;
     scene.add(new THREE.AxesHelper(30));
@@ -308,7 +309,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     if (st.path) { st.part.remove(st.path); st.path.geometry.dispose(); st.path = null; }
     pathAt.current = null;
     const pts: THREE.Vector3[] = []; const cols: number[] = []; const ps: number[] = []; const pe: number[] = [];
-    const c = { rapid: new THREE.Color("#F59E0B"), linear: new THREE.Color("#22C55E"), arc: new THREE.Color("#38BDF8") };
+    const c = { rapid: new THREE.Color(ink("#F59E0B")), linear: new THREE.Color(ink("#22C55E")), arc: new THREE.Color(ink("#38BDF8")) };
     const tc = new Map<string, THREE.Color>();
     let acc = 0;
     program.segments.forEach((sg, si) => {
@@ -317,7 +318,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
       if (sg.kind === "rapid" && !rapid) return;
       let col = c[sg.kind];
       if (colorBy === "tool" && sg.kind !== "rapid") {
-        const hex = toolColor(program.lines[sg.line]?.state.tool ?? null);
+        const hex = toolColor(program.lines[sg.line]?.state.tool ?? null, isLight());
         col = tc.get(hex) ?? (tc.set(hex, new THREE.Color(hex)), tc.get(hex)!);
       }
       // proste dzielone co ~2 mm drogi — żeby wykonana część kończyła się tam, gdzie narzędzie
@@ -693,7 +694,7 @@ export default function Sim3D({ source, mode, progress, setup, segments: segs, f
     }
     if (!meas.length && !picks.length) { st.render(); return; }
     const g = new THREE.Group(); g.renderOrder = 999;
-    const YEL = 0xfacc15;
+    const YEL = isLight() ? 0xa16207 : 0xfacc15;
     const V = (p: P3) => new THREE.Vector3(p.x, p.y, p.z);
     const lineMat = new THREE.LineBasicMaterial({ color: YEL, depthTest: false, transparent: true });
     const dashMat = new THREE.LineDashedMaterial({ color: YEL, depthTest: false, transparent: true, dashSize: 1.5, gapSize: 1.2, opacity: 0.8 });
@@ -833,7 +834,7 @@ function makeLabel(text: string, pos: THREE.Vector3, color: string, size = 1) {
   const w = Math.max(64, 28 * text.length + 16);
   const cv = document.createElement("canvas"); cv.width = w; cv.height = 64;
   const c = cv.getContext("2d")!;
-  c.fillStyle = color; c.font = mono(44, "bold"); c.textAlign = "center"; c.textBaseline = "middle";
+  c.fillStyle = ink(color); c.font = mono(44, "bold"); c.textAlign = "center"; c.textBaseline = "middle";
   c.fillText(text, w / 2, 32);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false }));
   sp.position.copy(pos); sp.scale.set(9 * size * (w / 64), 9 * size, 1);
@@ -1273,9 +1274,10 @@ function screenLabel(text: string, pos: THREE.Vector3) {
   const w = Math.max(96, 26 * text.length + 28);
   const cv = document.createElement("canvas"); cv.width = w; cv.height = 64;
   const c = cv.getContext("2d")!;
-  c.fillStyle = "rgba(5,7,10,0.88)"; c.fillRect(0, 0, w, 64);
-  c.strokeStyle = "rgba(250,204,21,0.8)"; c.lineWidth = 3; c.strokeRect(1.5, 1.5, w - 3, 61);
-  c.fillStyle = "#FACC15"; c.font = mono(40, 600); c.textAlign = "center"; c.textBaseline = "middle";
+  const light = isLight();
+  c.fillStyle = light ? "rgba(255,252,245,0.94)" : "rgba(5,7,10,0.88)"; c.fillRect(0, 0, w, 64);
+  c.strokeStyle = light ? "rgba(161,98,7,0.7)" : "rgba(250,204,21,0.8)"; c.lineWidth = 3; c.strokeRect(1.5, 1.5, w - 3, 61);
+  c.fillStyle = ink("#FACC15", light); c.font = mono(40, 600); c.textAlign = "center"; c.textBaseline = "middle";
   c.fillText(text, w / 2, 33);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthTest: false, sizeAttenuation: false }));
   const h = 0.042;

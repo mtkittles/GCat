@@ -107,9 +107,12 @@ export function segPart(s0: number, len: number, w: Span): readonly [number, num
  * w kolejności numerów narzędzi.
  */
 export const TOOL_COLORS = ["#22C55E", "#38BDF8", "#F97316", "#A78BFA", "#F9A8D4", "#67E8F9", "#FBBF24", "#86EFAC"] as const;
-export function toolColor(tool: number | null): string {
-  if (tool == null || !Number.isFinite(tool)) return "#94A3B8";
-  return TOOL_COLORS[((Math.round(tool) - 1) % TOOL_COLORS.length + TOOL_COLORS.length) % TOOL_COLORS.length];
+/** Te same barwy na papierze jasnego motywu (UI-9) — ciemniejsze, kontrast linii ≥ 3:1 do --paper. */
+export const TOOL_COLORS_LIGHT = ["#15803D", "#0369A1", "#C2410C", "#6D28D9", "#BE185D", "#0E7490", "#A16207", "#4D7C0F"] as const;
+export function toolColor(tool: number | null, light = false): string {
+  if (tool == null || !Number.isFinite(tool)) return light ? "#57534E" : "#94A3B8";
+  const pal = light ? TOOL_COLORS_LIGHT : TOOL_COLORS;
+  return pal[((Math.round(tool) - 1) % pal.length + pal.length) % pal.length];
 }
 
 /** Barwa powierzchni nieobrobionej i najgłębszej (szarości łupka; im głębiej, tym ciemniej). */
