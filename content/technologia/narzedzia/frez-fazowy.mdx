@@ -88,17 +88,13 @@ Sandvik Coromant dobiera frez fazowy według czterech cech: fazowanie od czoła 
 
 Przy fazowaniu głębokość i szerokość skrawania są małe w stosunku do średnicy freza. Sandvik Coromant każe wtedy brać z katalogu wyższe prędkości skrawania, podawane dla małego zagłębienia.
 
-Dla freza 90° z wierzchołkiem schodzącym na głębokość h poniżej górnej powierzchni i fazy c × 45°:
+Dla freza 90° z wierzchołkiem schodzącym na głębokość h poniżej górnej powierzchni i fazy c × 45° położenie freza i średnicę skrawania liczy się tak:
 
-* odległość osi freza od ściany: a = h + dt / 2 − c,
-* średnica skrawania w połowie fazy: De = dt + 2 · h − c.
+<Wzor f="a = h + \frac{d_t}{2} - c \\ D_e = d_t + 2 \cdot h - c \\ n = \frac{1000 \cdot V_c}{\pi \cdot D_e}" legend="a — odległość osi freza od ściany [mm]; h — głębokość wierzchołka pod górną powierzchnią [mm]; d_t — średnica czoła [mm]; c — wielkość fazy [mm]; D_e — średnica skrawania w połowie fazy [mm]; n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]" caption="Odległość osi freza od ściany; Średnica skrawania w połowie fazy; Obroty wrzeciona" />
 
 Przykład (wartości przyjęte do rachunku): frez 90° z ostrym wierzchołkiem (dt = 0), 2 ostrza, faza 1 × 45°, h = 2,5 mm, Vc = 100 m/min, fz = 0,025 mm.
 
-* a = 2,5 + 0 − 1 = 1,5 mm
-* De = 0 + 2 · 2,5 − 1 = 4,0 mm
-* n = 1000 · 100 / (3,14 · 4,0) ≈ 7962 obr/min
-* vf = 0,025 · 7962 · 2 ≈ 398 mm/min
+<Wzor f="a = 2,5 + 0 - 1 = 1,5\ \text{mm} \\ D_e = 0 + 2 \cdot 2,5 - 1 = 4,0\ \text{mm} \\ n = \frac{1000 \cdot 100}{3,14 \cdot 4,0} \approx 7962\ \text{obr/min} \\ v_f = 0,025 \cdot 7962 \cdot 2 \approx 398\ \text{mm/min}" caption="Odległość osi od ściany; Średnica skrawania; Obroty wrzeciona; Posuw minutowy" kind="obliczenie" />
 
 ## Typowe błędy \{#typowe-błędy}
 
@@ -133,3 +129,14 @@ Frez fazowy wybiera się adresem T i zmianą narzędzia M06, korekcję długośc
   M30
   ```
 </Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na frez fazowy T1. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1 i podjeżdża ruchem szybkim na Z50.
+2. `S7962 M03` włącza obroty z przykładu rachunkowego, w prawo.
+3. `G00 X-1.5 Y-10.` i `G00 Z5.` ustawiają frez ruchem szybkim przed płytą, na torze 1,5 mm od lewej krawędzi.
+4. `G01 Z-2.5 F300` opuszcza wierzchołek na głębokość 2,5 mm, nadal poza materiałem.
+5. `G01 Y41.5 F398` fazuje lewą krawędź z posuwem z przykładu.
+6. `G01 X61.5`, `G01 Y-1.5` i `G01 X-1.5` fazują krawędź górną, prawą i dolną. Frez obiega płytę zgodnie z ruchem wskazówek zegara.
+7. `G01 Y5.` domyka fazę w narożu, od którego frez zaczął.
+8. `G00 Z50.` wycofuje frez, `M05` zatrzymuje wrzeciono, `M30` kończy program.

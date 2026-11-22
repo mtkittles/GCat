@@ -143,7 +143,7 @@ jest pomijany. Nie poszerzaj doku ani nie dodawaj pełnej szerokości stałych p
 - `tests/standard-ui.test.ts` — rozmiary tylko z `--fs-*`, promienie z tokenów, kanwa przez `--font-mono`.
 - Pomiar na żywo (17 stron): przed UI-4 31 par krój+rozmiar i 19 rodzajów kart; po UI-4 patrz PR.
 
-## Treść: rysunki, wzory, programy (pilotaż 2026-11-22 — do zatwierdzenia)
+## Treść: rysunki, wzory, programy (zatwierdzone 2026-11-22, PR #176)
 
 Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwierdzeniu pilota (artykuł „Frez trzpieniowy walcowy”).
 
@@ -173,6 +173,8 @@ Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwi
 - **Obliczenie** — przykład z liczbami pod wzorem w tym samym składzie (ułamek, indeksy, jednostki `\ \text{obr/min}`),
   bez ramki i legendy: `<Wzor f="n = \frac{1000 \cdot 150}{3,14 \cdot 10} \approx 4777\ \text{obr/min}" kind="obliczenie" />`,
   opisy wierszy jak wyżej. Nie listą z „/” w tekście. W edytorze: blok „Wzór”, Rodzaj → Obliczenie.
+  Wzór szerszy niż ramka na telefonie (390 px) łamie się w środowisku `\begin{aligned}…\end{aligned}` (dalszy ciąg od `&{}+`
+  pod pierwszym członem) — bez przewijania w bok. Program na stronie dostaje listę „Przebieg programu” (niżej).
 - **Przebieg programu** — pod symulatorem lista kroków; każdy krok zaczyna się fragmentem kodu, który jest linią programu
   z tej strony (`` `G01 Z-3. F300` ``). Fragment dostaje kolor ruchu tej linii jak w edytorze (G00 bursztyn, G01 zieleń,
   G02/G03 błękit; także linia bez słowa ruchu, np. `X10.` po G01), T/M/S zostają neutralne. Kliknięcie (albo Enter)
