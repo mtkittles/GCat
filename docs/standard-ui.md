@@ -92,6 +92,21 @@ etykietach składni (FANUC / SINUMERIK w bloku kodu), odczytach DRO i makietach.
 **Pomarańcz na listach:** główny przycisk („Zacznij”), stan aktywny i znacznik „tu jesteś” (dioda przy następnej
 lekcji, wskazana karta słownika). Numery lekcji, litery słownika, skróty, gwiazdki, rodzaje wyników — neutralnie.
 
+## Strony robocze (UI-8)
+
+Lekcja, karta kodu, artykuł Technologii, kalkulator, zadanie, program i symulator.
+
+- **Ramki z treścią** (cel lekcji, dane przykładu, wynik kroku, typowe błędy, notatki, zadanie w lekcji) — tło karty;
+  kolor znaczenia tylko w ramce i etykiecie (zielony wynik, czerwone „Groźne”, „Uwaga”). Cel lekcji: ramka `--line-strong`.
+- **Numery sekcji lekcji** i kroków zadania — neutralny kwadrat/kółko (`--surface-2`), nie pomarańcz.
+- **Nagłówki H2** w karcie kodu i artykule — bez pomarańczowej kreski; „tu jesteś” w spisie treści zostaje.
+- **Etykiety** („Cel lekcji”, „Dane przykładu”, „Co zrobić”, „Stan sterowania”, wyniki kalkulatora) — zdaniem, Inter.
+- **Akcje:** pomarańczowa jedna — „Następna lekcja”, „Sprawdź”, „Sprawdź program”, „Otwórz w symulatorze”;
+  „Oznacz jako przeczytaną” — `btn ghost`. Odnośniki w tekście i źródła — kolor tekstu z podkreśleniem.
+- **Chipy** poziomu i obróbki neutralne; kody wymagane w zadaniu w kolorze ruchu (`motionClass`).
+- **Tabela danych** `.tbl` — jak tabela kodów; na telefonie przewijana w bok.
+- **Rysunki i symulator** zachowują własną semantykę barw (narzędzie, nowy fragment programu, kolory ruchu).
+
 ## Telefon
 
 Strona główna: po otwarciu widać hasło, przyciski (40 px) i rysunek toru w oknie programu. Pasek okna to jeden

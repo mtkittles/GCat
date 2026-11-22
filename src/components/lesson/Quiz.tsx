@@ -94,7 +94,7 @@ export default function Quiz({ questions, figs = {}, drill = false, progressKey 
     <div className="quiz">
       <div className="quiz-head">
         <span className="quiz-n">{drill ? "Zadanie" : "Pytanie"} {pos + 1} z {order.length}</span>
-        {q.review && <span className="chip chip-info">powtórka z {q.review}</span>}
+        {q.review && <span className="chip">powtórka z {q.review}</span>}
       </div>
       <div className="quiz-bar" aria-hidden><i style={{ width: `${(pos / order.length) * 100}%` }} /></div>
       <p className="quiz-q">{rich(q.q)}</p>
