@@ -53,7 +53,7 @@ function BlockPanel({ editor }: { editor: Editor }) {
     selector: ({ editor: e }) => {
       const sel = e.state.selection;
       const node = sel instanceof NodeSelection ? sel.node : null;
-      const ctx = node && ["term", "diagram", "rys", "obraz", "widget", "raw"].includes(node.type.name) ? { node, pos: sel.from }
+      const ctx = node && ["term", "diagram", "rys", "obraz", "widget", "wzor", "raw"].includes(node.type.name) ? { node, pos: sel.from }
         : around(e, ["codeFig", "simFig", "demoFig", "table", "note", "heading"]);
       const top = topBlock(e);
       return { ctx: ctx ? { type: ctx.node.type.name, attrs: ctx.node.attrs as Record<string, unknown>, pos: ctx.pos, text: ctx.node.textContent } : null, top: top ? top.node.type.name : null, inTable: e.isActive("table") };
@@ -134,6 +134,13 @@ function BlockPanel({ editor }: { editor: Editor }) {
     </Group>
   );
   else if (c?.type === "widget") body = <Group title="Narzędzie"><Seg label="Narzędzie" value={String(a.id)} options={WIDGETS.map((w) => [w, WIDGET_LABEL[w]] as [string, string])} onChange={(v) => set({ id: v })} /></Group>;
+  else if (c?.type === "wzor") body = (
+    <Group title="Wzór">
+      <Text label="Wzór" mono rows={2} value={String(a.f ?? "")} placeholder="n = 1000 · V_c / (π · D)" onChange={(v) => set({ f: v })} hint="_ indeks dolny (V_c, D_{cap}), ^ wykładnik (ae^2), √(…) pierwiastek, ; kolejny wzór w tej samej ramce. Zmienne pokażą się kursywą." />
+      <Text label="Legenda" rows={4} value={String(a.legend ?? "")} placeholder="n — obroty wrzeciona [obr/min]; D — średnica [mm]" onChange={(v) => set({ legend: v })} hint="Wpisy rozdzielone średnikiem: symbol — znaczenie [jednostka]." />
+      <Text label="Podpis nad wzorem" value={String(a.caption ?? "")} onChange={(v) => set({ caption: v })} />
+    </Group>
+  );
   else if (c?.type === "raw") body = <Group title="Fragment MDX"><p className="rys-tip">Edytor nie zna tego zapisu, więc zostawia go w pliku bez zmian. Możesz poprawić źródło w ramce.</p></Group>;
 
   return (

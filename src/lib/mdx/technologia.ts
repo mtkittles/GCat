@@ -12,6 +12,6 @@ export async function artykulMdx(dzial: string, slug: string): Promise<{ render:
   if (!existsSync(file)) return null;
   const fm = splitFrontmatter(readFileSync(file, "utf8"));
   if (!fm) throw new Error(`${file}: brak frontmattera`);
-  const { code } = await compileContentMeta(fm.body, { file, sources: liveSources, components: componentNames, diagramIds });
+  const { code } = await compileContentMeta(fm.body, { file, sources: liveSources, components: componentNames, diagramIds, programLinks: true });
   return { render: () => renderContent(code, mdxComponents) };
 }

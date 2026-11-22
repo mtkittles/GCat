@@ -141,6 +141,7 @@ export default function Toolbar({ editor, right }: { editor: Editor; right?: Rea
         <Btn icon="diagram" label="Rysunek" onClick={() => insertBlock(editor, NEW.diagram())} title="Rysunek z biblioteki strony" />
         <Btn icon="rys" label="Z rysownika" onClick={() => insertBlock(editor, NEW.rys())} title="Rysunek narysowany w rysowniku" />
         <Btn icon="image" label="Obraz" onClick={() => insertBlock(editor, NEW.obraz())} />
+        <Btn icon="wzor" label="Wzór" onClick={() => insertBlock(editor, NEW.wzor())} title="Wzór w ramce z legendą symboli" />
         <Btn icon="widget" label="Kalkulator" onClick={() => insertBlock(editor, NEW.widget())} title="Narzędzie interaktywne (kalkulator)" />
       </div>
       <div className="rys-tools">

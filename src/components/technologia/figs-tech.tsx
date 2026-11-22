@@ -20,7 +20,7 @@ export function EndMillParts() {
   const hx = 182;                      // linia z kątem (7) i ostrzem obwodowym (4)
   return (
     <Fig id="tfb" code="frez" title="Frez trzpieniowy — budowa" h={248} legend={[["acc", "krawędź skrawająca"], "dim", "cons"]}
-      caption={<><b>1</b> chwyt — mocowany w oprawce · <b>2</b> szyjka · <b>3</b> część robocza · <b>4</b> ostrze obwodowe · <b>5</b> ostrze czołowe · <b>6</b> rowek wiórowy · <b>7</b> kąt pochylenia linii śrubowej (między krawędzią a osią). Linie rowków narysowano pod kątem 30° tylko poglądowo.</>}>
+      caption={<>Widok z boku, oś narzędzia pozioma. Linie rowków narysowano pod kątem 30° poglądowo.</>}>
       {(c) => (
         <g>
           <defs><clipPath id="tfb-clip"><rect x={nx1} y={top} width={cx1 - nx1} height={2 * rc} /></clipPath></defs>

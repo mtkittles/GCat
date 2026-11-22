@@ -35,7 +35,7 @@ async function build(path: string, text: string): Promise<State | { error: strin
     const r = artykulSchema.safeParse(f.data);
     if (!r.success) return { error: `Pola artykułu: ${r.error.issues.map((i) => `${i.path.join(".")} — ${i.message}`).join("; ")}` };
     try {
-      const { code, meta } = await compileContentMeta(f.body, { file: path, sources: liveSources, components: componentNames, diagramIds });
+      const { code, meta } = await compileContentMeta(f.body, { file: path, sources: liveSources, components: componentNames, diagramIds, programLinks: true });
       const art = artykulToEntry({ data: r.data, meta, thumb: firstThumb(f.body), minutes: readingMinutes(meta.text) });
       return { art, body: await renderContent(code, mdxComponents) };
     } catch (e) {

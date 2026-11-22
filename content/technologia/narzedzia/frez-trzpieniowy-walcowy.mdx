@@ -59,12 +59,13 @@ Część robocza skrawa bokiem albo czołem, więc frezem obrabia się ściany, 
 
 <Diagram id="tech-frez-budowa" />
 
-* **Chwyt (1):** część mocowana w tulejce zaciskowej albo w oprawce.
-* **Szyjka (2):** odcinek między ostrzami a chwytem. Frezy do głębokich kieszeni mają szyjkę dłuższą i cieńszą niż część robocza.
-* **Część robocza (3):** odcinek z ostrzami. Jej długość (długość robocza) ogranicza głębokość, na jaką frez skrawa bokiem.
-* **Ostrze obwodowe (4)** skrawa bokiem, a **ostrze czołowe (5)** czołem.
-* **Rowki wiórowe (6)** odprowadzają wiór ze strefy skrawania.
-* **Kąt pochylenia linii śrubowej (7):** kąt między krawędzią skrawającą a osią narzędzia. Zwykle wynosi 30°. Większy kąt daje ostrzejsze skrawanie, ale też większą siłę osiową, która wciąga frez w materiał.
+* **(1) Chwyt:** część mocowana w tulejce zaciskowej albo w oprawce.
+* **(2) Szyjka:** odcinek między ostrzami a chwytem. Frezy do głębokich kieszeni mają szyjkę dłuższą i cieńszą niż część robocza.
+* **(3) Część robocza:** odcinek z ostrzami. Jej długość (długość robocza) ogranicza głębokość, na jaką frez skrawa bokiem.
+* **(4) Ostrze obwodowe:** skrawa bokiem.
+* **(5) Ostrze czołowe:** skrawa czołem.
+* **(6) Rowki wiórowe:** odprowadzają wiór ze strefy skrawania.
+* **(7) Kąt pochylenia linii śrubowej:** kąt między krawędzią skrawającą a osią narzędzia. Zwykle wynosi 30°. Większy kąt daje ostrzejsze skrawanie, ale też większą siłę osiową, która wciąga frez w materiał.
 
 ## Rodzaje \{#rodzaje}
 
@@ -90,7 +91,11 @@ Frez walcowy z płaskim czołem obrabia ściany (frezowanie boczne), rowki o sze
 
 Więcej ostrzy to węższe rowki i sztywniejszy frez. Mniej ostrzy sprawdza się w materiałach ciągliwych i przy dużej szerokości skrawania, więcej sprawdza się w materiałach twardszych i przy małej szerokości skrawania.
 
-**Długość i wysięg.** Sztywność freza rośnie z czwartą potęgą średnicy i maleje z trzecią potęgą wysięgu, a ugięcie jest proporcjonalne do sześcianu wysięgu. Wysięg krótszy o połowę to ugięcie mniejsze 2³ = 8 razy. Średnica większa dwukrotnie to sztywność większa 2⁴ = 16 razy. Dlatego frez i \[\[wysięg narzędzia|wysięg]] dobiera się tak krótkie, jak pozwala głębokość obróbki. Przy głębokości większej niż 3 × D producent zaleca frez z szyjką.
+**Długość i wysięg.** Sztywność freza rośnie z czwartą potęgą średnicy i maleje z trzecią potęgą wysięgu, a ugięcie jest proporcjonalne do sześcianu wysięgu.
+
+<Wzor f="k ∝ D^4 / L^3; y ∝ L^3" legend="k — sztywność freza; y — ugięcie freza; D — średnica freza [mm]; L — wysięg freza [mm]" caption="Sztywność i ugięcie a średnica i wysięg" />
+
+Wysięg krótszy o połowę to ugięcie mniejsze 2³ = 8 razy. Średnica większa dwukrotnie to sztywność większa 2⁴ = 16 razy. Dlatego frez i \[\[wysięg narzędzia|wysięg]] dobiera się tak krótkie, jak pozwala głębokość obróbki. Przy głębokości większej niż 3 × D producent zaleca frez z szyjką.
 
 ## Parametry startowe \{#parametry-startowe}
 
@@ -98,7 +103,11 @@ Więcej ostrzy to węższe rowki i sztywniejszy frez. Mniej ostrzy sprawdza się
   Prędkość skrawania Vc i posuw na ostrze fz podaje katalog producenta dla konkretnego freza, gatunku ostrza i materiału obrabianego. Ten artykuł nie podaje wartości, bo zależą od narzędzia.
 </Note>
 
-Z danych katalogowych liczy się obroty i posuw minutowy: n = 1000 · Vc / (π · D) oraz vf = fz · n · z. Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): frez ⌀10 mm, 4 ostrza, Vc = 150 m/min, fz = 0,05 mm.
+Z danych katalogowych liczy się obroty i posuw minutowy:
+
+<Wzor f="n = 1000 · V_c / (π · D); v_f = f_z · n · z" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica freza [mm]; v_f — posuw minutowy [mm/min]; f_z — posuw na ostrze [mm]; z — liczba ostrzy" caption="Obroty wrzeciona i posuw minutowy" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): frez ⌀10 mm, 4 ostrza, Vc = 150 m/min, fz = 0,05 mm.
 
 * n = 1000 · 150 / (3,14 · 10) ≈ 4777 obr/min
 * vf = 0,05 · 4777 · 4 ≈ 955 mm/min
@@ -138,3 +147,15 @@ Frez wybiera się adresem T i zmianą narzędzia M06, korekcję długości włą
   M30
   ```
 </Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na frez T1. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1 i podjeżdża ruchem szybkim na Z50.
+2. `S4777 M03` włącza obroty z przykładu rachunkowego, w prawo.
+3. `G00 X-15. Y-15.` i `G00 Z5.` ustawiają frez ruchem szybkim nad punktem poza materiałem.
+4. `G01 Z-3. F300` opuszcza frez na głębokość 3 mm ruchem roboczym, nadal poza materiałem.
+5. `G41 D1 X0. Y0. F955` włącza korekcję promienia po lewej stronie konturu i prowadzi frez do naroża obrysu z posuwem z przykładu.
+6. `G01 Y40.`, `G01 X60.`, `G01 Y0.` i `G01 X0.` frezują obrys 60 × 40 mm zgodnie z ruchem wskazówek zegara.
+7. `G40 X-15. Y-15.` odsuwa frez od konturu i wyłącza korekcję promienia.
+8. `G00 Z50.` wycofuje frez, `M05` zatrzymuje wrzeciono, `M30` kończy program.
+

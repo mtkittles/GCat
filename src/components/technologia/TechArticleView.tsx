@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import LeftToc from "@/components/LeftToc";
+import ProgLinks from "@/components/ProgLinks";
 import SourceList from "@/components/lesson/SourceList";
 import TocDrawer from "@/components/TocDrawer";
 import Breadcrumbs from "@/components/ui/Breadcrumbs";
@@ -102,6 +103,7 @@ export default function TechArticleView({ a, dzial, body, nav = {}, edit = (_k, 
   return (
     <div className="article-layout cc tech-art">
       <aside className="cc-left" aria-label="Spis treści"><LeftToc items={toc} title="W tym artykule" /></aside>
+      <ProgLinks />
       <article className="grid gap-6 min-w-0 code-card">
         {head}
         {gate ? gate(content) : content}

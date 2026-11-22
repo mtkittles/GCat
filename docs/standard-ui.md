@@ -142,3 +142,23 @@ jest pomijany. Nie poszerzaj doku ani nie dodawaj pełnej szerokości stałych p
 
 - `tests/standard-ui.test.ts` — rozmiary tylko z `--fs-*`, promienie z tokenów, kanwa przez `--font-mono`.
 - Pomiar na żywo (17 stron): przed UI-4 31 par krój+rozmiar i 19 rodzajów kart; po UI-4 patrz PR.
+
+## Treść: rysunki, wzory, programy (pilotaż 2026-11-22 — do zatwierdzenia)
+
+Obowiązuje we wszystkich działach (Technologia, karty kodów, lekcje) po zatwierdzeniu pilota (artykuł „Frez trzpieniowy walcowy”).
+
+- **Podpis rysunku** — jedno, dwa zdania: co widać i na co patrzeć. Bez listy numerów („1 chwyt · 2 szyjka…”).
+  Legenda kolorów linii zostaje.
+- **Lista oznaczeń** — numery części z rysunku objaśnia lista w tekście, zaraz pod rysunkiem. Zapis w pliku:
+  `* **(1) Chwyt:** część mocowana…` — każdy punkt listy zaczyna się od `(n)` w pogrubieniu. Strona pokazuje numer
+  w kółku jak znacznik na rysunku (`.ozn-nr`, styl `.fig .step`), bez kropek listy (`ul.oznaczenia`).
+- **Wzór** — wzór, z którego się liczy, idzie do ramki `<Wzor f="…" legend="…" caption="…" />` (`components/Wzor.tsx`):
+  karta (`--card`, `--line`, `--radius-lg`), wzór wyśrodkowany, Inter `--fs-h3`, zmienne kursywą, indeksy i liczby prosto,
+  π i funkcje prosto; pod kreską legenda „symbol — znaczenie [jednostka]” (`--fs-aux`, jednostka Mono). Zapis: `_` indeks
+  (V_c, D_{cap}), `^` wykładnik, `√(…)` pierwiastek, `;` kolejny wzór w tej samej ramce. Indeksy dolne tylko w ramce;
+  w zdaniach zostaje „Vc”, „fz”. Krótkie zależności w zdaniu („α + β + γ = 90°”) mogą zostać w tekście.
+- **Przebieg programu** — pod symulatorem lista kroków; każdy krok zaczyna się fragmentem kodu, który jest linią programu
+  z tej strony (`` `G01 Z-3. F300` ``). Fragment dostaje kolor ruchu tej linii jak w edytorze (G00 bursztyn, G01 zieleń,
+  G02/G03 błękit; także linia bez słowa ruchu, np. `X10.` po G01), T/M/S zostają neutralne. Kliknięcie (albo Enter)
+  przewija do symulatora i ustawia go na tej linii (`components/ProgLinks.tsx`, zdarzenie `gcat:prog-line`).
+  Pozostały kod w zdaniu — jak dotąd: neutralny, kolor tylko samo słowo G00–G03.

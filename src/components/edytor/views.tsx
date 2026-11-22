@@ -7,6 +7,7 @@ import { diagrams } from "@/components/diagrams";
 import Rys from "@/components/rys/Rys";
 import SimClient from "@/components/simulator/SimClient";
 import { Widget } from "@/lib/mdx/components";
+import WzorBlock from "@/components/Wzor";
 import { gcatExtensions, NOTE_LABEL, WIDGET_LABEL, type NoteKind } from "@/lib/edytor/schema";
 import { moveBlock } from "./blocks";
 import { figText, usePendingCtx } from "./pending";
@@ -124,6 +125,16 @@ function WidgetView({ node, selected }: V) {
   );
 }
 
+function WzorView({ node, selected }: V) {
+  const a = node.attrs as { f?: string; legend?: string; caption?: string };
+  return (
+    <NodeViewWrapper className={`ed-atom ed-wzor${selected ? " is-sel" : ""}`} data-drag-handle>
+      <Tag>Wzór — pola w panelu z prawej</Tag>
+      <div contentEditable={false}>{a.f ? <WzorBlock f={a.f} legend={a.legend || undefined} caption={a.caption || undefined} /> : <Empty>Wzór — wpisz zapis w panelu</Empty>}</div>
+    </NodeViewWrapper>
+  );
+}
+
 function RawView({ node, updateAttributes, selected }: V) {
   return (
     <NodeViewWrapper className={`ed-atom ed-raw${selected ? " is-sel" : ""}`}>
@@ -140,7 +151,7 @@ function TermView({ node, selected }: V) {
 
 const VIEWS: Record<string, (p: V) => React.ReactNode> = {
   note: NoteView, codeFig: ProgramView, simFig: ProgramView, demoFig: ProgramView,
-  diagram: DiagramView, rys: RysView, obraz: ObrazView, widget: WidgetView, raw: RawView, term: TermView,
+  diagram: DiagramView, rys: RysView, obraz: ObrazView, widget: WidgetView, wzor: WzorView, raw: RawView, term: TermView,
 };
 
 /* Kotwice nagłówków: nowy nagłówek (pusta kotwica) dostaje kotwicę z tekstu i śledzi tekst, dopóki autor jej nie zmieni. */

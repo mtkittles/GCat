@@ -3453,3 +3453,32 @@ a.rys-btn { text-decoration: none; }
   [data-theme="light"] .view3d-pop button { color: var(--ink); }
   [data-theme="light"] .view3d-pop button[aria-pressed="true"] { color: var(--accent-ink); }
 }
+
+/* ================= standard treści (pilotaż 2026-11-22): wzór, lista oznaczeń, kod programu w opisie ================= */
+/* <Wzor>: karta ze standardu, wzór wyśrodkowany (Inter, --fs-h3), zmienne kursywą, legenda symboli pod kreską */
+.wzor { margin: 0; max-width: 68ch; display: grid; gap: .6rem; padding: .9rem 1rem; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--card); }
+.wzor-cap { font-size: var(--fs-small); font-weight: 500; color: var(--muted); text-align: center; }
+.wzor-f { display: grid; gap: .35rem; justify-items: center; font-family: var(--font-sans); font-size: var(--fs-h3); line-height: 1.5; color: var(--ink); text-align: center; overflow-wrap: anywhere; }
+.wzor-line { max-width: 100%; }
+.wzor-f i, .wzor-leg dt i { font-style: italic; }
+.wzor :is(sub, sup) { font-size: var(--fs-small); line-height: 0; font-style: normal; }
+.wzor sub { vertical-align: -.28em; }
+.wzor sup { vertical-align: .42em; }
+.wz-sqrt { white-space: nowrap; }
+.wz-rad { border-top: 1.5px solid currentColor; padding: .05em .12em 0; margin-left: .04em; }
+.wzor-leg { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: .3rem .9rem; align-items: baseline; padding-top: .6rem; border-top: 1px solid var(--line); font-size: var(--fs-aux); color: var(--ink-2); }
+.wzor-leg dt { font-family: var(--font-sans); font-size: var(--fs-text); color: var(--ink); text-align: right; white-space: nowrap; }
+.wzor-leg dd { margin: 0; line-height: 1.5; }
+.wzor-unit { margin-left: .45em; font-family: var(--font-mono); font-size: var(--fs-small); color: var(--muted); }
+.wzor-unit::before { content: "["; } .wzor-unit::after { content: "]"; }
+
+/* lista oznaczeń pod rysunkiem: numer w kółku jak znacznik na rysunku (.fig .step), bez kropek listy */
+.article ul.oznaczenia { list-style: none; padding-left: 0; display: grid; gap: .55rem; }
+.article ul.oznaczenia > li { position: relative; padding-left: 2.1rem; }
+.article ul.oznaczenia > li::marker { content: none; }
+.ozn-nr { position: absolute; left: 0; top: .12em; width: 1.5rem; height: 1.5rem; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--ink-2); background: var(--surface-2); color: var(--ink); font: 700 var(--fs-label)/1 var(--font-mono); }
+
+/* fragment kodu = linia programu ze strony: kolor ruchu tej linii, kliknięcie ustawia symulator */
+.inline-code.is-prog { cursor: pointer; text-decoration: underline dotted; text-underline-offset: .25em; text-decoration-color: color-mix(in srgb, currentColor 55%, transparent); }
+.inline-code.is-prog:hover { border-color: var(--ink-2); }
+.inline-code.is-prog:focus-visible { outline: 2px solid var(--ink-2); outline-offset: 2px; }
