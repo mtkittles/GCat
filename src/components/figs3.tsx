@@ -30,7 +30,7 @@ export function CornerStop() {
     <Fig id="g61c" code="G09 G61 G64" title="Naroże z zatrzymaniem i bez" h={268}
       legend={[["cut", "tor i posuw (G01)"], ["cons", "naroże z programu"]]}
       notes={<><Code>G61</Code><Code>G64</Code></>}
-      caption={<>Przykład karty. Przy <b>G61</b> oś hamuje do zera na końcu bloków X40. i Y30., więc te naroża są ostre. Po <b>G64</b> sterowanie przechodzi do bloku Y0. bez zatrzymania i zaokrągla naroże. Łuk powiększony; jego wielkość zależy od posuwu i sterowania.</>}>
+      caption={<>Przy <b>G61</b> oś hamuje do zera na końcu bloków X40. i Y30., więc naroża są ostre; po <b>G64</b> sterowanie przechodzi do Y0. bez zatrzymania i zaokrągla naroże. Łuk jest powiększony — jego wielkość zależy od posuwu i sterowania.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(30)} width={40 * m.u} height={30 * m.u} className="panel-bg" />
@@ -82,7 +82,7 @@ export function LocalZero() {
     <Fig id="g52l" code="G52" title="Trzy zera lokalne, jeden podprogram" h={250}
       legend={[["cut", "rowek z podprogramu O1001"], ["acc", "przesunięcie G52 od zera G54"]]}
       notes={<><Code k="acc">G52 X60. Y0.</Code><Code k="acc">G52 X60. Y40.</Code></>}
-      caption={<>Podprogram O1001 jest napisany od zera (tu: rowek X20., potem Y10.). <b>G52</b> przesuwa zero względem G54, więc ten sam podprogram frezuje trzy rowki. <b>G52 X0. Y0.</b> wraca do zera G54.</>}>
+      caption={<><b>G52</b> przesuwa zero względem G54, więc ten sam podprogram O1001 frezuje trzy rowki. <b>G52 X0. Y0.</b> wraca do zera G54.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} minor={10} major={20} />
@@ -124,7 +124,7 @@ export function RotationG68() {
     <Fig id="g68r" code="G68" title="Ten sam rowek przy R0., R60. i R120." h={250}
       legend={[["cut", "rowek G01 X35. (od X15.)"], ["acc", "kąt obrotu R"], ["cons", "oś X′ układu obróconego"]]}
       notes={<Code k="acc">G68 X0. Y0. R60.</Code>}
-      caption={<>Ten sam blok G01 X35. daje rowek wzdłuż obróconej osi X′. Kąt <b>R</b> liczy się od osi X; dodatni oznacza obrót przeciwnie do wskazówek zegara. Środek obrotu to X0. Y0. z bloku G68.</>}>
+      caption={<>Ten sam blok G01 X35. daje rowek wzdłuż obróconej osi X′. Kąt <b>R</b> liczy się od osi X (dodatni — przeciwnie do wskazówek zegara), a środek obrotu to X0. Y0. z bloku G68.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />
@@ -157,7 +157,7 @@ export function BoreExit() {
     <Fig id="g85x" code="G85 G86" title="Dwa sposoby wyjścia z otworu" h={250}
       legend={[["cut", "ruch na posuwie"], ["rap", "ruch szybki"], ["bad", "możliwa rysa"], "stock"]}
       notes={<><Code>G99 G85 X30. Y30. Z-25. R2. F80</Code><Code>G99 G86 X70. Y30. Z-25. R2. F120</Code></>}
-      caption={<>Oba cykle wchodzą do Z−25 na posuwie. <b>G85</b> wyjeżdża też na posuwie, przy obracającym się wrzecionie. <b>G86</b> zatrzymuje wrzeciono na dnie i wyjeżdża ruchem szybkim do R2; ostrze może zostawić rysę na ściance.</>}>
+      caption={<><b>G85</b> wyjeżdża z dna Z−25 na posuwie, przy obracającym się wrzecionie. <b>G86</b> zatrzymuje wrzeciono na dnie i wyjeżdża ruchem szybkim do R2; ostrze może zostawić rysę na ściance.</>}>
       {(c) => (
         <g>
           <rect x={m.X(12)} y={m.Y(0)} width={76 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
@@ -209,7 +209,7 @@ export function G92vsG54() {
     <Fig id="g92s" code="G92" title="Zero z rejestru a zero od narzędzia" h={272}
       legend={[["acc", "G54: wektor z rejestru"], ["cut", "rowek tam, gdzie ma być"], ["bad", "rowek przesunięty"], "stock"]}
       notes={<Code k="acc">G92 X0. Y0.</Code>}
-      caption={<><b>G54</b> to wektor od zera maszyny M zapisany w rejestrze: zero W nie zależy od tego, gdzie stoi narzędzie. <b>G92 X0. Y0.</b> ustawia zero tam, gdzie narzędzie stoi w chwili tego bloku. Inne miejsce startu przesuwa całą obróbkę.</>}>
+      caption={<><b>G54</b> to wektor od zera maszyny M zapisany w rejestrze, niezależny od tego, gdzie stoi narzędzie. <b>G92 X0. Y0.</b> ustawia zero tam, gdzie narzędzie stoi w chwili tego bloku.</>}>
       {(c) => (
         <g>
           {/* panel G54 */}
@@ -269,7 +269,7 @@ export function RotaryAxes() {
   return (
     <Fig id="abc" code="A B C" title="Dodatnie obroty wg ISO 841" h={262}
       legend={[["acc", "kierunek dodatni wg normy"], ["dim", "ruch stołu C′"]]}
-      caption={<>Kciuk prawej dłoni wzdłuż +X, +Y albo +Z: palce zginają się w stronę +A, +B, +C. Norma opisuje ruch narzędzia względem detalu. Gdy obraca się stół, jego dodatni ruch C′ jest przeciwny. Kierunki na maszynie sprawdź w dokumentacji.</>}>
+      caption={<>Kciuk prawej dłoni wzdłuż +X, +Y albo +Z: palce zginają się w stronę +A, +B, +C. Norma opisuje ruch narzędzia, więc dodatni obrót stołu C′ jest przeciwny — kierunki na maszynie podaje jej dokumentacja.</>}>
       {(c) => (
         <g>
           {[ex, ey, ez].map(([x, y], i) => <line key={i} x1={O.x} y1={O.y} x2={x} y2={y} className="p-con thick" markerEnd={c.a("con")} />)}
@@ -322,7 +322,7 @@ export function TiltPlane() {
     <Fig id="g682" code="G68.2 G53.1" title="Skos 30° i oś narzędzia" h={250}
       legend={[["allow", "skos do zdjęcia"], ["acc", "osie płaszczyzny X′ Z′"], ["bad", "oś narzędzia bez G53.1"], "stock"]}
       notes={<><Code k="acc">G68.2 X15. Y0. Z0. I90. J30. K-90.</Code><Code k="acc">G53.1</Code></>}
-      caption={<>Przekrój XZ przykładu karty. Płaszczyzna zaczyna się w X15. Z0. i jest pochylona o 30° wokół Y. Po <b>G53.1</b> oś narzędzia jest prostopadła do skosu. Rysunek pokazuje układ detalu: obrót stołu wygląda tu jak pochylenie narzędzia.</>}>
+      caption={<>Przekrój XZ przykładu karty: płaszczyzna od X15. Z0. pochylona o 30° wokół Y, po <b>G53.1</b> oś narzędzia jest do niej prostopadła. Rysunek pokazuje układ detalu, więc obrót stołu wygląda tu jak pochylenie narzędzia.</>}>
       {(c) => (
         <g>
           <polygon points={pts(([[-30, -19], [-30, 0], [15, 0], [30, zc], [30, -19]] as P2[]).map(M))} fill={c.hatch} className="p-con" />
@@ -374,7 +374,7 @@ export function TcpC90() {
     <Fig id="g434" code="G43.4" title="Blok C90. z TCP i bez TCP" h={254}
       legend={[["cut", "rowek G01 X28."], ["bad", "tor wierzchołka bez TCP"], ["cons", "oś C i promień"], "stock"]}
       notes={<><Code k="acc">G43.4 H1</Code><Code>G01 C90.</Code></>}
-      caption={<>Widok z góry przykładu karty. Przy <b>G43.4</b> blok G01 C90. obraca stół, a X i Y nadążają za punktem P: wierzchołek stoi w miejscu detalu. Bez TCP stół obraca detal pod narzędziem. W 3+2 (G68.2) osie obrotowe stoją podczas skrawania.</>}>
+      caption={<>Widok z góry: przy <b>G43.4</b> blok G01 C90. obraca stół, a X i Y nadążają za punktem P, więc wierzchołek stoi w miejscu detalu. Bez TCP stół obraca detal pod narzędziem.</>}>
       {(c) => (
         <g>
           <circle cx={m.X(0)} cy={m.Y(0)} r={44 * m.u} className="p-cons" />

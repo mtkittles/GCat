@@ -15,7 +15,7 @@ export function G71Passes() {
   return (
     <Fig id="t51gp" code="G71" title="G71: przejścia wzdłużne aż do konturu z naddatkiem" h={232} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="acc">G71 U2. R0.5</Code><Code k="acc">G71 P10 Q20 U0.4 W0.1 F0.3</Code></>}
-      caption={<>Z punktu startowego A cykl schodzi warstwami po U = 2 mm, każdą warstwę toczy do konturu przesuniętego o naddatek, wycofuje się pod kątem 45° o R = 0,5 i wraca ruchem szybkim. Na końcu przechodzi raz po konturze z naddatkiem (pomarańczowy) i wraca do A. Biały kontur to wymiar gotowy — wykona go G70 nożem wykańczającym. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Z punktu A cykl schodzi warstwami po U = 2 mm, wycofuje się pod 45° o R = 0,5, a na końcu przechodzi raz po konturze z naddatkiem (pomarańczowy). Biały kontur gotowy wykona G70 nożem wykańczającym.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-58)} y={m.Y(20)} width={58 * m.u} height={20 * m.u} className="panel-bg" />
@@ -83,7 +83,7 @@ export function G72Passes() {
   return (
     <Fig id="t52gp" code="G72" title="G72: przejścia poprzeczne — kołnierz z pręta Ø60" h={232} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="acc">G72 W2. R0.5</Code><Code k="acc">G72 P10 Q20 U0.4 W0.1 F0.25</Code></>}
-      caption={<>Detal krótki i szeroki: piasta Ø30 długa na 15 mm i kołnierz Ø60. G72 schodzi warstwami w Z po W = 2 mm, a każdą warstwę toczy poprzecznie — od zewnątrz do konturu piasty. Tu to wydajniejsze niż długie, płytkie przejścia G71.</>}>
+      caption={<>Piasta Ø30 długa na 15 mm i kołnierz Ø60: G72 schodzi warstwami w Z po W = 2 mm, a każdą warstwę toczy poprzecznie do konturu piasty. Przy detalu krótkim i szerokim to wydajniejsze niż długie, płytkie przejścia G71.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-18)} y={m.Y(30)} width={18 * m.u} height={30 * m.u} className="panel-bg" />
@@ -115,7 +115,7 @@ export function G72Layers() {
   return (
     <Fig id="t52ly" code="G72" title="Kołnierz: kontur od głębi do czoła i warstwy w Z" h={236} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="rap">1  N10 G00 Z-15.</Code><Code k="cut">2  G01 X30. F0.1 → Z-1.</Code><Code k="cut">3  N20 X28. Z0.</Code><Code k="acc">4  G72 W2. R0.5 / G72 P10 Q20 U0.4 W0.1 F0.25</Code></>}
-      caption={<>Pręt Ø60, czoło na Z0. Kontur biegnie od głębi kołnierza do czoła. Zielone pasy to materiał zdejmowany kolejnymi warstwami po 2 mm w Z; pomarańczowa linia — kontur z naddatkiem, który zostaje po G72 na nóż wykańczający. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Zielone pasy to warstwy po 2 mm w Z, pomarańczowa linia — kontur z naddatkiem na nóż wykańczający. Kontur biegnie od głębi kołnierza do czoła Z0, numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(m, 0, 0)} ${P(m, 0, 14)} ${P(m, -1, 15)} ${P(m, -15, 15)} ${P(m, -15, 30)} ${P(m, -18, 30)} ${P(m, -18, 0)}`} fill={c.hatch} className="p-con" />
@@ -171,7 +171,7 @@ export function ParamMap() {
   return (
     <Fig id="t53pm" code="FALX" title="Przeniesienie wartości z G71 do CYCLE95" h={214} legend={["acc"]}
       notes={<><Code k="con">CYCLE95(NPP, MID, FALZ, FALX, FAL, FF1, FF2, FF3, VARI, DT, DAM, _VRT)</Code></>}
-      caption={<>Lewa kolumna — Fanuc, prawa — parametr cyklu Sinumerika w starszej składni CYCLE95. Przeliczenie FALX zakłada, że cykl przyjmuje naddatek w X w promieniu — sprawdź to w instrukcji cykli swojej wersji sterowania. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Lewa kolumna — Fanuc, prawa — parametr cyklu CYCLE95 Sinumerika w starszej składni. Przeliczenie FALX zakłada naddatek w X w promieniu — sprawdź to w instrukcji cykli swojej wersji sterowania.</>}>
       {(c) => (
         <g>
           <T x={70} y={22} anchor="middle" cls="t-mut t-sm">Fanuc G71</T>

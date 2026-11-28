@@ -185,7 +185,7 @@ export function WiercenieGlebokieFig() {
 export function PrzyrostowoFig() {
   return (
     <MillFig id="z05" title="Pięć rowków 20 (frez ⌀6), rozstaw 15" range={[-16, 70, -12, 92]}
-      caption={<>Wymiar 20 to droga środka freza — od punktu początkowego rowka do końcowego. Pierwszy rowek zaczyna się w X10 Y10, każdy następny leży 15 wyżej w osi Y. Głębokość 2.</>}
+      caption={<>Wymiar 20 to droga środka freza. Pierwszy rowek zaczyna się w X10 Y10, każdy następny 15 wyżej w osi Y, głębokość 2.</>}
       legend={[["con", "kontur gotowy"], ["stock", "materiał"], ["dim", "wymiar"]]}>
       {(m, c) => (
         <g>
@@ -239,7 +239,7 @@ export function WalekStopniowyFig() {
   const PR: [number, number][] = [[0, 0], [0, 15], [-25, 15], [-25, 20], [-55, 20], [-55, 25], [-62, 25], [-62, 0]];
   return (
     <LatheFig id="z06" title="Wałek stopniowy ⌀30 / ⌀40 z pręta ⌀50" range={[-78, 14, -8, 40]}
-      caption={<>Rysunek nad osią: X to promień, program podaje średnice. ⌀30 na długości 25, ⌀40 do Z−55, dalej zostaje pręt ⌀50. Czoło na Z0.</>}>
+      caption={<>Nad osią X to promień, program podaje średnice. ⌀30 na długości 25, ⌀40 do Z−55, dalej pręt ⌀50, czoło na Z0.</>}>
       {(m, c) => (
         <g>
           <Bar m={m} z0={0} len={70} d={50} />
@@ -292,7 +292,7 @@ export function WalekZaokraglenieFig() {
 export function KieszenFig() {
   return (
     <MillFig id="z08" title="Kieszeń 60 × 40, głębokość 6" range={[-14, 90, -14, 70]}
-      caption={<>Kieszeń od X10 Y10 do X70 Y50. Przerywany prostokąt to tor środka freza ⌀10 — obrys pomniejszony o promień narzędzia, czyli od X15 Y15 do X65 Y45. Dwa przejścia po 3.</>}
+      caption={<>Kieszeń od X10 Y10 do X70 Y50; przerywany prostokąt to tor środka freza ⌀10, od X15 Y15 do X65 Y45. Dwa przejścia po 3.</>}
       legend={[["con", "kontur gotowy"], ["cons", "tor środka freza"], ["tool", "frez ⌀10"], ["dim", "wymiar"]]}>
       {(m, c) => (
         <g>
@@ -389,7 +389,7 @@ export function HelisaFig() {
 export function PodprogramFig() {
   return (
     <MillFig id="z12" title="Trzy rowki 25 (frez ⌀6), rozstaw 20" range={[-16, 76, -12, 78]}
-      caption={<>Wymiar 25 to droga środka freza. Pierwszy rowek od X15 Y15, kolejne co 20 w osi Y. Głębokość 3. Zapis dowolny: sprawdzany jest tor.</>}>
+      caption={<>Wymiar 25 to droga środka freza: pierwszy rowek od X15 Y15, kolejne co 20 w osi Y, głębokość 3. Zapis dowolny — sprawdzany jest tor.</>}>
       {(m, c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(70)} width={60 * m.u} height={70 * m.u} fill={c.hatch} className="p-con" />

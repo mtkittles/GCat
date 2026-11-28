@@ -11,7 +11,7 @@ export function AxesTriad() {
   const nY = { x: O.x - Math.cos(ang) * 58, y: O.y + Math.sin(ang) * 58 };
   return (
     <Fig id="f01ax" code="XYZ" title="Osie frezarki i reguła prawej dłoni" h={236} legend={["acc", "cons"]}
-      caption={<>Kciuk to <b>+X</b>, palec wskazujący <b>+Y</b>, środkowy <b>+Z</b>. Linie przerywane to kierunki ujemne. Obroty wokół X, Y i Z to osie <b>A</b>, <b>B</b> i <b>C</b>.</>}>
+      caption={<>Linie przerywane to kierunki ujemne osi X, Y i Z.</>}>
       {(c) => (
         <g>
           <line x1={O.x} y1={O.y} x2={O.x - 76} y2={O.y} className="p-cons" />
@@ -61,7 +61,7 @@ export function RightHand() {
   const xEnd = { x: O.x + 150, y: O.y }, yEnd = iso(4, 118), zEnd = { x: O.x, y: O.y - 132 };
   return (
     <Fig id="f01hand" code="XYZ" title="Prawa dłoń ułożona jak osie frezarki" h={250} legend={["acc"]}
-      caption={<>Prawa dłoń wnętrzem do góry, nadgarstek przy sobie. <b>Kciuk</b> w prawo — <b>+X</b>, <b>wskazujący</b> od siebie, w głąb maszyny — <b>+Y</b>, <b>środkowy</b> zgięty do góry — <b>+Z</b>. Serdeczny i mały palec są podkulone. Tak samo leżą osie frezarki pionowej, gdy stoisz przed nią.</>}>
+      caption={<>Prawa dłoń wnętrzem do góry, nadgarstek przy sobie: <b>kciuk</b> w prawo — <b>+X</b>, <b>wskazujący</b> od siebie — <b>+Y</b>, <b>środkowy</b> do góry — <b>+Z</b>. Tak samo leżą osie frezarki pionowej, gdy stoisz przed nią.</>}>
       {(c) => (
         <g>
           <Finger a={fore[0]} b={fore[1]} w={44} />
@@ -96,7 +96,7 @@ export function TopView() {
   return (
     <Fig id="f01top" code="XY" title="Płytka 80 × 50 z góry (rzut XY, mm) — zero w lewym dolnym narożniku" h={256} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">H: X60 Y20</Code><Code k="con">P2: X80 Y0</Code><Code k="con">P3: X80 Y50</Code><Code k="con">P4: X0 Y50</Code></>}
-      caption={<>Od zera <b>W</b> idziesz najpierw wzdłuż X, potem wzdłuż Y. Linie przerywane prowadzą wymiary X60 i Y20 do punktu H. Wymiary w mm, siatka co 5 mm, opisy co 10 mm.</>}>
+      caption={<>Od zera <b>W</b> idziesz najpierw wzdłuż X, potem wzdłuż Y do punktu H. Wymiary w mm, siatka co 5 mm.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -128,7 +128,7 @@ export function SideView() {
   );
   return (
     <Fig id="f01side" code="Z" title="Widok z boku — Z0 na górnej powierzchni" h={254} legend={["rap", "cut", "stock"]}
-      caption={<>Z mówi tylko, jak wysoko jest narzędzie względem płaszczyzny Z0. <b>Z5</b> to 5 mm nad nią — typowa wysokość, z której frez zjeżdża do skrawania. <b>Z−5</b> to 5 mm pod nią: nad płytką (X60) frez jest wtedy w materiale, a obok płytki (X−20) — w powietrzu. Czy frez skrawa, wynika z Z <b>i</b> z położenia w X i Y.</>}>
+      caption={<><b>Z5</b> to 5 mm nad płaszczyzną Z0, <b>Z−5</b> — 5 mm pod nią. Czy frez skrawa, wynika z Z <b>i</b> z położenia w X i Y: nad płytką (X60) jest w materiale, obok niej (X−20) — w powietrzu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={80 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -221,7 +221,7 @@ export function ZSign() {
   );
   return (
     <Fig id="f01zs" code="Z" title="Jeden znak, trzy skutki" h={196} legend={["cut", "bad", "stock"]}
-      caption={<>Miało być <b>Z−2</b>. Bez minusa frez tnie powietrze. Z dodatkowym zerem wchodzi 20 mm w detal.</>}>
+      caption={<>Miało być <b>Z−2</b>: bez minusa frez tnie powietrze, z dodatkowym zerem wchodzi 20 mm w detal.</>}>
       {(c) => (
         <g>
           <rect x={m.X(4)} y={m.Y(0)} width={92 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -270,7 +270,7 @@ export function MachinePoints() {
   return (
     <Fig id="f02pts" code="M" title="Punkty charakterystyczne frezarki — widok z przodu" h={258} legend={["acc", "cons", "stock"]}
       notes={<><Code k="acc">M — zero maszyny</Code><Code k="acc">R — punkt referencyjny</Code><Code k="cut">W — zero detalu</Code><Code k="con">N — odniesienie długości narzędzia</Code></>}
-      caption={<>Jeden przykład położenia M i R — na konkretnej maszynie podaje je jej dokumentacja. M i R ustala producent, W — programista dla każdego zamocowania. Wektor od M do W to wartość zapisywana w rejestrze przesunięcia.</>}>
+      caption={<>Jeden przykład położenia M i R — na konkretnej maszynie podaje je jej dokumentacja. Wektor od M do W to wartość zapisywana w rejestrze przesunięcia.</>}>
       {(c) => (
         <g>
           <rect x={30} y={30} width={292} height={168} className="stock-out" />
@@ -305,7 +305,7 @@ export function CoordChain() {
   return (
     <Fig id="f02ch" code="X" title="Pozycja maszynowa = przesunięcie + program" h={204} legend={["acc", "dim"]}
       notes={<Code k="acc">−260 = −320 + 60</Code>}
-      caption={<>Oś X w widoku z góry. Zero maszyny M po prawej, więc wszystkie pozycje maszynowe są ujemne. Narzędzie T stoi 60 mm od W.</>}>
+      caption={<>Oś X w widoku z góry: zero maszyny M leży po prawej, więc wszystkie pozycje maszynowe są ujemne.</>}>
       {(c) => (
         <g>
           <line x1={x(-360)} y1={150} x2={x(12)} y2={150} className="ax" markerEnd={c.a("dim")} />
@@ -347,7 +347,7 @@ export function DatumZero() {
   };
   return (
     <Fig id="f02dat" code="W" title="Zero detalu na przecięciu baz A i B (rzut XY, mm)" h={236} legend={["dim", "stock", "cons"]}
-      caption={<>Widok z góry. Linie osiowe otworu prowadzą do wymiarów 60 i 20 liczonych od baz A i B. Przy W w narożniku baz trafiają do programu bez zmian: <b>X60 Y20</b>. Przy W na środku trzeba liczyć: X20 Y−5.</>}>
+      caption={<>Wymiary otworu 60 i 20 są liczone od baz A i B. Przy W w narożniku baz trafiają do programu bez zmian (<b>X60 Y20</b>), przy W na środku trzeba liczyć: X20 Y−5.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
@@ -375,7 +375,7 @@ export function EdgeFind() {
   return (
     <Fig id="f03edge" code="G54" title="Czujnik krawędzi Ø10 — dotyk od lewej i od przodu (widok z góry)" h={250} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">X: −325 + 5 = −320</Code><Code k="acc">Y: −265 + 5 = −260</Code></>}
-      caption={<>Model pomiaru ręcznego czujnikiem cylindrycznym. W chwili styku środek czujnika jest o promień od krawędzi, po stronie ujemnej osi — w X i w Y. Krawędź = pozycja maszynowa + r. Cykl sondy pomiarowej uwzględnia promień sam.</>}>
+      caption={<>Model pomiaru ręcznego czujnikiem cylindrycznym: krawędź = pozycja maszynowa + r. Cykl sondy pomiarowej uwzględnia promień sam.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(30)} width={48 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />
@@ -406,7 +406,7 @@ export function TwoOffsets() {
   const W = [{ x: -320, y: -260, g: "G54" }, { x: -150, y: -260, g: "G55" }];
   return (
     <Fig id="f03two" code="G54 G55" title="Dwa imadła, dwa zera, jeden program" h={244} legend={["acc", "stock"]}
-      caption={<>Widok z góry, układ przykładowy. Rejestry przechowują wektory od M do każdego W. Program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2. Między detalami narzędzie przejeżdża na wysokości, na której minie oba zamocowania.</>}>
+      caption={<>Rejestry przechowują wektory od M do każdego W: program z <b>G54</b> obrabia detal 1, ten sam program z <b>G55</b> — detal 2. Między detalami narzędzie przejeżdża na wysokości, na której minie oba zamocowania.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-410)} y={m.Y(10)} width={430 * m.u} height={300 * m.u} rx={6} className="panel-bg" />

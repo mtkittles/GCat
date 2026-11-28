@@ -30,7 +30,7 @@ export function LatheMachine() {
   return (
     <Fig id="t01mc" code="T" title="Tokarka — z czego się składa (widok z boku, głowica tylna)" h={262} legend={["stock"]}
       notes={<><Code k="con">ruch główny: wrzeciono, uchwyt i przedmiot</Code><Code k="acc">ruchy posuwowe X i Z: suport z głowicą</Code><Code k="dim">konik — wyposażenie opcjonalne</Code></>}
-      caption={<>Wrzeciono obraca uchwyt, a szczęki uchwytu mocują pręt — przedmiot obraca się wokół osi Z (ruch główny). Nóż jest zamocowany w oprawce na głowicy narzędziowej; głowica przesuwa się na suporcie w osiach X i Z (ruchy posuwowe). Konik z kłem podpiera koniec długiego wałka; przy krótkich przedmiotach nie jest potrzebny. Głowica może być umieszczona za osią obrotu (tylna, jak w kursie) albo przed nią — zależnie od maszyny.</>}>
+      caption={<>Wrzeciono obraca uchwyt z prętem wokół osi Z, a głowica z nożem przesuwa się na suporcie w X i Z. Konik podpiera długi wałek; głowica bywa za osią obrotu (jak w kursie) albo przed nią — zależnie od maszyny.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-150)} y={m.Y(-46)} width={260 * m.u} height={10 * m.u} className="clamp" />
@@ -76,7 +76,7 @@ export function LatheAxes() {
   const m = mapper(R, [10, 6, 340, 226]);
   return (
     <Fig id="t01ax" code="X Z" title="Osie tokarki — widok z boku, głowica tylna" h={250} legend={["acc", "stock"]}
-      caption={<>Z leży w osi wrzeciona: +Z od uchwytu w stronę konika. X jest promieniowo: +X od osi obrotu. Obie osie dodatnie oddalają nóż od detalu, tak samo jak na frezarce.</>}>
+      caption={<>+Z biegnie w osi wrzeciona od uchwytu w stronę konika, +X — promieniowo od osi obrotu. Obie osie dodatnie oddalają nóż od detalu, tak samo jak na frezarce.</>}>
       {(c) => (
         <g>
           <Chuck m={m} z0={-88} r={20} />
@@ -113,7 +113,7 @@ export function LathePart() {
   return (
     <Fig id="t01pt" code="Ø" title="Wałek stopniowany — detal przewodni ścieżki" h={250} legend={["acc", "dim", "stock"]}
       notes={<><Code k="con">Ø20 × 20</Code><Code k="con">Ø30 × 20</Code><Code k="con">Ø36 × 15</Code><Code k="con">fazy 1 × 45°</Code></>}
-      caption={<>Rysunek tokarski pokazuje górną połowę jako przekrój, a średnice wymiaruje przez oś. Zero W leży na osi, na czole detalu. Surówka to pręt Ø40 — linia przerywana.</>}>
+      caption={<>Rysunek tokarski pokazuje górną połowę jako przekrój, a średnice wymiaruje przez oś. Zero W leży na osi, na czole detalu; linia przerywana to pręt Ø40.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-62)} y={m.Y(20)} width={62 * m.u} height={40 * m.u} className="stock-out" />
@@ -139,7 +139,7 @@ export function ContourPoints() {
   return (
     <Fig id="t01cp" code="X Z" title="Punkty konturu — górna połowa wałka" h={258} legend={["con", "stock"]}
       notes={<><Code k="con">X0 Z0 · X18 Z0 → X20 Z-1</Code><Code k="con">X20 Z-20 · X28 Z-20 → X30 Z-21</Code></>}
-      caption={<>Widok z boku: Z w prawo, X w górę. Przy punktach — średnica X i odległość Z od czoła. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Przy punktach — średnica X i odległość Z od czoła (Z w prawo, X w górę). Numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <line x1={m.X(-44)} y1={m.Y(20)} x2={m.X(4)} y2={m.Y(20)} className="stock-out" />
@@ -196,7 +196,7 @@ export function TwoPasses() {
   return (
     <Fig id="t02tp" code="ap" title="Z Ø40 na Ø30 w dwóch przejściach" h={232} legend={["cut", "stock"]}
       notes={<><Code k="cut">1. przejście X35. — ap 2,5</Code><Code k="cut">2. przejście X30. — ap 2,5</Code></>}
-      caption={<>Górna krawędź pręta, powiększenie. Na stronę schodzi 5 mm: dwa pasy po 2,5 mm. W programie X zmienia się w każdym przejściu o 5, bo X to średnica. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Górna krawędź pręta w powiększeniu: 5 mm na stronę w dwóch pasach po 2,5 mm. W programie X zmienia się w każdym przejściu o 5, bo X to średnica.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-25)} y={m.Y(15)} width={25 * m.u} height={6 * m.u} fill={c.hatch} className="p-con" />
@@ -251,7 +251,7 @@ export function LatheZero() {
   const m = mapper(R, [10, 6, 340, 226]);
   return (
     <Fig id="t03zr" code="M W" title="Zero maszyny na wrzecionie, zero detalu na czole" h={250} legend={["acc", "stock"]}
-      caption={<>Na tokarce X0 układu detalu leży na osi obrotu. Operator ustala więc tylko Z: dotyka nożem czoła detalu i zapisuje tę pozycję jako Z0. Odległość od M do W zależy od długości wysięgu pręta z uchwytu.</>}>
+      caption={<>X0 leży na osi obrotu, więc operator ustala tylko Z: dotyka nożem czoła detalu i zapisuje tę pozycję jako Z0. Odległość od M do W zależy od wysięgu pręta z uchwytu.</>}>
       {(c) => (
         <g>
           <Chuck m={m} z0={-88} r={20} />
@@ -278,7 +278,7 @@ export function FaceTouch() {
   return (
     <Fig id="t03ft" code="Z0" title="Planowanie czoła i zapis Z0" h={270} legend={["cut", "acc", "stock"]}
       notes={<><Code k="acc">G54 Z = −312,4 (pozycja maszynowa ostrza)</Code></>}
-      caption={<>Surowe czoło po piłowaniu jest nierówne. Nóż zbiera ok. 0,5 mm, zostaje na czystym czole i ta pozycja maszynowa staje się Z0. Liczba −312,4 jest przykładowa — zależy od maszyny i wysięgu pręta. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż zbiera ok. 0,5 mm z nierównego czoła i ta pozycja maszynowa staje się Z0. Liczba −312,4 jest przykładowa, numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-30)} y={m.Y(20)} width={30 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -324,7 +324,7 @@ export function TurretPosition() {
   return (
     <Fig id="t03tu" code="X±" title="Widok z góry: gdzie jest nóż, tam jest +X" h={214} legend={["acc"]}
       notes={<Code k="con">operator stoi na dole rysunku</Code>}
-      caption={<>+X zawsze prowadzi od osi w stronę noża. Przy głowicy tylnej (typowe tokarki ze skośnym łożem) to kierunek od operatora, przy przedniej — do operatora. Program jest ten sam, zmienia się tylko to, jak wygląda z miejsca operatora.</>}>
+      caption={<>+X prowadzi od osi w stronę noża: przy głowicy tylnej (typowe tokarki ze skośnym łożem) od operatora, przy przedniej — do operatora. Program jest ten sam, zmienia się tylko widok z miejsca operatora.</>}>
       {() => <g><Turret x0={2} rear={false} /><Turret x0={184} rear /></g>}
     </Fig>
   );

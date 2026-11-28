@@ -19,7 +19,7 @@ export function T91Part() {
   return (
     <Fig id="t91pt" code="Ø" title="Nowy wałek: pręt Ø50, trzy średnice" h={256} legend={["acc", "dim", "stock"]}
       notes={<><Code k="con">Ø26 × 22, faza 1,5 × 45°</Code><Code k="con">Ø36, faza 1 × 45°</Code><Code k="con">Ø46, R1 na krawędzi</Code></>}
-      caption={<>Zero W na osi, na czole detalu — jak w kursie. Inne są średnice, długości, fazy i promień ostrza noża zgrubnego. Surówka to pręt Ø50 — linia przerywana.</>}>
+      caption={<>Zero W na osi, na czole detalu — jak w kursie; linia przerywana to pręt Ø50.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-56)} y={m.Y(25)} width={56 * m.u} height={50 * m.u} className="stock-out" />
@@ -44,7 +44,7 @@ export function T91Contour() {
   return (
     <Fig id="t91ct" code="P–Q" title="Kontur N10–N20 — górna połowa" h={256} legend={["rap", "cut", "arc", "con"]}
       notes={<><Code k="rap">N10 G00 X19.</Code><Code k="cut">G01 X26. Z-1.5 F0.1</Code><Code k="arc">G03 X46. Z-39. R1.</Code><Code k="cut">N20 X52.</Code></>}
-      caption={<>Faza przy czole przedłużona do Z2, skąd startuje cykl: na 1,5 mm długości średnica rośnie o 3 mm, więc na Z2 wypada X19. Kontur jest monotoniczny w X i w Z — warunek G71 typu I. Numery to kroki przykładu.</>}>
+      caption={<>Faza przy czole przedłużona do Z2, skąd startuje cykl: na 1,5 mm długości średnica rośnie o 3 mm, więc na Z2 wypada X19. Kontur jest monotoniczny w X i w Z — warunek G71 typu I.</>}>
       {(c) => (
         <g>
           <polygon points={poly(m, PROF)} fill={c.hatch} className="p-con" />

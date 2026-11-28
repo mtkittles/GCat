@@ -12,7 +12,7 @@ export function PassLoop() {
   return (
     <Fig id="t31pl" code="G00 G01" title="Jedno przejście zgrubne: cztery ruchy" h={222} legend={["rap", "cut", "bad", "stock"]}
       notes={<><Code k="rap">G00 X36.4</Code><Code k="cut">G01 Z-54.8 F0.3</Code><Code k="cut">X42.</Code><Code k="rap">G00 Z2.</Code></>}
-      caption={<>Wejście na średnicę i powrót idą ruchem szybkim w powietrzu, toczenie i wyjście z materiału — posuwem. Powrót ruchem szybkim bez wyjścia w X przeciągnąłby ostrze po świeżo toczonej powierzchni. Skala pionowa powiększona.</>}>
+      caption={<>Wejście na średnicę i powrót idą ruchem szybkim w powietrzu, toczenie i wyjście z materiału — posuwem. Skala pionowa powiększona.</>}>
       {(c) => (
         <g>
           <rect x={X(-60)} y={Y(20)} width={X(0) - X(-60)} height={Y(13) - Y(20)} fill={c.hatch} className="p-con" style={{ opacity: 0.6 }} />
@@ -41,7 +41,7 @@ export function PassClear() {
   return (
     <Fig id="t31cl" code="G00" title="Przejście: prześwit do surówki i szczęk" h={230} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">1  G00 X36.4</Code><Code k="cut">2  G01 Z-54.8 F0.3</Code><Code k="cut">3  X42.</Code><Code k="rap">4  G00 Z2.</Code></>}
-      caption={<>Pręt Ø40 wystaje 70 mm ze szczęk. Powrót ruchem szybkim idzie 1 mm na stronę nad surowym prętem, nie nad gotowym konturem. Koniec toczenia zostawia 15,2 mm do szczęk. Numery odpowiadają krokom przykładu. Skala promieniowa powiększona.</>}>
+      caption={<>Pręt Ø40 wystaje 70 mm ze szczęk; powrót ruchem szybkim idzie 1 mm na stronę nad surowym prętem, a koniec toczenia zostawia 15,2 mm do szczęk. Skala promieniowa powiększona, numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <rect x={zx(-84)} y={ry(28)} width={zx(-70) - zx(-84)} height={ry(20) - ry(28)} rx={3} className="clamp" />
@@ -77,7 +77,7 @@ export function FinishContour() {
   return (
     <Fig id="t32fc" code="G01" title="Kontur wykańczający z fazami" h={230} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">G00 X14. Z2.</Code><Code k="cut">G01 X20. Z-1. F0.1</Code></>}
-      caption={<>Nóż wchodzi na fazę po jej przedłużeniu: z X14 Z2 linia 45° trafia dokładnie w początek fazy na czole. Każda liczba to wymiar z rysunku wałka. Ostre naroże przy Ø36 dostanie promień w lekcji T3.3. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż wchodzi na fazę po jej przedłużeniu: z X14 Z2 linia 45° trafia dokładnie w początek fazy na czole. Ostre naroże przy Ø36 dostanie promień w lekcji T3.3, numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(m, 0, 0)} ${P(m, 0, 9)} ${pts.slice(1, -1).map(([z, r]) => P(m, z, r)).join(" ")} ${P(m, -58, 18)} ${P(m, -58, 0)}`} fill={c.hatch} className="p-con" />
@@ -104,7 +104,7 @@ export function RoughLayers() {
   return (
     <Fig id="t32rl" code="ap" title="Pięć przejść zgrubnych z pręta Ø40" h={222} legend={["cut", "acc", "stock"]}
       notes={<><Code k="cut">Ø36,4 → Ø32 → Ø30,4 → Ø25,5 → Ø20,4</Code></>}
-      caption={<>Każdy pas to jedno przejście. Ostatnie przejścia na każdym stopniu zostawiają 0,2 mm na stronę (Ø +0,4) i 0,2 mm w Z na nóż wykańczający. Tę samą pracę wykona cykl G71 z modułu T5 — w dwóch blokach.</>}>
+      caption={<>Każdy pas to jedno przejście; ostatnie na każdym stopniu zostawiają 0,2 mm na stronę (Ø +0,4) i 0,2 mm w Z na nóż wykańczający.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-58)} y={m.Y(20)} width={58 * m.u} height={20 * m.u} className="panel-bg" />
@@ -130,7 +130,7 @@ export function StepArcs() {
   return (
     <Fig id="t33ar" code="G02 G03" title="Stopień Ø30 → Ø36: naroże wklęsłe i wypukłe" h={232} legend={["cut", "arc", "stock"]}
       notes={<><Code k="arc">Z-39. → G02 X32. Z-40. R1.</Code><Code k="arc">G01 X35. → G03 X36. Z-40.5 R0.5</Code></>}
-      caption={<>Widok z boku, od strony +Y: Z w prawo, X w górę, głowica tylna. Numery odpowiadają krokom przykładu. Promień wklęsły między Ø30 a czołem stopnia to łuk zgodnie z zegarem (G02), a zaokrąglenie krawędzi Ø36 — przeciwnie (G03). Nóż jedzie od czoła w stronę uchwytu.</>}>
+      caption={<>Widok od strony +Y (Z w prawo, X w górę, głowica tylna), nóż jedzie od czoła w stronę uchwytu. Promień wklęsły przy Ø30 to łuk G02, zaokrąglenie krawędzi Ø36 — G03.</>}>
       {(c) => (
         <g>
           <path d={`M ${P(m, -36.5, 15)} L ${P(m, -39, 15)} A ${u} ${u} 0 0 1 ${P(m, -40, 16)} L ${P(m, -40, 17.5)} A ${0.5 * u} ${0.5 * u} 0 0 0 ${P(m, -40.5, 18)} L ${P(m, -43, 18)} L ${P(m, -43, 13.8)} L ${P(m, -36.5, 13.8)} Z`} fill={c.hatch} className="p-con" />
@@ -175,7 +175,7 @@ export function ArcViews() {
   return (
     <Fig id="t33vw" code="G02" title="Ten sam blok G02 widziany przy dwóch głowicach" h={200} legend={["arc", "acc"]}
       notes={<Code k="arc">w programie: G02 — w obu przypadkach</Code>}
-      caption={<>Przy głowicy tylnej +X biegnie od operatora i łuk G02 wygląda zgodnie z zegarem. Przy przedniej +X biegnie do operatora — ten sam łuk wygląda z jego miejsca na przeciwny. Kierunek odczytuje się z rysunku w układzie programu — Z w prawo, X w górę — a nie przez szybę.</>}>
+      caption={<>Przy głowicy tylnej łuk G02 wygląda zgodnie z zegarem, przy przedniej ten sam łuk wygląda z miejsca operatora na przeciwny. Kierunek odczytuje się z rysunku w układzie programu — Z w prawo, X w górę — a nie przez szybę.</>}>
       {() => <g><View x0={2} rear={false} /><View x0={184} rear /></g>}
     </Fig>
   );

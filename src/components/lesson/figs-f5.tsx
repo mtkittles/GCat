@@ -122,7 +122,7 @@ export function PeckCompare() {
   return (
     <Fig id="f52pk" code="G83" title="G83 krok po kroku: R2, Q4, Z−18" h={300} legend={["cut", "rap", "stock"]}
       notes={<Code k="acc">G83 X… Y… Z-18. R2. Q4. F380</Code>}
-      caption={<>Pięć kolejnych wejść w ten sam otwór. Zagłębienia liczy się od <b>R2</b>: dna w Z−2, −6, −10, −14 i −18. Pierwsze wejście zaczyna 2 mm nad materiałem, więc w metalu zbiera tylko 2 mm. Po każdym dnie <b>G83</b> wyjeżdża szybko do R — wiór wychodzi z otworu — i wraca szybko tuż nad poprzednie dno; ten odstęp ustawia parametr sterowania. Ruch w dół i w górę idzie w osi otworu, na rysunku rozsunięto je dla czytelności.</>}>
+      caption={<>Pięć wejść w ten sam otwór z dnami w Z−2, −6, −10, −14 i −18, liczonymi od <b>R2</b>; po każdym dnie <b>G83</b> wyjeżdża szybko do R. Ruch w dół i w górę idzie w osi otworu, na rysunku rozsunięto je dla czytelności.</>}>
       {(c) => (
         <g>
           {/* oś głębokości */}
@@ -169,7 +169,7 @@ export function DrillTip() {
   return (
     <Fig id="f52tp" code="140°" title="Z w programie to czubek wiertła" h={236} legend={["dim", "stock"]}
       notes={<><Code k="acc">118°: stożek ≈ 0,3 · D</Code><Code k="acc">140°: stożek ≈ 0,18 · D</Code></>}
-      caption={<>Wiertło Ø5 o kącie 140° z lekcji: czubek w Z−18, pełna średnica kończy się 0,9 mm wyżej, w Z−17,1. Przy otworze pod gwint liczy się właśnie ta głębokość. Wiertło 118° tej samej średnicy miałoby stożek 1,5 mm.</>}>
+      caption={<>Wiertło Ø5 o kącie 140°: czubek w Z−18, pełna średnica kończy się 0,9 mm wyżej, w Z−17,1. Wiertło 118° tej samej średnicy miałoby stożek 1,5 mm.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(-10, 0)} ${P(-2.5, 0)} ${P(-2.5, full)} ${P(0, tip)} ${P(2.5, full)} ${P(2.5, 0)} ${P(12, 0)} ${P(12, -20)} ${P(-10, -20)}`} fill={c.hatch} className="p-con" />
@@ -196,7 +196,7 @@ export function DrillPlan() {
   return (
     <Fig id="f52pl" code="G83" title="Głębokość otworu i zagłębienia Q4" h={250} legend={["cut", "dim", "stock"]}
       notes={<><Code k="cut">G83 X10. Y10. Z-18. R2. Q4. F380</Code></>}
-      caption={<>Lewa część: głębokość liczona od gwintu w dół — 12 + 3 = 15, +2 zapasu = 17, +0,9 stożka ≈ 18. Prawa część: od R2 do Z−18 jest 20 mm, więc Q4 daje pięć zagłębień z dnami w Z−2, −6, −10, −14, −18; po każdym wiertło wraca do R. Płytka ma 20 mm, pod czubkiem zostają 2 mm.</>}>
+      caption={<>Lewa część: głębokość liczona od gwintu w dół — 12 + 3 + 2 zapasu + 0,9 stożka ≈ 18. Prawa część: od R2 do Z−18 jest 20 mm, więc Q4 daje pięć zagłębień, po każdym powrót do R.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(-22, 0)} ${P(xs - rH, 0)} ${P(xs - rH, -17.1)} ${P(xs, -18)} ${P(xs + rH, -17.1)} ${P(xs + rH, 0)} ${P(26, 0)} ${P(26, -20)} ${P(-22, -20)}`} fill={c.hatch} className="p-con" />
@@ -235,7 +235,7 @@ export function TapCycle() {
   return (
     <Fig id="f53tp" code="G84" title="Gwintowanie: posuw = obroty × skok" h={248} legend={["cut", "arc", "stock"]}
       notes={<><Code k="cut">wejście: obroty w prawo, F = S · P</Code><Code k="arc">wyjście: obroty odwrócone</Code></>}
-      caption={<>Na jeden obrót gwintownik M6 wchodzi dokładnie o skok 1 mm. Przy S500 posuw musi wynosić 500 mm/min — inaczej gwintownik zrywa zwoje albo może pęknąć. Koniec gwintownika schodzi do Z−15: pełny gwint sięga Z−12, niżej pracuje nakrój. Na dnie cykl odwraca obroty i wykręca narzędzie tym samym torem.</>}>
+      caption={<>Na jeden obrót gwintownik M6 wchodzi o skok 1 mm, więc przy S500 posuw wynosi 500 mm/min. Na dnie w Z−15 cykl odwraca obroty i wykręca narzędzie tym samym torem.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(-14, 0)} ${P(-2.5, 0)} ${P(-2.5, -17.1)} ${P(0, -18)} ${P(2.5, -17.1)} ${P(2.5, 0)} ${P(14, 0)} ${P(14, -20)} ${P(-14, -20)}`} fill={c.hatch} className="p-con" />
@@ -274,7 +274,7 @@ export function TapDepthM6() {
   return (
     <Fig id="f53dp" code="M6×1" title="Cztery głębokości otworu gwintowanego" h={244} legend={["acc", "dim", "stock"]}
       notes={<><Code k="cut">G84 … Z-15. R5. F500</Code><Code k="acc">G83 … Z-18. R2. Q4.</Code></>}
-      caption={<>Wymagane 12 mm pełnego gwintu. Gwintownik z nakrojem 3 zwojów (założenie przykładu) musi zejść końcem do <b>Z−15</b>. Pełna średnica otworu sięga Z−17,1, czyli 2,1 mm niżej — to zapas na wióry i bicie osiowe. Czubek wiertła jest jeszcze o stożek 0,9 mm niżej, w Z−18. Fazka z nawiercania pominięta.</>}>
+      caption={<>Na 12 mm pełnego gwintu gwintownik z nakrojem 3 zwojów schodzi końcem do <b>Z−15</b>; pełna średnica otworu sięga Z−17,1, a czubek wiertła Z−18. Zapas 2,1 mm mieści wióry i bicie osiowe, fazka z nawiercania jest pominięta.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(-16, 0)} ${P(xs - rH, 0)} ${P(xs - rH, zFull)} ${P(xs, zTip)} ${P(xs + rH, zFull)} ${P(xs + rH, 0)} ${P(0, 0)} ${P(0, -20.5)} ${P(-16, -20.5)}`} fill={c.hatch} className="p-con" />
@@ -443,7 +443,7 @@ export function RetractLevels() {
   return (
     <Fig id="f54lv" code="G98 G99" title="Powrót do R albo do poziomu początkowego — tor i cały zespół narzędzia" h={262} legend={["rap", "bad", "dim", "stock"]}
       notes={<><Code k="rap">G99 G81 X15. …</Code><Code k="rap">G98 X45.</Code><Code k="rap">G99 X75.</Code><Code k="dim">wiertło Ø6, wysięg 40 · oprawka Ø32 (przykład)</Code></>}
-      caption={<><b>G99</b> wraca do płaszczyzny R — krótko, gdy między otworami nic nie wystaje. <b>G98</b> wraca do poziomu początkowego Z30 — tak przeskakuje się nad dociskiem 25 mm. Bezpieczny tor czubka to nie wszystko: przy dnie otworu X45 oprawka Ø32 sięga nad docisk. Z wysięgiem 40 mm jej dół stoi na Z33, 8 mm nad dociskiem. Z wysięgiem 20 mm byłby na Z13 — oprawka uderzyłaby w docisk, choć tor czubka jest poprawny.</>}>
+      caption={<><b>G99</b> wraca do płaszczyzny R, <b>G98</b> — do poziomu początkowego Z30, nad docisk wysoki na 25 mm. Przy dnie otworu X45 docisk musi minąć także oprawka Ø32.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={90 * m.u} height={10 * m.u} fill={c.hatch} className="p-con" />

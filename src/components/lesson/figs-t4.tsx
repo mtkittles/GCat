@@ -10,7 +10,7 @@ export function NosePoint() {
   return (
     <Fig id="t41np" code="P" title="Program prowadzi punkt P, a skrawa łuk naroża" h={220} legend={["acc", "cons"]}
       notes={<><Code k="acc">P — wierzchołek teoretyczny</Code><Code k="con">rε — promień naroża</Code></>}
-      caption={<>P to przecięcie stycznych do naroża w osiach X i Z. Nóż mierzy się do tego punktu, więc wzdłuż osi Z i na czole (wzdłuż X) naroże styka się z detalem dokładnie tam, gdzie P. Na fazach, stożkach i łukach styka się w innym miejscu.</>}>
+      caption={<>P to przecięcie stycznych do naroża w osiach X i Z: wzdłuż Z i na czole naroże styka się z detalem dokładnie tam, gdzie P. Na fazach, stożkach i łukach styka się w innym miejscu.</>}>
       {(c) => (
         <g>
           <path d={`M ${m.X(0)} ${m.Y(C.x)} A ${re * m.u} ${re * m.u} 0 0 0 ${m.X(C.z)} ${m.Y(0)} L ${m.X(3.4)} ${m.Y(0)} L ${m.X(3.4)} ${m.Y(3)} L ${m.X(0)} ${m.Y(3)} Z`} className="p-fill-acc" style={{ stroke: "var(--accent)" }} />
@@ -36,7 +36,7 @@ export function ChamferError() {
   return (
     <Fig id="t41ce" code="0,41·rε" title="Faza bez korekcji: zostaje pasek materiału" h={220} legend={["cut", "bad", "stock"]}
       notes={<><Code k="bad">błąd ⟂ fazy ≈ 0,414 · rε = 0,33 mm dla R0,8</Code></>}
-      caption={<>Punkt P jedzie dokładnie po linii fazy (zielona), ale naroże styka się z materiałem wyżej — rzeczywista faza (czerwona) leży równolegle, o 0,414 · rε dalej od osi. Na promieniach i stożkach powstaje ten sam rodzaj błędu. G41/G42 go usuwają.</>}>
+      caption={<>Punkt P jedzie po linii fazy (zielona), ale naroże styka się z materiałem wyżej: rzeczywista faza (czerwona) leży o 0,414 · rε dalej od osi. G41/G42 usuwają ten błąd.</>}>
       {(c) => (
         <g>
           <polygon points={`${m.X(0)},${m.Y(7.4)} ${m.X(0)},${m.Y(9 + k * 2)} ${m.X(-1 + k * 2)},${m.Y(10)} ${m.X(-2.8)},${m.Y(10)} ${m.X(-2.8)},${m.Y(7.4)}`} fill={c.hatch} className="p-con" />
@@ -59,7 +59,7 @@ export function LatheSides() {
   return (
     <Fig id="t41sd" code="G42 G41" title="Po której stronie konturu jest nóż" h={222} legend={["cut", "acc", "stock"]}
       notes={<><Code k="acc">zewnętrznie, w stronę uchwytu: G42</Code><Code k="acc">wewnątrz (wytaczanie), w stronę uchwytu: G41</Code></>}
-      caption={<>Patrząc w kierunku ruchu — w stronę uchwytu — nóż zewnętrzny jest nad konturem, czyli po prawej stronie: G42. Wytaczak we wnętrzu otworu jest pod konturem, po lewej: G41. Jak przy łukach, stronę odczytuje się z rysunku z X w górę.</>}>
+      caption={<>Patrząc w kierunku ruchu, nóż zewnętrzny jest nad konturem, po prawej (G42), a wytaczak pod konturem, po lewej (G41). Stronę odczytuje się z rysunku z X w górę.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-38)} y={m.Y(15)} width={38 * m.u} height={9 * m.u} fill={c.hatch} className="p-con" />
@@ -122,7 +122,7 @@ export function TipDirections() {
   return (
     <Fig id="t42td" code="T1–9" title="Kierunek ostrza: gdzie leży P względem środka naroża" h={234} legend={["acc"]}
       notes={<><Code k="acc">nóż zewnętrzny → 3</Code><Code k="acc">wytaczak → 2</Code><Code k="con">0 lub 9 — środek naroża</Code></>}
-      caption={<>Okrąg w środku to naroże płytki, kółka z numerami — możliwe położenia punktu P, do którego zmierzono nóż. Numer mówi sterowaniu, w którą stronę od środka naroża leży P. Układ numerów jak w instrukcji Fanuc (kierunek ostrza teoretycznego), w widoku z kursu: Z w prawo, X w górę.</>}>
+      caption={<>Okrąg w środku to naroże płytki, kółka z numerami — możliwe położenia punktu P; numer mówi sterowaniu, w którą stronę od środka naroża leży P. Układ numerów jak w instrukcji Fanuc, w widoku z kursu (Z w prawo, X w górę).</>}>
       {() => (
         <g>
           <circle cx={cx} cy={cy} r={34} className="p-cons" style={{ fill: "none" }} />
@@ -181,7 +181,7 @@ export function NoseChoice() {
   return (
     <Fig id="t42ns" code="R T" title="Gdzie leży P względem środka naroża" h={212} legend={["acc", "cons"]}
       notes={<><Code k="acc">VBMT 160404 → rε 0,4 · P w dół i w lewo → 3</Code><Code k="con">dla porównania: wytaczak → 2</Code></>}
-      caption={<>Powiększone naroże płytki w widoku z kursu: Z w prawo, X w górę. P to przecięcie stycznych do naroża w osiach X i Z. Nóż zewnętrzny skrawa dolną częścią naroża, więc P leży w dół i w lewo od środka — kierunek 3. Wytaczak w otworze skrawa górną częścią — P w górę i w lewo, kierunek 2. Numery 1–2 odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż zewnętrzny skrawa dolną częścią naroża, więc P leży w dół i w lewo od środka — kierunek 3. Wytaczak w otworze skrawa górną częścią: P w górę i w lewo, kierunek 2.</>}>
       {() => (
         <g>
           <Nose ox={4} up={false} n="T 3" label="nóż zewnętrzny" steps />

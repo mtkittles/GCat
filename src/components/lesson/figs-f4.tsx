@@ -9,7 +9,7 @@ export function ToolLength() {
   return (
     <Fig id="f41tl" code="G43 H" title="Dwa narzędzia, ten sam cel Z5" h={246} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">pozycja N = Z programu + wartość z rejestru H</Code><Code k="dim">H1 — numer rejestru, 85,2 mm — liczba w nim zapisana</Code></>}
-      caption={<>Program podaje tylko, gdzie ma być czubek: Z5. H1 nie jest długością, tylko numerem rejestru; sterowanie bierze z niego 85,2 mm i ustawia czoło wrzeciona N wyżej dla dłuższego narzędzia. Bez G43 oba czubki trafiłyby w złe miejsce.</>}>
+      caption={<>Program podaje tylko, gdzie ma być czubek (Z5); H1 to numer rejestru, z którego sterowanie bierze 85,2 mm. Dla dłuższego narzędzia czoło wrzeciona N staje wyżej.</>}>
       {(c) => (
         <g>
           <rect x={20} y={top} width={320} height={40} fill={c.hatch} className="p-con" />
@@ -84,7 +84,7 @@ export function LeadInOut() {
   return (
     <Fig id="f43io" code="G41 G40" title="Najazd i odjazd styczny — lewy dolny róg płytki" h={250} legend={["cut", "arc", "rap", "stock"]}
       notes={<><Code k="cut">G41 D1 G01 X-10. Y0.</Code><Code k="arc">G03 X0. Y10. R10.</Code><Code k="arc">G03 X-10. Y20. R10.</Code><Code k="cut">G40 G01 X-20. Y10.</Code></>}
-      caption={<>Frez wchodzi na kontur po łuku stycznym i tak samo z niego schodzi. Nie zatrzymuje się na ścianie, więc nie zostawia śladu w miejscu wejścia. Korekcję włącza i wyłącza odcinek w powietrzu.</>}>
+      caption={<>Frez wchodzi na kontur po łuku stycznym i tak samo z niego schodzi, więc nie zostawia śladu w miejscu wejścia. Korekcję włącza i wyłącza odcinek w powietrzu.</>}>
       {(c) => (
         <g>
           <path d={part} fill={c.hatch} className="p-con" />
@@ -120,7 +120,7 @@ export function TwoLengths() {
   return (
     <Fig id="f41tw" code="G43" title="Ten sam Z5, różne pozycje wrzeciona" h={268} legend={["dim", "stock"]}
       notes={<><Code k="acc">N = G54 Z + Z programu + wartość H</Code><Code k="dim">H1 = 85,2 · H2 = 102,7</Code></>}
-      caption={<>Pionowo współrzędne maszynowe. Detal leży pod linią Z0, czyli pod pozycją −400 zapisaną w G54. Oba narzędzia mają czubek na Z5 programu (−395 maszynowo). Czoło wrzeciona N stoi wyżej o długość narzędzia: frez −309,8, wiertło −292,3. Różnica 17,5 mm to różnica liczb zapisanych w rejestrach H1 i H2 — wartość Z w G54 jest dla obu ta sama.</>}>
+      caption={<>Pionowo współrzędne maszynowe: oba czubki stoją na Z5 programu (−395), a czoło wrzeciona N wyżej o długość narzędzia — frez −309,8, wiertło −292,3. Różnica 17,5 mm to różnica rejestrów H1 i H2, a Z w G54 (−400) jest dla obu ta sama.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(g54)} width={200 * m.u} height={18 * m.u} fill={c.hatch} className="p-con" />
