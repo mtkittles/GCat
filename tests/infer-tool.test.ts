@@ -22,4 +22,15 @@ describe("inferTool — frezy z artykułów Technologii", () => {
     expect(inferTool("FREZ FI10, OSTRZE PRZEZ SRODEK", "mill")).toMatchObject({ kind: "endmill", d: 10 });
     expect(inferTool("FREZ FI12: T1, H1, D1", "mill")).toMatchObject({ kind: "endmill", d: 12 });
   });
+
+  it("V3.1b: frez do gwintów i rozwiertak", () => {
+    expect(inferTool("FREZ DO GWINTOW FI12 P2", "mill")).toMatchObject({ kind: "threadmill", d: 12, flutes: 2 });
+    expect(inferTool("FREZ DO GWINTÓW M16X2 FI12", "mill")).toMatchObject({ kind: "threadmill", d: 12, flutes: 2 });
+    expect(inferTool("THREAD MILL FI10", "mill")).toMatchObject({ kind: "threadmill", d: 10 });
+    expect(inferTool("ROZWIERTAK FI10 H7", "mill")).toMatchObject({ kind: "reamer", d: 10 });
+    // gwintownik i wiertło jak dotąd; tokarka bez zmian
+    expect(inferTool("GWINTOWNIK M10X1.5", "mill")).toMatchObject({ kind: "tap", d: 10, flutes: 1.5 });
+    expect(inferTool("WIERTLO FI8", "mill")).toMatchObject({ kind: "drill", d: 8 });
+    expect(inferTool("NOZ DO GWINTOW", "lathe")).toMatchObject({ kind: "threading" });
+  });
 });

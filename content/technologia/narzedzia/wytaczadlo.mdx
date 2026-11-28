@@ -1,0 +1,155 @@
+---
+title: Wytaczadło
+slug: wytaczadlo
+dzial: narzedzia
+typ: narzedzie
+order: 140
+short: >-
+  Głowica wytaczarska zgrubna i dokładna: wytaczanie wieloostrzowe, stopniowe i
+  jednoostrzowe, nastawa średnicy, posuw i cykle G76, G85 i G86 z orientacją
+  wrzeciona.
+obrobka:
+  - frezowanie
+  - wiercenie
+poziom: 3
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-wytaczanie-zgrubne
+    where: >-
+      wytaczanie wieloostrzowe (dwa albo trzy ostrza) — największa wydajność;
+      wytaczanie stopniowe przy dużej głębokości skrawania, posuw i powierzchnia
+      jak przy jednym ostrzu (fn = fz), tolerancja IT9 lub szersza;
+      jednoostrzowe przy trudnej kontroli wióra (materiały o długim wiórze) albo
+      małej mocy maszyny (fn = fz); sprawdzić moc i moment maszyny; nie łączyć
+      największej głębokości z największym posuwem; sztywne mocowanie z
+      przyleganiem czołowym do wrzeciona
+  - id: sandvik-wytaczanie-dokladne
+    where: >-
+      wytaczanie dokładne wykańcza istniejący otwór w wąskiej tolerancji i z
+      dobrą powierzchnią; głębokości skrawania zwykle poniżej 0,5 mm; średnicę
+      nastawia się z dokładnością mikrometrów (do 2 µm); narzędziem zgrubnym z
+      jednym ostrzem wykańcza się otwory w tolerancji IT9 lub szerszej; kąt
+      przystawienia 92° pozwala obrabiać stopnie i otwory nieprzelotowe; siła
+      promieniowa odpycha ostrze i zmniejsza głębokość skrawania
+  - id: sandvik-wzory-wiercenie
+    where: n = vc · 1000 / (π · Dc), vf = fn · n
+  - id: fanuc
+    where: >-
+      G76 — orientacja wrzeciona w dnie, odsunięcie ostrza o Q, wyjazd ruchem
+      szybkim; G85 — wyjazd na posuwie; G86 — zatrzymanie wrzeciona w dnie i
+      wyjazd ruchem szybkim
+    loc: rozdz. 3.1, tab. 3.1, s. 73
+powiazane:
+  kody:
+    - g76-g89
+    - g85-g86
+    - m19
+    - g98-g99
+  lekcje:
+    - F5.1
+    - F5.4
+  hasla:
+    - posuw-na-obrót
+    - vc-prędkość-skrawania
+  artykuly:
+    - narzedzia/rozwiertak
+    - narzedzia/wiertlo-z-plytkami
+    - narzedzia/geometria-ostrza
+  kalkulator: true
+---
+Wytaczadło powiększa istniejący otwór albo poprawia jego jakość. Ostrze krąży po średnicy, na którą je nastawiono, więc średnicę otworu wyznacza nastawa narzędzia, a nie tor w X i Y. Na frezarce wytacza się cyklami G76, G85 i G86.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-wytaczadlo" />
+
+* **(1) Korpus z chwytem:** łączy głowicę z wrzecionem. Sandvik Coromant zaleca mocowanie z przyleganiem czołowym do wrzeciona, bo jest sztywniejsze.
+* **(2) Ostrza głowicy zgrubnej:** dwie płytki na suportach po obu stronach osi.
+* **(3) Ostrze głowicy dokładnej:** jedna płytka na suporcie z precyzyjną nastawą średnicy.
+* **(4) Podziałka nastawy:** przesuwa suport z ostrzem o mikrometry.
+
+## Rodzaje \{#rodzaje}
+
+**Wytaczanie zgrubne:** głowica z jednym, dwoma albo trzema ostrzami, ustawiona na jeden z trzech sposobów:
+
+* **Wieloostrzowe (produktywne):** dwa albo trzy ostrza na tej samej średnicy. Daje dużą wydajność; Sandvik Coromant wskazuje je jako podstawowe ustawienie.
+* **Stopniowe:** ostrza na różnych średnicach i wysokościach dzielą dużą głębokość skrawania. Posuw na obrót i powierzchnia są jak przy jednym ostrzu; otwór wychodzi w tolerancji IT9 lub szerszej.
+* **Jednoostrzowe:** pracuje jedno ostrze. Pomaga, gdy wiór trudno kontrolować (materiały o długim wiórze) albo gdy moc maszyny jest mała.
+
+**Wytaczanie dokładne:** głowica z jednym ostrzem i nastawą średnicy z dokładnością mikrometrów. Wykańcza otwór w wąskiej tolerancji, z dobrą powierzchnią i poprawnym położeniem.
+
+## Zastosowanie \{#zastosowanie}
+
+Wytacza się otwory już istniejące: wywiercone, odlane albo wytoczone zgrubnie. Wytaczanie dokładne daje wąską tolerancję średnicy, dobrą powierzchnię i poprawne położenie otworu. Tym różni się od rozwiercania, które idzie za otworem wstępnym (artykuł [Rozwiertak](/technologia/narzedzia/rozwiertak)).
+
+## Dobór \{#dobór}
+
+**Głębokość skrawania.** Przy wytaczaniu dokładnym głębokość skrawania wynosi zwykle poniżej 0,5 mm. Przy zgrubnym liczy się moc i moment maszyny; Sandvik Coromant zaleca nie łączyć maksymalnej głębokości z maksymalnym posuwem.
+
+<Wzor f="a_p = \frac{D - d}{2}" legend="a_p — głębokość skrawania [mm]; D — średnica po wytaczaniu [mm]; d — średnica otworu przed wytaczaniem [mm]" caption="Głębokość skrawania" />
+
+**Kąt przystawienia.** Większość głowic dokładnych Sandvik Coromant ma kąt przystawienia 92°, który pozwala obrabiać stopnie i otwory nieprzelotowe. Siła promieniowa odpycha ostrze od ścianki i zmniejsza rzeczywistą głębokość skrawania. Kąty ostrza opisuje artykuł [Geometria ostrza](/technologia/narzedzia/geometria-ostrza).
+
+**Nastawa średnicy.** Średnicę ustawia się podziałką nastawy głowicy, a wynik sprawdza pomiarem otworu.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania, posuw i głębokość skrawania podaje katalog producenta dla konkretnej głowicy, płytki i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Obroty liczy się dla średnicy wytaczanej. W wytaczaniu stopniowym i jednoostrzowym posuw na obrót równa się posuwowi na ostrze:
+
+<Wzor f="n = \frac{1000 \cdot V_c}{\pi \cdot D} \\ v_f = f_n \cdot n" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica wytaczana [mm]; v_f — posuw minutowy [mm/min]; f_n — posuw na obrót [mm/obr]" caption="Obroty wrzeciona; Posuw minutowy" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): wytaczanie dokładne otworu ⌀29,6 na ⌀30 mm, Vc = 150 m/min, fn = 0,08 mm/obr.
+
+<Wzor f="a_p = \frac{30 - 29,6}{2} = 0,2\ \text{mm} \\ n = \frac{1000 \cdot 150}{3,14 \cdot 30} \approx 1592\ \text{obr/min} \\ v_f = 0,08 \cdot 1592 \approx 127\ \text{mm/min}" caption="Głębokość skrawania; Obroty wrzeciona; Posuw minutowy" kind="obliczenie" />
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Wyjazd ruchem szybkim z obracającym się ostrzem przy ściance:** rysa na gotowej powierzchni. Przy wytaczaniu dokładnym stosuje się G76 z odsunięciem ostrza.
+* **Zły kierunek odsunięcia Q w G76:** kierunek ustawia parametr maszyny; źle ustawiony wbija ostrze w ściankę (karta G76).
+* **Pominięte odpychanie ostrza:** siła promieniowa odsuwa ostrze od ścianki, więc rzeczywista głębokość skrawania jest mniejsza od nastawionej.
+* **Maksymalna głębokość razem z maksymalnym posuwem:** drgania i przeciążenie maszyny przy wytaczaniu zgrubnym.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Cykl G76 w dnie otworu zatrzymuje wrzeciono w ustalonym położeniu (orientacja, jak M19), odsuwa ostrze od ścianki o Q i wyjeżdża ruchem szybkim. Cykl G86 zatrzymuje wrzeciono w dnie bez odsunięcia i wyjeżdża ruchem szybkim, więc ostrze może zostawić rysę. Cykl G85 wyjeżdża na posuwie.
+
+<Diagram id="g76-g89" />
+
+Program poniżej wytacza dokładnie otwór ⌀30 mm na głębokość 25 mm cyklem G76 z wartościami z przykładu rachunkowego. Symulator nie ma głowicy wytaczarskiej frezarki, dlatego program jest do odczytu.
+
+<Code caption="Wytaczanie dokładne ⌀30 mm cyklem G76 z odsunięciem ostrza o 0,2 mm.">
+  ```
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T10 M06 (WYTACZADLO DOKLADNE FI30)
+  G00 G43 H10 Z50.
+  S1592 M03
+  M08
+  G00 X40. Y30.
+  G00 Z20.
+  G98 G76 Z-25. R2. Q0.2 F127
+  G80
+  G00 Z100.
+  M09
+  M05
+  M30
+  ```
+</Code>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T10 M06` wymienia narzędzie na głowicę dokładną, `G00 G43 H10 Z50.` włącza korekcję długości.
+2. `S1592 M03` i `M08` włączają obroty z przykładu rachunkowego i chłodziwo.
+3. `G00 X40. Y30.` i `G00 Z20.` ustawiają głowicę nad otworem, na poziomie początkowym Z20.
+4. `G98 G76 Z-25. R2. Q0.2 F127` wytacza do Z−25, w dnie orientuje wrzeciono, odsuwa ostrze o 0,2 mm i wraca ruchem szybkim do poziomu początkowego.
+5. `G80` kończy cykl, `G00 Z100.` wycofuje głowicę, `M09` i `M05` wyłączają chłodziwo i wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F5.1 (cykle wiercenia), F5.4 (G98, G99 i G80).

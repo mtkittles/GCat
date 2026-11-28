@@ -1,0 +1,185 @@
+---
+title: Frez do gwintów
+slug: frez-do-gwintow
+dzial: narzedzia
+typ: narzedzie
+order: 120
+short: >-
+  Frez jednozarysowy i wielozarysowy: interpolacja śrubowa G02/G03 z ruchem w Z,
+  kierunek obiegu, tor środka, przeliczenie posuwu i program gwintu
+  wewnętrznego.
+obrobka:
+  - frezowanie
+poziom: 3
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: iscar-frezowanie-gwintow
+    where: >-
+      jedno narzędzie do gwintów zewnętrznych i wewnętrznych, prawych i lewych,
+      w otworach przelotowych i nieprzelotowych; różne średnice gwintu bez
+      wymiany narzędzia; długość gwintu w jednym przejściu; gwint przy dnie
+      otworu bez wybiegu; frez równoległy do osi gwintu, na jeden obieg przesuwa
+      się o skok
+    loc: Threading Handbook, s. 154
+  - id: sandvik-frezowanie-gwintow
+    where: >-
+      tor daje gwint prawy albo lewy, frezowany współbieżnie albo
+      przeciwbieżnie; wejście i wyjście płynne, po łuku; maszyna z jednoczesnym
+      ruchem X, Y i Z; średnicę wyznaczają X i Y, skok — Z; gwint wewnętrzny
+      prawy: start przy dnie otworu, obieg przeciwnie do zegara w górę —
+      frezowanie współbieżne; gwint lewy: z góry w dół, też przeciwnie do zegara
+  - id: iscar-frez-gwint-program
+    where: >-
+      program według środka narzędzia; promień toru A = (Do − D)/2; wejście
+      łukiem o promieniu A/2 z ruchem Z o 1/8 skoku, pełny obieg G03 I−A z
+      ruchem Z o skok, wyjście łukiem z ruchem Z o 1/8 skoku; gwint prawy
+      współbieżnie od dołu
+    loc: Milling Catalog, User Guide Thread Milling, s. 121 (druk. 437)
+  - id: cte-frezowanie-gwintow
+    where: >-
+      interpolacja śrubowa wymaga trzech osi w ruchu jednoczesnym; frez z
+      kilkoma zarysami ma stały skok — każdy skok wymaga innego narzędzia; frez
+      jednozarysowy jest bardziej uniwersalny; posuw na krawędzi różni się od
+      programowanego w środku narzędzia
+  - id: sandvik-rampa
+    where: >-
+      posuw środka narzędzia mniejszy od posuwu na obwodzie w stosunku torów: vf
+      = vfm · (Dm − Dc)/Dm; z korekcją promienia programuje się vfm
+  - id: sandvik-wzory-gwinty
+    where: vc = Dcap · π · n / 1000 przy frezowaniu gwintów
+  - id: sandvik-corotap
+    where: średnica otworu pod gwint ≈ średnica nominalna minus skok
+powiazane:
+  kody:
+    - g02
+    - g17-g19
+    - g40-g42
+    - g81-g83
+  lekcje:
+    - F3.4
+    - F6.3
+    - F5.3
+  hasla:
+    - interpolacja-śrubowa
+    - skok-gwintu
+    - frezowanie-współbieżne
+  artykuly:
+    - narzedzia/gwintownik
+    - narzedzia/frez-trzpieniowy-walcowy
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Frez do gwintów jest mniejszy od gwintu. Krąży po otworze albo wokół czopa i jednocześnie przesuwa się w osi Z, po linii śrubowej. Na jeden obieg przesuwa się o skok, więc powstaje gwint. Średnicę gwintu wyznacza tor w X i Y, a skok — ruch w Z.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-frez-gwint" />
+
+* **Część robocza z zarysem gwintu:** jeden ząb (frez jednozarysowy) albo kilka rzędów zębów w odstępie skoku (frez wielozarysowy).
+* **Rowki:** proste albo śrubowe, jak we frezie trzpieniowym; odprowadzają wiór.
+* **Chwyt:** część mocowana w oprawce.
+
+Na rysunku Do to średnica gwintu, D to średnica freza, a A to promień toru środka freza.
+
+## Rodzaje \{#rodzaje}
+
+* **Frez wielozarysowy:** kilka zarysów w rzędzie wykonuje całą długość gwintu w jednym obiegu. Ma stały skok, więc każdy skok wymaga innego narzędzia.
+* **Frez jednozarysowy:** jeden ząb wykonuje gwint obieg po obiegu. Jednym narzędziem wykonuje się różne skoki z zakresu narzędzia.
+* **Monolityczny albo z płytką:** frez z węglika spiekanego albo korpus z płytką gwintową.
+
+## Zastosowanie \{#zastosowanie}
+
+Jednym frezem wykonuje się gwinty wewnętrzne i zewnętrzne, prawe i lewe, w otworach przelotowych i nieprzelotowych. Ta sama średnica freza obsługuje różne średnice gwintu o tym samym skoku. Frez nie ma nakroju, więc gwint dochodzi blisko dna otworu nieprzelotowego, bez wybiegu. Potrzebna jest maszyna z jednoczesnym ruchem w X, Y i Z.
+
+## Dobór \{#dobór}
+
+**Promień toru.** Program według środka narzędzia prowadzi środek freza po okręgu o promieniu A:
+
+<Wzor f="A = \frac{D_o - D}{2}" legend="A — promień toru środka freza [mm]; D_o — średnica gwintu wewnętrznego [mm]; D — średnica freza [mm]" caption="Promień toru środka" />
+
+**Kierunek obiegu.** Gwint wewnętrzny prawy frezuje się od dna w górę, obiegiem przeciwnie do ruchu wskazówek zegara (G03). Przy obrotach M03 to frezowanie współbieżne. Gwint lewy frezuje się z góry w dół, też obiegiem przeciwnie do ruchu wskazówek zegara.
+
+**Wejście i wyjście.** Frez wchodzi w materiał i wychodzi z niego po łuku stycznym do toru, z ruchem w Z. W przykładzie ISCAR łuk wejścia ma promień A/2, a Z przesuwa się na nim o 1/8 skoku.
+
+**Posuw.** Posuw na ostrze dotyczy obwodu freza, a program prowadzi jego środek. Środek krąży po mniejszym okręgu, więc jego posuw jest mniejszy od posuwu na obwodzie:
+
+<Wzor f="V_{fm} = f_z \cdot z \cdot n \\ V_f = V_{fm} \cdot \frac{D_o - D}{D_o}" legend="V_{fm} — posuw na obwodzie freza [mm/min]; f_z — posuw na ostrze [mm]; z — liczba ostrzy; n — obroty wrzeciona [obr/min]; V_f — posuw środka freza [mm/min]; D_o — średnica gwintu [mm]; D — średnica freza [mm]" caption="Posuw na obwodzie; Posuw środka freza" />
+
+Z korekcją promienia (G41) programuje się tor na średnicy gwintu i posuw na obwodzie.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc, posuw na ostrze fz i liczbę przejść promieniowych podaje katalog producenta freza. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+<Wzor f="n = \frac{1000 \cdot V_c}{\pi \cdot D}" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica freza [mm]" caption="Obroty wrzeciona" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): gwint M16 × 2, frez wielozarysowy ⌀12 mm o 4 ostrzach i skoku 2 mm, Vc = 100 m/min, fz = 0,05 mm.
+
+<Wzor f="A = \frac{16 - 12}{2} = 2\ \text{mm} \\ n = \frac{1000 \cdot 100}{3,14 \cdot 12} \approx 2654\ \text{obr/min} \\ V_{fm} = 0,05 \cdot 4 \cdot 2654 \approx 531\ \text{mm/min} \\ V_f = 531 \cdot \frac{16 - 12}{16} \approx 133\ \text{mm/min}" caption="Promień toru środka; Obroty wrzeciona; Posuw na obwodzie; Posuw środka freza" kind="obliczenie" />
+
+Otwór pod gwint przyjęto jak pod gwintownik skrawający: 16 − 2 = 14 mm.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Posuw na obwodzie wpisany jako posuw środka:** przy programie według środka narzędzia ostrza pracują z większym posuwem niż zakładany.
+* **Zły kierunek obiegu albo ruchu w Z:** zamiast gwintu prawego powstaje lewy, albo frez pracuje przeciwbieżnie.
+* **Wejście promieniowe prosto w ściankę:** zamiast łuku stycznego frez wcina się na pełną głębokość zarysu w jednym miejscu.
+* **Skok freza wielozarysowego inny niż skok gwintu:** zęby przecinają zwoje.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Gwint frezuje się interpolacją śrubową: blok G02 albo G03 w płaszczyźnie G17 z ruchem w Z. Program poniżej wierci otwór ⌀14 mm, a potem frezuje gwint M16 × 2 na głębokość 15 mm, według środka narzędzia i wartości z przykładu rachunkowego. Środek otworu leży w X30 Y30, więc tor środka freza to okrąg o promieniu 2 mm wokół tego punktu.
+
+<Sim mode="mill" caption="Gwint M16 × 2 frezem wielozarysowym ⌀12: wejście po łuku, jeden obieg G03 w górę o skok, wyjście po łuku.">
+  ```
+  (POLFABRYKAT 60X60X30)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (WIERTLO FI14)
+  G00 G43 H1 Z50.
+  S1500 M03
+  M08
+  G00 X30. Y30.
+  G00 Z10.
+  G99 G81 Z-20. R2. F150
+  G80
+  G00 Z50.
+  M09
+  M05
+  T2 M06 (FREZ DO GWINTOW FI12 P2)
+  G00 G43 H2 Z50.
+  S2654 M03
+  M08
+  G00 X30. Y30.
+  G00 Z2.
+  G01 Z-15. F500
+  G01 X31. Y29. F133
+  G03 X32. Y30. R1. Z-14.75
+  G03 X32. Y30. I-2. J0. Z-12.75
+  G03 X31. Y31. R1. Z-12.5
+  G01 X30. Y30.
+  G00 Z50.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na wiertło ⌀14. `G99 G81 Z-20. R2. F150` wierci otwór pod gwint; obroty i posuw wiercenia przyjęto do przykładu.
+2. `T2 M06` wymienia narzędzie na frez do gwintów, `G00 G43 H2 Z50.` włącza korekcję długości. `S2654 M03` włącza obroty z przykładu rachunkowego.
+3. `G00 X30. Y30.` i `G00 Z2.` ustawiają frez w osi otworu. `G01 Z-15. F500` opuszcza go w osi na dno gwintu, bez skrawania.
+4. `G01 X31. Y29. F133` przesuwa środek freza na początek łuku wejścia z posuwem środka z przykładu.
+5. `G03 X32. Y30. R1. Z-14.75` wprowadza frez w materiał po łuku stycznym do toru, podnosząc go o 1/8 skoku.
+6. `G03 X32. Y30. I-2. J0. Z-12.75` wykonuje pełny obieg wokół środka otworu i podnosi frez o skok 2 mm.
+7. `G03 X31. Y31. R1. Z-12.5` wyprowadza frez z materiału po łuku, `G01 X30. Y30.` wraca do osi otworu.
+8. `G00 Z50.` wycofuje frez, `M09` i `M05` wyłączają chłodziwo i wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F3.4 (I i J, pełny okrąg), F6.3 (kieszeń okrągła i helisa), F5.3 (gwintowanie gwintownikiem).
