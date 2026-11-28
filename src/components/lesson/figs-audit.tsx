@@ -16,7 +16,7 @@ export function TapDepths() {
   const xs = -12; // oś otworu
   return (
     <Fig id="g84dep" code="G84" title="Cztery różne głębokości (M10×1,5)" h={250} legend={["acc", "dim", "stock"]}
-      caption={<>Z w bloku G84 to <b>położenie końca gwintownika</b> na dnie cyklu: Z−19,5 = pełny gwint 15 mm + nakrój ok. 4,5 mm. Otwór musi być głębszy niż Z, bo stożek wiertła i wióry potrzebują miejsca. R5 to płaszczyzna startu posuwu, nie głębokość.</>}>
+      caption={<>Z w bloku G84 to <b>położenie końca gwintownika</b> na dnie cyklu: Z−19,5 = pełny gwint 15 mm + nakrój ok. 4,5 mm. Otwór musi być głębszy niż Z, a R5 to płaszczyzna startu posuwu.</>}>
       {(c) => (
         <g>
           {/* materiał z otworem */}
@@ -62,7 +62,7 @@ export function G28Path() {
   const zRef = 56;
   return (
     <Fig id="g28p" code="G28" title="Przejazd przez punkt pośredni" h={250} legend={["rap", "bad", "stock"]}
-      caption={<>Oba bloki jadą przez punkt pośredni do punktu referencyjnego. W <b>G91 G28 Z0</b> punkt pośredni to bieżąca pozycja, więc zostaje sam drugi etap. W <b>G90 G28 Z0</b> punkt pośredni to Z0 detalu, więc pierwszy etap schodzi ruchem szybkim na jego powierzchnię.</>}>
+      caption={<>W <b>G91 G28 Z0</b> punkt pośredni to bieżąca pozycja, więc zostaje sam ruch do punktu referencyjnego. W <b>G90 G28 Z0</b> punkt pośredni to Z0 detalu i pierwszy etap schodzi ruchem szybkim na jego powierzchnię.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={110 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -95,7 +95,7 @@ export function DiaTaper() {
   const m = mapper(R, [10, 8, 340, 232]);
   return (
     <Fig id="t02tap" code="ΔX ΔZ" title="Faza 45° a ΔX = 1 przy ΔZ = 1 (zapis średnicowy)" h={250} legend={["cut", "bad", "dim"]}
-      caption={<>Na górze: faza 1 × 45° — ΔZ = 1, promień zmienia się o 1, więc <b>|ΔX| = 2</b> (Ø28 → Ø30). Na dole: |ΔX| = 1 przy |ΔZ| = 1 to zmiana promienia o 0,5 — stożek o półkącie α ≈ 26,6° do osi Z (tan α = 0,5), a nie faza 45°. Znaki ΔX i ΔZ zależą od kierunku ruchu; wzory dotyczą wartości bezwzględnych.</>}>
+      caption={<>Faza 1 × 45° (u góry) zmienia promień o 1, więc <b>|ΔX| = 2</b>; |ΔX| = 1 przy |ΔZ| = 1 (u dołu) daje stożek o półkącie ok. 26,6°, a nie fazę. Znaki ΔX i ΔZ zależą od kierunku ruchu, wzory dotyczą wartości bezwzględnych.</>}>
       {(c) => (
         <g>
           {/* górny wariant: Ø28 → Ø30 na 1 mm, poziom r 14..15 */}

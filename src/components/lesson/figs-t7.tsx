@@ -15,7 +15,7 @@ export function ThreadProfile() {
   return (
     <Fig id="t71pr" code="M20×1,5" title="Gwint M20×1,5 — przekrój zwoju" h={220} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">h3 = 0,6134 · P = 0,92</Code><Code k="acc">rdzeń: 20 − 2 · 0,92 = Ø18,16</Code></>}
-      caption={<>Kąt zarysu 60°, skok P = 1,5 mm. Wysokość zwoju gwintu zewnętrznego h3 ≈ 0,6134 · P. W programie: średnica rdzenia X18.16 i wysokość zwoju P920 (w mikrometrach).</>}>
+      caption={<>Kąt zarysu 60°, skok P = 1,5 mm, wysokość zwoju gwintu zewnętrznego h3 ≈ 0,6134 · P. W programie: średnica rdzenia X18.16 i wysokość zwoju P920 (w mikrometrach).</>}>
       {(c) => (
         <g>
           <polygon points={`${m.X(0.4)},${m.Y(crest)} ${pts.join(" ")} ${m.X(-5.2)},${m.Y(crest)} ${m.X(-5.2)},${m.Y(8.6)} ${m.X(0.4)},${m.Y(8.6)}`} fill={c.hatch} className="p-con" />
@@ -67,7 +67,7 @@ export function G32Pass() {
   return (
     <Fig id="t72pl" code="G32" title="Jedno przejście gwintu zapisane ręcznie — schemat" h={212} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">G00 X19.4</Code><Code k="cut">G32 Z-17. F1.5</Code><Code k="rap">G00 X22.</Code><Code k="rap">Z5.</Code></>}
-      caption={<>G32 to toczenie po prostej z posuwem równym skokowi, zsynchronizowane z obrotem wrzeciona. Każde przejście musi zaczynać się w tym samym Z startowym, żeby nóż trafiał w ten sam zwój. Skala pionowa powiększona.</>}>
+      caption={<>G32 toczy po prostej z posuwem równym skokowi, zsynchronizowany z obrotem wrzeciona; każde przejście zaczyna się w tym samym Z. Skala pionowa powiększona.</>}>
       {(c) => (
         <g>
           <rect x={X(-20)} y={Y(10)} width={X(0) - X(-20)} height={Y(8.5) - Y(10)} fill={c.hatch} className="p-con" />
@@ -94,7 +94,7 @@ export function ThreadJob() {
   return (
     <Fig id="t71jb" code="G76" title="M20×1,5: od Z5 do podcięcia w Z−17" h={236} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="acc">G76 P010060 Q50 R0.05</Code><Code k="acc">G76 X18.16 Z-17. P920 Q300 F1.5</Code></>}
-      caption={<>Widok z boku, skala promieniowa powiększona. Gwint zaczyna się w Z5 — ponad trzy skoki przed czołem, żeby oś Z zdążyła się rozpędzić — i kończy w podcięciu Z−16…−20, przed stopniem Ø30. Pierwsze przejście schodzi na Ø19,4, ostatnie na rdzeń Ø18,16. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Gwint zaczyna się w Z5, ponad trzy skoki przed czołem, i kończy w podcięciu Z−16…−20, przed stopniem Ø30. Pierwsze przejście schodzi na Ø19,4, ostatnie na rdzeń Ø18,16 (skala promieniowa powiększona).</>}>
       {(c) => (
         <g>
           <polygon points={poly([[0, 7], [0, 10], [-16, 10], [-16, 8.5], [-20, 8.5], [-20, 14], [-21, 15], [-30, 15], [-30, 7]])} fill={c.hatch} className="p-con" />
@@ -129,7 +129,7 @@ export function G32Depths() {
   return (
     <Fig id="t72dp" code="G32" title="Głębokość czubka noża w pięciu przejściach" h={214} legend={["cut", "acc"]}
       notes={<><Code k="cut">0,3 · 0,25 · 0,2 · 0,125 · 0,045 mm na stronę</Code></>}
-      caption={<>Przekrój jednego zwoju, skala mocno powiększona. Przy wejściu prostopadłym czubek noża schodzi w osi zwoju i obie krawędzie tną naraz — dlatego każde kolejne wejście jest płytsze. Rozkład to założenie przykładu; rzeczywisty dobiera się do płytki i materiału. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Przekrój jednego zwoju w dużym powiększeniu: przy wejściu prostopadłym obie krawędzie noża tną naraz, więc każde kolejne wejście jest płytsze. Rozkład głębokości to założenie przykładu.</>}>
       {() => (
         <g>
           <line x1={20} y1={top} x2={340} y2={top} className="p-cons" />

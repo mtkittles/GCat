@@ -39,7 +39,7 @@ export function GrooveCount() {
   return (
     <Fig id="t81ct" code="L3" title="M98 P3000 L3: trzy przebiegi i gdzie zostaje nóż" h={112} legend={["cut", "rap", "acc", "stock"]}
       notes={<><Code k="con">1  G00 X34. Z-10.</Code><Code k="cut">2  O3000: G01 X26. → G00 X34. → W-10.</Code><Code k="con">3  M99 · 4  M98 P3000 L3</Code></>}
-      caption={<>Nad każdym rowkiem — numer przebiegu podprogramu. Każdy przebieg kończy się przesunięciem W−10, także ostatni: po trzecim przebiegu nóż stoi w Z−40, nad pełnym materiałem, a nie nad trzecim rowkiem. Numery w kółkach odpowiadają krokom przykładu.</>}>
+      caption={<>Nad każdym rowkiem — numer przebiegu podprogramu. Każdy przebieg kończy się przesunięciem W−10, więc po trzecim nóż stoi w Z−40, nad pełnym materiałem.</>}>
       {(c) => (
         <g>
           <polygon points={[[0, 15], ...zs.flatMap((z) => [[z + 3, 15], [z + 3, 13], [z, 13], [z, 15]]), [-46, 15], [-46, 9], [0, 9]].map(([z, r]) => `${m.X(z)},${m.Y(r)}`).join(" ")} fill={c.hatch} className="p-con" />

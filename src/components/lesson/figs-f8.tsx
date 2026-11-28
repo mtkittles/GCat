@@ -21,7 +21,7 @@ export function F81Part() {
   return (
     <Fig id="f81pt" code="XY" title="Nowy detal: płytka 60 × 40, zero na środku" h={256} legend={["con", "dim", "acc"]}
       notes={<><Code k="con">X −30…30</Code><Code k="con">Y −20…20</Code><Code k="con">naroża R6</Code><Code k="acc">kontur gł. 4 · frez Ø12</Code></>}
-      caption={<>Zero <b>W</b> leży na środku górnej powierzchni, więc połowa współrzędnych jest ujemna. Krawędzie: X±30 i Y±20. Łuk naroża zaczyna się 6 mm przed narożnikiem — w X±24 albo Y±14.</>}>
+      caption={<>Zero <b>W</b> leży na środku górnej powierzchni, krawędzie w X±30 i Y±20. Łuk naroża zaczyna się 6 mm przed narożnikiem — w X±24 albo Y±14.</>}>
       {(c) => (
         <g>
           <path d={outline(m)} style={{ fill: c.hatch }} className="p-con" />
@@ -45,7 +45,7 @@ export function F81Path() {
   return (
     <Fig id="f81pa" code="G41" title="Tor programu: zejście, najazd, obieg, odjazd" h={256} legend={["rap", "cut", "arc", "con"]}
       notes={<><Code k="rap">G00 X-46. Y-8.</Code><Code k="cut">G41 D1 G01 X-38.</Code><Code k="arc">G03 X-30. Y0. R8.</Code><Code k="arc">G03 X-38. Y8. R8.</Code></>}
-      caption={<>Program opisuje kontur z rysunku, a odsunięcie o promień 6 mm robi korekcja G41. Łuk najazdu R8 jest większy niż promień freza. Numery to kroki przykładu.</>}>
+      caption={<>Program opisuje kontur z rysunku, a odsunięcie o promień 6 mm robi korekcja G41; łuk najazdu R8 jest większy niż promień freza. Numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <path d={outline(m)} style={{ fill: c.hatch }} className="p-con" />

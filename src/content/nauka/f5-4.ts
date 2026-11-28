@@ -16,6 +16,7 @@ export const f5_4: LessonDoc = {
     { t: "h", x: "Dwie wysokości powrotu", id: "powrot" },
     { t: "p", x: "Po każdym otworze cykl wraca w górę. [[G98]] — do **poziomu początkowego**, czyli Z sprzed cyklu. [[G99]] — tylko do **płaszczyzny R**. Kody są modalne i można je zmieniać między otworami w trakcie cyklu." },
     { t: "diagram", id: "f54-levels" },
+    { t: "p", x: "Bezpieczny tor czubka to nie wszystko. Przy dnie otworu X45 oprawka Ø32 z wysięgiem 40 mm stoi dołem na Z33, 8 mm nad dociskiem. Z wysięgiem 20 mm byłaby na Z13 — oprawka uderzyłaby w docisk, choć tor czubka jest poprawny." },
 
     { t: "h", x: "Kiedy który", id: "wybor" },
     { t: "ul", items: [

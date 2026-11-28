@@ -91,7 +91,7 @@ export function RectPocket() {
   return (
     <Fig id="f62rp" code="26×20" title="Kieszeń 26 × 20, R6 — zgrubnie i na gotowo" h={252} legend={["cut", "arc", "stock"]}
       notes={<><Code k="cut">oś X23…X37 + pętla Y21…Y29</Code><Code k="arc">G41 D1: ściany z rysunku, R6</Code></>}
-      caption={<>Zgrubnie: przejście po osi i jedna pętla 1 mm od ścian. Na gotowo: ściany z korekcją promienia, z najazdem i odjazdem po łuku R6 w środku dolnej ściany. Obieg przeciwnie do zegara daje w kieszeni frezowanie współbieżne.</>}>
+      caption={<>Zgrubnie: przejście po osi i pętla 1 mm od ścian; na gotowo: ściany z korekcją promienia i najazdem po łuku R6. Obieg przeciwnie do zegara daje w kieszeni frezowanie współbieżne.</>}>
       {(c) => (
         <g>
           <rect x={m.X(8)} y={m.Y(42)} width={44 * m.u} height={34 * m.u} fill={c.hatch} className="p-con" />
@@ -119,7 +119,7 @@ export function RampEntry() {
   return (
     <Fig id="f62ra" code="rampa" title="Wejście po rampie — przekrój wzdłuż osi kieszeni" h={200} legend={[["cut", "rampa G01"], ["bad", "wejście pionowe"], "stock"]}
       notes={<><Code k="cut">G01 X37. Z-1. → X23. Z-2. → …</Code></>}
-      caption={<>Frez schodzi o 1 mm na każde 14 mm drogi — około 4°. Skrawa wtedy obwodem, a nie samym czołem. Wejście pionowe w pełny materiał przeciąża środek freza, a wiele frezów nie ma tam w ogóle ostrza.</>}>
+      caption={<>Frez schodzi o 1 mm na każde 14 mm drogi — około 4° — i skrawa wtedy obwodem, a nie samym czołem.</>}>
       {(c) => (
         <g>
           <rect x={m.X(14)} y={m.Y(0)} width={32 * m.u} height={7 * m.u} fill={c.hatch} className="p-con" />

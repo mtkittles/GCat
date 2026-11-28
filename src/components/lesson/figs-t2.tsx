@@ -8,7 +8,7 @@ export function TurretT() {
   const st = Array.from({ length: 8 }, (_, i) => i);
   return (
     <Fig id="t21tu" code="T0101" title="Głowica rewolwerowa i słowo T" h={236} legend={["acc"]}
-      caption={<>Pierwsze dwie cyfry wybierają pozycję w głowicy — głowica obraca się od razu, bez M06. Dwie ostatnie wybierają rejestr korekcji: geometrię i zużycie tego noża. T0100 wyłącza korekcję.</>}>
+      caption={<>Dwie pierwsze cyfry wybierają pozycję w głowicy (obraca się od razu, bez M06), dwie ostatnie — rejestr korekcji: geometrię i zużycie tego noża. T0100 wyłącza korekcję.</>}>
       {() => (
         <g>
           <circle cx={cx} cy={cy} r={r} className="spindle" />
@@ -74,7 +74,7 @@ export function ToolChange() {
   return (
     <Fig id="t21ch" code="T0202" title="Zmiana noża: odjazd, obrót głowicy, powrót" h={240} legend={["rap", "stock"]}
       notes={<><Code k="rap">1  G28 U0. → G28 W0.</Code><Code k="con">2  T0202 · 3  G96 S250 M03</Code><Code k="rap">4  G00 X44. Z2.</Code></>}
-      caption={<>Nóż T0101 kończy pracę w X42 Z2. Głowica obraca się dopiero daleko od detalu i konika. Tor ruchu szybkiego do punktu 4 zależy od sterowania — na rysunku uproszczony. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż T0101 kończy pracę w X42 Z2, a głowica obraca się dopiero daleko od detalu i konika. Tor ruchu szybkiego do punktu 4 jest uproszczony — zależy od sterowania.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-66)} y={m.Y(20)} width={66 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -140,7 +140,7 @@ export function FaceRpm() {
   return (
     <Fig id="t22fr" code="G50" title="Planowanie od Ø44 do osi: G96 S200, G50 S3000" h={222} legend={["acc", "bad"]}
       notes={<><Code k="acc">Ø44 → Ø21,2: obroty rosną, vc = 200 m/min</Code><Code k="bad">Ø21,2 → oś: 3000 obr/min, vc spada do zera</Code></>}
-      caption={<>Nóż jedzie od prawej do lewej strony wykresu. Do Ø21,2 sterowanie podnosi obroty, żeby utrzymać vc. Dalej trzyma limit — w czerwonym polu prędkość skrawania już nie jest stała. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż jedzie od prawej do lewej strony wykresu: do Ø21,2 sterowanie podnosi obroty, żeby utrzymać vc, dalej trzyma limit. W czerwonym polu prędkość skrawania nie jest już stała.</>}>
       {() => (
         <g>
           <rect x={L} y={Tt} width={X(dL) - L} height={B - Tt} className="p-fill-bad" opacity={0.18} />
@@ -176,7 +176,7 @@ export function Roughness() {
   return (
     <Fig id="t23rt" code="Rt" title="Posuw zostawia ślad promienia naroża" h={206} legend={["acc", "dim", "stock"]}
       notes={<><Code k="acc">Rt ≈ f² / (8 · rε) · 1000 [µm]</Code><Code k="con">f 0,2, rε 0,8 → Rt ≈ 6,3 µm (Ra ≈ 1,6 — przybliżenie)</Code></>}
-      caption={<>Każdy obrót przesuwa ostrze o posuw f, a naroże o promieniu rε zostawia łuk. Wysokość grzbietów między łukami to teoretyczna chropowatość Rt — rośnie z kwadratem posuwu i maleje z promieniem naroża. Skala przesadzona.</>}>
+      caption={<>Naroże o promieniu rε zostawia na każdym posuwie f łuk, a wysokość grzbietów między łukami to teoretyczna chropowatość Rt. Skala przesadzona.</>}>
       {(c) => (
         <g>
           <path d={`M ${x0 - f / 2} ${y0 - h} ${arcs.map((a) => a.replace(/^M [^A]+/, "")).join(" ")} L ${x0 + (n - 0.5) * f} 186 L ${x0 - f / 2} 186 Z`} fill={c.hatch} className="p-con" />
@@ -200,7 +200,7 @@ export function FacePass() {
   return (
     <Fig id="t23fp" code="G01" title="Planowanie czoła wałka" h={240} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">1  G00 X44. Z0.</Code><Code k="cut">2  G01 X-1.6 F0.15</Code><Code k="rap">3  G00 Z2.</Code></>}
-      caption={<>Pręt Ø40, nóż z narożem R0,8 w kierunku ostrza 3, bez korekcji promienia. Tor punktu P kończy się 0,8 mm za osią, w X−1,6 — dopiero wtedy naroże zbiera materiał do samego środka. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż z narożem R0,8 (kierunek ostrza 3), bez korekcji promienia: tor punktu P kończy się 0,8 mm za osią, w X−1,6, i dopiero wtedy naroże dochodzi do środka. Numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-16)} y={m.Y(20)} width={16 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -231,7 +231,7 @@ export function FaceCenter() {
   return (
     <Fig id="t23fc" code="X−1.6" title="Planowanie czoła przez oś" h={220} legend={["cut", "bad", "stock"]}
       notes={<><Code k="cut">G01 X-1.6 F0.15</Code><Code k="bad">G01 X0. — zostaje pipka</Code></>}
-      caption={<>Program prowadzi teoretyczny wierzchołek ostrza. Naroże o promieniu 0,8 kończy się przed nim, więc przy X0 w środku zostaje mały czop. Wyjazd za oś na X = −2 · rε = −1,6 zbiera go do końca.</>}>
+      caption={<>Program prowadzi teoretyczny wierzchołek ostrza, a naroże R0,8 kończy się przed nim, więc przy X0 w środku zostaje czop. Wyjazd za oś na X = −2 · rε = −1,6 zbiera go do końca.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-6)} y={m.Y(5)} width={6 * m.u} height={8 * m.u} fill={c.hatch} className="p-con" />

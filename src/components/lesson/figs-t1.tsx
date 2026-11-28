@@ -57,7 +57,7 @@ export function LatheModalRun() {
   return (
     <Fig id="t11rn" code="modal" title="Linie 1–5 — widok z boku" h={214} legend={["rap", "cut", "stock"]}
       notes={<><Code k="rap">1  G00 X44. Z2.</Code><Code k="cut">2  G01 X36. F0.2</Code><Code k="cut">3  Z-55.</Code><Code k="cut">4  X42.</Code><Code k="rap">5  G00 Z2.</Code></>}
-      caption={<>Numery to numery linii. Linie 3 i 4 nie mają kodu G ani F — działa G01 z F0.2 z linii 2. Linia 5 zmienia ruch na szybki. Zielony pas — materiał zebrany z Ø40 na Ø36. Skala promieniowa powiększona.</>}>
+      caption={<>Numery to linie programu: 3 i 4 nie mają kodu G ani F, więc działa G01 z F0.2 z linii 2, a linia 5 zmienia ruch na szybki. Zielony pas to materiał zebrany z Ø40 na Ø36, skala promieniowa powiększona.</>}>
       {(c) => (
         <g>
           <Bar m={m} hatch={c.hatch} />
@@ -91,7 +91,7 @@ export function LatheAbsInc() {
   return (
     <Fig id="t12uw" code="X U" title="Ten sam tor: X/Z absolutnie, U/W przyrostowo" h={220} legend={["cut", "acc", "stock"]}
       notes={<><Code k="con">X30. → Z-20. → X36. → Z-40.</Code><Code k="acc">U-10. → W-22. → U6. → W-20.</Code></>}
-      caption={<>Start w X40 Z2. X i Z podają cel względem zera W, U i W — przesunięcie od bieżącego punktu. U jest w średnicy: U−10 to 5 mm bliżej osi.</>}>
+      caption={<>Start w X40 Z2: X i Z podają cel względem zera W, U i W — przesunięcie od bieżącego punktu. U jest w średnicy: U−10 to 5 mm bliżej osi.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-46)} y={m.Y(20)} width={46 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" style={{ opacity: 0.5 }} />
@@ -122,7 +122,7 @@ export function LatheIncRun() {
   return (
     <Fig id="t12rn" code="U W" title="Przejście na Ø36 adresami U i W" h={214} legend={["rap", "cut", "acc", "stock"]}
       notes={<><Code k="acc">1 U-8. · 2 W-57. · 3 U4. · 4 G00 W57.</Code><Code k="con">absolutnie: X36. · Z-55. · X40. · Z2.</Code></>}
-      caption={<>Start w X44 Z2. Pomarańczowe — przyrost zapisany w bloku, białe — punkt, w którym nóż się zatrzyma. Numery odpowiadają krokom przykładu. Skala promieniowa powiększona.</>}>
+      caption={<>Start w X44 Z2: pomarańczowe — przyrost zapisany w bloku, białe — punkt, w którym nóż się zatrzyma. Skala promieniowa powiększona, numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           <Bar m={m} hatch={c.hatch} />

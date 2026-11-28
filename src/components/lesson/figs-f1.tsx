@@ -26,7 +26,7 @@ export function BlockAnatomy() {
   const X = box[2];
   return (
     <Fig id="f11blk" code="N G X F M" title="Jeden blok, sześć słów" h={186}
-      caption={<>Każde słowo to <b>adres</b> (litera) i <b>wartość</b> (liczba). Wymiary zapisane z kropką, jak w programach kursu. Zwykle kolejność słów nie zmienia znaczenia bloku, ale przyjęty porządek ułatwia czytanie; kolejność działania M08 względem ruchu ustala sterowanie.</>}>
+      caption={<>Każde słowo to <b>adres</b> (litera) i <b>wartość</b> (liczba). Wymiary zapisane z kropką, jak w programach kursu.</>}>
       {() => (
         <g>
           <T x={X.x + 12} y={22} anchor="end" cls="t-acc t-sm t-b">adres</T>
@@ -106,7 +106,7 @@ export function AbsIncPlate() {
   return (
     <Fig id="f13ai" code="G90 G91" title="Obieg płytki: absolutnie i przyrostowo" h={250} legend={["cut", "acc"]}
       notes={<><Code k="con">G90: X80 → Y50 → X0 → Y0</Code><Code k="acc">G91: X80 → Y50 → X−80 → Y−50</Code></>}
-      caption={<>Przy narożach biała współrzędna od zera W (G90). Na krawędziach pomarańczowy ruch od bieżącego punktu (G91). Tor jest ten sam.</>}>
+      caption={<>Przy narożach biała współrzędna od zera W (G90), na krawędziach pomarańczowy ruch od bieżącego punktu (G91). Tor jest ten sam.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
@@ -212,7 +212,7 @@ export function IncContour() {
   return (
     <Fig id="f13rn" code="G91" title="Kontur: cel z G90, przyrost do G91" h={232} legend={["cut", "acc"]}
       notes={<><Code k="con">G90: X20. Y0. → X20. Y30. → X50. Y30. → X50. Y0.</Code><Code k="acc">G91: X20. → Y30. → X30. → Y-30.</Code></>}
-      caption={<>Biała współrzędna przy punkcie — cel w G90, liczony od W. Pomarańczowy napis przy odcinku — przyrost w G91: cel minus punkt, w którym frez właśnie stoi. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Biała współrzędna przy punkcie to cel w G90, pomarańczowy napis przy odcinku — przyrost w G91 (cel minus punkt, w którym frez stoi). Numery to kroki przykładu.</>}>
       {(c) => (
         <g>
           {P.slice(0, -1).map((p, i) => {
@@ -239,7 +239,7 @@ export function InchHole() {
   return (
     <Fig id="f14ih" code="G20 G21" title="Otwór z rysunku calowego (wymiary: cale = mm)" h={214} legend={["dim", "stock"]}
       notes={<><Code k="acc">G20 … X1.5 Y0.75</Code><Code k="cut">G21 … X38.1 Y19.05</Code></>}
-      caption={<>Widok z góry. Linie osiowe otworu prowadzą do obu wymiarów. Ten sam punkt w dwóch zapisach: wymiar z rysunku w calach i po przeliczeniu × 25,4 na milimetry. Program wybiera jeden system i ustawia go w bloku startowym; posuw F przelicza się tak samo.</>}>
+      caption={<>Ten sam punkt w dwóch zapisach: wymiar z rysunku w calach i po przeliczeniu × 25,4 na milimetry.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(30)} width={60 * m.u} height={30 * m.u} fill={c.hatch} className="p-con" />

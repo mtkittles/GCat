@@ -9,7 +9,7 @@ export function RapidPath() {
   return (
     <Fig id="rpath" code="G00" title="Dlaczego G00 nie musi jechać po prostej" h={250} legend={["rap", "cons"]}
       notes={<Code k="rap">G00 X80. Y50.</Code>}
-      caption={<>Każda oś rusza ze swoją prędkością ruchu szybkiego. Przy porównywalnych prędkościach osi krótsza droga kończy się pierwsza i dalej jedzie jedna oś. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
+      caption={<>Każda oś rusza ze swoją prędkością ruchu szybkiego, więc krótsza droga kończy się pierwsza i dalej jedzie jedna oś. Część sterowań ma parametr wymuszający G00 po prostej — <b>nie zakładaj tego bez sprawdzenia</b>.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -35,7 +35,7 @@ export function RapidClamp() {
   return (
     <Fig id="rclamp" code="G00" title="Dojazd na skos kontra dwa ruchy" h={258} legend={["rap", "bad"]}
       notes={<><Code k="bad">G00 X90. Y70.</Code><Code k="rap">G00 X90.</Code><Code k="rap">G00 Y70.</Code></>}
-      caption={<>Ten sam punkt docelowy. Ruch na skos przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą.</>}>
+      caption={<>Ruch na skos do tego samego punktu przechodzi przez zacisk. Rozbicie na dwa bloki prowadzi wzdłuż osi, poza przeszkodą.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />
@@ -144,7 +144,7 @@ export function WorkOffset() {
   const W1 = { x: -250, y: -180 }, W2 = { x: -140, y: -180 };
   return (
     <Fig id="wo" code="G54 G55" title="Zero maszyny i zera detali" h={250} legend={["acc", "dim", "stock"]}
-      caption={<><b>M</b> to zero maszyny — stałe. <b>G54</b> i <b>G55</b> przechowują wektory od M do zera każdego detalu. Program pisany od zera detalu działa w obu miejscach bez zmian.</>}>
+      caption={<><b>M</b> to stałe zero maszyny, a <b>G54</b> i <b>G55</b> przechowują wektory od M do zera każdego detalu. Program pisany od zera detalu działa w obu miejscach bez zmian.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-290)} y={m.Y(-40)} width={270 * m.u} height={190 * m.u} className="panel-bg" />
@@ -200,7 +200,7 @@ export function Groove() {
   return (
     <Fig id="g75" code="G75" title="Rowek kilkoma wgłębieniami z łamaniem wióra" h={256} legend={["cut", "rap", "con", "dim"]}
       notes={<><Code k="acc">G75 R0.5</Code><Code>G75 X30. Z-26. P2000 Q2500 F0.08</Code></>}
-      caption={<>Nóż wcina się w X krokami <b>P</b>, po każdym cofa o <b>R</b>. Na dnie wraca na średnicę startową, przesuwa się w Z o <b>Q</b> i powtarza. Q mniejsze od szerokości płytki daje ciągłe dno.</>}>
+      caption={<>Nóż wcina się w X krokami <b>P</b>, po każdym cofa o <b>R</b>, a na dnie wraca i przesuwa się w Z o <b>Q</b>. Q mniejsze od szerokości płytki daje ciągłe dno.</>}>
       {(c) => (
         <g>
           <polygon points={[[-40, 21], [-27.5, 21], [-27.5, 15], [-18.5, 15], [-18.5, 21], [0, 21], [0, 10.4], [-40, 10.4]].map(([z, r]) => `${zx(z)},${xx(r)}`).join(" ")} fill={c.hatch} className="p-con" />
@@ -287,7 +287,7 @@ export function Probe() {
   return (
     <Fig id="g31" code="G31" title="Ruch do styku i zapis pozycji" h={236} legend={["cut", "cons", "acc", "stock"]}
       notes={<><Code>G31 Z-5. F150</Code><Code k="acc">#100 = #5063</Code></>}
-      caption={<>Sonda jedzie do <b>Z−5</b>, ale zatrzymuje się w chwili styku. Pozycja z tej chwili trafia do <b>#5063</b> (oś Z). Bez styku blok kończy się w punkcie docelowym — makro musi to sprawdzić.</>}>
+      caption={<>Sonda jedzie do <b>Z−5</b>, ale zatrzymuje się w chwili styku, a pozycja z tej chwili trafia do <b>#5063</b>. Bez styku blok kończy się w punkcie docelowym — makro musi to sprawdzić.</>}>
       {(c) => (
         <g>
           <rect x={60} y={z(0)} width={240} height={z(-11) - z(0)} fill={c.hatch} className="p-con" />
@@ -341,7 +341,7 @@ export function HelixViews() {
   for (let t = 0; t <= 3.0001; t += 0.02) side.push(`${xs(-20 * Math.cos(Math.PI * 2 * t))},${zs(-2 * t)}`);
   return (
     <Fig id="helixz" code="G02 G03 Z" title="Śruba w dwóch rzutach" h={236} legend={["arc", "dim", "stock"]}
-      caption={<>Z góry: jeden okrąg, choć narzędzie okrąża go trzy razy. Z boku: każdy obrót schodzi o 2 mm, trzy obroty dają głębokość 6 mm. Skala pionowa rzutu z boku jest przesadzona.</>}>
+      caption={<>Z góry widać jeden okrąg, choć narzędzie okrąża go trzy razy; z boku każdy obrót schodzi o 2 mm, do głębokości 6 mm. Skala pionowa rzutu z boku jest przesadzona.</>}>
       {(c) => (
         <g>
           <T x={cxT} y={22} anchor="middle" cls="t-b">z góry (XY)</T>
@@ -523,7 +523,7 @@ export function RzDiag() {
   return (
     <Fig id="rz" title="Rt — teoretyczna wysokość nierówności po toczeniu" h={214} legend={["con", "dim", "acc"]}
       notes={<Code k="acc">Rt ≈ f² / (8 · rε) · 1000 [µm]</Code>}
-      caption={<>Każdy obrót zostawia ślad naroża płytki. W tym modelu głębokość wgłębień zależy od posuwu na obrót <b>f</b> i promienia naroża <b>rε</b> — obroty we wzorze nie występują. Rzeczywistą chropowatość potwierdza pomiar. Skala pionowa jest mocno powiększona.</>}>
+      caption={<>Każdy obrót zostawia ślad naroża płytki, a głębokość wgłębień zależy od posuwu <b>f</b> i promienia naroża <b>rε</b>. Skala pionowa jest mocno powiększona.</>}>
       {(c) => (
         <g>
           <path d={body} fill={c.hatch} className="p-con" />
@@ -594,7 +594,7 @@ export function Dwell() {
   return (
     <Fig id="g04" code="G04" title="Postój na dnie rowka: osie stoją, wrzeciono się kręci" h={250} legend={["cut", "rap", "acc", "stock"]}
       notes={<><Code>G01 X30. F0.05</Code><Code k="acc">G04 X0.3</Code><Code k="rap">G00 X44.</Code></>}
-      caption={<>Nóż dochodzi do średnicy dna, stoi <b>0,3 s</b> — przy 600 obr/min to <b>trzy obroty</b> — i dopiero wtedy wyjeżdża. W tym czasie ostrze obchodzi dno dookoła i wyrównuje je. Pasek czasu nie jest w skali: samo wcięcie trwa 14 s.</>}>
+      caption={<>Nóż dochodzi do średnicy dna i stoi <b>0,3 s</b> — przy 600 obr/min to <b>trzy obroty</b>, w których ostrze wyrównuje dno. Pasek czasu nie jest w skali: samo wcięcie trwa 14 s.</>}>
       {(c) => (
         <g>
           <polygon points={[[-14, 22], [-1.5, 22], [-1.5, 15], [1.5, 15], [1.5, 22], [14, 22], [14, 14.4], [-14, 14.4]].map(([z, r]) => `${zx(z)},${xx(r)}`).join(" ")} fill={c.hatch} className="p-con" />

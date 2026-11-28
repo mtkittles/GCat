@@ -18,7 +18,7 @@ export function MillMachine() {
   return (
     <Fig id="p1mill" code="XYZ" title="Frezarka pionowa — dwie budowy, ten sam tor" h={250} legend={["acc", "stock"]}
       notes={<><Code k="con">ruch główny: obrót wrzeciona z narzędziem</Code><Code k="acc">A: stół — X i Y, wrzeciennik — Z</Code><Code k="acc">B: stół nieruchomy, stojak — X i Y, wrzeciennik — Z</Code></>}
-      caption={<>W obu budowach ruch główny wykonuje wrzeciono z narzędziem. Różnią się ruchy posuwowe: <b>A</b> — frezarka ze stołem krzyżowym, stół przesuwa się w X i Y, wrzeciennik w Z; <b>B</b> — frezarka z ruchomym stojakiem: stół jest nieruchomy, stojak przesuwa się w X i Y, a wrzeciennik w Z. Tor zapisany w programie jest w obu przypadkach taki sam; podział osi na rysunku B to jeden z modeli tej budowy.</>}>
+      caption={<><b>A</b> — stół krzyżowy przesuwa się w X i Y, wrzeciennik w Z; <b>B</b> — stół stoi, stojak przesuwa się w X i Y, wrzeciennik w Z. W obu budowach ruch główny wykonuje wrzeciono, a tor zapisany w programie jest ten sam.</>}>
       {(c) => (
         <g>
           {/* A — stół krzyżowy */}
@@ -69,7 +69,7 @@ export function ToolAssembly() {
   return (
     <Fig id="p2asm" code="L Ø" title="Zespół narzędziowy — wymiary i punkt programowany" h={262} legend={["acc", "dim", "cons"]}
       notes={<><Code k="acc">punkt programowany: oś freza, płaszczyzna czoła</Code><Code k="dim">L — od płaszczyzny odniesienia N</Code><Code k="dim">wysięg — od czoła oprawki</Code></>}
-      caption={<>Płaszczyzna odniesienia <b>N</b> — w kursie czoło wrzeciona — to miejsce, od którego mierzy się długość narzędzia <b>L</b>; na maszynie zależy od sposobu pomiaru. Program opisuje jeden punkt: punkt programowany na osi freza, w płaszczyźnie czoła. Wysięg liczy się od czoła oprawki. Oprawka, część chwytowa i ostrza mają swoje wymiary, ale współrzędne ich nie opisują: o odstępie od docisku czy imadła decyduje cały zespół.</>}>
+      caption={<>Długość narzędzia <b>L</b> mierzy się od płaszczyzny odniesienia <b>N</b> (w kursie czoło wrzeciona), wysięg — od czoła oprawki. Program opisuje tylko punkt programowany na osi freza, a o odstępie od docisku czy imadła decyduje cały zespół.</>}>
       {(c) => (
         <g>
           <rect x={120} y={10} width={100} height={46} rx={3} className="holder" />
@@ -110,7 +110,7 @@ export function SetupSide() {
   return (
     <Fig id="p3set" code="W" title="Płytka w imadle — zero, szczęki i głębokość (rzut XZ, widok z przodu)" h={236} legend={["acc", "dim", "stock", "bad"]}
       notes={<><Code k="acc">W — lewy przedni narożnik górnej powierzchni</Code><Code k="dim">szczęki od Z−6 w dół</Code><Code k="bad">kontur na Z−8 przecina szczękę</Code></>}
-      caption={<>Płytka 80 × 50 × 20 leży na podkładkach i jest zamocowana w imadle na wysokości 14 mm: górna krawędź szczęk leży 6 mm pod górną powierzchnią, czyli na Z−6. Podkładki ustalają wysokość i przenoszą siłę skrawania w dół. Przy konturze zewnętrznym frez Ø12 przechodzi tuż obok płytki, nad szczęką. Na głębokości Z−5 zostaje 1 mm odstępu (po lewej). Ten sam kontur na Z−8 przecina szczękę (po prawej).</>}>
+      caption={<>Płytka 80 × 50 × 20 leży na podkładkach, a szczęki imadła kończą się na Z−6. Frez Ø12 na Z−5 mija szczękę o 1 mm (po lewej), ten sam kontur na Z−8 ją przecina (po prawej).</>}>
       {(c) => (
         <g>
           <rect x={X(-12)} y={Y(-28)} width={104 * k} height={4 * k} className="clamp" />

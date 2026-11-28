@@ -11,7 +11,7 @@ export function SafeApproach() {
   return (
     <Fig id="f31ap" code="G00" title="Najazd ruchem szybkim — widok z boku" h={250} legend={["rap", "bad", "stock"]}
       notes={<><Code k="rap">G00 X-20. Y10.</Code><Code k="rap">G00 Z5.</Code><Code k="bad">G00 X-20. Y10. Z5.</Code></>}
-      caption={<>Widok z boku (rzut XZ). Przy ruchu szybkim osie mogą jechać niezależnie, każda ze swoją prędkością. Czerwony tor to jeden z możliwych przebiegów — położenie załamania jest poglądowe i zależy od prędkości i dynamiki osi. Jeśli Z skończy wcześniej, reszta drogi biegnie nisko — prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół. Frez Ø10 w X−20 ma krawędzie w X−25 i X−15, więc do półfabrykatu (X−2) zostaje 13 mm. Docisk i szczęki trzeba sprawdzić osobno — ich położenie wynika z ustawienia detalu.</>}>
+      caption={<>Widok z boku (XZ): czerwony tor to jeden z możliwych przebiegów ruchu szybkiego — gdy Z skończy wcześniej, reszta drogi biegnie nisko, prosto na docisk. Bezpiecznie: najpierw XY wysoko, potem sam Z w dół.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(0)} width={60 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -47,7 +47,7 @@ export function RSign() {
   return (
     <Fig id="f33rs" code="R±" title="Te same punkty, ten sam promień, dwa łuki G02" h={196} legend={["arc"]}
       notes={<><Code k="arc">G02 X… Y… R43.</Code><Code k="arc">G02 X… Y… R-43.</Code></>}
-      caption={<>Z punktu A do B da się poprowadzić łuk krótki (do 180°) i długi (ponad 180°). Dodatnie R wybiera krótki, ujemne — długi. Pełnego okręgu przez R zapisać się nie da.</>}>
+      caption={<>Z punktu A do B da się poprowadzić łuk krótki (do 180°) i długi (ponad 180°). Dodatnie R wybiera krótki, ujemne — długi.</>}>
       {(c) => (
         <g>
           <path d={`M ${A.x} ${A.y} A ${r} ${r} 0 0 1 ${B.x} ${B.y}`} className="p-arc thick" markerEnd={c.a("arc")} />
@@ -71,7 +71,7 @@ export function CornerArc() {
   return (
     <Fig id="f33co" code="R15" title="Naroże R10 detalu i tor środka freza Ø10" h={248} legend={["cut", "arc", "stock", "allow"]}
       notes={<><Code k="con">naroże detalu R10</Code><Code k="arc">G02 X10. Y55. R15.</Code></>}
-      caption={<>Rozróżnij dwa promienie: <b>R10</b> to promień powierzchni gotowej (naroże detalu), <b>R15</b> — promień toru środka freza. Środek obu łuków to środek naroża X10 Y40; 15 = 10 + promień freza 5. Łuk toru styka się z odcinkami w X−5 Y40 i X10 Y55.</>}>
+      caption={<><b>R10</b> to promień naroża detalu, <b>R15</b> — promień toru środka freza (10 + promień freza 5). Oba łuki mają środek w X10 Y40, a łuk toru styka się z odcinkami w X−5 Y40 i X10 Y55.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-2)} y={m.Y(52)} width={38 * m.u} height={32 * m.u} className="allow" />
@@ -103,7 +103,7 @@ export function FullCircle() {
   return (
     <Fig id="f34fc" code="I J" title="Pełny okrąg: start = koniec, środek przez I i J" h={236} legend={["arc", "acc", "stock"]}
       notes={<><Code k="arc">G02 I-10. J0.</Code><Code k="acc">I = X środka − X startu</Code></>}
-      caption={<>Frez startuje w X50 Y25. Środek okręgu leży 10 mm w lewo, więc I−10, J0. Blok bez X i Y kończy łuk w punkcie startu — powstaje pełny okrąg. Pomarańczowy pierścień to idealizowany rowek po frezie Ø10: od promienia 5 do 15 mm wokół środka.</>}>
+      caption={<>Środek okręgu leży 10 mm w lewo od startu X50 Y25, więc I−10 J0, a blok bez X i Y kończy łuk w punkcie startu. Pomarańczowy pierścień to idealizowany rowek po frezie Ø10.</>}>
       {(c) => (
         <g>
           <rect x={m.X(0)} y={m.Y(50)} width={80 * m.u} height={50 * m.u} fill={c.hatch} className="p-con" />
@@ -129,7 +129,7 @@ export function PlatePath() {
   return (
     <Fig id="f32pp" code="G01" title="Kontur gotowy 80 × 50 i tor środka freza Ø10" h={232} legend={["cut", "stock", "allow"]}
       notes={<><Code k="cut">Y55. → X85. → Y-5. → X-5. → Y10.</Code></>}
-      caption={<>Półfabrykat 84 × 54 ma po 2 mm naddatku na bok. Tor środka leży 5 mm (promień freza) na zewnątrz konturu gotowego, więc krawędź freza biegnie po konturze i zbiera pas naddatku. Każdy wymiar toru to wymiar konturu gotowego ± 5. Numery odpowiadają krokom przykładu: lewa, górna, prawa i dolna krawędź.</>}>
+      caption={<>Tor środka leży 5 mm (promień freza) na zewnątrz konturu gotowego, więc krawędź freza biegnie po konturze i zbiera pas naddatku. Numery to kroki przykładu: lewa, górna, prawa i dolna krawędź.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-2)} y={m.Y(52)} width={84 * m.u} height={54 * m.u} className="allow" />

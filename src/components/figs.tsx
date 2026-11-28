@@ -15,7 +15,7 @@ export function ArcIJ({ dir }: { dir: 2 | 3 }) {
   return (
     <Fig id={`arc${dir}`} code={g} title="Łuk: środek I/J albo promień R" h={276} legend={["arc", "alt", "acc"]}
       notes={<><Code k="arc">{g} X50. Y50. {ij}</Code><Code k="arc">{g} X50. Y50. R30.</Code><Code k="alt">{g} X50. Y50. R-30.</Code></>}
-      caption={<>Start A, koniec B, środek S. I i J to odległość od <b>punktu startu</b> do środka. Dodatnie R wybiera łuk do 180°, ujemne R — dłuższy.</>}>
+      caption={<>I i J to odległość od <b>punktu startu</b> A do środka S. Dodatnie R wybiera łuk do 180°, ujemne R — dłuższy.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -46,7 +46,7 @@ export function Comp() {
   const r = 8;
   return (
     <Fig id="comp" code="G41 G42" title="Po której stronie konturu jedzie frez" h={262} legend={["cut", "con", "stock", "dim"]}
-      caption={<>Patrz w kierunku ruchu. <b>G41</b>: frez po lewej stronie konturu, <b>G42</b>: po prawej. Tor środka jest odsunięty o promień <b>r</b> z rejestru D.</>}>
+      caption={<>Patrząc w kierunku ruchu: <b>G41</b> — frez po lewej stronie konturu, <b>G42</b> — po prawej. Tor środka jest odsunięty o promień <b>r</b> z rejestru D.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} ticks={false} />
@@ -78,7 +78,7 @@ export function CycleRetract() {
   const holes = [15, 85];
   return (
     <Fig id="cyc" code="G98 G99" title="Powrót po otworze: poziom początkowy albo R" h={250} legend={["rap", "cut", "bad", "stock"]}
-      caption={<>Między otworami stoi zacisk. Z <b>G99</b> narzędzie przejeżdża na wysokości <b>R</b> i uderza w zacisk. Z <b>G98</b> wraca na poziom początkowy i przechodzi nad nim.</>}>
+      caption={<>Z <b>G99</b> narzędzie przejeżdża między otworami na wysokości <b>R</b> i uderza w zacisk. Z <b>G98</b> wraca na poziom początkowy i przechodzi nad nim.</>}>
       {(c) => (
         <g>
           <rect x={x(0)} y={z(0)} width={x(100) - x(0)} height={z(-30) - z(0)} fill={c.hatch} className="p-con" />
@@ -115,7 +115,7 @@ export function AbsInc() {
   return (
     <Fig id="absinc" code="G90 G91" title="Ten sam blok, dwa różne punkty" h={240} legend={["cut", "dim"]}
       notes={<><Code>G90 G01 X30. Y20.</Code><Code>G91 G01 X30. Y20.</Code></>}
-      caption={<>Narzędzie stoi w punkcie <b>P (20, 10)</b>. W <b>G90</b> liczby to współrzędne punktu docelowego. W <b>G91</b> to przesunięcie od miejsca, w którym narzędzie stoi.</>}>
+      caption={<>Narzędzie stoi w punkcie <b>P (20, 10)</b>: w <b>G90</b> liczby to współrzędne celu, w <b>G91</b> — przesunięcie od miejsca, w którym narzędzie stoi.</>}>
       {(c) => (
         <g>
           <Grid m={m} range={R} c={c} />
@@ -138,7 +138,7 @@ export function ToolLen() {
   return (
     <Fig id="tlen" code="G43 H" title="Długość narzędzia: od czoła wrzeciona do ostrza" h={236} legend={["dim", "acc", "stock"]}
       notes={<Code k="acc">G00 G43 H1 Z10.</Code>}
-      caption={<>Sterowanie zna położenie czoła wrzeciona. <b>G43</b> dodaje długość z rejestru <b>H</b>, więc Z10 oznacza, że <b>ostrze</b> stoi 10 mm nad Z0 detalu. <b>G49</b> kasuje korekcję.</>}>
+      caption={<><b>G43</b> dodaje do położenia czoła wrzeciona długość z rejestru <b>H</b>, więc Z10 oznacza, że <b>ostrze</b> stoi 10 mm nad Z0 detalu. <b>G49</b> kasuje korekcję.</>}>
       {(c) => (
         <g>
           <rect x={120} y={4} width={70} height={gz - 4} className="spindle" />
@@ -285,7 +285,7 @@ export function Peck() {
   };
   return (
     <Fig id="peck" code="G83 G73" title="Wiercenie krokami: wyrzut wióra albo łamanie" h={262} legend={["cut", "rap", "acc"]}
-      caption={<>Krok <b>Q</b> liczy się od płaszczyzny R. <b>G83</b> po każdym kroku wycofuje wiertło do R, więc wiór wychodzi z otworu. <b>G73</b> cofa tylko o <b>d</b> (parametr sterowania): wiór się łamie, a cykl jest krótszy.</>}>
+      caption={<>Krok <b>Q</b> liczy się od płaszczyzny R. <b>G83</b> po każdym kroku wycofuje wiertło do R, a <b>G73</b> cofa tylko o <b>d</b> (parametr sterowania) i łamie wiór.</>}>
       {(c) => (
         <g>
           <line x1={14} y1={z(2)} x2={346} y2={z(2)} className="p-cons" />

@@ -8,7 +8,7 @@ export function ToolChange() {
   const len = [0, 34, 26, 30, 22, 36];
   return (
     <Fig id="f21tc" code="T M06" title="Magazyn narzędzi i wymiana" h={236} legend={["acc", "cons"]}
-      caption={<><b>T2</b> każe magazynowi podać narzędzie nr 2 do pozycji wymiany. Dopiero <b>M06</b> zamienia je z narzędziem we wrzecionie. Gniazdo 1 jest puste, bo T1 pracuje.</>}>
+      caption={<><b>T2</b> każe magazynowi podać narzędzie nr 2 do pozycji wymiany, a dopiero <b>M06</b> zamienia je z narzędziem we wrzecionie. Gniazdo 1 jest puste, bo T1 pracuje.</>}>
       {(c) => (
         <g>
           <T x={16} y={24} cls="t-mut">magazyn</T>
@@ -68,7 +68,7 @@ function Rot({ cx, dir }: { cx: number; dir: 3 | 4 }) {
 export function SpindleDir() {
   return (
     <Fig id="f22sp" code="M03 M04" title="Kierunek obrotów — widok od strony wrzeciona" h={212} legend={[["cut", "M03 — w prawo"], ["arc", "M04 — w lewo"]]}
-      caption={<>Kierunek ocenia się, patrząc od strony wrzeciona w stronę detalu — na frezarce pionowej z góry. Zwykłe frezy i wiertła prawoskrętne pracują na <b>M03</b>. <b>M05</b> zatrzymuje wrzeciono.</>}>
+      caption={<>Kierunek ocenia się, patrząc od strony wrzeciona w stronę detalu — na frezarce pionowej z góry. Zwykłe frezy i wiertła prawoskrętne pracują na <b>M03</b>.</>}>
       {() => (
         <g>
           <Rot cx={95} dir={3} />
@@ -98,7 +98,7 @@ export function ToothFeed() {
   return (
     <Fig id="f23fz" code="fz" title="fz to przesunięcie, h to grubość wióra" h={262} legend={["cut", "acc"]}
       notes={<Code k="acc">vf = fz · z · n</Code>}
-      caption={<>Model uproszczony: widok z góry, skala przesadzona, ostrza po okręgach przesuniętych o fz (rzeczywisty tor ostrza jest trochoidą). Punkty 1 i 2 to środek freza w chwili pracy dwóch kolejnych ostrzy — dzieli je <b>fz</b>, czyli droga, a nie grubość wióra. Ostrze 2 zbiera sierp materiału między swoim torem a torem ostrza 1. Grubość sierpa <b>h</b> zależy od miejsca: w kierunku posuwu h = fz, w stronę boku freza maleje do zera. Przy małym ae ostrza pracują tylko w pasie nad przerywaną linią, więc największe h jest mniejsze niż fz — to pocienianie wióra.</>}>
+      caption={<>Model uproszczony w przesadzonej skali: punkty 1 i 2 to środek freza w chwili pracy dwóch kolejnych ostrzy, oddalone o <b>fz</b>. Ostrze 2 zbiera sierp materiału, którego grubość <b>h</b> maleje od fz w kierunku posuwu do zera przy boku freza.</>}>
       {(c) => (
         <g>
           <path d={`M ${ix} ${c1.y - iy} A ${r} ${r} 0 1 1 ${ix} ${c1.y + iy} A ${r} ${r} 0 0 0 ${ix} ${c1.y - iy} Z`} className="p-fill-acc" />
@@ -235,7 +235,8 @@ export function ToolTimeline() {
   return (
     <Fig id="f21tl" code="T M06" title="Wymiana i przygotowanie narzędzia w czasie" h={176}
       notes={<><Code k="acc">T1 M06 → T2 → … M05 → M06</Code></>}
-      caption={<>Schemat kolejności, nie pełny program skrawania. Oś pozioma to kolejność bloków programu. <b>T2 przygotowuje</b> (jeśli magazyn obsługuje preselekcję), <b>M06 wymienia</b>. 1 — wymiana na T1. 2 — <code>T2</code> obraca magazyn i ustawia nawiertak w pozycji wymiany, podczas gdy frez T1 już skrawa. 3 — po obróbce odjazd i stop wrzeciona. 4 — <code>M06</code> zamienia narzędzia od razu, bez czekania na magazyn.</>}>
+      caption={<>Oś pozioma to kolejność bloków: <b>T2 przygotowuje</b> narzędzie (jeśli magazyn obsługuje preselekcję), <b>M06 wymienia</b>.</>}
+      marks={[<>wymiana na T1</>, <><code>T2</code> obraca magazyn i ustawia nawiertak w pozycji wymiany, podczas gdy frez T1 już skrawa</>, <>po obróbce odjazd i stop wrzeciona</>, <><code>M06</code> zamienia narzędzia od razu, bez czekania na magazyn</>]}>
       {() => (
         <Timeline rows={["wrzeciono", "magazyn"]}
           bars={[
@@ -257,7 +258,8 @@ export function CoolantTimeline() {
   return (
     <Fig id="f24tl" code="M08 M09" title="Chłodziwo w programie płytki" h={222}
       notes={<><Code k="acc">S2500 M03 → M08 → … → G00 Z5. → M09 → M05</Code></>}
-      caption={<>Oś pozioma to kolejność bloków. 1 — obroty. 2 — chłodziwo płynie, zanim frez dojedzie do materiału. 3 — po konturze odjazd w Z. 4 — najpierw M09, potem M05 — kolejność przyjęta w kursie na koniec operacji.</>}>
+      caption={<>Oś pozioma to kolejność bloków programu płytki.</>}
+      marks={[<>obroty</>, <>chłodziwo płynie, zanim frez dojedzie do materiału</>, <>po konturze odjazd w Z</>, <>najpierw M09, potem M05 — kolejność przyjęta w kursie na koniec operacji</>]}>
       {() => (
         <Timeline rows={["wrzeciono", "ruch", "chłodziwo"]}
           bars={[
@@ -279,7 +281,7 @@ export function SpindleLimit() {
   return (
     <Fig id="f22lm" code="S" title="Wyliczone S a maksimum wrzeciona" h={150}
       notes={<><Code k="acc">stal: S2500 M03</Code><Code k="acc">aluminium: S8000 M03 → vc ≈ 251</Code></>}
-      caption={<>Słupek — prędkość obrotowa n [obr/min] z wzoru n = 1000 · vc / (π · D) dla freza Ø10. Pionowa kreska — przyjęty limit 8000 obr/min (wrzeciono, oprawka i frez). Część ponad limitem (czerwona) jest nieosiągalna, więc w programie stoi S8000, a skrawanie idzie z mniejszą vc.</>}>
+      caption={<>Słupek to obroty z wzoru dla freza Ø10, pionowa kreska — przyjęty limit 8000 obr/min (wrzeciono, oprawka i frez). Część ponad limitem (czerwona) jest nieosiągalna, więc w programie stoi S8000, a skrawanie idzie z mniejszą vc.</>}>
       {() => (
         <g>
           {rows.map(([n, v, s], i) => {

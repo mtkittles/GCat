@@ -8,7 +8,7 @@ export function FeedsDiag() {
   return (
     <Fig id="feeds" code="F" title="Posuw na obrót f i posuw minutowy Vf" h={212} legend={[["acc", "posuw na obrót f"], ["cut", "posuw minutowy Vf"], "stock"]}
       notes={<><Code k="cut">Vf = f · n</Code><Code k="acc">frezowanie: f = fz · z</Code></>}
-      caption={<>Posuw na obrót <b>f</b> to droga narzędzia na jeden obrót wrzeciona. Posuw minutowy <b>Vf</b> to droga na minutę, czyli f pomnożone przez obroty. Przy frezowaniu jeden obrót to praca wszystkich ostrzy, więc f = fz · z.</>}>
+      caption={<>Posuw na obrót <b>f</b> to droga narzędzia na jeden obrót wrzeciona, posuw minutowy <b>Vf</b> — droga na minutę.</>}>
       {(c) => (
         <g>
           <T x={86} y={22} anchor="middle" cls="t-b">jeden obrót</T>
@@ -41,7 +41,7 @@ export function KappaDiag() {
   return (
     <Fig id="kappa" code="κr" title="Kąt przystawienia a grubość wióra" h={214} legend={[["acc", "krawędź i przekrój wióra"], "dim", ["cut", "kierunek posuwu"]]}
       notes={<Code k="acc">h = f · sin κr</Code>}
-      caption={<>Pomarańczowe pole to przekrój warstwy zbieranej w jednym obrocie. Przy <b>κr = 90°</b> grubość wióra równa się posuwowi. Przy mniejszym kącie ten sam posuw rozkłada się na dłuższy odcinek krawędzi: wiór jest cieńszy i szerszy. Dla 45° h ≈ 0,71 · f.</>}>
+      caption={<>Pomarańczowe pole to przekrój warstwy zbieranej w jednym obrocie. Przy mniejszym <b>κr</b> ten sam posuw rozkłada się na dłuższy odcinek krawędzi: wiór jest cieńszy i szerszy.</>}>
       {(c) => (
         <g>
           <T x={92} y={24} anchor="middle" cls="t-b">κr = 90°</T>
@@ -105,7 +105,7 @@ export function PitchDiag() {
   return (
     <Fig id="pitch" code="P" title="Skok gwintu P a posuw" h={210} legend={["con", ["acc", "jeden obrót"], "dim"]}
       notes={<><Code k="acc">G94: F = n · P</Code><Code k="acc">G95: F = P</Code><Code k="dim">otwór pod gwintownik ≈ D − P</Code></>}
-      caption={<>Skok <b>P</b> to odległość między sąsiednimi grzbietami wzdłuż osi. Na jeden obrót wrzeciona narzędzie musi przesunąć się dokładnie o P — stąd posuw w cyklach gwintowania wynika ze skoku, a nie z tablic posuwów. Dla M8 P = 1,25, dla M10 P = 1,5.</>}>
+      caption={<>Skok <b>P</b> to odległość między sąsiednimi grzbietami wzdłuż osi. Na jeden obrót wrzeciona narzędzie przesuwa się dokładnie o P.</>}>
       {(c) => (
         <g>
           <path d={d} fill={c.hatch} className="p-con" />
@@ -173,7 +173,7 @@ export function RampDiag() {
   return (
     <Fig id="ramp" code="rampa" title="Wejście po rampie: kąt, głębokość i długość" h={214} legend={["cut", "tool", "con", "dim"]}
       notes={<><Code k="dim">L = ap / tan α</Code><Code k="cut">G01 X… Z… F…</Code></>}
-      caption={<>Frez zjeżdża na głębokość <b>ap</b> ruchem jednocześnie w płaszczyźnie i w Z. Mały kąt <b>α</b> oznacza długą rampę: przy 3° zejście o 3 mm zajmuje około 57 mm. Dopuszczalny kąt podaje producent freza — zależy od średnicy i płytki.</>}>
+      caption={<>Frez zjeżdża na głębokość <b>ap</b> ruchem jednocześnie w płaszczyźnie i w Z. Mały kąt <b>α</b> oznacza długą rampę.</>}>
       {(c) => (
         <g>
           <rect x={14} y={y0} width={332} height={96} fill={c.hatch} className="p-con" />
@@ -199,7 +199,7 @@ export function HelixFeedDiag() {
   return (
     <Fig id="helix-feed" code="Vf" title="Frezowanie otworu po helisie: tor środka i posuw" h={226} legend={["con", "tool", ["cons", "tor środka D_vf"], ["acc", "posuw na obwodzie Vfm"], ["cut", "posuw środka Vf"]]}
       notes={<><Code k="dim">D_vf = D_m − D_c</Code><Code k="cut">Vf = Vfm · (D_m − D_c) / D_m</Code></>}
-      caption={<>Ostrza frezu krążą po otworze <b>D_m</b>, a jego środek po mniejszym okręgu <b>D_vf</b>. Na jeden obieg ostrze przebywa dłuższą drogę niż środek, więc żeby utrzymać posuw na ostrze, posuw środka <b>Vf</b> musi być mniejszy od posuwu na obwodzie <b>Vfm</b>. Z korekcją promienia programuje się wprost Vfm.</>}>
+      caption={<>Ostrza krążą po otworze <b>D_m</b>, a środek freza po mniejszym okręgu <b>D_vf</b>. Dlatego posuw środka <b>Vf</b> jest mniejszy od posuwu na obwodzie <b>Vfm</b>.</>}>
       {(c) => (
         <g>
           <rect x={16} y={cy - 92} width={208} height={184} fill={c.hatch} className="p-con" />

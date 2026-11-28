@@ -12,7 +12,7 @@ export function ReliefGroove() {
   return (
     <Fig id="t61gr" code="G75" title="Podcięcie 4 × Ø17 nożem szerokim na 3 mm" h={240} legend={["cut", "acc", "stock"]}
       notes={<><Code k="acc">1. wcięcie: Z−19</Code><Code k="acc">2. wcięcie: Z−20</Code><Code k="con">P — lewe naroże</Code></>}
-      caption={<>Rowek jest szerszy niż nóż, więc potrzeba dwóch wcięć. Nóż zmierzony na lewym narożu: Z w programie to położenie jego lewej krawędzi. Pierwsze wcięcie w Z−19 obrabia Z−19…−16, drugie w Z−20 dochodzi do stopnia. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Nóż zmierzony na lewym narożu, więc Z w programie to położenie jego lewej krawędzi. Rowek jest szerszy niż nóż: wcięcie w Z−19 obrabia Z−19…−16, drugie w Z−20 dochodzi do stopnia.</>}>
       {(c) => (
         <g>
           <polygon points={`${P(m, -11, 6.5)} ${P(m, -11, 10)} ${P(m, -16, 10)} ${P(m, -16, 8.5)} ${P(m, -20, 8.5)} ${P(m, -20, 14)} ${P(m, -21, 15)} ${P(m, -25, 15)} ${P(m, -25, 6.5)}`} fill={c.hatch} className="p-con" />
@@ -40,7 +40,7 @@ export function GroovePeck() {
   return (
     <Fig id="t61pk" code="P R" title="Jedno wcięcie G75 — schemat, skala powiększona" h={200} legend={["cut", "rap"]}
       notes={<><Code k="cut">P1500 — 1,5 mm na stronę</Code><Code k="rap">R0.5 — wycofanie</Code></>}
-      caption={<>Nóż wcina się o P, cofa o R, żeby złamać wiór, i wcina dalej — aż do dna. Na dnie wraca ruchem szybkim do średnicy startowej i przesuwa się o Q na następne wcięcie. P i Q podaje się bez kropki, w najmniejszych przyrostach — przy systemie wejściowym 0,001 mm to mikrometry: P1500 = 1,5 mm.</>}>
+      caption={<>Nóż wcina się o P i cofa o R, żeby złamać wiór, a na dnie wraca szybko do średnicy startowej i przesuwa się o Q. P i Q podaje się bez kropki, w mikrometrach (system 0,001 mm): P1500 = 1,5 mm.</>}>
       {() => (
         <g>
           <line x1={X(0)} y1={Y(11)} x2={X(0)} y2={Y(9.5) - 3} className="p-cut thick" markerEnd="url(#t61pk-a-cut)" />
@@ -65,7 +65,7 @@ export function AxialDrill() {
   return (
     <Fig id="t62dr" code="G74" title="Wiercenie w osi: G74 z wejściami po 3 mm" h={236} legend={["cut", "rap", "stock"]}
       notes={<><Code k="cut">G74 Z-15. Q3000 F0.08</Code><Code k="con">G97 S1200</Code></>}
-      caption={<>Wiertło stoi w osi (X0), detal się obraca. G74 wchodzi po Q = 3 mm, cofa się o R i wchodzi dalej, aż czubek dojdzie do Z−15. Obroty stałe (G97), bo w osi średnica jest zerowa.</>}>
+      caption={<>Wiertło stoi w osi (X0), a G74 wchodzi po Q = 3 mm, cofa się o R i wchodzi dalej, aż czubek dojdzie do Z−15. Obroty stałe (G97), bo w osi średnica jest zerowa.</>}>
       {(c) => (
         <g>
           <rect x={m.X(-20)} y={m.Y(10)} width={20 * m.u} height={20 * m.u} fill={c.hatch} className="p-con" />
@@ -89,7 +89,7 @@ export function DrillPecks() {
   return (
     <Fig id="t62pk" code="Q R" title="G74 Z-15. Q3000: wejścia od Z2 do Z−15" h={236} legend={["cut", "rap"]}
       notes={<><Code k="con">1  G97 S1200 M03</Code><Code k="rap">2  G00 X0. Z2.</Code><Code k="acc">3  G74 R0.5 · 4  G74 Z-15. Q3000 F0.08</Code></>}
-      caption={<>Każdy wiersz to jedno wejście czubka wiertła w osi Z. Cykl liczy od punktu startowego Z2: wejścia po 3 mm, po każdym wycofanie o 0,5 mm, ostatnie wejście krótsze — do Z−15. Na końcu powrót ruchem szybkim do Z2. Numery odpowiadają krokom przykładu.</>}>
+      caption={<>Każdy wiersz to jedno wejście czubka od Z2: po 3 mm z wycofaniem o 0,5 mm, ostatnie krótsze — do Z−15. Na końcu powrót ruchem szybkim do Z2.</>}>
       {(c) => (
         <g>
           <line x1={X(0)} y1={34} x2={X(0)} y2={row(5) + 12} className="p-cons" />
