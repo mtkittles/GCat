@@ -60,4 +60,5 @@ Typowe błędy, W G-kodzie; Temat — wstęp, Teoria, Wzór i przykład, Na co u
   i trzeba go sprawdzić parserem i walidatorem ręcznie.
 - Miniatura na liście = pierwszy `<Diagram>`/`<Rys>` w treści.
 - `<Table sort="true">` — sortowanie kliknięciem w nagłówek (liczby i zakresy „200–1200” sortują się liczbowo).
+- `<DekoderISO kod="CNMG 120408" />` — oznaczenie płytki wg ISO 1832 (zapis metryczny): klik w znak → pozycja, odczyt i rysunek. Dane: `src/lib/iso1832.ts`; zły zapis kodu zatrzymuje `npm run tresci`. W edytorze: przycisk „Dekoder ISO”.
 - Format pliku = zapis edytora (test `tests/technologia.test.ts`: zapis od zera daje ten sam plik).

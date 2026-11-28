@@ -579,6 +579,39 @@ export const sources: Record<string, Source> = {
     url: "https://s3.amazonaws.com/s3.cnccookbook.com/CCCNCGCodeG76LatheThreadingCycle.htm", accessed: "11/2026",
     note: "Poradnik, nie instrukcja sterowania; zakres kątów i działanie cyklu podaje instrukcja maszyny.",
   },
+  // V3.2a — oznaczenie płytek ISO 1832
+  iso1832: {
+    id: "iso1832", short: "ISO 1832", author: "ISO",
+    title: "ISO 1832:2017 — Indexable inserts for cutting tools — Designation",
+    edition: "2017 (wydanie 6), potwierdzona 2022",
+    url: "https://www.iso.org/standard/69202.html", accessed: "11/2026",
+    note: "Pozycje 1–7 obowiązkowe (rozdz. 5.1–5.7), stan krawędzi i kierunek posuwu opcjonalne (rozdz. 6.2–6.3); wartości tolerancji, wielkości i grubości w tabelach i załącznikach A–B normy.",
+    internal: "Tekstu normy nie czytano. Zakres i spis treści: strona ISO i spis treści DIN ISO 1832 udostępniony przez DIN (din.de, plik toc-2649995). Litery i wartości z katalogów producentów (kennametal-plytki-oznaczenie, iscar-poradnik-narzedzia, kyocera-plytki-oznaczenie).",
+  },
+  "kennametal-plytki-oznaczenie": {
+    id: "kennametal-plytki-oznaczenie", short: "Kennametal — system oznaczania płytek", author: "Kennametal",
+    title: "Kennametal Milling Insert Identification System — kształt, kąt przyłożenia, klasy tolerancji, otwór i łamacz, grubość, naroże, krawędź (wyciąg katalogu)",
+    url: "https://www1.mscdirect.com/images/solutions/kennametal/millingInsertIdSystem.pdf", accessed: "11/2026",
+    note: "Strony M28–M31. System oparty na ISO i ANSI; wartości konkretnej płytki podaje jej tabela wymiarów.",
+    internal: "Wyciąg katalogu Kennametal na serwerze dystrybutora (MSC); wydania nie podano. Tekst tabel z PDF częściowo rozsypany — przypisanie kolumn tolerancji niepewne, dlatego liczbowych tolerancji nie używamy.",
+  },
+  "iscar-poradnik-narzedzia": {
+    id: "iscar-poradnik-narzedzia", short: "ISCAR — Get to Know Cutting Tools", author: "ISCAR",
+    title: "Get to Know Cutting Tools — ISCAR's Reference Guide, rozdział Insert Designation",
+    url: "https://www.iscar.com/Catalogs/Publication/english_1/Cutting_tools_user_guide/Cutting_tools_user_guide.pdf", accessed: "11/2026",
+    note: "s. 68–70: siedem symboli obowiązkowych, przykład CNMG 120404, oznaczenie łamacza ISCAR (F3P).",
+  },
+  "mmc-oznaczenie-plytek": {
+    id: "mmc-oznaczenie-plytek", short: "Mitsubishi Materials — oznaczenie płytek tokarskich", author: "Mitsubishi Materials",
+    title: "Kurs e-learningowy producenta (85), rozdział Insert turning identification code — kąt przyłożenia, klasy tolerancji",
+    url: "https://www.mmc-carbide.com/permanent/courses/85/insert-turning-identification-code.html", accessed: "11/2026",
+  },
+  "kyocera-plytki-oznaczenie": {
+    id: "kyocera-plytki-oznaczenie", short: "Kyocera — oznaczenie płytek tokarskich", author: "Kyocera",
+    title: "Turning Indexable Inserts Identification System — katalog płytek tokarskich, s. B2",
+    url: "https://asia.kyocera.com/products/cuttingtools/wp-content/uploads/2016/11/B.pdf", accessed: "11/2026",
+    internal: "Z PDF czytelne tylko kształty i promienie naroża; tabele kątów i tolerancji rozsypane w tekście — nie używane.",
+  },
 };
 
 /** Opis dokumentu w jednej linii: producent, tytuł, wydanie, numer. */

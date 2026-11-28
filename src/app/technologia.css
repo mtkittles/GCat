@@ -96,3 +96,24 @@ th[aria-sort="ascending"] .st-ico, th[aria-sort="descending"] .st-ico { color: v
 .ed-new-opt svg { color: var(--accent-ink); flex: none; }
 .ed-new-opt input { accent-color: var(--accent); margin: 0; }
 .ed-new-acts { display: flex; flex-wrap: wrap; gap: .5rem; }
+
+/* <DekoderISO> — oznaczenie płytki wg ISO 1832 (V3.2a) */
+.dekoder { max-width: 40rem; }
+.dek-kod { display: flex; flex-wrap: wrap; gap: 4px; }
+.dek-kod button {
+  min-width: 40px; min-height: 44px; padding: 2px 6px; display: grid; place-items: center; gap: 1px;
+  border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--bg); color: var(--ink); cursor: pointer;
+}
+.dek-kod button:hover { background: var(--surface-2); }
+.dek-kod button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-ink); }
+.dek-kod button.is-gap { margin-left: 10px; }
+.dek-kod button.is-dash { margin-left: 14px; }
+.dek-s { font: 700 var(--fs-h3)/1 var(--font-mono); }
+.dek-nr { font: 500 var(--fs-micro)/1 var(--font-mono); color: var(--muted); }
+.dek-kod button[aria-pressed="true"] .dek-nr { color: inherit; }
+.dek-opis { display: grid; gap: .25rem; }
+.dek-opis p { margin: 0; }
+.dek-poz { font-size: var(--fs-small); color: var(--muted); }
+.dek-odczyt { font-size: var(--fs-text); color: var(--ink); }
+.dek-odczyt b { font-family: var(--font-mono); }
+.dek-help { font-size: var(--fs-small); color: var(--ink-2); }

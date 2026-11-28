@@ -3,6 +3,7 @@ import type { MDXComponents } from "mdx/types";
 import ArcCalc from "@/components/ArcCalc";
 import { diagrams } from "@/components/diagrams";
 import WzorView from "@/components/Wzor";
+import DekoderIsoView from "@/components/DekoderISO";
 import { progHash } from "@/lib/progHash";
 import { FigEdit } from "@/components/edycja/EditMode";
 import JogDemo from "@/components/lesson/JogDemo";
@@ -93,6 +94,11 @@ export function OpenInSim({ name, ...p }: SimLink) {
   );
 }
 
+/** <DekoderISO kod="CNMG 120408" /> — oznaczenie płytki wg ISO 1832, klik w znak (blok `dekoderIso`, V3.2a). */
+export function DekoderISO({ kod }: { kod?: string }) {
+  return <DekoderIsoView kod={kod} />;
+}
+
 /** <Widget id="rij|arc|jog" /> (blok `widget`). */
 export function Widget({ id }: { id: "rij" | "arc" | "jog" }) {
   return id === "jog" ? <JogDemo /> : <div id="kalkulator-zamiany-r-i-j">{id === "arc" ? <ArcCalc /> : <RijCalc />}</div>;
@@ -109,6 +115,6 @@ export function Kolor({ k, children }: { k: "g00" | "g01" | "g02" | "akcent" | "
   return <span className={`kolor kolor-${k}`}>{children}</span>;
 }
 
-export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table, Kolor, Wzor } satisfies MDXComponents;
+export const mdxComponents = { Term, Diagram, Rys: RysBlock, Obraz, Note, Code, Sim, Demo, Widget, Table, Kolor, Wzor, DekoderISO } satisfies MDXComponents;
 
 export { componentNames, diagramIds } from "./names";
