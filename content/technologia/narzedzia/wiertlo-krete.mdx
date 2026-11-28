@@ -1,0 +1,174 @@
+---
+title: Wiertło kręte
+slug: wiertlo-krete
+dzial: narzedzia
+typ: narzedzie
+order: 80
+short: >-
+  Wiertło z dwoma rowkami śrubowymi: budowa, wiertła HSS i z węglika spiekanego,
+  chłodzenie wewnętrzne, obroty i posuw, zapis cyklami G81 i G83.
+obrobka:
+  - wiercenie
+  - frezowanie
+poziom: 1
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: mmc-wiercenie
+    where: >-
+      kąt linii śrubowej zwykle ok. 30°; grubość rdzenia 10–20% średnicy dla HSS
+      i 20–30% dla węglika; pocienienie rdzenia skraca ścin i zmniejsza siłę
+      osiową; szerokość łysinki ok. 6–10% średnicy; kąt przyłożenia zwykle
+      7–15°; większy kąt wierzchołkowy daje grubszy wiór i lepsze łamanie;
+      długość rowków jak najkrótsza dla sztywności; wiertła HSS zwykle 118°,
+      przeszlifowanie na 140° — krawędź wklęsła, lepsze łamanie wióra, na 90° —
+      krawędź wypukła, mniejszy zadzior, ryzyko wykruszenia ostrza HSS;
+      chłodzenie wewnętrzne skuteczne zwłaszcza od głębokości 5 × D i w
+      materiałach trudnoobrabialnych, ciśnienie powyżej 1 MPa; HSS zwykle przy
+      prędkości skrawania do ok. 30 m/min, tani, ciągliwy, na mało sztywne
+      maszyny i otwory przerywane, mniej dokładny niż węglik; węglik
+      monolityczny i lutowany 3–5 razy wydajniejszy niż HSS z chłodzeniem
+      zewnętrznym, 5–10 razy z wewnętrznym; płytki wymienne głównie do średnich
+      i dużych średnic
+    loc: >-
+      Advanced Drilling: Parts, properties & functions; Point angle & cutting
+      edge; Coolant; Selecting a drill
+  - id: sandvik-wzory-wiercenie
+    where: n = vc · 1000 / (π · Dc), vf = fn · n
+powiazane:
+  kody:
+    - g81-g83
+    - g82
+    - g73
+    - g98-g99
+  lekcje:
+    - F5.1
+    - F5.2
+    - F5.4
+    - T6.2
+  hasla:
+    - wiercenie-z-wycofaniem
+    - nawiertak
+    - posuw-na-obrót
+    - vc-prędkość-skrawania
+  artykuly:
+    - narzedzia/nawiertak
+    - narzedzia/wiertlo-z-plytkami
+    - narzedzia/gwintownik
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Wiertło kręte ma dwie krawędzie skrawające na czole i dwa śrubowe rowki wiórowe. Krawędzie zbierają materiał, rowki wyprowadzają wiór z otworu, a wywiercona już część otworu prowadzi wiertło. W programie wiertło pracuje w cyklach wiercenia: G81, G82, G83 i G73.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-wiertlo-budowa" />
+
+* **(1) Chwyt:** część mocowana w oprawce.
+* **(2) Część robocza:** odcinek z rowkami. Krótsze rowki dają sztywniejsze wiertło i dokładniejszy otwór, więc wiertło dobiera się nie dłuższe, niż wymaga głębokość.
+* **(3) Rowek wiórowy:** wyprowadza wiór. Kąt pochylenia linii śrubowej wynosi zwykle około 30°.
+* **(4) Krawędź skrawająca:** dwie krawędzie tworzą stożek o kącie wierzchołkowym φ.
+* **(5) Ścin:** krótka krawędź w osi wiertła, łącząca obie krawędzie skrawające. Im dłuższy ścin, tym większa siła osiowa.
+* **(6) Łysinka:** wąski pas na obwodzie, który prowadzi wiertło po ściance otworu. Ma szerokość około 6–10% średnicy.
+* **(7) Rdzeń:** środkowa część wiertła między rowkami. Grubszy rdzeń to sztywniejsze wiertło, ale dłuższy ścin.
+
+Grubość rdzenia wynosi zwykle 10–20% średnicy dla wierteł HSS i 20–30% dla wierteł z węglika spiekanego. Wiertła z węglika mają pocieniony rdzeń: szlif przy wierzchołku skraca ścin i zmniejsza siłę osiową.
+
+## Rodzaje \{#rodzaje}
+
+* **Wiertło HSS (ze stali szybkotnącej):** tanie i ciągliwe. Pracuje przy niższej prędkości skrawania, do około 30 m/min. Dobrze znosi mało sztywną maszynę i otwory przerywane, ale daje mniej dokładny otwór niż wiertło z węglika.
+* **Wiertło z węglika spiekanego (VHM, monolityczne):** pracuje przy wyższych prędkościach i posuwach. Według Mitsubishi Materials wierci 3–5 razy wydajniej niż HSS przy chłodzeniu zewnętrznym i 5–10 razy wydajniej przy chłodzeniu wewnętrznym. Wymaga sztywnej maszyny i mocowania.
+* **Wiertło lutowane:** korpus stalowy z wlutowaną końcówką z węglika.
+* **Wiertło z płytkami wymiennymi:** do średnich i dużych średnic, opisane w artykule [Wiertło z płytkami](/technologia/narzedzia/wiertlo-z-plytkami).
+
+## Zastosowanie \{#zastosowanie}
+
+Wiertłem krętym wierci się otwory w pełnym materiale: przelotowe, nieprzelotowe, pod gwint i pod rozwiercanie. Otwór pod gwint opisuje artykuł [Gwintownik](/technologia/narzedzia/gwintownik), a otwór pod rozwiertak — [Rozwiertak](/technologia/narzedzia/rozwiertak). Na frezarce wiertło startuje zwykle z wgłębienia po [nawiertaku](/technologia/narzedzia/nawiertak). Na tokarce wierci w osi obracającego się przedmiotu (lekcja T6.2).
+
+## Dobór \{#dobór}
+
+**Kąt wierzchołkowy.** Wiertła HSS mają zwykle kąt 118°. Kąt wpływa na odprowadzanie wióra, opór skrawania, zadzior na wyjściu i chropowatość ścianki. Większy kąt daje grubszy wiór, który łatwiej się łamie. Wiertło HSS przeszlifowane na 140° ma wklęsłą krawędź i lepiej łamie wiór, a przeszlifowane na 90° ma krawędź wypukłą i zostawia mniejszy zadzior. Ostrze HSS po takiej zmianie łatwiej się wykrusza. Kąt wiertła z węglika podaje katalog producenta.
+
+**Długość stożka.** Wierzchołek kończy się niżej niż pełna średnica. Przy otworze nieprzelotowym i przy otworze pod gwint liczy się głębokość pełnej średnicy, więc do niej dodaje się długość stożka:
+
+<Wzor f="L = \frac{D}{2 \cdot \tan(\varphi / 2)}" legend="L — długość stożka wierzchołka [mm]; D — średnica wiertła [mm]; \varphi — kąt wierzchołkowy [°]" caption="Długość stożka wierzchołka" />
+
+Dla wiertła ⌀8,5 mm o kącie 140° i 118°:
+
+<Wzor f="L = \frac{8,5}{2 \cdot \tan 70^\circ} \approx 1,55\ \text{mm} \\ L = \frac{8,5}{2 \cdot \tan 59^\circ} \approx 2,55\ \text{mm}" caption="Kąt 140°; Kąt 118°" kind="obliczenie" />
+
+**Chłodzenie.** Chłodziwo podaje się z zewnątrz albo przez kanały w wiertle, wprost na krawędzie skrawające. Chłodzenie wewnętrzne jest skuteczne zwłaszcza przy otworach o głębokości 5 × D i większej oraz w materiałach trudnoobrabialnych. Mitsubishi Materials zaleca w obu przypadkach ciśnienie powyżej 1 MPa. Przy chłodzeniu zewnętrznym wióry są bardzo gorące, a krawędź nagrzewa się mocniej.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc i posuw na obrót f podaje katalog producenta dla konkretnego wiertła i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Przy wierceniu posuw podaje się na obrót, a posuw minutowy liczy się z obrotów:
+
+<Wzor f="n = \frac{1000 \cdot V_c}{\pi \cdot D} \\ v_f = f \cdot n" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica wiertła [mm]; v_f — posuw minutowy [mm/min]; f — posuw na obrót [mm/obr]" caption="Obroty wrzeciona; Posuw minutowy" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): wiertło z węglika ⌀8,5 mm, Vc = 80 m/min, f = 0,15 mm/obr.
+
+<Wzor f="n = \frac{1000 \cdot 80}{3,14 \cdot 8,5} \approx 2997\ \text{obr/min} \\ v_f = 0,15 \cdot 2997 \approx 450\ \text{mm/min}" caption="Obroty wrzeciona; Posuw minutowy" kind="obliczenie" />
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Za długie wiertło:** długie rowki zmniejszają sztywność. Otwór schodzi z osi, a wiertło może się złamać.
+* **Głębokość liczona do wierzchołka:** w otworze nieprzelotowym pełna średnica kończy się o długość stożka wyżej. Gwint albo pasowanie wyjdzie wtedy za krótkie.
+* **Głęboki otwór bez wycofania i bez chłodzenia:** wiór zapycha rowki. Przy głębokich otworach stosuje się cykl G83 albo wiertło z chłodzeniem wewnętrznym.
+* **Start bez nawiercenia:** wiertło prowadzi dopiero wywiercona część otworu, więc na początku może zbaczać. Na frezarce otwór zaczyna się zwykle nawiertakiem.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Płytki otwór wierci się cyklem G81, a otwór z płaskim dnem pogłębienia cyklem G82 z postojem w dnie. Głęboki otwór wierci się cyklem G83: po każdym kroku Q wiertło wraca do płaszczyzny R i wyprowadza wiór. Cykl G73 cofa wiertło tylko o niewielki odstęp, więc łamie wiór i działa szybciej.
+
+<Diagram id="g73" />
+
+Program poniżej wierci otwór przelotowy ⌀8,5 mm pod gwint M10 w płytce grubości 20 mm. Najpierw nawiertak 142° robi płytkie wgłębienie; jego kąt nie jest mniejszy od kąta wiertła (artykuł [Nawiertak](/technologia/narzedzia/nawiertak)). Potem wiertło wierci cyklem G83 z obrotami i posuwem z przykładu rachunkowego. Głębokość Z−23 to grubość płytki, długość stożka 1,55 mm i zapas na wyjście wiertła.
+
+<Sim mode="mill" caption="Otwór ⌀8,5 mm przez płytkę 20 mm: nawiercanie G81, wiercenie G83 z krokiem 4 mm.">
+  ```
+  (POLFABRYKAT 60X40X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (NAWIERTAK FI10 142ST)
+  G00 G43 H1 Z50.
+  S2000 M03
+  G00 X30. Y20.
+  G00 Z10.
+  G99 G81 Z-1. R2. F200
+  G80
+  G00 Z50.
+  M05
+  T2 M06 (WIERTLO FI8.5 140ST)
+  G00 G43 H2 Z50.
+  S2997 M03
+  M08
+  G00 X30. Y20.
+  G00 Z10.
+  G99 G83 Z-23. R2. Q4. F450
+  G80
+  G00 Z50.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na nawiertak. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1.
+2. `S2000 M03` włącza obroty nawiertaka. `G00 X30. Y20.` i `G00 Z10.` ustawiają go nad otworem.
+3. `G99 G81 Z-1. R2. F200` nawierca wgłębienie na głębokość 1 mm i wraca do płaszczyzny R.
+4. `G80` kończy cykl, `G00 Z50.` wycofuje nawiertak, `M05` zatrzymuje wrzeciono.
+5. `T2 M06` wymienia narzędzie na wiertło. `G00 G43 H2 Z50.` włącza korekcję długości z rejestru H2.
+6. `S2997 M03` i `M08` włączają obroty z przykładu rachunkowego i chłodziwo.
+7. `G99 G83 Z-23. R2. Q4. F450` wierci otwór krokami po 4 mm i po każdym kroku wycofuje wiertło do R.
+8. `G80` kończy cykl. `G00 Z50.` wycofuje wiertło, `M09` i `M05` wyłączają chłodziwo i wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F5.1 (G81 i G82), F5.2 (G83 i G73), F5.4 (G98, G99 i G80), T6.2 (wiercenie na tokarce).

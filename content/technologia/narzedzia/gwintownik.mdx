@@ -1,0 +1,164 @@
+---
+title: Gwintownik
+slug: gwintownik
+dzial: narzedzia
+typ: narzedzie
+order: 110
+short: >-
+  Gwintownik skrawający (rowki proste, ostrze śrubowe, rowki śrubowe) i
+  wygniatający: formy nakroju, otwór pod gwint, oprawka kompensacyjna i
+  gwintowanie sztywne, cykl G84.
+obrobka:
+  - wiercenie
+  - frezowanie
+poziom: 2
+normy:
+  - DIN 2197
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-typ-gwintownika
+    where: >-
+      cztery rodzaje: z rowkami prostymi, z ostrzem śrubowym, z rowkami
+      śrubowymi i wygniatający; wybór zależy od otworu (przelotowy,
+      nieprzelotowy) i materiału; gwintownik wygniatający nie daje wióra, jeden
+      rodzaj do różnych materiałów i obu rodzajów otworów, stabilna konstrukcja
+      i mniejsze ryzyko złamania; rodzaj otworu decyduje o formie nakroju
+  - id: seco-gwintowniki
+    where: >-
+      rowki proste — materiały o krótkim wiórze, wiór częściowo w rowkach,
+      otwory przelotowe, długość gwintu do 1,5 × D; ostrze śrubowe — otwory
+      przelotowe, wiór pchany do przodu, nakrój B, do 3 × D; rowki śrubowe —
+      materiały o długim wiórze, wiór do chwytu, nakrój C w otworach
+      nieprzelotowych; wygniatający — bez wióra, inna średnica otworu; nakrój B
+      3,5–5 zwojów, C 2–3,5 zwoju, E 1,5–2 zwoju (mało miejsca pod gwintem);
+      oprawka z kompensacją osiową; gwintowanie sztywne — sterowanie wiąże
+      posuw, obroty i skok, równiejszy gwint i mniejsze ryzyko złamania
+  - id: iscar-gwintowniki
+    where: formy nakroju według DIN 2197
+  - id: sandvik-corotap
+    where: >-
+      średnica otworu pod gwintownik skrawający ≈ średnica nominalna minus skok;
+      gwintownik wygniatający wymaga większego otworu
+  - id: haas-ap602
+    where: F = skok × obroty przy G94 i F = skok przy G95 w cyklu G84
+powiazane:
+  kody:
+    - g84
+    - m29
+    - g98-g99
+    - g94-g95
+  lekcje:
+    - F5.3
+    - F5.4
+  hasla:
+    - nakrój-gwintownika
+    - gwintowanie-sztywne
+    - skok-gwintu
+    - wybieg-gwintu
+  artykuly:
+    - narzedzia/wiertlo-krete
+    - narzedzia/frez-do-gwintow
+  kalkulator: false
+---
+Gwintownik wykonuje gwint wewnętrzny w wywierconym wcześniej otworze. Na jeden obrót przesuwa się w osi dokładnie o skok gwintu, więc posuw musi wynikać z obrotów i skoku. Na frezarce gwintuje się cyklem G84.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-gwintowniki" />
+
+* **Chwyt:** część mocowana w oprawce.
+* **Część gwintowana:** zwoje o zarysie gwintu, który powstaje w otworze.
+* **Nakrój:** stożkowy początek części gwintowanej. Zwoje nakroju są ścięte i skrawają po kolei; dopiero za nakrojem gwintownik ma pełny zarys.
+* **Rowki:** odprowadzają wiór i doprowadzają chłodziwo. Gwintownik wygniatający nie ma rowków wiórowych.
+
+## Rodzaje \{#rodzaje}
+
+Sandvik Coromant dzieli gwintowniki na cztery rodzaje. Wybór zależy od tego, czy otwór jest przelotowy, czy nieprzelotowy, i od materiału.
+
+<Table caption="Rodzaje gwintowników — według Seco Tools i Sandvik Coromant">
+  | Rodzaj         | Wiór                   | Otwór                      | Uwagi                                        |
+  | -------------- | ---------------------- | -------------------------- | -------------------------------------------- |
+  | rowki proste   | częściowo w rowkach    | przelotowy                 | materiały o krótkim wiórze, gwint do 1,5 × D |
+  | ostrze śrubowe | pchany do przodu       | przelotowy                 | nakrój B, gwint do 3 × D                     |
+  | rowki śrubowe  | wyprowadzany do chwytu | nieprzelotowy              | materiały o długim wiórze, często nakrój C   |
+  | wygniatający   | brak, materiał płynie  | przelotowy i nieprzelotowy | większy otwór, mniejsze ryzyko złamania      |
+</Table>
+
+**Formy nakroju** opisuje DIN 2197. Seco Tools podaje długości nakroju w zwojach:
+
+* **B, długi, 3,5–5 zwojów:** cienki wiór, mały nacisk na nakroju. Stosowany głównie w gwintownikach z ostrzem śrubowym.
+* **C, średni, 2–3,5 zwoju:** forma typowa dla otworów nieprzelotowych i gwintowników z rowkami śrubowymi.
+* **E, krótki, 1,5–2 zwoju:** gruby wiór, duży nacisk na nakroju. Do otworów, w których pod gwintem jest mało miejsca.
+
+## Zastosowanie \{#zastosowanie}
+
+Gwintownikiem wykonuje się gwinty wewnętrzne w otworach przelotowych i nieprzelotowych. Gwint przy samym dnie otworu nieprzelotowego albo gwint o dużej średnicy wykonuje się też frezem do gwintów (artykuł [Frez do gwintów](/technologia/narzedzia/frez-do-gwintow)).
+
+## Dobór \{#dobór}
+
+**Otwór pod gwint.** Dla gwintownika skrawającego średnica otworu wynosi w przybliżeniu średnicę nominalną minus skok. Gwintownik wygniatający wymaga większego otworu; jego średnicę podaje producent, np. na chwycie narzędzia.
+
+<Wzor f="D_{otw} \approx D - P" legend="D_{otw} — średnica otworu pod gwintownik skrawający [mm]; D — średnica nominalna gwintu [mm]; P — skok gwintu [mm]" caption="Otwór pod gwintownik skrawający" />
+
+**Głębokość.** Pełny gwint zaczyna się dopiero za nakrojem. W otworze nieprzelotowym otwór musi być głębszy od gwintu o nakrój i zapas na wiór, a koniec gwintownika (Z w G84) leży o nakrój niżej niż koniec pełnego gwintu.
+
+<Wzor f="Z_k = -(L_g + n_z \cdot P)" legend="Z_k — położenie końca gwintownika [mm]; L_g — długość pełnego gwintu od Z0 [mm]; n_z — długość nakroju w zwojach; P — skok gwintu [mm]" caption="Położenie końca gwintownika" />
+
+**Oprawka.** Gwintownik mocuje się w oprawce z kompensacją osiową (pływającą) albo, gdy maszyna ma gwintowanie sztywne, w oprawce sztywnej. Przy gwintowaniu sztywnym sterowanie samo wiąże posuw, obroty i skok, co daje równiejszy gwint i mniejsze ryzyko złamania. W oprawce pływającej gwintownik z rowkami śrubowymi bywa wciągany w otwór szybciej, niż wynika ze skoku.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania gwintownika podaje katalog producenta dla konkretnego narzędzia i materiału. Ten artykuł nie podaje wartości zalecanych. Posuw nie jest do wyboru: wynika ze skoku.
+</Note>
+
+<Wzor f="F = n \cdot P \\ F = P" legend="F — posuw w cyklu G84; n — obroty wrzeciona [obr/min]; P — skok gwintu [mm]" caption="Posuw przy G94 [mm/min]; Posuw przy G95 [mm/obr]" />
+
+Przykład rachunkowy (obroty przyjęte do rachunku, nie zalecenie): gwint M10 × 1,5 przelotowy przez płytkę 20 mm, gwintownik z ostrzem śrubowym i nakrojem B (przyjęto 5 zwojów), 400 obr/min.
+
+<Wzor f="D_{otw} = 10 - 1,5 = 8,5\ \text{mm} \\ F = 400 \cdot 1,5 = 600\ \text{mm/min} \\ Z_k = -(20 + 5 \cdot 1,5) = -27,5\ \text{mm}" caption="Otwór pod gwint; Posuw przy G94; Koniec gwintownika" kind="obliczenie" />
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Posuw niezgodny ze skokiem:** gwintownik jest ciągnięty albo pchany względem zwojów, więc zrywa gwint albo pęka w otworze (lekcja F5.3).
+* **Z równe długości gwintu:** nakrój nie ma pełnego zarysu, więc ostatnie zwoje gwintu wychodzą niepełne.
+* **Za płytki otwór nieprzelotowy:** wiór i stożek wiertła nie mieszczą się pod gwintownikiem, który dochodzi do dna.
+* **Gwintownik wygniatający w otworze pod skrawający:** otwór jest za mały. Gwintownik wygniatający wymaga otworu o średnicy podanej przez producenta.
+* **Gwintownik z ostrzem śrubowym w otworze nieprzelotowym:** pcha wiór przed sobą, w stronę dna otworu.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Cykl G84 wkręca gwintownik do Z, w dnie odwraca obroty i wykręca go tym samym torem. Gwintowanie sztywne włącza na wielu sterowaniach kod M (np. M29 na Fanucu), a nazwę kodu ustala producent maszyny. Program poniżej nacina gwint M10 × 1,5 w otworze ⌀8,5 mm wywierconym wcześniej (artykuł [Wiertło kręte](/technologia/narzedzia/wiertlo-krete)), z wartościami z przykładu rachunkowego.
+
+<Diagram id="g84-depths" />
+
+<Sim mode="mill" caption="Gwint M10 × 1,5 przez płytkę 20 mm cyklem G84, posuw 600 mm/min przy 400 obr/min.">
+  ```
+  (POLFABRYKAT 60X40X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T3 M06 (GWINTOWNIK M10X1.5)
+  G00 G43 H3 Z50.
+  S400 M03
+  G00 X30. Y20.
+  G00 Z10.
+  G99 G84 Z-27.5 R5. F600
+  G80
+  G00 Z50.
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T3 M06` wymienia narzędzie na gwintownik. `G00 G43 H3 Z50.` włącza korekcję długości z rejestru H3.
+2. `S400 M03` włącza obroty prawe dla gwintu prawego.
+3. `G00 X30. Y20.` i `G00 Z10.` ustawiają gwintownik nad otworem.
+4. `G99 G84 Z-27.5 R5. F600` wkręca gwintownik od R5 do Z−27,5 z posuwem równym skokowi razy obroty, odwraca obroty i wykręca go do R.
+5. `G80` kończy cykl, `G00 Z50.` wycofuje narzędzie, `M05` zatrzymuje wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F5.3 (G84, gwintowanie), F5.4 (G98, G99 i G80).

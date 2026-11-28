@@ -1,0 +1,132 @@
+---
+title: Nawiertak
+slug: nawiertak
+dzial: narzedzia
+typ: narzedzie
+order: 100
+short: >-
+  Nawiertak NC (spot drill) i nawiertak do nakiełków: kąt nawiertaka a kąt
+  wiertła, głębokość nawiercania, nakiełek pod kieł i zapis cyklami G81 i G82.
+obrobka:
+  - wiercenie
+  - frezowanie
+  - toczenie
+poziom: 1
+normy:
+  - DIN 333
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: titan-nawiertaki
+    where: >-
+      nawiertaki NC o kątach 90°, 120° i 142°; poprawiają dokładność wiercenia i
+      fazują krawędź otworu; zalecany kąt nawiertaka równy kątowi wiertła albo
+      większy
+  - id: harvey
+    where: dobór kąta nawiertaka do kąta wiertła, które wierci po nim
+  - id: din333
+    where: nawiertaki do nakiełków 60°, formy R, A i B
+  - id: reca-din333
+    where: >-
+      nawiertak DIN 333 forma A — kąt 60°, bez stożka ochronnego, do nakiełków w
+      przedmiotach obracanych
+  - id: mmc-wiercenie
+    where: wiertła HSS zwykle 118°; otwór już wywiercony prowadzi wiertło
+    loc: Advanced Drilling — Point angle & cutting edge; Basics of drilling
+powiazane:
+  kody:
+    - g81-g83
+    - g82
+    - g98-g99
+  lekcje:
+    - F5.1
+    - F5.2
+  hasla:
+    - nawiertak
+  artykuly:
+    - narzedzia/wiertlo-krete
+    - narzedzia/frez-fazowy
+  kalkulator: false
+---
+Nawiertak to krótkie, sztywne narzędzie do wykonania płytkiego stożkowego wgłębienia. Nawiertak NC (spot drill) wyznacza miejsce, z którego startuje wiertło, i może sfazować krawędź otworu. Nawiertak do nakiełków robi w czole wałka nakiełek pod kieł tokarki.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-nawiertak" />
+
+* **(1) Część prowadząca:** walcowy czubek nawiertaka do nakiełków. Wierci mały otwór na dnie nakiełka.
+* **(2) Stożek 60°:** robi stożkową część nakiełka, na której opiera się kieł.
+* **(3) Nakiełek:** stożkowe gniazdo w czole wałka. Kieł podpiera w nim wałek podczas toczenia.
+
+Nawiertak NC ma tylko stożkowy wierzchołek bez części prowadzącej. Kąt wierzchołkowy φn porównuje się z kątem φw wiertła, które wierci po nim.
+
+## Rodzaje \{#rodzaje}
+
+* **Nawiertak NC (spot drill):** krótki, z dwoma ostrzami, o kątach np. 90°, 120° i 142°. Robi wgłębienie pod wiertło i fazkę na krawędzi otworu.
+* **Nawiertak do nakiełków (DIN 333):** stożek 60° z częścią prowadzącą. Norma DIN 333 opisuje formy R, A i B. Forma A nie ma stożka ochronnego.
+
+## Zastosowanie \{#zastosowanie}
+
+Nawiertak NC poprawia dokładność wiercenia: wiertło startuje we wgłębieniu, zamiast ślizgać się po płaskiej powierzchni. Później prowadzi je już wywiercona część otworu. Nawiertak o kącie 90° służy też do fazowania krawędzi otworu. Nawiertakiem do nakiełków przygotowuje się czoło długiego wałka pod kieł konika na tokarce.
+
+## Dobór \{#dobór}
+
+**Kąt nawiertaka.** Harvey Performance zaleca kąt nawiertaka równy kątowi wiertła albo większy (φn ≥ φw). Wtedy wiertło dotyka dna wgłębienia czubkiem, w osi otworu. Przy mniejszym kącie nawiertaka wiertło dotyka najpierw narożami, na stożku wgłębienia. Do wiertła HSS 118° pasuje nawiertak 120°, a do wiertła 140° — nawiertak 142°.
+
+**Głębokość nawiercania.** Średnica wgłębienia na powierzchni wynika z głębokości i kąta:
+
+<Wzor f="d = 2 \cdot z \cdot \tan(\varphi_n / 2) \\ z = \frac{d}{2 \cdot \tan(\varphi_n / 2)}" legend="d — średnica wgłębienia na powierzchni [mm]; z — głębokość nawiercania [mm]; \varphi_n — kąt nawiertaka [°]" caption="Średnica wgłębienia; Głębokość nawiercania" />
+
+Dla nawiertaka 90° tangens połowy kąta wynosi 1, więc głębokość to połowa średnicy. Przykład rachunkowy: wgłębienie nawiertakiem 142° na głębokość 1 mm oraz fazka 0,5 × 45° na otworze ⌀8,5 mm nawiertakiem 90° (średnica fazy 9,5 mm).
+
+<Wzor f="d = 2 \cdot 1 \cdot \tan 71^\circ \approx 5,81\ \text{mm} \\ z = \frac{9,5}{2 \cdot \tan 45^\circ} = 4,75\ \text{mm}" caption="Nawiertak 142°, głębokość 1 mm; Nawiertak 90°, fazka na otworze ⌀8,5" kind="obliczenie" />
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania i posuw nawiertaka podaje katalog producenta. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Obroty liczy się jak dla wiertła, dla średnicy nawiertaka; posuw minutowy to posuw na obrót razy obroty.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Nawiertak o kącie mniejszym niż wiertło:** wiertło dotyka stożka narożami, a nie czubkiem, więc wgłębienie go nie centruje.
+* **Głębokość nie policzona ze wzoru:** fazka wychodzi mniejsza albo większa niż na rysunku. Wynik sprawdza się na pierwszym otworze.
+* **Za długi nawiertak:** nawiertak ma być krótki i sztywny, bo ma wyznaczyć miejsce, a nie wiercić.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Nawierca się cyklem G81 (bez postoju) albo G82 (z postojem P w dnie, który wyrównuje dno i fazkę). Z w cyklu to położenie wierzchołka nawiertaka. Program poniżej nawierca trzy otwory nawiertakiem 142° na głębokość 1 mm, z postojem 0,2 s.
+
+<Sim mode="mill" caption="Nawiercanie trzech otworów cyklem G82 z postojem 0,2 s.">
+  ```
+  (POLFABRYKAT 80X40X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (NAWIERTAK FI10 142ST)
+  G00 G43 H1 Z50.
+  S2000 M03
+  G00 X20. Y20.
+  G00 Z10.
+  G99 G82 Z-1. R2. P200 F150
+  X40.
+  X60.
+  G80
+  G00 Z50.
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na nawiertak. `G00 G43 H1 Z50.` włącza korekcję długości z rejestru H1.
+2. `S2000 M03` włącza obroty. `G00 X20. Y20.` i `G00 Z10.` ustawiają nawiertak nad pierwszym otworem.
+3. `G99 G82 Z-1. R2. P200 F150` nawierca do Z−1, stoi w dnie 200 ms i wraca do płaszczyzny R.
+4. `X40.` i `X60.` powtarzają cykl w dwóch kolejnych miejscach.
+5. `G80` kończy cykl, `G00 Z50.` wycofuje nawiertak, `M05` zatrzymuje wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F5.1 (G81 i G82), F5.2 (wiercenie po nawierceniu).

@@ -146,6 +146,12 @@ export function inferTool(comment: string | undefined, mode: "mill" | "lathe"): 
     const m = c.match(/M(\d+(?:[.,]\d+)?)\s*[X×]\s*(\d+(?:[.,]\d+)?)/);
     return { ...makeTool("tap"), d: m ? Number(m[1].replace(",", ".")) : fi ?? 10, flutes: m ? Number(m[2].replace(",", ".")) : 1.5 };
   }
+  // V3.1b: frez do gwintów (FREZ DO GWINTOW FI12 P2 — średnica i skok) i rozwiertak (ROZWIERTAK FI10 H7) — przed regułami WIERT i FREZ
+  if (/GWINT|THREAD\s*MILL/.test(c)) {
+    const p = num(/\bP\s*(\d+(?:[.,]\d+)?)/) ?? num(/M\d+(?:[.,]\d+)?\s*[X×]\s*(\d+(?:[.,]\d+)?)/);
+    return { ...makeTool("threadmill"), d: fi ?? 8, ...(p ? { flutes: p } : {}) };
+  }
+  if (/ROZWIERT|REAMER/.test(c)) return { ...makeTool("reamer"), d: fi ?? 8 };
   if (/NAWIERT|SPOT/.test(c)) return { ...makeTool("spotdrill"), d: fi ?? 10, angle: deg ?? 90 };
   if (/WIERT|DRILL/.test(c)) return { ...makeTool("drill"), d: fi ?? 8, angle: deg ?? 118 };
   if (/GLOWIC|GŁOWIC|FACE/.test(c)) return { ...makeTool("facemill"), d: fi ?? 50 };

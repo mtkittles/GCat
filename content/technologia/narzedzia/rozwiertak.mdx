@@ -1,0 +1,172 @@
+---
+title: Rozwiertak
+slug: rozwiertak
+dzial: narzedzia
+typ: narzedzie
+order: 130
+short: >-
+  Rozwiertak maszynowy: nakrój i część prowadząca, naddatek na rozwiercanie,
+  klasa tolerancji otworu, otwór wstępny i cykl G85.
+obrobka:
+  - wiercenie
+  - frezowanie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: taylorjones-rozwiertaki
+    where: >-
+      rozwiertak wykańcza wywiercony otwór do dużej dokładności i gładkości,
+      zbierając mało materiału; nakrój 45° na czole rozwiertaka maszynowego to
+      część skrawająca, łysinki tylko prowadzą i centrują; rowki śrubowe lewe
+      przy skrawaniu prawym; za mały naddatek to częsty błąd, za duży też
+      szkodzi; na start połowa prędkości i dwa razy większy posuw niż przy
+      wierceniu
+  - id: hartner-rozwiertaki
+    where: >-
+      rozwiertaki w tolerancji H7, monolityczne z węglika i z ostrzami z
+      węglika, w wykonaniu do otworów przelotowych i nieprzelotowych; zalecany
+      naddatek na średnicy dla wszystkich materiałów: do ⌀6 — 0,1–0,2 mm, do ⌀10
+      — 0,2 mm, do ⌀16 — 0,2–0,3 mm, do ⌀25 — 0,3 mm, do ⌀40 — 0,3–0,4 mm; dla
+      stali hartowanej do 48 HRC mniejsze
+    loc: Reibahlen 2025, tabela „Optimal diameters of pre-drilled holes”
+  - id: sandvik-rozwiercanie
+    where: >-
+      naddatek zależy od materiału i powierzchni otworu wstępnego; rozwiercanie
+      nie poprawia położenia ani prostoliniowości otworu wstępnego;
+      prostoliniowość otworu wstępnego poniżej 0,05 mm; przesunięcie osi otworu
+      względem rozwiertaka jak najmniejsze, żeby uniknąć drgań; wejście na
+      skośnej powierzchni najwyżej 5°; jak najmniejsze bicie
+  - id: fanuc
+    where: G85 — wytaczanie z wyjazdem na posuwie
+    loc: rozdz. 3.1, tab. 3.1, s. 73
+powiazane:
+  kody:
+    - g85-g86
+    - g81-g83
+    - g98-g99
+  lekcje:
+    - F5.1
+    - F5.4
+  hasla:
+    - posuw-na-obrót
+  artykuly:
+    - narzedzia/wiertlo-krete
+    - narzedzia/wytaczadlo
+    - narzedzia/nawiertak
+  kalkulator: false
+---
+Rozwiertak wykańcza wywiercony otwór: zbiera niewielki naddatek i daje otwór o dokładnej średnicy i gładkiej ściance. W programie rozwiertak pracuje w cyklu G85: wjeżdża i wyjeżdża na posuwie.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-rozwiertak" />
+
+* **(1) Chwyt:** część mocowana w oprawce.
+* **(2) Część prowadząca:** ostrza z łysinkami na obwodzie. Łysinki tylko prowadzą i centrują rozwiertak w otworze.
+* **(3) Nakrój:** stożkowe ścięcie na czole, w rozwiertaku maszynowym pod kątem 45°. To ono skrawa.
+* **(4) Naddatek:** warstwa między otworem wstępnym o średnicy d a średnicą D po rozwierceniu, na rysunku przesadzona.
+
+## Rodzaje \{#rodzaje}
+
+* **Rowki proste i śrubowe:** w rozwiertaku z rowkami śrubowymi rowki mają kierunek przeciwny niż w wiertle: lewe przy skrawaniu prawym. Taki rozwiertak odpycha wiór od krawędzi skrawających.
+* **Do otworów przelotowych i nieprzelotowych:** Hartner oznacza wykonanie dla rodzaju otworu w katalogu.
+* **Monolityczne z węglika spiekanego i z ostrzami z węglika:** Hartner oferuje oba wykonania w tolerancji H7.
+
+## Zastosowanie \{#zastosowanie}
+
+Rozwiertak daje otwór w wąskiej tolerancji średnicy, np. H7, z gładką ścianką. Nie poprawia jednak położenia ani prostoliniowości otworu wstępnego, tylko idzie za nim. Gdy otwór musi leżeć dokładnie, otwór wstępny wierci się po nawiertaku, a krzywy otwór najpierw wytacza (artykuł [Wytaczadło](/technologia/narzedzia/wytaczadlo)).
+
+## Dobór \{#dobór}
+
+**Średnica rozwiertaka** odpowiada średnicy i klasie tolerancji otworu z rysunku, np. ⌀10 H7.
+
+**Naddatek.** Otwór wstępny wierci się mniejszy o naddatek na średnicy:
+
+<Wzor f="d = D - a" legend="d — średnica otworu wstępnego [mm]; D — średnica po rozwierceniu [mm]; a — naddatek na średnicy [mm]" caption="Średnica otworu wstępnego" />
+
+<Table caption="Zalecany naddatek na średnicy — według katalogu Hartner (wszystkie materiały)">
+  | Średnica otworu | Naddatek a |
+  | --------------- | ---------- |
+  | do ⌀6           | 0,1–0,2 mm |
+  | do ⌀10          | 0,2 mm     |
+  | do ⌀16          | 0,2–0,3 mm |
+  | do ⌀25          | 0,3 mm     |
+  | do ⌀40          | 0,3–0,4 mm |
+</Table>
+
+Taylor & Jones wskazuje za mały naddatek jako częsty błąd; za duży też szkodzi. Sandvik Coromant uzależnia naddatek także od materiału i powierzchni otworu wstępnego.
+
+**Otwór wstępny.** Według Sandvik Coromant jego prostoliniowość powinna być lepsza niż 0,05 mm. Oś otworu wstępnego i oś rozwiertaka mają się pokrywać możliwie dokładnie, a bicie rozwiertaka ma być małe, bo inaczej pojawiają się drgania.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania i posuw rozwiertaka podaje katalog producenta. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Taylor & Jones podaje jako punkt wyjścia połowę prędkości z wiercenia i dwa razy większy posuw na obrót:
+
+<Wzor f="n_r = \frac{n_w}{2} \\ f_r = 2 \cdot f_w" legend="n_r — obroty rozwiertaka [obr/min]; n_w — obroty wiertła tej samej średnicy [obr/min]; f_r — posuw rozwiertaka [mm/obr]; f_w — posuw wiertła [mm/obr]" caption="Obroty rozwiertaka; Posuw rozwiertaka" />
+
+Przykład rachunkowy (wartości wiercenia przyjęte do rachunku, nie zalecenie): otwór ⌀10 H7, naddatek 0,2 mm według tabeli, wiercenie przy 1000 obr/min i 0,1 mm/obr.
+
+<Wzor f="d = 10 - 0,2 = 9,8\ \text{mm} \\ n_r = \frac{1000}{2} = 500\ \text{obr/min} \\ v_f = 2 \cdot 0,1 \cdot 500 = 100\ \text{mm/min}" caption="Otwór wstępny; Obroty rozwiertaka; Posuw minutowy rozwiertaka" kind="obliczenie" />
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Za mały albo za duży naddatek:** zła średnica i powierzchnia otworu. Naddatek bierze się z katalogu rozwiertaka.
+* **Krzywy albo przesunięty otwór wstępny:** rozwiertak go nie wyprostuje, a przesunięcie osi wywołuje drgania.
+* **Wyjazd ruchem szybkim:** cykl, który wyjeżdża szybko przy obracającym się wrzecionie albo po jego zatrzymaniu, może zostawić rysę na ściance. Rozwiertak wyjeżdża na posuwie, cyklem G85.
+* **Wejście na skośnej powierzchni:** Sandvik Coromant dopuszcza najwyżej 5° pochylenia powierzchni wejścia.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Cykl G85 wjeżdża do Z na posuwie i na posuwie wyjeżdża do płaszczyzny R, przy obracającym się wrzecionie. Cykl G86 zatrzymuje wrzeciono w dnie i wyjeżdża szybko, więc do rozwiercania się nie nadaje.
+
+<Diagram id="g85-g86" />
+
+Program poniżej wierci otwór ⌀9,8 mm przez płytkę 20 mm i rozwierca go na ⌀10 H7 z wartościami z przykładu rachunkowego.
+
+<Sim mode="mill" caption="Otwór ⌀10 H7: wiercenie ⌀9,8 cyklem G81, rozwiercanie cyklem G85 przy 500 obr/min i 100 mm/min.">
+  ```
+  (POLFABRYKAT 60X40X20)
+  G21 G90 G94 G17
+  G40 G49 G80
+  G54
+  T1 M06 (WIERTLO FI9.8)
+  G00 G43 H1 Z50.
+  S1000 M03
+  M08
+  G00 X30. Y20.
+  G00 Z10.
+  G99 G81 Z-23. R2. F100
+  G80
+  G00 Z50.
+  M05
+  T2 M06 (ROZWIERTAK FI10 H7)
+  G00 G43 H2 Z50.
+  S500 M03
+  G00 X30. Y20.
+  G00 Z10.
+  G99 G85 Z-22. R2. F100
+  G80
+  G00 Z50.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `T1 M06` wymienia narzędzie na wiertło ⌀9,8. `S1000 M03` i `M08` włączają obroty i chłodziwo.
+2. `G99 G81 Z-23. R2. F100` wierci otwór wstępny przez płytkę i wraca do R; `G80` kończy cykl.
+3. `T2 M06` wymienia narzędzie na rozwiertak ⌀10, `G00 G43 H2 Z50.` włącza korekcję długości.
+4. `S500 M03` włącza obroty rozwiertaka z przykładu rachunkowego.
+5. `G99 G85 Z-22. R2. F100` rozwierca otwór na posuwie i na posuwie wraca do R.
+6. `G80` kończy cykl, `G00 Z50.` wycofuje narzędzie, `M09` i `M05` wyłączają chłodziwo i wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: F5.1 (cykle wiercenia), F5.4 (G98, G99 i G80).

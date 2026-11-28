@@ -1,0 +1,159 @@
+---
+title: Wiertło z płytkami
+slug: wiertlo-z-plytkami
+dzial: narzedzia
+typ: narzedzie
+order: 90
+short: >-
+  Wiertło z płytką środkową i obwodową: podział promienia, głębokość otworu,
+  sztywność, zmiana średnicy przesunięciem i ustawienie na tokarce.
+obrobka:
+  - wiercenie
+  - toczenie
+  - frezowanie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-wzory-wiercenie
+    where: >-
+      wiertło z płytką środkową i obwodową: prędkość skrawania spada od 100% na
+      obwodzie do zera w osi; n = vc · 1000 / (π · Dc), vf = fn · n
+  - id: iscar-wiercenie
+    where: >-
+      wiertła z płytkami głównie do otworów o średniej i dużej średnicy i
+      niewielkiej głębokości, zwykle do 4D; duży posuw na ostrze niepraktyczny z
+      powodu niewystarczającej sztywności wiertła; na tokarce przesunięcie osi o
+      0,8–3,5 mm zależnie od konstrukcji, na centrum obróbkowym — tuleje
+      mimośrodowe albo oprawki nastawne
+    loc: Drilling Handbook, s. 102
+  - id: sandvik-wiercenie-promieniowe
+    where: >-
+      przesunięcie promieniowe możliwe tylko wiertłem z płytkami; dokładna
+      średnica otworu przez nastawę albo otwór większy niż wiertło; największe
+      przesunięcie zależy od zakładki płytki środkowej i obwodowej; przesunięcie
+      zmienia siły skrawania — dobrać mniejszy posuw z zalecanego zakresu
+  - id: sumitomo-wiertla-plytki
+    where: >-
+      płytka obwodowa równolegle do osi X maszyny; zmiana średnicy przesunięciem
+      w X w kierunku dodatnim (powiększa otwór), w ujemnym niezalecana — oprawka
+      może trafić w ściankę; środek płytki środkowej 0,15–0,2 mm poniżej osi
+      wrzeciona, płytka środkowa powyżej osi pęka; przy wytaczaniu głębokość
+      skrawania do 1/5 średnicy wiertła, najwyżej 5 mm; przy przelotowym
+      wierceniu osłona na wylatujący wiór; ciśnienie chłodziwa od 1,0 MPa
+    loc: SCI General Catalog 2021–2022, s. J122
+powiazane:
+  kody:
+    - g81-g83
+    - g74
+    - g96-g97
+    - g90-g91
+  lekcje:
+    - T6.2
+    - T2.2
+    - F5.1
+  hasla:
+    - posuw-na-obrót
+    - vc-prędkość-skrawania
+  artykuly:
+    - narzedzia/wiertlo-krete
+    - narzedzia/wytaczadlo
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Wiertło z płytkami ma stalowy korpus i dwie płytki wymienne: środkową i obwodową. Każda skrawa część promienia otworu. Zużytą płytkę obraca się albo wymienia, a korpus zostaje. Wiertło wierci na frezarce (obraca się) i na tokarce (stoi, obraca się przedmiot).
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-wiertlo-plytki" />
+
+* **(1) Płytka środkowa:** skrawa od osi otworu. Przy osi prędkość skrawania spada do zera.
+* **(2) Płytka obwodowa:** skrawa zewnętrzną część promienia i wyznacza średnicę otworu. Pracuje z pełną prędkością skrawania.
+* **(3) Korpus z rowkami wiórowymi:** prowadzi wiór z obu płytek.
+* **(4) Kanał chłodziwa:** doprowadza chłodziwo do płytek przez korpus.
+
+Zakresy obu płytek zachodzą na siebie (zakładka na rysunku). Od tej zakładki zależy, o ile da się przesunąć wiertło, żeby zmienić średnicę otworu.
+
+## Rodzaje \{#rodzaje}
+
+* **Według długości:** długość robocza podawana jako wielokrotność średnicy, np. 2 × D, 3 × D, 4 × D. ISCAR podaje, że wiertła z płytkami wiercą zwykle otwory nie głębsze niż 4D.
+* **Wiertło obrotowe i nieruchome:** to samo wiertło pracuje we wrzecionie frezarki albo w głowicy tokarki.
+
+## Zastosowanie \{#zastosowanie}
+
+Wiertło z płytkami wierci otwory o średniej i dużej średnicy i niewielkiej głębokości. Przesunięte promieniowo wierci otwór większy niż jego średnica nominalna albo trafia w średnicę z ciaśniejszą tolerancją. Na tokarce może też wytaczać i toczyć, z małą głębokością skrawania.
+
+## Dobór \{#dobór}
+
+**Sztywność.** Według ISCAR duży posuw na ostrze jest tu niepraktyczny, bo wiertło jest za mało sztywne. Dlatego wiertło dobiera się możliwie krótkie, a oprawkę i mocowanie przedmiotu — sztywne. Przy przesunięciu promieniowym Sandvik Coromant zaleca mniejszy posuw z zalecanego zakresu.
+
+**Przesunięcie i średnica.** Przesunięcie osi o e powiększa średnicę otworu o 2e:
+
+<Wzor f="D_o = D + 2 \cdot e" legend="D_o — średnica otworu [mm]; D — średnica wiertła [mm]; e — przesunięcie osi wiertła [mm]" caption="Średnica otworu po przesunięciu" />
+
+Maksymalne przesunięcie podaje katalog wiertła. ISCAR podaje zakres 0,8–3,5 mm, zależnie od konstrukcji. Na centrum obróbkowym przesuwa się wiertło tuleją mimośrodową albo oprawką nastawną, a na tokarce — osią X.
+
+**Ustawienie na tokarce** (według zaleceń Sumitomo dla wierteł WDX):
+
+* Płytka obwodowa leży równolegle do osi X maszyny.
+* Średnicę zmienia się przesunięciem w X w kierunku dodatnim, czyli powiększającym otwór. Przesunięcie w stronę ujemną nie jest zalecane, bo oprawka może trafić w ściankę otworu.
+* Środek płytki środkowej leży konstrukcyjnie 0,15–0,2 mm poniżej osi wrzeciona. Płytka środkowa ustawiona powyżej osi pęka.
+* Przy toczeniu i wytaczaniu wiertłem głębokość skrawania nie przekracza 1/5 średnicy wiertła i 5 mm.
+* Przy wierceniu przelotowym na tokarce potrzebna jest osłona na wylatujący wiór.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc, posuw na obrót f i ciśnienie chłodziwa podaje katalog producenta dla konkretnego wiertła, płytek i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Obroty liczy się dla średnicy wiertła, czyli dla płytki obwodowej. Na tokarce wiercenie w osi programuje się w trybie stałych obrotów G97:
+
+<Wzor f="n = \frac{1000 \cdot V_c}{\pi \cdot D} \\ v_f = f \cdot n" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica wiertła [mm]; v_f — posuw minutowy [mm/min]; f — posuw na obrót [mm/obr]" caption="Obroty wrzeciona; Posuw minutowy" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): wiertło ⌀20 mm, Vc = 150 m/min, f = 0,08 mm/obr, otwór ⌀20,4 mm.
+
+<Wzor f="n = \frac{1000 \cdot 150}{3,14 \cdot 20} \approx 2389\ \text{obr/min} \\ e = \frac{20,4 - 20}{2} = 0,2\ \text{mm}" caption="Obroty wrzeciona; Przesunięcie osi wiertła" kind="obliczenie" />
+
+Na tokarce X podaje się jako średnicę, więc przesunięcie e = 0,2 mm to w programie X0.4.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Płytka środkowa powyżej osi:** płytka pęka. Wysokość ostrza na tokarce sprawdza się przy ustawianiu narzędzia.
+* **Przesunięcie w złą stronę:** oprawka ociera o ściankę otworu. Kierunek przesunięcia zależy od położenia płytki obwodowej.
+* **Za głęboki otwór:** wiertło z płytkami jest krótkie. Głębszy otwór wymaga wiertła krętego albo wiertła do głębokich otworów.
+* **G96 przy wierceniu w osi:** przy średnicy zero sterowanie podnosi obroty do limitu G50 (lekcja T6.2).
+
+## W G-kodzie \{#w-g-kodzie}
+
+Na frezarce wiertło z płytkami pracuje w cyklach G81 i G83 jak wiertło kręte. Na tokarce nieruchome wiertło wierci w osi posuwem w Z, przy stałych obrotach G97 i posuwie na obrót G99 (Fanuc, system A). Program poniżej wierci otwór ⌀20,4 mm wiertłem ⌀20 przesuniętym w X o 0,2 mm na stronę, z wartościami z przykładu rachunkowego.
+
+<Sim mode="lathe" caption="Wiertło z płytkami ⌀20 przesunięte w X0.4: otwór ⌀20,4 mm na głębokość 40 mm.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  T0505 (WIERTLO FI20)
+  G97 S2389 M03
+  M08
+  G00 X0.4 Z2.
+  G01 Z-40. F0.08
+  G00 Z2.
+  G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `G18 G21 G40 G80 G99` ustawia płaszczyznę ZX, milimetry, wyłącza korekcję promienia i cykle, włącza posuw na obrót.
+2. `T0505` wybiera wiertło z korekcją 05. `G97 S2389 M03` włącza stałe obroty z przykładu rachunkowego.
+3. `G00 X0.4 Z2.` ustawia wiertło 2 mm przed czołem, przesunięte o 0,2 mm od osi.
+4. `G01 Z-40. F0.08` wierci na głębokość 40 mm z posuwem 0,08 mm/obr.
+5. `G00 Z2.` wycofuje wiertło z otworu, `G00 X100. Z100.` odjeżdża od detalu.
+6. `M09` i `M05` wyłączają chłodziwo i wrzeciono, `M30` kończy program.
+
+Kolejne lekcje: T6.2 (wiercenie w osi na tokarce), T2.2 (G96 i G97).

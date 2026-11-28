@@ -368,6 +368,117 @@ export const sources: Record<string, Source> = {
     title: "Technical information — oznaczenia geometrii gwintowników (formy nakroju)",
     url: "https://www.vergnano.com", accessed: "10/2026",
   },
+  // V3.1b Otwory (2026-11-28)
+  "mmc-wiercenie": {
+    id: "mmc-wiercenie", short: "Mitsubishi Materials — kurs wiercenia", author: "Mitsubishi Materials",
+    title: "Advanced Drilling — kurs: budowa wiertła, kąt wierzchołkowy, chłodzenie, dobór wiertła",
+    url: "https://www.mmc-carbide.com/permanent/courses/68/parts%2c-properties---functions.html", accessed: "11/2026",
+  },
+  "sandvik-wzory-wiercenie": {
+    id: "sandvik-wzory-wiercenie", short: "Sandvik Coromant — wzory wiercenia", author: "Sandvik Coromant",
+    title: "Drilling formulas and definitions — obroty, posuw na obrót i posuw minutowy przy wierceniu (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/machining-formulas-definitions/drilling-formulas-definitions", accessed: "11/2026",
+    internal: "Strona renderowana skryptem, wzory obrazkami; treść (n, vf, fn; prędkość skrawania wiertła z płytkami spada od 100% na obwodzie do zera w osi) potwierdzona wynikiem wyszukiwarki.",
+  },
+  "sumitomo-wiertla-plytki": {
+    id: "sumitomo-wiertla-plytki", short: "Sumitomo Electric — wiertła z płytkami na tokarce", author: "Sumitomo Electric Hardmetal",
+    title: "SCI General Catalog 2021–2022 — Indexable Insert Drills WDX Type, Lathe Machining Guidelines",
+    edition: "2021–2022",
+    url: "https://online.flippingbook.com/view/895750/944", accessed: "11/2026",
+    note: "Zalecenia dla wierteł WDX tego producenta; inne wiertła — według ich katalogu.",
+  },
+  "iscar-wiercenie": {
+    id: "iscar-wiercenie", short: "ISCAR — poradnik wiercenia", author: "ISCAR",
+    title: "Drilling Handbook — wiertła z płytkami wymiennymi",
+    url: "https://www.iscar.com/Catalogs/Publication/english_1/Drilling_Handbook/Drilling_Handbook_flipview/files/basic-html/page102.html", accessed: "11/2026",
+  },
+  "sandvik-wiercenie-promieniowe": {
+    id: "sandvik-wiercenie-promieniowe", short: "Sandvik Coromant — wiercenie z przesunięciem promieniowym", author: "Sandvik Coromant",
+    title: "Radial adjusted drilling — zmiana średnicy wiertła z płytkami przez przesunięcie (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/drilling/radial-adjusted-drilling", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "titan-nawiertaki": {
+    id: "titan-nawiertaki", short: "Titan USA (Harvey Performance) — nawiertaki", author: "Titan USA, Harvey Performance Company",
+    title: "Spot Drills — Carbide: kąty 90°, 120°, 142°; kąt nawiertaka równy kątowi wiertła albo większy (strona producenta)",
+    url: "https://www.titancuttingtools.com/products/spot-drills", accessed: "11/2026",
+  },
+  din333: {
+    id: "din333", short: "DIN 333", author: "DIN",
+    title: "DIN 333 — Zentrierbohrer 60°; Form R, A und B (nawiertaki do nakiełków 60°, formy R, A i B)",
+    edition: "1986-04",
+    url: "https://www.din.de/en/wdc-beuth:din21:1284124", accessed: "11/2026",
+    internal: "Treści normy nie czytano — tytuł i formy z karty normy w katalogu DIN; forma A bez stożka ochronnego potwierdzona kartą produktu RECA.",
+  },
+  "reca-din333": {
+    id: "reca-din333", short: "RECA — nawiertak DIN 333 forma A", author: "RECA",
+    title: "HSS centre drill bit DIN 333 — forma A, kąt 60°, bez stożka ochronnego (karta produktu)",
+    url: "https://shop.recanorm.de/Complete-catalogue/HSS-centre-drill-bit-DIN-333/1601CL02_03030601.cyid/1601.cgid/en/US/EUR", accessed: "11/2026",
+  },
+  "sandvik-typ-gwintownika": {
+    id: "sandvik-typ-gwintownika", short: "Sandvik Coromant — wybór rodzaju gwintownika", author: "Sandvik Coromant",
+    title: "How to choose the right type of tap — rowki proste, ostrze śrubowe, rowki śrubowe, gwintownik wygniatający (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/threading/tapping/how-to-choose-tap-type", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; podział na cztery rodzaje i cechy gwintownika wygniatającego potwierdzone wynikiem wyszukiwarki.",
+  },
+  "seco-gwintowniki": {
+    id: "seco-gwintowniki", short: "Seco Tools — gwintowniki", author: "Seco Tools",
+    title: "Elevate Thread Quality and Cost Effectiveness with Seco's Experts — rowki, formy nakroju, oprawki (artykuł producenta)",
+    url: "https://www.secotools.com/article/124478", accessed: "11/2026",
+  },
+  "sandvik-frezowanie-gwintow": {
+    id: "sandvik-frezowanie-gwintow", short: "Sandvik Coromant — frezowanie gwintów", author: "Sandvik Coromant",
+    title: "Thread milling application tips — kierunek obiegu, wejście i wyjście, osie X, Y, Z (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/threading/thread-milling/application-tips", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "iscar-frezowanie-gwintow": {
+    id: "iscar-frezowanie-gwintow", short: "ISCAR — poradnik gwintowania, frezowanie gwintów", author: "ISCAR",
+    title: "Threading Handbook — Thread Milling: zalety i zasada frezowania gwintów",
+    url: "https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page154.html", accessed: "11/2026",
+  },
+  "iscar-frez-gwint-program": {
+    id: "iscar-frez-gwint-program", short: "ISCAR — program frezowania gwintu wewnętrznego", author: "ISCAR",
+    title: "Milling Catalog, User Guide — Thread Milling CNC Program for Internal Thread (gwint prawy, współbieżnie, od dołu)",
+    url: "https://iscar.com/Catalogs/flipview/flipview2022/english-1/MILLING-CATALOG-38_2021-p319-548/files/basic-html/page121.html", accessed: "11/2026",
+  },
+  "cte-frezowanie-gwintow": {
+    id: "cte-frezowanie-gwintow", short: "Cutting Tool Engineering — frezowanie gwintów", author: "Cutting Tool Engineering",
+    title: "Thread milling, simplified — frezy jedno- i wielozarysowe, interpolacja śrubowa (artykuł)",
+    url: "https://ctemag.com/articles/thread-milling-simplified/", accessed: "11/2026",
+  },
+  "hartner-rozwiertaki": {
+    id: "hartner-rozwiertaki", short: "Hartner — katalog rozwiertaków", author: "Hartner",
+    title: "Reibahlen / Reamers 2025 — rozwiertaki H7, zalecany naddatek na rozwiercanie (katalog producenta)",
+    edition: "2025",
+    url: "https://www.hartner.de/wp-content/uploads/2025/12/HAR_Reibahlen_2025_EN_Web.pdf", accessed: "11/2026",
+    note: "Naddatki dla rozwiertaków tego producenta; inne narzędzia — według ich katalogu.",
+  },
+  "sandvik-rozwiercanie": {
+    id: "sandvik-rozwiercanie", short: "Sandvik Coromant — rozwiercanie", author: "Sandvik Coromant",
+    title: "How to ream a hole — naddatek, otwór wstępny, wejście na skos (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/reaming/how-to-ream-a-hole", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-wytaczanie-zgrubne": {
+    id: "sandvik-wytaczanie-zgrubne", short: "Sandvik Coromant — wytaczanie zgrubne", author: "Sandvik Coromant",
+    title: "Rough boring — wytaczanie wieloostrzowe, stopniowe i jednoostrzowe (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/boring/rough-boring", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-wytaczanie-dokladne": {
+    id: "sandvik-wytaczanie-dokladne", short: "Sandvik Coromant — wytaczanie dokładne", author: "Sandvik Coromant",
+    title: "Finish boring — małe głębokości skrawania, nastawa średnicy, kąt przystawienia (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/boring/finish-boring", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "taylorjones-rozwiertaki": {
+    id: "taylorjones-rozwiertaki", short: "Taylor & Jones — rozwiertaki", author: "Taylor & Jones",
+    title: "Reamers — Nomenclature and Definitions; Reaming Tips (materiał producenta)",
+    url: "https://web.mae.ufl.edu/designlab/Lab%20Resources/ReamingTips.pdf", accessed: "11/2026",
+    note: "Wartości jako punkt wyjścia; dane konkretnego rozwiertaka podaje jego katalog.",
+    internal: "Kopia materiału producenta na stronie uczelni (University of Florida); wydania nie podano.",
+  },
 };
 
 /** Opis dokumentu w jednej linii: producent, tytuł, wydanie, numer. */
