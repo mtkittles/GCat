@@ -479,6 +479,106 @@ export const sources: Record<string, Source> = {
     note: "Wartości jako punkt wyjścia; dane konkretnego rozwiertaka podaje jego katalog.",
     internal: "Kopia materiału producenta na stronie uczelni (University of Florida); wydania nie podano.",
   },
+  // V3.1c — noże tokarskie
+  "sandvik-jakosc-toczenie": {
+    id: "sandvik-jakosc-toczenie", short: "Sandvik Coromant — jakość przy toczeniu", author: "Sandvik Coromant",
+    title: "How to achieve good component quality in turning — wiór, kąt przystawienia, chropowatość, płytki wiper (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/general-turning/how-to-achieve-good-component-quality-in-turning", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-toczenie-wewnetrzne": {
+    id: "sandvik-toczenie-wewnetrzne", short: "Sandvik Coromant — toczenie wewnętrzne", author: "Sandvik Coromant",
+    title: "Internal turning — wysięg, wielkość narzędzia, płytki pozytywowe, kąt przystawienia (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/general-turning/internal-turning", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-wytaczaki-wysieg": {
+    id: "sandvik-wytaczaki-wysieg", short: "Sandvik Coromant — wysięg wytaczaków", author: "Sandvik Coromant",
+    title: "Turning application guide — największy zalecany wysięg wytaczaków stalowych, węglikowych i tłumionych (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/turning-appl-guide", accessed: "11/2026",
+    note: "Wysięg podany jako wielokrotność średnicy trzonka BD; dane konkretnego wytaczaka podaje katalog.",
+    internal: "Strona renderowana skryptem; tabela wysięgów potwierdzona wynikiem wyszukiwarki.",
+  },
+  "mmc-wytaczak-drgania": {
+    id: "mmc-wytaczak-drgania", short: "Mitsubishi Materials — drgania wytaczaka", author: "Mitsubishi Materials",
+    title: "Basic Turning — kurs e-learningowy producenta, rozdział Vibrations and cutting resistance of boring bars",
+    url: "https://www.mmc-carbide.com/permanent/courses/75/vibrations-and-cutting-resistance-of-boring-bars.html", accessed: "11/2026",
+  },
+  "mmc-wytaczak-dobor": {
+    id: "mmc-wytaczak-dobor", short: "Mitsubishi Materials — dobór wytaczaka", author: "Mitsubishi Materials",
+    title: "Basic Turning — kurs e-learningowy producenta, rozdział Selecting a boring bar",
+    url: "https://www.mmc-carbide.com/permanent/courses/75/selecting-a-boring-bar.html", accessed: "11/2026",
+  },
+  "mmc-wzory-toczenie": {
+    id: "mmc-wzory-toczenie", short: "Mitsubishi Materials — wzory toczenia", author: "Mitsubishi Materials",
+    title: "Formula for turning — prędkość skrawania, posuw, czas skrawania, teoretyczna chropowatość (informacja techniczna producenta)",
+    url: "https://www.mmc-carbide.com/en_jp/technical_information/formula/tec_turning_formula", accessed: "11/2026",
+    note: "Chropowatość teoretyczna — wysokość nierówności z geometrii naroża; zmierzona zależy też od drgań, zużycia i materiału.",
+  },
+  "sandvik-przecinanie": {
+    id: "sandvik-przecinanie", short: "Sandvik Coromant — przecinanie", author: "Sandvik Coromant",
+    title: "Parting off — wysięg, wysokość osi, zmniejszenie posuwu przy osi, szerokość płytki (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/parting-and-grooving/parting-off", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki (wersje en-gb i en-us).",
+  },
+  "iscar-przecinanie": {
+    id: "iscar-przecinanie", short: "ISCAR — przecinanie, ustawienie płytki", author: "ISCAR",
+    title: "Turning catalog (inch) 2022 — Parting user guide: ustawienie płytki, wysokość krawędzi względem osi",
+    url: "https://iscar.com/Catalogs/publication-2022/english-1/Turning_catalog_INCH_2022_45/flipview_Turning_catalog_INCH_2022_P509-690/files/basic-html/page87.html", accessed: "11/2026",
+    note: "Wartości w calach, dla przecinaków TANG-GRIP.",
+  },
+  "seco-przecinak-150-10": {
+    id: "seco-przecinak-150-10", short: "Seco Tools — system przecinania 150.10", author: "Seco Tools",
+    title: "150.10 — Parting-Off: ostrze nożowe ze stali szybkotnącej i oprawka (strona producenta)",
+    url: "https://www.secotools.com/article/n150_10___parting_off?language=en", accessed: "11/2026",
+  },
+  "seco-przecinak-karta": {
+    id: "seco-przecinak-karta", short: "Seco Tools — nóż do rowków i przecinania (karta)", author: "Seco Tools",
+    title: "Groove and cut-off tool — karta informacyjna: wysokość osi, posuw przy końcu przecinania, chłodziwo",
+    url: "https://storage.googleapis.com/ma-static/pdf/1679887-faktablad_c145en_english.pdf", accessed: "11/2026",
+    internal: "Karta opisuje „Seco's cut-off tool”; plik na serwerze zewnętrznym, wydawcy (Seco czy dystrybutor) i daty wydania nie potwierdzono.",
+  },
+  "sandvik-dosuw-gwint": {
+    id: "sandvik-dosuw-gwint", short: "Sandvik Coromant — sposób dosuwu przy toczeniu gwintu", author: "Sandvik Coromant",
+    title: "How to choose infeed method in thread turning operations — dosuw zmodyfikowany wzdłuż boku, promieniowy, naprzemienny (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/threading/thread-turning/how-to-choose-infeed-method-in-thread-turning-operations", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-plytka-gwint": {
+    id: "sandvik-plytka-gwint", short: "Sandvik Coromant — płytka i podkładka do gwintów", author: "Sandvik Coromant",
+    title: "How to choose thread turning insert and shim — płytki z pełnym zarysem i V, nachylenie płytki równe kątowi wzniosu (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/threading/thread-turning/how-to-choose-thread-turning-insert-and-shim", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "sandvik-gwint-wskazowki": {
+    id: "sandvik-gwint-wskazowki", short: "Sandvik Coromant — wskazówki do toczenia gwintów", author: "Sandvik Coromant",
+    title: "Thread turning application tips — wiór, średnica przed gwintowaniem, gwinty wielokrotne (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/threading/thread-turning/thread-turning-application-tips", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
+  },
+  "iscar-toczenie-gwintow": {
+    id: "iscar-toczenie-gwintow", short: "ISCAR — poradnik gwintowania, toczenie gwintów", author: "ISCAR",
+    title: "Threading Handbook — sposoby dosuwu (2.11), głębokość i liczba przejść (2.12), kąt wzniosu i podkładki",
+    url: "https://iscar.com/Catalogs/flipview/reference-user-guides/Threading_Handbook/files/basic-html/page117.html", accessed: "11/2026",
+  },
+  "mmc-gwint-metody": {
+    id: "mmc-gwint-metody", short: "Mitsubishi Materials — metody toczenia gwintów", author: "Mitsubishi Materials",
+    title: "Threading — guide: sposoby dosuwu, głębokość ostatniego przejścia, przykład programu z dosuwem zmodyfikowanym (informacja techniczna producenta)",
+    url: "https://www.mmc-carbide.com/us/technical_information/tec_turning_tools/tec_threading/guide/tec_threading_methods", accessed: "11/2026",
+  },
+  "kennametal-gwint": {
+    id: "kennametal-gwint", short: "Kennametal — dane techniczne noży do gwintów", author: "Kennametal",
+    title: "Threading Tools, Technical Data (Top Notch) — kąt dosuwu, sposoby dosuwu, głębokość ostatniego przejścia",
+    url: "https://www1.mscdirect.com/images/solutions/kennametal/tnThreadingTechData.pdf", accessed: "11/2026",
+    note: "Strony katalogu C58–C60.",
+    internal: "Wyciąg z katalogu Kennametal na serwerze dystrybutora (MSC); wydania nie podano.",
+  },
+  "cnccookbook-g76": {
+    id: "cnccookbook-g76", short: "CNCCookbook — cykl G76 na tokarce", author: "CNCCookbook",
+    title: "G76 Lathe Threading Cycle — kurs G-kodu: zapis dwublokowy Fanuc, kąt w adresie P a kąt dosuwu",
+    url: "https://s3.amazonaws.com/s3.cnccookbook.com/CCCNCGCodeG76LatheThreadingCycle.htm", accessed: "11/2026",
+    note: "Poradnik, nie instrukcja sterowania; zakres kątów i działanie cyklu podaje instrukcja maszyny.",
+  },
 };
 
 /** Opis dokumentu w jednej linii: producent, tytuł, wydanie, numer. */

@@ -1,0 +1,191 @@
+---
+title: Nóż tokarski wewnętrzny (wytaczak)
+slug: noz-tokarski-wewnetrzny
+dzial: narzedzia
+typ: narzedzie
+order: 160
+short: >-
+  Wytaczak do toczenia otworów: wysięg a średnica trzonka, rodzaje trzonków,
+  dobór płytki i kąta przystawienia, odprowadzanie wióra z otworu.
+obrobka:
+  - toczenie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-toczenie-wewnetrzne
+    where: >-
+      długi wysięg i odprowadzanie wióra to główne trudności; narzędzie o
+      możliwie krótkim wysięgu i dużej średnicy; płytki pozytywowe mają mniejsze
+      siły skrawania; mały kąt naroża i mały promień naroża zmniejszają siły;
+      kąt przystawienia bliski 90°, nie mniejszy niż 75°; przy odsadzeniu
+      oprawka 91–95°, płytka trójkątna albo D (55°)
+  - id: sandvik-wytaczaki-wysieg
+    where: >-
+      toczenie wewnętrzne jest wrażliwe na drgania — krótki wysięg, duże
+      narzędzie; największy zalecany wysięg przy toczeniu: trzonek stalowy 4 ×
+      BD, węglikowy 6 × BD, stalowy tłumiony 10 × BD, tłumiony wzmocniony
+      węglikiem 14 × BD; przy rowkowaniu i gwintowaniu mniej (stalowy 3 × BD,
+      węglikowy 5 × BD); trzonek wzmocniony węglikiem ok. 2,5 raza sztywniejszy
+      statycznie od stalowego
+  - id: mmc-wytaczak-drgania
+    where: >-
+      wysięg wytaczaka dłuższy niż oprawki zewnętrznej, stąd skłonność do drgań;
+      dla L/D powyżej 5 zalecany trzonek węglikowy; siła odporowa zgina
+      wytaczak; kąt przystawienia ok. 90° daje siłę odporową bliską zera; przy
+      drganiach mniejszy promień naroża, ostrzejsza krawędź, większy kąt
+      natarcia, krótszy wysięg, większa średnica trzonka
+  - id: mmc-wytaczak-dobor
+    where: >-
+      trzonek stalowy przy L/D powyżej 4–5 skłonny do drgań; możliwie duża
+      średnica trzonka, porównać najmniejszą średnicę obróbki z otworem; trzonek
+      zbyt bliski średnicy otworu utrudnia odprowadzanie wióra
+  - id: sandvik-jakosc-toczenie
+    where: >-
+      głębokość skrawania większa niż promień naroża zmniejsza ugięcie
+      promieniowe płytki, co ważne w obróbce wewnętrznej; przy słabym
+      odprowadzaniu wióra w otworze chłodziwo nad i pod płytką, możliwie wysokie
+      ciśnienie
+  - id: fanuc
+    where: G96 z limitem G50, G97 przy wierceniu w osi (system A)
+    loc: rozdz. 3.2, tab. 3.2, s. 77
+powiazane:
+  kody:
+    - g96-g97
+    - g50
+    - g74
+    - g40-g42
+  lekcje:
+    - T2.2
+    - T4.1
+    - T4.2
+    - T6.2
+  hasla:
+    - wysięg-narzędzia
+    - promień-naroża-płytki
+    - kąt-przystawienia
+    - kierunek-ostrza
+    - wiór
+  artykuly:
+    - narzedzia/noz-tokarski-zewnetrzny
+    - narzedzia/wiertlo-z-plytkami
+    - narzedzia/wytaczadlo
+  kalkulator: true
+---
+Nóż tokarski wewnętrzny, czyli wytaczak, toczy otwory: walce, odsadzenia, fazy i rowki wewnętrzne. Ma okrągły trzonek z płytką na końcu. Wchodzi do otworu, więc jego średnicę i wysięg ogranicza sam otwór.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-noz-wewnetrzny" />
+
+* **(1) Trzonek:** okrągły pręt stalowy, węglikowy albo z tłumikiem drgań. Od jego średnicy D i wysięgu L zależy sztywność.
+* **(2) Płytka wymienna:** zwykle pozytywowa, z małym kątem naroża i małym promieniem naroża.
+* **(3) Kanał chłodziwa:** doprowadza chłodziwo przez trzonek do ostrza i pomaga wypłukać wiór z otworu.
+* **(4) Tuleja mocująca:** trzyma trzonek w głowicy. Wysięg L liczy się od tulei do ostrza.
+
+Sandvik Coromant podaje dwie główne trudności toczenia wewnętrznego: długi wysięg i odprowadzanie wióra.
+
+## Rodzaje \{#rodzaje}
+
+Rodzaj trzonka decyduje o tym, jak długi wysięg jest jeszcze stabilny. Sandvik Coromant podaje graniczny zalecany wysięg jako wielokrotność średnicy trzonka:
+
+<Table sort="true">
+  | Trzonek                           | Toczenie | Rowkowanie i gwintowanie |
+  | --------------------------------- | -------- | ------------------------ |
+  | stalowy                           | 4 × D    | 3 × D                    |
+  | węglikowy                         | 6 × D    | 5 × D                    |
+  | stalowy z tłumikiem drgań         | 10 × D   | 5 × D                    |
+  | z tłumikiem, wzmocniony węglikiem | 14 × D   | 7 × D                    |
+</Table>
+
+Mitsubishi Materials podaje, że trzonek stalowy jest skłonny do drgań powyżej L/D 4–5, a powyżej L/D 5 zaleca trzonek węglikowy. Trzonek wzmocniony węglikiem jest według Sandvik Coromant około 2,5 raza sztywniejszy statycznie od stalowego o tym samym wysięgu.
+
+## Zastosowanie \{#zastosowanie}
+
+Wytaczak toczy otwory po wierceniu: na wymiar, z odsadzeniami, fazami i promieniami. Średnicę otworu poprawia się korekcją narzędzia w X, bez zmiany programu.
+
+## Dobór \{#dobór}
+
+**Średnica i wysięg.** Zasada Sandvik Coromant: możliwie krótki wysięg i możliwie duża średnica narzędzia. Mitsubishi Materials dodaje dwa warunki. Najmniejsza średnica obróbki z katalogu wytaczaka musi być mniejsza niż otwór. Trzonek zbyt bliski średnicy otworu utrudnia odprowadzanie wióra.
+
+<Wzor f="\frac{L}{D} \le k" legend="L — wysięg od tulei do ostrza [mm]; D — średnica trzonka [mm]; k — graniczny zalecany stosunek wysięgu dla rodzaju trzonka (tabela wyżej) [–]" caption="Warunek wysięgu" />
+
+**Kąt przystawienia.** Według Sandvik Coromant κr powinien być bliski 90°, nie mniejszy niż 75°. Przy toczeniu odsadzenia — 91–95°, z płytką trójkątną albo rombową 55° (D). Mitsubishi Materials wyjaśnia przyczynę: przy κr około 90° siła odporowa, która zgina wytaczak, jest bliska zera. Przy zbyt dużym kącie siła odporowa zmienia znak i otwór wychodzi większy od zaprogramowanego.
+
+**Płytka.** Płytka pozytywowa, mały kąt naroża i mały promień naroża zmniejszają siły skrawania (Sandvik Coromant). Głębokość skrawania większa niż promień naroża zmniejsza ugięcie promieniowe płytki.
+
+**Wiór.** Wiór musi wyjść z otworu. Przy słabym odprowadzaniu Sandvik Coromant zaleca chłodziwo nad płytką i pod nią, z możliwie wysokim ciśnieniem.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania, posuw i głębokość skrawania podaje katalog producenta dla konkretnej płytki, wytaczaka i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): otwór ⌀26 mm na głębokość 30 mm, wytaczak stalowy ⌀16 mm, wysięg 35 mm, Vc = 180 m/min na pierwszym przejściu ⌀23 mm.
+
+<Wzor f="\frac{L}{D} = \frac{35}{16} \approx 2,2 \le 4 \\ n = \frac{1000 \cdot 180}{3,14 \cdot 23} \approx 2492\ \text{obr/min}" caption="Wysięg trzonka stalowego; Obroty na pierwszym przejściu" kind="obliczenie" />
+
+Stosunek 2,2 mieści się w granicy 4 × D dla trzonka stalowego. Obroty mieszczą się poniżej limitu G50 S2500 z programu.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Za długi wysięg:** drgania, gorsza powierzchnia i wykruszenia ostrza. Trzonek wysuwa się tylko na głębokość otworu z zapasem.
+* **Kąt przystawienia poniżej 75°:** rośnie siła odporowa i trzonek się ugina.
+* **Wiór zostaje w otworze:** owija się wokół trzonka i rysuje powierzchnię. Pomaga chłodziwo przez trzonek i geometria łamiąca wiór.
+* **Wycofanie bez odsunięcia od ścianki:** nóż wraca w Z po gotowej powierzchni i zostawia rysę. Przed wycofaniem w Z wytaczak odsuwa się do osi.
+* **Fazy i promienie bez korekcji promienia naroża:** jak przy nożu zewnętrznym, kontur wychodzi z błędem kształtu (lekcja T4.1).
+
+## W G-kodzie \{#w-g-kodzie}
+
+Na tokarce Fanuc wytaczak pracuje jak nóż zewnętrzny, ale X rośnie w głąb materiału. Program najpierw wierci otwór ⌀20 wiertłem w osi, potem wytaczakiem toczy go na ⌀26 w trzech przejściach. Po każdym przejściu nóż odsuwa się o 0,5 mm na stronę w stronę osi i dopiero wtedy wraca w Z.
+
+<Sim mode="lathe" caption="Otwór ⌀26 na głębokość 30 mm: wiercenie ⌀20, dwa przejścia zgrubne i przejście wykańczające wytaczakiem.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  (SUROWKA: PRET FI50, WYSIEG 50)
+  T0505 (WIERTLO FI20)
+  G97 S1200 M03
+  M08
+  G00 X0. Z2.
+  G01 Z-35. F0.1
+  G00 Z2.
+  G00 X100. Z100.
+  T0202 (WYTACZAK DCMT 070204)
+  G50 S2500
+  G96 S180 M03
+  G00 X23. Z2.
+  G01 Z-30. F0.15
+  G01 X22.
+  G00 Z2.
+  G00 X25.6
+  G01 Z-30. F0.15
+  G01 X24.6
+  G00 Z2.
+  G00 X26.
+  G01 Z-30. F0.08
+  G01 X25.
+  G00 Z2.
+  G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `G18 G21 G40 G80 G99` ustawia płaszczyznę ZX, milimetry, wyłącza korekcję i cykle, włącza posuw na obrót.
+2. `T0505` wybiera wiertło ⌀20. `G97 S1200 M03` włącza stałe obroty — przy wierceniu w osi G96 podniósłby obroty do limitu.
+3. `G01 Z-35. F0.1` wierci otwór, `G00 Z2.` wycofuje wiertło, `G00 X100. Z100.` odjeżdża do wymiany.
+4. `T0202` wybiera wytaczak z płytką DCMT 070204 (rombowa 55°, promień naroża 0,4 mm). `G50 S2500` ogranicza obroty, `G96 S180 M03` włącza stałą prędkość skrawania.
+5. `G00 X23. Z2.` ustawia nóż przed otworem, `G01 Z-30. F0.15` toczy pierwsze przejście ⌀23.
+6. `G01 X22.` odsuwa nóż od ścianki w stronę osi, `G00 Z2.` wycofuje go z otworu.
+7. `G00 X25.6` i `G01 Z-30. F0.15` toczą drugie przejście, `G01 X24.6` odsuwa nóż, `G00 Z2.` wycofuje.
+8. `G00 X26.` i `G01 Z-30. F0.08` toczą otwór na gotowo, `G01 X25.` odsuwa nóż, `G00 Z2.` wycofuje.
+9. `G00 X100. Z100.` odjeżdża od detalu, `M09`, `M05` i `M30` kończą program.
+
+Kolejne lekcje: T6.2 (wiercenie w osi), T2.2 (G96 i G97), T4.2 (kierunek ostrza wytaczaka).

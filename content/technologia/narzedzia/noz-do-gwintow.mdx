@@ -1,0 +1,261 @@
+---
+title: Nóż do gwintów
+slug: noz-do-gwintow
+dzial: narzedzia
+typ: narzedzie
+order: 180
+short: >-
+  Nóż z płytką gwintową do toczenia gwintów: rodzaje płytek, podkładka i kąt
+  wzniosu, sposoby dosuwu, głębokość przejść, G76 i G32.
+obrobka:
+  - toczenie
+poziom: 3
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-plytka-gwint
+    where: >-
+      trzy rodzaje płytek — z pełnym zarysem (osobna płytka na każdy skok i
+      zarys, naddatek 0,05–0,07 mm na ścięcie wierzchołków), V i wieloostrzowa;
+      płytka V nie ścina wierzchołków zarysu — średnicę toczy się przed
+      gwintowaniem; płytkę nachyla się o kąt równy kątowi wzniosu gwintu
+      podkładką, dla symetrycznego przyłożenia na bokach; standardowa podkładka
+      w wielu oprawkach ma 1°; podkładki ujemne do gwintów lewych nożem prawym i
+      odwrotnie
+  - id: sandvik-dosuw-gwint
+    where: >-
+      trzy główne sposoby: zmodyfikowany wzdłuż boku, promieniowy, naprzemienny;
+      zmodyfikowany — pierwszy wybór, wiór po jednej stronie płytki, mniej
+      przejść, większość sterowań CNC ma go w cyklu; dla płytek z łamaczem wióra
+      kąt modyfikacji 1°; naprzemienny — równe zużycie, najdłuższa trwałość przy
+      grubych gwintach, wymaga osobnego programu
+  - id: sandvik-wzory-gwinty
+    where: >-
+      Δap = ap / √(nap − 1) · √Y, Y = 0,3 dla 1. przejścia, 1 dla 2., x − 1 dla
+      dalszych; przykład skok 1,5 mm, ap = 0,94 mm, 6 przejść — 0,23; 0,42;
+      0,59; 0,73; 0,84; 0,94 mm; kąt wzniosu na średnicy podziałowej
+  - id: sandvik-gwint-wskazowki
+    where: >-
+      średnica przedmiotu przed gwintowaniem zgodna z rysunkiem; przy gwincie
+      wielokrotnym skok gwintu (lead) to wielokrotność podziałki; podkładkę
+      dobiera się z kąta wzniosu liczonego ze skoku
+  - id: iscar-toczenie-gwintow
+    where: >-
+      cztery sposoby dosuwu: promieniowy (obie krawędzie, równe zużycie, do
+      drobnych skoków i przejść wykańczających), wzdłuż boku (jedna krawędź,
+      lepsze odprowadzanie wióra, tarcie drugiej krawędzi o bok), zmodyfikowany
+      (kąt 0,5–5° od boku, zalecany), naprzemienny (krawędzie na zmianę);
+      głębokość przejść o stałym przekroju wióra jak u Sandvik; przykład kąta
+      wzniosu d2 = 18,376 mm, P = 2,5 mm
+    loc: Threading Handbook, rozdz. 2.11–2.12, s. 116–119; kąt wzniosu s. 36 i 43
+  - id: mmc-gwint-metody
+    where: >-
+      dosuw zmodyfikowany zalecany dla ochrony naroża; zmiana z dosuwu wzdłuż
+      boku na zmodyfikowany wydłuża trwałość i poprawia powierzchnię; ostatnie
+      przejście 0,025–0,05 mm; duże głębokości powodują drgania; w większości
+      przypadków cykl gwintowania sterowania z głębokością całkowitą i
+      głębokością pierwszego lub ostatniego przejścia; przykład M12×1,0 z
+      dosuwem zmodyfikowanym 1–3° w G92
+  - id: kennametal-gwint
+    where: >-
+      dosuw promieniowy — obie krawędzie w skrawaniu, wiór trudny do
+      odprowadzenia; wzdłuż boku — wiór wypływa z bruzdy, druga krawędź ociera
+      się i wykrusza; zmodyfikowany — zalecany, kąt dosuwu 3–5° mniejszy od kąta
+      boku; naprzemienny — obie krawędzie zużywają się równo, wymaga programu;
+      ostatnie przejście nie mniej niż 0,05 mm
+    loc: s. C58–C60
+  - id: cnccookbook-g76
+    where: >-
+      zapis dwublokowy G76 Fanuc — P(m)(r)(a) Q(dmin) R(d), X Z P(k) Q(d) F;
+      przy a = 60 nóż wchodzi pod kątem 30°, skrawając jedną stroną; G76 sam
+      zmniejsza kolejne wejścia, wyrównując ilość zdejmowanego materiału
+  - id: fanuc
+    where: >-
+      G76 — format dwóch bloków (system A); G32 — gwintowanie ze stałym skokiem
+      (system A)
+    loc: rozdz. 3.2, tab. 3.2, s. 75–77; rozdz. 4, s. 84 i 90
+powiazane:
+  kody:
+    - g76
+    - g33
+    - g92
+    - g96-g97
+  lekcje:
+    - T7.1
+    - T7.2
+    - T2.2
+  hasla:
+    - skok-gwintu
+    - wybieg-gwintu
+    - przejście
+    - posuw-na-obrót
+  artykuly:
+    - narzedzia/noz-tokarski-zewnetrzny
+    - narzedzia/gwintownik
+    - narzedzia/frez-do-gwintow
+  kalkulator: false
+---
+Nóż do gwintów toczy gwint płytką o zarysie gwintu. Posuw na obrót równa się skokowi, a nóż przechodzi tę samą bruzdę kilka razy, za każdym razem głębiej. Sposób, w jaki nóż wchodzi w głąb bruzdy, nazywa się dosuwem.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-noz-gwint" />
+
+* **(1) Oprawka:** trzyma płytkę i podkładkę, do gwintu zewnętrznego albo wewnętrznego.
+* **(2) Płytka gwintowa:** ma zarys gwintu, np. 60° dla gwintu metrycznego. Płytka z pełnym zarysem toczy też wierzchołki zarysu, płytka V — tylko bruzdę.
+* **(3) Podkładka:** nachyla płytkę wzdłuż osi o kąt wzniosu gwintu φ.
+* **(4) Docisk płytki:** śruba albo docisk od góry.
+
+Kąt wzniosu φ to kąt zwoju na średnicy podziałowej d2 (Sandvik Coromant). Na rozwinięciu zwoju jest to kąt trójkąta o podstawie π · d2 i wysokości równej skokowi:
+
+<Wzor f="\varphi = \arctan \frac{P}{\pi \cdot d_2}" legend="\varphi — kąt wzniosu gwintu [°]; P — skok gwintu, przy gwincie wielokrotnym skok zwoju [mm]; d_2 — średnica podziałowa [mm]" caption="Kąt wzniosu" />
+
+Według Sandvik Coromant płytkę nachyla się o kąt równy kątowi wzniosu, żeby oba boki miały taki sam kąt przyłożenia. Standardowa podkładka w wielu oprawkach ma 1°. Przykład ISCAR (gwint d2 = 18,376 mm, skok 2,5 mm):
+
+<Wzor f="\varphi = \arctan \frac{2,5}{3,14 \cdot 18,376} \approx 2,48^\circ" caption="Kąt wzniosu w przykładzie ISCAR" kind="obliczenie" />
+
+Kąt 2,48° jest wyraźnie większy niż 1° standardowej podkładki, więc podkładkę dobiera się z tabeli producenta.
+
+## Rodzaje \{#rodzaje}
+
+Sandvik Coromant dzieli płytki gwintowe na trzy rodzaje:
+
+* **Płytka z pełnym zarysem:** toczy bruzdę i wierzchołki zarysu na wymiar, bez gratowania. Na każdy skok i zarys potrzebna jest osobna płytka. Na średnicy zostawia się naddatek 0,05–0,07 mm, który płytka ścina razem z wierzchołkami.
+* **Płytka V:** toczy tylko bruzdę i pasuje do kilku skoków o tym samym kącie zarysu. Nie ścina wierzchołków — średnicę zewnętrzną śruby albo wewnętrzną nakrętki toczy się na wymiar przed gwintowaniem.
+* **Płytka wieloostrzowa:** ma dwa albo więcej zębów i potrzebuje mniej przejść.
+
+Według położenia i kierunku:
+
+* **Nóż zewnętrzny i wewnętrzny:** wewnętrzny ma okrągły trzonek jak wytaczak. Sandvik Coromant podaje dla gwintowania mniejszy wysięg niż dla toczenia (artykuł „Nóż tokarski wewnętrzny”).
+* **Nóż prawy i lewy:** razem z kierunkiem posuwu i obrotów wyznacza gwint prawy albo lewy. Gwint lewy nożem prawym wymaga podkładki ujemnej.
+
+## Zastosowanie \{#zastosowanie}
+
+Nóż do gwintów toczy gwinty zewnętrzne i wewnętrzne, walcowe i stożkowe, o dowolnym skoku, na który jest płytka. Gwint w otworze o małej średnicy wykonuje się gwintownikiem albo frezem do gwintów.
+
+## Dobór \{#dobór}
+
+**Sposób dosuwu.** Producenci (ISCAR, Mitsubishi Materials, Kennametal) opisują cztery sposoby:
+
+<Diagram id="tech-dosuw-gwint" />
+
+* **Promieniowy:** nóż wchodzi prostopadle do osi. Skrawają obie krawędzie, wiór zawija się z dwóch stron i trudno go odprowadzić. Zużycie jest równe. ISCAR podaje go do drobnych skoków i przejść wykańczających.
+* **Wzdłuż boku:** nóż wchodzi równolegle do jednego boku zarysu. Skrawa jedna krawędź, wiór wypływa w jedną stronę. Druga krawędź ociera się o bok, co pogarsza powierzchnię i zużywa tę krawędź.
+* **Zmodyfikowany wzdłuż boku:** kąt dosuwu jest o kilka stopni mniejszy niż kąt boku. Druga krawędź zdejmuje cienki wiór i nie ociera się. ISCAR podaje odchylenie 0,5–5° od boku, Kennametal 3–5°, Mitsubishi Materials w przykładzie 1–3°, a Sandvik Coromant dla płytek z łamaczem wióra 1°. Wszyscy czterej producenci podają go jako sposób zalecany.
+* **Naprzemienny:** kolejne przejścia skrawają na zmianę jedną i drugą krawędzią. Zużycie jest równe, ale sposób wymaga osobnego programu. Sandvik Coromant podaje go dla gwintów o dużym skoku.
+
+**Głębokość przejść.** Kolejne przejścia są coraz płytsze, żeby przekrój wióra był podobny w każdym przejściu. Sandvik Coromant i ISCAR podają ten sam wzór na głębokość po kolejnym przejściu:
+
+<Wzor f="\Delta a_{px} = \frac{a_p}{\sqrt{n_{ap} - 1}} \cdot \sqrt{Y}" legend="\Delta a_{px} — głębokość po przejściu x, liczona od średnicy zewnętrznej [mm]; a_p — głębokość całkowita gwintu z naddatkiem [mm]; n_{ap} — liczba przejść [–]; Y — 0,3 dla 1. przejścia, 1 dla 2., x − 1 dla dalszych [–]" caption="Głębokość po przejściu x" />
+
+Przykład Sandvik Coromant: skok 1,5 mm, ap = 0,94 mm, 6 przejść.
+
+<Wzor f="\Delta a_{p1} = \frac{0,94}{\sqrt{5}} \cdot \sqrt{0,3} \approx 0,23\ \text{mm} \\ \Delta a_{p2} = \frac{0,94}{\sqrt{5}} \cdot \sqrt{1} \approx 0,42\ \text{mm} \\ \Delta a_{p6} = \frac{0,94}{\sqrt{5}} \cdot \sqrt{5} = 0,94\ \text{mm}" caption="Po 1. przejściu; Po 2. przejściu; Po 6. przejściu" kind="obliczenie" />
+
+Pełny szereg: 0,23; 0,42; 0,59; 0,73; 0,84; 0,94 mm, czyli wejścia od 0,23 do 0,10 mm. Ostatnie przejście nie może być za płytkie. Mitsubishi Materials podaje 0,025–0,05 mm. Kennametal zaleca nie mniej niż 0,05 mm, żeby uniknąć umocnienia materiału i ścierania ostrza.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania, liczbę przejść i głębokość pierwszego przejścia podaje katalog producenta dla konkretnej płytki, skoku i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Gwint toczy się przy stałych obrotach G97. Posuw na obrót to skok, więc posuw minutowy osi Z rośnie z obrotami:
+
+<Wzor f="v_f = n \cdot P" legend="v_f — posuw minutowy osi Z [mm/min]; n — obroty wrzeciona [obr/min]; P — skok gwintu [mm]" caption="Posuw minutowy przy gwintowaniu" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): gwint M20×1,5, S800, głębokość całkowita 0,94 mm z przykładu Sandvik Coromant.
+
+<Wzor f="v_f = 800 \cdot 1,5 = 1200\ \text{mm/min} \\ X_{dna} = 20 - 2 \cdot 0,94 = 18,12\ \text{mm}" caption="Posuw minutowy osi Z; Średnica dna bruzdy w programie" kind="obliczenie" />
+
+## Typowe błędy \{#typowe-błędy}
+
+* **G96 zamiast G97:** obroty zmieniają się ze średnicą i kolejne przejścia nie trafiają w ten sam zwój.
+* **Za krótki rozbieg:** pierwsze zwoje mają zły skok, bo oś Z nie zdążyła się rozpędzić. Start w Z leży co najmniej dwa skoki przed gwintem (karta G76).
+* **Zła podkładka:** jeden bok płytki ociera się o zwój. Kąt podkładki dobiera się z kąta wzniosu.
+* **Płytka V na nietoczonej średnicy:** wierzchołki zarysu zostają ostre albo za wysokie. Średnicę toczy się przed gwintowaniem.
+* **Dosuw promieniowy przy dużym skoku:** wiór zawija się z obu stron, rosną siły i drgania.
+* **Zmiana korekty obrotów w trakcie gwintowania:** kolejne przejście trafia obok zwoju (lekcja T7.1).
+
+## W G-kodzie \{#w-g-kodzie}
+
+**Cykl G76 (Fanuc, system A).** Pierwszy blok podaje liczbę przejść wykańczających, wybieg i kąt zarysu (`P010060`), najmniejsze wejście `Q` i naddatek `R`. Drugi blok podaje średnicę dna, koniec gwintu, wysokość gwintu `P` i pierwsze wejście `Q` w mikrometrach oraz skok `F`. Według CNCCookbook przy kącie 60 w adresie P nóż wchodzi pod kątem 30°, czyli wzdłuż boku zarysu, i skrawa jedną stroną. Cykl sam zmniejsza kolejne wejścia. Na maszynie zakres kąta i sposób dosuwu cyklu sprawdza się w instrukcji sterowania.
+
+<Sim mode="lathe" caption="Gwint M20×1,5 cyklem G76: średnica dna ⌀18,12, wysokość 0,94 mm (P940), pierwsze wejście 0,4 mm (Q400).">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  (SUROWKA: PRET FI20, WYSIEG 50)
+  T0404 (NOZ DO GWINTOW 60ST)
+  G97 S800 M03
+  M08
+  G00 X24. Z5.
+  G76 P010060 Q50 R0.05
+  G76 X18.12 Z-25. P940 Q400 F1.5
+  G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `G18 G21 G40 G80 G99` ustawia płaszczyznę ZX, milimetry, wyłącza korekcję i cykle, włącza posuw na obrót.
+2. `T0404` wybiera nóż do gwintów 60°. `G97 S800 M03` włącza stałe obroty.
+3. `G00 X24. Z5.` ustawia punkt startu cyklu 5 mm przed czołem, czyli ponad trzy skoki rozbiegu.
+4. `G76 P010060 Q50 R0.05` podaje jedno przejście wykańczające, wybieg 0, kąt 60°, najmniejsze wejście 0,05 mm i naddatek 0,05 mm.
+5. `G76 X18.12 Z-25. P940 Q400 F1.5` toczy gwint do Z-25 o średnicy dna 18,12 mm. Symulator wykonuje 6 przejść, rozłożonych według opisu G76 w instrukcji Fanuc.
+6. `G00 X100. Z100.` odjeżdża od detalu, `M09`, `M05` i `M30` kończą program.
+
+**Przejścia G32 z dosuwem zmodyfikowanym.** Program G32 robi dokładnie to, co zapisano, więc sposób dosuwu wybiera programista. Poniżej sześć przejść o głębokościach z szeregu Sandvik Coromant. Start każdego przejścia przesuwa się w Z o głębokość przejścia razy tg 29°, czyli 1° mniej niż bok zarysu 60°.
+
+<Wzor f="\Delta Z = \Delta a_p \cdot \tan 29^\circ \\ \Delta Z_1 = 0,23 \cdot 0,554 \approx 0,127\ \text{mm}" caption="Przesunięcie startu w Z; Przesunięcie dla 1. przejścia" kind="obliczenie" />
+
+<Sim mode="lathe" caption="Gwint M20×1,5 w sześciu przejściach G32: głębokości 0,23–0,94 mm, start przesuwany w Z o głębokość razy tg 29°.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  (SUROWKA: PRET FI20, WYSIEG 50)
+  T0404 (NOZ DO GWINTOW 60ST)
+  G97 S800 M03
+  M08
+  G00 X24. Z5.
+  G00 X19.54 Z5.127
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X19.16 Z5.233
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X18.82 Z5.327
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X18.54 Z5.405
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X18.32 Z5.466
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X18.12 Z5.521
+  G32 Z-25. F1.5
+  G00 X24.
+  G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg przejść G32 \{#przebieg-przejsc-g32}
+
+Początek i koniec programu są takie same jak w programie z G76.
+
+1. `G00 X19.54 Z5.127` ustawia pierwsze przejście: głębokość 0,23 mm, start przesunięty w Z o 0,127 mm.
+2. `G32 Z-25. F1.5` toczy przejście ze skokiem 1,5 mm, a następny blok wycofuje nóż ponad średnicę ⌀24.
+3. `G00 X19.16 Z5.233` ustawia drugie przejście na głębokość 0,42 mm.
+4. `G00 X18.82 Z5.327`, `G00 X18.54 Z5.405` i `G00 X18.32 Z5.466` ustawiają przejścia 3–5 na głębokości 0,59; 0,73 i 0,84 mm.
+5. `G00 X18.12 Z5.521` ustawia ostatnie przejście na średnicę dna 18,12 mm.
+
+Kolejne lekcje: T7.1 (G76 — cykl gwintowania), T7.2 (G32 i G33).

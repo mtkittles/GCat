@@ -1,0 +1,159 @@
+---
+title: Przecinak i nóż do rowków
+slug: przecinak
+dzial: narzedzia
+typ: narzedzie
+order: 170
+short: >-
+  Ostrze nożowe z wąską płytką do przecinania prętów i toczenia rowków: wysokość
+  osi, wysięg, szerokość płytki, zmniejszenie posuwu przy osi.
+obrobka:
+  - toczenie
+poziom: 2
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-przecinanie
+    where: >-
+      przecinanie zwykle na końcu obróbki, pęknięcie narzędzia często oznacza
+      brak; wąska płytka daje mniejsze siły i oszczędza materiał; wysokość osi
+      ±0,1 mm, przy długim wysięgu do +0,1 mm powyżej osi; poniżej osi większy
+      czop i pęknięcie, na osi pęknięcie i szybkie zużycie przyłożenia; posuw
+      zmniejszyć do 75% ok. 2 mm przed osią; zatrzymać posuw ok. 0,5 mm przed
+      osią; z przechwytem wrzecionem przeciwnym zatrzymać ok. 1 mm przed osią;
+      wysięg powyżej 1,5 × wysokość ostrza — posuw z dolnej części zalecanego
+      zakresu
+  - id: seco-przecinak-150-10
+    where: >-
+      system 150.10: ostrze nożowe ze stali szybkotnącej trzyma płytkę, oprawka
+      trzyma ostrze
+  - id: seco-przecinak-karta
+    where: >-
+      tolerancja wysokości osi nie większa niż ±0,1 mm; zmniejszenie posuwu na
+      końcu przecinania wydłuża trwałość; obfite chłodziwo; płytka neutralna
+      zwykle trwalsza, płytka lewa albo prawa zmniejsza czop lub pierścień na
+      odciętej części
+  - id: iscar-przecinanie
+    where: >-
+      ustawienie krawędzi przecinaka nieco powyżej osi przy przecinaniu pełnego
+      pręta do osi (TANG-GRIP); przecinanie możliwie blisko uchwytu
+    loc: Parting user guide, s. 87
+  - id: fanuc
+    where: G96 z limitem G50 (system A), G75 — cykl rowkowania
+    loc: rozdz. 3.2, tab. 3.2, s. 77
+powiazane:
+  kody:
+    - g75
+    - g96-g97
+    - g50
+    - g98-g99
+  lekcje:
+    - T6.1
+    - T2.2
+    - T2.3
+  hasla:
+    - wysięg-narzędzia
+    - limit-obrotów
+    - stała-prędkość-skrawania
+    - posuw-na-obrót
+  artykuly:
+    - narzedzia/noz-tokarski-zewnetrzny
+    - narzedzia/noz-do-gwintow
+  kalkulator: true
+---
+Przecinak odcina gotowy detal od pręta. Ten sam rodzaj narzędzia, z płytką do rowków, toczy rowki zewnętrzne, czołowe i wewnętrzne. Płytka jest wąska i skrawa krawędzią czołową, prostopadłą do kierunku posuwu.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-przecinak" />
+
+* **(1) Oprawka:** trzyma ostrze nożowe w głowicy.
+* **(2) Ostrze nożowe:** wąska, wysoka płyta z gniazdem na płytkę. W systemie Seco 150.10 jest ze stali szybkotnącej. Jej wysokość decyduje o sztywności przy dużym wysięgu.
+* **(3) Płytka:** szerokość w wyznacza szerokość rowka albo nacięcia przy przecinaniu.
+* **(4) Czop:** resztka materiału przy osi, która zostaje na odciętym detalu albo na pręcie.
+
+## Rodzaje \{#rodzaje}
+
+* **Przecinak z ostrzem nożowym:** ostrze wymienne w oprawce. Wysięg ustawia się przesuwając ostrze, więc nadaje się do przecinania prętów o różnych średnicach.
+* **Nóż do rowków w oprawce zwartej:** płytka w głowicy oprawki, krótki wysięg. Toczy rowki o ograniczonej głębokości.
+* **Według płytki:** płytka do przecinania, do rowków (płaska krawędź, ostre naroża), do rowków i toczenia bocznego (z promieniami naroża), z pełnym promieniem.
+* **Płytka neutralna, lewa i prawa:** Seco podaje, że płytka neutralna jest zwykle trwalsza. Płytka z krawędzią pochyloną w lewo albo w prawo zmniejsza czop lub pierścień na odciętej części.
+
+## Zastosowanie \{#zastosowanie}
+
+Przecinanie jest zwykle ostatnią operacją na detalu. Sandvik Coromant zwraca uwagę, że pęknięcie narzędzia w tym miejscu zwykle oznacza brak i postój maszyny. Rowek szerszy niż płytka toczy się kilkoma wcięciami albo cyklem G75 (lekcja T6.1).
+
+## Dobór \{#dobór}
+
+**Szerokość płytki.** Wąska płytka daje mniejsze siły skrawania i mniej materiału idzie w wiór (Sandvik Coromant).
+
+**Wysięg.** Ostrze wysuwa się tylko na tyle, ile wymaga średnica pręta. Sandvik Coromant zaleca krótszy wysięg albo wyższe ostrze. Według Sandvik Coromant przy wysięgu większym niż 1,5 wysokości ostrza posuw dobiera się z dolnej części zalecanego zakresu.
+
+**Wysokość osi.** Krawędź płytki musi leżeć na wysokości osi wrzeciona. Sandvik Coromant i Seco podają tolerancję ±0,1 mm. Przy długim wysięgu Sandvik Coromant dopuszcza do +0,1 mm powyżej osi, bo ostrze ugina się w dół. ISCAR dla przecinaków TANG-GRIP zaleca krawędź nieco powyżej osi przy przecinaniu do osi.
+
+* **Poniżej osi:** większy czop i pęknięcie płytki.
+* **Powyżej osi, poza tolerancją:** pęknięcie przy przechodzeniu przez oś i szybkie zużycie powierzchni przyłożenia.
+
+**Posuw przy osi.** Przy osi średnica spada do zera, więc przy G96 obroty rosną do limitu G50, a prędkość skrawania i tak maleje. Sandvik Coromant zaleca zmniejszyć posuw do 75% około 2 mm przed osią. Posuw zatrzymuje się około 0,5 mm przed osią — detal odpada pod własnym ciężarem. Przy przechwycie detalu wrzecionem przeciwnym posuw zatrzymuje się około 1 mm przed osią.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania i posuw podaje katalog producenta dla konkretnej płytki, gatunku i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Posuw zmniejszony przy osi i prędkość skrawania przy małej średnicy:
+
+<Wzor f="f_o = f \cdot (1 - r) \\ V_c = \frac{\pi \cdot D \cdot n}{1000}" legend="f_o — posuw przy osi [mm/obr]; f — posuw na pełnej średnicy [mm/obr]; r — zmniejszenie posuwu jako ułamek (0,75 = 75%) [–]; V_c — prędkość skrawania [m/min]; D — średnica [mm]; n — obroty wrzeciona [obr/min]" caption="Posuw przy osi; Prędkość skrawania" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): pręt ⌀40 mm, f = 0,1 mm/obr, zmniejszenie o 75%, G96 S120 i limit G50 S2500. Przy ⌀4 mm, czyli 2 mm przed osią, obroty z G96 wynosiłyby 9554 obr/min, więc sterowanie trzyma limit 2500 obr/min.
+
+<Wzor f="f_o = 0,1 \cdot (1 - 0,75) = 0,025\ \text{mm/obr} \\ V_c = \frac{3,14 \cdot 4 \cdot 2500}{1000} \approx 31\ \text{m/min}" caption="Posuw przy osi; Prędkość skrawania przy ⌀4 i limicie obrotów" kind="obliczenie" />
+
+Przy ⌀4 prędkość skrawania spada więc z 120 do około 31 m/min, mimo stałej prędkości skrawania w programie.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Płytka poniżej osi:** zostaje duży czop, a płytka pęka.
+* **Przecinanie przez oś:** płytka pęka, a odcięty detal może w nią uderzyć. Posuw kończy się przed osią.
+* **Ten sam posuw do samej osi:** rosną siły przy osi, a trwałość płytki spada.
+* **Za długi wysięg ostrza:** ostrze się ugina i drga. Wysięg ustawia się do średnicy pręta.
+* **Za mało chłodziwa:** wiór zakleszcza się w wąskim nacięciu. Seco zaleca obfite chłodziwo.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Na tokarce Fanuc przecinanie programuje się ruchem G01 w X przy posuwie na obrót G99. W programie poniżej punkt odniesienia przecinaka leży na jego lewym narożu, więc `Z-43.` odcina detal długości 40 mm płytką szerokości 3 mm. Posuw zmniejsza się 2 mm przed osią, a ruch kończy się 0,5 mm przed nią — wartości z przykładu rachunkowego.
+
+<Sim mode="lathe" caption="Przecinanie pręta ⌀40 płytką 3 mm: posuw zmniejszony przy ⌀4, koniec ruchu przy ⌀1.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  (SUROWKA: PRET FI40, WYSIEG 60)
+  T0303 (PRZECINAK 3MM)
+  G50 S2500
+  G96 S120 M03
+  M08
+  G00 X44. Z-43.
+  G01 X4. F0.1
+  G01 X1. F0.025
+  G00 X44.
+  G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `G18 G21 G40 G80 G99` ustawia płaszczyznę ZX, milimetry, wyłącza korekcję i cykle, włącza posuw na obrót.
+2. `T0303` wybiera przecinak z płytką 3 mm. `G50 S2500` ogranicza obroty, `G96 S120 M03` włącza stałą prędkość skrawania.
+3. `G00 X44. Z-43.` ustawia przecinak nad prętem w miejscu cięcia.
+4. `G01 X4. F0.1` przecina do średnicy 4 mm, czyli 2 mm przed osią.
+5. `G01 X1. F0.025` kończy przecinanie zmniejszonym posuwem, 0,5 mm przed osią.
+6. `G00 X44.` wycofuje przecinak z nacięcia, `G00 X100. Z100.` odjeżdża od detalu.
+7. `M09`, `M05` i `M30` wyłączają chłodziwo i wrzeciono, kończą program.
+
+Kolejne lekcje: T6.1 (G75 — rowki), T2.2 (G96 i limit obrotów).
