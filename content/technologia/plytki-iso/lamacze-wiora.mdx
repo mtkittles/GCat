@@ -1,0 +1,129 @@
+---
+title: Łamacze wióra
+slug: lamacze-wiora
+dzial: plytki-iso
+typ: temat
+order: 30
+short: >-
+  Jak łamacz na płytce zwija i łamie wiór, jak ocenić wiór, od czego zależy
+  obszar pracy łamacza i dlaczego kąt przystawienia zmienia grubość wióra.
+obrobka:
+  - toczenie
+poziom: 1
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-jakosc-toczenie
+    where: >-
+      trzy sposoby łamania wióra: samoczynnie (np. żeliwo szare), o narzędzie, o
+      przedmiot; czynniki: geometria płytki (szerokość rowka), promień naroża
+      (mniejszy lepiej kontroluje wiór), kąt przystawienia (kierunek spływu),
+      głębokość skrawania, posuw (większy daje mocniejszy wiór), prędkość
+  - id: sandvik-plytka-tokarska
+    where: >-
+      trzy podstawowe geometrie płytek: wykańczająca, średnia, zgrubna; wykres
+      obszaru pracy każdej geometrii w układzie posuw–głębokość skrawania na
+      podstawie akceptowalnego łamania wióra
+  - id: sandvik-problemy-toczenie
+    where: >-
+      długi wiór owijający się wokół narzędzia — za mały posuw lub głębokość dla
+      geometrii, za duży promień naroża, nieodpowiedni kąt przystawienia; bardzo
+      krótki, sklejony wiór — za twarde łamanie, za duży posuw, skrócona
+      trwałość albo pęknięcie płytki
+  - id: mmc-kontrola-wiora
+    where: >-
+      łamacz — prosta i skuteczna metoda kontroli wióra; funkcje: kontrola wióra
+      i mniejszy opór skrawania; mechanizmy łamania: rowek zwija wiór, wiór
+      uderza w przedmiot albo powierzchnię przyłożenia, zwija się i łamie pod
+      własnym ciężarem; zgrubny — fazka ujemna, szeroki rowek; wykańczający —
+      mała fazka dodatnia, wąski rowek, mniejszy promień zwijania; większa
+      prędkość zawęża obszar łamania; chłodziwo go poszerza (stal S45C, 100
+      m/min); większy kąt (lead angle) daje wiór cieńszy i trudniej łamliwy;
+      większy promień naroża pogarsza kontrolę wióra przy małej głębokości;
+      mniejszy kąt natarcia daje grubszy wiór, łatwiej łamliwy
+  - id: mmc-kontrola-wiora-toczenie
+    where: >-
+      typy wióra A–E przy toczeniu stali: A — splątany wiór ciągły, B — długi
+      regularny wiór ciągły (zwój 50 mm i więcej), C — 1–5 zwojów do 50 mm
+      (dobry), D — jeden zwój (dobry), E — mniej niż zwój, rozpryskiwanie,
+      drgania, zła powierzchnia
+  - id: sandvik-podrecznik-szkoleniowy
+    where: >-
+      kąt przystawienia i promień naroża zmieniają przekrój wióra; przy kącie
+      przystawienia 45° hex ≈ fn · 0,71
+powiazane:
+  kody: []
+  lekcje: []
+  hasla:
+    - wiór
+    - płytka-skrawająca
+    - kąt-przystawienia
+    - promień-naroża-płytki
+    - posuw-na-obrót
+    - ap-głębokość-skrawania
+  artykuly:
+    - plytki-iso/oznaczenie-plytek-tokarskich
+    - plytki-iso/ksztalt-i-promien-naroza
+    - narzedzia/noz-tokarski-zewnetrzny
+    - narzedzia/geometria-ostrza
+  kalkulator: false
+---
+Łamacz wióra to ukształtowanie powierzchni natarcia płytki: fazka przy krawędzi, rowek i ścianka. Producent oznacza go po kresce w kodzie płytki, np. CNMG 120408-MP. Mitsubishi Materials nazywa łamacz prostą i skuteczną metodą kontroli wióra.
+
+## Teoria \{#teoria}
+
+**Po co łamać wiór.** Według Mitsubishi Materials łamacz ma dwa zadania: kontrolę wióra i mniejszy opór skrawania. Złamany wiór nie owija się wokół przedmiotu, zmniejsza drgania i rzadziej uszkadza ostrze. Mniejszy opór zmniejsza obciążenie i nagrzewanie się krawędzi.
+
+**Jak wiór się łamie.** Sandvik Coromant wymienia trzy sposoby: wiór łamie się samoczynnie (np. żeliwo szare), o narzędzie albo o przedmiot. Według Mitsubishi Materials rowek łamacza zwija wiór. Zwinięty wiór uderza w przedmiot lub w narzędzie i pęka albo łamie się pod własnym ciężarem.
+
+<Diagram id="tech-lamacz-przekroj" />
+
+**Budowa łamacza.** Mitsubishi Materials opisuje dwie skrajne konstrukcje:
+
+* **Łamacz zgrubny:** fazka ujemna wzmacnia krawędź, szeroki rowek mieści gruby wiór przy dużej głębokości i dużym posuwie.
+* **Łamacz wykańczający:** mała fazka dodatnia daje ostrą krawędź, wąski rowek zwija cienki wiór na mniejszym promieniu, więc łatwiej go złamać.
+
+**Ocena wióra.** Mitsubishi Materials dzieli wióry przy toczeniu stali na pięć typów:
+
+<Table caption="Typy wióra przy toczeniu stali według Mitsubishi Materials">
+  | Typ | Wiór                                    | Ocena                                       |
+  | --- | --------------------------------------- | ------------------------------------------- |
+  | A   | splątany, ciągły, bez wyraźnych zwojów  | zły: owija się wokół narzędzia i przedmiotu |
+  | B   | ciągły, regularny, zwój 50 mm i dłuższy | zły: długi wiór                             |
+  | C   | od 1 do 5 zwojów, krótszy niż 50 mm     | dobry                                       |
+  | D   | jeden zwój                              | dobry                                       |
+  | E   | mniej niż jeden zwój                    | zły: rozprysk, drgania, zła powierzchnia    |
+</Table>
+
+<Diagram id="tech-lamacz-obszar" />
+
+**Obszar pracy.** Sandvik Coromant dzieli geometrie płytek tokarskich na wykańczające, średnie i zgrubne. Dla każdej producent rysuje obszar posuwu i głębokości skrawania, w którym wiór łamie się poprawnie. Poza tym obszarem wiór jest za długi albo łamany zbyt mocno.
+
+**Co zmienia obszar pracy.** Według Mitsubishi Materials:
+
+* **Prędkość skrawania:** im większa, tym węższy obszar łamania. Przy dużej prędkości i małym posuwie wiór jest cieńszy i trudniej go złamać.
+* **Chłodziwo:** poszerza obszar łamania, bo szybko schłodzony wiór twardnieje i łatwiej pęka. Producent pokazuje to na stali S45C przy 100 m/min.
+* **Promień naroża:** większy promień pogarsza kontrolę wióra, zwłaszcza przy małej głębokości skrawania. To samo podaje Sandvik Coromant.
+* **Kąt natarcia:** mniejszy kąt daje grubszy wiór, który łatwiej się zwija i łamie.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+<Wzor f="h_{ex} = f \cdot \sin \kappa_r" legend="h_{ex} — grubość wióra [mm]; f — posuw na obrót [mm/obr]; \kappa_r — kąt przystawienia" caption="Grubość wióra przy toczeniu" />
+
+Kąt przystawienia zmienia grubość wióra przy tym samym posuwie. Według Mitsubishi Materials cieńszy wiór trudniej się łamie. W podręczniku Sandvik Coromant przy kącie 45° grubość wióra wynosi około 0,71 posuwu.
+
+Przykład rachunkowy (wartości przyjęte do rachunku): posuw f = 0,25 mm/obr, nóż o kącie przystawienia 95° i nóż o kącie 45°.
+
+<Wzor f="h_{ex,95} = 0,25 \cdot \sin 95^{\circ} \approx 0,25\ \text{mm} \\ h_{ex,45} = 0,25 \cdot \sin 45^{\circ} \approx 0,18\ \text{mm}" caption="Kąt przystawienia 95°; Kąt przystawienia 45°" kind="obliczenie" />
+
+Nóż 45° daje wiór o około 30% cieńszy. Żeby wrócić do tej samej grubości, trzeba zwiększyć posuw do około 0,35 mm/obr, o ile pozwala na to obszar pracy łamacza.
+
+<Wzor f="f = \frac{0,25}{\sin 45^{\circ}} \approx 0,35\ \text{mm/obr}" caption="Posuw dla grubości wióra 0,25 mm przy kącie 45°" kind="obliczenie" />
+
+## Na co uważać \{#na-co-uważać}
+
+* **Długi wiór owija się wokół noża:** według Sandvik Coromant zwykle posuw albo głębokość są za małe dla geometrii. Pomaga większy posuw, łamacz do mniejszych posuwów, mniejszy promień naroża albo kąt przystawienia bliższy 90°.
+* **Krótki, sklejony wiór:** łamanie jest za twarde, zwykle przez za duży posuw dla geometrii. Sandvik Coromant ostrzega, że skraca to trwałość, a nawet łamie płytkę.
+* **Oznaczenie łamacza nie jest normą:** litery po kresce każdy producent nadaje sam. Obszar pracy sprawdza się w katalogu dla konkretnego materiału obrabianego.
+* **Obróbka wykańczająca przy małym posuwie:** łamacz zgrubny nie złamie cienkiego wióra. Przy wykańczaniu stosuje się łamacz wykańczający, a przy dużej prędkości pamiętaj, że obszar łamania się zwęża.
