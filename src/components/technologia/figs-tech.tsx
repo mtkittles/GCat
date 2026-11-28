@@ -3,6 +3,7 @@ import { Dim, Fig, Step, T } from "@/components/fig";
 import { HV } from "./tech-data";
 import { frezyFigs } from "./figs-frezy";
 import { otworyFigs } from "./figs-otwory";
+import { nozeFigs } from "./figs-noze";
 
 /*
   Rysunki działu Technologia (V3.0) — ten sam styl co reszta serwisu (fig.tsx): szerokość 360, tekst 11 px,
@@ -101,4 +102,5 @@ export const techFigs: Record<string, () => ReactNode> = {
   "tech-twardosc": () => <ToolHardness />,
   ...frezyFigs,
   ...otworyFigs,
+  ...nozeFigs,
 };

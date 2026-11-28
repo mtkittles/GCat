@@ -1,0 +1,184 @@
+---
+title: Nóż tokarski zewnętrzny
+slug: noz-tokarski-zewnetrzny
+dzial: narzedzia
+typ: narzedzie
+order: 150
+short: >-
+  Oprawka z płytką wymienną do toczenia zewnętrznego: budowa, kąt przystawienia,
+  kształt i promień naroża płytki, chropowatość teoretyczna.
+obrobka:
+  - toczenie
+poziom: 1
+normy: []
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-plytka-tokarska
+    where: >-
+      kąt przystawienia KAPR — kąt między krawędzią skrawającą a kierunkiem
+      posuwu; kształt płytki dobiera się do dostępu, możliwie duży kąt naroża
+      dla wytrzymałości; mały kąt naroża słabszy, mniej drgań; możliwie duży
+      promień naroża dla wytrzymałości, mniejszy przy skłonności do drgań;
+      płytka negatywowa — kąt przyłożenia 0°, pierwszy wybór do toczenia
+      zewnętrznego i ciężkich warunków; płytka pozytywowa — kąt przyłożenia np.
+      7°; płytki wiper do lepszej powierzchni albo większego posuwu
+  - id: sandvik-jakosc-toczenie
+    where: >-
+      kąt przystawienia bliski 90° kieruje siły osiowo i ogranicza zginanie
+      przedmiotu; mniejszy promień naroża lepiej łamie wiór; przy drganiach
+      mniejszy promień naroża; większa prędkość skrawania często poprawia
+      powierzchnię; głębokość skrawania większa niż promień naroża
+  - id: mmc-wzory-toczenie
+    where: >-
+      teoretyczna chropowatość h = f² / (8 · RE) · 1000 [µm]; n = 1000 · vc / (π
+      · Dm); przykład f = 0,2 mm/obr, RE = 0,8 mm → 6,25 µm
+  - id: mmc-geometria-toczenie
+    where: >-
+      kąt przystawienia (side cutting edge angle) zmniejsza obciążenie udarowe i
+      wpływa na siły i grubość wióra; większy kąt — gorsza kontrola wióra,
+      dłuższa trwałość, smukły przedmiot może się uginać
+    loc: rozdział Tool geometry
+  - id: fanuc
+    where: G71 i G70 na tokarce, G50 jako limit obrotów przy G96 (system A)
+    loc: rozdz. 3.2, tab. 3.2, s. 77; rozdz. 4, s. 90
+powiazane:
+  kody:
+    - g71-g70
+    - g96-g97
+    - g50
+    - g40-g42
+    - g98-g99
+  lekcje:
+    - T2.1
+    - T2.2
+    - T3.2
+    - T4.1
+    - T4.2
+    - T5.1
+  hasla:
+    - płytka-skrawająca
+    - promień-naroża-płytki
+    - kąt-przystawienia
+    - kierunek-ostrza
+    - rz-chropowatość
+    - posuw-na-obrót
+  artykuly:
+    - narzedzia/geometria-ostrza
+    - narzedzia/noz-tokarski-wewnetrzny
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Nóż tokarski zewnętrzny składa się z oprawki i płytki wymiennej. Toczy powierzchnie zewnętrzne: walce, czoła, stożki, fazy i promienie. Płytka ma kilka naroży; zużyte naroże obraca się, a oprawka zostaje na maszynie.
+
+## Budowa \{#budowa}
+
+<Diagram id="tech-noz-zewnetrzny" />
+
+* **(1) Trzonek oprawki:** mocuje nóż w głowicy rewolwerowej albo w imaku.
+* **(2) Płytka wymienna:** ma krawędź główną, krawędź pomocniczą i naroże. Kształt płytki wyznacza kąt naroża.
+* **(3) Docisk płytki:** śruba, dźwignia albo docisk od góry. Trzyma płytkę w gnieździe.
+* **(4) Podkładka:** leży pod płytką, między płytką a gniazdem oprawki.
+* **(5) Naroże z promieniem rε:** wykańcza powierzchnię. Od promienia naroża i posuwu zależy chropowatość.
+
+Kąt przystawienia κr to kąt między krawędzią skrawającą a kierunkiem posuwu (Sandvik Coromant). Wyznacza go oprawka razem z płytką. Kąty ostrza opisuje artykuł „Geometria ostrza”.
+
+## Rodzaje \{#rodzaje}
+
+* **Według kształtu płytki:** rombowa 80° (C), rombowa 55° (D), trójkątna (T), kwadratowa (S), rombowa 35° (V), okrągła (R). Duży kąt naroża daje mocniejsze ostrze. Mały kąt naroża daje lepszy dostęp do konturu i mniej drgań, ale ostrze jest słabsze.
+* **Według kąta przystawienia:** oprawka do toczenia z podcięciem do kąta prostego (κr powyżej 90°), do toczenia wzdłużnego i planowania, do kopiowania konturu.
+* **Płytka negatywowa i pozytywowa:** negatywowa ma kąt przyłożenia 0° i obie strony robocze. Sandvik Coromant podaje ją jako pierwszy wybór do toczenia zewnętrznego i ciężkich warunków. Pozytywowa ma kąt przyłożenia większy od zera, np. 7°, i mniejsze siły skrawania.
+* **Płytka wiper:** naroże o specjalnym kształcie. Przy tym samym posuwie daje gładszą powierzchnię, a przy tej samej chropowatości pozwala zwiększyć posuw.
+
+Oznaczenie płytek (ISO 1832) i oprawek (ISO 5608) opisze dział Płytki ISO.
+
+## Zastosowanie \{#zastosowanie}
+
+Nóż zewnętrzny toczy zgrubnie i na gotowo wałki, czopy, czoła i kontury zewnętrzne. Do obróbki zgrubnej dobiera się płytkę mocną: duży kąt naroża, duży promień naroża. Do wykańczania i kopiowania konturu — płytkę o mniejszym kącie naroża, która dojdzie do podcięć i promieni.
+
+## Dobór \{#dobór}
+
+**Kąt przystawienia.** Według Sandvik Coromant kąt bliski 90° kieruje siły skrawania wzdłuż osi przedmiotu i ogranicza jego zginanie. Ma to znaczenie przy długich, smukłych wałkach. Mitsubishi Materials opisuje drugą stronę: mniejszy kąt κr, czyli większy kąt bocznej krawędzi, przedłuża trwałość ostrza. Pogarsza jednak kontrolę wióra i bardziej ugina smukły przedmiot.
+
+**Kształt płytki.** Kształt dobiera się do konturu, do którego nóż musi dojść, a w tym zakresie — możliwie duży kąt naroża dla wytrzymałości (Sandvik Coromant).
+
+**Promień naroża.** Duży promień naroża wzmacnia ostrze i pozwala na większy posuw. Przy skłonności do drgań wybiera się mniejszy promień. Mniejszy promień także lepiej łamie wiór.
+
+**Promień naroża a chropowatość.** Mitsubishi Materials podaje wzór na teoretyczną wysokość nierówności po toczeniu:
+
+<Wzor f="h = \frac{f^2}{8 \cdot r_\varepsilon} \cdot 1000" legend="h — teoretyczna wysokość nierówności [\mu\text{m}]; f — posuw na obrót [mm/obr]; r_\varepsilon — promień naroża płytki [mm]" caption="Chropowatość teoretyczna" />
+
+Wzór pokazuje, że dwukrotnie większy posuw daje czterokrotnie większą wysokość nierówności. Wynik jest teoretyczny: drgania, zużycie ostrza i narost go zwiększają.
+
+## Parametry startowe \{#parametry-startowe}
+
+<Note kind="warn">
+  Prędkość skrawania Vc, posuw f i głębokość skrawania ap podaje katalog producenta dla konkretnej płytki, gatunku i materiału. Ten artykuł nie podaje wartości zalecanych.
+</Note>
+
+Przy stałej prędkości skrawania G96 sterowanie samo liczy obroty z bieżącej średnicy. Limit obrotów ustawia G50 (Fanuc, system A).
+
+<Wzor f="n = \frac{1000 \cdot V_c}{\pi \cdot D}" legend="n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica toczona [mm]" caption="Obroty wrzeciona" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku, nie zalecenie): Vc = 200 m/min, pręt ⌀40 mm, wykańczanie czopa ⌀26 mm posuwem f = 0,15 mm/obr płytką o promieniu naroża 0,8 mm.
+
+<Wzor f="n_{40} = \frac{1000 \cdot 200}{3,14 \cdot 40} \approx 1592\ \text{obr/min} \\ n_{26} = \frac{1000 \cdot 200}{3,14 \cdot 26} \approx 2450\ \text{obr/min} \\ h = \frac{0,15^2}{8 \cdot 0,8} \cdot 1000 \approx 3,5\ \mu\text{m}" caption="Obroty na pręcie; Obroty na czopie; Chropowatość teoretyczna" kind="obliczenie" />
+
+Obie wartości obrotów mieszczą się poniżej limitu G50 S3000 z programu.
+
+## Typowe błędy \{#typowe-błędy}
+
+* **Za duży promień naroża przy smukłym wałku:** rosną siły promieniowe i pojawiają się drgania. Mniejszy promień i kąt κr bliski 90° zmniejszają siłę zginającą przedmiot.
+* **Głębokość skrawania mniejsza niż promień naroża:** Sandvik Coromant zaleca głębokość większą niż promień naroża, bo zmniejsza to ugięcie promieniowe płytki.
+* **Profil z fazami i promieniami bez G41/G42:** promień naroża zostawia na fazach i łukach błąd kształtu (lekcja T4.1).
+* **G96 bez limitu G50:** przy małej średnicy obroty rosną do granicy wrzeciona.
+
+## W G-kodzie \{#w-g-kodzie}
+
+Program planuje czoło, toczy czop ⌀26 i walec ⌀38 cyklem G71, a potem wykańcza kontur cyklem G70 z korekcją promienia naroża G42. Nóż rozpoznaje się z kodu płytki w komentarzu: CNMG 120408 to płytka rombowa 80° o promieniu naroża 0,8 mm.
+
+<Sim mode="lathe" caption="Czop ⌀26 i walec ⌀38 z pręta ⌀40: G71 zgrubnie, G70 na gotowo z korekcją G42.">
+  ```
+  G18 G21 G40 G80 G99
+  G54
+  T0101 (NOZ CNMG 120408)
+  (SUROWKA: PRET FI40, WYSIEG 60)
+  G50 S3000
+  G96 S200 M03
+  M08
+  G00 X44. Z0.
+  G01 X-1.6 F0.15
+  G00 Z2.
+  G00 X42.
+  G71 U2. R0.5
+  G71 P10 Q20 U0.4 W0.1 F0.25
+  N10 G00 X22.
+  G01 X26. Z-2. F0.15
+  Z-25.
+  X36.
+  X38. Z-26.
+  Z-45.
+  N20 X42.
+  G42 G00 X42. Z2.
+  G70 P10 Q20
+  G40 G00 X100. Z100.
+  M09
+  M05
+  M30
+  ```
+</Sim>
+
+### Przebieg programu \{#przebieg-programu}
+
+1. `G18 G21 G40 G80 G99` ustawia płaszczyznę ZX, milimetry, wyłącza korekcję promienia i cykle, włącza posuw na obrót.
+2. `T0101` wybiera nóż z korekcją 01. `G50 S3000` ogranicza obroty, `G96 S200 M03` włącza stałą prędkość skrawania.
+3. `G00 X44. Z0.` dojeżdża do czoła, `G01 X-1.6 F0.15` planuje czoło 0,8 mm za oś, czyli o promień naroża (X podaje się w średnicy).
+4. `G71 U2. R0.5` ustawia głębokość 2 mm na stronę i wycofanie 0,5 mm.
+5. `G71 P10 Q20 U0.4 W0.1 F0.25` toczy zgrubnie kontur N10–N20 z naddatkiem 0,4 mm na średnicy i 0,1 mm w Z.
+6. `N10 G00 X22.` zaczyna kontur, `G01 X26. Z-2. F0.15` toczy fazę, `Z-25.` czop ⌀26.
+7. `X38. Z-26.` toczy fazę na walcu, `Z-45.` walec ⌀38, `N20 X42.` kończy kontur.
+8. `G42 G00 X42. Z2.` włącza korekcję promienia naroża, `G70 P10 Q20` wykańcza kontur posuwem 0,15 mm/obr z konturu.
+9. `G40 G00 X100. Z100.` wyłącza korekcję i odjeżdża. `M09`, `M05` i `M30` kończą program.
+
+Kolejne lekcje: T2.2 (G96 i limit obrotów), T4.1 i T4.2 (korekcja promienia płytki), T5.1 (G71 i G70).

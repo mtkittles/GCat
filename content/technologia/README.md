@@ -50,6 +50,10 @@ Typowe błędy, W G-kodzie; Temat — wstęp, Teoria, Wzór i przykład, Na co u
   `(FREZ FAZOWY FI10 90ST)`, `(FREZ TEOWY FI20 SZER6)`, `(GLOWICA FI80)`, `(NAWIERTAK FI10 90ST)`, `(WIERTLO FI8)`,
   `(GWINTOWNIK M10X1.5)`, `(FREZ DO GWINTOW FI12 P2)` (średnica i skok), `(ROZWIERTAK FI10 H7)`. Głowicy wytaczarskiej frezarki
   symulator nie ma — program z G76 idzie w `<Code>`.
+- Tokarka (`<Sim mode="lathe">`): nóż z kodu płytki ISO albo słowa NOZ — `(NOZ CNMG 120408)` (kształt C, promień naroża 0,8),
+  wytaczak `(WYTACZAK DCMT 070204)`, przecinak / nóż do rowków z szerokością `(PRZECINAK 3MM)`, `(NOZ DO ROWKOW 3MM)`
+  (punkt odniesienia na lewym narożu), nóż do gwintów `(NOZ DO GWINTOW 60ST)`, wewnętrzny `(NOZ DO GWINTOW WEWN 60ST)`,
+  wiertło w osi `(WIERTLO FI20)`. Pręt: komentarz `(SUROWKA: PRET FI40, WYSIEG 60)`.
 - Półfabrykat frezarki: komentarz `(POLFABRYKAT 100X60X20)` — X × Y × Z w mm od zera detalu (X i Y w plus, Z w dół od Z0).
   Bez niego symulator bierze obrys ruchów roboczych powiększony o promień narzędzia.
 - Symulator liczy ubytek materiału z góry (mapa wysokości), więc podcięć (frez teowy) nie pokazuje — taki program idzie w `<Code>`
