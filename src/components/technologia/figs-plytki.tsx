@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Dim, Fig, T } from "@/components/fig";
+import { Dim, Fig, Step, T } from "@/components/fig";
 
 /*
   Rysunki działu Płytki ISO (V3.2…) — styl jak figs-noze.tsx: szerokość 360, płytka w szarościach,
@@ -193,10 +193,77 @@ export function ApplicationScale() {
   );
 }
 
+/* ================= przekrój łamacza wióra: wykańczający i zgrubny (Mitsubishi: fazka, rowek, ścianka) ================= */
+export function BreakerSections() {
+  const sec = (x: number, y0: number, land: number, slope: number, gw: number, gd: number, wall: number) => {
+    const L: [number, number] = [x + land, y0 + slope];
+    const B: [number, number] = [x + land + gw * 0.55, y0 + gd];
+    const W: [number, number] = [x + land + gw, y0 + wall];
+    const d = `M ${x} ${y0} L ${L.join(" ")} Q ${L[0] + gw * 0.2} ${B[1]} ${B.join(" ")} Q ${W[0] - 4} ${B[1]} ${W.join(" ")} L ${x + 150} ${y0 + wall} L ${x + 150} ${y0 + 46} L ${x + 4} ${y0 + 46} Z`;
+    return { d, L, B, W };
+  };
+  const a = sec(14, 78, 6, 2, 34, 9, -2), b = sec(194, 78, 16, -1, 58, 12, -2);
+  return (
+    <Fig id="tlp" code="łamacz" title="Przekrój łamacza wióra" h={190}
+      legend={[["acc", "zwijanie wióra"]]}
+      marks={[<>Fazka (ang. land) przy krawędzi skrawającej.</>, <>Rowek, w którym wiór się zwija.</>, <>Ścianka, o którą wiór się opiera.</>]}
+      caption={<>Przekrój prostopadły do krawędzi skrawającej; proporcje poglądowe.</>}>
+      {(c) => (
+        <g>
+          <T x={14} y={20} cls="t-sm t-mut">wykańczający</T>
+          <T x={194} y={20} cls="t-sm t-mut">zgrubny</T>
+          {[a, b].map((r, i) => (
+            <g key={i}>
+              <path d={r.d} className="cutter" />
+              <path d={`M ${r.L[0] + 4} ${r.L[1] - 3} A ${i ? 26 : 14} ${i ? 26 : 14} 0 1 1 ${r.L[0] + (i ? 40 : 22)} ${r.L[1] - (i ? 36 : 22)}`} className="p-acc" fill="none" markerEnd={c.a("acc")} />
+            </g>
+          ))}
+          <line x1={b.L[0] - 6} y1={b.L[1] + 2} x2={b.L[0] - 10} y2={150} className="p-ext" /><Step x={b.L[0] - 10} y={158} n={1} />
+          <line x1={b.B[0]} y1={b.B[1] + 2} x2={b.B[0]} y2={150} className="p-ext" /><Step x={b.B[0]} y={158} n={2} />
+          <line x1={b.W[0]} y1={b.W[1] + 2} x2={b.W[0] + 12} y2={150} className="p-ext" /><Step x={b.W[0] + 12} y={158} n={3} />
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= obszar pracy łamaczy w układzie posuw–głębokość (Sandvik: F, M, R) ================= */
+export function BreakerAreas() {
+  const x0 = 44, y0 = 176, w = 290, h = 150;
+  const box = (fx: number, fy: number, fw: number, fh: number) => ({ x: x0 + fx * w, y: y0 - (fy + fh) * h, w: fw * w, h: fh * h });
+  const areas = [
+    { l: "wykańczający", b: box(0.04, 0.03, 0.34, 0.3) },
+    { l: "średni", b: box(0.2, 0.16, 0.48, 0.5) },
+    { l: "zgrubny", b: box(0.46, 0.42, 0.5, 0.55) },
+  ];
+  return (
+    <Fig id="tlo" code="f–ap" title="Obszar pracy łamacza wióra" h={214}
+      legend={[["acc", "obszar dobrego łamania wióra"]]}
+      caption={<>Każda geometria łamie wiór tylko w swoim zakresie posuwu i głębokości; granice podaje katalog producenta dla danego materiału.</>}>
+      {(c) => (
+        <g>
+          <line x1={x0} y1={y0} x2={x0 + w} y2={y0} className="p-con" markerEnd={c.a("dim")} />
+          <line x1={x0} y1={y0} x2={x0} y2={y0 - h - 8} className="p-con" markerEnd={c.a("dim")} />
+          <T x={x0 + w} y={y0 + 20} anchor="end" cls="t-sm t-mut">posuw f</T>
+          <T x={x0 - 6} y={y0 - h - 12} cls="t-sm t-mut">głębokość ap</T>
+          {areas.map((a) => (
+            <g key={a.l}>
+              <rect x={a.b.x} y={a.b.y} width={a.b.w} height={a.b.h} rx={10} className="p-acc" fill="none" />
+              <T x={a.b.x + 8} y={a.l === "wykańczający" ? a.b.y + a.b.h - 8 : a.b.y + 16} cls="t-sm t-acc">{a.l}</T>
+            </g>
+          ))}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const plytkiFigs: Record<string, () => ReactNode> = {
   "tech-plytka-wymiary": () => <InsertDims />,
   "tech-plytki-ksztalty": () => <InsertShapes />,
   "tech-naroze-nierownosci": () => <NoseScallops />,
   "tech-grupy-kc": () => <GroupKc />,
   "tech-grupy-zastosowan": () => <ApplicationScale />,
+  "tech-lamacz-przekroj": () => <BreakerSections />,
+  "tech-lamacz-obszar": () => <BreakerAreas />,
 };

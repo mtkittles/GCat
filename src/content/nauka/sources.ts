@@ -657,6 +657,24 @@ export const sources: Record<string, Source> = {
     note: "Ta sama tabela w katalogu Multi-Master 2018, s. 86 (flipbook, strona 88).",
     internal: "Tekst tabeli wyciągnięty bez nagłówków kolumn; przypisanie liczb do kolumn Rm i kc1 dla grup 12–41 wywnioskowane z układu. Do sprawdzenia z wydrukiem.",
   },
+  // V3.2d — łamacze wióra
+  "mmc-kontrola-wiora": {
+    id: "mmc-kontrola-wiora", short: "Mitsubishi Materials — kontrola wióra (kurs)", author: "Mitsubishi Materials",
+    title: "Advanced Turning — kurs e-learningowy producenta, rozdziały Chip control, Factors affecting chip control, Functions of chip breakers, Basics of designing chip breakers",
+    url: "https://www.mmc-carbide.com/permanent/courses/75/chip-control.html", accessed: "11/2026",
+  },
+  "mmc-kontrola-wiora-toczenie": {
+    id: "mmc-kontrola-wiora-toczenie", short: "Mitsubishi Materials — kontrola wióra przy toczeniu", author: "Mitsubishi Materials",
+    title: "Chip control for turning — warunki łamania wióra przy toczeniu stali (typy A–E), wpływ prędkości i chłodziwa (informacja techniczna producenta)",
+    url: "https://mitsubishicarbide.net/contents/mhg/ru/html/product/technical_information/information/kirikuzu.html", accessed: "11/2026",
+    internal: "Strona w języku angielskim w serwisie regionalnym (ścieżka /ru/); zdania o prędkości i chłodziwie także na mmc-carbide.com/us/…/tec_turning_chip_control.",
+  },
+  "sandvik-podrecznik-szkoleniowy": {
+    id: "sandvik-podrecznik-szkoleniowy", short: "Sandvik Coromant — podręcznik szkoleniowy", author: "Sandvik Coromant",
+    title: "Metal cutting training handbook — część Turning: kąt przystawienia a grubość wióra (2017.11)",
+    url: "https://api.dgisupply.ca/uploads/literature/0F05F3n1r0r00cFjfpG1mVHh5bNAluN3Ddh1FdO0.pdf", accessed: "11/2026",
+    internal: "Kopia PDF u dystrybutora; przykład hex ≈ fn · 0,71 przy kącie przystawienia 45° potwierdzony wynikiem wyszukiwarki.",
+  },
 };
 
 /** Opis dokumentu w jednej linii: producent, tytuł, wydanie, numer. */
