@@ -625,6 +625,38 @@ export const sources: Record<string, Source> = {
     url: "https://www.sandvik.coromant.com/en-us/knowledge/general-turning/troubleshooting-turning", accessed: "11/2026",
     internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
   },
+  // V3.2c — grupy materiałowe ISO 513
+  "sandvik-materialy-obrabiane": {
+    id: "sandvik-materialy-obrabiane", short: "Sandvik Coromant — materiały obrabiane", author: "Sandvik Coromant",
+    title: "Workpiece materials — sześć grup ISO i klasyfikacja MC (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/materials/workpiece-materials", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki (wersje en-gb, ja-jp, pl-pl).",
+  },
+  "sandvik-toczenie-materialy": {
+    id: "sandvik-toczenie-materialy", short: "Sandvik Coromant — toczenie różnych materiałów", author: "Sandvik Coromant",
+    title: "How to do turning in different materials — toczenie stali, stali nierdzewnych i żeliwa (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-gb/knowledge/general-turning/how-to-do-turning-in-different-materials", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki (wersje en-gb i en-us).",
+  },
+  "mmc-grupy-materialow": {
+    id: "mmc-grupy-materialow", short: "Mitsubishi Materials — grupy materiałów obrabianych", author: "Mitsubishi Materials",
+    title: "Advanced workpiece materials — kurs e-learningowy producenta, rozdziały Classification i Group P…Group H",
+    url: "https://www.mmc-carbide.com/permanent/courses/78/classification.html", accessed: "11/2026",
+    note: "Opisy grup na osobnych stronach kursu: group-p.html … group-h.html.",
+  },
+  "mmc-moc-toczenie": {
+    id: "mmc-moc-toczenie", short: "Mitsubishi Materials — moc skrawania przy toczeniu", author: "Mitsubishi Materials",
+    title: "Formulae for cutting power — wzór na moc przy toczeniu, tabela Kc w zależności od posuwu, przykład (informacja techniczna producenta)",
+    url: "https://www.mmc-carbide.com/us/technical_information/formula/tec_turning_cutting_power_formula", accessed: "11/2026",
+    internal: "Ta sama tabela i przykład w starszym serwisie: mitsubishicarbide.net/…/information/formula4.html.",
+  },
+  "iscar-grupy-materialow": {
+    id: "iscar-grupy-materialow", short: "ISCAR — grupy materiałów (DIN/ISO 513, VDI 3323)", author: "ISCAR",
+    title: "Material groups according to DIN / ISO 513 and VDI 3323 — tabela grup 1–41 z kc1 i mc (wyciąg z katalogu)",
+    url: "https://www.iscar.com/lms/wp-content/uploads/2021/04/Materials-group.pdf", accessed: "11/2026",
+    note: "Ta sama tabela w katalogu Multi-Master 2018, s. 86 (flipbook, strona 88).",
+    internal: "Tekst tabeli wyciągnięty bez nagłówków kolumn; przypisanie liczb do kolumn Rm i kc1 dla grup 12–41 wywnioskowane z układu. Do sprawdzenia z wydrukiem.",
+  },
 };
 
 /** Opis dokumentu w jednej linii: producent, tytuł, wydanie, numer. */

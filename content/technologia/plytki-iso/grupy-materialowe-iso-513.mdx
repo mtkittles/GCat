@@ -1,0 +1,124 @@
+---
+title: Grupy materiałowe P, M, K, N, S, H
+slug: grupy-materialowe-iso-513
+dzial: plytki-iso
+typ: temat
+order: 40
+short: >-
+  Sześć grup materiałów obrabianych według ISO 513: co do nich należy, jaki daje
+  wiór, jak zużywa ostrze i ile mocy potrzeba do skrawania.
+obrobka:
+  - toczenie
+  - frezowanie
+  - wiercenie
+poziom: 1
+normy:
+  - ISO 513
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: iso513
+    where: >-
+      grupy zastosowań P, M, K, N, S, H i ich zakres materiałów; numery grup
+      zastosowań (P01–P50, M01–M40) — wyższy numer, większa ciągliwość i
+      mniejsza odporność na ścieranie; norma klasyfikuje zastosowanie, nie
+      gatunki
+    loc: rozdz. 3, tab. 5
+  - id: sandvik-materialy-obrabiane
+    where: >-
+      sześć grup ISO o różnej skrawalności; P — od stali niestopowej do
+      wysokostopowej, ze staliwem i stalami nierdzewnymi ferrytycznymi i
+      martenzytycznymi; M — stal z co najmniej 12% chromu, ciepło,
+      wyszczerbienie w kształcie karbu i narost; K — wiór krótki, SiC ściera
+      ostrze, GCI i MCI łatwe, NCI, CGI i ADI trudniejsze; N — aluminium, miedź,
+      mosiądz, Si około 13% silnie ściera, ostre krawędzie i duże Vc; S — stopy
+      żaroodporne Fe, Ni, Co i Ti, lepkie, narost, umacnianie, ciepło; H — stal
+      45–65 HRC i żeliwo zabielone 400–600 HB; stal powyżej około 48 HRC należy
+      do H
+  - id: sandvik-toczenie-materialy
+    where: >-
+      stal niskowęglowa poniżej 0,25% C — trudne łamanie wióra i narost, duże Vc
+      i ostre krawędzie; stal nierdzewna ferrytyczna i martenzytyczna
+      sklasyfikowana jako P5; austenityczna to M1 i M2
+  - id: mmc-grupy-materialow
+    where: >-
+      P — wiór ciągły, stal niskowęglowa skłonna do zgrzewania, średnio- i
+      wysokowęglowa do zużycia kraterowego; M — umacnianie, mała przewodność
+      cieplna, zgrzewanie, wyszczerbienie w kształcie karbu daje zadzior, ostra
+      krawędź i duży kąt natarcia, stopy powyżej 50% dodatków należą do S; K —
+      wiór łamliwy, mniejszy opór niż w stali, grafit łamie wiór i tłumi
+      drgania, żeliwo sferoidalne daje wiór ciągły; N — aluminium miękkie,
+      narost, krzem twarde cząstki; wióry magnezu mogą się zapalić — obfite
+      chłodziwo wodne i wentylacja; S — duży opór skrawania, ciepło w ostrzu,
+      ostra geometria i gatunek odporny na ciepło; H — twardość decyduje o
+      trwałości ostrza, sztywność narzędzia, uchwytu i maszyny
+  - id: iscar-grupy-materialow
+    where: >-
+      kc1 dla grup 1–41: stal niestopowa 1350–1900, niskostopowa 1675–1800,
+      wysokostopowa i narzędziowa 2450–2500, nierdzewna 1875–2150, żeliwo
+      1150–1420, aluminium 700–800, miedź i mosiądz 700, stopy żaroodporne
+      2600–3300, tytan 1700–2110, stal hartowana i żeliwo zabielone 4500–4700
+      N/mm²; stal nierdzewna ferrytyczna i martenzytyczna w grupach 12–13
+  - id: mmc-moc-toczenie
+    where: >-
+      Pc = ap · f · vc · Kc / (60 · 10³ · η); stal miękka (mild steel) 520 MPa —
+      Kc 3610 przy f 0,1 i 3100 przy f 0,2 mm/obr; żeliwo szare 200 HB — Kc 2110
+      przy f 0,1 i 1800 przy f 0,2 mm/obr; przykład ap 3 mm, f 0,2 mm/obr, vc
+      120 m/min, η 0,8 → 4,65 kW
+powiazane:
+  kody: []
+  lekcje: []
+  hasla:
+    - kc-właściwy-opór-skrawania
+    - pc-moc-skrawania
+    - wiór
+    - płytka-skrawająca
+  artykuly:
+    - materialy/materialy-narzedziowe
+    - plytki-iso/oznaczenie-plytek-tokarskich
+    - obliczenia/predkosc-skrawania
+  kalkulator: true
+---
+Litera P, M, K, N, S albo H przy płytce w katalogu mówi, do jakiego materiału obrabianego przeznaczono gatunek. Podział pochodzi z normy ISO 513. Wybór grupy to pierwszy krok doboru płytki; potem wybiera się gatunek, geometrię i parametry z katalogu producenta.
+
+## Teoria \{#teoria}
+
+Sandvik Coromant dzieli materiały obrabiane na sześć grup o różnej skrawalności. Opisy grup według Sandvik Coromant i Mitsubishi Materials:
+
+* **P (stal):** od stali niestopowej do wysokostopowej, ze staliwem. Daje wiór ciągły. Stal niskowęglowa (poniżej 0,25% C) źle łamie wiór i tworzy narost na ostrzu. Według Mitsubishi Materials stal średnio- i wysokowęglowa zużywa ostrze głównie kraterowo.
+* **M (stal nierdzewna):** stal z co najmniej 12% chromu, często z niklem i molibdenem. Umacnia się podczas skrawania i słabo przewodzi ciepło. Typowe są narost i wyszczerbienie krawędzi w kształcie karbu, po którym na detalu zostaje zadzior. Mitsubishi Materials zaleca ostrą krawędź i duży kąt natarcia.
+* **K (żeliwo):** daje wiór krótki, łamliwy. Opór skrawania jest mniejszy niż w stali. Grafit w żeliwie szarym łamie wiór i tłumi drgania. Żeliwo sferoidalne daje wiór ciągły i pracuje się z nim podobnie jak ze stalą. Węglik krzemu w żeliwie ściera ostrze.
+* **N (metale nieżelazne):** aluminium, miedź, mosiądz i materiały niemetalowe. Według Sandvik Coromant ostre krawędzie pozwalają na duże prędkości skrawania i długą trwałość ostrza. Aluminium z około 13% krzemu silnie ściera ostrze.
+* **S (stopy żaroodporne i tytan):** stopy na bazie żelaza, niklu, kobaltu i tytanu. Są lepkie, tworzą narost, umacniają się i wytwarzają dużo ciepła. Ciepło zostaje w ostrzu, bo materiał słabo je przewodzi. Mitsubishi Materials zaleca ostrą geometrię i gatunek odporny na wysoką temperaturę.
+* **H (materiały hartowane):** stal o twardości 45–65 HRC i żeliwo zabielone o twardości 400–600 HB (Sandvik Coromant). Materiał silnie ściera ostrze i wytwarza ciepło. Mitsubishi Materials podkreśla sztywność narzędzia, uchwytu i maszyny.
+
+<Diagram id="tech-grupy-kc" />
+
+**Siła skrawania w grupach.** Właściwa siła skrawania kc1 to siła potrzebna do zebrania wióra o przekroju 1 mm × 1 mm. Według tabeli ISCAR metale nieżelazne mają kc1 700–800 N/mm², a materiały hartowane 4500–4700 N/mm². W grupie S rozrzut jest duży: tytan ma 1700–2110 N/mm², a stopy na bazie niklu i kobaltu 3300 N/mm².
+
+<Diagram id="tech-grupy-zastosowan" />
+
+**Numer grupy zastosowania.** W każdej grupie ISO 513 przewiduje numery od 01 w górę, np. P10 albo K30. Skala kończy się w różnych grupach na różnych numerach: w grupie P na P50, w grupie M na M40. Wyższy numer oznacza gatunek bardziej ciągliwy i mniej odporny na ścieranie. Norma opisuje zastosowanie, a nie konkretny gatunek producenta.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+Mitsubishi Materials podaje wzór na moc skrawania przy toczeniu:
+
+<Wzor f="P_c = \frac{a_p \cdot f \cdot v_c \cdot K_c}{60 \cdot 10^3 \cdot \eta}" legend="P_c — moc skrawania [kW]; a_p — głębokość skrawania [mm]; f — posuw na obrót [mm/obr]; v_c — prędkość skrawania [m/min]; K_c — właściwa siła skrawania dla danego posuwu [MPa]; \eta — sprawność maszyny" caption="Moc skrawania przy toczeniu" />
+
+W tabeli Mitsubishi Materials Kc zależy od posuwu. Dla stali miękkiej (wytrzymałość 520 MPa) Kc wynosi 3610 MPa przy f = 0,1 mm/obr i 3100 MPa przy f = 0,2 mm/obr. Dla żeliwa szarego (200 HB) jest to odpowiednio 2110 i 1800 MPa.
+
+Przykład rachunkowy (wartości przyjęte do rachunku, jak w przykładzie producenta): ap = 3 mm, f = 0,2 mm/obr, vc = 120 m/min, η = 0,8.
+
+<Wzor f="P_{c,P} = \frac{3 \cdot 0,2 \cdot 120 \cdot 3100}{60 \cdot 10^3 \cdot 0,8} = 4,65\ \text{kW} \\ P_{c,K} = \frac{3 \cdot 0,2 \cdot 120 \cdot 1800}{60 \cdot 10^3 \cdot 0,8} = 2,7\ \text{kW}" caption="Stal miękka (grupa P); Żeliwo szare (grupa K)" kind="obliczenie" />
+
+Przy tych samych parametrach żeliwo szare wymaga około 40% mniej mocy niż stal miękka. Moc do frezowania i wiercenia liczy kalkulator GCat.
+
+## Na co uważać \{#na-co-uważać}
+
+* **Ta sama stal w dwóch grupach:** po zahartowaniu stal przechodzi z grupy P do H. Sandvik Coromant podaje granicę około 48 HRC.
+* **Stal nierdzewna ferrytyczna i martenzytyczna:** ISO 513 i Sandvik Coromant zaliczają ją do grupy P (u Sandvik P5). W tabeli ISCAR według VDI 3323 stoi w grupach 12–13, razem ze stalą austenityczną. Przed doborem sprawdź, którą klasyfikację stosuje katalog.
+* **Grupa to nie gatunek:** litera i numer zawężają wybór, ale gatunek, łamacz wióra i parametry pochodzą z katalogu producenta.
+* **Wióry magnezu:** według Mitsubishi Materials mogą się zapalić. Producent zaleca obfite chłodziwo wodne i dobrą wentylację, bo w reakcji powstaje wodór.
+* **Kc i kc1 to nie to samo:** Mitsubishi Materials podaje Kc dla konkretnego posuwu, a ISCAR kc1 dla wióra grubości 1 mm. Cieńszy wiór daje większą wartość (hasło „kc — właściwy opór skrawania”).
