@@ -153,6 +153,7 @@ export const sources: Record<string, Source> = {
     id: "sandvik-plytka-tokarska", short: "Sandvik Coromant — dobór płytki tokarskiej", author: "Sandvik Coromant",
     title: "How to choose correct turning insert — dobór płytki tokarskiej (strona producenta)",
     url: "https://www.sandvik.coromant.com/en-gb/knowledge/general-turning/how-to-choose-correct-turning-insert", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki (wersje en-gb i en-us).",
   },
   "sandvik-kat-frezowanie": {
     id: "sandvik-kat-frezowanie", short: "Sandvik Coromant — kąt przystawienia i grubość wióra", author: "Sandvik Coromant",
@@ -611,6 +612,18 @@ export const sources: Record<string, Source> = {
     title: "Turning Indexable Inserts Identification System — katalog płytek tokarskich, s. B2",
     url: "https://asia.kyocera.com/products/cuttingtools/wp-content/uploads/2016/11/B.pdf", accessed: "11/2026",
     internal: "Z PDF czytelne tylko kształty i promienie naroża; tabele kątów i tolerancji rozsypane w tekście — nie używane.",
+  },
+  // V3.2b — kształt i promień naroża
+  "mmc-dobor-plytki-toczenie": {
+    id: "mmc-dobor-plytki-toczenie", short: "Mitsubishi Materials — dobór płytki do toczenia zewnętrznego", author: "Mitsubishi Materials",
+    title: "Basic Turning — kurs e-learningowy producenta, rozdział Insert selection for external turning (kształt, wielkość, promień naroża)",
+    url: "https://www.mmc-carbide.com/permanent/courses/75/internal-selection-for-external-turning.html", accessed: "11/2026",
+  },
+  "sandvik-problemy-toczenie": {
+    id: "sandvik-problemy-toczenie", short: "Sandvik Coromant — problemy przy toczeniu", author: "Sandvik Coromant",
+    title: "Troubleshooting in turning — kontrola wióra, chropowatość, zadziory (strona producenta)",
+    url: "https://www.sandvik.coromant.com/en-us/knowledge/general-turning/troubleshooting-turning", accessed: "11/2026",
+    internal: "Strona renderowana skryptem; zdania potwierdzone wynikiem wyszukiwarki.",
   },
 };
 

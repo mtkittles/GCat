@@ -1,0 +1,118 @@
+---
+title: Kształt płytki i promień naroża
+slug: ksztalt-i-promien-naroza
+dzial: plytki-iso
+typ: temat
+order: 20
+short: >-
+  Jak kąt naroża, wielkość płytki i promień naroża wpływają na wytrzymałość
+  ostrza, drgania, wiór i chropowatość — z wzorem na wysokość nierówności.
+obrobka:
+  - toczenie
+poziom: 1
+normy:
+  - ISO 1832
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: sandvik-plytka-tokarska
+    where: >-
+      duży kąt naroża — mocniejsza krawędź, większy posuw, większa siła
+      skrawania, więcej drgań; mały kąt naroża — lepszy dostęp, mniej drgań,
+      mniejsza siła, słabsza krawędź, większa wrażliwość na ciepło; wielkość
+      płytki (l, IC) z długości krawędzi w przyłożeniu i ap; możliwie duży
+      promień naroża dla wytrzymałości, mniejszy przy drganiach; promień nie
+      większy niż głębokość skrawania
+  - id: sandvik-jakosc-toczenie
+    where: >-
+      przy drganiach mniejszy promień naroża; ap większe niż promień naroża
+      zwiększa siłę osiową, zmniejsza promieniową i zapobiega drganiom; płytki
+      wiper — duży posuw bez utraty chropowatości
+  - id: sandvik-problemy-toczenie
+    where: >-
+      długi, niełamany wiór — m.in. za duży promień naroża, wybrać mniejszy;
+      wiór uderzający — m.in. za mały promień naroża, wybrać większy; zła
+      chropowatość — płytka wiper albo większy promień, mniejszy posuw
+  - id: mmc-dobor-plytki-toczenie
+    where: >-
+      romb 80° do obróbki zgrubnej i wykańczającej czół i średnic; romb 55° i
+      35° do kopiowania; kwadrat negatywowy — obie strony, osiem krawędzi,
+      najtańszy, ale nie do toczenia wzdłużnego i czoła jednym nożem; trójkąt —
+      wiele naroży, słabsza krawędź; trygon 80° — wiele naroży i mocna krawędź;
+      płytka okrągła — najmocniejsza krawędź i dobra powierzchnia, drgania przy
+      cienkich detalach; większa i grubsza płytka do obróbki ciężkiej; promień
+      naroża zwykle 0,4–1,2 mm; za duży promień — siła odporowa, walcowość,
+      drgania; mała głębokość — cieńszy wiór, narost; zmiana promienia na tej
+      samej oprawce wymaga korekty wymiaru
+  - id: mmc-wzory-toczenie
+    where: >-
+      h = f² / (8 · RE) · 1000 [µm]; przykład f = 0,2 mm/obr, RE = 0,8 mm → 6,25
+      µm
+powiazane:
+  kody:
+    - g40-g42
+  lekcje:
+    - T4.1
+    - T4.2
+  hasla:
+    - promień-naroża-płytki
+    - płytka-skrawająca
+    - rz-chropowatość
+    - posuw-na-obrót
+  artykuly:
+    - plytki-iso/oznaczenie-plytek-tokarskich
+    - narzedzia/noz-tokarski-zewnetrzny
+  kalkulator: true
+---
+Pierwsza litera oznaczenia płytki to jej kształt, a ostatnie dwie cyfry przed kreską — promień naroża. Te dwie cechy decydują o wytrzymałości ostrza, skłonności do drgań, kształcie wióra i chropowatości powierzchni. Dekoder pokazuje płytkę do kopiowania o małym kącie naroża:
+
+<DekoderISO kod="VBMT 160404" />
+
+## Teoria \{#teoria}
+
+<Diagram id="tech-plytki-ksztalty" />
+
+**Kąt naroża.** Według Sandvik Coromant duży kąt naroża daje mocniejszą krawędź i pozwala na większy posuw. Rośnie jednak siła skrawania i skłonność do drgań. Mały kąt naroża daje lepszy dostęp do konturu, mniejszą siłę i mniej drgań, ale krawędź jest słabsza i bardziej wrażliwa na ciepło.
+
+Mitsubishi Materials opisuje typowe zastosowania kształtów:
+
+* **Romb 80° (C):** toczenie zgrubne i wykańczające czół i średnic.
+* **Romb 55° (D) i 35° (V):** kopiowanie konturu.
+* **Kwadrat (S):** płytka negatywowa ma osiem krawędzi, po cztery z każdej strony, i w przeliczeniu na krawędź kosztuje mniej niż inne kształty. Jednym nożem nie toczy jednak wzdłużnie i czoła.
+* **Trójkąt (T):** wiele naroży, ale słabsza krawędź.
+* **Trygon 80° (W):** wiele naroży przy mocnej krawędzi, do mniejszych głębokości skrawania.
+* **Płytka okrągła (R):** krawędź mocniejsza niż w innych kształtach i dobra powierzchnia. Przy małych i cienkich detalach łatwo wpada w drgania.
+
+**Wielkość i grubość.** Sandvik Coromant dobiera długość krawędzi płytki z głębokości skrawania i kąta przystawienia, czyli z długości krawędzi w przyłożeniu. Mitsubishi Materials wskazuje płytki większe i grubsze do obróbki ciężkiej.
+
+**Promień naroża.** Typowe promienie w toczeniu to około 0,4–1,2 mm (Mitsubishi Materials). Duży promień wzmacnia ostrze i daje gładszą powierzchnię przy tym samym posuwie, ale zwiększa siłę odporową. Za duży promień według Mitsubishi Materials pogarsza walcowość i wywołuje drgania. Sandvik Coromant zaleca możliwie duży promień dla wytrzymałości, a przy drganiach — mniejszy.
+
+**Promień a głębokość skrawania.** Sandvik Coromant zaleca promień naroża nie większy niż głębokość skrawania. Głębokość większa od promienia zwiększa siłę osiową, zmniejsza promieniową i ogranicza drgania. Przy małej głębokości wiór staje się cienki, a według Mitsubishi Materials może powstać narost, który pogarsza powierzchnię.
+
+**Promień a wiór.** W tabeli problemów Sandvik Coromant długi, niełamany wiór ma wśród przyczyn za duży promień naroża. Wiór, który uderza w płytkę i ją wykrusza, ma wśród przyczyn za mały promień.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+<Diagram id="tech-naroze-nierownosci" />
+
+Naroże zostawia na powierzchni ślady w odstępach równych posuwowi. Mitsubishi Materials podaje wzór na ich teoretyczną wysokość:
+
+<Wzor f="h = \frac{f^2}{8 \cdot r_\varepsilon} \cdot 1000" legend="h — teoretyczna wysokość nierówności [\mu\text{m}]; f — posuw na obrót [mm/obr]; r_\varepsilon — promień naroża [mm]" caption="Wysokość nierówności" />
+
+Przykład rachunkowy (wartości przyjęte do rachunku): posuw f = 0,2 mm/obr i trzy promienie naroża.
+
+<Wzor f="h_{0,4} = \frac{0,2^2}{8 \cdot 0,4} \cdot 1000 = 12,5\ \mu\text{m} \\ h_{0,8} = \frac{0,2^2}{8 \cdot 0,8} \cdot 1000 = 6,25\ \mu\text{m} \\ h_{1,2} = \frac{0,2^2}{8 \cdot 1,2} \cdot 1000 \approx 4,2\ \mu\text{m}" caption="Promień 0,4 mm; Promień 0,8 mm; Promień 1,2 mm" kind="obliczenie" />
+
+Ten sam wzór przekształcony daje posuw dla zadanej wysokości nierówności. Przykład: h = 3,2 µm przy promieniu 0,8 mm.
+
+<Wzor f="f = \sqrt{\frac{8 \cdot r_\varepsilon \cdot h}{1000}} \\ f = \sqrt{\frac{8 \cdot 0,8 \cdot 3,2}{1000}} \approx 0,14\ \text{mm/obr}" caption="Wzór przekształcony; Posuw dla h = 3,2 µm" kind="obliczenie" />
+
+Dwukrotnie większy promień pozwala zwiększyć posuw około 1,4 raza przy tej samej wysokości nierówności, bo posuw rośnie z pierwiastkiem promienia.
+
+## Na co uważać \{#na-co-uważać}
+
+* **h to wartość teoretyczna:** wynik ze wzoru nie jest chropowatością Ra z rysunku. Zmierzoną powierzchnię pogarszają drgania, zużycie ostrza i narost.
+* **Większy promień to nie zawsze gładsza powierzchnia:** przy smukłym detalu albo małej głębokości skrawania rośnie siła odporowa i pojawiają się drgania. Sandvik Coromant zaleca wtedy mniejszy promień.
+* **Zmiana promienia na tej samej oprawce:** Mitsubishi Materials zwraca uwagę, że trzeba wtedy poprawić korekcję wymiaru. Przy G41/G42 zmienia się też promień R w tabeli korekcji (lekcje T4.1 i T4.2).
+* **Gładka powierzchnia przy dużym posuwie:** Sandvik Coromant proponuje płytkę wiper albo większy promień i mniejszy posuw. Wzór z tego artykułu nie dotyczy płytek wiper.
