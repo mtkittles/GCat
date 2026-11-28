@@ -107,6 +107,7 @@ const ATOMS: Record<string, { type: string; attrs: string[] }> = {
   Obraz: { type: "obraz", attrs: ["src", "alt", "caption"] },
   Widget: { type: "widget", attrs: ["id"] },
   Wzor: { type: "wzor", attrs: ["f", "legend", "caption", "kind"] },
+  DekoderISO: { type: "dekoderIso", attrs: ["kod"] },
 };
 
 const slice = (n: Nodes, src: string) => src.slice(n.position!.start.offset!, n.position!.end.offset!);
@@ -291,6 +292,7 @@ function toMdast(n: JSONContent): RootContent | null {
     case "obraz": return jsxBlock("Obraz", [["src", a.src], ["alt", a.alt], ["caption", a.caption]]);
     case "widget": return jsxBlock("Widget", [["id", a.id]]);
     case "wzor": return jsxBlock("Wzor", [["f", a.f], ["legend", a.legend], ["caption", a.caption], ["kind", a.kind]]);
+    case "dekoderIso": return jsxBlock("DekoderISO", [["kod", a.kod]]);
     default: return null;
   }
 }

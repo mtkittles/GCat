@@ -55,6 +55,7 @@ export const komponenty = {
     label: "Kalkulator / widżet",
     schema: { id: fields.select({ label: "Widżet", options: [{ label: "zamiana R ↔ I, J", value: "rij" }, { label: "łuk", value: "arc" }, { label: "ręczny przesuw (jog)", value: "jog" }], defaultValue: "rij" }) },
   }),
+  DekoderISO: block({ label: "Dekoder ISO 1832 (oznaczenie płytki)", schema: { kod: fields.text({ label: "Oznaczenie, np. CNMG 120408" }) } }),
   Table: wrapper({ label: "Tabela z podpisem", schema: { caption: fields.text({ label: "Podpis" }) } }),
   Wzor: block({
     label: "Wzór (LaTeX) / obliczenie",

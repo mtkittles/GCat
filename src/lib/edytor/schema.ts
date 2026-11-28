@@ -24,7 +24,7 @@ export const WIDGETS = ["rij", "arc", "jog"] as const;
 export const WIDGET_LABEL: Record<(typeof WIDGETS)[number], string> = { rij: "Kalkulator R ↔ I, J", arc: "Kalkulator łuku", jog: "Ręczny przesuw osi" };
 
 /** Bloki najwyższego poziomu, które pamiętają swoje źródło (oid). */
-export const TOP_TYPES = ["paragraph", "heading", "bulletList", "orderedList", "table", "note", "codeFig", "simFig", "demoFig", "diagram", "rys", "obraz", "widget", "raw"];
+export const TOP_TYPES = ["paragraph", "heading", "bulletList", "orderedList", "table", "note", "codeFig", "simFig", "demoFig", "diagram", "rys", "obraz", "widget", "dekoderIso", "raw"];
 
 const str = (name: string, def: string | null = "") => ({ default: def, parseHTML: (el: HTMLElement) => el.getAttribute(`data-${name}`) ?? def, renderHTML: (a: Record<string, unknown>) => (a[name] == null ? {} : { [`data-${name}`]: a[name] }) });
 
@@ -97,6 +97,8 @@ export const ObrazNode = atomBlock("obraz", { src: str("src"), alt: str("alt"), 
 export const WidgetNode = atomBlock("widget", { id: str("id", "rij") });
 /** <Wzor f legend caption kind> — wzór w ramce z legendą albo obliczenie (kind="obliczenie"); standard treści 2026-11-22 */
 export const WzorNode = atomBlock("wzor", { f: str("f"), legend: str("legend"), caption: str("caption"), kind: str("kind") });
+/** <DekoderISO kod> — oznaczenie płytki wg ISO 1832 z objaśnieniem znaków (V3.2a) */
+export const DekoderIsoNode = atomBlock("dekoderIso", { kod: str("kod", "CNMG 120408") });
 /** Blok, którego edytor nie zna — zostaje w pliku bez zmian (źródło MDX widoczne i edytowalne jako tekst). */
 export const RawNode = atomBlock("raw", { src: str("src") });
 
@@ -154,6 +156,7 @@ export function gcatExtensions(o: { placeholder?: string } = {}): AnyExtension[]
     ObrazNode,
     WidgetNode,
     WzorNode,
+    DekoderIsoNode,
     RawNode,
     GfmTable,
     TableRow,

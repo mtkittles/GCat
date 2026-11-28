@@ -8,6 +8,7 @@ import { motionClass } from "@/lib/motionClass";
 import { parseProgram } from "@/lib/parser";
 import { normLine, progHash } from "@/lib/progHash";
 import { WZOR_KINDS, captionError, parseLegend, texError, texPlain } from "@/components/Wzor";
+import { dekoduj } from "@/lib/iso1832";
 
 /*
   Plugin remark dla treści GCat (MDX):
@@ -225,6 +226,11 @@ export function remarkGcat(opts: GcatRemarkOptions) {
           if (k !== undefined && !(WZOR_KINDS as readonly unknown[]).includes(k)) at(n, `<Wzor kind="${String(k)}"> — dozwolone: ${WZOR_KINDS.join(", ")} (albo bez kind: ramka z legendą)`);
           const lg = strAttr(el, "legend");
           if (typeof lg === "string") for (const it of parseLegend(lg)) { const e = texError(it.sym); if (e) at(n, `<Wzor> legenda „${it.sym}”: błąd zapisu symbolu — ${e}`); }
+        }
+        if (el.name === "DekoderISO") {
+          const kod = strAttr(el, "kod");
+          if (typeof kod !== "string" || !kod.trim()) at(n, `<DekoderISO> wymaga kod="…" (np. CNMG 120408)`);
+          else { const e = dekoduj(kod).blad; if (e) at(n, `<DekoderISO kod="${kod}">: ${e}`); }
         }
         if (el.name === "Obraz") {
           const src = strAttr(el, "src");

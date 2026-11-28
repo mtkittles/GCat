@@ -1,0 +1,175 @@
+---
+title: Oznaczenie płytek tokarskich (ISO 1832)
+slug: oznaczenie-plytek-tokarskich
+dzial: plytki-iso
+typ: temat
+order: 10
+short: >-
+  Jak czytać oznaczenie płytki wymiennej, np. CNMG 120408: kształt, kąt
+  przyłożenia, tolerancja, otwór i łamacz, wielkość, grubość i naroże — z
+  dekoderem znaków.
+obrobka:
+  - toczenie
+poziom: 1
+normy:
+  - ISO 1832
+stan: szkic
+plan: free
+dodano: 2026-11-28
+sources:
+  - id: iso1832
+    where: >-
+      zakres normy; symbole obowiązkowe 5.1–5.7 (kształt, kąt przyłożenia, klasa
+      tolerancji, mocowanie i łamacz, wielkość, grubość, naroże), symbole
+      opcjonalne 6.2 (stan krawędzi) i 6.3 (kierunek posuwu); stany krawędzi E,
+      T, S, K, P
+    loc: spis treści DIN ISO 1832 (2017-02)
+  - id: iscar-poradnik-narzedzia
+    where: >-
+      siedem pierwszych symboli obowiązkowych; przykład CNMG 120404 — romb 80°,
+      kąt przyłożenia 0°, klasa M, otwór walcowy, łamacz z obu stron, wielkość
+      12 → 12,7 mm, grubość 04 → 4,76 mm, naroże 04 → 0,4 mm; oznaczenie łamacza
+      ISCAR F3P
+    loc: s. 68–70
+  - id: mmc-oznaczenie-plytek
+    where: >-
+      N — kąt przyłożenia 0°, płytka negatywowa, inny kąt — pozytywowa; klasa
+      tolerancji łączy tolerancje wysokości naroża m, okręgu wpisanego d i
+      grubości s; klasy A–J szlifowane (płytki „G”), K–U szlifowane tylko
+      powierzchnie górna i dolna (płytki „M”); w toczeniu głównie G (czasem J) i
+      M; w zapisie calowym okrąg 4/8 cala (12,70 mm) zapisuje się jako 4
+  - id: kennametal-plytki-oznaczenie
+    where: >-
+      kształty A 85°, C 80°, E 75°, H 120°, L, O 135°, R, S 90°, T 60°; kąty
+      przyłożenia A 3°, B 5°, C 7°, D 15°, E 20°, F 25°, G 30°, N 0°, P 11°;
+      otwór i łamacz (strona jedna albo obie, otwór walcowy, pogłębienie 40–60°
+      i 70–90°); grubości 02…07 i T3; promienie naroża 01…32 i M0; krawędź F
+      ostra, E zaokrąglona, T z fazką, S z fazką i zaokrąglona
+    loc: s. M28–M31
+  - id: kyocera-plytki-oznaczenie
+    where: >-
+      kształty B 82°, D 55°, F 50°, K 55° (równoległobok), M 86°, P pięciokąt, V
+      35°, W trygon 80°; naroże 00 — ostre; zapis calowy grubości w 1/16 cala i
+      promienia w 1/64 cala
+    loc: s. B2
+powiazane:
+  kody:
+    - g40-g42
+  lekcje:
+    - T4.1
+    - T4.2
+  hasla:
+    - płytka-skrawająca
+    - promień-naroża-płytki
+  artykuly:
+    - narzedzia/noz-tokarski-zewnetrzny
+    - narzedzia/geometria-ostrza
+  kalkulator: false
+---
+Każda płytka wymienna ma oznaczenie według ISO 1832, np. CNMG 120408. Cztery litery opisują kształt płytki, a cyfry jej wymiary. Z oznaczenia odczytuje się, czy płytka pasuje do oprawki i jaki ma promień naroża. Ten sam promień wpisuje się do korekcji narzędzia.
+
+<DekoderISO kod="CNMG 120408" />
+
+## Teoria \{#teoria}
+
+<Diagram id="tech-plytka-wymiary" />
+
+Na rysunku d to średnica okręgu wpisanego, l długość krawędzi skrawającej, rε promień naroża, s grubość, a α kąt przyłożenia.
+
+ISO 1832 ma siedem pozycji obowiązkowych i kilka opcjonalnych. Po kresce producent dopisuje własne oznaczenie łamacza wióra. Dalej opisano zapis metryczny płytek tokarskich.
+
+**1. Kształt.** Litera kształtu. Przy rombie i równoległoboku liczba w nazwie to kąt ostry naroża.
+
+<Table sort="true">
+  | Litera | Kształt       | Kąt naroża |
+  | ------ | ------------- | ---------- |
+  | C      | romb          | 80°        |
+  | D      | romb          | 55°        |
+  | V      | romb          | 35°        |
+  | E      | romb          | 75°        |
+  | M      | romb          | 86°        |
+  | F      | romb          | 50°        |
+  | A      | równoległobok | 85°        |
+  | B      | równoległobok | 82°        |
+  | K      | równoległobok | 55°        |
+  | T      | trójkąt       | 60°        |
+  | S      | kwadrat       | 90°        |
+  | W      | trygon        | 80°        |
+  | P      | pięciokąt     | 108°       |
+  | H      | sześciokąt    | 120°       |
+  | O      | ośmiokąt      | 135°       |
+  | L      | prostokąt     | 90°        |
+  | R      | okrągła       | brak       |
+</Table>
+
+**2. Kąt przyłożenia.** Litera N oznacza kąt przyłożenia 0°, czyli płytkę negatywową. Każdy inny kąt daje płytkę pozytywową (Mitsubishi Materials).
+
+<Table sort="true">
+  | Litera          | N  | A  | B  | C  | P   | D   | E   | F   | G   |
+  | --------------- | -- | -- | -- | -- | --- | --- | --- | --- | --- |
+  | Kąt przyłożenia | 0° | 3° | 5° | 7° | 11° | 15° | 20° | 25° | 30° |
+</Table>
+
+**3. Klasa tolerancji.** Litera łączy tolerancje trzech wymiarów: wysokości naroża m, średnicy okręgu wpisanego d i grubości s. Według Mitsubishi Materials klasy A–J są szlifowane na obwodzie i nazywa się je płytkami „G”. W klasach K–U szlifuje się tylko powierzchnię górną i dolną, a płytki nazywa się „M”. Na tokarkach używa się głównie klas G i M, czasem J. Wartości tolerancji zależą od wielkości płytki i podaje je tabela normy albo katalog.
+
+**4. Mocowanie i łamacz wióra.** Litera mówi, czy płytka ma otwór i jaki, oraz po ilu stronach ma łamacz wióra.
+
+| Litera | Otwór                 | Łamacz wióra      |
+| ------ | --------------------- | ----------------- |
+| N      | bez otworu            | bez łamacza       |
+| R      | bez otworu            | z jednej strony   |
+| F      | bez otworu            | z obu stron       |
+| A      | walcowy               | bez łamacza       |
+| M      | walcowy               | z jednej strony   |
+| G      | walcowy               | z obu stron       |
+| W      | z pogłębieniem 40–60° | bez łamacza       |
+| T      | z pogłębieniem 40–60° | z jednej strony   |
+| B      | z pogłębieniem 70–90° | bez łamacza       |
+| H      | z pogłębieniem 70–90° | z jednej strony   |
+| X      | wykonanie specjalne   | według producenta |
+
+Płytka z łamaczem z obu stron jest dwustronna: po zużyciu naroży z jednej strony można ją obrócić na drugą.
+
+**5. Wielkość.** Dwie cyfry od długości krawędzi skrawającej w milimetrach, bez części dziesiętnych. Przy płytce okrągłej od jej średnicy. ISCAR podaje dla CNMG 12… okrąg wpisany 12,7 mm.
+
+**6. Grubość.** Symbol grubości s. Litera T oznacza grubości pośrednie, np. T3.
+
+| Symbol        | 02   | 03   | T3   | 04   | 05   | 06   | 07   |
+| ------------- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+| Grubość \[mm] | 2,38 | 3,18 | 3,97 | 4,76 | 5,56 | 6,35 | 7,94 |
+
+**7. Naroże.** Promień naroża rε w dziesiątych częściach milimetra: 04 to 0,4 mm, 08 to 0,8 mm, 12 to 1,2 mm. Symbol 00 oznacza naroże ostre, a M0 płytkę okrągłą.
+
+**8. Stan krawędzi (opcjonalnie).** Krawędź ostra (F), zaokrąglona (E), z fazką (T) albo z fazką i zaokrąglona (S). Dalsze litery: z podwójną fazką (K), z podwójną fazką i zaokrąglona (P).
+
+**9. Kierunek posuwu (opcjonalnie).** Płytka prawa (R), lewa (L) albo neutralna (N).
+
+**10. Oznaczenie producenta.** Po kresce, np. CNMG 120408-MP. Każdy producent ma własny system: u ISCAR w CNMG 120404-F3P litera F oznacza łamacz głównie do obróbki wykańczającej, cyfra 3 obciążenie normalne, a P stal.
+
+## Wzór i przykład \{#wzór-i-przykład}
+
+Symbol wielkości liczy się od długości krawędzi, a katalog podaje zwykle średnicę okręgu wpisanego d. Przy płytce rombowej wysokość rombu równa się średnicy okręgu wpisanego, więc:
+
+<Wzor f="l = \frac{d}{\sin \varepsilon}" legend="l — długość krawędzi płytki rombowej [mm]; d — średnica okręgu wpisanego [mm]; \varepsilon — kąt naroża płytki [°]" caption="Długość krawędzi płytki rombowej" />
+
+Przykład dla trzech płytek (średnice okręgu wpisanego 12,7 i 9,525 mm, czyli 4/8 i 3/8 cala):
+
+<Wzor f="l_C = \frac{12,7}{\sin 80^\circ} \approx 12,9\ \text{mm} \\ l_D = \frac{9,525}{\sin 55^\circ} \approx 11,6\ \text{mm} \\ l_V = \frac{9,525}{\sin 35^\circ} \approx 16,6\ \text{mm}" caption="Romb 80° (CNMG 12…); Romb 55° (DCMT 11…); Romb 35° (VBMT 16…)" kind="obliczenie" />
+
+Symbol wielkości to część całkowita wyniku: 12, 11 i 16. Ten sam okrąg wpisany daje więc różne symbole wielkości przy różnych kształtach.
+
+**Zapis calowy (ANSI).** Płytka CNMG 120408 w zapisie calowym to CNMG 432. Cyfry oznaczają okrąg wpisany w ósmych częściach cala, grubość w szesnastych i promień naroża w sześćdziesiątych czwartych:
+
+<Wzor f="d = \frac{4}{8} \cdot 25,4 = 12,7\ \text{mm} \\ s = \frac{3}{16} \cdot 25,4 \approx 4,76\ \text{mm} \\ r_\varepsilon = \frac{2}{64} \cdot 25,4 \approx 0,79\ \text{mm}" caption="Okrąg wpisany; Grubość; Promień naroża" kind="obliczenie" />
+
+## Na co uważać \{#na-co-uważać}
+
+* **Symbol wielkości to nie średnica okręgu wpisanego:** CNMG 12… ma okrąg 12,7 mm, a DCMT 11… okrąg 9,525 mm.
+* **Litera M w trzeciej pozycji to klasa tolerancji:** nie ma związku z grupą materiałową M (stal nierdzewna) ani z łamaczem do obróbki średniej.
+* **Promień naroża z oznaczenia trafia do korekcji:** przy G41/G42 sterowanie liczy tor z promienia R i kierunku ostrza T w tabeli korekcji. Opisują to lekcje T4.1 i T4.2. Inny promień w tabeli niż na płytce zmienia fazy i łuki.
+* **Oznaczenie po kresce nie jest normą:** dwie płytki CNMG 120408 od różnych producentów różnią się łamaczem i zakresem posuwów. Zakres podaje katalog producenta.
+* **Zapis calowy i metryczny:** CNMG 432 i CNMG 120408 to ta sama płytka; promień 1/32 cala (0,79 mm) zapisuje się metrycznie jako 08.
+
+## W symulatorze \{#w-symulatorze}
+
+Komentarz przy wymianie narzędzia z kodem płytki, np. `T0101 (NOZ CNMG 120408)`, ustawia w symulatorze tokarki kształt płytki i promień naroża 0,8 mm. Przykład programu jest w artykule „Nóż tokarski zewnętrzny”.

@@ -143,6 +143,7 @@ export default function Toolbar({ editor, right }: { editor: Editor; right?: Rea
         <Btn icon="image" label="Obraz" onClick={() => insertBlock(editor, NEW.obraz())} />
         <Btn icon="wzor" label="Wzór" onClick={() => insertBlock(editor, NEW.wzor())} title="Wzór w ramce z legendą symboli" />
         <Btn icon="widget" label="Kalkulator" onClick={() => insertBlock(editor, NEW.widget())} title="Narzędzie interaktywne (kalkulator)" />
+        <Btn icon="widget" label="Dekoder ISO" onClick={() => insertBlock(editor, NEW.dekoderIso())} title="Oznaczenie płytki wg ISO 1832 z objaśnieniem znaków" />
       </div>
       <div className="rys-tools">
         <Btn icon="undo" label="Cofnij" disabled={!s.canUndo} onClick={() => c().undo().run()} title="Cofnij (Ctrl+Z)" />

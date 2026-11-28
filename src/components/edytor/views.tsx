@@ -6,7 +6,7 @@ import { useRef, useState } from "react";
 import { diagrams } from "@/components/diagrams";
 import Rys from "@/components/rys/Rys";
 import SimClient from "@/components/simulator/SimClient";
-import { Widget } from "@/lib/mdx/components";
+import { DekoderISO, Widget } from "@/lib/mdx/components";
 import WzorBlock from "@/components/Wzor";
 import { gcatExtensions, NOTE_LABEL, WIDGET_LABEL, type NoteKind } from "@/lib/edytor/schema";
 import { moveBlock } from "./blocks";
@@ -125,6 +125,15 @@ function WidgetView({ node, selected }: V) {
   );
 }
 
+function DekoderIsoView({ node, selected }: V) {
+  return (
+    <NodeViewWrapper className={`ed-atom ed-widget${selected ? " is-sel" : ""}`} data-drag-handle>
+      <Tag>Dekoder ISO 1832</Tag>
+      <div contentEditable={false}><DekoderISO kod={String(node.attrs.kod ?? "")} /></div>
+    </NodeViewWrapper>
+  );
+}
+
 function WzorView({ node, selected }: V) {
   const a = node.attrs as { f?: string; legend?: string; caption?: string; kind?: string };
   return (
@@ -151,7 +160,7 @@ function TermView({ node, selected }: V) {
 
 const VIEWS: Record<string, (p: V) => React.ReactNode> = {
   note: NoteView, codeFig: ProgramView, simFig: ProgramView, demoFig: ProgramView,
-  diagram: DiagramView, rys: RysView, obraz: ObrazView, widget: WidgetView, wzor: WzorView, raw: RawView, term: TermView,
+  diagram: DiagramView, rys: RysView, obraz: ObrazView, widget: WidgetView, dekoderIso: DekoderIsoView, wzor: WzorView, raw: RawView, term: TermView,
 };
 
 /* Kotwice nagłówków: nowy nagłówek (pusta kotwica) dostaje kotwicę z tekstu i śledzi tekst, dopóki autor jej nie zmieni. */

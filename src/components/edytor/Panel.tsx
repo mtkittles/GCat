@@ -16,6 +16,7 @@ import { usePendingCtx } from "./pending";
 import { TermPicker } from "./Toolbar";
 import WzorPole from "./WzorPole";
 import { captionError } from "@/components/Wzor";
+import { dekoduj } from "@/lib/iso1832";
 
 /*
   Panel po prawej (jak w rysowniku): Blok — właściwości bloku pod kursorem; Karta — wszystkie pola karty;
@@ -55,7 +56,7 @@ function BlockPanel({ editor }: { editor: Editor }) {
     selector: ({ editor: e }) => {
       const sel = e.state.selection;
       const node = sel instanceof NodeSelection ? sel.node : null;
-      const ctx = node && ["term", "diagram", "rys", "obraz", "widget", "wzor", "raw"].includes(node.type.name) ? { node, pos: sel.from }
+      const ctx = node && ["term", "diagram", "rys", "obraz", "widget", "wzor", "dekoderIso", "raw"].includes(node.type.name) ? { node, pos: sel.from }
         : around(e, ["codeFig", "simFig", "demoFig", "table", "note", "heading"]);
       const top = topBlock(e);
       return { ctx: ctx ? { type: ctx.node.type.name, attrs: ctx.node.attrs as Record<string, unknown>, pos: ctx.pos, text: ctx.node.textContent } : null, top: top ? top.node.type.name : null, inTable: e.isActive("table") };
@@ -136,6 +137,11 @@ function BlockPanel({ editor }: { editor: Editor }) {
     </Group>
   );
   else if (c?.type === "widget") body = <Group title="Narzędzie"><Seg label="Narzędzie" value={String(a.id)} options={WIDGETS.map((w) => [w, WIDGET_LABEL[w]] as [string, string])} onChange={(v) => set({ id: v })} /></Group>;
+  else if (c?.type === "dekoderIso") body = (
+    <Group title="Dekoder ISO">
+      <Text label="Oznaczenie płytki" mono value={String(a.kod ?? "")} placeholder="CNMG 120408" onChange={(v) => set({ kod: v })} hint={dekoduj(String(a.kod ?? "")).blad ?? "Zapis metryczny ISO 1832, np. CNMG 120408, DCMT 11T304, CNMG 120408-MP."} />
+    </Group>
+  );
   else if (c?.type === "wzor") body = (
     <Group title={a.kind === "obliczenie" ? "Obliczenie" : "Wzór"}>
       <Seg label="Rodzaj" value={a.kind === "obliczenie" ? "obliczenie" : "wzor"} options={[["wzor", "Wzór w ramce"], ["obliczenie", "Obliczenie"]]} onChange={(v) => set({ kind: v === "obliczenie" ? "obliczenie" : null })} />

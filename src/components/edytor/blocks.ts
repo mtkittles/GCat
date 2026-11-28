@@ -95,6 +95,7 @@ export const NEW: Record<string, () => JSONContent> = {
   rys: () => ({ type: "rys", attrs: { id: "" } }),
   obraz: () => ({ type: "obraz", attrs: { src: "", alt: "", caption: "" } }),
   widget: () => ({ type: "widget", attrs: { id: "rij" } }),
+  dekoderIso: () => ({ type: "dekoderIso", attrs: { kod: "CNMG 120408" } }),
   wzor: () => ({ type: "wzor", attrs: { f: "n = \\frac{1000 \\cdot V_c}{\\pi \\cdot D}", legend: "n — obroty wrzeciona [obr/min]; V_c — prędkość skrawania [m/min]; D — średnica [mm]", caption: "" } }),
 };
 
