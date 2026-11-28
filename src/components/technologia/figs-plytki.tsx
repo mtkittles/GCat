@@ -125,8 +125,78 @@ export function NoseScallops() {
   );
 }
 
+/* ================= kc1 w grupach materiałowych: zakresy z tabeli ISCAR (DIN/ISO 513, VDI 3323) ================= */
+export function GroupKc() {
+  const rows: { g: string; n: string; a: number; b: number }[] = [
+    { g: "P", n: "stal", a: 1350, b: 2500 },
+    { g: "M", n: "nierdzewna", a: 1875, b: 2150 },
+    { g: "K", n: "żeliwo", a: 1150, b: 1420 },
+    { g: "N", n: "nieżelazne", a: 700, b: 800 },
+    { g: "S", n: "żaroodporne, Ti", a: 1700, b: 3300 },
+    { g: "H", n: "hartowane", a: 4500, b: 4700 },
+  ];
+  const x0 = 104, x1 = 344, max = 5000, sx = (v: number) => x0 + ((x1 - x0) * v) / max, y0 = 34, dy = 26;
+  return (
+    <Fig id="tgk" code="kc1" title="Właściwa siła skrawania w grupach materiałów" h={222}
+      legend={[["acc", "zakres kc1 w grupie"]]}
+      caption={<>Dolna i górna wartość kc1 w każdej grupie według tabeli ISCAR; kc1 dla wióra 1 mm × 1 mm.</>}>
+      {() => (
+        <g>
+          {[0, 1000, 2000, 3000, 4000, 5000].map((v) => (
+            <g key={v}>
+              <line x1={sx(v)} y1={y0 - 10} x2={sx(v)} y2={y0 + dy * rows.length - 8} className="p-ext" />
+              <T x={sx(v)} y={y0 + dy * rows.length + 6} anchor="middle" cls="t-sm t-mut">{v}</T>
+            </g>
+          ))}
+          <T x={x1} y={y0 + dy * rows.length + 22} anchor="end" cls="t-sm t-mut">kc1 [N/mm²]</T>
+          {rows.map((r, i) => {
+            const y = y0 + i * dy;
+            return (
+              <g key={r.g}>
+                <T x={12} y={y + 4} cls="t-b">{r.g}</T>
+                <T x={28} y={y + 4} cls="t-sm t-mut">{r.n}</T>
+                <rect x={sx(r.a)} y={y - 6} width={Math.max(6, sx(r.b) - sx(r.a))} height={12} className="holder" />
+                <line x1={sx(r.a) + 1} y1={y} x2={sx(r.a) + Math.max(5, sx(r.b) - sx(r.a)) - 1} y2={y} className="p-acc thick" />
+              </g>
+            );
+          })}
+        </g>
+      )}
+    </Fig>
+  );
+}
+
+/* ================= grupy zastosowań 01…50: odporność na ścieranie a ciągliwość (ISO 513) ================= */
+export function ApplicationScale() {
+  const x0 = 30, x1 = 330, y = 82, nums = ["01", "10", "20", "30", "40", "50"];
+  const sx = (i: number) => x0 + ((x1 - x0) * i) / (nums.length - 1);
+  return (
+    <Fig id="tgs" code="P01…P50" title="Numer grupy zastosowania" h={128}
+      legend={[["acc", "kierunek zmiany cechy"]]}
+      caption={<>Przykład dla grupy P (od P01 do P50); w innych grupach skala kończy się na innym numerze, np. M40.</>}>
+      {(c) => (
+        <g>
+          <line x1={x0} y1={y} x2={x1} y2={y} className="p-con" />
+          {nums.map((n, i) => (
+            <g key={n}>
+              <line x1={sx(i)} y1={y - 6} x2={sx(i)} y2={y + 6} className="p-con" />
+              <T x={sx(i)} y={y + 22} anchor="middle" cls="t-sm">{`P${n}`}</T>
+            </g>
+          ))}
+          <line x1={170} y1={40} x2={x0} y2={40} className="p-acc" markerEnd={c.a("acc")} />
+          <T x={x0} y={30} cls="t-sm t-acc">odporność na ścieranie</T>
+          <line x1={190} y1={40} x2={x1} y2={40} className="p-acc" markerEnd={c.a("acc")} />
+          <T x={x1} y={30} anchor="end" cls="t-sm t-acc">ciągliwość</T>
+        </g>
+      )}
+    </Fig>
+  );
+}
+
 export const plytkiFigs: Record<string, () => ReactNode> = {
   "tech-plytka-wymiary": () => <InsertDims />,
   "tech-plytki-ksztalty": () => <InsertShapes />,
   "tech-naroze-nierownosci": () => <NoseScallops />,
+  "tech-grupy-kc": () => <GroupKc />,
+  "tech-grupy-zastosowan": () => <ApplicationScale />,
 };
